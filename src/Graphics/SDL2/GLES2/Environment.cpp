@@ -335,31 +335,45 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             window_instance.getPosition().x, window_instance.getPosition().y,
             window_instance.getDimensions().x, window_instance.getDimensions().y,
             flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, GLES2_SDL_GL_CONTEXT_SETTING);
-        SDL_GL_SetSwapInterval(0);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-        window_internal_p->GL_context = SDL_GL_CreateContext( window_internal_p->window_p );
-        SDL_CreateRenderer( window_internal_p->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
-
-        // TODO Find a way for the user to turn the extensions off by command parameter.
-        if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
+        
+        if( window_internal_p->window_p != nullptr )
         {
-            auto number = Graphics::SDL2::GLES2::Internal::getGlobalExtension()->loadAllExtensions();
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, GLES2_SDL_GL_CONTEXT_SETTING);
+            SDL_GL_SetSwapInterval(0);
+            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-            std::cout << "Number of Extensions is " << number << std::endl;
-            std::cout << "The available ones are " << std::endl;
-            number = Graphics::SDL2::GLES2::Internal::Extensions::printAvailableExtensions( std::cout );
-            std::cout << std::endl << "Which is " << number << std::endl;
+            window_internal_p->GL_context = SDL_GL_CreateContext( window_internal_p->window_p );
+            
+            if( window_internal_p->GL_context != nullptr )
+            {
+                // TODO Find a way for the user to turn the extensions off by command parameter.
+                if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
+                {
+                    auto number = Graphics::SDL2::GLES2::Internal::getGlobalExtension()->loadAllExtensions();
 
-            std::cout << std::hex << "Vertex binding is 0x" << Graphics::SDL2::GLES2::Internal::getGlobalExtension()->vertexArrayBindingStatus() << std::dec << std::endl;
+                    std::cout << "Number of Extensions is " << number << std::endl;
+                    std::cout << "The available ones are " << std::endl;
+                    number = Graphics::SDL2::GLES2::Internal::Extensions::printAvailableExtensions( std::cout );
+                    std::cout << std::endl << "Which is " << number << std::endl;
+
+                    std::cout << std::hex << "Vertex binding is 0x" << Graphics::SDL2::GLES2::Internal::getGlobalExtension()->vertexArrayBindingStatus() << std::dec << std::endl;
+                }
+                return 1;
+            }
+            else
+            {
+                std::cout << "SDL_GL_CreateContext ERROR: " << SDL_GetError() << std::endl; 
+                return -2;
+            }
         }
-
-        return 1;
+        else
+        {
+            std::cout << "SDL_CreateWindow ERROR: " << SDL_GetError() << std::endl; 
+            return -1;
+        }
     }
     else
         return 0;
