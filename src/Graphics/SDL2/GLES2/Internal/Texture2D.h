@@ -1,8 +1,7 @@
 #ifndef GL_TEXTURE_3591_INCLUDE
 #define GL_TEXTURE_3591_INCLUDE
 
-#define GL_GLEXT_PROTOTYPES 1
-#include <SDL2/SDL_opengles2.h>
+#include "GLES2.h"
 
 #include <string>
 

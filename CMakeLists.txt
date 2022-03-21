@@ -6,7 +6,6 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -pthread ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/SDL2")
 
 add_library(FC_IFF_IO SHARED ./src/Utilities/DataTypes.cpp ./src/Utilities/DataHandler.cpp ./src/Utilities/Buffer.cpp ./src/Utilities/Math.cpp ./src/Utilities/ImageData.cpp ./src/Utilities/ModelBuilder.cpp ./src/Data/Mission/Resource.cpp ./src/Data/Mission/ACT/Prop.cpp ./src/Data/Mission/ACT/Unknown.cpp ./src/Data/Mission/ACTResource.cpp ./src/Data/Mission/ACTManager.cpp ./src/Data/Mission/ACT/Internal/Hash.cpp ./src/Data/Mission/UnkResource.cpp ./src/Data/Mission/PYRResource.cpp ./src/Data/Mission/Til/Colorizer.cpp ./src/Data/Mission/Til/Mesh.cpp ./src/Data/Mission/TilResource.cpp ./src/Data/Mission/NetResource.cpp ./src/Data/Mission/PTCResource.cpp ./src/Data/Mission/SNDSResource.cpp ./src/Data/Mission/MSICResource.cpp ./src/Data/Mission/ANMResource.cpp ./src/Data/Mission/BMPResource.cpp ./src/Data/Mission/FontResource.cpp ./src/Data/Mission/ObjResource.cpp ./src/Data/Mission/WAVResource.cpp ./src/Data/Mission/IFF.cpp ./src/Data/Manager.cpp )
 
@@ -25,7 +24,7 @@ include_directories(${OPENGL_LIBRARIES})
 target_link_libraries (FC_IFF_IO PRIVATE ${ZLIB_LIBRARY})
 target_link_libraries (FC_IFF_IO PRIVATE ${PNG_LIBRARIES})
 target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
-target_link_libraries(FC_IFF_IO PRIVATE stdc++fs)
+# target_link_libraries(FC_IFF_IO PRIVATE stdc++fs)
 
 add_executable( FCMissionReader ./src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )

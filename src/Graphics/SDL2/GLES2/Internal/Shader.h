@@ -1,8 +1,7 @@
 #ifndef GL_SHADER_4853_INCLUDE
 #define GL_SHADER_4853_INCLUDE
 
-#define GL_GLEXT_PROTOTYPES 1
-#include <SDL2/SDL_opengles2.h>
+#include "GLES2.h"
 
 namespace Graphics {
 namespace SDL2 {
