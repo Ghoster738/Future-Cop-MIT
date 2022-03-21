@@ -349,6 +349,11 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             
             if( window_internal_p->GL_context != nullptr )
             {
+                // TODO check for the reason why GLES2 needs this? Am I doing something wrong?
+                #ifndef FORCE_FULL_OPENGL_2
+                SDL_CreateRenderer( window_internal_p->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
+                #endif
+
                 // TODO Find a way for the user to turn the extensions off by command parameter.
                 if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
                 {
