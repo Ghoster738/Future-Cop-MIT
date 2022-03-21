@@ -24,9 +24,9 @@ The files from Future Cop: LAPD. I did not provide those files because they are 
 
 &ensp; I only compiled this for the Linux operating system using g++.
 
-&ensp; This project does not compile with the M1 MacOS operating system yet.
+&ensp; This project partially compiles with the M1 MacOS operating system, but there is a compilation error for the graphics. For the MacOS now lacks OpenGLES 2.
 
-&ensp; I also did not make a Windows port.
+&ensp; The Windows port is planned.
 
 ## For the Mission Reader
 
@@ -50,9 +50,9 @@ This source code requires C++ 11. It compiles fine using the G++ compiler. The l
 
 &ensp; __ACT__: I think this holds the "actors" of the game. As of now only one type of act can be read. More will come.
 
-&ensp; __ANM__: This is the animated 64x48 images. It is only used in Crime War in Future Cop what for some reason.
+&ensp; __ANM__: This is the animated 64x48 images. It is only used in Crime War in Future Cop for some reason.
 
-&ensp; __BMP__: This holds the textures. However, there is still things I do understand about the Windows and Mac format.
+&ensp; __BMP__: This holds the textures. However, there is still things I do not understand about the Windows and Mac format.
 
 &ensp; __FNTP__: This holds the font resource. However, I want to redo this code because it is terrible. Only the windows version works, and I do not know why!
 
