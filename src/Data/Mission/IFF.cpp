@@ -21,6 +21,7 @@
 
 #include <fstream>
 #include <algorithm>
+#include <cstring> // std::strerror
 #include <iostream>
 
 namespace {

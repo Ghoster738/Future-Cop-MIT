@@ -66,7 +66,7 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
             root["RSL"][ i ]["index"] = rsl_data[ i ].index;
     }
 
-    root["resource"]["id"] = this->matching_number;
+    root["resource"]["id"] = static_cast<unsigned int>( this->matching_number );
 
     if( tSAC.exists ) {
         root["SAC"]["unk_0"] = tSAC.unk_0;
