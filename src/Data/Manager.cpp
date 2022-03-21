@@ -40,8 +40,10 @@ Data::Manager::IFFEntry::IFFEntry() : paths(), iff_p(),
         this->iff_p[ i ] = nullptr;
 }
 
-Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths( obj.paths ),
+Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths(),
                                    iff_p(), importance( obj.importance ) {
+    for( unsigned i = 0; i < Platform::ALL; i++ )
+        this->paths[ i ] = obj.paths[ i ];
     for( unsigned i = 0; i < Platform::ALL; i++ )
         this->iff_p[ i ] = obj.iff_p[ i ];
 }
