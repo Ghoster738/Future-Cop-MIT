@@ -18,25 +18,29 @@ Graphics::SDL2::GLES2::Internal::Extensions extensions = Graphics::SDL2::GLES2::
  * @return The number of extensions avialible.
  */
 inline int getNumberOfExtensionCount( const GLubyte* extensions ) {
-    int number_of_extensions = 0;
-    const GLubyte* i = extensions;
+    if( extensions != nullptr )
+    {
+        int number_of_extensions = 0;
+        const GLubyte* i = extensions;
+        // Let us not assume that there are spaces at the beginning.
 
-    // Let us not assume that there are spaces at the beginning.
+        // Count the amount of spaces between the words.
+        // This will either get a number between (word_amount - 1) or
+        // word_amount.
+        for( i = extensions; *i != '\0'; i++ )
+            number_of_extensions += (*i == ' ');
 
-    // Count the amount of spaces between the words.
-    // This will either get a number between (word_amount - 1) or
-    // word_amount.
-    for( i = extensions; *i != '\0'; i++ )
-        number_of_extensions += (*i == ' ');
+        // This counts just in case there is a word that is not ended with a space.
+        if( i - extensions > 0 ) { // Bounds checking is always a good idea.
+            // If a non space character is before the null terminator,
+            // then increment number_of_extensions.
+            number_of_extensions += (*(i - 1) != ' ');
+        }
 
-    // This counts just in case there is a word that is not ended with a space.
-    if( i - extensions > 0 ) { // Bounds checking is always a good idea.
-        // If a non space character is before the null terminator,
-        // then increment number_of_extensions.
-        number_of_extensions += (*(i - 1) != ' ');
+        return number_of_extensions;
     }
-
-    return number_of_extensions;
+    else
+        return -1;
 }
 
 Graphics::SDL2::GLES2::Internal::BITFIELD getBitField( const GLchar *const name, const std::vector<std::string> *const sorted_extensions ) {
@@ -92,36 +96,41 @@ int Graphics::SDL2::GLES2::Internal::Extensions::loadAllExtensions() {
 
     const int EXTENSIONS_AMOUNT = getNumberOfExtensionCount( extensions );
 
-    extensions_array->reserve( EXTENSIONS_AMOUNT );
+    if( EXTENSIONS_AMOUNT > 0 )
+    {
+        extensions_array->reserve( EXTENSIONS_AMOUNT );
 
-    int start = 0;
-    int end = 0;
+        int start = 0;
+        int end = 0;
 
-    for( int i = 0; i < EXTENSIONS_AMOUNT; i++ ) {
-        for( ; extensions[ end ] != ' ' && extensions[ end ] != '\0'; end++ ) {}
+        for( int i = 0; i < EXTENSIONS_AMOUNT; i++ ) {
+            for( ; extensions[ end ] != ' ' && extensions[ end ] != '\0'; end++ ) {}
 
-        extensions_array->push_back( std::string( reinterpret_cast<const char*>(extensions + start), end - start ) );
+            extensions_array->push_back( std::string( reinterpret_cast<const char*>(extensions + start), end - start ) );
 
-        end++;
-        start = end;
+            end++;
+            start = end;
+        }
+
+        // Now sort all the extensions.
+        std::sort( extensions_array->begin(), extensions_array->end() );
+
+        // Finally, we can begin checking for extensions.
+
+        // This counts the extensions that will be enabled.
+        int extensions_used = 0;
+        ES2_compatibility_extensions = getBitField( "ES2_compatibility_extensions", extensions_array );
+        extensions_used += (ES2_compatibility_extensions != 0);
+        vertex_array_object_extensions = getBitField( "vertex_array_object", extensions_array );
+        extensions_used += (vertex_array_object_extensions != 0);
+
+        // Extensions is not needed anymore.
+        delete extensions_array;
+
+        return extensions_used;
     }
-
-    // Now sort all the extensions.
-    std::sort( extensions_array->begin(), extensions_array->end() );
-
-    // Finally, we can begin checking for extensions.
-
-    // This counts the extensions that will be enabled.
-    int extensions_used = 0;
-    ES2_compatibility_extensions = getBitField( "ES2_compatibility_extensions", extensions_array );
-    extensions_used += (ES2_compatibility_extensions != 0);
-    vertex_array_object_extensions = getBitField( "vertex_array_object", extensions_array );
-    extensions_used += (vertex_array_object_extensions != 0);
-
-    // Extensions is not needed anymore.
-    delete extensions_array;
-
-    return extensions_used;
+    else
+        return -1;
 }
 
 void Graphics::SDL2::GLES2::Internal::Extensions::loadNoExtensions() {
@@ -139,7 +148,10 @@ void Graphics::SDL2::GLES2::Internal::Extensions::loadNoExtensions() {
 int Graphics::SDL2::GLES2::Internal::Extensions::printAvailableExtensions( std::ostream &output ) {
     const GLubyte* extensions = glGetString( GL_EXTENSIONS );
 
-    output << extensions << std::endl;
+    if( extensions != nullptr )
+        output << extensions << std::endl;
+    else
+        output << "There are no extensions as glGetString( GL_EXTENSIONS ) is nullptr" << std::endl;
 
     return getNumberOfExtensionCount( extensions );
 }
