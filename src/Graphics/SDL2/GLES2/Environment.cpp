@@ -330,6 +330,16 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_p->getInternalData() );
 
         // TODO modify variable flags ask for what kind of window to allocate.
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        
+        #ifndef GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, GLES2_SDL_GL_CONTEXT_SETTING);
+        #endif GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
+        
+        SDL_GL_SetSwapInterval(0);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
         window_internal_p->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
             window_instance.getPosition().x, window_instance.getPosition().y,
@@ -338,26 +348,45 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         
         if( window_internal_p->window_p != nullptr )
         {
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, GLES2_SDL_GL_CONTEXT_SETTING);
-            SDL_GL_SetSwapInterval(0);
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
             window_internal_p->GL_context = SDL_GL_CreateContext( window_internal_p->window_p );
+            
+            GLenum err;
+            while((err = glGetError()) != GL_NO_ERROR)
+            {
+                std::cout << "GL_ERROR 351: 0x" << std::hex << err << std::dec << std::endl;
+            }
             
             if( window_internal_p->GL_context != nullptr )
             {
+                SDL_GL_MakeCurrent( window_internal_p->window_p, window_internal_p->GL_context );
+                
                 // TODO check for the reason why GLES2 needs this? Am I doing something wrong?
                 #ifndef FORCE_FULL_OPENGL_2
                 SDL_CreateRenderer( window_internal_p->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
                 #endif
+                
+                while((err = glGetError()) != GL_NO_ERROR)
+                {
+                    std::cout << "GL_ERROR 363: 0x" << std::hex << err << std::dec << std::endl;
+                }
 
                 // TODO Find a way for the user to turn the extensions off by command parameter.
                 if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
                 {
+                    while((err = glGetError()) != GL_NO_ERROR)
+                    {
+                        std::cout << "GL_ERROR 371: 0x" << std::hex << err << std::dec << std::endl;
+                    }
+                    
                     auto number = Graphics::SDL2::GLES2::Internal::getGlobalExtension()->loadAllExtensions();
+                    
+                    if( number < 0 )
+                    {
+                        while((err = glGetError()) != GL_NO_ERROR)
+                        {
+                            std::cout << "GL_ERROR 380: 0x" << std::hex << err << std::dec << std::endl;
+                        }
+                    }
 
                     std::cout << "Number of Extensions is " << number << std::endl;
                     std::cout << "The available ones are " << std::endl;
@@ -366,6 +395,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
 
                     std::cout << std::hex << "Vertex binding is 0x" << Graphics::SDL2::GLES2::Internal::getGlobalExtension()->vertexArrayBindingStatus() << std::dec << std::endl;
                 }
+                
                 return 1;
             }
             else
