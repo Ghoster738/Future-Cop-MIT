@@ -350,6 +350,8 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         {
             window_internal_p->GL_context = SDL_GL_CreateContext( window_internal_p->window_p );
             
+            std::cout << "OpenGL version is " << glGetString( GL_VERSION ) << std::endl;
+            
             GLenum err;
             while((err = glGetError()) != GL_NO_ERROR)
             {
