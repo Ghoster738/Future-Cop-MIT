@@ -54,6 +54,8 @@ void Graphics::SDL2::GLES2::Internal::Program::setFragmentShader( Graphics::SDL2
 bool Graphics::SDL2::GLES2::Internal::Program::link() {
     GLint program_linked_status;
     
+    glLinkProgram( shader_program );
+    
     glGetProgramiv( shader_program, GL_LINK_STATUS, &program_linked_status);
     
     return program_linked_status == 1;
