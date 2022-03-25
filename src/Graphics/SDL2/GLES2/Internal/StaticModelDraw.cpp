@@ -32,7 +32,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   eye_coord_normal        = normalize( eye_coord_normal );\n"
     "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
     // Find a way to use the spherical projection properly.
-    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0f));\n"
+    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
     "   specular = _Specular\n;"
