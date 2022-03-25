@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath> // fmod()
+#include <iostream> // fmod()
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
     // Inputs
@@ -123,19 +124,30 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
         program.setVertexShader( &vertex_shader );
         program.setFragmentShader( &fragment_shader );
 
-        // Link the shader
-        program.link();
+        // Attempt to link the shader
+        if( program.link() )
+        {
+            // Setup the uniforms for the map.
+            diffusive_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
+            sepecular_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Shine" );
+            texture_offset_uniform_id    = glGetUniformLocation( program.getProgramID(), "TextureTranslation" );
 
-        // Setup the uniforms for the map.
-        diffusive_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
-        sepecular_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Shine" );
-        texture_offset_uniform_id    = glGetUniformLocation( program.getProgramID(), "TextureTranslation" );
+            matrix_uniform_id = glGetUniformLocation(   program.getProgramID(), "Transform" );
+            view_uniform_id = glGetUniformLocation(     program.getProgramID(), "ModelView" );
+            view_inv_uniform_id = glGetUniformLocation( program.getProgramID(), "ModelViewInv" );
 
-        matrix_uniform_id = glGetUniformLocation(   program.getProgramID(), "Transform" );
-        view_uniform_id = glGetUniformLocation(     program.getProgramID(), "ModelView" );
-        view_inv_uniform_id = glGetUniformLocation( program.getProgramID(), "ModelViewInv" );
-
-        return 1;
+            return 1;
+        }
+        else
+        {
+            std::cout << "StaticModelDraw program has failed to compile" << std::endl;
+            std::cout << program.getInfoLog() << std::endl;
+            std::cout << "Vertex shader log" << std::endl;
+            std::cout << vertex_shader.getInfoLog() << std::endl;
+            std::cout << "Fragment shader log" << std::endl;
+            std::cout << fragment_shader.getInfoLog() << std::endl;
+            return 0;
+        }
     }
     else
     {

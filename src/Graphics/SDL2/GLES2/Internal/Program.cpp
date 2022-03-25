@@ -51,8 +51,45 @@ void Graphics::SDL2::GLES2::Internal::Program::setFragmentShader( Graphics::SDL2
     fragment_ref = setShader( new_fragment_reference, fragment_ref );
 }
 
-void Graphics::SDL2::GLES2::Internal::Program::link() {
-    glLinkProgram( shader_program );
+bool Graphics::SDL2::GLES2::Internal::Program::link() {
+    GLint program_linked_status;
+    
+    glGetProgramiv( shader_program, GL_LINK_STATUS, &program_linked_status);
+    
+    return program_linked_status == 1;
+}
+
+std::string Graphics::SDL2::GLES2::Internal::Program::getInfoLog() const {
+    std::string returnry;
+    GLchar *temporary_string_p;
+    GLint info_length;
+    GLsizei actual_info_length;
+    
+    glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &info_length);
+    
+    if( info_length > 0 )
+    {
+        temporary_string_p = new GLchar [ info_length ];
+        
+        if( temporary_string_p != nullptr )
+        {
+            returnry.reserve( info_length );
+            
+            glGetProgramInfoLog(shader_program, info_length, &actual_info_length, temporary_string_p );
+            
+            for( GLsizei a = 0; a < actual_info_length; a++ ) {
+                returnry.push_back( temporary_string_p[ a ] );
+            }
+            
+            delete [] temporary_string_p;
+        }
+        else
+            returnry = "getInfoLog has ran out of memory?";
+    }
+    else
+        returnry = "There is no error log. Hopefully, the shaders have the error log.";
+    
+    return returnry;
 }
 
 void Graphics::SDL2::GLES2::Internal::Program::use() {

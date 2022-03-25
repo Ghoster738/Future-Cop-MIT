@@ -71,3 +71,35 @@ void Graphics::SDL2::GLES2::Internal::Shader::deallocate() {
     shader_type = EMPTY;
     shader_id = 0;
 }
+std::string Graphics::SDL2::GLES2::Internal::Shader::getInfoLog() const {
+    std::string returnry;
+    GLchar *temporary_string_p;
+    GLint info_length;
+    GLsizei actual_info_length;
+    
+    glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &info_length);
+    
+    if( info_length > 0 )
+    {
+        temporary_string_p = new GLchar [ info_length ];
+        
+        if( temporary_string_p != nullptr )
+        {
+            returnry.reserve( info_length );
+            
+            glGetShaderInfoLog(shader_id, info_length, &actual_info_length, temporary_string_p );
+            
+            for( GLsizei a = 0; a < actual_info_length; a++ ) {
+                returnry.push_back( temporary_string_p[ a ] );
+            }
+            
+            delete [] temporary_string_p;
+        }
+        else
+            returnry = "shader's getInfoLog has ran out of memory?";
+    }
+    else
+        returnry = "This shader has no info log.";
+    
+    return returnry;
+}

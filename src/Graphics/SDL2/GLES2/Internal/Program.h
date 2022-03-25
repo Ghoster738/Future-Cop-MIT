@@ -2,6 +2,7 @@
 #define GL_PROGRAM_8742_INCLUDE
 
 #include "Shader.h"
+#include <string>
 
 namespace Graphics {
 namespace SDL2 {
@@ -86,8 +87,15 @@ public:
     /**
      * This completes the process of allocating the program by settting it to link with all of the shaders.
      * @warning Call this method after allocate() and set*Shader() or else this program will not work properly.
+     * @return If the shader is successfully linked then this would return true.
      */
-    void link();
+    bool link();
+    
+    /**
+     * This gets the any log that the program has.
+     * @return The error log if there is any.
+     */
+    std::string getInfoLog() const;
 
     /**
      * Set the pipeline to use this as a shader.

@@ -2,6 +2,7 @@
 #define GL_SHADER_4853_INCLUDE
 
 #include "GLES2.h"
+#include <string>
 
 namespace Graphics {
 namespace SDL2 {
@@ -63,6 +64,12 @@ public:
      * @warning After this command this class will lose access to the OpenGL shader in memory.
      */
     void deallocate();
+    
+    /**
+     * This gets the compliation errors from the shader.
+     * @return The error log if there is any.
+     */
+    std::string getInfoLog() const;
 
     /**
      * This returns the OpenGL access for the shader, or zero in which it is most likely not allocated.
