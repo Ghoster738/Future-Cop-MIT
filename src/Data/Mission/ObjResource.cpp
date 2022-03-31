@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <cassert>
 
 namespace {
     char LITTLE_4DGI[] = {'I','G','D','4'};
@@ -21,7 +22,7 @@ namespace {
     char LITTLE_3DAL[] = {'L','A','D','3'}; // 3D array list?
     char LITTLE_4DVL[] = {'L','V','D','4'}; // 4D vertex list (Note: Ignore the 4D data).
     char LITTLE_4DNL[] = {'L','N','D','4'}; // 4D normal list
-    char LITTLE_AnmD[] = {'D','m','n','A'}; // Animation track data?
+    char LITTLE_AnmD[] = {'D','m','n','A'}; // Animation track data
     char LITTLE_3DBB[] = {'B','B','D','3'}; // 3D bounding box?
 
     const auto INTEGER_FACTOR = 1.0 / 256.0;
@@ -152,6 +153,7 @@ Data::Mission::ObjResource::ObjResource() {
 }
 
 Data::Mission::ObjResource::ObjResource( const ObjResource &obj ) : ModelResource( obj ) {
+    this->bounding_box_frames = 0;
     this->bone_frames = 0;
     this->max_bone_childern = 0;
     this->bone_animation_data = nullptr;
@@ -654,7 +656,18 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DBB ) ) {
-
+            bounding_box_per_frame = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
+            if( bounding_box_per_frame > 7 || bounding_box_per_frame < 1 )
+                *settings.output_ref << "Mission::ObjResource::load() 3DBB unexpected number at beginning! " << bounding_box_per_frame << std::endl;
+            
+            // This is a proof by exhastion example of the first numbers that appears in the 3DBB chunk.
+            // Numbers 1 through 7 appears throughout the English version of Future Cop on the ps1, Mac, and Windows.
+            // I could of used the greater and less thans, but this would not show that the numbers are every number that is 1, 2, 3, 4, 5, 6, 7
+            // This might be a bit field of some kind, this is most likely something like the number of bounding boxes.
+            assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
+            
+            start_data += sizeof( uint32_t );
+            bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
         }
         else
         {
@@ -684,6 +697,15 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
     if( bytes_per_frame_3DMI > 0 )
     {
         this->bone_frames = this->bone_animation_data_size / (bytes_per_frame_3DMI / 2);
+        
+        if( bounding_box_frames != bone_frames && bounding_box_frames + 1 != bone_frames)
+        {
+            *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+            *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
+            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
+            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << bone_frames << std::endl;
+        }
+        assert( (bounding_box_frames == bone_frames) | (bounding_box_frames + 1 == bone_frames) );
     }
 
     return !file_is_not_valid;
