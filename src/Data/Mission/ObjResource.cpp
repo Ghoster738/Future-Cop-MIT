@@ -657,17 +657,42 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         else
         if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DBB ) ) {
             bounding_box_per_frame = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            if( bounding_box_per_frame > 7 || bounding_box_per_frame < 1 )
+            if( bounding_box_per_frame >= 1 )
+            {
+                // This is a proof by exhastion example of the first numbers that appears in the 3DBB tag.
+                // Numbers 1 through 7 appears throughout the English version of Future Cop on the ps1, Mac, and Windows.
+                // I could of used the greater and less thans, but this would not show that the numbers are every number that is 1, 2, 3, 4, 5, 6, 7
+                // This might be a bit field of some kind, this is most likely something like the number of bounding boxes.
+                assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
+                
+                start_data += sizeof( uint32_t );
+                bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) / bounding_box_per_frame;
+                
+                size_t BOUNDING_BOX_SIZE = 8 * sizeof( uint16_t );
+                
+                size_t bounding_boxes_amount = bounding_box_frames * bounding_box_per_frame;
+                
+                size_t test_tag_size = bounding_boxes_amount * BOUNDING_BOX_SIZE + 4 * sizeof( uint32_t );
+                
+                if( test_tag_size != tag_size )
+                {
+                    *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+                    *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
+                    *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
+                    *settings.output_ref << "Mission::ObjResource::load() The tag size should be " << test_tag_size;
+                    *settings.output_ref << " instead it is " << tag_size << std::endl;
+                }
+                
+                // Another proof by exhaustion. The all the remaining data consists
+                // of the bounding_boxes_amount of data structs which are 0x10 in size.
+                assert( test_tag_size == tag_size );
+                
+                // TODO create the structs that will contain the actual bounding boxes.
+            }
+            else
+            {
                 *settings.output_ref << "Mission::ObjResource::load() 3DBB unexpected number at beginning! " << bounding_box_per_frame << std::endl;
-            
-            // This is a proof by exhastion example of the first numbers that appears in the 3DBB chunk.
-            // Numbers 1 through 7 appears throughout the English version of Future Cop on the ps1, Mac, and Windows.
-            // I could of used the greater and less thans, but this would not show that the numbers are every number that is 1, 2, 3, 4, 5, 6, 7
-            // This might be a bit field of some kind, this is most likely something like the number of bounding boxes.
-            assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
-            
-            start_data += sizeof( uint32_t );
-            bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) / bounding_box_per_frame;
+            }
         }
         else
         {
