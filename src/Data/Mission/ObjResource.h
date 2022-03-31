@@ -68,6 +68,9 @@ private:
 
     std::vector< std::vector< Utilities::DataTypes::Vec3Short > > vertex_anm_positions;
     std::vector< std::vector< Utilities::DataTypes::Vec3Short > > vertex_anm_normals;
+    
+    unsigned int bounding_box_per_frame;
+    unsigned int bounding_box_frames;
 
     static const unsigned int opcode_mask[0x100];
     
