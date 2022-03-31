@@ -667,7 +667,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
             
             start_data += sizeof( uint32_t );
-            bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
+            bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) / bounding_box_per_frame;
         }
         else
         {
