@@ -691,35 +691,35 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 
                 for( size_t i = 0; i < bounding_boxes_amount; i++ )
                 {
-                    // Positive and negative
+                    // Fact Positive and negative: Assumption position x
                     Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
                     start_data += sizeof( int16_t );
                     
-                    // Positive and negative
+                    // Fact Positive and negative: Assumption position y
                     Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
                     start_data += sizeof( int16_t );
                     
-                    // Positive and negative
+                    // Fact Positive and negative: Assumption position z
                     Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
                     start_data += sizeof( int16_t );
                     
-                    // [0, some positive number]
+                    // Fact [0, 4224]: Assumption length x
                     assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
                     start_data += sizeof( uint16_t );
                     
-                    // [0, some positive number]
+                    // Fact [0, 1438]: Assumption length y
                     assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
                     start_data += sizeof( uint16_t );
                     
-                    // [0, some positive number]
+                    // Fact [0, 3584]: Assumption length z
                     assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
                     start_data += sizeof( uint16_t );
                     
-                    // [0, some positive number]
+                    // Fact [0, 4293]: Assumption rotation x
                     assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
                     start_data += sizeof( uint16_t );
                     
-                    // [0, some positive number]
+                    // Fact [0, 4293]: Assumption rotation y
                     assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
                     start_data += sizeof( uint16_t );
                 }
