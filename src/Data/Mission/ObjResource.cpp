@@ -425,14 +425,22 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
                 bones.push_back( Bone() );
                 
-                bones.at(i).parent_amount = Utilities::DataHandler::read_u8(start_data + 0x0);
-                bones.at(i).normal_start  = Utilities::DataHandler::read_u8(start_data + 0x1);
-                bones.at(i).normal_stride = Utilities::DataHandler::read_u8(start_data + 0x2);
-                bones.at(i).vertex_start  = Utilities::DataHandler::read_u8(start_data + 0x3);
-                bones.at(i).vertex_stride = Utilities::DataHandler::read_u8(start_data + 0x4);
+                bones.at(i).parent_amount = Utilities::DataHandler::read_u8( start_data + 0x00 );
+                bones.at(i).normal_start  = Utilities::DataHandler::read_u8( start_data + 0x01 );
+                bones.at(i).normal_stride = Utilities::DataHandler::read_u8( start_data + 0x02 );
+                bones.at(i).vertex_start  = Utilities::DataHandler::read_u8( start_data + 0x03 );
+                bones.at(i).vertex_stride = Utilities::DataHandler::read_u8( start_data + 0x04 );
                 // Utilities::DataHandler::read_u8(start_data + 0x5); seems to be zero
                 // Utilities::DataHandler::read_u8(start_data + 0x6); seems to be zero
-                bones.at(i).opcode     = Utilities::DataHandler::read_u8(  start_data + 0x7);
+                bones.at(i).opcode     = Utilities::DataHandler::read_u8(  start_data + 0x07 );
+                
+                if( bones.at(i).opcode == 0x0D )
+                {
+                    *settings.output_ref << "Mission::ObjResource::load() 0x" << getIndexNumber() << " has 0x0D" << std::endl;
+                    
+                    assert( false );
+                }
+                
                 bones.at(i).position.x = Utilities::DataHandler::read_u16( start_data + 0x08, settings.is_opposite_endian );
                 bones.at(i).position.y = Utilities::DataHandler::read_u16( start_data + 0x0A, settings.is_opposite_endian );
                 bones.at(i).position.z = Utilities::DataHandler::read_u16( start_data + 0x0C, settings.is_opposite_endian );
@@ -712,27 +720,27 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                         start_data += sizeof( int16_t );
                         
                         // Fact [0, 4224]: Assumption length x
-                        bounding_boxes.back().length_x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().length_x = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
                         assert( bounding_boxes.back().length_x >= 0 );
                         start_data += sizeof( uint16_t );
                         
                         // Fact [0, 1438]: Assumption length y
-                        bounding_boxes.back().length_y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().length_y = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
                         assert( bounding_boxes.back().length_y >= 0 );
                         start_data += sizeof( uint16_t );
                         
                         // Fact [0, 3584]: Assumption length z
-                        bounding_boxes.back().length_z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().length_z = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
                         assert(bounding_boxes.back().length_z >= 0 );
                         start_data += sizeof( uint16_t );
                         
                         // Fact [0, 4293]: Assumption rotation x
-                        bounding_boxes.back().rotation_x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().rotation_x = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
                         assert( bounding_boxes.back().rotation_x >= 0 );
                         start_data += sizeof( uint16_t );
                         
                         // Fact [0, 4293]: Assumption rotation y
-                        bounding_boxes.back().rotation_y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().rotation_y = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
                         assert( bounding_boxes.back().rotation_y >= 0 );
                         start_data += sizeof( uint16_t );
                     }
@@ -1169,11 +1177,12 @@ const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVe
 }
 
 const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
-    // MSB is the not reconized bit. The next three bits is x, y, z of position. The next three bits is rotation.
+    // The Most Significant Bit is the not reconized bit. The next three bits is x,
+    // y, z of position. The next three bits is rotation.
     // If the not reconized bit is on this indicates the opcode is not in the record.
     // For position and rotation a zero means that it is that it constant.
     // True means that the axis is an index.
-     0b0111111, // 0x00 This has all 6 axis of position and rotation.
+     0b0111111, // 0x00 This has all 6 axis of position and rotation are non constant
      0b1000000, // 0x01
      0b1000000, // 0x02
      0b1000000, // 0x03
@@ -1181,15 +1190,15 @@ const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
      0b1000000, // 0x05
      0b1000000, // 0x06
      0b1000000, // 0x07
-     0b0110111, // 0x08 This has all the axis except for position axis z.
+     0b0110111, // 0x08 Everything is non contant except for position z.
      0b1000000, // 0x09
      0b1000000, // 0x0A
      0b1000000, // 0x0B
      0b1000000, // 0x0C
-     0b0010010, // 0x0D Only the y position and rotation axis is non constant.
+     0b0010010, // 0x0D Only the y position and y rotation is non constant.
      0b1000000, // 0x0E
      0b1000000, // 0x0F
-     0b0101111, // 0x10 Only the y position axis is constant.
+     0b0101111, // 0x10 Only the y position is constant.
      0b1000000, // 0x11
      0b1000000, // 0x12
      0b1000000, // 0x13
@@ -1205,7 +1214,7 @@ const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
      0b1000000, // 0x1D
      0b1000000, // 0x1E
      0b0100000, // 0x1F Only the x axis is non constant
-     0b0011111, // 0x20 This has all the axis except for position axis z.
+     0b0011111, // 0x20 This has all the axis except for position axis x.
      0b1000000, // 0x21
      0b0011101, // 0x22
      0b1000000, // 0x23
@@ -1220,7 +1229,7 @@ const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
      0b1000000, // 0x2C
      0b1000000, // 0x2D
      0b1000000, // 0x2E
-     0b0010000, // 0x2F Only the y axis is non constant
+     0b0010000, // 0x2F Only position y is non constant
      0b1000000, // 0x30
      0b1000000, // 0x31
      0b1000000, // 0x32
@@ -1348,7 +1357,7 @@ const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
      0b1000000, // 0xAC
      0b1000000, // 0xAD
      0b1000000, // 0xAE
-     0b0010000, // 0xAF Only position is non-constant.
+     0b0010000, // 0xAF Only y position is non-constant.
      0b1000000, // 0xB0
      0b1000000, // 0xB1
      0b1000000, // 0xB2
@@ -1367,3 +1376,44 @@ const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
      0b0000000, // 0xBF Position and rotation are constant.
      0b1000000  // 0xC0-0xFF should be out of bounds
 };
+
+void Data::Mission::ObjResource::replacementBooleanField() {
+    bool found_value = false;
+    bool position_x;
+    bool position_y;
+    bool position_z;
+    bool rotation_x;
+    bool rotation_y;
+    bool rotation_z;
+    unsigned int opcode;
+    
+    std::cout << "find3DMIBoolean()" << std::endl;
+    
+    for( unsigned int i = 0; i < 0xC0; i++ )
+    {
+        position_x = (i & 0b00100000) >> 5 | (i == 0xD);
+        position_y = (i & 0b00010000) >> 4;
+        position_z = (i & 0b00001000) >> 3;
+        rotation_z = (i & 0b00000100) >> 2;
+        rotation_y = (i & 0b00000010) >> 1;
+        rotation_x = (i & 0b00000001) >> 0;
+        
+        opcode = Data::Mission::ObjResource::opcode_mask[ i ];
+        
+        if( (Data::Mission::ObjResource::opcode_mask[ i ] & 0b1000000) == 0 )
+        {
+            std::cout << "testing 0x" << std::hex << i << std::dec << " ";
+            
+            if((opcode & 0b0100000) != 0)
+                std::cout << "non-";
+            std::cout << "constant x" << std::endl;
+            
+            assert( ((opcode & 0b0100000) != 0) == !position_x );
+            assert( ((opcode & 0b0010000) != 0) == !position_y );
+            assert( ((opcode & 0b0001000) != 0) == !position_z );
+            assert( ((opcode & 0b0000001) != 0) == !rotation_x );
+            assert( ((opcode & 0b0000010) != 0) == !rotation_y );
+            assert( ((opcode & 0b0000100) != 0) == !rotation_z );
+        }
+    }
+}
