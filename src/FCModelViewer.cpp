@@ -17,8 +17,6 @@
 
 bool test_Math();
 
-void printBBMaxes();
-
 int main(int argc, char** argv)
 {
     Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
@@ -67,10 +65,10 @@ int main(int argc, char** argv)
     if( !manager.setIFFEntry( iff_mission_id, entry ) )
         return -2;
 
-    manager.togglePlatform( Data::Manager::Platform::ALL, true );
+    // manager.togglePlatform( Data::Manager::Platform::ALL, true );
     manager.togglePlatform( platform, true );
 
-    if( manager.setLoad( Data::Manager::Importance::NOT_NEEDED ) < 2 )
+    if( manager.setLoad( Data::Manager::Importance::NEEDED ) < 2 )
         return -3;
 
     Data::Mission::IFF &resource = *manager.getIFFEntry( iff_mission_id ).getIFF( platform );
@@ -249,8 +247,6 @@ int main(int argc, char** argv)
     Graphics::ModelInstance* displayed_instance = new Graphics::ModelInstance( Utilities::DataTypes::Vec3( 0, 0, 0 ) );
 
     environment->attachInstanceObj( cobj_index, *displayed_instance );
-    
-    printBBMaxes();
 
     while(viewer_loop)
     {
