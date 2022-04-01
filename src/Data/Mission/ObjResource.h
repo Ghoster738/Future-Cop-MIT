@@ -54,6 +54,17 @@ public:
          */
         unsigned int getNumAttributes() const;
     };
+    // Warning: I do not know if this is actually the bounding box's data structure.
+    struct BoundingBox3D {
+        int16_t x;
+        int16_t y;
+        int16_t z;
+        uint16_t length_x;
+        uint16_t length_y;
+        uint16_t length_z;
+        uint16_t rotation_x;
+        uint16_t rotation_y;
+    };
 private:
     std::vector< Utilities::DataTypes::Vec3Short > vertex_positions;
     std::vector< Utilities::DataTypes::Vec3Short > vertex_normals;
@@ -71,6 +82,7 @@ private:
     
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;
+    std::vector<BoundingBox3D> bounding_boxes;
 
     static const unsigned int opcode_mask[0x100];
     
