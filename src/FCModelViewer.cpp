@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     if( !manager.setIFFEntry( iff_mission_id, entry ) )
         return -2;
 
-    manager.togglePlatform( Data::Manager::Platform::ALL, true );
+    // manager.togglePlatform( Data::Manager::Platform::ALL, true );
     manager.togglePlatform( platform, true );
 
     if( manager.setLoad( Data::Manager::Importance::NOT_NEEDED ) < 2 )
