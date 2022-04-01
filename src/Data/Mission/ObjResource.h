@@ -47,7 +47,14 @@ public:
         unsigned int normal_start, normal_stride;
         unsigned int vertex_start, vertex_stride;
         Utilities::DataTypes::Vec3Short position, rotation; // They are all of a 3D system.
-        unsigned int opcode; // Any modification to opcode would directly affect the number of attributes being used.
+        struct Opcode {
+            struct Axis {
+                unsigned int x_const : 1;
+                unsigned int y_const : 1;
+                unsigned int z_const : 1;
+            } position, rotation;
+            unsigned int unknown: 2; // bone_index?
+        } opcode;
         
         /**
          * @return The number of attributes in the bone.
@@ -83,15 +90,6 @@ private:
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;
     std::vector<BoundingBox3D> bounding_boxes;
-
-    static const unsigned int opcode_mask[0x100];
-    
-    /**
-     * This tests the opcode to see if it is valid.
-     * @param opcode The opcode value to test.
-     * @return If the opcode happens to exist in this program in some way this would return true.
-     */
-    static bool isValidOpcode( unsigned int opcode );
     
     /**
      * This gets the bytes per frame rating for the specific opcode.
@@ -99,7 +97,7 @@ private:
      * @note This method does not tell you if the opcode exists. There are opcodes with bytes per frame with a zero value.
      * @return A zero if either the opcode does not exist or the bytes per frame rating for the opcode.
      */
-    static unsigned int getOpcodeBytesPerFrame( unsigned int opcode );
+    static unsigned int getOpcodeBytesPerFrame( Bone::Opcode opcode );
 public:
     ObjResource();
     ObjResource( const ObjResource &obj );
@@ -119,8 +117,6 @@ public:
 
     static std::vector<ObjResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<ObjResource*> getVector( const Data::Mission::IFF &mission_file );
-    
-    static void replacementBooleanField();
 };
 
 }
