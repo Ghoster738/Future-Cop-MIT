@@ -433,14 +433,6 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 // Utilities::DataHandler::read_u8(start_data + 0x5); seems to be zero
                 // Utilities::DataHandler::read_u8(start_data + 0x6); seems to be zero
                 bones.at(i).opcode     = Utilities::DataHandler::read_u8(  start_data + 0x07 );
-                
-                if( bones.at(i).opcode == 0x0D )
-                {
-                    *settings.output_ref << "Mission::ObjResource::load() 0x" << getIndexNumber() << " has 0x0D" << std::endl;
-                    
-                    assert( false );
-                }
-                
                 bones.at(i).position.x = Utilities::DataHandler::read_u16( start_data + 0x08, settings.is_opposite_endian );
                 bones.at(i).position.y = Utilities::DataHandler::read_u16( start_data + 0x0A, settings.is_opposite_endian );
                 bones.at(i).position.z = Utilities::DataHandler::read_u16( start_data + 0x0C, settings.is_opposite_endian );
@@ -1195,7 +1187,7 @@ const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
      0b1000000, // 0x0A
      0b1000000, // 0x0B
      0b1000000, // 0x0C
-     0b0010010, // 0x0D Only the y position and y rotation is non constant.
+     0b0110010, // 0x0D x & y position and y rotation is non constant.
      0b1000000, // 0x0E
      0b1000000, // 0x0F
      0b0101111, // 0x10 Only the y position is constant.
@@ -1387,16 +1379,20 @@ void Data::Mission::ObjResource::replacementBooleanField() {
     bool rotation_z;
     unsigned int opcode;
     
-    std::cout << "find3DMIBoolean()" << std::endl;
+    std::cout << "replacementBooleanField()" << std::endl;
     
+    // This is a proof by exhastion on the table itself.
+    // This loop stops at 0xC0 because I did not realize
+    // that C++ does not fill in the last part of the
+    // array for me.
     for( unsigned int i = 0; i < 0xC0; i++ )
     {
-        position_x = (i & 0b00100000) >> 5 | (i == 0xD);
-        position_y = (i & 0b00010000) >> 4;
-        position_z = (i & 0b00001000) >> 3;
-        rotation_z = (i & 0b00000100) >> 2;
-        rotation_y = (i & 0b00000010) >> 1;
-        rotation_x = (i & 0b00000001) >> 0;
+        position_x = (i & 0b00100000) >> 5; // is position x constant bit
+        position_y = (i & 0b00010000) >> 4; // is position y constant bit
+        position_z = (i & 0b00001000) >> 3; // is position z constant bit
+        rotation_z = (i & 0b00000100) >> 2; // is rotation z constant bit
+        rotation_y = (i & 0b00000010) >> 1; // is rotation y constant bit
+        rotation_x = (i & 0b00000001) >> 0; // is rotation x constant bit
         
         opcode = Data::Mission::ObjResource::opcode_mask[ i ];
         
@@ -1408,6 +1404,7 @@ void Data::Mission::ObjResource::replacementBooleanField() {
                 std::cout << "non-";
             std::cout << "constant x" << std::endl;
             
+            // Check the table with
             assert( ((opcode & 0b0100000) != 0) == !position_x );
             assert( ((opcode & 0b0010000) != 0) == !position_y );
             assert( ((opcode & 0b0001000) != 0) == !position_z );
