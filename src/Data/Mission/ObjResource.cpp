@@ -668,6 +668,8 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 start_data += sizeof( uint32_t );
                 bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) / bounding_box_per_frame;
                 
+                start_data += sizeof( uint32_t );
+                
                 size_t BOUNDING_BOX_SIZE = 8 * sizeof( uint16_t );
                 
                 size_t bounding_boxes_amount = bounding_box_frames * bounding_box_per_frame;
@@ -687,7 +689,40 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 // of the bounding_boxes_amount of data structs which are 0x10 in size.
                 assert( test_tag_size == tag_size );
                 
-                // TODO create the structs that will contain the actual bounding boxes.
+                for( size_t i = 0; i < bounding_boxes_amount; i++ )
+                {
+                    // Positive and negative
+                    Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                    start_data += sizeof( int16_t );
+                    
+                    // Positive and negative
+                    Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                    start_data += sizeof( int16_t );
+                    
+                    // Positive and negative
+                    Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                    start_data += sizeof( int16_t );
+                    
+                    // [0, some positive number]
+                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
+                    start_data += sizeof( uint16_t );
+                    
+                    // [0, some positive number]
+                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
+                    start_data += sizeof( uint16_t );
+                    
+                    // [0, some positive number]
+                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
+                    start_data += sizeof( uint16_t );
+                    
+                    // [0, some positive number]
+                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
+                    start_data += sizeof( uint16_t );
+                    
+                    // [0, some positive number]
+                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
+                    start_data += sizeof( uint16_t );
+                }
             }
             else
             {
