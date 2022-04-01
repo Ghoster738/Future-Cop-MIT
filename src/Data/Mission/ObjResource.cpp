@@ -768,18 +768,45 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             data += tag_size;
     }
     
+    // This assertion statement tells that there are only two options for
+    // Animation either morphing or bone animation.
+    assert( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_anm_positions.size() > 0 )) );
+    
     if( bytes_per_frame_3DMI > 0 )
     {
-        this->bone_frames = this->bone_animation_data_size / (bytes_per_frame_3DMI / 2);
+        this->bone_frames = this->bone_animation_data_size / (bytes_per_frame_3DMI / sizeof(int16_t));
         
-        if( bounding_box_frames != bone_frames && bounding_box_frames + 1 != bone_frames)
+        // This proves that the obj resource bone frame are roughly equvilent to the number of
+        // bounding box frames.
+        if( bounding_box_frames != bone_frames && bounding_box_frames + 1 != bone_frames )
         {
             *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
             *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
             *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
             *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << bone_frames << std::endl;
+            
+            assert( false );
         }
-        assert( (bounding_box_frames == bone_frames) | (bounding_box_frames + 1 == bone_frames) );
+    }
+    else
+    if( vertex_anm_positions.size() > 0 )
+    {
+        // This proves that each model with morph animation has an equal number of
+        // vertex frames as the bounding box frames.
+        if( bounding_box_frames != vertex_anm_positions.size() + 1 )
+        {
+            *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+            *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
+            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
+            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << vertex_anm_positions.size() << std::endl;
+            
+            assert( false );
+        }
+    }
+    else
+    {
+        // This statement proves that each model without animation only has one bounding_box frame.
+        assert( bounding_box_frames == 1 );
     }
 
     return !file_is_not_valid;
