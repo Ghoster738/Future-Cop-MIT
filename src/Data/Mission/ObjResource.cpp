@@ -657,6 +657,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         else
         if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DBB ) ) {
             bounding_box_per_frame = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
+            
             if( bounding_box_per_frame >= 1 )
             {
                 // This is a proof by exhastion example of the first numbers that appears in the 3DBB tag.
@@ -666,6 +667,9 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
                 
                 start_data += sizeof( uint32_t );
+                
+                bounding_boxes.reserve( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) );
+                
                 bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) / bounding_box_per_frame;
                 
                 start_data += sizeof( uint32_t );
@@ -689,39 +693,49 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 // of the bounding_boxes_amount of data structs which are 0x10 in size.
                 assert( test_tag_size == tag_size );
                 
-                for( size_t i = 0; i < bounding_boxes_amount; i++ )
+                for( size_t frame_index = 0; frame_index < bounding_box_frames; frame_index++ )
                 {
-                    // Fact Positive and negative: Assumption position x
-                    Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( int16_t );
-                    
-                    // Fact Positive and negative: Assumption position y
-                    Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( int16_t );
-                    
-                    // Fact Positive and negative: Assumption position z
-                    Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( int16_t );
-                    
-                    // Fact [0, 4224]: Assumption length x
-                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
-                    start_data += sizeof( uint16_t );
-                    
-                    // Fact [0, 1438]: Assumption length y
-                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
-                    start_data += sizeof( uint16_t );
-                    
-                    // Fact [0, 3584]: Assumption length z
-                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
-                    start_data += sizeof( uint16_t );
-                    
-                    // Fact [0, 4293]: Assumption rotation x
-                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
-                    start_data += sizeof( uint16_t );
-                    
-                    // Fact [0, 4293]: Assumption rotation y
-                    assert( Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian ) >= 0 );
-                    start_data += sizeof( uint16_t );
+                    for( size_t box_index = 0; box_index < bounding_box_per_frame; box_index++ )
+                    {
+                        bounding_boxes.push_back( BoundingBox3D() );
+                        
+                        // Fact Positive and negative: Assumption position x
+                        bounding_boxes.back().x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        start_data += sizeof( int16_t );
+                        
+                        // Fact Positive and negative: Assumption position y
+                        bounding_boxes.back().y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        start_data += sizeof( int16_t );
+                        
+                        // Fact Positive and negative: Assumption position z
+                        bounding_boxes.back().z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        start_data += sizeof( int16_t );
+                        
+                        // Fact [0, 4224]: Assumption length x
+                        bounding_boxes.back().length_x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        assert( bounding_boxes.back().length_x >= 0 );
+                        start_data += sizeof( uint16_t );
+                        
+                        // Fact [0, 1438]: Assumption length y
+                        bounding_boxes.back().length_y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        assert( bounding_boxes.back().length_y >= 0 );
+                        start_data += sizeof( uint16_t );
+                        
+                        // Fact [0, 3584]: Assumption length z
+                        bounding_boxes.back().length_z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        assert(bounding_boxes.back().length_z >= 0 );
+                        start_data += sizeof( uint16_t );
+                        
+                        // Fact [0, 4293]: Assumption rotation x
+                        bounding_boxes.back().rotation_x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        assert( bounding_boxes.back().rotation_x >= 0 );
+                        start_data += sizeof( uint16_t );
+                        
+                        // Fact [0, 4293]: Assumption rotation y
+                        bounding_boxes.back().rotation_y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                        assert( bounding_boxes.back().rotation_y >= 0 );
+                        start_data += sizeof( uint16_t );
+                    }
                 }
             }
             else
