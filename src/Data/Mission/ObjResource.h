@@ -119,6 +119,8 @@ public:
 
     static std::vector<ObjResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<ObjResource*> getVector( const Data::Mission::IFF &mission_file );
+    
+    static void replacementBooleanField();
 };
 
 }

@@ -19,6 +19,8 @@ bool test_Math();
 
 int main(int argc, char** argv)
 {
+    Data::Mission::ObjResource::replacementBooleanField();
+    
     Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
     const int WIDTH = 1024;
     const int HEIGHT = 764;
@@ -65,10 +67,10 @@ int main(int argc, char** argv)
     if( !manager.setIFFEntry( iff_mission_id, entry ) )
         return -2;
 
-    // manager.togglePlatform( Data::Manager::Platform::ALL, true );
+    manager.togglePlatform( Data::Manager::Platform::ALL, true );
     manager.togglePlatform( platform, true );
 
-    if( manager.setLoad( Data::Manager::Importance::NEEDED ) < 2 )
+    if( manager.setLoad( Data::Manager::Importance::NOT_NEEDED ) < 2 )
         return -3;
 
     Data::Mission::IFF &resource = *manager.getIFFEntry( iff_mission_id ).getIFF( platform );
