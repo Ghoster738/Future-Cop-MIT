@@ -432,7 +432,16 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 bones.at(i).vertex_stride = Utilities::DataHandler::read_u8( start_data + 0x04 );
                 // Utilities::DataHandler::read_u8(start_data + 0x5); seems to be zero
                 // Utilities::DataHandler::read_u8(start_data + 0x6); seems to be zero
-                bones.at(i).opcode     = Utilities::DataHandler::read_u8(  start_data + 0x07 );
+                auto opcode = Utilities::DataHandler::read_u8(  start_data + 0x07 );
+                
+                bones.at(i).opcode.unknown          = (opcode & 0b11000000) >> 6;
+                bones.at(i).opcode.position.x_const = (opcode & 0b00100000) >> 5;
+                bones.at(i).opcode.position.y_const = (opcode & 0b00010000) >> 4;
+                bones.at(i).opcode.position.z_const = (opcode & 0b00001000) >> 3;
+                bones.at(i).opcode.rotation.x_const = (opcode & 0b00000100) >> 2;
+                bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
+                bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
+                
                 bones.at(i).position.x = Utilities::DataHandler::read_u16( start_data + 0x08, settings.is_opposite_endian );
                 bones.at(i).position.y = Utilities::DataHandler::read_u16( start_data + 0x0A, settings.is_opposite_endian );
                 bones.at(i).position.z = Utilities::DataHandler::read_u16( start_data + 0x0C, settings.is_opposite_endian );
@@ -456,7 +465,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                         << "parent index: 0x" << bones.at(i).parent_amount << ", "
                         << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
                         << "0x" <<    bones.at(i).vertex_start << " with 0x" <<  bones.at(i).vertex_stride << " vertices, "
-                        << "opcode: 0x" << bones.at(i).opcode << std::dec
+                        << "opcode: 0x" << opcode << std::dec
                         << ", position( " << bones.at(i).position.x << ", " << bones.at(i).position.y << ", " << bones.at(i).position.z << " )"
                         << ", rotation( " << bones.at(i).rotation.x << ", " << bones.at(i).rotation.y << ", " << bones.at(i).rotation.z << " )" << std::hex << std::endl;
                 }
@@ -919,24 +928,22 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             
             childern[ (*current_bone).parent_amount - 1 ] = bone_index;
             
-            opcode_decode = opcode_mask[ (*current_bone).opcode ];
-            
             for( unsigned int frame = 0; frame < bone_frames; frame++ )
             {
                 auto frame_position = (*current_bone).position;
                 auto frame_rotation = (*current_bone).rotation;
                 
-                if( (opcode_decode & 0b0100000) != 0 )
+                if( !(*current_bone).opcode.position.x_const )
                     frame_position.x = bone_animation_data[ (*current_bone).position.x + frame ];
-                if( (opcode_decode & 0b0010000) != 0 )
+                if( !(*current_bone).opcode.position.y_const )
                     frame_position.y = bone_animation_data[ (*current_bone).position.y + frame ];
-                if( (opcode_decode & 0b0001000) != 0 )
+                if( !(*current_bone).opcode.position.z_const )
                     frame_position.z = bone_animation_data[ (*current_bone).position.z + frame ];
-                if( (opcode_decode & 0b0000100) != 0 )
+                if( !(*current_bone).opcode.rotation.x_const )
                     frame_rotation.x = bone_animation_data[ (*current_bone).rotation.x + frame ];
-                if( (opcode_decode & 0b0000010) != 0 )
+                if( !(*current_bone).opcode.rotation.y_const )
                     frame_rotation.y = bone_animation_data[ (*current_bone).rotation.y + frame ];
-                if( (opcode_decode & 0b0000001) != 0 )
+                if( !(*current_bone).opcode.rotation.z_const )
                     frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
                 
                 Utilities::Math::setTranslation( matrix_translate, 
@@ -1135,20 +1142,25 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
     return model_output;
 }
 
-bool Data::Mission::ObjResource::isValidOpcode( unsigned int opcode ) {
-    return ((opcode_mask[ opcode & 0xFF ] & 0b1000000) != 0);
-}
-unsigned int Data::Mission::ObjResource::getOpcodeBytesPerFrame( unsigned int opcode ) {
+unsigned int Data::Mission::ObjResource::getOpcodeBytesPerFrame( Data::Mission::ObjResource::Bone::Opcode opcode ) {
     unsigned int number_of_16bit_numbers = 0;
-    unsigned int opcode_value = opcode_mask[ opcode & 0xFF ];
+
+    // I hope the compiler optimizes this.
+    if( !opcode.position.x_const )
+        number_of_16bit_numbers++;
+    if( !opcode.position.y_const )
+        number_of_16bit_numbers++;
+    if( !opcode.position.z_const )
+        number_of_16bit_numbers++;
     
-    for( int i = 0; i < 6; i++ )
-    {
-        number_of_16bit_numbers += (opcode_value & 0b01);
-        opcode_value = opcode_value >> 1;
-    }
+    if( !opcode.rotation.x_const )
+        number_of_16bit_numbers++;
+    if( !opcode.rotation.y_const )
+        number_of_16bit_numbers++;
+    if( !opcode.rotation.z_const )
+        number_of_16bit_numbers++;
     
-    return number_of_16bit_numbers * 2;
+    return 2 * number_of_16bit_numbers;
 }
 
 std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( Data::Mission::IFF &mission_file ) {
@@ -1166,251 +1178,4 @@ std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( 
 
 const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ObjResource::getVector( const_cast< IFF& >( mission_file ) );
-}
-
-const unsigned int Data::Mission::ObjResource::opcode_mask[ 0x100 ] = {
-    // The Most Significant Bit is the not reconized bit. The next three bits is x,
-    // y, z of position. The next three bits is rotation.
-    // If the not reconized bit is on this indicates the opcode is not in the record.
-    // For position and rotation a zero means that it is that it constant.
-    // True means that the axis is an index.
-     0b0111111, // 0x00 This has all 6 axis of position and rotation are non constant
-     0b1000000, // 0x01
-     0b1000000, // 0x02
-     0b1000000, // 0x03
-     0b1000000, // 0x04
-     0b1000000, // 0x05
-     0b1000000, // 0x06
-     0b1000000, // 0x07
-     0b0110111, // 0x08 Everything is non contant except for position z.
-     0b1000000, // 0x09
-     0b1000000, // 0x0A
-     0b1000000, // 0x0B
-     0b1000000, // 0x0C
-     0b0110010, // 0x0D x & y position and y rotation is non constant.
-     0b1000000, // 0x0E
-     0b1000000, // 0x0F
-     0b0101111, // 0x10 Only the y position is constant.
-     0b1000000, // 0x11
-     0b1000000, // 0x12
-     0b1000000, // 0x13
-     0b1000000, // 0x14
-     0b1000000, // 0x15
-     0b1000000, // 0x16
-     0b1000000, // 0x17
-     0b1000000, // 0x18
-     0b1000000, // 0x19
-     0b1000000, // 0x1A
-     0b1000000, // 0x1B
-     0b1000000, // 0x1C
-     0b1000000, // 0x1D
-     0b1000000, // 0x1E
-     0b0100000, // 0x1F Only the x axis is non constant
-     0b0011111, // 0x20 This has all the axis except for position axis x.
-     0b1000000, // 0x21
-     0b0011101, // 0x22
-     0b1000000, // 0x23
-     0b1000000, // 0x24
-     0b1000000, // 0x25
-     0b1000000, // 0x26
-     0b1000000, // 0x27
-     0b1000000, // 0x28
-     0b1000000, // 0x29
-     0b1000000, // 0x2A
-     0b1000000, // 0x2B
-     0b1000000, // 0x2C
-     0b1000000, // 0x2D
-     0b1000000, // 0x2E
-     0b0010000, // 0x2F Only position y is non constant
-     0b1000000, // 0x30
-     0b1000000, // 0x31
-     0b1000000, // 0x32
-     0b1000000, // 0x33
-     0b1000000, // 0x34
-     0b1000000, // 0x35
-     0b1000000, // 0x36
-     0b1000000, // 0x37
-     0b0000111, // 0x38 Only the rotation axis is non-constant.
-     0b1000000, // 0x39
-     0b0000101, // 0x3A x and z rotation axis is non-constant.
-     0b0000100, // 0x3B x rotation axis is non-constant.
-     0b0000011, // 0x3C y and z rotation axis are non-constant.
-     0b0000010, // 0x3D Only the y rotation axis is non-constant.
-     0b0000001, // 0x3E
-     0b0000000, // 0x3F All axis are constant
-     0b1000000, // 0x40
-     0b1000000, // 0x41
-     0b1000000, // 0x42
-     0b1000000, // 0x43
-     0b1000000, // 0x44
-     0b1000000, // 0x45
-     0b1000000, // 0x46
-     0b1000000, // 0x47
-     0b1000000, // 0x48
-     0b1000000, // 0x49
-     0b1000000, // 0x4A
-     0b1000000, // 0x4B
-     0b1000000, // 0x4C
-     0b1000000, // 0x4D
-     0b1000000, // 0x4E
-     0b1000000, // 0x4F
-     0b1000000, // 0x50
-     0b1000000, // 0x51
-     0b1000000, // 0x52
-     0b1000000, // 0x53
-     0b1000000, // 0x54
-     0b1000000, // 0x55
-     0b1000000, // 0x56
-     0b1000000, // 0x57
-     0b1000000, // 0x58
-     0b1000000, // 0x59
-     0b1000000, // 0x5A
-     0b1000000, // 0x5B
-     0b1000000, // 0x5C
-     0b1000000, // 0x5D
-     0b1000000, // 0x5E
-     0b1000000, // 0x5F
-     0b1000000, // 0x60
-     0b1000000, // 0x61
-     0b1000000, // 0x62
-     0b1000000, // 0x63
-     0b1000000, // 0x64
-     0b1000000, // 0x65
-     0b1000000, // 0x66
-     0b1000000, // 0x67
-     0b1000000, // 0x68
-     0b1000000, // 0x69
-     0b1000000, // 0x6A
-     0b1000000, // 0x6B
-     0b1000000, // 0x6C
-     0b1000000, // 0x6D
-     0b1000000, // 0x6E
-     0b1000000, // 0x6F
-     0b1000000, // 0x70
-     0b1000000, // 0x71
-     0b1000000, // 0x72
-     0b1000000, // 0x73
-     0b1000000, // 0x74
-     0b1000000, // 0x75
-     0b1000000, // 0x76
-     0b1000000, // 0x77
-     0b1000000, // 0x78
-     0b1000000, // 0x79
-     0b1000000, // 0x7A
-     0b1000000, // 0x7B
-     0b1000000, // 0x7C
-     0b1000000, // 0x7D
-     0b1000000, // 0x7E
-     0b1000000, // 0x7F
-     0b1000000, // 0x80
-     0b1000000, // 0x81
-     0b1000000, // 0x82
-     0b1000000, // 0x83
-     0b1000000, // 0x84
-     0b1000000, // 0x85
-     0b1000000, // 0x86
-     0b0111000, // 0x87 Only rotation is constant.
-     0b1000000, // 0x88
-     0b1000000, // 0x89
-     0b1000000, // 0x8A
-     0b1000000, // 0x8B
-     0b1000000, // 0x8C
-     0b1000000, // 0x8D
-     0b1000000, // 0x8E
-     0b1000000, // 0x8F
-     0b1000000, // 0x90
-     0b1000000, // 0x91
-     0b1000000, // 0x92
-     0b1000000, // 0x93
-     0b1000000, // 0x94
-     0b1000000, // 0x95
-     0b1000000, // 0x96
-     0b1000000, // 0x97
-     0b1000000, // 0x98
-     0b1000000, // 0x99
-     0b1000000, // 0x9A
-     0b1000000, // 0x9B
-     0b1000000, // 0x9C
-     0b1000000, // 0x9D
-     0b1000000, // 0x9E
-     0b0100000, // 0x9F Only the x position axis is non-constant.
-     0b0011111, // 0xA0 Only the x position axis is constant.
-     0b1000000, // 0xA1
-     0b1000000, // 0xA2
-     0b1000000, // 0xA3
-     0b1000000, // 0xA4
-     0b1000000, // 0xA5
-     0b1000000, // 0xA6
-     0b1000000, // 0xA7
-     0b1000000, // 0xA8
-     0b1000000, // 0xA9
-     0b1000000, // 0xAA
-     0b1000000, // 0xAB
-     0b1000000, // 0xAC
-     0b1000000, // 0xAD
-     0b1000000, // 0xAE
-     0b0010000, // 0xAF Only y position is non-constant.
-     0b1000000, // 0xB0
-     0b1000000, // 0xB1
-     0b1000000, // 0xB2
-     0b1000000, // 0xB3
-     0b1000000, // 0xB4
-     0b1000000, // 0xB5
-     0b1000000, // 0xB6
-     0b1000000, // 0xB7
-     0b0000111, // 0xB8 Only rotation is non-constant.
-     0b1000000, // 0xB9
-     0b1000000, // 0xBA
-     0b0000100, // 0xBB Only the x rotation axis is non-constant.
-     0b1000000, // 0xBC
-     0b0000010, // 0xBD Only the y rotation axis is non-constant.
-     0b0000001, // 0xBE Only the z rotation axis is non-constant.
-     0b0000000, // 0xBF Position and rotation are constant.
-     0b1000000  // 0xC0-0xFF should be out of bounds
-};
-
-void Data::Mission::ObjResource::replacementBooleanField() {
-    bool found_value = false;
-    bool position_x;
-    bool position_y;
-    bool position_z;
-    bool rotation_x;
-    bool rotation_y;
-    bool rotation_z;
-    unsigned int opcode;
-    
-    std::cout << "replacementBooleanField()" << std::endl;
-    
-    // This is a proof by exhastion on the table itself.
-    // This loop stops at 0xC0 because I did not realize
-    // that C++ does not fill in the last part of the
-    // array for me.
-    for( unsigned int i = 0; i < 0xC0; i++ )
-    {
-        position_x = (i & 0b00100000) >> 5; // is position x constant bit
-        position_y = (i & 0b00010000) >> 4; // is position y constant bit
-        position_z = (i & 0b00001000) >> 3; // is position z constant bit
-        rotation_z = (i & 0b00000100) >> 2; // is rotation z constant bit
-        rotation_y = (i & 0b00000010) >> 1; // is rotation y constant bit
-        rotation_x = (i & 0b00000001) >> 0; // is rotation x constant bit
-        
-        opcode = Data::Mission::ObjResource::opcode_mask[ i ];
-        
-        if( (Data::Mission::ObjResource::opcode_mask[ i ] & 0b1000000) == 0 )
-        {
-            std::cout << "testing 0x" << std::hex << i << std::dec << " ";
-            
-            if((opcode & 0b0100000) != 0)
-                std::cout << "non-";
-            std::cout << "constant x" << std::endl;
-            
-            // Check the table with
-            assert( ((opcode & 0b0100000) != 0) == !position_x );
-            assert( ((opcode & 0b0010000) != 0) == !position_y );
-            assert( ((opcode & 0b0001000) != 0) == !position_z );
-            assert( ((opcode & 0b0000001) != 0) == !rotation_x );
-            assert( ((opcode & 0b0000010) != 0) == !rotation_y );
-            assert( ((opcode & 0b0000100) != 0) == !rotation_z );
-        }
-    }
 }
