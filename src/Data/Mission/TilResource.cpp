@@ -353,6 +353,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
                         input_color.colors_amount = colors.size();
                         input_color.unk = 0;
 
+                        // TODO Replace this color system witH 
                         Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
                         if( input_color.tile.texture_index == a ) {
