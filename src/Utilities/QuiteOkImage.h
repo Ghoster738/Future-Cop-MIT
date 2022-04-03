@@ -86,7 +86,6 @@ private:
     static bool matchColor( const Pixel& one, const Pixel& two );
     static PixelSigned subColor( const Pixel& current, const Pixel& previous );
     
-    bool isOPRunPossiable( const Pixel& pixel ) const;
     bool isOPIndexPossiable( const Pixel& pixel ) const;
     bool isOPDiffPossiable( const Pixel& pixel ) const;
     bool isOPLumaPossiable( const Pixel& pixel ) const;
