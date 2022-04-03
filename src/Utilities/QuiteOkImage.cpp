@@ -36,13 +36,6 @@ Utilities::QuiteOkImage::PixelSigned Utilities::QuiteOkImage::subColor( const Ut
     return result;
 }
 
-bool Utilities::QuiteOkImage::isOPRunPossiable( const Utilities::QuiteOkImage::Pixel& pixel ) const {
-    if( matchColor( pixel, previous_pixel ) && run_amount <= 62 )
-        return true;
-    else
-        return false;
-}
-
 bool Utilities::QuiteOkImage::isOPIndexPossiable( const Utilities::QuiteOkImage::Pixel& pixel ) const {
     Pixel hash_pixel = this->pixel_hash_table[ getHashIndex( pixel ) ];
     
@@ -192,21 +185,17 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                 else
                 {
                     if( this->run_amount > 0 )
-                    {
                         buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
-                        this->run_amount = 0;
-                    }
+                    this->run_amount = 0;
                     
                     if( isOPIndexPossiable( current_pixel ) )
-                    {
                         buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
-                    }
                     else
                     if( isOPDiffPossiable( current_pixel ) )
                         applyOPDiff( current_pixel, *buffer_p );
-                    // else
-                    // if( isOPLumaPossiable( current_pixel ) )
-                    //    applyOPLuma( current_pixel, *buffer_p );
+                    else
+                    if( isOPLumaPossiable( current_pixel ) )
+                        applyOPLuma( current_pixel, *buffer_p );
                     else
                     if( isOpRGBPossiable( current_pixel ) )
                         applyOPRGB( current_pixel, *buffer_p );
@@ -221,10 +210,8 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
         }
         
         if( this->run_amount > 0 )
-        {
             buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
-            this->run_amount = 0;
-        }
+        this->run_amount = 0;
         
         buffer_p->addU64( 0x1, Utilities::Buffer::Endian::BIG );
         
