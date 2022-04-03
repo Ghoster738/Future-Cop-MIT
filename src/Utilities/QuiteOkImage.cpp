@@ -106,7 +106,7 @@ void Utilities::QuiteOkImage::applyOPLuma( const Utilities::QuiteOkImage::Pixel&
     PixelSigned sub_pixel = subColor( pixel, this->previous_pixel );
     uint16_t luma_byte = 0b1000000000000000;
     const uint8_t GREEN_BIAS = 32;
-    const uint8_t BIAS = 4;
+    const uint8_t BIAS = 8;
     
     int8_t dr_dg = sub_pixel.red  - sub_pixel.green;
     int8_t db_dg = sub_pixel.blue - sub_pixel.green;
