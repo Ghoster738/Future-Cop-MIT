@@ -14,7 +14,7 @@ void Utilities::QuiteOkImage::reset() {
 }
 
 uint8_t Utilities::QuiteOkImage::getHashIndex( const Utilities::QuiteOkImage::Pixel& pixel ) {
-    return (pixel.red * 3 + pixel.green * 5 + pixel.blue * 7 + pixel.alpha * 11) % 64;
+    return (static_cast<uint16_t>(pixel.red) * 3 + static_cast<uint16_t>(pixel.green) * 5 + static_cast<uint16_t>(pixel.blue) * 7 + static_cast<uint16_t>(pixel.alpha) * 11) % PIXEL_HASH_TABLE_SIZE;
 }
 
 void Utilities::QuiteOkImage::placePixelInHash( const Utilities::QuiteOkImage::Pixel& pixel ) {
@@ -195,15 +195,13 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                     //if( isOPRunPossiable( current_pixel ) )
                     //    this->run_amount = 1;
                     //else
-                    //if( isOPIndexPossiable( current_pixel ) )
-                    //{
-                    //    buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
-                    //}
-                    //else
-                    if( isOPDiffPossiable( current_pixel ) ) {
-                        applyOPDiff( current_pixel, *buffer_p );
-                        assert( false );
+                    if( isOPIndexPossiable( current_pixel ) )
+                    {
+                        buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
                     }
+                    else
+                    if( isOPDiffPossiable( current_pixel ) )
+                        applyOPDiff( current_pixel, *buffer_p );
                     else
                     //if( isOPLumaPossiable( current_pixel ) )
                     //    applyOPLuma( current_pixel, *buffer_p );
