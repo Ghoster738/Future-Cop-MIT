@@ -108,12 +108,12 @@ void Utilities::QuiteOkImage::applyOPLuma( const Utilities::QuiteOkImage::Pixel&
     const uint8_t GREEN_BIAS = 32;
     const uint8_t BIAS = 4;
     
-    int8_t dr_dg = sub_pixel.red  - sub_pixel.green + BIAS;
-    int8_t db_dg = sub_pixel.blue - sub_pixel.green + BIAS;
+    int8_t dr_dg = sub_pixel.red  - sub_pixel.green;
+    int8_t db_dg = sub_pixel.blue - sub_pixel.green;
     
     luma_byte |= (sub_pixel.green + GREEN_BIAS) << 8;
-    luma_byte |= (dr_dg & 0b00001111) << 4;
-    luma_byte |= (db_dg & 0b00001111);
+    luma_byte |= ((dr_dg + BIAS) & 0b00001111) << 4;
+    luma_byte |= ((db_dg + BIAS) & 0b00001111);
     
     buffer.addU16( luma_byte, Buffer::Endian::BIG );
 }
@@ -179,11 +179,10 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                 if( this->type == Type::RED_GREEN_BLUE_ALPHA )
                     current_pixel.alpha = image_data_buffer[3];
                 
-                if( this->run_amount != 0 )
+                if( matchColor(current_pixel, this->previous_pixel) )
                 {
-                    if( isOPRunPossiable( current_pixel ) )
-                        this->run_amount++;
-                    else
+                    this->run_amount++;
+                    if( this->run_amount >= 62 )
                     {
                         // QOI_OP_RUN operation.
                         buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
@@ -192,9 +191,12 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                 }
                 else
                 {
-                    //if( isOPRunPossiable( current_pixel ) )
-                    //    this->run_amount = 1;
-                    //else
+                    if( this->run_amount > 0 )
+                    {
+                        buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
+                        this->run_amount = 0;
+                    }
+                    
                     if( isOPIndexPossiable( current_pixel ) )
                     {
                         buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
@@ -202,21 +204,26 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                     else
                     if( isOPDiffPossiable( current_pixel ) )
                         applyOPDiff( current_pixel, *buffer_p );
-                    else
-                    //if( isOPLumaPossiable( current_pixel ) )
+                    // else
+                    // if( isOPLumaPossiable( current_pixel ) )
                     //    applyOPLuma( current_pixel, *buffer_p );
-                    //else
+                    else
                     if( isOpRGBPossiable( current_pixel ) )
                         applyOPRGB( current_pixel, *buffer_p );
                     else
                         applyOPRGBA( current_pixel, *buffer_p );
                 }
-                
                 placePixelInHash( current_pixel );
                 this->previous_pixel = current_pixel;
                 
                 image_data_buffer += image_data.getPixelSize();
             }
+        }
+        
+        if( this->run_amount > 0 )
+        {
+            buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
+            this->run_amount = 0;
         }
         
         buffer_p->addU64( 0x1, Utilities::Buffer::Endian::BIG );
