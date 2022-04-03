@@ -2,6 +2,7 @@
 #include "DataHandler.h"
 
 #include <sstream>
+#include <fstream>
 
 Utilities::Buffer::Buffer() {}
 
@@ -28,6 +29,120 @@ bool Utilities::Buffer::set( const uint8_t *const buffer, size_t byte_amount ) {
     data.clear();
 
     return add( buffer, byte_amount );
+}
+
+bool Utilities::Buffer::addU8( uint8_t value ) {
+    data.push_back( value );
+}
+
+bool Utilities::Buffer::addI8( int8_t value ) {
+    data.push_back( *reinterpret_cast<uint8_t*>(&value) );
+}
+
+bool Utilities::Buffer::addU16( uint16_t value, Endian endianess ) {
+    uint16_t store = value;
+    
+    if( Reader::getSwap( endianess ) )
+        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
+    
+    auto array = reinterpret_cast<uint8_t*>( &store );
+    
+    data.push_back( array[0] );
+    data.push_back( array[1] );
+}
+
+bool Utilities::Buffer::addI16( int16_t value, Endian endianess ) {
+    int16_t store = value;
+    
+    if( Reader::getSwap( endianess ) )
+        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
+    
+    auto array = reinterpret_cast<uint8_t*>( &store );
+    
+    data.push_back( array[0] );
+    data.push_back( array[1] );
+}
+
+bool Utilities::Buffer::addU32( uint32_t value, Endian endianess ) {
+    uint32_t store = value;
+    
+    if( Reader::getSwap( endianess ) )
+        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
+    
+    auto array = reinterpret_cast<uint8_t*>( &store );
+    
+    data.push_back( array[0] );
+    data.push_back( array[1] );
+    data.push_back( array[2] );
+    data.push_back( array[3] );
+}
+
+bool Utilities::Buffer::addI32( int32_t value, Endian endianess ) {
+    int32_t store = value;
+    
+    if( Reader::getSwap( endianess ) )
+        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
+    
+    auto array = reinterpret_cast<uint8_t*>( &store );
+    
+    data.push_back( array[0] );
+    data.push_back( array[1] );
+    data.push_back( array[2] );
+    data.push_back( array[3] );
+}
+
+bool Utilities::Buffer::addU64( uint64_t value, Endian endianess ) {
+    uint64_t store = value;
+    
+    if( Reader::getSwap( endianess ) )
+        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
+    
+    auto array = reinterpret_cast<uint8_t*>( &store );
+    
+    data.push_back( array[0] );
+    data.push_back( array[1] );
+    data.push_back( array[2] );
+    data.push_back( array[3] );
+    data.push_back( array[4] );
+    data.push_back( array[5] );
+    data.push_back( array[6] );
+    data.push_back( array[7] );
+}
+
+bool Utilities::Buffer::addI64(  int64_t value, Endian endianess ) {
+    int64_t store = value;
+    
+    if( Reader::getSwap( endianess ) )
+        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
+    
+    auto array = reinterpret_cast<uint8_t*>( &store );
+    
+    data.push_back( array[0] );
+    data.push_back( array[1] );
+    data.push_back( array[2] );
+    data.push_back( array[3] );
+    data.push_back( array[4] );
+    data.push_back( array[5] );
+    data.push_back( array[6] );
+    data.push_back( array[7] );
+}
+
+bool Utilities::Buffer::write( const std::string& file_path ) const {
+    std::ofstream output;
+    
+    output.open( file_path, std::ios::binary | std::ios::out );
+    
+    if( output.is_open() )
+    {
+        for( const auto &byte : data )
+            output.put( byte );
+        
+        output.close();
+        
+        return true;
+    }
+    else
+        return false;
 }
 
 Utilities::Buffer::Reader Utilities::Buffer::getReader( size_t offset, size_t byte_amount ) const {

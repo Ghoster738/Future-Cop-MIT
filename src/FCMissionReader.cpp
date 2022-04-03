@@ -52,7 +52,14 @@ int main( int argc, char *argv[] ) {
 
             if( INPUT_OPERATION.compare( input ) == 0 )
                 if( number_of_inputs < 2 )
+                {
                     mission_file[ number_of_inputs++ ].open( argv[++i] );
+                    
+                    auto value = Data::Mission::BMPResource::getVector( mission_file[ number_of_inputs - 1 ] )[0]->getRGBImage()->write("texture.qoi");
+                    
+                   if( value < 0 )
+                       std::cout << "No output because " << value << std::endl;
+                }
                 else
                 {
                     std::cout << "Input Error: you exceed the limit of two input Mission files." << std::endl;

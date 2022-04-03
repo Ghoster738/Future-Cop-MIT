@@ -26,7 +26,7 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
     return root;
 }
 
-bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Reader::Endian endian ) {
+bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
 

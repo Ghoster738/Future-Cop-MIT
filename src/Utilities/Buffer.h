@@ -11,6 +11,13 @@ namespace Utilities {
 class Buffer {
 public:
     class Reader;
+    
+    enum Endian {
+        NO_SWAP,
+        SWAP,
+        LITTLE,
+        BIG
+    };
 
 protected:
     std::vector<uint8_t> data;
@@ -25,6 +32,17 @@ public:
     bool set( const uint8_t *const buffer, size_t byte_amount );
 
     Reader getReader( size_t offset = 0, size_t byte_amount = 0 ) const;
+    
+    bool addU8(   uint8_t value );
+    bool addI8(    int8_t value );
+    bool addU16( uint16_t value, Endian endianess = NO_SWAP );
+    bool addI16(  int16_t value, Endian endianess = NO_SWAP );
+    bool addU32( uint32_t value, Endian endianess = NO_SWAP );
+    bool addI32(  int32_t value, Endian endianess = NO_SWAP );
+    bool addU64( uint64_t value, Endian endianess = NO_SWAP );
+    bool addI64(  int64_t value, Endian endianess = NO_SWAP );
+    
+    bool write( const std::string& file_path ) const;
 
 public:
     class ReaderOutOfBounds: public std::exception {
@@ -48,13 +66,6 @@ public:
             BEGINING,
             CURRENT,
             ENDING
-        };
-
-        enum Endian {
-            NO_SWAP,
-            SWAP,
-            LITTLE,
-            BIG
         };
 
         static bool getSwap( Endian endianess );
