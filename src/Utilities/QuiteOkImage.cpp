@@ -1,4 +1,5 @@
 #include "QuiteOkImage.h"
+#include <cassert>
 
 const Utilities::QuiteOkImage::Pixel Utilities::QuiteOkImage::INITIAL_PIXEL = { 0, 0, 0, 0xFF };
 const Utilities::QuiteOkImage::Pixel Utilities::QuiteOkImage::ZERO_PIXEL = { 0, 0, 0, 0 };
@@ -194,17 +195,19 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                     //if( isOPRunPossiable( current_pixel ) )
                     //    this->run_amount = 1;
                     //else
-                    if( isOPIndexPossiable( current_pixel ) )
-                    {
-                        buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
+                    //if( isOPIndexPossiable( current_pixel ) )
+                    //{
+                    //    buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
+                    //}
+                    //else
+                    if( isOPDiffPossiable( current_pixel ) ) {
+                        applyOPDiff( current_pixel, *buffer_p );
+                        assert( false );
                     }
                     else
-                    if( isOPDiffPossiable( current_pixel ) )
-                        applyOPDiff( current_pixel, *buffer_p );
-                    else
-                    if( isOPLumaPossiable( current_pixel ) )
-                        applyOPLuma( current_pixel, *buffer_p );
-                    else
+                    //if( isOPLumaPossiable( current_pixel ) )
+                    //    applyOPLuma( current_pixel, *buffer_p );
+                    //else
                     if( isOpRGBPossiable( current_pixel ) )
                         applyOPRGB( current_pixel, *buffer_p );
                     else
