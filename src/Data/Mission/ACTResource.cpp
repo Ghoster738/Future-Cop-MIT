@@ -78,7 +78,7 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     return root;
 }
 
-uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Reader::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     std::cout << std::hex;
 
     std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
@@ -114,7 +114,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
     else
         return 0;
 }
-uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Reader::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     // const uint32_t Cobj_INT = 0x436F626A; // This spells out Cobj.
 
     if( RSL_CHUNK_ID == data_reader.readU32( endian ) )
@@ -149,7 +149,7 @@ uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
-uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Reader::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     if( !data_reader.ended() && SAC_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
@@ -192,10 +192,10 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
 bool Data::Mission::ACTResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &data_buffer, const ParseSettings &settings ) {
     auto data_reader = data_buffer.getReader();
 
-    Utilities::Buffer::Reader::Endian endian = Utilities::Buffer::Reader::NO_SWAP;
+    Utilities::Buffer::Endian endian = Utilities::Buffer::NO_SWAP;
 
     if( settings.is_opposite_endian )
-        endian = Utilities::Buffer::Reader::SWAP;
+        endian = Utilities::Buffer::SWAP;
 
     if( readACTChunk( data_reader, endian ) ) {
         if( readRSLChunk( data_reader, endian ) ) {

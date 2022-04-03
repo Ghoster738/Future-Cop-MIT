@@ -24,9 +24,9 @@ int main(int argc, char** argv)
 {
     // Reference the tile set data.
     Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", &std::cout );
-    Data::Mission::Til::Colorizer::loadShadowScript( "./tile_shade.json", &std::cout );
-    const int WIDTH = 1920;
-    const int HEIGHT = 1080;
+    
+    const int WIDTH = 1024;
+    const int HEIGHT = 764;
 
 	// Declare a pointer
     Graphics::Window *window = new Graphics::Window();

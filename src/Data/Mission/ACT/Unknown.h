@@ -22,7 +22,7 @@ private:
 protected:
     virtual Json::Value makeJson() const;
 
-    virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Reader::Endian endian );
+    virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 public:
     Unknown();
     Unknown( const ACTResource& obj );
