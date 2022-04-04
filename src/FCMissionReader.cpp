@@ -53,33 +53,7 @@ int main( int argc, char *argv[] ) {
 
             if( INPUT_OPERATION.compare( input ) == 0 )
                 if( number_of_inputs < 2 )
-                {
                     mission_file[ number_of_inputs++ ].open( argv[++i] );
-                    
-                    auto texture = Data::Mission::BMPResource::getVector( mission_file[ number_of_inputs - 1 ] )[0]->getRGBImage();
-                    
-                    Utilities::QuiteOkImage ok_image;
-                    
-                    auto buffer_p = ok_image.write( *texture );
-                    
-                    if( buffer_p != nullptr )
-                    {
-                        if( buffer_p->write( "textureSource.qoi" ) )
-                        {
-                            Utilities::ImageData second_image;
-                            
-                            std::cout << "Status read(): " << ok_image.read( *buffer_p, second_image ) << std::endl;
-                            
-                            second_image.write( "texture2.qoi");
-                        }
-                        else
-                            std::cout << "File failed to write" << std::endl;
-                        
-                        delete buffer_p;
-                    }
-                    else
-                        std::cout << "Buffer_p failed to allocate!" << std::endl;
-                }
                 else
                 {
                     std::cout << "Input Error: you exceed the limit of two input Mission files." << std::endl;

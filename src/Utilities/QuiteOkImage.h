@@ -30,15 +30,6 @@ public:
     };
     enum Type { RED_GREEN_BLUE = 3, RED_GREEN_BLUE_ALPHA = 4 };
     enum ColorSpace { S_RGB = 0, LINEAR = 1 };
-    enum ChunkType {
-        QOI_OP_NONE,
-        QOI_OP_RGB,
-        QOI_OP_RGBA,
-        QOI_OP_INDEX,
-        QOI_OP_DIFF,
-        QOI_OP_LUMA,
-        QOI_OP_RUN
-    };
     
     const static Pixel INITIAL_PIXEL;
     const static Pixel    ZERO_PIXEL;
@@ -46,19 +37,6 @@ public:
     constexpr static size_t MAX_RUN_AMOUNT = 62;
     
 private:
-    class ImageBuffer {
-    public:
-        uint8_t advance;
-        uint8_t *buffer_p;
-        uint8_t *write_head_r;
-        uint8_t *write_head_end_r;
-        bool sanitize;
-    public:
-        ImageBuffer( uint32_t width, uint32_t height, Type type, bool sanitize );
-        ~ImageBuffer();
-        
-        bool writePixel( const Pixel& pixel );
-    };
     Type type;
     Pixel pixel_hash_table[ PIXEL_HASH_TABLE_SIZE ];
     Pixel previous_pixel;

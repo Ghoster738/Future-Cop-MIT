@@ -45,7 +45,7 @@ public:
 
     /**
      * This sets the height of the image.
-     * However, be warned that this image is not really scaled! To make the image wider use the setFormat() method.
+     * However, be warned that this image is not really scaled! To make the image height use the setFormat() method.
      * @param height The height of the image.
      */
     void setHeight( unsigned int height );
@@ -63,6 +63,17 @@ public:
      * @return the size of the pixel size.
      */
     unsigned int getPixelSize() const;
+    
+    /**
+     * @return This contains the info of color for this texture.
+     */
+    Type getType() const { return type; }
+    
+    /**
+     * @return This contains bytes per channel of the texture.
+     */
+    unsigned int getBytesPerChannel() const { return bytes_per_channel; }
+    
     /**
      * This method only writes the pixel when it is in bounds.
      * @param x the x location bounded by width.
