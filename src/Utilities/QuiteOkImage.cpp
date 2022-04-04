@@ -324,18 +324,18 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                             else
                             if( opcode == 0b10000000 ) // QOI_OP_LUMA
                             {
-                                const uint8_t GREEN_BIAS = 32;
-                                const uint8_t BIAS = 8;
+                                const int8_t GREEN_BIAS = 32;
+                                const int8_t BIAS = 8;
                                 auto data_2 = reader.readU8();
                                 
-                                current_pixel.green = previous_pixel.green + (data - GREEN_BIAS);
-                                current_pixel.red  = ((0b11110000 & data_2 >> 4) - BIAS) + previous_pixel.red  + current_pixel.green;
-                                current_pixel.blue = ((0b00001111 & data_2 >> 0) - BIAS) + previous_pixel.blue + current_pixel.green;
+                                current_pixel.green = previous_pixel.green + (static_cast<int8_t>(data) - GREEN_BIAS);
+                                current_pixel.red  = ((0b11110000 & data_2 >> 4) - BIAS) + previous_pixel.red  + (static_cast<int8_t>(data) - GREEN_BIAS);
+                                current_pixel.blue = ((0b00001111 & data_2 >> 0) - BIAS) + previous_pixel.blue + (static_cast<int8_t>(data) - GREEN_BIAS);
                             }
                             else
                             if( opcode == 0b01000000 ) // QOI_OP_DIFF
                             {
-                                const uint8_t BIAS = 2;
+                                const int8_t BIAS = 2;
                                 
                                 current_pixel.red   = previous_pixel.red   + (0b110000 & data >> 4) - BIAS;
                                 current_pixel.green = previous_pixel.green + (0b001100 & data >> 2) - BIAS;
