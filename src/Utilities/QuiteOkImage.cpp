@@ -193,9 +193,9 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                     else
                     if( isOPDiffPossiable( current_pixel ) )
                         applyOPDiff( current_pixel, *buffer_p );
-                    else
-                    if( isOPLumaPossiable( current_pixel ) )
-                        applyOPLuma( current_pixel, *buffer_p );
+                    //else
+                    //if( isOPLumaPossiable( current_pixel ) )
+                    //    applyOPLuma( current_pixel, *buffer_p );
                     else
                     if( isOpRGBPossiable( current_pixel ) )
                         applyOPRGB( current_pixel, *buffer_p );
