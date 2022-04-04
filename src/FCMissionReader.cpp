@@ -1,5 +1,6 @@
 #include "Data/Mission/IFF.h"
 #include "Utilities/DataHandler.h"
+#include "Utilities/QuiteOkImage.h"
 #include <iostream>
 #include <fstream>
 #include "Data/Mission/BMPResource.h"
@@ -55,10 +56,29 @@ int main( int argc, char *argv[] ) {
                 {
                     mission_file[ number_of_inputs++ ].open( argv[++i] );
                     
-                    auto value = Data::Mission::BMPResource::getVector( mission_file[ number_of_inputs - 1 ] )[0]->getRGBImage()->write("texture.qoi");
+                    auto texture = Data::Mission::BMPResource::getVector( mission_file[ number_of_inputs - 1 ] )[0]->getRGBImage();
                     
-                   if( value < 0 )
-                       std::cout << "No output because " << value << std::endl;
+                    Utilities::QuiteOkImage ok_image;
+                    
+                    auto buffer_p = ok_image.write( *texture );
+                    
+                    if( buffer_p != nullptr )
+                    {
+                        if( buffer_p->write( "textureSource.qoi" ) )
+                        {
+                            Utilities::ImageData second_image;
+                            
+                            std::cout << "Status read(): " << ok_image.read( *buffer_p, second_image ) << std::endl;
+                            
+                            second_image.write( "texture2.qoi");
+                        }
+                        else
+                            std::cout << "File failed to write" << std::endl;
+                        
+                        delete buffer_p;
+                    }
+                    else
+                        std::cout << "Buffer_p failed to allocate!" << std::endl;
                 }
                 else
                 {

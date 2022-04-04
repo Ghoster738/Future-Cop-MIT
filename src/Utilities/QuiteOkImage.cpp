@@ -221,6 +221,155 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
         return nullptr;
 }
 
-bool Utilities::QuiteOkImage::read( const Buffer::Reader &reader, ImageData& image_data ) {
-    return false;
+int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, unsigned int back_search ) {
+    size_t INFO_STRUCT = 14;
+    size_t END_BYTES = 8;
+    bool end_found = false;
+    uint32_t width;
+    uint32_t height;
+    uint8_t channels;
+    uint8_t colorspace;
+    Buffer::Reader reader = buffer.getReader();
+    
+    if( reader.totalSize() > INFO_STRUCT + END_BYTES )
+    {
+        reset();
+        
+        // Check the header
+        if( reader.readI8() == 'q' && reader.readI8() == 'o' && reader.readI8() == 'i' && reader.readI8() == 'f' )
+        {
+            // Read the width and the height
+            width = reader.readU32( Utilities::Buffer::Endian::BIG );
+            height = reader.readU32( Utilities::Buffer::Endian::BIG );
+            channels = reader.readU8();
+            colorspace = reader.readU8();
+            
+            if( width != 0 && height != 0 )
+            {
+                // Find the ending 8 byte 0x1.
+                size_t back_limit = reader.totalSize() - (INFO_STRUCT + END_BYTES);
+                
+                for( size_t i = 0; i < back_limit && !end_found; i++ )
+                {
+                    reader.setPosition(i + END_BYTES, Buffer::Reader::Direction::ENDING);
+                    
+                    if( reader.readU64( Utilities::Buffer::Endian::BIG ) == 0x1 )
+                        end_found = true;
+                }
+                
+                if( end_found )
+                {
+                    Pixel current_pixel;
+                    current_pixel.alpha = 0xFF;
+                    
+                    // Allocate the image.
+                    image_data.setWidth( width );
+                    image_data.setHeight( height );
+                    
+                    if( channels == 3 )
+                        image_data.setFormat( ImageData::Type::RED_GREEN_BLUE, 1 );
+                    else
+                    {
+                        image_data.setFormat( ImageData::Type::RED_GREEN_BLUE_ALHPA, 1 );
+                        channels = 4; // TODO Make channels != 4 warning
+                    }
+                    
+                    // TODO Make colorspace > 1 warning Although colorspace has no effect on color space anyways.
+                    
+                    reader.setPosition( INFO_STRUCT, Buffer::Reader::Direction::BEGINING );
+                    
+                    bool no_abort = true;
+                    
+                    for( char * m = image_data.getRawImageData(); m != image_data.getRawImageData() + image_data.getPixelSize() * width * height && no_abort; m += image_data.getPixelSize() )
+                    {
+                        // TODO Actually read the pixel data.
+                        auto opcode = reader.readU8();
+                        
+                        if( opcode == 0b11111110 )
+                        {
+                            current_pixel.red   = reader.readU8();
+                            current_pixel.green = reader.readU8();
+                            current_pixel.blue  = reader.readU8();
+                        }
+                        else
+                        if( opcode == 0b11111111 )
+                        {
+                            current_pixel.red   = reader.readU8();
+                            current_pixel.green = reader.readU8();
+                            current_pixel.blue  = reader.readU8();
+                            current_pixel.alpha = reader.readU8();
+                        }
+                        else
+                        {
+                            auto data = opcode & 0b00111111;
+                            
+                            opcode &= 0b11000000;
+                            
+                            if( opcode == 0b11000000 ) // QOI_OP_RUN
+                            {
+                                size_t run = data;
+                                
+                                current_pixel = previous_pixel;
+                                
+                                for( size_t i = 0; i < run && m < image_data.getRawImageData() + image_data.getPixelSize() * (width * height - 1) && no_abort; i++, m += image_data.getPixelSize() )
+                                {
+                                    m[0] = current_pixel.red;
+                                    m[1] = current_pixel.green;
+                                    m[2] = current_pixel.blue;
+                                    
+                                    if( channels == 4 )
+                                        m[3] = current_pixel.alpha;
+                                }
+                            }
+                            else
+                            if( opcode == 0b10000000 ) // QOI_OP_LUMA
+                            {
+                                const uint8_t GREEN_BIAS = 32;
+                                const uint8_t BIAS = 8;
+                                auto data_2 = reader.readU8();
+                                
+                                current_pixel.green = previous_pixel.green + (data - GREEN_BIAS);
+                                current_pixel.red  = (previous_pixel.red  + (0b11110000 & data_2 >> 4) - BIAS) + previous_pixel.green;
+                                current_pixel.blue = (previous_pixel.blue + (0b00001111 & data_2 >> 0) - BIAS) + previous_pixel.green;
+                            }
+                            else
+                            if( opcode == 0b01000000 ) // QOI_OP_DIFF
+                            {
+                                const uint8_t BIAS = 2;
+                                
+                                current_pixel.red   = previous_pixel.red   + (0b110000 & data >> 4) - BIAS;
+                                current_pixel.green = previous_pixel.green + (0b001100 & data >> 2) - BIAS;
+                                current_pixel.blue  = previous_pixel.blue  + (0b000011 & data >> 0) - BIAS;
+                            }
+                            else
+                            if( opcode == 0b00000000 ) // QOI_OP_INDEX
+                                current_pixel = this->pixel_hash_table[ data ];
+                        }
+                        
+                        m[0] = current_pixel.red;
+                        m[1] = current_pixel.green;
+                        m[2] = current_pixel.blue;
+                        
+                        if( channels == 4 )
+                            m[3] = current_pixel.alpha;
+                        
+                        placePixelInHash( current_pixel );
+                        
+                        this->previous_pixel = current_pixel;
+                        
+                        no_abort = reader.getPosition( Buffer::Reader::ENDING ) > 8;
+                    }
+                    return 1; // NOT DONE!
+                }
+                else
+                    return -4;
+            }
+            else
+                return -3;
+        }
+        else
+            return -2;
+    }
+    else
+        return -1;
 }

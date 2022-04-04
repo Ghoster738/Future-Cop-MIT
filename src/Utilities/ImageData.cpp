@@ -373,9 +373,15 @@ int Utilities::ImageData::write( const char *const file_path ) const {
         if( buffer_p != nullptr )
         {
             if( buffer_p->write( file_path ) )
+            {
+                delete buffer_p;
                 return 2;
+            }
             else
+            {
+                delete buffer_p;
                 return -6;
+            }
         }
         else
             return -5;
