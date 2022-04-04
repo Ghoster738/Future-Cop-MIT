@@ -193,9 +193,9 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                     else
                     if( isOPDiffPossiable( current_pixel ) )
                         applyOPDiff( current_pixel, *buffer_p );
-                    //else
-                    //if( isOPLumaPossiable( current_pixel ) )
-                    //    applyOPLuma( current_pixel, *buffer_p );
+                    else
+                    if( isOPLumaPossiable( current_pixel ) )
+                        applyOPLuma( current_pixel, *buffer_p );
                     else
                     if( isOpRGBPossiable( current_pixel ) )
                         applyOPRGB( current_pixel, *buffer_p );
@@ -329,8 +329,8 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                                 auto data_2 = reader.readU8();
                                 
                                 current_pixel.green = previous_pixel.green + (data - GREEN_BIAS);
-                                current_pixel.red  = (previous_pixel.red  + (0b11110000 & data_2 >> 4) - BIAS) + previous_pixel.green;
-                                current_pixel.blue = (previous_pixel.blue + (0b00001111 & data_2 >> 0) - BIAS) + previous_pixel.green;
+                                current_pixel.red  = ((0b11110000 & data_2 >> 4) - BIAS) + previous_pixel.red  + current_pixel.green;
+                                current_pixel.blue = ((0b00001111 & data_2 >> 0) - BIAS) + previous_pixel.blue + current_pixel.green;
                             }
                             else
                             if( opcode == 0b01000000 ) // QOI_OP_DIFF
@@ -359,7 +359,7 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                         
                         no_abort = reader.getPosition( Buffer::Reader::ENDING ) > 8;
                     }
-                    return 1; // NOT DONE!
+                    return 1;
                 }
                 else
                     return -4;
