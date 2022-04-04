@@ -259,131 +259,107 @@ const char *const Utilities::ImageData::getRawImageData() const {
 }
 
 int Utilities::ImageData::write( const char *const file_path ) const {
-    if( false ) {
-        int answer = 0;
-        const auto PIXEL_SIZE = getPixelSize();
+    int answer = 0;
+    const auto PIXEL_SIZE = getPixelSize();
 
-        png_byte *imageData[this->height];
-        for( unsigned int i = 0; i < this->height; i++ ) {
-            // Yes, I was forced to change the cast, but since these pointers are not going to be changed this method does not break const convention.
-            imageData[ i ] = reinterpret_cast<png_byte*>(const_cast<char*>(image_data.data()) + this->width * PIXEL_SIZE * i);
-        }
+    png_byte *imageData[this->height];
+    for( unsigned int i = 0; i < this->height; i++ ) {
+        // Yes, I was forced to change the cast, but since these pointers are not going to be changed this method does not break const convention.
+        imageData[ i ] = reinterpret_cast<png_byte*>(const_cast<char*>(image_data.data()) + this->width * PIXEL_SIZE * i);
+    }
 
-        png_voidp user_error_ptr = nullptr;
-        png_error_ptr user_error_fn = nullptr;
-        png_error_ptr user_warning_fn = nullptr;
+    png_voidp user_error_ptr = nullptr;
+    png_error_ptr user_error_fn = nullptr;
+    png_error_ptr user_warning_fn = nullptr;
 
-        FILE *file;
-        file = fopen( file_path, "wb" );
+    FILE *file;
+    file = fopen( file_path, "wb" );
 
-        if( file == nullptr ) {
-            answer = -1;
-        }
-        else
-        {
-
-            png_structp  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_error_fn, user_warning_fn);
-            png_infop   info_ptr = nullptr;
-
-            if( png_ptr == nullptr )
-            {
-                answer = -2;
-            }
-            else
-            {
-                info_ptr = png_create_info_struct( png_ptr );
-
-                if( info_ptr == nullptr )
-                {
-                    answer = -3;
-                }
-                else
-                {
-                    if( setjmp( png_jmpbuf( png_ptr ) ) )
-                    {
-                        png_destroy_write_struct(&png_ptr, &info_ptr);
-                        fclose( file );
-                        return -4;
-                    }
-
-                    // I do not want to write out any index.
-                    // png_set_check_for_invalid_index(png_ptr, 0);
-
-                    png_init_io( png_ptr, file );
-
-                    // png_set_write_status_fn(png_ptr, write_row_callback);
-
-                    // Max setting for the true color image.
-                    png_set_filter( png_ptr, 0, PNG_ALL_FILTERS );
-                    png_set_compression_level( png_ptr, Z_BEST_COMPRESSION );
-
-                    int color_type;
-
-                    switch( this->type ) {
-                    case BLACK_WHITE:
-                        color_type = PNG_COLOR_TYPE_GRAY;
-                        break;
-                    case BLACK_WHITE_ALHPA:
-                        color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
-                        break;
-                    case PNG_COLOR_TYPE_RGB:
-                        color_type = PNG_COLOR_TYPE_RGB;
-                        break;
-                    case RED_GREEN_BLUE_ALHPA:
-                        color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-                        break;
-                    default:
-                        color_type = PNG_COLOR_TYPE_GRAY;
-                    }
-
-                    png_set_IHDR( png_ptr, info_ptr, width, height, bytes_per_channel * 8,
-                        color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
-                        PNG_FILTER_TYPE_DEFAULT );
-
-                    // I may need this for big endian computers if they are around some where.
-                    // png_set_invert_alpha( png_ptr );
-
-                    png_write_info( png_ptr, info_ptr );
-
-                    // little endian to big endian is not needed.
-                    // png_set_swap( png_ptr );
-
-                    // Avoid using flushes to increase the speed.
-                    png_set_flush( png_ptr, 64 );
-                    png_write_image( png_ptr, imageData );
-
-                    png_write_end( png_ptr, info_ptr );
-
-                    answer = 1;
-                }
-                png_destroy_write_struct(&png_ptr, &info_ptr);
-            }
-
-            fclose( file );
-        }
-
-        return answer;
+    if( file == nullptr ) {
+        answer = -1;
     }
     else
     {
-        QuiteOkImage ok_image;
-        
-        auto buffer_p = ok_image.write( *this );
-        
-        if( buffer_p != nullptr )
+
+        png_structp  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_error_fn, user_warning_fn);
+        png_infop   info_ptr = nullptr;
+
+        if( png_ptr == nullptr )
         {
-            if( buffer_p->write( file_path ) )
+            answer = -2;
+        }
+        else
+        {
+            info_ptr = png_create_info_struct( png_ptr );
+
+            if( info_ptr == nullptr )
             {
-                delete buffer_p;
-                return 2;
+                answer = -3;
             }
             else
             {
-                delete buffer_p;
-                return -6;
+                if( setjmp( png_jmpbuf( png_ptr ) ) )
+                {
+                    png_destroy_write_struct(&png_ptr, &info_ptr);
+                    fclose( file );
+                    return -4;
+                }
+
+                // I do not want to write out any index.
+                // png_set_check_for_invalid_index(png_ptr, 0);
+
+                png_init_io( png_ptr, file );
+
+                // png_set_write_status_fn(png_ptr, write_row_callback);
+
+                // Max setting for the true color image.
+                png_set_filter( png_ptr, 0, PNG_ALL_FILTERS );
+                png_set_compression_level( png_ptr, Z_BEST_COMPRESSION );
+
+                int color_type;
+
+                switch( this->type ) {
+                case BLACK_WHITE:
+                    color_type = PNG_COLOR_TYPE_GRAY;
+                    break;
+                case BLACK_WHITE_ALHPA:
+                    color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
+                    break;
+                case PNG_COLOR_TYPE_RGB:
+                    color_type = PNG_COLOR_TYPE_RGB;
+                    break;
+                case RED_GREEN_BLUE_ALHPA:
+                    color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+                    break;
+                default:
+                    color_type = PNG_COLOR_TYPE_GRAY;
+                }
+
+                png_set_IHDR( png_ptr, info_ptr, width, height, bytes_per_channel * 8,
+                    color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+                    PNG_FILTER_TYPE_DEFAULT );
+
+                // I may need this for big endian computers if they are around some where.
+                // png_set_invert_alpha( png_ptr );
+
+                png_write_info( png_ptr, info_ptr );
+
+                // little endian to big endian is not needed.
+                // png_set_swap( png_ptr );
+
+                // Avoid using flushes to increase the speed.
+                png_set_flush( png_ptr, 64 );
+                png_write_image( png_ptr, imageData );
+
+                png_write_end( png_ptr, info_ptr );
+
+                answer = 1;
             }
+            png_destroy_write_struct(&png_ptr, &info_ptr);
         }
-        else
-            return -5;
+
+        fclose( file );
     }
+
+    return answer;
 }

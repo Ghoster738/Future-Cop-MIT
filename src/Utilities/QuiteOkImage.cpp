@@ -14,7 +14,12 @@ void Utilities::QuiteOkImage::reset() {
 }
 
 uint8_t Utilities::QuiteOkImage::getHashIndex( const Utilities::QuiteOkImage::Pixel& pixel ) {
-    return (static_cast<uint16_t>(pixel.red) * 3 + static_cast<uint16_t>(pixel.green) * 5 + static_cast<uint16_t>(pixel.blue) * 7 + static_cast<uint16_t>(pixel.alpha) * 11) % PIXEL_HASH_TABLE_SIZE;
+    uint16_t   red_hash = static_cast<uint16_t>(pixel.red)   *  3;
+    uint16_t green_hash = static_cast<uint16_t>(pixel.green) *  5;
+    uint16_t  blue_hash = static_cast<uint16_t>(pixel.blue)  *  7;
+    uint16_t alpha_hash = static_cast<uint16_t>(pixel.blue)  * 11;
+    
+    return (red_hash + green_hash + blue_hash + alpha_hash) % PIXEL_HASH_TABLE_SIZE;
 }
 
 void Utilities::QuiteOkImage::placePixelInHash( const Utilities::QuiteOkImage::Pixel& pixel ) {
@@ -133,8 +138,9 @@ Utilities::QuiteOkImage::~QuiteOkImage() {
 }
 
 Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data ) {
-    // TODO Upgrade the image data to accomodate
-    if( image_data.getPixelSize() == 4 || image_data.getPixelSize() == 3 )
+    // TODO Upgrade the image data to be able to make a new texture that would work well with this format.
+    
+    if( image_data.getBytesPerChannel() == 1 && (image_data.getType() == ImageData::RED_GREEN_BLUE || image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA ) )
     {
         reset();
         
@@ -282,7 +288,6 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                     
                     for( char * m = image_data.getRawImageData(); m != image_data.getRawImageData() + image_data.getPixelSize() * width * height && no_abort; m += image_data.getPixelSize() )
                     {
-                        // TODO Actually read the pixel data.
                         auto opcode = reader.readU8();
                         
                         if( opcode == 0b11111110 )
