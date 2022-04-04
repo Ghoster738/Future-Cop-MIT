@@ -328,18 +328,20 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                                 const int8_t BIAS = 8;
                                 auto data_2 = reader.readU8();
                                 
-                                current_pixel.green = previous_pixel.green + (static_cast<int8_t>(data) - GREEN_BIAS);
-                                current_pixel.red  = ((0b11110000 & data_2 >> 4) - BIAS) + previous_pixel.red  + (static_cast<int8_t>(data) - GREEN_BIAS);
-                                current_pixel.blue = ((0b00001111 & data_2 >> 0) - BIAS) + previous_pixel.blue + (static_cast<int8_t>(data) - GREEN_BIAS);
+                                int16_t diff_green = (static_cast<int8_t>(data) - GREEN_BIAS);
+                                
+                                current_pixel.green = previous_pixel.green + diff_green;
+                                current_pixel.red   = previous_pixel.red  + ((0b11110000 & data_2) >> 4) + (diff_green - BIAS);
+                                current_pixel.blue  = previous_pixel.blue + ((0b00001111 & data_2) >> 0) + (diff_green - BIAS);
                             }
                             else
                             if( opcode == 0b01000000 ) // QOI_OP_DIFF
                             {
                                 const int8_t BIAS = 2;
                                 
-                                current_pixel.red   = previous_pixel.red   + (0b110000 & data >> 4) - BIAS;
-                                current_pixel.green = previous_pixel.green + (0b001100 & data >> 2) - BIAS;
-                                current_pixel.blue  = previous_pixel.blue  + (0b000011 & data >> 0) - BIAS;
+                                current_pixel.red   = previous_pixel.red   + ((0b110000 & data) >> 4) - BIAS;
+                                current_pixel.green = previous_pixel.green + ((0b001100 & data) >> 2) - BIAS;
+                                current_pixel.blue  = previous_pixel.blue  + ((0b000011 & data) >> 0) - BIAS;
                             }
                             else
                             if( opcode == 0b00000000 ) // QOI_OP_INDEX
