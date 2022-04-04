@@ -76,6 +76,7 @@ public:
         bool empty() const;
         bool ended() const;
         size_t totalSize() const;
+        size_t getPosition( Direction way = BEGINING ) const;
 
         void setPosition( int offset, Direction way );
 

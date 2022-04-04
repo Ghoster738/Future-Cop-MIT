@@ -224,25 +224,29 @@ size_t Utilities::Buffer::Reader::totalSize() const {
     return size;
 }
 
+size_t Utilities::Buffer::Reader::getPosition( Direction way ) const {
+    if( way == ENDING )
+        return size - current_index;
+    else
+        return current_index;
+}
+
 void Utilities::Buffer::Reader::setPosition( int offset, Direction way ) {
-    int base_offset;
     int new_offset;
 
     switch( way ) {
         case BEGINING:
-            base_offset = 0;
+            new_offset = 0 + offset;
             break;
         case CURRENT:
-            base_offset = static_cast<int>( current_index );
+            new_offset = static_cast<int>( current_index ) + offset;
             break;
         case ENDING:
-            base_offset = static_cast<int>( size );
+            new_offset = static_cast<int>( size ) - offset;
             break;
         default:
-            base_offset = 0;
+            new_offset = -1;
     }
-
-    new_offset = base_offset + offset;
 
     current_index = new_offset;
 

@@ -101,7 +101,7 @@ public:
     ~QuiteOkImage();
     
     Buffer * write( const ImageData& image_data );
-    bool read( const Buffer::Reader &reader, ImageData& image_data );
+    int read( const Buffer& buffer, ImageData& image_data, unsigned int back_header_search = 4);
 };
 
 };
