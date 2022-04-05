@@ -5,19 +5,30 @@ const Utilities::QuiteOkImage::Pixel Utilities::QuiteOkImage::INITIAL_PIXEL = { 
 const Utilities::QuiteOkImage::Pixel Utilities::QuiteOkImage::ZERO_PIXEL = { 0, 0, 0, 0 };
 
 void Utilities::QuiteOkImage::reset() {
-    type = RED_GREEN_BLUE_ALPHA;
     previous_pixel = INITIAL_PIXEL;
     run_amount = 0;
     
     for( size_t i = 0; i < PIXEL_HASH_TABLE_SIZE; i++ )
         pixel_hash_table[ i ] = ZERO_PIXEL;
+    
+    status.used_RGBA  = false;
+    status.used_RGB   = false;
+    status.used_index = false;
+    status.used_diff  = false;
+    status.used_luma  = false;
+    status.used_run   = false;
+    status.channel_ep = false;
+    status.depth_redu = false;
+    status.complete   = false;
+    status.success    = false;
+    status.status     = 0;
 }
 
 uint8_t Utilities::QuiteOkImage::getHashIndex( const Utilities::QuiteOkImage::Pixel& pixel ) {
     uint16_t   red_hash = static_cast<uint16_t>(pixel.red)   *  3;
     uint16_t green_hash = static_cast<uint16_t>(pixel.green) *  5;
     uint16_t  blue_hash = static_cast<uint16_t>(pixel.blue)  *  7;
-    uint16_t alpha_hash = static_cast<uint16_t>(pixel.blue)  * 11;
+    uint16_t alpha_hash = static_cast<uint16_t>(pixel.alpha) * 11;
     
     return (red_hash + green_hash + blue_hash + alpha_hash) % PIXEL_HASH_TABLE_SIZE;
 }
@@ -79,56 +90,63 @@ bool Utilities::QuiteOkImage::isOPLumaPossiable( const Utilities::QuiteOkImage::
 }
 
 bool Utilities::QuiteOkImage::isOpRGBPossiable( const Utilities::QuiteOkImage::Pixel& pixel ) const {
-    if( this->type == Type::RED_GREEN_BLUE )
-        return true; // No alpha value is going to be recorded.
-    else
     if( previous_pixel.alpha == pixel.alpha )
         return true;
     else
         return false;
 }
 
-void Utilities::QuiteOkImage::applyOPDiff( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) const {
+void Utilities::QuiteOkImage::applyOPDiff( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) {
     PixelSigned sub_pixel = subColor( pixel, this->previous_pixel );
-    uint8_t diff_byte = 0b01000000;
-    const uint8_t BIAS = 2;
+    uint8_t diff_byte = QOI_OP_DIFF;
     
     diff_byte |= (sub_pixel.red   + BIAS) << 4;
     diff_byte |= (sub_pixel.green + BIAS) << 2;
     diff_byte |= (sub_pixel.blue  + BIAS);
     
     buffer.addU8( diff_byte );
+    status.used_diff = true;
 }
 
-void Utilities::QuiteOkImage::applyOPLuma( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) const {
+void Utilities::QuiteOkImage::applyOPLuma( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) {
     PixelSigned sub_pixel = subColor( pixel, this->previous_pixel );
-    uint16_t luma_byte = 0b1000000000000000;
-    const uint8_t GREEN_BIAS = 32;
-    const uint8_t BIAS = 8;
+    uint16_t luma_byte = static_cast<uint16_t>( QOI_OP_LUMA ) << 8;
     
     int8_t dr_dg = sub_pixel.red  - sub_pixel.green;
     int8_t db_dg = sub_pixel.blue - sub_pixel.green;
     
     luma_byte |= (sub_pixel.green + GREEN_BIAS) << 8;
-    luma_byte |= ((dr_dg + BIAS) & 0b00001111) << 4;
-    luma_byte |= ((db_dg + BIAS) & 0b00001111);
+    luma_byte |= ((dr_dg + BIG_BIAS) & 0b00001111) << 4;
+    luma_byte |= ((db_dg + BIG_BIAS) & 0b00001111);
     
     buffer.addU16( luma_byte, Buffer::Endian::BIG );
+    status.used_luma = true;
 }
 
-void Utilities::QuiteOkImage::applyOPRGB(  const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) const {
-    buffer.addU8( 0b11111110 );
+void Utilities::QuiteOkImage::applyOPRGB(  const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) {
+    buffer.addU8( QOI_OP_RGB );
     buffer.addU8( pixel.red );
     buffer.addU8( pixel.green );
     buffer.addU8( pixel.blue );
+    status.used_RGB = true;
 }
 
-void Utilities::QuiteOkImage::applyOPRGBA( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) const {
-    buffer.addU8( 0b11111111 );
+void Utilities::QuiteOkImage::applyOPRGBA( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) {
+    buffer.addU8( QOI_OP_RGBA );
     buffer.addU8( pixel.red );
     buffer.addU8( pixel.green );
     buffer.addU8( pixel.blue );
     buffer.addU8( pixel.alpha );
+    status.used_RGBA = true;
+}
+
+void Utilities::QuiteOkImage::applyOPRun( Buffer& buffer ) {
+    if( this->run_amount > 0 )
+    {
+        buffer.addU8( (QOI_OP_D_BIT & (this->run_amount - 1)) | QOI_OP_RUN );
+        this->run_amount = 0;
+        status.used_run = true;
+    }
 }
 
 Utilities::QuiteOkImage::QuiteOkImage() {
@@ -137,35 +155,30 @@ Utilities::QuiteOkImage::QuiteOkImage() {
 Utilities::QuiteOkImage::~QuiteOkImage() {
 }
 
-Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data ) {
+Utilities::QuiteOkImage::QOIStatus Utilities::QuiteOkImage::write( const ImageData& image_data, Utilities::Buffer& buffer ) {
     // TODO Upgrade the image data to be able to make a new texture that would work well with this format.
     
     if( image_data.getBytesPerChannel() == 1 && (image_data.getType() == ImageData::RED_GREEN_BLUE || image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA ) )
     {
         reset();
         
-        Buffer *buffer_p = new Buffer();
         auto image_data_buffer = image_data.getRawImageData();
-        Pixel current_pixel;
-        current_pixel.alpha = 0xFF;
+        Pixel current_pixel = INITIAL_PIXEL;
         
-        buffer_p->addI8( 'q' );
-        buffer_p->addI8( 'o' );
-        buffer_p->addI8( 'i' );
-        buffer_p->addI8( 'f' );
-        buffer_p->addU32( image_data.getWidth(),  Buffer::Endian::BIG );
-        buffer_p->addU32( image_data.getHeight(), Buffer::Endian::BIG );
-        if( image_data.getPixelSize() == 32 )
-        {
-            this->type = Type::RED_GREEN_BLUE_ALPHA;
-            buffer_p->addU8( 4 );
-        }
+        // Write the header
+        buffer.addI8( 'q' );
+        buffer.addI8( 'o' );
+        buffer.addI8( 'i' );
+        buffer.addI8( 'f' );
+        buffer.addU32( image_data.getWidth(),  Buffer::Endian::BIG );
+        buffer.addU32( image_data.getHeight(), Buffer::Endian::BIG );
+        
+        if( image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA )
+            buffer.addU8( 4 );
         else
-        {
-            this->type = Type::RED_GREEN_BLUE;
-            buffer_p->addU8( 3 );
-        }
-        buffer_p->addU8( 1 ); // Linear color space.
+            buffer.addU8( 3 );
+        
+        buffer.addU8( 1 ); // Linear color space.
         
         for( size_t x = 0; x < image_data.getWidth(); x++ )
         {
@@ -175,38 +188,38 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
                 current_pixel.green = image_data_buffer[1];
                 current_pixel.blue  = image_data_buffer[2];
                 
-                if( this->type == Type::RED_GREEN_BLUE_ALPHA )
+                if( image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA )
                     current_pixel.alpha = image_data_buffer[3];
                 
                 if( matchColor(current_pixel, this->previous_pixel) )
                 {
                     this->run_amount++;
-                    if( this->run_amount >= 62 )
-                    {
-                        // QOI_OP_RUN operation.
-                        buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
-                        this->run_amount = 0;
-                    }
+                    
+                    assert( this->run_amount <= MAX_RUN_AMOUNT );
+                    
+                    if( this->run_amount == MAX_RUN_AMOUNT )
+                        applyOPRun( buffer );
                 }
                 else
                 {
-                    if( this->run_amount > 0 )
-                        buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
-                    this->run_amount = 0;
+                    applyOPRun( buffer );
                     
                     if( isOPIndexPossiable( current_pixel ) )
-                        buffer_p->addU8( (0b00111111 & getHashIndex( current_pixel ) ) );
+                    {
+                        buffer.addU8( (QOI_OP_D_BIT & getHashIndex( current_pixel )) | QOI_OP_INDEX );
+                        status.used_index = true;
+                    }
                     else
                     if( isOPDiffPossiable( current_pixel ) )
-                        applyOPDiff( current_pixel, *buffer_p );
+                        applyOPDiff( current_pixel, buffer );
                     else
                     if( isOPLumaPossiable( current_pixel ) )
-                        applyOPLuma( current_pixel, *buffer_p );
+                        applyOPLuma( current_pixel, buffer );
                     else
                     if( isOpRGBPossiable( current_pixel ) )
-                        applyOPRGB( current_pixel, *buffer_p );
+                        applyOPRGB( current_pixel, buffer );
                     else
-                        applyOPRGBA( current_pixel, *buffer_p );
+                        applyOPRGBA( current_pixel, buffer );
                 }
                 placePixelInHash( current_pixel );
                 this->previous_pixel = current_pixel;
@@ -215,19 +228,21 @@ Utilities::Buffer * Utilities::QuiteOkImage::write( const ImageData& image_data 
             }
         }
         
-        if( this->run_amount > 0 )
-            buffer_p->addU8( (0b00111111 & (this->run_amount - 1)) | 0b11000000 );
-        this->run_amount = 0;
+        applyOPRun( buffer );
         
-        buffer_p->addU64( 0x1, Utilities::Buffer::Endian::BIG );
+        buffer.addU64( 0x1, Utilities::Buffer::Endian::BIG );
         
-        return buffer_p;
+        status.complete = true;
+        status.success  = true;
+        status.status   = Status::OKAY;
     }
     else
-        return nullptr;
+        status.status = Status::INVALID_IMAGE_FORMAT;
+    
+    return status;
 }
 
-int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, unsigned int back_search ) {
+Utilities::QuiteOkImage::QOIStatus Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, unsigned int back_search ) {
     size_t INFO_STRUCT = 14;
     size_t END_BYTES = 8;
     bool end_found = false;
@@ -237,10 +252,10 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
     uint8_t colorspace;
     Buffer::Reader reader = buffer.getReader();
     
+    reset();
+    
     if( reader.totalSize() > INFO_STRUCT + END_BYTES )
     {
-        reset();
-        
         // Check the header
         if( reader.readI8() == 'q' && reader.readI8() == 'o' && reader.readI8() == 'i' && reader.readI8() == 'f' )
         {
@@ -285,19 +300,20 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                     reader.setPosition( INFO_STRUCT, Buffer::Reader::Direction::BEGINING );
                     
                     bool no_abort = true;
+                    char *m;
                     
-                    for( char * m = image_data.getRawImageData(); m != image_data.getRawImageData() + image_data.getPixelSize() * width * height && no_abort; m += image_data.getPixelSize() )
+                    for( m = image_data.getRawImageData(); m != image_data.getRawImageData() + image_data.getPixelSize() * width * height && no_abort; m += image_data.getPixelSize() )
                     {
                         auto opcode = reader.readU8();
                         
-                        if( opcode == 0b11111110 )
+                        if( opcode == QOI_OP_RGB )
                         {
                             current_pixel.red   = reader.readU8();
                             current_pixel.green = reader.readU8();
                             current_pixel.blue  = reader.readU8();
                         }
                         else
-                        if( opcode == 0b11111111 )
+                        if( opcode == QOI_OP_RGBA )
                         {
                             current_pixel.red   = reader.readU8();
                             current_pixel.green = reader.readU8();
@@ -306,17 +322,17 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                         }
                         else
                         {
-                            auto data = opcode & 0b00111111;
+                            auto data = opcode & QOI_OP_D_BIT;
                             
-                            opcode &= 0b11000000;
+                            opcode &= QOI_OP_S_BIT;
                             
-                            if( opcode == 0b11000000 ) // QOI_OP_RUN
+                            if( opcode == QOI_OP_RUN )
                             {
-                                size_t run = data;
+                                uint8_t run = data; // It is run + 1, but the ending pixel will be placed at the end instead.
                                 
                                 current_pixel = previous_pixel;
                                 
-                                for( size_t i = 0; i < run && m < image_data.getRawImageData() + image_data.getPixelSize() * (width * height - 1) && no_abort; i++, m += image_data.getPixelSize() )
+                                for( uint8_t i = 0; i < run && m < image_data.getRawImageData() + image_data.getPixelSize() * (width * height - 1); i++, m += image_data.getPixelSize() )
                                 {
                                     m[0] = current_pixel.red;
                                     m[1] = current_pixel.green;
@@ -327,29 +343,25 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                                 }
                             }
                             else
-                            if( opcode == 0b10000000 ) // QOI_OP_LUMA
+                            if( opcode == QOI_OP_LUMA )
                             {
-                                const int8_t GREEN_BIAS = 32;
-                                const int8_t BIAS = 8;
                                 auto data_2 = reader.readU8();
                                 
                                 int16_t diff_green = (static_cast<int8_t>(data) - GREEN_BIAS);
                                 
                                 current_pixel.green = previous_pixel.green + diff_green;
-                                current_pixel.red   = previous_pixel.red  + ((0b11110000 & data_2) >> 4) + (diff_green - BIAS);
-                                current_pixel.blue  = previous_pixel.blue + ((0b00001111 & data_2) >> 0) + (diff_green - BIAS);
+                                current_pixel.red   = previous_pixel.red  + ((0b11110000 & data_2) >> 4) + (diff_green - BIG_BIAS);
+                                current_pixel.blue  = previous_pixel.blue + ((0b00001111 & data_2) >> 0) + (diff_green - BIG_BIAS);
                             }
                             else
-                            if( opcode == 0b01000000 ) // QOI_OP_DIFF
+                            if( opcode == QOI_OP_DIFF )
                             {
-                                const int8_t BIAS = 2;
-                                
                                 current_pixel.red   = previous_pixel.red   + ((0b110000 & data) >> 4) - BIAS;
                                 current_pixel.green = previous_pixel.green + ((0b001100 & data) >> 2) - BIAS;
                                 current_pixel.blue  = previous_pixel.blue  + ((0b000011 & data) >> 0) - BIAS;
                             }
                             else
-                            if( opcode == 0b00000000 ) // QOI_OP_INDEX
+                            if( opcode == QOI_OP_INDEX )
                                 current_pixel = this->pixel_hash_table[ data ];
                         }
                         
@@ -366,17 +378,21 @@ int Utilities::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, 
                         
                         no_abort = reader.getPosition( Buffer::Reader::ENDING ) > 8;
                     }
-                    return 1;
+                    status.complete = (m == image_data.getRawImageData() + image_data.getPixelSize() * width * height);
+                    status.success = true;
+                    status.status = Status::OKAY;
                 }
                 else
-                    return -4;
+                    status.status = Status::INVALID_END_HEADER;
             }
             else
-                return -3;
+                status.status = Status::INVALID_IMAGE_SIZE;
         }
         else
-            return -2;
+            status.status = Status::INVALID_BEGIN_HEADER;
     }
     else
-        return -1;
+        status.status = Status::INVALID_IMAGE_SIZE;
+    
+    return status;
 }
