@@ -28,19 +28,51 @@ public:
         int8_t blue;
         int8_t alpha;
     };
-    enum Type { RED_GREEN_BLUE = 3, RED_GREEN_BLUE_ALPHA = 4 };
-    enum ColorSpace { S_RGB = 0, LINEAR = 1 };
+    struct QOIStatus {
+        // These are the bits gets heighlighted when they are used.
+        uint16_t used_RGBA  : 1;
+        uint16_t used_RGB   : 1;
+        uint16_t used_index : 1;
+        uint16_t used_diff  : 1;
+        uint16_t used_luma  : 1;
+        uint16_t used_run   : 1;
+        uint16_t channel_ep : 1; // The image was black and white and it needed to be expanded.
+        uint16_t depth_redu : 1; // The depth of the image had to be reduced.
+        uint16_t complete   : 1; // The entire source has been read.
+        uint16_t success    : 1;
+        uint16_t status     : 8;
+    };
+    enum Status {
+        OKAY                 = 0,
+        INVALID_IMAGE_FORMAT = 1, // The format is not convertable to the exporter
+        INVALID_BEGIN_HEADER = 2, // The begin header is invalid.
+        INVALID_END_HEADER   = 3, // The end header is invalid.
+        INVALID_IMAGE_SIZE   = 4  // The image's width or/and height is not valid
+    };
     
     const static Pixel INITIAL_PIXEL;
     const static Pixel    ZERO_PIXEL;
     constexpr static size_t PIXEL_HASH_TABLE_SIZE = 64;
     constexpr static size_t MAX_RUN_AMOUNT = 62;
+    constexpr static uint8_t BIAS = 2;
+    constexpr static uint8_t BIG_BIAS = 8;
+    constexpr static uint8_t GREEN_BIAS = 32;
+    
+    constexpr static uint8_t QOI_OP_RGB   = 0b11111110;
+    constexpr static uint8_t QOI_OP_RGBA  = 0b11111111;
+    constexpr static uint8_t QOI_OP_INDEX = 0b00000000;
+    constexpr static uint8_t QOI_OP_DIFF  = 0b01000000;
+    constexpr static uint8_t QOI_OP_LUMA  = 0b10000000;
+    constexpr static uint8_t QOI_OP_RUN   = 0b11000000;
+    constexpr static uint8_t QOI_OP_D_BIT = 0b00111111;
+    constexpr static uint8_t QOI_OP_S_BIT = QOI_OP_RUN;  // Small opcodes
+    constexpr static uint8_t QOI_OP_B_BIT = QOI_OP_RGBA; // Big opcodes
     
 private:
-    Type type;
     Pixel pixel_hash_table[ PIXEL_HASH_TABLE_SIZE ];
     Pixel previous_pixel;
     uint8_t run_amount; // 0 - 62
+    QOIStatus status;
     
     /**
      * This method fills the hash table with zeros and sets the previous pixel to its initial state.
@@ -69,17 +101,18 @@ private:
     bool isOPLumaPossiable( const Pixel& pixel ) const;
     bool isOpRGBPossiable( const Pixel& pixel ) const;
     
-    void applyOPDiff( const Pixel& pixel, Buffer& buffer ) const;
-    void applyOPLuma( const Pixel& pixel, Buffer& buffer ) const;
-    void applyOPRGB(  const Pixel& pixel, Buffer& buffer ) const;
-    void applyOPRGBA( const Pixel& pixel, Buffer& buffer ) const;
+    void applyOPRun(  Buffer& buffer );
+    void applyOPDiff( const Pixel& pixel, Buffer& buffer );
+    void applyOPLuma( const Pixel& pixel, Buffer& buffer );
+    void applyOPRGB(  const Pixel& pixel, Buffer& buffer );
+    void applyOPRGBA( const Pixel& pixel, Buffer& buffer );
     
 public:
     QuiteOkImage();
     ~QuiteOkImage();
     
-    Buffer * write( const ImageData& image_data );
-    int read( const Buffer& buffer, ImageData& image_data, unsigned int back_header_search = 4);
+    QOIStatus write( const ImageData& image_data, Buffer& buffer );
+    QOIStatus read( const Buffer& buffer, ImageData& image_data, unsigned int back_header_search = 4);
 };
 
 };
