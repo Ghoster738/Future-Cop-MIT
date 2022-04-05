@@ -71,7 +71,10 @@ public:
 private:
     Pixel pixel_hash_table[ PIXEL_HASH_TABLE_SIZE ];
     Pixel previous_pixel;
-    uint8_t run_amount; // 0 - 62
+    PixelSigned difference;
+    int8_t dr_dg;
+    int8_t db_dg;
+    uint8_t run_amount; // 1 - 62
     QOIStatus status;
     
     /**
@@ -90,8 +93,6 @@ private:
      * @return If the same pixel is in the table then this returns true.
      */
     void placePixelInHash( const Pixel& pixel );
-    
-    static uint8_t wrap( int16_t operand );
     
     static bool matchColor( const Pixel& one, const Pixel& two );
     static PixelSigned subColor( const Pixel& current, const Pixel& previous );
