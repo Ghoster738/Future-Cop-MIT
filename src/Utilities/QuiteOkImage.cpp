@@ -306,19 +306,14 @@ Utilities::QuiteOkImage::QOIStatus Utilities::QuiteOkImage::read( const Buffer& 
                     {
                         auto opcode = reader.readU8();
                         
-                        if( opcode == QOI_OP_RGB )
+                        if( opcode & QOI_OP_RGB == QOI_OP_RGB )
                         {
                             current_pixel.red   = reader.readU8();
                             current_pixel.green = reader.readU8();
                             current_pixel.blue  = reader.readU8();
-                        }
-                        else
-                        if( opcode == QOI_OP_RGBA )
-                        {
-                            current_pixel.red   = reader.readU8();
-                            current_pixel.green = reader.readU8();
-                            current_pixel.blue  = reader.readU8();
-                            current_pixel.alpha = reader.readU8();
+                            
+                            if( opcode == QOI_OP_RGBA )
+                                current_pixel.alpha = reader.readU8();
                         }
                         else
                         {
