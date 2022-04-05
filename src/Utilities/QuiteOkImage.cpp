@@ -60,28 +60,15 @@ bool Utilities::QuiteOkImage::isOPIndexPossiable( const Utilities::QuiteOkImage:
 
 bool Utilities::QuiteOkImage::isOPDiffPossiable( const Utilities::QuiteOkImage::Pixel& pixel ) const {
     if( previous_pixel.alpha == pixel.alpha )
-    {
-        PixelSigned difference = subColor( pixel, previous_pixel );
-        
         return (difference.green >= -2) & (difference.green <= 1 ) & (difference.red >= -2) & (difference.red <= 1 ) & (difference.blue >= -2) & (difference.blue <= 1 );
-    }
     else
         return false;
 }
 bool Utilities::QuiteOkImage::isOPLumaPossiable( const Utilities::QuiteOkImage::Pixel& pixel ) const {
     if( previous_pixel.alpha == pixel.alpha )
     {
-        PixelSigned difference = subColor( pixel, previous_pixel );
-        int8_t dr_dg;
-        int8_t db_dg;
-        
         if( difference.green >= -32 && difference.green <= 31 )
-        {
-            dr_dg = difference.red  - difference.green;
-            db_dg = difference.blue - difference.green;
-            
             return ( dr_dg >= -8 ) & ( dr_dg <= 7 ) & ( db_dg >= -8 ) & ( db_dg <= 7 );
-        }
         else
             return false;
     }
@@ -97,25 +84,20 @@ bool Utilities::QuiteOkImage::isOpRGBPossiable( const Utilities::QuiteOkImage::P
 }
 
 void Utilities::QuiteOkImage::applyOPDiff( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) {
-    PixelSigned sub_pixel = subColor( pixel, this->previous_pixel );
     uint8_t diff_byte = QOI_OP_DIFF;
     
-    diff_byte |= (sub_pixel.red   + BIAS) << 4;
-    diff_byte |= (sub_pixel.green + BIAS) << 2;
-    diff_byte |= (sub_pixel.blue  + BIAS);
+    diff_byte |= (difference.red   + BIAS) << 4;
+    diff_byte |= (difference.green + BIAS) << 2;
+    diff_byte |= (difference.blue  + BIAS);
     
     buffer.addU8( diff_byte );
     status.used_diff = true;
 }
 
 void Utilities::QuiteOkImage::applyOPLuma( const Utilities::QuiteOkImage::Pixel& pixel, Utilities::Buffer& buffer ) {
-    PixelSigned sub_pixel = subColor( pixel, this->previous_pixel );
     uint16_t luma_byte = static_cast<uint16_t>( QOI_OP_LUMA ) << 8;
     
-    int8_t dr_dg = sub_pixel.red  - sub_pixel.green;
-    int8_t db_dg = sub_pixel.blue - sub_pixel.green;
-    
-    luma_byte |= (sub_pixel.green + GREEN_BIAS) << 8;
+    luma_byte |= (difference.green + GREEN_BIAS) << 8;
     luma_byte |= ((dr_dg + BIG_BIAS) & 0b00001111) << 4;
     luma_byte |= ((db_dg + BIG_BIAS) & 0b00001111);
     
@@ -210,16 +192,25 @@ Utilities::QuiteOkImage::QOIStatus Utilities::QuiteOkImage::write( const ImageDa
                         status.used_index = true;
                     }
                     else
-                    if( isOPDiffPossiable( current_pixel ) )
-                        applyOPDiff( current_pixel, buffer );
-                    else
-                    if( isOPLumaPossiable( current_pixel ) )
-                        applyOPLuma( current_pixel, buffer );
-                    else
-                    if( isOpRGBPossiable( current_pixel ) )
-                        applyOPRGB( current_pixel, buffer );
-                    else
-                        applyOPRGBA( current_pixel, buffer );
+                    {
+                        difference = subColor( current_pixel, previous_pixel );
+                        
+                        if( isOPDiffPossiable( current_pixel ) )
+                            applyOPDiff( current_pixel, buffer );
+                        else
+                        {
+                            dr_dg = difference.red  - difference.green;
+                            db_dg = difference.blue - difference.green;
+                            
+                            if( isOPLumaPossiable( current_pixel ) )
+                                applyOPLuma( current_pixel, buffer );
+                            else
+                            if( isOpRGBPossiable( current_pixel ) )
+                                applyOPRGB( current_pixel, buffer );
+                            else
+                                applyOPRGBA( current_pixel, buffer );
+                        }
+                    }
                 }
                 placePixelInHash( current_pixel );
                 this->previous_pixel = current_pixel;
@@ -306,7 +297,7 @@ Utilities::QuiteOkImage::QOIStatus Utilities::QuiteOkImage::read( const Buffer& 
                     {
                         auto opcode = reader.readU8();
                         
-                        if( opcode & QOI_OP_RGB == QOI_OP_RGB )
+                        if( (opcode & QOI_OP_RGB) == QOI_OP_RGB )
                         {
                             current_pixel.red   = reader.readU8();
                             current_pixel.green = reader.readU8();
