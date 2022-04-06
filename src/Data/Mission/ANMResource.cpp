@@ -124,7 +124,7 @@ bool Data::Mission::ANMResource::parse( const Utilities::Buffer &header, const U
     if( settings.output_level >= 1 )
         *settings.output_ref << "ANM: " << getIndexNumber() << std::endl;
 
-    const auto FRAMES = reader.readU32();
+    const auto FRAMES = reader.readU32( settings.endian );
 
     if( (sizeof( uint32_t ) + sizeof( uint16_t ) * 0x100 ) < reader.totalSize() )
     {
@@ -134,7 +134,7 @@ bool Data::Mission::ANMResource::parse( const Utilities::Buffer &header, const U
         palette.setHeight( 0x100 );
         palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
         for( unsigned int i = 0; i < palette.getHeight(); i++ ) {
-            Utilities::ImageData::translate_16_to_24( reader.readU16(), blue, green, red );
+            Utilities::ImageData::translate_16_to_24( reader.readU16( settings.endian ), blue, green, red );
 
             auto palettePixel = palette.getRawImageData() + i * palette.getPixelSize();
             
