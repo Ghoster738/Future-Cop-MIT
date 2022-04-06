@@ -8,7 +8,7 @@
 
 namespace {
     const size_t HEADER_SIZE = 0x20;
-    const char *const MAGIC_NUMBER = "FNTP";
+    const uint32_t FNTP_TAG = 0x464E5450; // which is { 0x46, 0x4E, 0x54, 0x50 } or { 'F', 'N', 'T', 'P' } or "FNTP"
     const size_t NUMBER_OF_GLYPHS_OFFSET = 0xA;
     const size_t OFFSET_TO_GLYPH_DATA_OFFSET = 0x14;
     const size_t OFFSET_TO_IMAGE_HEADER_OFFSET = 0x1C;
@@ -106,65 +106,70 @@ const Data::Mission::FontGlyph *const Data::Mission::FontResource::getGlyph( uin
     return font_glyphs_r[ which ];
 }
 
-bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
+bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+    auto reader = buffer.getReader();
 
     bool file_is_not_valid;
     uint16_t number_of_glyphs;
     uint32_t offset_to_glyphs;
     uint32_t offset_to_image_header;
-    uint8_t *bytes;
 
-    if( raw_data.size() > HEADER_SIZE )
+    if( reader.totalSize() > HEADER_SIZE )
     {
-        // Read the header first to reduce the chance of a buffer overflow error.
-        bytes = raw_data.data();
-
+        auto header = reader.readU32( settings.endian );
+        
         // Get the data first
-        number_of_glyphs       = Utilities::DataHandler::read_u16_little(bytes + NUMBER_OF_GLYPHS_OFFSET);
-        offset_to_glyphs       = Utilities::DataHandler::read_u32_little(bytes + OFFSET_TO_GLYPH_DATA_OFFSET);
-        offset_to_image_header = Utilities::DataHandler::read_u32_little(bytes + OFFSET_TO_IMAGE_HEADER_OFFSET);
+        reader.setPosition( NUMBER_OF_GLYPHS_OFFSET, Utilities::Buffer::Reader::BEGINING );
+        number_of_glyphs       = reader.readU16( settings.endian );
+        reader.setPosition( OFFSET_TO_GLYPH_DATA_OFFSET, Utilities::Buffer::Reader::BEGINING );
+        offset_to_glyphs       = reader.readU32( settings.endian );
+        reader.setPosition( OFFSET_TO_IMAGE_HEADER_OFFSET, Utilities::Buffer::Reader::BEGINING );
+        offset_to_image_header = reader.readU32( settings.endian );
 
         // Check to see if the data will work.
         file_is_not_valid = false;
-        file_is_not_valid |= ( strncmp( reinterpret_cast<char*>(bytes + 0), MAGIC_NUMBER, 4 ) != 0 );
-        file_is_not_valid |= ( (number_of_glyphs * FONT_CHARACTER_SIZE + offset_to_glyphs) > raw_data.size() );
-        file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header) > raw_data.size() );
+        file_is_not_valid |= ( header == FNTP_TAG );
+        file_is_not_valid |= ( (number_of_glyphs * FONT_CHARACTER_SIZE + offset_to_glyphs) > reader.totalSize() );
+        file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header) > reader.totalSize() );
 
         if( !file_is_not_valid )
         {
-            image.setWidth( Utilities::DataHandler::read_u32_little(bytes + offset_to_image_header + IMAGE_HEADER_OFFSET_FOR_WIDTH) * 4 ); // For some reason they had this value divided by 4.
-            image.setHeight( Utilities::DataHandler::read_u32_little(bytes + offset_to_image_header + IMAGE_HEADER_OFFSET_FOR_HEIGHT) );
+            reader.setPosition( offset_to_image_header + IMAGE_HEADER_OFFSET_FOR_WIDTH, Utilities::Buffer::Reader::BEGINING );
+            image.setWidth( reader.readU32( settings.endian ) * 4 ); // For some reason they had this value divided by 4.
+            reader.setPosition( offset_to_image_header + IMAGE_HEADER_OFFSET_FOR_HEIGHT, Utilities::Buffer::Reader::BEGINING );
+            image.setHeight( reader.readU32( settings.endian ) );
 
             // Set up the image.
             file_is_not_valid |= !image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
 
             // Check to see if the image would go beyond the scope of the raw_data.
-            file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image.getWidth() / 2) * image.getHeight()) > raw_data.size() );
+            file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image.getWidth() / 2) * image.getHeight()) > reader.totalSize() );
 
             if( !file_is_not_valid ) {
+                reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGINING );
+                
                 for( unsigned int i = 0; i < number_of_glyphs; i++ )
                 {
-                    glyphs.push_back( FontGlyph( bytes + offset_to_glyphs + i * FONT_CHARACTER_SIZE, settings.is_opposite_endian ) );
+                    glyphs.push_back( FontGlyph( reader.getBytes( FONT_CHARACTER_SIZE ).data(), settings.is_opposite_endian ) );
                 }
                 
                 // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
                 for( unsigned int i = 0; i < number_of_glyphs; i++  ) {
-                    font_glyphs_r[ glyphs[i].getGlyph() ] = &glyphs[ i ];;
+                    font_glyphs_r[ glyphs[i].getGlyph() ] = &glyphs[ i ];
                 }
 
-                unsigned int pixel_index = 0;
-
                 auto image_data = image.getRawImageData();
+                
+                reader.setPosition( IMAGE_HEADER_SIZE + offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
 
                 // The pixels seems to be compressed in a certian format.
                 // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
                 // This compression reduces the image size to a half.
                 // Yes, they could have used one bit per pixel, but I think it would increase the loading times.
                 for( unsigned int x = 0; x < image.getHeight() * image.getWidth() / 2; x++ ) {
-                    char pixelPack = bytes[ offset_to_image_header + IMAGE_HEADER_SIZE + pixel_index ];
+                    auto pixel_pack = reader.readU8();
 
-                    if( (pixelPack & 0xF0) != 0 ) {
+                    if( (pixel_pack & 0xF0) != 0 ) {
                         *image_data = 0xFF;
                     }
                     else {
@@ -172,15 +177,13 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
                     }
                     image_data++;
 
-                    if( (pixelPack & 0x0F) != 0 ) {
+                    if( (pixel_pack & 0x0F) != 0 ) {
                         *image_data = 0xFF;
                     }
                     else {
                         *image_data = 0x00;
                     }
                     image_data++;
-
-                    pixel_index++;
                 }
 
                 return true;
