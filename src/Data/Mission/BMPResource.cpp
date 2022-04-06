@@ -3,7 +3,6 @@
 #include <cmath>
 #include "../../Utilities/DataHandler.h"
 #include <fstream>
-#include <cassert>
 
 namespace {
 // Both versions have this for this is the header for the texture.
@@ -36,23 +35,21 @@ uint32_t Data::Mission::BMPResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
-
+bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
     bool file_is_not_valid = false;
-    auto data = raw_data.data();
+    auto reader = buffer.getReader();
 
-    while( static_cast<unsigned int>( data - raw_data.data() ) < raw_data.size() ) {
-        auto identifier = Utilities::DataHandler::read_u32( data, settings.is_opposite_endian );
-        auto tag_size   = Utilities::DataHandler::read_u32( data + sizeof( uint32_t ), settings.is_opposite_endian );
+    while( reader.getPosition() < reader.totalSize() ) {
+        auto identifier = reader.readU32( settings.endian );
+        auto tag_size   = reader.readU32( settings.endian );
 
         if( identifier == CCB_TAG ) {
-            auto cbb_data = data + sizeof( uint32_t ) * 2;
+            auto cbb_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
             // TODO This probably handles the transparency, and maybe other effects.
         }
         else
         if( identifier == LKUP_TAG ) {
-            auto lkup_data = data + sizeof( uint32_t ) * 2;
+            auto lkup_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
             const size_t LOOKUP_DATA_AMOUNT = sizeof( lookUpData ) / sizeof( lookUpData[0] );
 
@@ -60,14 +57,11 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             // In second thought
             // I could be that this is simply a big list of 0x400 unsigned bytes and the 16-bit data is simply going to scale down.
             for( unsigned int i = 0; i < LOOKUP_DATA_AMOUNT; i++ )
-            {
-                lookUpData[ i ] = *lkup_data;
-                lkup_data++;
-            }
+                lookUpData[ i ] = lkup_reader.readU8();
         }
         else
         if( identifier == PDAT_TAG ) { // For PlayStation
-            auto px_raw_data = data + sizeof( uint32_t ) * 2;
+            auto px_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
             // setup the image
             image_raw.setWidth( 0x100 );
@@ -77,15 +71,14 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             auto image_data_8_bit = image_raw.getRawImageData();
             for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
 
-                *reinterpret_cast<uint8_t*>(image_data_8_bit) = Utilities::DataHandler::read_u8( px_raw_data );
+                *reinterpret_cast<uint8_t*>(image_data_8_bit) = px_reader.readU8();
 
                 image_data_8_bit += image_raw.getPixelSize();
-                px_raw_data += sizeof( uint8_t );
             }
         }
          else
          if( identifier == PX16_TAG ) { // For Windows
-            auto px_raw_data = data + sizeof( uint32_t ) * 2;
+             auto px16_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
             // setup the image
             image_raw.setWidth( 0x100 );
@@ -94,19 +87,17 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
 
             auto image_data_16bit = image_raw.getRawImageData();
             for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
-
-                *reinterpret_cast<uint16_t*>(image_data_16bit) = Utilities::DataHandler::read_u16( px_raw_data, settings.is_opposite_endian );
+                *reinterpret_cast<uint16_t*>(image_data_16bit) = px16_reader.readU16( settings.endian );
 
                 image_data_16bit += image_raw.getPixelSize();
-                px_raw_data += sizeof( uint16_t );
             }
         }
         else
         if( identifier == PLUT_TAG) {
-            auto plut_data = data + sizeof( uint32_t ) * 2;
+            auto plut_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
             // The color pallette is located 12 bytes away from the start of the tag.
-            auto color_pallete = plut_data + 0xC;
+            plut_reader.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
 
             // Now store the color palette.
             palette.setWidth( 1 );
@@ -117,24 +108,19 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             uint8_t red, green, blue;
 
             for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
-                Utilities::ImageData::translate_16_to_24( Utilities::DataHandler::read_u16( color_pallete, settings.is_opposite_endian ), blue, green, red );
+                Utilities::ImageData::translate_16_to_24( plut_reader.readU16( settings.endian ), blue, green, red );
 
                 palette_data[0] = red;
                 palette_data[1] = green;
                 palette_data[2] = blue;
-
-                color_pallete += sizeof( uint16_t );
 
                 palette_data += palette.getPixelSize();
             }
         }
         else
         {
-            data = raw_data.data() + raw_data.size();
-            assert( false );
+            reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
         }
-
-        data += tag_size;
     }
 
     if( !file_is_not_valid ) { // If file is valid.
