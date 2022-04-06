@@ -116,55 +116,47 @@ uint32_t Data::Mission::ANMResource::getResourceTagID() const {
 }
 
 bool Data::Mission::ANMResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
+    auto reader = reader_data.getReader();
 
     size_t buffer_size = 0;
     bool file_is_not_valid = false;
-    auto data = raw_data.data();
 
     if( settings.output_level >= 1 )
         *settings.output_ref << "ANM: " << getIndexNumber() << std::endl;
 
-    const uint32_t FRAMES = Utilities::DataHandler::read_u32( data, settings.is_opposite_endian );
+    const auto FRAMES = reader.readU32();
 
-    if( (sizeof( uint32_t ) + sizeof( uint16_t ) * 0x100 ) < raw_data.size() )
+    if( (sizeof( uint32_t ) + sizeof( uint16_t ) * 0x100 ) < reader.totalSize() )
     {
-        // We are done with the magic number.
-        data += sizeof( uint32_t );
-
         uint8_t blue, green, red;
 
         palette.setWidth( 1 );
         palette.setHeight( 0x100 );
         palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
         for( unsigned int i = 0; i < palette.getHeight(); i++ ) {
-            Utilities::ImageData::translate_16_to_24( Utilities::DataHandler::read_u16( data, settings.is_opposite_endian ), blue, green, red );
+            Utilities::ImageData::translate_16_to_24( reader.readU16(), blue, green, red );
 
             auto palettePixel = palette.getRawImageData() + i * palette.getPixelSize();
+            
             palettePixel[0] = red;
             palettePixel[1] = green;
             palettePixel[2] = blue;
-
-            data += sizeof( uint16_t );
         }
 
         this->total_scanlines = FRAMES * Video::SCAN_LINE_POSITIONS;
 
-        if( this->total_scanlines + sizeof(uint32_t) == (raw_data.size() - (raw_data.data() - data)) / (Video::WIDTH * Video::SCAN_LINES_PER_FRAME) )
+        if( this->total_scanlines + sizeof(uint32_t) == (reader.totalSize() - reader.getPosition()) / (Video::WIDTH * Video::SCAN_LINES_PER_FRAME) )
         {
             if( this->total_scanlines >= Video::SCAN_LINE_POSITIONS )
             {
                 buffer_size = this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME;
 
-                scanline_raw_bytes_p = new uint8_t [ this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME ];
+                this->scanline_raw_bytes_p = new uint8_t [ this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME ];
 
                 if( scanline_raw_bytes_p != nullptr )
                 {
                     for( size_t i = 0; i < buffer_size; i++ )
-                    {
-                        scanline_raw_bytes_p[ i ] = data[ 0 ];
-                        data += sizeof( uint8_t );
-                    }
+                        this->scanline_raw_bytes_p[ i ] = reader.readU8();
 
                     return true;
                 }
@@ -247,6 +239,8 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
         else
             return 0; // Indicate that nothing will be exported.
     }
+    else
+        return -1;
 }
 
 std::vector<Data::Mission::ANMResource*> Data::Mission::ANMResource::getVector( Data::Mission::IFF &mission_file ) {
