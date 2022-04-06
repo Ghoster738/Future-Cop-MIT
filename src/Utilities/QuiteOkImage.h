@@ -12,6 +12,8 @@ namespace Utilities {
 /**
  * This class is to both encode and decode a losslessy compressed image format.
  *
+ * This format is developed by Dominic Szablewski.
+ * The specification for this format can be found in qoiformat.org
  * Note: This is a purely single threaded class. The only way to multithread is to encode seperate images.
  */
 class QuiteOkImage {
@@ -29,7 +31,7 @@ public:
         int8_t alpha;
     };
     struct QOIStatus {
-        // These are the bits gets heighlighted when they are used.
+        // These are the used_* bits are true if the apply methods were ran.
         uint16_t used_RGBA  : 1;
         uint16_t used_RGB   : 1;
         uint16_t used_index : 1;
