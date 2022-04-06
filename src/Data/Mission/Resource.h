@@ -19,7 +19,7 @@ public:
         enum OperatingSystem { Macintosh, Windows, Playstation, Unidentified };
         OperatingSystem type; // What type of operating system file type is this loader loading.
         bool is_opposite_endian; // This tells the mission resource to switich the bytes.
-        // Utilities::Buffer::Endian endian;
+        Utilities::Buffer::Endian endian;
         int output_level; // 0 means no output, 1 means only error, 2 means expressive, 3 maxinum output.
         std::ostream *output_ref;
         
