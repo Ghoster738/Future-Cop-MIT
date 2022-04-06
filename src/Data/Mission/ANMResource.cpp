@@ -144,8 +144,10 @@ bool Data::Mission::ANMResource::parse( const Utilities::Buffer &header, const U
         }
 
         this->total_scanlines = FRAMES * Video::SCAN_LINE_POSITIONS;
+        
+        const auto REAL_SCANLINES = (reader.totalSize() - reader.getPosition()) / (Video::WIDTH * Video::SCAN_LINES_PER_FRAME);
 
-        if( this->total_scanlines + sizeof(uint32_t) == (reader.totalSize() - reader.getPosition()) / (Video::WIDTH * Video::SCAN_LINES_PER_FRAME) )
+        if( this->total_scanlines == REAL_SCANLINES )
         {
             if( this->total_scanlines >= Video::SCAN_LINE_POSITIONS )
             {
