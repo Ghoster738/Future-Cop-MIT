@@ -3,13 +3,19 @@
 #include <cmath>
 #include "../../Utilities/DataHandler.h"
 #include <fstream>
+#include <cassert>
 
 namespace {
-char LITTLE_CCB [] = {' ','B','C','C'};
-char LITTLE_LkUp[] = {'p','U','k','L'}; // This is probably something for converting 16 bit data to 8 bit pallete data.
-char LITTLE_PX16[] = {'6','1','X','P'}; // This is the pixel data for the computer versions.
-char LITTLE_PLUT[] = {'T','U','L','P'}; // Color pallete both used in Playstation 1 and the desktop versions.
-char LITTLE_PDAT[] = {'T','A','D','P'}; // This is the pixel data for the Playstation 1 version, and probably the computer versions.
+// Both versions have this for this is the header for the texture.
+const uint32_t CCB_TAG = 0x43434220; // which is { 0x43, 0x43, 0x42, 0x20 } or { 'C', 'C', 'B', ' ' } or "CCB "
+// This is probably something for converting 16 bit data to 8 bit pallete data for Windows and Mac.
+const uint32_t LKUP_TAG = 0x4C6B5570; // which is { 0x4C, 0x75, 0x55, 0x70 } or { 'L', 'k', 'U', 'p' } or "LkUp"
+// Windows and Mac has the full 16 bit colors.
+const uint32_t PX16_TAG = 0x50583136; // which is { 0x50, 0x58, 0x31, 0x36 } or { 'P', 'X', '1', '6' } or "PX16"
+// Color pallete both used in Playstation 1 and the desktop versions.
+const uint32_t PLUT_TAG = 0x504C5554; // which is { 0x50, 0x4C, 0x55, 0x54 } or { 'P', 'L', 'U', 'T' } or "PLUT"
+// This is the pixel data for the Playstation 1 version, and probably the computer versions.
+const uint32_t PDAT_TAG = 0x50444154; // which is { 0x50, 0x44, 0x41, 0x54 } or { 'P', 'D', 'A', 'T' } or "PDAT"
 }
 
 const std::string Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
@@ -34,18 +40,18 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
     auto raw_data = reader_data.getReader().getBytes();
 
     bool file_is_not_valid = false;
-    bool is_playstation_texture = false; // PlayStation textures have 8 bit pixels that are indexes to the palette colors.
     auto data = raw_data.data();
 
     while( static_cast<unsigned int>( data - raw_data.data() ) < raw_data.size() ) {
         auto identifier = Utilities::DataHandler::read_u32( data, settings.is_opposite_endian );
         auto tag_size   = Utilities::DataHandler::read_u32( data + sizeof( uint32_t ), settings.is_opposite_endian );
 
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_CCB ) ) {
+        if( identifier == CCB_TAG ) {
             auto cbb_data = data + sizeof( uint32_t ) * 2;
+            // TODO This probably handles the transparency, and maybe other effects.
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_LkUp) ) {
+        if( identifier == LKUP_TAG ) {
             auto lkup_data = data + sizeof( uint32_t ) * 2;
 
             const size_t LOOKUP_DATA_AMOUNT = sizeof( lookUpData ) / sizeof( lookUpData[0] );
@@ -60,7 +66,7 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_PDAT) ) { // For PlayStation
+        if( identifier == PDAT_TAG ) { // For PlayStation
             auto px_raw_data = data + sizeof( uint32_t ) * 2;
 
             // setup the image
@@ -78,7 +84,7 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             }
         }
          else
-         if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_PX16) ) { // For Windows
+         if( identifier == PX16_TAG ) { // For Windows
             auto px_raw_data = data + sizeof( uint32_t ) * 2;
 
             // setup the image
@@ -96,7 +102,7 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_PLUT) ) {
+        if( identifier == PLUT_TAG) {
             auto plut_data = data + sizeof( uint32_t ) * 2;
 
             // The color pallette is located 12 bytes away from the start of the tag.
@@ -125,6 +131,7 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
         else
         {
             data = raw_data.data() + raw_data.size();
+            assert( false );
         }
 
         data += tag_size;
@@ -142,7 +149,6 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             auto image_data_24_RGB = image_from_palette.getRawImageData();
 
             auto palette_data = palette.getRawImageData();
-            uint8_t red, green, blue;
 
             for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
                 std::swap( palette_data[0], palette_data[2] );
