@@ -22,15 +22,16 @@ namespace {
     // The image data starts after the end of the image header.
 }
 
-Data::Mission::FontGlyph::FontGlyph( const uint8_t *const data, bool swap_endian ) {
-    this->glyphID   = Utilities::DataHandler::read_u8( data +  0 );
-    this->width     = Utilities::DataHandler::read_u8( data +  2 );
-    this->height    = Utilities::DataHandler::read_u8( data +  3 );
-    this->left      = Utilities::DataHandler::read_u16( data + 4, swap_endian );
-    this->top       = Utilities::DataHandler::read_u16( data + 6, swap_endian );
-    this->x_advance = Utilities::DataHandler::read_8( data +  8 );
-    this->offset.x  = Utilities::DataHandler::read_8( data +  9 );
-    this->offset.y  = Utilities::DataHandler::read_8( data + 10 );
+Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
+    this->glyphID   = reader.readU8();
+    reader.readU8(); // Skip a byte
+    this->width     = reader.readU8();
+    this->height    = reader.readU8();
+    this->left      = reader.readU16( endian );
+    this->top       = reader.readU16( endian );
+    this->x_advance = reader.readU8();
+    this->offset.x  = reader.readU8();
+    this->offset.y  = reader.readU8();
 }
 
 uint8_t Data::Mission::FontGlyph::getGlyph() const {
@@ -150,7 +151,8 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
                 
                 for( unsigned int i = 0; i < number_of_glyphs; i++ )
                 {
-                    glyphs.push_back( FontGlyph( reader.getBytes( FONT_CHARACTER_SIZE ).data(), settings.is_opposite_endian ) );
+                    auto glyph_reader = reader.getReader( FONT_CHARACTER_SIZE );
+                    glyphs.push_back( FontGlyph( glyph_reader, settings.endian ) );
                 }
                 
                 // The reason why this is in a seperate loop is because the vector glyphs would reallocate.

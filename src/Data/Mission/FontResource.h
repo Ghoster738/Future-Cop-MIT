@@ -24,7 +24,7 @@ private:
     int x_advance;
     Utilities::DataTypes::Vec2Byte offset;
 public:
-    FontGlyph( const uint8_t *const data, bool swap_endian );
+    FontGlyph( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
     uint8_t getGlyph() const;
     int getRight() const;
     int getLeft() const;
