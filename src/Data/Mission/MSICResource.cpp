@@ -27,29 +27,28 @@ uint32_t Data::Mission::MSICResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::MSICResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
-
+bool Data::Mission::MSICResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
     bool   file_is_not_valid = false;
     size_t advance = SIZE_OF_DATA;
-
-    auto   data = raw_data.data();
 
     sound.setChannelNumber( 1 );
     sound.setSampleRate( 28000 );
     sound.setBitsPerSample( 8 );
+    
+    auto reader = buffer.getReader();
 
     while( advance == SIZE_OF_DATA )
     {
-        if( (SIZE_OF_READ + (data - raw_data.data())) > raw_data.size() )
-            advance = raw_data.size() - (data - raw_data.data());
+        if( (SIZE_OF_READ + reader.getPosition()) > reader.totalSize() )
+            advance = reader.totalSize() - reader.getPosition();
         else
             advance = SIZE_OF_DATA;
+        
+        reader.setPosition( SIZE_OF_DATA, Utilities::Buffer::Reader::BEGINING );
+        
+        auto byte_stream = reader.getBytes();
 
-        data += SIZE_OF_HEADERS;
-
-        sound.addAudioStream( data, advance );
-        data += advance;
+        sound.addAudioStream( byte_stream.data(), advance );
     }
 
     sound.updateAudioStreamLength();
