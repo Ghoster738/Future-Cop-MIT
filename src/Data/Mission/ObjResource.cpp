@@ -442,8 +442,6 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
                 bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
                 
-                assert( bones.at(i).opcode.unknown == bones.at(i).parent_amount );
-                
                 bones.at(i).position.x = Utilities::DataHandler::read_u16( start_data + 0x08, settings.is_opposite_endian );
                 bones.at(i).position.y = Utilities::DataHandler::read_u16( start_data + 0x0A, settings.is_opposite_endian );
                 bones.at(i).position.z = Utilities::DataHandler::read_u16( start_data + 0x0C, settings.is_opposite_endian );
