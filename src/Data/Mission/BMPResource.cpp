@@ -46,6 +46,19 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
         if( identifier == CCB_TAG ) {
             auto cbb_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
             // TODO This probably handles the transparency, and maybe other effects.
+            
+            // Zero data 0x0-0xC.
+            // 0x4
+            assert( cbb_reader.readU32() == 0 );
+            // 0x8
+            assert( cbb_reader.readU32() == 0 );
+            // 0xC = 12
+            assert( cbb_reader.readU32() == 0 );
+            
+            cbb_reader.setPosition( 0xC, Utilities::Buffer::Reader::BEGINING );
+            
+            // This is always 0x01000000
+            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
         }
         else
         if( identifier == LKUP_TAG ) {

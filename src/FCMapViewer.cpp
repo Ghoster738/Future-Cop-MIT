@@ -42,12 +42,20 @@ int main(int argc, char** argv)
 
     std::string iff_mission_id = "pa_urban_jungle";
     Data::Manager::Platform platform = Data::Manager::Platform::WINDOWS;
+    auto load_all = Data::Manager::Importance::NEEDED;
+    bool platform_all = false;
 
     for( int index = 1; index < argc; index++ ) {
         std::string input = std::string( argv[index] );
 
         if( input.find( "--id=") == 0 )
             iff_mission_id = input.substr( 5, input.length() - 5 );
+        else
+        if( input.find( "--load-all") == 0 )
+            load_all = Data::Manager::Importance::NOT_NEEDED;
+        else
+        if( input.find( "--platform-all") == 0 )
+            platform_all = true;
         else
         if( input.find( "-w") == 0 )
             platform = Data::Manager::Platform::WINDOWS;
@@ -76,11 +84,14 @@ int main(int argc, char** argv)
         return -2;
 
     manager.togglePlatform( platform, true );
+    
+    if( platform_all )
+        manager.togglePlatform( Data::Manager::Platform::ALL, true );
 
-    auto number_of_platforms = manager.setLoad( Data::Manager::Importance::NEEDED );
+    auto number_of_iffs = manager.setLoad( load_all );
 
-    if( number_of_platforms < 2 ) {
-        std::cout << "The number IFF " << number_of_platforms << " is not enough." << std::endl;
+    if( number_of_iffs < 2 ) {
+        std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
         return -3;
     }
 
