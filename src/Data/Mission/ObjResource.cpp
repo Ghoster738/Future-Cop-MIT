@@ -230,7 +230,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 start_data += sizeof( uint32_t );
                 auto un7 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
                 start_data += sizeof( uint32_t );
-                auto un8 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian);
+                auto un8 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
                 start_data += sizeof( uint8_t ); // 0x30
                 auto un9 = Utilities::DataHandler::read_u8( start_data );
                 start_data += sizeof( uint8_t ); // 0x31
@@ -430,9 +430,9 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 bones.at(i).normal_stride = Utilities::DataHandler::read_u8( start_data + 0x02 );
                 bones.at(i).vertex_start  = Utilities::DataHandler::read_u8( start_data + 0x03 );
                 bones.at(i).vertex_stride = Utilities::DataHandler::read_u8( start_data + 0x04 );
-                // Utilities::DataHandler::read_u8(start_data + 0x5); seems to be zero
-                // Utilities::DataHandler::read_u8(start_data + 0x6); seems to be zero
-                auto opcode = Utilities::DataHandler::read_u8(  start_data + 0x07 );
+                // assert( Utilities::DataHandler::read_u8(start_data + 0x5) ); // can be zero
+                // assert( Utilities::DataHandler::read_u8(start_data + 0x6) ); // can be zero
+                auto opcode = Utilities::DataHandler::read_u8( start_data + 0x07 );
                 
                 bones.at(i).opcode.unknown          = (opcode & 0b11000000) >> 6;
                 bones.at(i).opcode.position.x_const = (opcode & 0b00100000) >> 5;
@@ -441,6 +441,8 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 bones.at(i).opcode.rotation.x_const = (opcode & 0b00000100) >> 2;
                 bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
                 bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
+                
+                assert( bones.at(i).opcode.unknown == bones.at(i).parent_amount );
                 
                 bones.at(i).position.x = Utilities::DataHandler::read_u16( start_data + 0x08, settings.is_opposite_endian );
                 bones.at(i).position.y = Utilities::DataHandler::read_u16( start_data + 0x0A, settings.is_opposite_endian );
