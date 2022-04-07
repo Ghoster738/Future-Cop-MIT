@@ -49,16 +49,50 @@ bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const U
             
             // Zero data 0x0-0xC.
             // 0x4
-            assert( cbb_reader.readU32() == 0 );
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
             // 0x8
-            assert( cbb_reader.readU32() == 0 );
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
             // 0xC = 12
-            assert( cbb_reader.readU32() == 0 );
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
             
-            cbb_reader.setPosition( 0xC, Utilities::Buffer::Reader::BEGINING );
-            
-            // This is always 0x01000000
+            // Address 0x10 is always 0x01000000
             assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 8 );
+            
+            assert( cbb_reader.readU16( settings.endian ) == 0 );
+            
+            cbb_reader.setPosition( 0x2A, Utilities::Buffer::Reader::BEGINING );
+            auto bitfield_byte = cbb_reader.readU8();
+            
+            assert( cbb_reader.readU8() == 0 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
+            
+            assert( cbb_reader.readU32( settings.endian ) == 0 );
+            
+            cbb_reader.setPosition( 0x34, Utilities::Buffer::Reader::BEGINING );
+            auto first_u32 = cbb_reader.readU32( settings.endian );
+            
+            uint8_t array[4];
+            
+            array[ 0 ] = cbb_reader.readU8();
+            array[ 1 ] = cbb_reader.readU8();
+            array[ 2 ] = cbb_reader.readU8();
+            array[ 3 ] = cbb_reader.readU8();
+            
+            auto second_u32 = cbb_reader.readU32( settings.endian );
+            auto third_u32 = cbb_reader.readU32( settings.endian );
         }
         else
         if( identifier == LKUP_TAG ) {
