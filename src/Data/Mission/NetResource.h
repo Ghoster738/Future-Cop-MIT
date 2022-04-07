@@ -27,7 +27,7 @@ public:
         Utilities::DataTypes::Vec2Short position;
         int16_t spawn; // Could be a special node sepecifier.
     public:
-        Node( const uint8_t *const data );
+        Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
 
         uint32_t getData() const;
         int16_t getPad() const;

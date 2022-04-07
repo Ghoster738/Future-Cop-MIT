@@ -6,17 +6,17 @@
 #include <json/json.h>
 
 namespace {
-    const uint32_t LITTLE_ODtN = 0x4E74444F; // NtDO
+    const uint32_t TAG_NtDO = 0x4F44744E; // NtDO
 
     const auto INTEGER_FACTOR = 1.0 / 256.0;
 }
 
-Data::Mission::NetResource::Node::Node( const uint8_t *const data ) {
-    this->data       = Utilities::DataHandler::read_u32_little( data + 0x0 );
-    this->pad        = Utilities::DataHandler::read_16_little(  data + 0x4 ); // My guess is that this does nothing.
-    this->position.x = Utilities::DataHandler::read_16_little(  data + 0x6 );
-    this->position.y = Utilities::DataHandler::read_16_little(  data + 0x8 );
-    this->spawn      = Utilities::DataHandler::read_16_little(  data + 0xA );
+Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
+    this->data       = reader.readU32( endian );
+    this->pad        = reader.readU16( endian ); // My guess is that this does nothing.
+    this->position.x = reader.readU16( endian );
+    this->position.y = reader.readU16( endian );
+    this->spawn      = reader.readU16( endian );
 }
 
 uint32_t Data::Mission::NetResource::Node::getData() const {
@@ -88,22 +88,22 @@ uint32_t Data::Mission::NetResource::getResourceTagID() const {
 }
 
 bool Data::Mission::NetResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
+    auto reader = reader_data.getReader();
+    
+    const size_t SIZE_OF_HEADER = 0x10;
+    const size_t SIZE_OF_NODE   = 0x0C;
 
-    auto data = raw_data.data();
-    const int SIZE_OF_HEADER = 0x10;
-    const int SIZE_OF_NODE   = 0x0C;
-
-    if( raw_data.size() >= SIZE_OF_HEADER + SIZE_OF_NODE && LITTLE_ODtN == Utilities::DataHandler::read_u32_big( data ) ) {
-        auto nodes_amount = Utilities::DataHandler::read_u16_little( data + SIZE_OF_HEADER - 2 );
+    if( reader.totalSize() >= SIZE_OF_HEADER + SIZE_OF_NODE && TAG_NtDO == reader.readU32( settings.endian ) ) {
+        reader.setPosition( SIZE_OF_HEADER - sizeof( uint16_t ), Utilities::Buffer::Reader::BEGINING );
+        
+        auto nodes_amount = reader.readU16( settings.endian );
 
         this->nodes.reserve( nodes_amount );
 
-        data += SIZE_OF_HEADER;
         for( unsigned int i = 0; i < nodes_amount; i++ ) {
-            this->nodes.push_back( data );
-
-            data += SIZE_OF_NODE;
+            auto node_reader = reader.getReader( SIZE_OF_NODE );
+            
+            this->nodes.push_back( Node(node_reader, settings.endian ) );
         }
 
         return true;
