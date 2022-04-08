@@ -204,14 +204,15 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
     
 
     while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
-        auto identifier = reader.readU32( settings.endian );
-        auto tag_size   = reader.readU32( settings.endian );
+        auto identifier    = reader.readU32( settings.endian );
+        auto tag_size      = reader.readU32( settings.endian );
+        auto data_tag_size = tag_size - sizeof( uint32_t ) * 2;
 
         *settings.output_ref << std::hex;
 
         if( identifier == TAG_4DGI ) {
             file_is_not_valid = false;
-            auto reader4DGI = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader4DGI = reader.getReader( data_tag_size );
 
             // It always has a size of 0x3C for the full chunk size;
             if( tag_size != 0x3C && settings.output_level >= 1 )
@@ -251,7 +252,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DTL ) {
-            auto reader3DTL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DTL = reader.getReader( data_tag_size );
             
             if( reader3DTL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
             {
@@ -292,7 +293,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DQL ) {
-            auto reader3DQL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DQL = reader.getReader( data_tag_size );
             
             if( reader3DQL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
             {
@@ -385,16 +386,16 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         else
         if( identifier == TAG_3DRF ) {
             // std::cout << "Mission::ObjResource::load() 3DRF" << std::endl;
-            auto reader3DRF = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DRF = reader.getReader( data_tag_size );
         }
         else
         if( identifier == TAG_3DRL ) {
             // std::cout << "Mission::ObjResource::load() 3DRL" << std::endl;
-            auto reader3DRL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DRL = reader.getReader( data_tag_size );
         }
         else
         if( identifier == TAG_3DHY ) {
-            auto reader3DHY = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DHY = reader.getReader( data_tag_size );
 
             if( reader3DHY.readU32( settings.endian ) != 1 && settings.output_level >= 1)
             {
@@ -471,7 +472,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DHS ) {
-            auto reader3DHS = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DHS = reader.getReader( data_tag_size );
             
             auto bone_depth_number = reader3DHS.readU32( settings.endian );
             auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
@@ -503,7 +504,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DMI ) {
-            auto reader3DMI = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DMI = reader.getReader( data_tag_size );
             
             if( reader3DMI.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DMI unexpected number at beginning!" << std::endl;
@@ -520,19 +521,21 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DTA ) {
+            auto reader3DTA = reader.getReader( data_tag_size );
+            
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DTA" << std::endl;
-            auto reader3DTA = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
         }
         else
         if( identifier == TAG_3DAL ) {
+            auto reader3DAL = reader.getReader( data_tag_size );
+            
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DAL" << std::endl;
-            auto reader3DAL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
         }
         else
         if( identifier == TAG_4DVL ) {
-            auto reader4DVL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader4DVL = reader.getReader( data_tag_size );
             
             auto start_number = reader4DVL.readU32( settings.endian );
             auto amount_of_vertices = reader4DVL.readU32( settings.endian );
@@ -560,7 +563,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_4DNL ) {
-            auto reader4DNL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader4DNL = reader.getReader( data_tag_size );
             
             auto start_number = reader4DNL.readU32( settings.endian );
             auto amount_of_normals = reader4DNL.readU32( settings.endian );
@@ -590,7 +593,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_AnmD ) {
-            auto readerAnmD = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto readerAnmD = reader.getReader( data_tag_size );
 
             if( readerAnmD.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() AnmD unexpected number at beginning!" << std::endl;
@@ -632,7 +635,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DBB ) {
-            auto reader3DBB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            auto reader3DBB = reader.getReader( data_tag_size );
             
             bounding_box_per_frame = reader3DBB.readU32( settings.endian );
             
@@ -713,7 +716,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         {
-            reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
+            reader.setPosition( data_tag_size, Utilities::Buffer::Reader::CURRENT );
             
             char identifier_word[5] = {'\0'};
             const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
