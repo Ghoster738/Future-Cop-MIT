@@ -10,20 +10,34 @@
 #include <cassert>
 
 namespace {
-    char LITTLE_4DGI[] = {'I','G','D','4'};
-    char LITTLE_3DTL[] = {'L','T','D','3'}; // Texture reference list
-    char LITTLE_3DQL[] = {'L','Q','D','3'}; // Face Quad list holding offsets of vertices and normals.
-    char LITTLE_3DRF[] = {'F','R','D','3'}; // 3D reference?
-    char LITTLE_3DRL[] = {'L','R','D','3'}; // 3D reference list?
-    char LITTLE_3DHY[] = {'Y','H','D','3'}; // Bones.
-    char LITTLE_3DHS[] = {'S','H','D','3'}; // Positions of other objects
-    char LITTLE_3DMI[] = {'I','M','D','3'}; // Bone Animation Attributes.
-    char LITTLE_3DTA[] = {'A','T','D','3'}; // 3D triangle array?
-    char LITTLE_3DAL[] = {'L','A','D','3'}; // 3D array list?
-    char LITTLE_4DVL[] = {'L','V','D','4'}; // 4D vertex list (Note: Ignore the 4D data).
-    char LITTLE_4DNL[] = {'L','N','D','4'}; // 4D normal list
-    char LITTLE_AnmD[] = {'D','m','n','A'}; // Animation track data
-    char LITTLE_3DBB[] = {'B','B','D','3'}; // 3D bounding box?
+    // The header
+    const uint32_t TAG_4DGI = 0x34444749; // which is { 0x34, 0x44, 0x47, 0x49 } or { '4', 'D', 'G', 'I' } or "4DGI"
+    // Texture reference list
+    const uint32_t TAG_3DTL = 0x3344544C; // which is { 0x33, 0x44, 0x54, 0x4C } or { '3', 'D', 'T', 'L' } or "3DTL"
+    // Face Quad list holding offsets of vertices and normals.
+    const uint32_t TAG_3DQL = 0x3344514C; // which is { 0x33, 0x44, 0x51, 0x4C } or { '3', 'D', 'Q', 'L' } or "3DQL"
+    // 3D reference?
+    const uint32_t TAG_3DRF = 0x33445246; // which is { 0x33, 0x44, 0x52, 0x46 } or { '3', 'D', 'R', 'F' } or "3DRF"
+    // 3D reference list?
+    const uint32_t TAG_3DRL = 0x3344524C; // which is { 0x33, 0x44, 0x52, 0x4C } or { '3', 'D', 'R', 'L' } or "3DRL"
+    // Bones.
+    const uint32_t TAG_3DHY = 0x33444859; // which is { 0x33, 0x44, 0x48, 0x59 } or { '3', 'D', 'H', 'Y' } or "3DHY"
+    // Positions of other objects
+    const uint32_t TAG_3DHS = 0x33444853; // which is { 0x33, 0x44, 0x48, 0x53 } or { '3', 'D', 'H', 'S' } or "3DHS"
+    // Bone Animation Attributes.
+    const uint32_t TAG_3DMI = 0x33444D49; // which is { 0x33, 0x44, 0x4d, 0x49 } or { '3', 'D', 'M', 'I' } or "3DMI"
+    // 3D triangle array?
+    const uint32_t TAG_3DTA = 0x33445441; // which is { 0x33, 0x44, 0x54, 0x41 } or { '3', 'D', 'T', 'A' } or "3DTA"
+    // 3D array list?
+    const uint32_t TAG_3DAL = 0x3344414C; // which is { 0x33, 0x44, 0x41, 0x4C } or { '3', 'D', 'A', 'L' } or "3DAL"
+    // 4D vertex list (Note: Ignore the 4D data).
+    const uint32_t TAG_4DVL = 0x3444564C; // which is { 0x33, 0x44, 0x56, 0x4C } or { '4', 'D', 'V', 'L' } or "4DVL"
+    // 4D normal list
+    const uint32_t TAG_4DNL = 0x34444E4C; // which is { 0x34, 0x44, 0x4E, 0x4C } or { '4', 'D', 'N', 'L' } or "4DNL"
+    // Animation track data
+    const uint32_t TAG_AnmD = 0x416e6d44; // which is { 0x41, 0x6e, 0x6d, 0x44 } or { 'A', 'n', 'm', 'D' } or "AnmD"
+    // 3D bounding box
+    const uint32_t TAG_3DBB = 0x33444242; // which is { 0x33, 0x44, 0x42, 0x42 } or { '3', 'D', 'B', 'B' } or "3DBB"
 
     const auto INTEGER_FACTOR = 1.0 / 256.0;
 
@@ -197,7 +211,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
 
         *settings.output_ref << std::hex;
 
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_4DGI ) ) {
+        if( identifier == TAG_4DGI ) {
             file_is_not_valid = false;
 
             // It always has a size of 0x3C for the full chunk size;
@@ -250,7 +264,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DTL ) ) {
+        if( identifier == TAG_3DTL ) {
 
             if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
             {
@@ -300,7 +314,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DQL ) ) {
+        if( identifier == TAG_3DQL ) {
             
             if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
             {
@@ -393,15 +407,15 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DRF ) ) {
+        if( identifier == TAG_3DRF ) {
             // std::cout << "Mission::ObjResource::load() 3DRF" << std::endl;
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DRL ) ) {
+        if( identifier == TAG_3DRL ) {
             // std::cout << "Mission::ObjResource::load() 3DRL" << std::endl;
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DHY ) ) {
+        if( identifier == TAG_3DHY ) {
 
             if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1)
             {
@@ -481,7 +495,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DHS ) ) {
+        if( identifier == TAG_3DHS ) {
             
             // This name was given as a wild guess.
             auto bone_depth_number = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
@@ -517,7 +531,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DMI ) ) {
+        if( identifier == TAG_3DMI ) {
             if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DMI unexpected number at beginning!" << std::endl;
             start_data += sizeof( uint32_t );
@@ -536,17 +550,17 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DTA ) ) {
+        if( identifier == TAG_3DTA ) {
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DTA" << std::endl;
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DAL ) ) {
+        if( identifier == TAG_3DAL ) {
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DAL" << std::endl;
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_4DVL ) ) {
+        if( identifier == TAG_4DVL ) {
             auto start_number = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
             start_data += sizeof( uint32_t );
             auto amount_of_vertices = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
@@ -580,7 +594,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_4DNL ) ) {
+        if( identifier == TAG_4DNL ) {
             auto start_number = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
             start_data += sizeof( uint32_t );
             auto amount_of_normals = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
@@ -613,7 +627,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_AnmD ) ) {
+        if( identifier == TAG_AnmD ) {
 
             if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() AnmD unexpected number at beginning!" << std::endl;
@@ -664,7 +678,7 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             frames_gen_AnmD = end - start + 1;
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_3DBB ) ) {
+        if( identifier == TAG_3DBB ) {
             bounding_box_per_frame = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
             
             if( bounding_box_per_frame >= 1 )
@@ -764,6 +778,8 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
 
             if( settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() " << identifier_word << " not recognized" << std::endl;
+            
+            assert( false );
         }
 
         *settings.output_ref << std::dec;
