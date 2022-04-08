@@ -5,9 +5,9 @@
 #include <fstream>
 
 namespace {
-    char LITTLE_PYDT[] = {'T','D','Y','P'};
-    char LITTLE_PYPL[] = {'L','P','Y','P'};
-    char LITTLE_PIX8[] = {'8','X','I','P'};
+    const uint32_t TAG_PYDT = 0x50594454; // which is { 0x50, 0x59, 0x44, 0x54 } or { 'P', 'Y', 'D', 'T' } or "PYDT"
+    const uint32_t TAG_PYPL = 0x5059504C; // which is { 0x50, 0x59, 0x50, 0x4C } or { 'P', 'Y', 'P', 'L' } or "PYPL"
+    const uint32_t TAG_PIX8 = 0x50495838; // which is { 0x50, 0x49, 0x58, 0x38 } or { 'P', 'I', 'X', '8' } or "PIX8"
 }
 
 Data::Mission::PYRIcon::PYRIcon( uint8_t * data ) {
@@ -95,7 +95,7 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
         auto identifier = Utilities::DataHandler::read_u32_little( data );
         auto tag_size   = Utilities::DataHandler::read_u32_little( data + sizeof( uint32_t ) );
 
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_PYDT) ) {
+        if( identifier == TAG_PYDT ) {
             auto pydt_data = data + sizeof( uint32_t ) * 2;
             // This tag contains the uv cordinates for the particles, there are other bytes that are unknown, but for the most part I understand.
             amount_of_tiles = Utilities::DataHandler::read_u32_little( pydt_data ); // 0x8
@@ -108,7 +108,7 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_PYPL) ) {
+        if( identifier == TAG_PYPL ) {
             auto pypl_data = data + sizeof( uint32_t ) * 2;
             // I had originally thought that it was the palette for the image, and I was sort of right.
             // This chunk contains the palette for every explosion stored in this file.
@@ -159,7 +159,7 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
-        if( identifier == *reinterpret_cast<uint32_t*>(LITTLE_PIX8) ) {
+        if( identifier == TAG_PIX8 ) {
             auto pix8_data = data + sizeof( uint32_t ) * 2;
 
             // setup the image
