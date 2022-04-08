@@ -6,7 +6,7 @@
 #include <iostream>
 
 namespace {
-    char LITTLE_GRDB [] = {'B','D','R','G'};
+    const uint32_t GRDB_TAG = 0x47524442; // which is { 0x47, 0x52, 0x44, 0x42 } or { 'G', 'R', 'D', 'B' } or "GRDB"
 }
 
 const std::string Data::Mission::PTCResource::FILE_EXTENSION = "ptc";
@@ -64,21 +64,22 @@ const Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned 
     return const_cast< Data::Mission::PTCResource* >(this)->getTile( x, y );
 }
 
-bool Data::Mission::PTCResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
-
+bool Data::Mission::PTCResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+    auto reader = buffer.getReader();
     bool file_is_not_valid = false;
-    auto data = raw_data.data();
 
-    while( static_cast<unsigned int>(data - raw_data.data()) < raw_data.size() ) {
-        auto identifier = Utilities::DataHandler::read_u32( data, settings.is_opposite_endian );
-        auto tag_size   = Utilities::DataHandler::read_u32( data + sizeof( uint32_t ), settings.is_opposite_endian );
+    while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+        auto identifier = reader.readU32( settings.endian );
+        auto tag_size   = reader.readU32( settings.endian );
 
-        if( identifier == *reinterpret_cast<uint32_t*>( LITTLE_GRDB ) ) {
-            auto tile_amount = Utilities::DataHandler::read_u32( data + 0x0C, settings.is_opposite_endian );
-            auto width  = Utilities::DataHandler::read_u32( data + 0x10, settings.is_opposite_endian );
-            auto height = Utilities::DataHandler::read_u32( data + 0x14, settings.is_opposite_endian );
-            auto image_read_head = data + 0x2C;
+        if( identifier == GRDB_TAG ) {
+            reader.setPosition( 0x0C, Utilities::Buffer::Reader::BEGINING );
+            
+            auto tile_amount = reader.readU32( settings.endian );
+            auto width       = reader.readU32( settings.endian );
+            auto height      = reader.readU32( settings.endian );
+            
+            reader.setPosition( 0x2C, Utilities::Buffer::Reader::BEGINING );
 
             // setup the grid
             grid.setWidth(  width );
@@ -88,14 +89,15 @@ bool Data::Mission::PTCResource::parse( const Utilities::Buffer &header, const U
             auto image_data = grid.getRawImageData();
             for( unsigned int a = 0; a < grid.getWidth() * grid.getHeight(); a++ ) {
 
-                *reinterpret_cast<uint32_t*>(image_data) = Utilities::DataHandler::read_u32( image_read_head, settings.is_opposite_endian );
+                *reinterpret_cast<uint32_t*>(image_data) = reader.readU32( settings.endian );
 
                 image_data += grid.getPixelSize();
-                image_read_head += sizeof( uint32_t );
             }
         }
-
-        data += tag_size;
+        else
+        {
+            reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
+        }
     }
 
     return !file_is_not_valid;
