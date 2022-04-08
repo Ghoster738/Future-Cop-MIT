@@ -31,7 +31,7 @@ namespace {
     // 3D array list?
     const uint32_t TAG_3DAL = 0x3344414C; // which is { 0x33, 0x44, 0x41, 0x4C } or { '3', 'D', 'A', 'L' } or "3DAL"
     // 4D vertex list (Note: Ignore the 4D data).
-    const uint32_t TAG_4DVL = 0x3444564C; // which is { 0x33, 0x44, 0x56, 0x4C } or { '4', 'D', 'V', 'L' } or "4DVL"
+    const uint32_t TAG_4DVL = 0x3444564C; // which is { 0x34, 0x44, 0x56, 0x4C } or { '4', 'D', 'V', 'L' } or "4DVL"
     // 4D normal list
     const uint32_t TAG_4DNL = 0x34444E4C; // which is { 0x34, 0x44, 0x4E, 0x4C } or { '4', 'D', 'N', 'L' } or "4DNL"
     // Animation track data
@@ -190,11 +190,10 @@ uint32_t Data::Mission::ObjResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
+bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+    auto reader = buffer.getReader();
 
     bool file_is_not_valid = true;
-    auto data = raw_data.data();
     
     // This is for testing mostly.
     uint8_t *data_3DMI       = nullptr;
@@ -204,15 +203,15 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
     int frames_gen_AnmD      = -1;
     
 
-    while( static_cast<unsigned int>(data - raw_data.data()) < raw_data.size() ) {
-        auto identifier = Utilities::DataHandler::read_u32( data, settings.is_opposite_endian );
-        auto tag_size   = Utilities::DataHandler::read_u32( data + sizeof( uint32_t ), settings.is_opposite_endian );
-        auto start_data = data + sizeof( uint32_t ) * 2;
+    while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+        auto identifier = reader.readU32( settings.endian );
+        auto tag_size   = reader.readU32( settings.endian );
 
         *settings.output_ref << std::hex;
 
         if( identifier == TAG_4DGI ) {
             file_is_not_valid = false;
+            auto reader4DGI = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
             // It always has a size of 0x3C for the full chunk size;
             if( tag_size != 0x3C && settings.output_level >= 1 )
@@ -227,37 +226,24 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                         << std::dec << getIndexNumber() << std::hex
                         << " at location 0x" << this->getOffset() << std::endl;
 
-                auto un1 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
-                auto number_of_bone_pos_frames = Utilities::DataHandler::read_u16( start_data , settings.is_opposite_endian);
-                start_data += sizeof( uint16_t );
-                auto un3 = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian ); // Could be a checksum?
+                auto un1 = reader4DGI.readU32( settings.endian );
+                auto number_of_bone_pos_frames = reader4DGI.readU16( settings.endian );
+                auto un3 = reader4DGI.readU16( settings.endian ); // Could be a checksum?
 
-                start_data += 0xc; // Skip the zeros.
-                //At offset 0xc 
+                // Skip the zeros.
+                reader4DGI.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
 
-                auto un4 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
-                auto un5 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
-                auto un6 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
-                auto un7 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
-                auto un8 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint8_t ); // 0x30
-                auto un9 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t ); // 0x31
-                auto un10 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t ); // 0x32
-                auto un11 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t ); // 0x33
-                auto un12 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint32_t ); // 0x34
-                auto un13 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t ); // 0x38
-                auto un14 = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t ); // 0x3C
+                auto un4  = reader4DGI.readU32( settings.endian );
+                auto un5  = reader4DGI.readU32( settings.endian );
+                auto un6  = reader4DGI.readU32( settings.endian );
+                auto un7  = reader4DGI.readU32( settings.endian );
+                auto un8  = reader4DGI.readU32( settings.endian ); // 0x30?
+                auto un9  = reader4DGI.readU8();  // 0x31
+                auto un10 = reader4DGI.readU8();  // 0x32
+                auto un11 = reader4DGI.readU8(); // 0x33
+                auto un12 = reader4DGI.readU8(); // 0x34
+                auto un13 = reader4DGI.readU32( settings.endian ); // 0x38
+                auto un14 = reader4DGI.readU32( settings.endian ); // 0x3C
 
                 // The file is then proven to be valid.
                 file_is_not_valid = false;
@@ -265,15 +251,14 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DTL ) {
-
-            if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
+            auto reader3DTL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            
+            if( reader3DTL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
             {
                 *settings.output_ref << "Mission::ObjResource::load() 3DTL unexpected number at beginning!" << std::endl;
             }
 
-            start_data += sizeof( uint32_t );
-
-            auto texture_ref_amount = ((data + tag_size) - start_data) / 0x10;
+            auto texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
             if( settings.output_level >= 2 )
                 *settings.output_ref << "triangle amount " << std::dec << texture_ref_amount << std::hex << std::endl;
 
@@ -283,62 +268,50 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                     std::cout << "Mission::ObjResource::load() expected 2 at uv not " << std::dec
                               << (static_cast<uint32_t>(DataHandler::read_u8( start_data )) & 0xFF)
                               << std::hex << std::endl;*/
-                start_data += sizeof( uint8_t );
-
-                for( auto i = 0; i < 3; i++ ) {
-                    start_data += sizeof( uint8_t );
-                }
+                
+                reader3DTL.readU32( settings.endian ); // Skip unknown bytes
 
                 texture_quads.push_back( TextureQuad() );
 
-                texture_quads.back().coords[0].x = Utilities::DataHandler::read_u8( start_data );
-                texture_quads.back().coords[0].y = Utilities::DataHandler::read_u8( start_data + 1 );
-                start_data += sizeof( uint16_t );
+                texture_quads.back().coords[0].x = reader3DTL.readU8();
+                texture_quads.back().coords[0].y = reader3DTL.readU8();
 
-                texture_quads.back().coords[1].x = Utilities::DataHandler::read_u8( start_data );
-                texture_quads.back().coords[1].y = Utilities::DataHandler::read_u8( start_data + 1 );
-                start_data += sizeof( uint16_t );
+                texture_quads.back().coords[1].x = reader3DTL.readU8();
+                texture_quads.back().coords[1].y = reader3DTL.readU8();
 
-                texture_quads.back().coords[2].x = Utilities::DataHandler::read_u8( start_data );
-                texture_quads.back().coords[2].y = Utilities::DataHandler::read_u8( start_data + 1 );
-                start_data += sizeof( uint16_t );
+                texture_quads.back().coords[2].x = reader3DTL.readU8();
+                texture_quads.back().coords[2].y = reader3DTL.readU8();
 
-                texture_quads.back().coords[3].x = Utilities::DataHandler::read_u8( start_data );
-                texture_quads.back().coords[3].y = Utilities::DataHandler::read_u8( start_data + 1 );
-                start_data += sizeof( uint16_t );
+                texture_quads.back().coords[3].x = reader3DTL.readU8();
+                texture_quads.back().coords[3].y = reader3DTL.readU8();
                 
-                // For some reason the windows english version of Slim's 64th model that goes beyond 10 textures.
+                // For some reason the Slim's Windows English version has a 64th Cobj that goes beyond 10 textures.
                 
-                texture_quads.back().index = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
+                texture_quads.back().index = reader3DTL.readU32( settings.endian );
             }
         }
         else
         if( identifier == TAG_3DQL ) {
+            auto reader3DQL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
             
-            if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
+            if( reader3DQL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
             {
                 *settings.output_ref << "Mission::ObjResource::load() 3DQL unexpected number at beginning!" << std::endl;
             }
-            start_data += sizeof( uint32_t );
-
-            auto number_of_faces = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            start_data += sizeof( uint32_t );
+            
+            auto number_of_faces = reader3DQL.readU32( settings.endian );
 
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DQL has 0x" << number_of_faces << " faces" << std::endl;
 
             for( unsigned int i = 0; i < number_of_faces; i++ )
             {
-                auto face_type = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
+                auto face_type = reader3DQL.readU8();
 
                 // Skip unknown bytes!
-                auto face_type_2 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
+                auto face_type_2 = reader3DQL.readU8();
 
-                auto texture_quad_ref = (Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian ) / 0x10) + texture_quads.data();
-                start_data += sizeof( uint16_t );
+                auto texture_quad_ref = (reader3DQL.readU16( settings.endian ) / 0x10) + texture_quads.data();
 
                 /*
                 // Add to the indexes of this texture to the list when it is not contained in the data base.
@@ -369,15 +342,15 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                     // 0x07 Appears to be its own face type
                     face_quads.back().is_reflective = reflect;
 
-                    face_quads.back().v0 = Utilities::DataHandler::read_u8( start_data + 0 );
-                    face_quads.back().v1 = Utilities::DataHandler::read_u8( start_data + 1 );
-                    face_quads.back().v2 = Utilities::DataHandler::read_u8( start_data + 2 );
-                    face_quads.back().v3 = Utilities::DataHandler::read_u8( start_data + 3 );
+                    face_quads.back().v0 = reader3DQL.readU8();
+                    face_quads.back().v1 = reader3DQL.readU8();
+                    face_quads.back().v2 = reader3DQL.readU8();
+                    face_quads.back().v3 = reader3DQL.readU8();
                     
-                    face_quads.back().n0 = Utilities::DataHandler::read_u8( start_data + 4 );
-                    face_quads.back().n1 = Utilities::DataHandler::read_u8( start_data + 5 );
-                    face_quads.back().n2 = Utilities::DataHandler::read_u8( start_data + 6 );
-                    face_quads.back().n3 = Utilities::DataHandler::read_u8( start_data + 7 );
+                    face_quads.back().n0 = reader3DQL.readU8();
+                    face_quads.back().n1 = reader3DQL.readU8();
+                    face_quads.back().n2 = reader3DQL.readU8();
+                    face_quads.back().n3 = reader3DQL.readU8();
                 }
                 else
                 if( is_triangle )
@@ -390,45 +363,51 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                     // (face_type & 0x28) seems to be the tranlucent bit.
                     face_trinagles.back().is_reflective = reflect;
 
-                    face_trinagles.back().v0 = Utilities::DataHandler::read_u8( start_data + 0 );
-                    face_trinagles.back().v1 = Utilities::DataHandler::read_u8( start_data + 1 );
-                    face_trinagles.back().v2 = Utilities::DataHandler::read_u8( start_data + 2 );
+                    face_trinagles.back().v0 = reader3DQL.readU8();
+                    face_trinagles.back().v1 = reader3DQL.readU8();
+                    face_trinagles.back().v2 = reader3DQL.readU8();
+                    
+                    reader3DQL.readU8();
 
-                    face_trinagles.back().n0 = Utilities::DataHandler::read_u8( start_data + 4 );
-                    face_trinagles.back().n1 = Utilities::DataHandler::read_u8( start_data + 5 );
-                    face_trinagles.back().n2 = Utilities::DataHandler::read_u8( start_data + 6 );
+                    face_trinagles.back().n0 = reader3DQL.readU8();
+                    face_trinagles.back().n1 = reader3DQL.readU8();
+                    face_trinagles.back().n2 = reader3DQL.readU8();
+                    
+                    reader3DQL.readU8();
                 }
                 else
                 {
                     //  TODO Not all the faces are discovered!
+                    reader3DQL.readU64();
                 }
-                // Once the face is successfully read the vertices and normal indeces can be skipped.
-                start_data += sizeof( uint32_t ) * 2;
             }
         }
         else
         if( identifier == TAG_3DRF ) {
             // std::cout << "Mission::ObjResource::load() 3DRF" << std::endl;
+            auto reader3DRF = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
         }
         else
         if( identifier == TAG_3DRL ) {
             // std::cout << "Mission::ObjResource::load() 3DRL" << std::endl;
+            auto reader3DRL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
         }
         else
         if( identifier == TAG_3DHY ) {
+            auto reader3DHY = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
-            if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1)
+            if( reader3DHY.readU32( settings.endian ) != 1 && settings.output_level >= 1)
             {
                 *settings.output_ref << "Mission::ObjResource::load() 3DHY unexpected number at beginning!" << std::endl;
             }
-            start_data += sizeof( uint32_t );
 
-            const auto amount_of_bones = (tag_size - (start_data - data)) / 0x14;
+            const auto bones_space = reader3DHY.totalSize() - reader3DHY.getPosition();
+            const auto amount_of_bones = bones_space / 0x14;
 
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DHY: size = " << amount_of_bones << std::endl;
 
-            if( ((tag_size - (start_data - data)) % 0x14) != 0 && settings.output_level >= 1 )
+            if( (bones_space % 0x14) != 0 && settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DHY bones are not right!" << std::endl;
             
             this->bones.reserve( amount_of_bones );
@@ -439,14 +418,16 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
                 bones.push_back( Bone() );
                 
-                bones.at(i).parent_amount = Utilities::DataHandler::read_u8( start_data + 0x00 );
-                bones.at(i).normal_start  = Utilities::DataHandler::read_u8( start_data + 0x01 );
-                bones.at(i).normal_stride = Utilities::DataHandler::read_u8( start_data + 0x02 );
-                bones.at(i).vertex_start  = Utilities::DataHandler::read_u8( start_data + 0x03 );
-                bones.at(i).vertex_stride = Utilities::DataHandler::read_u8( start_data + 0x04 );
+                bones.at(i).parent_amount = reader3DHY.readU8();
+                bones.at(i).normal_start  = reader3DHY.readU8();
+                bones.at(i).normal_stride = reader3DHY.readU8();
+                bones.at(i).vertex_start  = reader3DHY.readU8();
+                bones.at(i).vertex_stride = reader3DHY.readU8();
+                auto byte0 = reader3DHY.readU8();
+                auto byte1 = reader3DHY.readU8();
                 // assert( Utilities::DataHandler::read_u8(start_data + 0x5) ); // can be zero
                 // assert( Utilities::DataHandler::read_u8(start_data + 0x6) ); // can be zero
-                auto opcode = Utilities::DataHandler::read_u8( start_data + 0x07 );
+                auto opcode = reader3DHY.readU8();
                 
                 bones.at(i).opcode.unknown          = (opcode & 0b11000000) >> 6;
                 bones.at(i).opcode.position.x_const = (opcode & 0b00100000) >> 5;
@@ -456,12 +437,12 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
                 bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
                 
-                bones.at(i).position.x = Utilities::DataHandler::read_u16( start_data + 0x08, settings.is_opposite_endian );
-                bones.at(i).position.y = Utilities::DataHandler::read_u16( start_data + 0x0A, settings.is_opposite_endian );
-                bones.at(i).position.z = Utilities::DataHandler::read_u16( start_data + 0x0C, settings.is_opposite_endian );
-                bones.at(i).rotation.x = Utilities::DataHandler::read_u16( start_data + 0x0E, settings.is_opposite_endian );
-                bones.at(i).rotation.y = Utilities::DataHandler::read_u16( start_data + 0x10, settings.is_opposite_endian );
-                bones.at(i).rotation.z = Utilities::DataHandler::read_u16( start_data + 0x12, settings.is_opposite_endian );
+                bones.at(i).position.x = reader3DHY.readU16( settings.endian );
+                bones.at(i).position.y = reader3DHY.readU16( settings.endian );
+                bones.at(i).position.z = reader3DHY.readU16( settings.endian );
+                bones.at(i).rotation.x = reader3DHY.readU16( settings.endian );
+                bones.at(i).rotation.y = reader3DHY.readU16( settings.endian );
+                bones.at(i).rotation.z = reader3DHY.readU16( settings.endian );
 
                 bytes_per_frame_3DMI += getOpcodeBytesPerFrame( bones.at(i).opcode );
                 
@@ -471,10 +452,6 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 {
                     *settings.output_ref << "bone: ";
 
-                    if( Utilities::DataHandler::read_u16( start_data + 0x5, settings.is_opposite_endian ) != 0 ) {
-                        *settings.output_ref << "They are not zeros! :";
-                    }
-
                     *settings.output_ref 
                         << "parent index: 0x" << bones.at(i).parent_amount << ", "
                         << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
@@ -483,8 +460,6 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                         << ", position( " << bones.at(i).position.x << ", " << bones.at(i).position.y << ", " << bones.at(i).position.z << " )"
                         << ", rotation( " << bones.at(i).rotation.x << ", " << bones.at(i).rotation.y << ", " << bones.at(i).rotation.z << " )" << std::hex << std::endl;
                 }
-
-                start_data += 0x14; // Each bone has a size of 0x14 bytes or 20 bytes in other words.
             }
             
             if( settings.output_level >= 3 )
@@ -496,15 +471,15 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DHS ) {
+            auto reader3DHS = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
             
-            // This name was given as a wild guess.
-            auto bone_depth_number = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            start_data += sizeof( uint32_t );
-            auto data_size = (tag_size - (start_data - data));
+            auto bone_depth_number = reader3DHS.readU32( settings.endian );
+            auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
+            const auto BONE_SIZE = 4 * sizeof( uint16_t );
 
-            auto read_3D_positions = data_size / ( sizeof( uint16_t ) * 4 ); // vec3 with an empty space.
+            auto read_3D_positions = data_size / BONE_SIZE; // vec3 with an empty space.
             
-            frames_gen_3DHS = data_size / ( 4 * sizeof( uint16_t ) * bone_depth_number );
+            frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
 
             if( settings.output_level >= 2 )
             {
@@ -518,25 +493,22 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             {
                 for( int i = 0; i < bone_depth_number; i++ )
                 {
-                    auto u_x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( uint16_t );
-                    auto u_y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( uint16_t );
-                    auto u_z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( uint16_t );
+                    auto u_x = reader3DHS.readU16( settings.endian );
+                    auto u_y = reader3DHS.readU16( settings.endian );
+                    auto u_z = reader3DHS.readU16( settings.endian );
                     // I determined that this value stays zero, so no reading needs to be done.
-                    // auto u_w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    start_data += sizeof( uint16_t );
+                    auto u_w = reader3DHS.readU16( settings.endian );
                 }
             }
         }
         else
         if( identifier == TAG_3DMI ) {
-            if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DMI unexpected number at beginning!" << std::endl;
-            start_data += sizeof( uint32_t );
+            auto reader3DMI = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
             
-            this->bone_animation_data_size = (tag_size - (start_data - data)) / sizeof( uint16_t );
+            if( reader3DMI.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
+                *settings.output_ref << "Mission::ObjResource::load() 3DMI unexpected number at beginning!" << std::endl;
+            
+            this->bone_animation_data_size = (reader3DMI.totalSize() - reader3DMI.getPosition()) / sizeof( uint16_t );
             
             if( this->bone_animation_data != nullptr )
                 delete [] this->bone_animation_data;
@@ -544,27 +516,26 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             this->bone_animation_data = new int16_t [ this->bone_animation_data_size ];
             
             for( int d = 0; d < this->bone_animation_data_size; d++ )
-            {
-                this->bone_animation_data[ d ] = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( int16_t );
-            }
+                this->bone_animation_data[ d ] = reader3DMI.readU16( settings.endian );
         }
         else
         if( identifier == TAG_3DTA ) {
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DTA" << std::endl;
+            auto reader3DTA = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
         }
         else
         if( identifier == TAG_3DAL ) {
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 3DAL" << std::endl;
+            auto reader3DAL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
         }
         else
         if( identifier == TAG_4DVL ) {
-            auto start_number = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            start_data += sizeof( uint32_t );
-            auto amount_of_vertices = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            start_data += sizeof( uint32_t );
+            auto reader4DVL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            
+            auto start_number = reader4DVL.readU32( settings.endian );
+            auto amount_of_vertices = reader4DVL.readU32( settings.endian );
             
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 4DVL has 0x" << amount_of_vertices << " vertices" << std::endl;
@@ -580,25 +551,19 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             positions_pointer->resize( amount_of_vertices );
 
             for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                positions_pointer->at(i).x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
-
-                positions_pointer->at(i).y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
-
-                positions_pointer->at(i).z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
-
+                positions_pointer->at(i).x = reader4DVL.readU16( settings.endian );
+                positions_pointer->at(i).y = reader4DVL.readU16( settings.endian );
+                positions_pointer->at(i).z = reader4DVL.readU16( settings.endian );
                 // positions_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
+                reader4DVL.readU16( settings.endian );
             }
         }
         else
         if( identifier == TAG_4DNL ) {
-            auto start_number = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            start_data += sizeof( uint32_t );
-            auto amount_of_normals = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-            start_data += sizeof( uint32_t );
+            auto reader4DNL = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            
+            auto start_number = reader4DNL.readU32( settings.endian );
+            auto amount_of_normals = reader4DNL.readU32( settings.endian );
 
             if( settings.output_level >= 2 )
                 *settings.output_ref << "Mission::ObjResource::load() 4DNL has 0x" << amount_of_normals << " normals" << std::endl;
@@ -613,27 +578,25 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             normals_pointer->resize( amount_of_normals );
 
             for( unsigned int i = 0; i < amount_of_normals; i++ ) {
-                normals_pointer->at(i).x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
+                normals_pointer->at(i).x = reader4DNL.readU16( settings.endian );
 
-                normals_pointer->at(i).y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
+                normals_pointer->at(i).y = reader4DNL.readU16( settings.endian );
 
-                normals_pointer->at(i).z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
+                normals_pointer->at(i).z = reader4DNL.readU16( settings.endian );
 
                 // normals_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
+                reader4DNL.readU16( settings.endian );
             }
         }
         else
         if( identifier == TAG_AnmD ) {
+            auto readerAnmD = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
-            if( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) != 1 && settings.output_level >= 1 )
+            if( readerAnmD.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() AnmD unexpected number at beginning!" << std::endl;
-            start_data += sizeof( uint32_t );
 
-            const auto TRACK_AMOUNT = (tag_size - (start_data - data)) / 0x10;
+            auto data_size = readerAnmD.totalSize() - readerAnmD.getPosition();
+            const auto TRACK_AMOUNT = data_size / 0x10;
 
             if( settings.output_level >= 2 )
                 *settings.output_ref << std::dec << "Mission::ObjResource::load() AnmD has " << TRACK_AMOUNT << " tracks" << std::endl << std::hex;
@@ -641,26 +604,16 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             unsigned int start = 0xFFFF, end = 0x0;
             
             for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
-                auto u0 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
-                auto u1 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
-                auto u2 = Utilities::DataHandler::read_u8( start_data ); // This seems to be only zero
-                start_data += sizeof( uint8_t );
-                auto u3 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
-                auto from_frame = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );// This is the staring frame
-                start_data += sizeof( uint16_t );
-                auto to_frame = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian ); // This is the ending frame.
-                start_data += sizeof( uint16_t );
-                auto u6 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
-                auto u7 = Utilities::DataHandler::read_u8( start_data );
-                start_data += sizeof( uint8_t );
-                auto u8 = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint16_t );
-                auto frame_duration = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
-                start_data += sizeof( uint32_t );
+                auto u0 = readerAnmD.readU8();
+                auto u1 = readerAnmD.readU8();
+                auto u2 = readerAnmD.readU8();
+                auto u3 = readerAnmD.readU8();
+                auto from_frame = readerAnmD.readU16( settings.endian );
+                auto to_frame   = readerAnmD.readU16( settings.endian );
+                auto u6 = readerAnmD.readU8();
+                auto u7 = readerAnmD.readU8();
+                auto u8 = readerAnmD.readU16( settings.endian );
+                auto frame_duration = readerAnmD.readU32( settings.endian );
                 
                 start = std::min( start, static_cast<unsigned int>( from_frame ) );
                 start = std::min( start, static_cast<unsigned int>( to_frame ) );
@@ -679,7 +632,9 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         if( identifier == TAG_3DBB ) {
-            bounding_box_per_frame = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian );
+            auto reader3DBB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            
+            bounding_box_per_frame = reader3DBB.readU32( settings.endian );
             
             if( bounding_box_per_frame >= 1 )
             {
@@ -689,13 +644,11 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 // This might be a bit field of some kind, this is most likely something like the number of bounding boxes.
                 assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
                 
-                start_data += sizeof( uint32_t );
+                const auto bounding_box_amount = reader3DBB.readU32( settings.endian );
                 
-                bounding_boxes.reserve( Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) );
+                bounding_boxes.reserve( bounding_box_amount );
                 
-                bounding_box_frames = Utilities::DataHandler::read_u32( start_data, settings.is_opposite_endian ) / bounding_box_per_frame;
-                
-                start_data += sizeof( uint32_t );
+                bounding_box_frames = bounding_box_amount / bounding_box_per_frame;
                 
                 size_t BOUNDING_BOX_SIZE = 8 * sizeof( uint16_t );
                 
@@ -723,41 +676,33 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                         bounding_boxes.push_back( BoundingBox3D() );
                         
                         // Fact Positive and negative: Assumption position x
-                        bounding_boxes.back().x = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                        start_data += sizeof( int16_t );
+                        bounding_boxes.back().x = reader3DBB.readI16( settings.endian );
                         
                         // Fact Positive and negative: Assumption position y
-                        bounding_boxes.back().y = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                        start_data += sizeof( int16_t );
+                        bounding_boxes.back().y = reader3DBB.readI16( settings.endian );
                         
                         // Fact Positive and negative: Assumption position z
-                        bounding_boxes.back().z = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                        start_data += sizeof( int16_t );
+                        bounding_boxes.back().z = reader3DBB.readI16( settings.endian );
                         
                         // Fact [0, 4224]: Assumption length x
-                        bounding_boxes.back().length_x = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().length_x = reader3DBB.readU16( settings.endian );
                         assert( bounding_boxes.back().length_x >= 0 );
-                        start_data += sizeof( uint16_t );
                         
                         // Fact [0, 1438]: Assumption length y
-                        bounding_boxes.back().length_y = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().length_y = reader3DBB.readU16( settings.endian );
                         assert( bounding_boxes.back().length_y >= 0 );
-                        start_data += sizeof( uint16_t );
                         
                         // Fact [0, 3584]: Assumption length z
-                        bounding_boxes.back().length_z = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
-                        assert(bounding_boxes.back().length_z >= 0 );
-                        start_data += sizeof( uint16_t );
+                        bounding_boxes.back().length_z = reader3DBB.readU16( settings.endian );
+                        assert( bounding_boxes.back().length_z >= 0 );
                         
                         // Fact [0, 4293]: Assumption rotation x
-                        bounding_boxes.back().rotation_x = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().rotation_x = reader3DBB.readU16( settings.endian );
                         assert( bounding_boxes.back().rotation_x >= 0 );
-                        start_data += sizeof( uint16_t );
                         
                         // Fact [0, 4293]: Assumption rotation y
-                        bounding_boxes.back().rotation_y = Utilities::DataHandler::read_u16( start_data, settings.is_opposite_endian );
+                        bounding_boxes.back().rotation_y = reader3DBB.readU16( settings.endian );
                         assert( bounding_boxes.back().rotation_y >= 0 );
-                        start_data += sizeof( uint16_t );
                     }
                 }
             }
@@ -768,6 +713,8 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         }
         else
         {
+            reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
+            
             char identifier_word[5] = {'\0'};
             const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
 
@@ -787,10 +734,8 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
         if( file_is_not_valid ) {
             if( settings.output_level >= 1 )
                 *settings.output_ref << "Mission::ObjResource::load() This is not a valid Obj file!" << std::endl;
-            data = raw_data.data() + raw_data.size();
+            reader.setPosition( 0, Utilities::Buffer::Reader::ENDING );
         }
-        else
-            data += tag_size;
     }
     
     // This assertion statement tells that there are only two options for
