@@ -10,36 +10,25 @@ namespace {
     const uint32_t TAG_PIX8 = 0x50495838; // which is { 0x50, 0x49, 0x58, 0x38 } or { 'P', 'I', 'X', '8' } or "PIX8"
 }
 
-Data::Mission::PYRIcon::PYRIcon( uint8_t * data ) {
+Data::Mission::PYRIcon::PYRIcon( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
 
-    this->id = Utilities::DataHandler::read_u16_little( data );
-    data += sizeof( uint16_t );
+    this->id = reader.readU16( endian );
 
-    uint8_t u3 = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
-    uint8_t u4 = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
+    uint8_t u3 = reader.readU8();
+    uint8_t u4 = reader.readU8();
 
-    this->location.x = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
-    this->location.y = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
+    this->location.x = reader.readU8();
+    this->location.y = reader.readU8();
 
-    uint8_t u7 = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
-    uint8_t u8 = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
+    uint8_t u7 = reader.readU8();
+    uint8_t u8 = reader.readU8();
 
-    this->size.x = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
-    this->size.y = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
+    this->size.x = reader.readU8();
+    this->size.y = reader.readU8();
 
     // These two bytes should be zeros.
-    uint8_t uB = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
-    uint8_t uC = Utilities::DataHandler::read_u8( data );
-    data += sizeof( uint8_t );
+    uint8_t uB = reader.readU8();
+    uint8_t uC = reader.readU8();
     /*
     std::cout << "ID: " << id << ": "
         << static_cast<int>( location_x ) << ", " << static_cast<int>( location_y ) << ", "
@@ -84,46 +73,44 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
+bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
 
+    auto reader = buffer.getReader();
+    
     bool file_is_not_valid = false;
-    auto data = raw_data.data();
     uint32_t amount_of_tiles = 0;
 
-    while( static_cast<unsigned int>(data - raw_data.data()) < raw_data.size() ) {
-        auto identifier = Utilities::DataHandler::read_u32_little( data );
-        auto tag_size   = Utilities::DataHandler::read_u32_little( data + sizeof( uint32_t ) );
+    while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+        auto identifier = reader.readU32( settings.endian );
+        auto tag_size   = reader.readU32( settings.endian );
+        auto tag_data_size = tag_size - 2 * sizeof( uint32_t );
 
         if( identifier == TAG_PYDT ) {
-            auto pydt_data = data + sizeof( uint32_t ) * 2;
+            auto readerPYDT = reader.getReader( tag_data_size );
             // This tag contains the uv cordinates for the particles, there are other bytes that are unknown, but for the most part I understand.
-            amount_of_tiles = Utilities::DataHandler::read_u32_little( pydt_data ); // 0x8
-            pydt_data += sizeof( uint32_t );
+            amount_of_tiles = readerPYDT.readU32( settings.endian ); // 0x8
 
             for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
-                icons.push_back( PYRIcon( pydt_data ) );
-
-                pydt_data += sizeof( uint16_t ) + sizeof( uint8_t ) * 10;
+                auto readerIcon = readerPYDT.getReader( sizeof( uint16_t ) + sizeof( uint8_t ) * 10 );
+                
+                icons.push_back( PYRIcon( readerIcon, settings.endian ) );
             }
         }
         else
         if( identifier == TAG_PYPL ) {
-            auto pypl_data = data + sizeof( uint32_t ) * 2;
+            auto readerPYPL = reader.getReader( tag_data_size );
             // I had originally thought that it was the palette for the image, and I was sort of right.
             // This chunk contains the palette for every explosion stored in this file.
             // However by XORing the mac and windows version of the files I had determined that these are 16 bit numbers. I am thankful for the big endian macs systems of the 1990's.
 
             for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
-                uint16_t first_zero = Utilities::DataHandler::read_u16_little( pypl_data );
-                pypl_data += sizeof( uint16_t );
-                uint16_t id = Utilities::DataHandler::read_u16_little( pypl_data );
-                pypl_data += sizeof( uint16_t );
-                uint16_t second_zero = Utilities::DataHandler::read_u16_little( pypl_data );
-                pypl_data += sizeof( uint16_t );
+                uint16_t first_zero = readerPYPL.readU16( settings.endian );
+                uint16_t id = readerPYPL.readU16( settings.endian );
+                uint16_t second_zero = readerPYPL.readU16( settings.endian );
 
                 if( settings.output_level >= 2 )
                     *settings.output_ref << "PYPL ID: " << id << std::endl;
+                
                 if( id == icons.at( i ).getID() )
                 {
                     Utilities::ImageData *palette = icons.at( i ).getPalette();
@@ -136,31 +123,27 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
                     for( unsigned int d = 0; d < palette->getHeight(); d++ ) {
                         uint8_t red, green, blue;
 
-                        Utilities::ImageData::translate_16_to_24( Utilities::DataHandler::read_u16_little( pypl_data ), blue, green, red );
+                        Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), blue, green, red );
 
                         palette_data[0] = red;
                         palette_data[1] = green;
                         palette_data[2] = blue;
 
-                        pypl_data += sizeof( uint16_t );
-
                         palette_data += palette->getPixelSize();
-
                     }
                 }
                 else
                 {
                     if( settings.output_level >= 1 )
                         *settings.output_ref << "PYPL Error: id, " << id << ", != " << icons.at( i ).getID() << std::endl;
-                    for( unsigned int d = 0; d < 0xff; d++ ) {
-                        pypl_data += sizeof( uint16_t );
-                    }
+                    
+                    // TODO
                 }
             }
         }
         else
         if( identifier == TAG_PIX8 ) {
-            auto pix8_data = data + sizeof( uint32_t ) * 2;
+            auto readerPIX8 = reader.getReader( tag_data_size );
 
             // setup the image
             image.setWidth( 0x100 );
@@ -168,15 +151,17 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
             image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
 
             auto image_data = image.getRawImageData();
-            for( unsigned int a = 0; a < tag_size - 8; a++ ) {
-                *image_data = *pix8_data;
+            
+            for( unsigned int a = 0; a < tag_data_size; a++ ) {
+                *image_data = readerPIX8.readU8();
 
                 image_data += image.getPixelSize();
-                pix8_data++;
             }
         }
-
-        data += tag_size;
+        else
+        {
+            reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
+        }
     }
 
     return !file_is_not_valid;
