@@ -73,13 +73,14 @@ bool Data::Mission::PTCResource::parse( const Utilities::Buffer &header, const U
         auto tag_size   = reader.readU32( settings.endian );
 
         if( identifier == GRDB_TAG ) {
-            reader.setPosition( 0x0C, Utilities::Buffer::Reader::BEGINING );
+            auto readerGRDB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            readerGRDB.setPosition( sizeof( uint32_t ), Utilities::Buffer::Reader::BEGINING );
             
-            auto tile_amount = reader.readU32( settings.endian );
-            auto width       = reader.readU32( settings.endian );
-            auto height      = reader.readU32( settings.endian );
+            auto tile_amount = readerGRDB.readU32( settings.endian );
+            auto width       = readerGRDB.readU32( settings.endian );
+            auto height      = readerGRDB.readU32( settings.endian );
             
-            reader.setPosition( 0x2C, Utilities::Buffer::Reader::BEGINING );
+            readerGRDB.setPosition( 0x24, Utilities::Buffer::Reader::BEGINING );
 
             // setup the grid
             grid.setWidth(  width );
@@ -89,7 +90,7 @@ bool Data::Mission::PTCResource::parse( const Utilities::Buffer &header, const U
             auto image_data = grid.getRawImageData();
             for( unsigned int a = 0; a < grid.getWidth() * grid.getHeight(); a++ ) {
 
-                *reinterpret_cast<uint32_t*>(image_data) = reader.readU32( settings.endian );
+                *reinterpret_cast<uint32_t*>(image_data) = readerGRDB.readU32( settings.endian );
 
                 image_data += grid.getPixelSize();
             }
