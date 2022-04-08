@@ -438,12 +438,12 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
                 bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
                 bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
                 
-                bones.at(i).position.x = reader3DHY.readU16( settings.endian );
-                bones.at(i).position.y = reader3DHY.readU16( settings.endian );
-                bones.at(i).position.z = reader3DHY.readU16( settings.endian );
-                bones.at(i).rotation.x = reader3DHY.readU16( settings.endian );
-                bones.at(i).rotation.y = reader3DHY.readU16( settings.endian );
-                bones.at(i).rotation.z = reader3DHY.readU16( settings.endian );
+                bones.at(i).position.x = reader3DHY.readI16( settings.endian );
+                bones.at(i).position.y = reader3DHY.readI16( settings.endian );
+                bones.at(i).position.z = reader3DHY.readI16( settings.endian );
+                bones.at(i).rotation.x = reader3DHY.readI16( settings.endian );
+                bones.at(i).rotation.y = reader3DHY.readI16( settings.endian );
+                bones.at(i).rotation.z = reader3DHY.readI16( settings.endian );
 
                 bytes_per_frame_3DMI += getOpcodeBytesPerFrame( bones.at(i).opcode );
                 
@@ -554,11 +554,11 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             positions_pointer->resize( amount_of_vertices );
 
             for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                positions_pointer->at(i).x = reader4DVL.readU16( settings.endian );
-                positions_pointer->at(i).y = reader4DVL.readU16( settings.endian );
-                positions_pointer->at(i).z = reader4DVL.readU16( settings.endian );
+                positions_pointer->at(i).x = reader4DVL.readI16( settings.endian );
+                positions_pointer->at(i).y = reader4DVL.readI16( settings.endian );
+                positions_pointer->at(i).z = reader4DVL.readI16( settings.endian );
                 // positions_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                reader4DVL.readU16( settings.endian );
+                reader4DVL.readI16( settings.endian );
             }
         }
         else
@@ -581,14 +581,12 @@ bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const U
             normals_pointer->resize( amount_of_normals );
 
             for( unsigned int i = 0; i < amount_of_normals; i++ ) {
-                normals_pointer->at(i).x = reader4DNL.readU16( settings.endian );
-
-                normals_pointer->at(i).y = reader4DNL.readU16( settings.endian );
-
-                normals_pointer->at(i).z = reader4DNL.readU16( settings.endian );
+                normals_pointer->at(i).x = reader4DNL.readI16( settings.endian );
+                normals_pointer->at(i).y = reader4DNL.readI16( settings.endian );
+                normals_pointer->at(i).z = reader4DNL.readI16( settings.endian );
 
                 // normals_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                reader4DNL.readU16( settings.endian );
+                reader4DNL.readI16( settings.endian );
             }
         }
         else
