@@ -17,7 +17,7 @@ private:
 
     Utilities::ImageData palette;
 public:
-    PYRIcon( uint8_t * data );
+    PYRIcon( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian );
 
     uint16_t getID() const;
     Utilities::DataTypes::Vec2UByte getLocation() const;
