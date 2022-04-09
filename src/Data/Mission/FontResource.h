@@ -47,12 +47,14 @@ public:
 
 class FontResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::string FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
+    static constexpr uint32_t MAX_GLYPHS = 0x100;
+
 protected:
     std::vector<FontGlyph> glyphs;
     
-    FontGlyph *font_glyphs_r[ 0x100 ];
+    FontGlyph *font_glyphs_r[ MAX_GLYPHS ];
 
     Utilities::ImageData image; // The image containing all of the glyphs.
 public:
