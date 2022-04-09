@@ -3,11 +3,13 @@
 #include "../../Utilities/DataHandler.h"
 #include <string.h>
 #include <fstream>
+#include <cassert>
 
 namespace {
     const uint32_t TAG_PYDT = 0x50594454; // which is { 0x50, 0x59, 0x44, 0x54 } or { 'P', 'Y', 'D', 'T' } or "PYDT"
     const uint32_t TAG_PYPL = 0x5059504C; // which is { 0x50, 0x59, 0x50, 0x4C } or { 'P', 'Y', 'P', 'L' } or "PYPL"
     const uint32_t TAG_PIX8 = 0x50495838; // which is { 0x50, 0x49, 0x58, 0x38 } or { 'P', 'I', 'X', '8' } or "PIX8"
+    const uint32_t TAG_PIX4 = 0x50495834; // which is { 0x50, 0x49, 0x58, 0x34 } or { 'P', 'I', 'X', '4' } or "PIX4" Playstation
 }
 
 Data::Mission::PYRIcon::PYRIcon( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
@@ -106,7 +108,6 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
             for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
                 uint16_t first_zero = readerPYPL.readU16( settings.endian );
                 uint16_t id = readerPYPL.readU16( settings.endian );
-                uint16_t second_zero = readerPYPL.readU16( settings.endian );
 
                 if( settings.output_level >= 2 )
                     *settings.output_ref << "PYPL ID: " << id << std::endl;
@@ -136,8 +137,7 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
                 {
                     if( settings.output_level >= 1 )
                         *settings.output_ref << "PYPL Error: id, " << id << ", != " << icons.at( i ).getID() << std::endl;
-                    
-                    // TODO
+                    i = amount_of_tiles; // Cancel the reading.
                 }
             }
         }
@@ -159,7 +159,13 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
             }
         }
         else
+        if( identifier == TAG_PIX4 ) {
+            auto readerPIX4 = reader.getReader( tag_data_size );
+        }
+        else
         {
+            if( settings.output_level >= 1 )
+                *settings.output_ref << "PYR Tag Error, 0x" << std::hex << identifier << std::dec << std::endl;
             reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
         }
     }
