@@ -217,13 +217,12 @@ int Data::Mission::FontResource::write( const char *const file_path, const std::
             export_enable = false;
     }
 
-    if( export_enable )
+    if( false ) // export_enable is dimied out because this would cause a segmentation fault.
     {
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
 
         if( resource.is_open() )
         {
-
             resource << "info face=\"" << file_path << "\" size=24 bold=0 italic=0 charset=\"ASCII\""
                      << " unicode=0 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0 outline=1"<< std::endl;
 
