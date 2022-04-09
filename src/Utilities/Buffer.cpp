@@ -250,7 +250,7 @@ void Utilities::Buffer::Reader::setPosition( int offset, Direction way ) {
 
     current_index = new_offset;
 
-    if( new_offset < 0 || static_cast<size_t>( new_offset ) >= size )
+    if( new_offset < 0 || static_cast<size_t>( new_offset ) > size )
         throw ReaderOutOfBounds( "setPosition", data_r, size, current_index );
 
 }

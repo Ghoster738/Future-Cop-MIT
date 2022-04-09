@@ -3,6 +3,7 @@
 #include <cmath>
 #include "../../Utilities/DataHandler.h"
 #include <fstream>
+#include <cassert>
 
 namespace {
 // Both versions have this for this is the header for the texture.
