@@ -19,13 +19,15 @@ namespace {
     // The image data starts after the end of the image header.
 }
 
-Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
+Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader ) {
     this->glyphID   = reader.readU8();
-    reader.readU8(); // Skip a byte
+    this->unk_0     = reader.readU8(); // Skip a byte
     this->width     = reader.readU8();
     this->height    = reader.readU8();
-    this->left      = reader.readU16( endian );
-    this->top       = reader.readU16( endian );
+    this->left      = reader.readU8();
+    this->unk_1     = reader.readU8(); // Skip a byte
+    this->top       = reader.readU8();
+    this->unk_2     = reader.readU8(); // Skip a byte
     this->x_advance = reader.readU8();
     this->offset.x  = reader.readU8();
     this->offset.y  = reader.readU8();
@@ -35,19 +37,19 @@ uint8_t Data::Mission::FontGlyph::getGlyph() const {
     return glyphID;
 }
 
-int Data::Mission::FontGlyph::getRight() const {
+uint8_t Data::Mission::FontGlyph::getRight() const {
     return this->left + this->width;
 }
 
-int Data::Mission::FontGlyph::getLeft() const {
+uint8_t Data::Mission::FontGlyph::getLeft() const {
     return this->left;
 }
 
-int Data::Mission::FontGlyph::getTop() const {
+uint8_t Data::Mission::FontGlyph::getTop() const {
     return this->top;
 }
 
-int Data::Mission::FontGlyph::getBottom() const {
+uint8_t Data::Mission::FontGlyph::getBottom() const {
     // This does not make sense!
     // What was I thinking!
     return this->top + this->height;
@@ -57,14 +59,14 @@ Utilities::DataTypes::Vec2Byte Data::Mission::FontGlyph::getOffset() const {
     return this->offset;
 }
 
-int Data::Mission::FontGlyph::getXAdvance() const {
+uint8_t Data::Mission::FontGlyph::getXAdvance() const {
     return this->x_advance;
 }
-int Data::Mission::FontGlyph::getWidth() const {
+uint8_t Data::Mission::FontGlyph::getWidth() const {
     return this->width;
 }
 
-int Data::Mission::FontGlyph::getHeight() const {
+uint8_t Data::Mission::FontGlyph::getHeight() const {
     return this->height;
 }
 
@@ -143,13 +145,12 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
             for( unsigned int i = 0; i < number_of_glyphs; i++ )
             {
                 auto readerGlyph = readerGlyphs.getReader( GLYPH_SIZE );
-                this->glyphs.push_back( FontGlyph( readerGlyph, settings.endian ) );
+                this->glyphs.push_back( FontGlyph( readerGlyph ) );
             }
 
             // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
             for( unsigned int i = 0; i != this->glyphs.size(); i++ )
                 font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
-
 
             reader.setPosition( offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
 

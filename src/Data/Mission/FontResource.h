@@ -12,36 +12,37 @@ namespace Mission {
 class FontGlyph {
 private:
     uint8_t glyphID;
-
+    uint8_t unk_0;
+    uint8_t width;
+    uint8_t height;
     // These are for texture space in pixels.
-    int top;
-    int left;
-    
-    int height;
-    int width;
+    uint8_t left;
+    uint8_t unk_1;
+    uint8_t top;
+    uint8_t unk_2;
 
     // This is the spacing of the characters.
-    int x_advance;
+    uint8_t x_advance;
     Utilities::DataTypes::Vec2Byte offset;
 public:
-    FontGlyph( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
+    FontGlyph( Utilities::Buffer::Reader& reader );
     uint8_t getGlyph() const;
-    int getRight() const;
-    int getLeft() const;
-    int getTop() const;
-    int getBottom() const;
+    uint8_t getRight() const;
+    uint8_t getLeft() const;
+    uint8_t getTop() const;
+    uint8_t getBottom() const;
     
     /**
      * @return the width of the font.
      */
-    int getWidth() const;
+    uint8_t getWidth() const;
     
     /**
      * @return the height of the font.
      */
-    int getHeight() const;
+    uint8_t getHeight() const;
 
-    int getXAdvance() const;
+    uint8_t getXAdvance() const;
     Utilities::DataTypes::Vec2Byte getOffset() const;
 };
 
