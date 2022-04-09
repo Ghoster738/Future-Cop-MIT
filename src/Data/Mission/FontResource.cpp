@@ -8,16 +8,13 @@
 
 namespace {
     const size_t HEADER_SIZE = 0x20;
-    const uint32_t FNTP_TAG = 0x464E5450; // which is { 0x46, 0x4E, 0x54, 0x50 } or { 'F', 'N', 'T', 'P' } or "FNTP"
-    const size_t NUMBER_OF_GLYPHS_OFFSET = 0xA;
-    const size_t OFFSET_TO_GLYPH_DATA_OFFSET = 0x14;
-    const size_t OFFSET_TO_IMAGE_HEADER_OFFSET = 0x1C;
+    // For some reason the Windows version stores this as a big endian 32 bit number. Mac uses the little endian.
+    // I think this format was made for Windows programs, but the Future Cop developers used it for the Mac version.
+    const uint32_t FNTP_LITTLE_TAG = 0x50544E46; // which is { 0x50, 0x54, 0x4E, 0x46 } or { 'P', 'T', 'N', 'F' } or "PTNF"
 
-    const size_t FONT_CHARACTER_SIZE = 0xB; // Contains the character code with parameters.
+    const size_t GLYPH_SIZE = 0xB; // Contains the character code with parameters.
 
     const size_t IMAGE_HEADER_SIZE = 0x10;
-    const size_t IMAGE_HEADER_OFFSET_FOR_WIDTH = 0x0;
-    const size_t IMAGE_HEADER_OFFSET_FOR_HEIGHT = 0x6;
 
     // The image data starts after the end of the image header.
 }
@@ -81,7 +78,7 @@ Data::Mission::FontResource::FontResource() {
 }
 
 Data::Mission::FontResource::FontResource( const FontResource &obj ) : Resource(obj), image( obj.image ), glyphs( obj.glyphs ) {
-    for( int i = 0; i < sizeof( font_glyphs_r ) / sizeof( FontGlyph* ); i++ ) {
+    for( unsigned int i = 0; i < MAX_GLYPHS; i++ ) {
         font_glyphs_r[ i ] = obj.font_glyphs_r[ i ];
     }
     /*
@@ -111,34 +108,59 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
     auto reader = buffer.getReader();
 
     bool file_is_not_valid;
-    uint16_t number_of_glyphs;
-    uint32_t offset_to_glyphs;
     uint32_t offset_to_image_header;
 
     if( reader.totalSize() > HEADER_SIZE )
     {
-        auto header = reader.readU32( settings.endian );
-        
         // Get the data first
-        reader.setPosition( NUMBER_OF_GLYPHS_OFFSET, Utilities::Buffer::Reader::BEGINING );
-        number_of_glyphs       = reader.readU16( settings.endian );
-        reader.setPosition( OFFSET_TO_GLYPH_DATA_OFFSET, Utilities::Buffer::Reader::BEGINING );
-        offset_to_glyphs       = reader.readU32( settings.endian );
-        reader.setPosition( OFFSET_TO_IMAGE_HEADER_OFFSET, Utilities::Buffer::Reader::BEGINING );
-        offset_to_image_header = reader.readU32( settings.endian );
+        auto header   = reader.readU32( settings.endian );
+        auto tag_size = reader.readU32( settings.endian );
+
+        auto u16_100 = reader.readU16( settings.endian );
+        auto number_of_glyphs = reader.readU16( settings.endian );
+        auto u32_8 = reader.readU32( settings.endian );
+        auto u16_0 = reader.readU16( settings.endian ); // This could be two 0 bytes
+        auto unk_u8 = reader.readU8(); // Offset 0x12
+        auto u8_0 = reader.readU8(); // This is always zero.
+        auto offset_to_glyphs = reader.readU32( settings.endian );
+        auto u32_0 = reader.readU32( settings.endian );
+        auto offset_to_image_header = reader.readU32( settings.endian );
 
         // Check to see if the data will work.
         file_is_not_valid = false;
-        file_is_not_valid |= ( header == FNTP_TAG );
-        file_is_not_valid |= ( (number_of_glyphs * FONT_CHARACTER_SIZE + offset_to_glyphs) > reader.totalSize() );
+        file_is_not_valid |= ( header != FNTP_LITTLE_TAG );
+        file_is_not_valid |= ( (number_of_glyphs * GLYPH_SIZE + offset_to_glyphs) > reader.totalSize() );
         file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header) > reader.totalSize() );
 
         if( !file_is_not_valid )
         {
-            reader.setPosition( offset_to_image_header + IMAGE_HEADER_OFFSET_FOR_WIDTH, Utilities::Buffer::Reader::BEGINING );
-            image.setWidth( reader.readU32( settings.endian ) * 4 ); // For some reason they had this value divided by 4.
-            reader.setPosition( offset_to_image_header + IMAGE_HEADER_OFFSET_FOR_HEIGHT, Utilities::Buffer::Reader::BEGINING );
-            image.setHeight( reader.readU32( settings.endian ) );
+            reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGINING );
+
+            auto readerGlyphs = reader.getReader( number_of_glyphs * GLYPH_SIZE );
+
+            this->glyphs.reserve( number_of_glyphs );
+
+            for( unsigned int i = 0; i < number_of_glyphs; i++ )
+            {
+                auto readerGlyph = readerGlyphs.getReader( GLYPH_SIZE );
+                this->glyphs.push_back( FontGlyph( readerGlyph, settings.endian ) );
+            }
+
+            // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
+            for( unsigned int i = 0; i != this->glyphs.size(); i++ )
+                font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
+
+
+            reader.setPosition( offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
+
+            auto readerImageHeader = reader.getReader( IMAGE_HEADER_SIZE );
+
+            auto width  = static_cast<uint16_t>( readerImageHeader.readU8() ) * 4;
+            readerImageHeader.setPosition( 0x6, Utilities::Buffer::Reader::BEGINING );
+            auto height = readerImageHeader.readU16( settings.endian );
+
+            this->image.setWidth( width ); // For some reason they had this value divided by 4.
+            this->image.setHeight( height );
 
             // Set up the image.
             file_is_not_valid |= !image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
@@ -147,29 +169,16 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
             file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image.getWidth() / 2) * image.getHeight()) > reader.totalSize() );
 
             if( !file_is_not_valid ) {
-                reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGINING );
-                
-                for( unsigned int i = 0; i < number_of_glyphs; i++ )
-                {
-                    auto glyph_reader = reader.getReader( FONT_CHARACTER_SIZE );
-                    glyphs.push_back( FontGlyph( glyph_reader, settings.endian ) );
-                }
-                
-                // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
-                for( unsigned int i = 0; i < number_of_glyphs; i++  ) {
-                    font_glyphs_r[ glyphs[i].getGlyph() ] = &glyphs[ i ];
-                }
+                auto readerImage = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
 
                 auto image_data = image.getRawImageData();
-                
-                reader.setPosition( IMAGE_HEADER_SIZE + offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
 
                 // The pixels seems to be compressed in a certian format.
                 // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
                 // This compression reduces the image size to a half.
                 // Yes, they could have used one bit per pixel, but I think it would increase the loading times.
                 for( unsigned int x = 0; x < image.getHeight() * image.getWidth() / 2; x++ ) {
-                    auto pixel_pack = reader.readU8();
+                    auto pixel_pack = readerImage.readU8();
 
                     if( (pixel_pack & 0xF0) != 0 ) {
                         *image_data = 0xFF;
