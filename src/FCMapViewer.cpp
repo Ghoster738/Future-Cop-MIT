@@ -215,12 +215,12 @@ int main(int argc, char** argv)
         {
             int status = 0;
 
-            text_2d_buffer->setFont( 2 );
+            text_2d_buffer->setFont( 0 );
             text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
             text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
             text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
-            text_2d_buffer->setFont( 5 );
+            text_2d_buffer->setFont( 0 );
             text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
             text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
             text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
