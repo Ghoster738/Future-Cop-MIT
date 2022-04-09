@@ -110,7 +110,6 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
     auto reader = buffer.getReader();
 
     bool file_is_not_valid;
-    uint32_t offset_to_image_header;
 
     if( reader.totalSize() > HEADER_SIZE )
     {
@@ -120,13 +119,16 @@ bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const 
 
         auto u16_100 = reader.readU16( settings.endian );
         auto number_of_glyphs = reader.readU16( settings.endian );
-        auto u32_8 = reader.readU32( settings.endian );
+        auto platform = reader.readU32( settings.endian ); // Mac and Windows is 8, and Playstation is 9
         auto u16_0 = reader.readU16( settings.endian ); // This could be two 0 bytes
         auto unk_u8 = reader.readU8(); // Offset 0x12
         auto u8_0 = reader.readU8(); // This is always zero.
         auto offset_to_glyphs = reader.readU32( settings.endian );
         auto u32_0 = reader.readU32( settings.endian );
         auto offset_to_image_header = reader.readU32( settings.endian );
+
+        // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
+        // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
 
         // Check to see if the data will work.
         file_is_not_valid = false;
@@ -227,7 +229,7 @@ int Data::Mission::FontResource::write( const char *const file_path, const std::
             export_enable = false;
     }
 
-    if( false ) // export_enable is dimied out because this would cause a segmentation fault.
+    if( export_enable )
     {
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
 
