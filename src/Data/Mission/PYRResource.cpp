@@ -15,22 +15,32 @@ namespace {
 Data::Mission::PYRIcon::PYRIcon( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
 
     this->id = reader.readU16( endian );
+;
+    uint8_t u0 = reader.readU8();
+    uint8_t u1 = reader.readU8();
 
-    uint8_t u3 = reader.readU8();
-    uint8_t u4 = reader.readU8();
+    // assert( u0 == 1 ); // This will crash on PS1 not PC
+    // assert( u1 == 0x80 | u1 == 0x40 | u1 == 0x20 | u1 == 0x10 ); // This will crash on PS1 not PC
 
     this->location.x = reader.readU8();
     this->location.y = reader.readU8();
 
-    uint8_t u7 = reader.readU8();
-    uint8_t u8 = reader.readU8();
+    uint8_t u2 = reader.readU8();
+    uint8_t u3 = reader.readU8();
+
+    // assert( u2 == 0 | u2 == 1 ); // This will crash on PS1 not PC
+    // assert( u3 == 0 | u3 == 1 ); // This will crash on PS1 not PC
 
     this->size.x = reader.readU8();
     this->size.y = reader.readU8();
 
-    // These two bytes should be zeros.
-    uint8_t uB = reader.readU8();
-    uint8_t uC = reader.readU8();
+    // These two bytes are be zeros in Mac and Windows
+    uint8_t u4 = reader.readU8();
+    uint8_t u5 = reader.readU8();
+
+    // assert( u4 == 0 ); // This will crash on PS1 not PC
+    // assert( u5 == 0 ); // This will crash on PS1 not PC
+
     /*
     std::cout << "ID: " << id << ": "
         << static_cast<int>( location_x ) << ", " << static_cast<int>( location_y ) << ", "
@@ -127,6 +137,8 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
             auto readerPYDT = reader.getReader( tag_data_size );
             // This tag contains the uv cordinates for the particles, there are other bytes that are unknown, but for the most part I understand.
             amount_of_tiles = readerPYDT.readU32( settings.endian ); // 0x8
+
+            // TODO These are most likely opcodes with varied lengths!
 
             for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
                 auto readerIcon = readerPYDT.getReader( sizeof( uint16_t ) + sizeof( uint8_t ) * 10 );
@@ -249,7 +261,7 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
                 for( unsigned int d = 0; d < this->ps1_palettes_p[ p ].getHeight(); d++ ) {
                     uint8_t red, green, blue;
 
-                    Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), blue, green, red );
+                    Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), red, green, blue );
 
                     palette_data[0] = red;
                     palette_data[1] = green;
