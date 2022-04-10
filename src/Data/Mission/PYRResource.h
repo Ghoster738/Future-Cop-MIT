@@ -29,15 +29,21 @@ public:
 
 class PYRResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::string FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
+    static constexpr uint32_t PS1_PALLETE_SIZE = 0x010;
+    static constexpr uint32_t PC_PALLETE_SIZE  = 0x100;
 private:
     std::vector<PYRIcon> icons;
 
     Utilities::ImageData image;
+
+    Utilities::ImageData *ps1_palettes_p;
+    unsigned int ps1_palettes_amount;
 public:
     PYRResource();
     PYRResource( const PYRResource &obj );
+    ~PYRResource();
 
     virtual std::string getFileExtension() const;
 
