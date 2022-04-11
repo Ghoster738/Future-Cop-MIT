@@ -22,18 +22,20 @@ uint32_t Data::Mission::SNDSResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::SNDSResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
-
-    bool   file_is_not_valid = false;
-    auto   data = raw_data.data();
+bool Data::Mission::SNDSResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+    auto reader = buffer.getReader();
+    
+    bool file_is_not_valid = false;
 
     sound.setChannelNumber( 1 );
-    sound.setSampleRate( 22050 );
+    sound.setSampleRate( 22050 ); // Assummed rate
     sound.setBitsPerSample( 8 );
 
-    data += sizeof( uint32_t );
-    sound.addAudioStream( data, raw_data.size() - sizeof( uint32_t )  );
+    reader.readU32( settings.endian );
+    
+    auto bytes = reader.getBytes();
+    
+    sound.addAudioStream( bytes.data(), reader.getPosition( Utilities::Buffer::Reader::ENDING)  );
 
     sound.updateAudioStreamLength();
 
