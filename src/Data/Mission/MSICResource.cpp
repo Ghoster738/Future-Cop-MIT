@@ -32,7 +32,7 @@ bool Data::Mission::MSICResource::parse( const Utilities::Buffer &header, const 
     size_t advance = SIZE_OF_DATA;
 
     sound.setChannelNumber( 1 );
-    sound.setSampleRate( 28000 );
+    sound.setSampleRate( 28000 ); // Assumed rate
     sound.setBitsPerSample( 8 );
     
     auto reader = buffer.getReader();
