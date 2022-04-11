@@ -12,16 +12,45 @@ namespace {
     const uint32_t TAG_PIX4 = 0x50495834; // which is { 0x50, 0x49, 0x58, 0x34 } or { 'P', 'I', 'X', '4' } or "PIX4" Playstation
 }
 
-Data::Mission::PYRIcon::PYRIcon( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
+Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
 
+    // Read the opcode
     this->id = reader.readU16( endian );
-;
-    uint8_t u0 = reader.readU8();
-    uint8_t u1 = reader.readU8();
+    this->num_sprites = reader.readU8();
+    this->sprite_size = reader.readU8(); // Power of two size
 
-    // assert( u0 == 1 ); // This will crash on PS1 not PC
-    // assert( u1 == 0x80 | u1 == 0x40 | u1 == 0x20 | u1 == 0x10 ); // This will crash on PS1 not PC
+    assert( this->num_sprites != 0 ); // This should not crash at all.
+    // This should not crash at all.
+    assert( sprite_size == 0x80 | sprite_size == 0x40 | sprite_size == 0x20 | sprite_size == 0x10 );
 
+    this->textures.reserve( this->num_sprites );
+
+    for( unsigned int i = 0; i < this->num_sprites; i++ ) {
+        this->textures.push_back( reader );
+    }
+}
+
+uint16_t Data::Mission::PYRResource::Particle::getID() const {
+    return this->id;
+}
+
+uint8_t Data::Mission::PYRResource::Particle::getNumSprites() const {
+    return this->num_sprites;
+}
+
+uint8_t Data::Mission::PYRResource::Particle::getSpriteSize() const {
+    return this->sprite_size;
+}
+
+const Data::Mission::PYRResource::Particle::Texture *const Data::Mission::PYRResource::Particle::getTexture( uint8_t index ) const {
+    return textures.data() + index;
+}
+
+Data::Mission::PYRResource::Particle::Texture* Data::Mission::PYRResource::Particle::getTexture( uint8_t index ) {
+    return textures.data() + index;
+}
+
+Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reader &reader ) {
     this->location.x = reader.readU8();
     this->location.y = reader.readU8();
 
@@ -40,30 +69,29 @@ Data::Mission::PYRIcon::PYRIcon( Utilities::Buffer::Reader &reader, Utilities::B
 
     // assert( u4 == 0 ); // This will crash on PS1 not PC
     // assert( u5 == 0 ); // This will crash on PS1 not PC
-
-    /*
-    std::cout << "ID: " << id << ": "
-        << static_cast<int>( location_x ) << ", " << static_cast<int>( location_y ) << ", "
-        << static_cast<int>( size_x ) << ", " << static_cast<int>( size_y ) << std::endl;*/
 }
 
-uint16_t Data::Mission::PYRIcon::getID() const {
-    return this->id;
-}
-
-Utilities::DataTypes::Vec2UByte Data::Mission::PYRIcon::getLocation() const {
+Utilities::DataTypes::Vec2UByte Data::Mission::PYRResource::Particle::Texture::getLocation() const {
     return this->location;
 }
 
-Utilities::DataTypes::Vec2UByte Data::Mission::PYRIcon::getSize() const {
+Utilities::DataTypes::Vec2UByte Data::Mission::PYRResource::Particle::Texture::getSize() const {
     return this->size;
 }
 
-const Utilities::ImageData* Data::Mission::PYRIcon::getPalette() const {
+char* Data::Mission::PYRResource::Particle::Texture::setupPallete( unsigned int number_of_colors ) {
+    this->palette.setWidth(  1 );
+    this->palette.setHeight( number_of_colors );
+    this->palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+
+    return this->palette.getRawImageData();
+}
+
+const Utilities::ImageData* Data::Mission::PYRResource::Particle::Texture::getPalette() const {
     return &palette;
 }
 
-Utilities::ImageData* Data::Mission::PYRIcon::getPalette() {
+Utilities::ImageData* Data::Mission::PYRResource::Particle::Texture::getPalette() {
     return &palette;
 }
 
@@ -71,41 +99,12 @@ const std::string Data::Mission::PYRResource::FILE_EXTENSION = "pyr";
 const uint32_t Data::Mission::PYRResource::IDENTIFIER_TAG = 0x43707972; // which is { 0x43, 0x70, 0x79, 0x72 } or { 'C', 'p', 'y', 'r' } or "Cpyr"
 
 Data::Mission::PYRResource::PYRResource() {
-    ps1_palettes_p = nullptr;
-    ps1_palettes_amount = 0;
 }
 
-Data::Mission::PYRResource::PYRResource( const PYRResource &obj ) : image( obj.image ), ps1_palettes_p( nullptr ), ps1_palettes_amount( obj.ps1_palettes_amount ) {
-    if( obj.ps1_palettes_p != nullptr )
-    {
-        ps1_palettes_p = new Utilities::ImageData [ ps1_palettes_amount ];
-
-        for( size_t i = 0; i < ps1_palettes_amount; i++ ) {
-            ps1_palettes_p[ i ].setWidth(  1 );
-            ps1_palettes_p[ i ].setHeight( PS1_PALLETE_SIZE );
-            ps1_palettes_p[ i ].setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-
-            auto image_data = ps1_palettes_p[ i ].getRawImageData();
-            auto image_obj_data = obj.ps1_palettes_p[ i ].getRawImageData();
-
-            for( unsigned int y = 0; y < PS1_PALLETE_SIZE; y++ )
-            {
-                ps1_palettes_p[ y * 3 + 0 ] = obj.ps1_palettes_p[ y * 3 + 0 ];
-                ps1_palettes_p[ y * 3 + 1 ] = obj.ps1_palettes_p[ y * 3 + 1 ];
-                ps1_palettes_p[ y * 3 + 2 ] = obj.ps1_palettes_p[ y * 3 + 2 ];
-
-                image_data += ps1_palettes_p[ i ].getPixelSize();
-                image_obj_data += ps1_palettes_p[ i ].getPixelSize();
-            }
-        }
-    }
+Data::Mission::PYRResource::PYRResource( const PYRResource &obj ) : image( obj.image ) {
 }
 
 Data::Mission::PYRResource::~PYRResource() {
-    if( ps1_palettes_p != nullptr )
-    {
-        delete [] ps1_palettes_p;
-    }
 }
 
 std::string Data::Mission::PYRResource::getFileExtension() const {
@@ -135,16 +134,12 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
 
         if( identifier == TAG_PYDT ) {
             auto readerPYDT = reader.getReader( tag_data_size );
-            // This tag contains the uv cordinates for the particles, there are other bytes that are unknown, but for the most part I understand.
-            amount_of_tiles = readerPYDT.readU32( settings.endian ); // 0x8
 
-            // TODO These are most likely opcodes with varied lengths!
+            // This number contains the amount of particles.
+            amount_of_tiles = readerPYDT.readU32( settings.endian );
 
-            for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
-                auto readerIcon = readerPYDT.getReader( sizeof( uint16_t ) + sizeof( uint8_t ) * 10 );
-                
-                icons.push_back( PYRIcon( readerIcon, settings.endian ) );
-            }
+            for( unsigned int i = 0; i < amount_of_tiles; i++ )
+                particles.push_back( Particle( readerPYDT, settings.endian ) );
         }
         else
         if( identifier == TAG_PYPL ) {
@@ -216,16 +211,11 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
                 if( settings.output_level >= 2 )
                     *settings.output_ref << "PYPL ID: " << id << std::endl;
 
-                if( id == icons.at( i ).getID() )
+                if( id == particles.at( i ).getID() )
                 {
-                    Utilities::ImageData *palette = icons.at( i ).getPalette();
-                    palette->setWidth(  1 );
-                    palette->setHeight( PC_PALLETE_SIZE );
-                    palette->setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                    auto palette_data = particles.at( i ).getTexture(0)->setupPallete( PC_PALLETE_SIZE );
 
-                    auto palette_data = palette->getRawImageData();
-
-                    for( unsigned int d = 0; d < palette->getHeight(); d++ ) {
+                    for( unsigned int d = 0; d < PC_PALLETE_SIZE; d++ ) {
                         uint8_t red, green, blue;
 
                         Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), blue, green, red );
@@ -234,40 +224,34 @@ bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const U
                         palette_data[1] = green;
                         palette_data[2] = blue;
 
-                        palette_data += palette->getPixelSize();
+                        palette_data += particles.at( i ).getTexture(0)->getPalette()->getPixelSize();
                     }
                 }
                 else
                 {
                     if( settings.output_level >= 1 )
-                        *settings.output_ref << "PYPL Error: id, " << id << ", != " << icons.at( i ).getID() << std::endl;
+                        *settings.output_ref << "PYPL Error: id, " << id << ", != " << particles.at( i ).getID() << std::endl;
                     i = amount_of_tiles; // Cancel the reading.
                 }
             }
         }
         else
         {
-            this->ps1_palettes_amount = readerPYPL.totalSize() / ( PS1_PALLETE_SIZE * sizeof( uint16_t ) );
+            for( unsigned int p = 0; p < amount_of_tiles; p++ ) {
+                for( unsigned int t = 0; t < particles.at( p ).getNumSprites(); t++ ) {
+                    auto palette_data = particles.at( p ).getTexture( t )->setupPallete( PS1_PALLETE_SIZE );
 
-            this->ps1_palettes_p = new Utilities::ImageData [ this->ps1_palettes_amount ];
+                    for( unsigned int d = 0; d < PS1_PALLETE_SIZE; d++ ) {
+                        uint8_t red, green, blue;
 
-            for( unsigned int p = 0; p < this->ps1_palettes_amount; p++ ) {
-                this->ps1_palettes_p[ p ].setWidth(  1 );
-                this->ps1_palettes_p[ p ].setHeight( PS1_PALLETE_SIZE );
-                this->ps1_palettes_p[ p ].setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                        Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), red, green, blue );
 
-                auto palette_data = this->ps1_palettes_p[ p ].getRawImageData();
+                        palette_data[0] = red;
+                        palette_data[1] = green;
+                        palette_data[2] = blue;
 
-                for( unsigned int d = 0; d < this->ps1_palettes_p[ p ].getHeight(); d++ ) {
-                    uint8_t red, green, blue;
-
-                    Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), red, green, blue );
-
-                    palette_data[0] = red;
-                    palette_data[1] = green;
-                    palette_data[2] = blue;
-
-                    palette_data += this->ps1_palettes_p[ p ].getPixelSize();
+                        palette_data += particles.at( p ).getTexture( t )->getPalette()->getPixelSize();
+                    }
                 }
             }
         }
@@ -293,39 +277,37 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
             enable_export = false;
     }
 
-    if( this->ps1_palettes_p == nullptr )
-    {
-        for( auto current = icons.begin(); current != icons.end(); current++ ) {
+    for( auto current_particle = particles.begin(); current_particle != particles.end(); current_particle++ ) {
+
+        for( unsigned int index = 0; index != (*current_particle).getNumSprites(); index++ ) {
             std::string file_path_texture = std::string( file_path );
             file_path_texture += " ";
-            file_path_texture += std::to_string( static_cast<int>( (*current).getID() ) );
+            file_path_texture += std::to_string( static_cast<int>( (*current_particle).getID() ) );
+
+            if( (*current_particle).getNumSprites() != 1 )
+            {
+                file_path_texture += " f:";
+                file_path_texture += std::to_string( index );
+            }
+
             file_path_texture += ".png";
 
+            auto texture = (*current_particle).getTexture( index );
+
             auto sub_image = image.subImage(
-                (*current).getLocation().x, (*current).getLocation().y,
-                (*current).getSize().x,     (*current).getSize().y );
+                texture->getLocation().x, texture->getLocation().y,
+                texture->getSize().x,     texture->getSize().y );
 
             if( enable_export )
-                sub_image.applyPalette( (*(*current).getPalette()) ).write( file_path_texture.c_str() );
-
-            return_value = 1;
+                sub_image.applyPalette( (*texture->getPalette()) ).write( file_path_texture.c_str() );
         }
-
-        if( export_prime_bw && enable_export )
-        {
-            std::string file_path_texture = std::string( file_path ) + ".png";
-            return_value = image.write( file_path_texture.c_str() );
-        }
+        return_value = 1;
     }
-    else
+
+    if( export_prime_bw && enable_export )
     {
-        for( size_t i = 0; i != this->ps1_palettes_amount; i++ ) {
-            std::string file_path_texture = std::string( file_path ) + " " + std::to_string( i ) + ".png";
-
-            image.applyPalette( this->ps1_palettes_p[ i ] ).write( file_path_texture.c_str() );
-
-            return_value = 1;
-        }
+        std::string file_path_texture = std::string( file_path ) + ".png";
+        return_value = image.write( file_path_texture.c_str() );
     }
 
     return return_value;
