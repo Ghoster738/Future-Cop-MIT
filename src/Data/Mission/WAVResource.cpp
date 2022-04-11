@@ -5,10 +5,10 @@
 #include <fstream>
 
 namespace {
-    const char *const CHUNK_ID       = "RIFF";
-    const char *const FORMAT         = "WAVE";
-    const char *const SUB_CHUNK_1_ID = "fmt ";
-    const char *const SUB_CHUNK_2_ID = "data";
+    uint32_t TAG_CHUNK_ID = 0x52494646; // which is { 0x52, 0x49, 0x46, 0x46 } or { 'R', 'I', 'F', 'F' } or "RIFF"
+    uint32_t TAG_FORMAT = 0x57415645; // which is { 0x57, 0x41, 0x56, 0x45 } or { 'W', 'A', 'V', 'E' } or "WAVE"
+    uint32_t TAG_SUB_CHUNK_1_ID = 0x666d7420; // which is { 0x66, 0x6d, 0x74, 0x20 } or { 'f', 'm', 't', ' ' } or "fmt "
+    uint32_t TAG_SUB_CHUNK_2_ID = 0x64617461; // which is { 0x64, 0x61, 0x74, 0x61 } or { 'd', 'a', 't', 'a' } or "data"
     const size_t      DATA_START_FROM_HEADER = 0x2C;
 }
 
@@ -19,15 +19,14 @@ bool Data::Mission::WAVResource::parse( const Utilities::Buffer &header, const U
     // This is to check for buffer overflow attacks and the like.
     if( raw_data.size() > DATA_START_FROM_HEADER ) {
         bool file_is_not_valid = false;
-        const char *bytes = reinterpret_cast<char*>( raw_data.data() );
         unsigned int size_of_chunk_1;
 
-        file_is_not_valid |= (strncmp( bytes +  0,       CHUNK_ID, 4 ) != 0);
-        file_is_not_valid |= (strncmp( bytes +  8,         FORMAT, 4 ) != 0);
-        file_is_not_valid |= (strncmp( bytes + 12, SUB_CHUNK_1_ID, 4 ) != 0);
+        file_is_not_valid |= (Utilities::DataHandler::read_u32_big( raw_data.data() + 0) != TAG_CHUNK_ID );
+        file_is_not_valid |= (Utilities::DataHandler::read_u32_big( raw_data.data() + 8) != TAG_FORMAT );
+        file_is_not_valid |= (Utilities::DataHandler::read_u32_big( raw_data.data() + 12) != TAG_SUB_CHUNK_1_ID );
         size_of_chunk_1 = Utilities::DataHandler::read_u32_little(raw_data.data() + 16);
         file_is_not_valid |= (size_of_chunk_1 != 16); // This loader only supports size 16
-        file_is_not_valid |= (strncmp( bytes + 36, SUB_CHUNK_2_ID, 4 ) != 0);
+        file_is_not_valid |= (Utilities::DataHandler::read_u32_big( raw_data.data() + 36) != TAG_SUB_CHUNK_2_ID );
         file_is_not_valid |= (raw_data.size() - 8 < Utilities::DataHandler::read_u32_little(raw_data.data() + 4));
 
         if( !file_is_not_valid ) {
@@ -143,6 +142,7 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
 
 int Data::Mission::WAVResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
+    Utilities::Buffer header;
     bool enable_export = true;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
@@ -155,26 +155,27 @@ int Data::Mission::WAVResource::write( const char *const file_path, const std::v
 
     if( resource.is_open() )
     {
-        uint32_t param32 = 0;
+        header.addU32( TAG_CHUNK_ID, Utilities::Buffer::Endian::BIG );
+        header.addU32( audio_stream.size() + DATA_START_FROM_HEADER - 8, Utilities::Buffer::Endian::LITTLE );
 
-        resource.write( CHUNK_ID, 4 );
-        param32 = audio_stream.size() + DATA_START_FROM_HEADER - 8;
-        resource.write( reinterpret_cast<char*>(&param32), sizeof( uint32_t ) );
+        header.addU32( TAG_FORMAT, Utilities::Buffer::Endian::BIG );
+        header.addU32( TAG_SUB_CHUNK_1_ID, Utilities::Buffer::Endian::BIG );
+        header.addU32( 16, Utilities::Buffer::Endian::LITTLE );
+        header.addU16( audio_format, Utilities::Buffer::Endian::LITTLE );
+        header.addU16( channel_number, Utilities::Buffer::Endian::LITTLE );
+        header.addU32( sample_rate, Utilities::Buffer::Endian::LITTLE );
+        header.addU32( byte_rate, Utilities::Buffer::Endian::LITTLE );
+        header.addU16( block_align, Utilities::Buffer::Endian::LITTLE );
+        header.addU16( bits_per_sample, Utilities::Buffer::Endian::LITTLE );
 
-        resource.write( FORMAT,         sizeof( uint32_t ) );
-        resource.write( SUB_CHUNK_1_ID, sizeof( uint32_t ) );
-        param32 = 16;
-        resource.write( reinterpret_cast<const char*>(&param32),         sizeof(uint32_t) );
-        resource.write( reinterpret_cast<const char*>(&audio_format),    sizeof(uint16_t) );
-        resource.write( reinterpret_cast<const char*>(&channel_number),  sizeof(uint16_t) );
-        resource.write( reinterpret_cast<const char*>(&sample_rate),     sizeof(uint32_t) );
-        resource.write( reinterpret_cast<const char*>(&byte_rate),       sizeof(uint32_t) );
-        resource.write( reinterpret_cast<const char*>(&block_align),     sizeof(uint16_t) );
-        resource.write( reinterpret_cast<const char*>(&bits_per_sample), sizeof(uint16_t) );
-
-        resource.write( SUB_CHUNK_2_ID, sizeof( uint32_t ) );
-        param32 = audio_stream_length;
-        resource.write( reinterpret_cast<const char*>(&param32), sizeof( uint32_t ) );
+        header.addU32( TAG_SUB_CHUNK_2_ID, Utilities::Buffer::Endian::BIG );
+        header.addU32( audio_stream_length, Utilities::Buffer::Endian::LITTLE );
+        
+        auto reader = header.getReader();
+        auto header_bytes = reader.getBytes();
+        
+        // Finally write down the header.
+        resource.write( reinterpret_cast<const char*>( header_bytes.data() ), header_bytes.size() );
 
         resource.write( reinterpret_cast<const char*>( audio_stream.data() ), audio_stream.size() );
 
