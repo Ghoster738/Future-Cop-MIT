@@ -67,8 +67,9 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     uint8_t u4 = reader.readU8();
     uint8_t u5 = reader.readU8();
 
-    // assert( u4 == 0 ); // This will crash on PS1 not PC
-    // assert( u5 == 0 ); // This will crash on PS1 not PC
+    //assert( u4 == 0 ); // This will crash on PS1 not PC
+    assert( (u4 == 0) | (u4 == 1) ); // This will not crash on any platform.
+    assert( u5 == 0 ); // This will crash on PS1 not PC
 }
 
 Utilities::DataTypes::Vec2UByte Data::Mission::PYRResource::Particle::Texture::getLocation() const {
