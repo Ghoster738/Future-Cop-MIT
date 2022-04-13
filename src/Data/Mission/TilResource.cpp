@@ -12,20 +12,18 @@
 
 namespace {
 uint32_t LITTLE_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect";
-void readCullingTile( Data::Mission::TilResource::CullingTile &tile, uint8_t *data ) {
-    tile.top_left = Utilities::DataHandler::read_u16_little( data );
-    data += sizeof( uint16_t );
-    // Unknown data.
-    data += sizeof( uint16_t );
-    tile.top_right = Utilities::DataHandler::read_u16_little( data );
-    data += sizeof( uint16_t );
-    // Unknown data.
-    data += sizeof( uint16_t );
-    tile.bottom_left = Utilities::DataHandler::read_u16_little( data );
-    data += sizeof( uint16_t );
-    // Unknown data.
-    data += sizeof( uint16_t );
-    tile.bottom_right = Utilities::DataHandler::read_u16_little( data );
+void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
+    tile.top_left = reader.readU16( endian );
+    reader.readU16(); // Skip Unknown data.
+    
+    tile.top_right = reader.readU16( endian );
+    reader.readU16(); // Skip Unknown data.
+    
+    tile.bottom_left = reader.readU16( endian );
+    reader.readU16(); // Skip Unknown data.
+    
+    tile.bottom_right = reader.readU16( endian );
+    reader.readU16(); // Skip Unknown data.
 }
 }
 
@@ -51,167 +49,143 @@ Utilities::ImageData *const Data::Mission::TilResource::getImage() const {
     return const_cast<Utilities::ImageData *const>(&image);
 }
 
-bool Data::Mission::TilResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto raw_data = reader_data.getReader().getBytes();
+bool Data::Mission::TilResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+    auto reader = buffer.getReader();
 
     bool file_is_not_valid = false;
-    auto data = raw_data.data();
 
-    while( static_cast<unsigned int>(data - raw_data.data()) < raw_data.size() ) {
-        auto identifier = Utilities::DataHandler::read_u32( data, settings.is_opposite_endian );
-        auto tag_size   = Utilities::DataHandler::read_u32( data + sizeof( uint32_t ), settings.is_opposite_endian );
+    auto identifier = reader.readU32( settings.endian );
+    auto tag_size   = reader.readU32( settings.endian );
 
-        if( identifier == LITTLE_SECT ) {
-            auto color_amount = Utilities::DataHandler::read_u16( data + sizeof( uint32_t ) * 2, settings.is_opposite_endian );
-            auto texture_cordinates_amount = Utilities::DataHandler::read_u16( data + sizeof( uint32_t ) * 2 + sizeof( uint16_t ), settings.is_opposite_endian );
-            auto image_read_head = data + sizeof( uint32_t ) * 2 + sizeof( uint16_t ) * 2;
+    if( identifier == LITTLE_SECT ) {
+        auto readerSect = reader.getReader( tag_size - 2 * sizeof( tag_size ) );
+        
+        auto color_amount = readerSect.readU16( settings.endian );
+        auto texture_cordinates_amount = readerSect.readU16( settings.endian );
+        
+        if( settings.output_level >= 3 )
+        {
+            *settings.output_ref << "Mission::TilResource::load() id = " << getIndexNumber() << std::endl;
+            *settings.output_ref << "Mission::TilResource::load() loc = 0x" << std::hex << getOffset() << std::dec << std::endl;
+            *settings.output_ref << "Color amount = " << color_amount << std::endl;
+            *settings.output_ref << "texture_cordinates_amount = " << texture_cordinates_amount << std::endl;
+            *settings.output_ref << "texture_quads_amount = " << texture_cordinates_amount / 4 << std::endl;
+        }
 
-            
-            if( settings.output_level >= 3 )
-            {
-                *settings.output_ref << "Mission::TilResource::load() id = " << getIndexNumber() << std::endl;
-                *settings.output_ref << "Mission::TilResource::load() loc = 0x" << std::hex << getOffset() << std::dec << std::endl;
-                *settings.output_ref << "Color amount = " << color_amount << std::endl;
-                *settings.output_ref << "texture_cordinates_amount = " << texture_cordinates_amount << std::endl;
-                *settings.output_ref << "texture_quads_amount = " << texture_cordinates_amount / 4 << std::endl;
-            }
+        // setup the image
+        image.setWidth( 0x11 );
+        image.setHeight( 0x11 );
+        image.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
 
-            // setup the image
-            image.setWidth( 0x11 );
-            image.setHeight( 0x11 );
-            image.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+        auto image_data = image.getRawImageData();
+        for( unsigned int a = 0; a < image.getWidth() * image.getHeight(); a++ ) {
 
-            auto image_data = image.getRawImageData();
-            for( unsigned int a = 0; a < image.getWidth() * image.getHeight(); a++ ) {
+            image_data[0] = readerSect.readU8();
+            image_data[1] = readerSect.readU8();
+            image_data[2] = readerSect.readU8();
 
-                image_data[0] = image_read_head[0];
-                image_data[1] = image_read_head[1];
-                image_data[2] = image_read_head[2];
+            image_data += image.getPixelSize();
+        }
 
-                image_data += image.getPixelSize();
-                image_read_head += image.getPixelSize();
-            }
+        // These bytes seems to be only five zero bytes
+        readerSect.readU32(); // Skip 4 bytes
+        readerSect.readU8();  // Skip 1 byte
 
-            // These bytes seems to be only five zero bytes
-            image_read_head += sizeof( uint8_t ) * 5;
+        this->culling_distance = readerSect.readU16( settings.endian );
+        // Padding?
+        readerSect.readU16(); // Skip 2 bytes
+        this->culling_top_left.primary = readerSect.readU16( settings.endian );
+        // Padding?
+        readerSect.readU16(); // Skip 2 bytes
+        this->culling_top_right.primary = readerSect.readU16( settings.endian );
+        // Padding?
+        readerSect.readU16(); // Skip 2 bytes
+        this->culling_bottom_left.primary = readerSect.readU16( settings.endian );
+        // Padding?
+        readerSect.readU16(); // Skip 2 bytes
+        this->culling_bottom_right.primary = readerSect.readU16( settings.endian );
+        // Padding?
+        readerSect.readU16(); // Skip 2 bytes
 
-            auto back = image_read_head;
+        readCullingTile( culling_top_left,     readerSect, settings.endian );
+        readCullingTile( culling_top_right,    readerSect, settings.endian );
+        readCullingTile( culling_bottom_left,  readerSect, settings.endian );
+        readCullingTile( culling_bottom_right, readerSect, settings.endian );
 
-            this->culling_distance = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-            // Padding?
-            image_read_head += sizeof( uint16_t );
-            this->culling_top_left.primary = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-            // Padding?
-            image_read_head += sizeof( uint16_t );
-            this->culling_top_right.primary = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-            // Padding?
-            image_read_head += sizeof( uint16_t );
-            this->culling_bottom_left.primary = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-            // Padding?
-            image_read_head += sizeof( uint16_t );
-            this->culling_bottom_right.primary = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-            // Padding?
-            image_read_head += sizeof( uint16_t );
+        auto what1 = readerSect.readU16( settings.endian ) & 0xFF;
 
-            readCullingTile( culling_top_left, image_read_head );
-            image_read_head += 0x10;
-            readCullingTile( culling_top_right, image_read_head );
-            image_read_head += 0x10;
-            readCullingTile( culling_bottom_left, image_read_head );
-            image_read_head += 0x10;
-            readCullingTile( culling_bottom_right, image_read_head );
-            image_read_head += 0x10;
+        // Modifiying this to be other than what it is will cause an error?
+        if( what1 != 0 && settings.output_level >= 1 )
+            *settings.output_ref << "Error expected zero in the Til resource." << std::endl;
 
-            auto what1 = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian ) & 0xFF;
+        this->texture_reference = readerSect.readU16( settings.endian );
 
-            // Modifiying this to be other than what it is will cause an error?
-            if( what1 != 0 && settings.output_level >= 1 )
-                *settings.output_ref << "Error expected zero in the Til resource." << std::endl;
+        const unsigned int SIZE_OF_GRID = sizeof( mesh_reference_grid[0] ) / sizeof( mesh_reference_grid[0][0] );
 
-            image_read_head += sizeof( uint16_t );
-            this->texture_reference = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-
-            const unsigned int SIZE_OF_GRID = sizeof( mesh_reference_grid[0] ) / sizeof( mesh_reference_grid[0][0] );
-
-            for( unsigned int x = 0; x < SIZE_OF_GRID; x++ ) {
-                for( unsigned int y = 0; y < SIZE_OF_GRID; y++ ) {
-                    mesh_reference_grid[x][y].floor = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-                    image_read_head += sizeof( uint16_t );
-                }
-            }
-
-            this->mesh_library_size = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-            image_read_head += sizeof( uint16_t );
-            image_read_head += sizeof( uint16_t );
-
-            const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
-
-            mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
-
-            for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ ) {
-                mesh_tiles.push_back( { Utilities::DataHandler::read_u32( image_read_head, settings.is_opposite_endian ) } );
-                image_read_head += sizeof( uint32_t );
-            }
-            
-            bool skipped_space = false;
-
-            // There are dead uvs that are not being used!
-            while( Utilities::DataHandler::read_u32( image_read_head ) == 0 ) {
-                image_read_head += sizeof( uint32_t );
-                skipped_space = true;
-            }
-
-            if( skipped_space && settings.output_level >= 3 )
-            {
-                *settings.output_ref << std::endl
-                                     << "The resource number " << this->getIndexNumber() << " has " << skipped_space << " skipped." << std::endl
-                                     << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
-                                     << " or 0x" << (this->mesh_library_size >> 4)
-                                     << " or " << std::dec << ACTUAL_MESH_LIBRARY_SIZE << std::endl;
-            }
-
-            // Read the UV's
-            texture_cords.reserve( texture_cordinates_amount );
-            for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
-                texture_cords.push_back( Utilities::DataTypes::Vec2UByte() );
-
-                texture_cords.back().x = Utilities::DataHandler::read_u8( image_read_head + 0 );
-                texture_cords.back().y = Utilities::DataHandler::read_u8( image_read_head + 1 );
-
-                image_read_head += sizeof( uint16_t );
-            }
-
-            // TODO Find out what this shader data does or if it is even shading data.
-            colors.reserve( color_amount );
-
-            uint16_t colorful[] = { 0x7c00, 0x03e0, 0x001f, 0x7c1f };
-
-            for( size_t i = 0; i < color_amount; i++ ) {
-                colors.push_back( Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian ) );
-                image_read_head += sizeof( uint16_t );
-            }
-
-            // Read the texture_references, and shading info.
-            const size_t TILE_TEXTURE_TYPE_LENGTH = (raw_data.size() - ( image_read_head - raw_data.data() )) / sizeof( uint16_t );
-
-            tile_texture_type.reserve( TILE_TEXTURE_TYPE_LENGTH );
-            for( size_t i = 0; i < TILE_TEXTURE_TYPE_LENGTH; i++ ) {
-                TileGraphics grp;
-                grp.tile_graphics = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-
-                tile_texture_type.push_back( { Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian ) } );
-                image_read_head += sizeof( uint16_t );
+        for( unsigned int x = 0; x < SIZE_OF_GRID; x++ ) {
+            for( unsigned int y = 0; y < SIZE_OF_GRID; y++ ) {
+                mesh_reference_grid[x][y].floor = readerSect.readU16( settings.endian );
             }
         }
 
-        data += tag_size;
+        this->mesh_library_size = readerSect.readU16( settings.endian );
+        
+        // Skip 2 bytes
+        readerSect.readU16( settings.endian );
+
+        const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
+
+        mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
+
+        for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ )
+            mesh_tiles.push_back( { readerSect.readU32( settings.endian ) } );
+        
+        bool skipped_space = false;
+
+        // There are dead uvs that are not being used!
+        while( readerSect.readU32( settings.endian ) == 0 )
+            skipped_space = true;
+        
+        // Undo the read after the bytes are skipped.
+        readerSect.setPosition( -sizeof( uint32_t ), Utilities::Buffer::Reader::CURRENT );
+
+        if( skipped_space && settings.output_level >= 3 )
+        {
+            *settings.output_ref << std::endl
+                                 << "The resource number " << this->getIndexNumber() << " has " << skipped_space << " skipped." << std::endl
+                                 << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
+                                 << " or 0x" << (this->mesh_library_size >> 4)
+                                 << " or " << std::dec << ACTUAL_MESH_LIBRARY_SIZE << std::endl;
+        }
+
+        // Read the UV's
+        texture_cords.reserve( texture_cordinates_amount );
+        
+        for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
+            texture_cords.push_back( Utilities::DataTypes::Vec2UByte() );
+
+            texture_cords.back().x = readerSect.readU8();
+            texture_cords.back().y = readerSect.readU8();
+        }
+
+        // TODO Find out what this shader data does or if it is even shading data.
+        colors.reserve( color_amount );
+
+        uint16_t colorful[] = { 0x7c00, 0x03e0, 0x001f, 0x7c1f };
+
+        for( size_t i = 0; i < color_amount; i++ )
+            colors.push_back( readerSect.readU16( settings.endian ) );
+
+        // Read the texture_references, and shading info.
+        while( readerSect.getPosition( Utilities::Buffer::Reader::ENDING ) >= sizeof(uint16_t) ) {
+            // TileGraphics grp;
+            // grp.tile_graphics = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
+
+            tile_texture_type.push_back( { readerSect.readU16( settings.endian ) } );
+        }
     }
+    else
+        reader.setPosition( tag_size - 2 * sizeof( uint32_t ), Utilities::Buffer::Reader::CURRENT );
 
     return !file_is_not_valid;
 }
