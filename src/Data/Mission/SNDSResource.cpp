@@ -35,7 +35,7 @@ bool Data::Mission::SNDSResource::parse( const Utilities::Buffer &header, const 
     
     auto bytes = reader.getBytes();
     
-    sound.addAudioStream( bytes.data(), reader.getPosition( Utilities::Buffer::Reader::ENDING)  );
+    sound.addAudioStream( bytes.data(), bytes.size() );
 
     sound.updateAudioStreamLength();
 
