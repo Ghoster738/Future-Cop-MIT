@@ -2,6 +2,8 @@
 
 #include "../../Utilities/DataHandler.h"
 
+#include <cassert>
+
 namespace {
     const size_t SIZE_OF_HEADERS = 0x0014;
     const size_t SIZE_OF_DATA    = 0x5FC0;
@@ -28,8 +30,7 @@ uint32_t Data::Mission::MSICResource::getResourceTagID() const {
 }
 
 bool Data::Mission::MSICResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
-    bool   file_is_not_valid = false;
-    size_t advance = SIZE_OF_DATA;
+    bool file_is_not_valid = false;
 
     sound.setChannelNumber( 1 );
     sound.setSampleRate( 28000 ); // Assumed rate
@@ -37,19 +38,34 @@ bool Data::Mission::MSICResource::parse( const Utilities::Buffer &header, const 
     
     auto reader = buffer.getReader();
 
-    while( advance == SIZE_OF_DATA )
-    {
-        if( (SIZE_OF_READ + reader.getPosition()) > reader.totalSize() )
-            advance = reader.totalSize() - reader.getPosition();
-        else
-            advance = SIZE_OF_DATA;
-        
-        reader.setPosition( SIZE_OF_DATA, Utilities::Buffer::Reader::BEGINING );
-        
-        auto byte_stream = reader.getBytes();
+    int predict_index = 0;
 
-        sound.addAudioStream( byte_stream.data(), advance );
+    do
+    {
+        auto zero0       = reader.readU32( settings.endian );
+        auto zero1       = reader.readU32( settings.endian );
+        auto header      = reader.readU32( settings.endian );
+        auto what        = reader.readU16( settings.endian );
+        auto index       = reader.readU16( settings.endian );
+        auto next_offset = reader.readU16( settings.endian );
+        auto zero3       = reader.readU16( settings.endian );
+
+        // Mac and Windows files both the folling facts.
+        // Playstation was not tested because of its different audio system.
+        assert( zero0 == 0 ); // 8 bytes of zeros.
+        assert( zero1 == 0 );
+        assert( Data::Mission::MSICResource::IDENTIFIER_TAG == header );
+        assert( (what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110) );
+        assert( predict_index == index ); // 16 bit number telling the header offset.
+        predict_index++;
+        assert( zero3 == 0 ); // 2 bytes of zeros.
+        
+        // next_offset is multiplied by two.
+        auto byte_stream = reader.getBytes( 2 * static_cast<size_t>( next_offset ));
+
+        sound.addAudioStream( byte_stream.data(), byte_stream.size() );
     }
+    while( !reader.ended() );
 
     sound.updateAudioStreamLength();
 
