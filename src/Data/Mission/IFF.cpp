@@ -3,6 +3,7 @@
 #include "ANMResource.h"
 #include "ACTResource.h"
 #include "BMPResource.h"
+#include "DCSResource.h"
 #include "FontResource.h"
 #include "MSICResource.h"
 #include "NetResource.h"
@@ -53,8 +54,7 @@ namespace {
         { Data::Mission::BMPResource::IDENTIFIER_TAG, new Data::Mission::BMPResource() },
         // which is { 0x43, 0x63, 0x74, 0x72 } or { 'C', 'c', 't', 'r' } or "Cctr"
         { 0x43637472, new Data::Mission::UnkResource( 0x43637472, "ctr" ) },
-        // which is { 0x43, 0x64, 0x63, 0x73 } or { 'C', 'd', 'c', 's' } or "Cdcs"
-        { 0x43646373, new Data::Mission::UnkResource( 0x43646373, "dcs" ) },
+        { Data::Mission::DCSResource::IDENTIFIER_TAG,  new Data::Mission::DCSResource() },
         { Data::Mission::FontResource::IDENTIFIER_TAG, new Data::Mission::FontResource() },
         { Data::Mission::NetResource::IDENTIFIER_TAG,  new Data::Mission::NetResource() },
         { Data::Mission::ObjResource::IDENTIFIER_TAG,  new Data::Mission::ObjResource() },
