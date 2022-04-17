@@ -54,7 +54,7 @@ This source code requires C++ 11. It compiles fine using the G++ compiler. The l
 
 &ensp; __BMP__: This holds the textures. However, there is still things I do not understand about the Windows and Mac format.
 
-&ensp; __FNTP__: This holds the font resource. However, I want to redo this code because it is terrible. Only the windows version works, and I do not know why!
+&ensp; __FNTP__: This holds the font resource.
 
 &ensp; __MSIC__: This holds the music audio data.
 
