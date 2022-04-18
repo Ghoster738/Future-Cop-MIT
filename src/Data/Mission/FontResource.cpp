@@ -106,101 +106,106 @@ const Data::Mission::FontGlyph *const Data::Mission::FontResource::getGlyph( uin
     return font_glyphs_r[ which ];
 }
 
-bool Data::Mission::FontResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
-    auto reader = buffer.getReader();
-
-    bool file_is_not_valid;
-
-    if( reader.totalSize() > HEADER_SIZE )
+bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
     {
-        // Get the data first
-        auto header   = reader.readU32( settings.endian );
-        auto tag_size = reader.readU32( settings.endian );
+        auto reader = this->data_p->getReader();
 
-        auto u16_100 = reader.readU16( settings.endian );
-        auto number_of_glyphs = reader.readU16( settings.endian );
-        auto platform = reader.readU32( settings.endian ); // Mac and Windows is 8, and Playstation is 9
-        auto u16_0 = reader.readU16( settings.endian ); // This could be two 0 bytes
-        auto unk_u8 = reader.readU8(); // Offset 0x12
-        auto u8_0 = reader.readU8(); // This is always zero.
-        auto offset_to_glyphs = reader.readU32( settings.endian );
-        auto u32_0 = reader.readU32( settings.endian );
-        auto offset_to_image_header = reader.readU32( settings.endian );
+        bool file_is_not_valid;
 
-        // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
-        // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
-
-        // Check to see if the data will work.
-        file_is_not_valid = false;
-        file_is_not_valid |= ( header != FNTP_LITTLE_TAG );
-        file_is_not_valid |= ( (number_of_glyphs * GLYPH_SIZE + offset_to_glyphs) > reader.totalSize() );
-        file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header) > reader.totalSize() );
-
-        if( !file_is_not_valid )
+        if( reader.totalSize() > HEADER_SIZE )
         {
-            reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGINING );
+            // Get the data first
+            auto header   = reader.readU32( settings.endian );
+            auto tag_size = reader.readU32( settings.endian );
 
-            auto readerGlyphs = reader.getReader( number_of_glyphs * GLYPH_SIZE );
+            auto u16_100 = reader.readU16( settings.endian );
+            auto number_of_glyphs = reader.readU16( settings.endian );
+            auto platform = reader.readU32( settings.endian ); // Mac and Windows is 8, and Playstation is 9
+            auto u16_0 = reader.readU16( settings.endian ); // This could be two 0 bytes
+            auto unk_u8 = reader.readU8(); // Offset 0x12
+            auto u8_0 = reader.readU8(); // This is always zero.
+            auto offset_to_glyphs = reader.readU32( settings.endian );
+            auto u32_0 = reader.readU32( settings.endian );
+            auto offset_to_image_header = reader.readU32( settings.endian );
 
-            this->glyphs.reserve( number_of_glyphs );
+            // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
+            // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
 
-            for( unsigned int i = 0; i < number_of_glyphs; i++ )
+            // Check to see if the data will work.
+            file_is_not_valid = false;
+            file_is_not_valid |= ( header != FNTP_LITTLE_TAG );
+            file_is_not_valid |= ( (number_of_glyphs * GLYPH_SIZE + offset_to_glyphs) > reader.totalSize() );
+            file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header) > reader.totalSize() );
+
+            if( !file_is_not_valid )
             {
-                auto readerGlyph = readerGlyphs.getReader( GLYPH_SIZE );
-                this->glyphs.push_back( FontGlyph( readerGlyph ) );
-            }
+                reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGINING );
 
-            // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
-            for( unsigned int i = 0; i != this->glyphs.size(); i++ )
-                font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
+                auto readerGlyphs = reader.getReader( number_of_glyphs * GLYPH_SIZE );
 
-            reader.setPosition( offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
+                this->glyphs.reserve( number_of_glyphs );
 
-            auto readerImageHeader = reader.getReader( IMAGE_HEADER_SIZE );
-
-            auto width  = static_cast<uint16_t>( readerImageHeader.readU8() ) * 4;
-            readerImageHeader.setPosition( 0x6, Utilities::Buffer::Reader::BEGINING );
-            auto height = readerImageHeader.readU16( settings.endian );
-
-            this->image.setWidth( width ); // For some reason they had this value divided by 4.
-            this->image.setHeight( height );
-
-            // Set up the image.
-            file_is_not_valid |= !image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
-
-            // Check to see if the image would go beyond the scope of the raw_data.
-            file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image.getWidth() / 2) * image.getHeight()) > reader.totalSize() );
-
-            if( !file_is_not_valid ) {
-                auto readerImage = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
-
-                auto image_data = image.getRawImageData();
-
-                // The pixels seems to be compressed in a certian format.
-                // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
-                // This compression reduces the image size to a half.
-                // Yes, they could have used one bit per pixel, but I think it would increase the loading times.
-                for( unsigned int x = 0; x < image.getHeight() * image.getWidth() / 2; x++ ) {
-                    auto pixel_pack = readerImage.readU8();
-
-                    if( (pixel_pack & 0xF0) != 0 ) {
-                        *image_data = 0xFF;
-                    }
-                    else {
-                        *image_data = 0x00;
-                    }
-                    image_data++;
-
-                    if( (pixel_pack & 0x0F) != 0 ) {
-                        *image_data = 0xFF;
-                    }
-                    else {
-                        *image_data = 0x00;
-                    }
-                    image_data++;
+                for( unsigned int i = 0; i < number_of_glyphs; i++ )
+                {
+                    auto readerGlyph = readerGlyphs.getReader( GLYPH_SIZE );
+                    this->glyphs.push_back( FontGlyph( readerGlyph ) );
                 }
 
-                return true;
+                // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
+                for( unsigned int i = 0; i != this->glyphs.size(); i++ )
+                    font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
+
+                reader.setPosition( offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
+
+                auto readerImageHeader = reader.getReader( IMAGE_HEADER_SIZE );
+
+                auto width  = static_cast<uint16_t>( readerImageHeader.readU8() ) * 4;
+                readerImageHeader.setPosition( 0x6, Utilities::Buffer::Reader::BEGINING );
+                auto height = readerImageHeader.readU16( settings.endian );
+
+                this->image.setWidth( width ); // For some reason they had this value divided by 4.
+                this->image.setHeight( height );
+
+                // Set up the image.
+                file_is_not_valid |= !image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
+
+                // Check to see if the image would go beyond the scope of the raw_data.
+                file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image.getWidth() / 2) * image.getHeight()) > reader.totalSize() );
+
+                if( !file_is_not_valid ) {
+                    auto readerImage = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
+
+                    auto image_data = image.getRawImageData();
+
+                    // The pixels seems to be compressed in a certian format.
+                    // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
+                    // This compression reduces the image size to a half.
+                    // Yes, they could have used one bit per pixel, but I think it would increase the loading times.
+                    for( unsigned int x = 0; x < image.getHeight() * image.getWidth() / 2; x++ ) {
+                        auto pixel_pack = readerImage.readU8();
+
+                        if( (pixel_pack & 0xF0) != 0 ) {
+                            *image_data = 0xFF;
+                        }
+                        else {
+                            *image_data = 0x00;
+                        }
+                        image_data++;
+
+                        if( (pixel_pack & 0x0F) != 0 ) {
+                            *image_data = 0xFF;
+                        }
+                        else {
+                            *image_data = 0x00;
+                        }
+                        image_data++;
+                    }
+
+                    return true;
+                }
+                else
+                    return false;
             }
             else
                 return false;

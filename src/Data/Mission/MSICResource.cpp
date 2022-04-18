@@ -29,47 +29,52 @@ uint32_t Data::Mission::MSICResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::MSICResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
     bool file_is_not_valid = false;
 
-    sound.setChannelNumber( 1 );
-    sound.setSampleRate( 28000 ); // Assumed rate
-    sound.setBitsPerSample( 8 );
-    
-    auto reader = buffer.getReader();
-
-    int predict_index = 0;
-
-    do
+    if( this->data_p != nullptr )
     {
-        auto zero0       = reader.readU32( settings.endian );
-        auto zero1       = reader.readU32( settings.endian );
-        auto header      = reader.readU32( settings.endian );
-        auto what        = reader.readU16( settings.endian );
-        auto index       = reader.readU16( settings.endian );
-        auto next_offset = reader.readU16( settings.endian );
-        auto zero3       = reader.readU16( settings.endian );
-
-        // Mac and Windows files both the folling facts.
-        // Playstation was not tested because of its different audio system.
-        assert( zero0 == 0 ); // 8 bytes of zeros.
-        assert( zero1 == 0 );
-        assert( Data::Mission::MSICResource::IDENTIFIER_TAG == header );
-        assert( (what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110) );
-        assert( predict_index == index ); // 16 bit number telling the header offset.
-        predict_index++;
-        assert( zero3 == 0 ); // 2 bytes of zeros.
+        sound.setChannelNumber( 1 );
+        sound.setSampleRate( 28000 ); // Assumed rate
+        sound.setBitsPerSample( 8 );
         
-        // next_offset is multiplied by two.
-        auto byte_stream = reader.getBytes( 2 * static_cast<size_t>( next_offset ));
+        auto reader = this->data_p->getReader();
 
-        sound.addAudioStream( byte_stream.data(), byte_stream.size() );
+        int predict_index = 0;
+
+        do
+        {
+            auto zero0       = reader.readU32( settings.endian );
+            auto zero1       = reader.readU32( settings.endian );
+            auto header      = reader.readU32( settings.endian );
+            auto what        = reader.readU16( settings.endian );
+            auto index       = reader.readU16( settings.endian );
+            auto next_offset = reader.readU16( settings.endian );
+            auto zero3       = reader.readU16( settings.endian );
+
+            // Mac and Windows files both the folling facts.
+            // Playstation was not tested because of its different audio system.
+            assert( zero0 == 0 ); // 8 bytes of zeros.
+            assert( zero1 == 0 );
+            assert( Data::Mission::MSICResource::IDENTIFIER_TAG == header );
+            assert( (what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110) );
+            assert( predict_index == index ); // 16 bit number telling the header offset.
+            predict_index++;
+            assert( zero3 == 0 ); // 2 bytes of zeros.
+            
+            // next_offset is multiplied by two.
+            auto byte_stream = reader.getBytes( 2 * static_cast<size_t>( next_offset ));
+
+            sound.addAudioStream( byte_stream.data(), byte_stream.size() );
+        }
+        while( !reader.ended() );
+
+        sound.updateAudioStreamLength();
+
+        return !file_is_not_valid;
     }
-    while( !reader.ended() );
-
-    sound.updateAudioStreamLength();
-
-    return !file_is_not_valid;
+    else
+        return false;
 }
 
 int Data::Mission::MSICResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {

@@ -189,19 +189,24 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
-bool Data::Mission::ACTResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &data_buffer, const ParseSettings &settings ) {
-    auto data_reader = data_buffer.getReader();
+bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
+    {
+        auto data_reader = this->data_p->getReader();
 
-    Utilities::Buffer::Endian endian = Utilities::Buffer::NO_SWAP;
+        Utilities::Buffer::Endian endian = Utilities::Buffer::NO_SWAP;
 
-    if( settings.is_opposite_endian )
-        endian = Utilities::Buffer::SWAP;
+        if( settings.is_opposite_endian )
+            endian = Utilities::Buffer::SWAP;
 
-    if( readACTChunk( data_reader, endian ) ) {
-        if( readRSLChunk( data_reader, endian ) ) {
-            if( readSACChunk( data_reader, endian ) ) {
-                assert( checkRSL() );
-                return true;
+        if( readACTChunk( data_reader, endian ) ) {
+            if( readRSLChunk( data_reader, endian ) ) {
+                if( readSACChunk( data_reader, endian ) ) {
+                    assert( checkRSL() );
+                    return true;
+                }
+                else
+                    return false;
             }
             else
                 return false;

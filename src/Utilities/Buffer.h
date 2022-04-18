@@ -24,6 +24,7 @@ protected:
 
 public:
     Buffer();
+    Buffer( const Buffer &buffer );
     Buffer( const uint8_t *const buffer_r, size_t byte_amount );
     virtual ~Buffer();
 

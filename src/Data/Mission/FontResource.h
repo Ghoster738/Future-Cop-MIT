@@ -73,7 +73,7 @@ public:
      * Be very sure that everything has been loaded before calling this, otherwise there could be errors.
      * @return True if the font had successfully loaded.
      */
-    virtual bool parse( const Utilities::Buffer &header, const Utilities::Buffer &data, const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
+    virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual Resource * duplicate() const;
     

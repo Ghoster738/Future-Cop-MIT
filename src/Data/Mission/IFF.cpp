@@ -128,8 +128,8 @@ namespace {
         uint32_t type_enum;
         uint32_t offset;
         uint32_t iff_index;
-        Utilities::Buffer header;
-        Utilities::Buffer data;
+        Utilities::Buffer *header_p;
+        Utilities::Buffer *data_p;
     };
 
     inline uint32_t chunkToDataSize( uint32_t chunk_size ) {
@@ -175,7 +175,7 @@ int Data::Mission::IFF::open( const char *const file_path ) {
         int file_offset = 0;
         std::vector<ResourceType> resource_pool;
         MSICResource *msic_p = nullptr;
-        Utilities::Buffer msic_data;
+        Utilities::Buffer *msic_data_p;
 
         do
         {
@@ -255,11 +255,12 @@ int Data::Mission::IFF::open( const char *const file_path ) {
                         resource_pool.back().offset    = file_offset;
                         resource_pool.back().iff_index = resource_pool.size() - 1;
 
-                        resource_pool.back().header.set( reinterpret_cast<uint8_t*>(data_buffer + 20), data_size - 20 );
+                        resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 20), data_size - 20 );
+                        resource_pool.back().data_p = new Utilities::Buffer();
                     }
                     else
                     if( data_size >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
-                        resource_pool.back().data.add( reinterpret_cast<uint8_t*>(data_buffer + 12), data_size - 12 );
+                        resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer + 12), data_size - 12 );
                     }
                     else
                         std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
@@ -273,9 +274,12 @@ int Data::Mission::IFF::open( const char *const file_path ) {
                         msic_p = new MSICResource();
                         msic_p->setIndexNumber( 0 );
                         msic_p->setOffset( file_offset );
+                        
+                        msic_data_p = new Utilities::Buffer();
                     }
 
-                    msic_data.add( reinterpret_cast<uint8_t*>(data_buffer), data_size );
+                    if( msic_p != nullptr )
+                        msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer), data_size );
                 }
                 else
                 if( typeID == SWVR_TAG ) {
@@ -319,7 +323,7 @@ int Data::Mission::IFF::open( const char *const file_path ) {
 
             // If an element is found.
             if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( i.header, i.data );
+                new_resource_p = (*file_type_it).second->genResourceByType( *i.header_p, *i.data_p );
             else // Default to generic resource.
                 new_resource_p = new UnkResource( i.type_enum, "unk" );
 
@@ -327,7 +331,14 @@ int Data::Mission::IFF::open( const char *const file_path ) {
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
 
-            new_resource_p->parse( i.header, i.data, default_settings );
+            new_resource_p->setMemory( i.header_p, i.data_p );
+            new_resource_p->parse( default_settings );
+            
+            // TODO Add option to discard memory once loaded.
+            // new_resource_p->setMemory( nullptr, nullptr );
+            
+            i.header_p = nullptr;
+            i.data_p   = nullptr;
 
             addResource( new_resource_p );
         }
@@ -335,7 +346,11 @@ int Data::Mission::IFF::open( const char *const file_path ) {
         // Then write the MISC file.
         if( msic_p != nullptr )
         {
-            msic_p->parse( Utilities::Buffer(), msic_data, default_settings );
+            // This gives msic_data_p to msic so there is no need to delete it.
+            msic_p->setMemory( nullptr, msic_data_p );
+            msic_p->parse( default_settings );
+            
+            // msic_p->setMemory( nullptr, nullptr );
             addResource( msic_p );
         }
 

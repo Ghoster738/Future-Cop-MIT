@@ -22,24 +22,28 @@ uint32_t Data::Mission::SNDSResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::SNDSResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
-    auto reader = buffer.getReader();
-    
-    bool file_is_not_valid = false;
+bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr ) {
+        auto reader = this->data_p->getReader();
+        
+        bool file_is_not_valid = false;
 
-    sound.setChannelNumber( 1 );
-    sound.setSampleRate( 22050 ); // Assummed rate
-    sound.setBitsPerSample( 8 );
+        sound.setChannelNumber( 1 );
+        sound.setSampleRate( 22050 ); // Assummed rate
+        sound.setBitsPerSample( 8 );
 
-    reader.readU32( settings.endian );
-    
-    auto bytes = reader.getBytes();
-    
-    sound.addAudioStream( bytes.data(), bytes.size() );
+        reader.readU32( settings.endian );
+        
+        auto bytes = reader.getBytes();
+        
+        sound.addAudioStream( bytes.data(), bytes.size() );
 
-    sound.updateAudioStreamLength();
+        sound.updateAudioStreamLength();
 
-    return !file_is_not_valid;
+        return !file_is_not_valid;
+    }
+    else
+        return false;
 }
 
 int Data::Mission::SNDSResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {

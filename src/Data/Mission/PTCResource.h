@@ -65,7 +65,7 @@ public:
     /**
      * This is only the first step in loading this. It needs TilResource's in order for this to work properly.
      */
-    virtual bool parse( const Utilities::Buffer &header, const Utilities::Buffer &data, const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
+    virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual Resource * duplicate() const;
 

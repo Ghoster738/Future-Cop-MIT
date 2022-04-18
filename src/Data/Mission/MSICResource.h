@@ -21,7 +21,7 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    virtual bool parse( const Utilities::Buffer &header, const Utilities::Buffer &data, const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
+    virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
 

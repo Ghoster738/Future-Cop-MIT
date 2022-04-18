@@ -87,26 +87,31 @@ uint32_t Data::Mission::NetResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::NetResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto reader = reader_data.getReader();
-    
-    const size_t SIZE_OF_HEADER = 0x10;
-    const size_t SIZE_OF_NODE   = 0x0C;
-
-    if( reader.totalSize() >= SIZE_OF_HEADER + SIZE_OF_NODE && TAG_NtDO == reader.readU32( settings.endian ) ) {
-        reader.setPosition( SIZE_OF_HEADER - sizeof( uint16_t ), Utilities::Buffer::Reader::BEGINING );
+bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
+    {
+        auto reader = this->data_p->getReader();
         
-        auto nodes_amount = reader.readU16( settings.endian );
+        const size_t SIZE_OF_HEADER = 0x10;
+        const size_t SIZE_OF_NODE   = 0x0C;
 
-        this->nodes.reserve( nodes_amount );
-
-        for( unsigned int i = 0; i < nodes_amount; i++ ) {
-            auto node_reader = reader.getReader( SIZE_OF_NODE );
+        if( reader.totalSize() >= SIZE_OF_HEADER + SIZE_OF_NODE && TAG_NtDO == reader.readU32( settings.endian ) ) {
+            reader.setPosition( SIZE_OF_HEADER - sizeof( uint16_t ), Utilities::Buffer::Reader::BEGINING );
             
-            this->nodes.push_back( Node(node_reader, settings.endian ) );
-        }
+            auto nodes_amount = reader.readU16( settings.endian );
 
-        return true;
+            this->nodes.reserve( nodes_amount );
+
+            for( unsigned int i = 0; i < nodes_amount; i++ ) {
+                auto node_reader = reader.getReader( SIZE_OF_NODE );
+                
+                this->nodes.push_back( Node(node_reader, settings.endian ) );
+            }
+
+            return true;
+        }
+        else
+            return false;
     }
     else
         return false;

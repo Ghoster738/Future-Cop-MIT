@@ -10,6 +10,10 @@ Utilities::Buffer::Buffer( const uint8_t *const buffer_r, size_t byte_amount ) {
     set( buffer_r, byte_amount );
 }
 
+Utilities::Buffer::Buffer( const Buffer &buffer ) {
+    set( buffer.data.data(), buffer.data.size() );
+}
+
 Utilities::Buffer::~Buffer() {}
 
 void Utilities::Buffer::reserve( size_t byte_amount ) {

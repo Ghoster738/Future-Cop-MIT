@@ -36,194 +36,200 @@ uint32_t Data::Mission::BMPResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::BMPResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
     bool file_is_not_valid = false;
-    auto reader = buffer.getReader();
+    
+    if( this->data_p != nullptr )
+    {
+        auto reader = this->data_p->getReader();
 
-    while( reader.getPosition() < reader.totalSize() ) {
-        auto identifier = reader.readU32( settings.endian );
-        auto tag_size   = reader.readU32( settings.endian );
+        while( reader.getPosition() < reader.totalSize() ) {
+            auto identifier = reader.readU32( settings.endian );
+            auto tag_size   = reader.readU32( settings.endian );
 
-        if( identifier == CCB_TAG ) {
-            auto cbb_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
-            // TODO This probably handles the transparency, and maybe other effects.
-            
-            // Zero data 0x0-0xC.
-            // 0x4
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            // 0x8
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            // 0xC = 12
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            
-            // Address 0x10 is always 0x01000000
-            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 8 );
-            
-            assert( cbb_reader.readU16( settings.endian ) == 0 );
-            
-            cbb_reader.setPosition( 0x2A, Utilities::Buffer::Reader::BEGINING );
-            auto bitfield_byte = cbb_reader.readU8();
-            
-            assert( cbb_reader.readU8() == 0 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            
-            assert( cbb_reader.readU32( settings.endian ) == 0 );
-            
-            cbb_reader.setPosition( 0x34, Utilities::Buffer::Reader::BEGINING );
-            auto first_u32 = cbb_reader.readU32( settings.endian );
-            
-            uint8_t array[4];
-            
-            array[ 0 ] = cbb_reader.readU8();
-            array[ 1 ] = cbb_reader.readU8();
-            array[ 2 ] = cbb_reader.readU8();
-            array[ 3 ] = cbb_reader.readU8();
-            
-            auto second_u32 = cbb_reader.readU32( settings.endian );
-            auto third_u32 = cbb_reader.readU32( settings.endian );
-        }
-        else
-        if( identifier == LKUP_TAG ) {
-            auto lkup_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            if( identifier == CCB_TAG ) {
+                auto cbb_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+                // TODO This probably handles the transparency, and maybe other effects.
+                
+                // Zero data 0x0-0xC.
+                // 0x4
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                // 0x8
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                // 0xC = 12
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                
+                // Address 0x10 is always 0x01000000
+                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 8 );
+                
+                assert( cbb_reader.readU16( settings.endian ) == 0 );
+                
+                cbb_reader.setPosition( 0x2A, Utilities::Buffer::Reader::BEGINING );
+                auto bitfield_byte = cbb_reader.readU8();
+                
+                assert( cbb_reader.readU8() == 0 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                
+                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                
+                cbb_reader.setPosition( 0x34, Utilities::Buffer::Reader::BEGINING );
+                auto first_u32 = cbb_reader.readU32( settings.endian );
+                
+                uint8_t array[4];
+                
+                array[ 0 ] = cbb_reader.readU8();
+                array[ 1 ] = cbb_reader.readU8();
+                array[ 2 ] = cbb_reader.readU8();
+                array[ 3 ] = cbb_reader.readU8();
+                
+                auto second_u32 = cbb_reader.readU32( settings.endian );
+                auto third_u32 = cbb_reader.readU32( settings.endian );
+            }
+            else
+            if( identifier == LKUP_TAG ) {
+                auto lkup_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
-            const size_t LOOKUP_DATA_AMOUNT = sizeof( lookUpData ) / sizeof( lookUpData[0] );
+                const size_t LOOKUP_DATA_AMOUNT = sizeof( lookUpData ) / sizeof( lookUpData[0] );
 
-            // This seems to be all 8 bit data in 4 lists each containing 0x100 bytes.
-            // In second thought
-            // I could be that this is simply a big list of 0x400 unsigned bytes and the 16-bit data is simply going to scale down.
-            for( unsigned int i = 0; i < LOOKUP_DATA_AMOUNT; i++ )
-                lookUpData[ i ] = lkup_reader.readU8();
-        }
-        else
-        if( identifier == PDAT_TAG ) { // For PlayStation
-            auto px_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+                // This seems to be all 8 bit data in 4 lists each containing 0x100 bytes.
+                // In second thought
+                // I could be that this is simply a big list of 0x400 unsigned bytes and the 16-bit data is simply going to scale down.
+                for( unsigned int i = 0; i < LOOKUP_DATA_AMOUNT; i++ )
+                    lookUpData[ i ] = lkup_reader.readU8();
+            }
+            else
+            if( identifier == PDAT_TAG ) { // For PlayStation
+                auto px_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
-            // setup the image
-            image_raw.setWidth( 0x100 );
-            image_raw.setHeight( 0x100 );
-            image_raw.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
+                // setup the image
+                image_raw.setWidth( 0x100 );
+                image_raw.setHeight( 0x100 );
+                image_raw.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
 
-            auto image_data_8_bit = image_raw.getRawImageData();
-            for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
+                auto image_data_8_bit = image_raw.getRawImageData();
+                for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
 
-                *reinterpret_cast<uint8_t*>(image_data_8_bit) = px_reader.readU8();
+                    *reinterpret_cast<uint8_t*>(image_data_8_bit) = px_reader.readU8();
 
-                image_data_8_bit += image_raw.getPixelSize();
+                    image_data_8_bit += image_raw.getPixelSize();
+                }
+            }
+             else
+             if( identifier == PX16_TAG ) { // For Windows
+                 auto px16_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+
+                // setup the image
+                image_raw.setWidth( 0x100 );
+                image_raw.setHeight( 0x100 );
+                image_raw.setFormat( Utilities::ImageData::BLACK_WHITE, 2 );
+
+                auto image_data_16bit = image_raw.getRawImageData();
+                for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
+                    *reinterpret_cast<uint16_t*>(image_data_16bit) = px16_reader.readU16( settings.endian );
+
+                    image_data_16bit += image_raw.getPixelSize();
+                }
+            }
+            else
+            if( identifier == PLUT_TAG) {
+                auto plut_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+
+                // The color pallette is located 12 bytes away from the start of the tag.
+                plut_reader.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
+
+                // Now store the color palette.
+                palette.setWidth( 1 );
+                palette.setHeight( 0x100 );
+                palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+
+                auto palette_data = palette.getRawImageData();
+                uint8_t red, green, blue;
+
+                for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
+                    Utilities::ImageData::translate_16_to_24( plut_reader.readU16( settings.endian ), blue, green, red );
+
+                    palette_data[0] = red;
+                    palette_data[1] = green;
+                    palette_data[2] = blue;
+
+                    palette_data += palette.getPixelSize();
+                }
+            }
+            else
+            {
+                reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
             }
         }
-         else
-         if( identifier == PX16_TAG ) { // For Windows
-             auto px16_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
-            // setup the image
-            image_raw.setWidth( 0x100 );
-            image_raw.setHeight( 0x100 );
-            image_raw.setFormat( Utilities::ImageData::BLACK_WHITE, 2 );
+        if( !file_is_not_valid ) { // If file is valid.
 
-            auto image_data_16bit = image_raw.getRawImageData();
-            for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
-                *reinterpret_cast<uint16_t*>(image_data_16bit) = px16_reader.readU16( settings.endian );
+            auto image_raw_data = image_raw.getRawImageData();
 
-                image_data_16bit += image_raw.getPixelSize();
+            if( image_raw.getPixelSize() == 1 && palette.isValid() ) // (image_raw.getPixelSize() == 1) means that this BMP is a PlayStation image.
+            {
+                image_from_palette.setWidth(  image_raw.getWidth() );
+                image_from_palette.setHeight( image_raw.getHeight() );
+                image_from_palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                auto image_data_24_RGB = image_from_palette.getRawImageData();
+
+                auto palette_data = palette.getRawImageData();
+
+                for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
+                    std::swap( palette_data[0], palette_data[2] );
+
+                    palette_data += palette.getPixelSize();
+                }
+                
+                for( unsigned int a = 0; a < image_from_palette.getWidth() * image_from_palette.getHeight(); a++ ) {
+                    uint8_t *palette_pixel = reinterpret_cast<uint8_t*>( palette.getRawImageData() + *reinterpret_cast<uint8_t*>(&image_raw_data[0]) * 3 );
+
+                    image_data_24_RGB[0] = palette_pixel[0];
+                    image_data_24_RGB[1] = palette_pixel[1];
+                    image_data_24_RGB[2] = palette_pixel[2];
+
+                    image_data_24_RGB += image_from_palette.getPixelSize();
+                    image_raw_data += image_raw.getPixelSize();
+                }
+            }
+            else // if it is a Windows or Macintosh texture
+            {
+                image_from_16_colors.setWidth(  image_raw.getWidth() );
+                image_from_16_colors.setHeight( image_raw.getHeight() );
+                image_from_16_colors.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                auto image_data_24_RGB = image_from_16_colors.getRawImageData();
+
+                uint8_t red, green, blue;
+
+                for( unsigned int a = 0; a < image_from_16_colors.getWidth() * image_from_16_colors.getHeight(); a++ ) {
+                    Utilities::ImageData::translate_16_to_24( Utilities::DataHandler::read_u16_little( reinterpret_cast<uint8_t*>(&image_raw_data[0]) ), blue, green, red );
+
+                    image_data_24_RGB[0] = red;
+                    image_data_24_RGB[1] = green;
+                    image_data_24_RGB[2] = blue;
+
+                    image_data_24_RGB += image_from_16_colors.getPixelSize();
+                    image_raw_data += image_raw.getPixelSize();
+                }
             }
         }
-        else
-        if( identifier == PLUT_TAG) {
-            auto plut_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
-            // The color pallette is located 12 bytes away from the start of the tag.
-            plut_reader.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
-
-            // Now store the color palette.
-            palette.setWidth( 1 );
-            palette.setHeight( 0x100 );
-            palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-
-            auto palette_data = palette.getRawImageData();
-            uint8_t red, green, blue;
-
-            for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
-                Utilities::ImageData::translate_16_to_24( plut_reader.readU16( settings.endian ), blue, green, red );
-
-                palette_data[0] = red;
-                palette_data[1] = green;
-                palette_data[2] = blue;
-
-                palette_data += palette.getPixelSize();
-            }
-        }
-        else
-        {
-            reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
-        }
+        return !file_is_not_valid;
     }
-
-    if( !file_is_not_valid ) { // If file is valid.
-
-        auto image_raw_data = image_raw.getRawImageData();
-
-        if( image_raw.getPixelSize() == 1 && palette.isValid() ) // (image_raw.getPixelSize() == 1) means that this BMP is a PlayStation image.
-        {
-            image_from_palette.setWidth(  image_raw.getWidth() );
-            image_from_palette.setHeight( image_raw.getHeight() );
-            image_from_palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-            auto image_data_24_RGB = image_from_palette.getRawImageData();
-
-            auto palette_data = palette.getRawImageData();
-
-            for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
-                std::swap( palette_data[0], palette_data[2] );
-
-                palette_data += palette.getPixelSize();
-            }
-            
-            for( unsigned int a = 0; a < image_from_palette.getWidth() * image_from_palette.getHeight(); a++ ) {
-                uint8_t *palette_pixel = reinterpret_cast<uint8_t*>( palette.getRawImageData() + *reinterpret_cast<uint8_t*>(&image_raw_data[0]) * 3 );
-
-                image_data_24_RGB[0] = palette_pixel[0];
-                image_data_24_RGB[1] = palette_pixel[1];
-                image_data_24_RGB[2] = palette_pixel[2];
-
-                image_data_24_RGB += image_from_palette.getPixelSize();
-                image_raw_data += image_raw.getPixelSize();
-            }
-        }
-        else // if it is a Windows or Macintosh texture
-        {
-            image_from_16_colors.setWidth(  image_raw.getWidth() );
-            image_from_16_colors.setHeight( image_raw.getHeight() );
-            image_from_16_colors.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-            auto image_data_24_RGB = image_from_16_colors.getRawImageData();
-
-            uint8_t red, green, blue;
-
-            for( unsigned int a = 0; a < image_from_16_colors.getWidth() * image_from_16_colors.getHeight(); a++ ) {
-                Utilities::ImageData::translate_16_to_24( Utilities::DataHandler::read_u16_little( reinterpret_cast<uint8_t*>(&image_raw_data[0]) ), blue, green, red );
-
-                image_data_24_RGB[0] = red;
-                image_data_24_RGB[1] = green;
-                image_data_24_RGB[2] = blue;
-
-                image_data_24_RGB += image_from_16_colors.getPixelSize();
-                image_raw_data += image_raw.getPixelSize();
-            }
-        }
-    }
-
-    return !file_is_not_valid;
+    else
+        return false;
 }
 
 Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {

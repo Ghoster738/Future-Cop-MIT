@@ -190,597 +190,602 @@ uint32_t Data::Mission::ObjResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::ObjResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
-    auto reader = buffer.getReader();
+bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
+    {
+        auto reader = this->data_p->getReader();
 
-    bool file_is_not_valid = true;
-    
-    // This is for testing mostly.
-    uint8_t *data_3DMI       = nullptr;
-    int data_3DMI_size       =  0;
-    int bytes_per_frame_3DMI =  0;
-    int frames_gen_3DHS      = -1;
-    int frames_gen_AnmD      = -1;
-    
+        bool file_is_not_valid = true;
+        
+        // This is for testing mostly.
+        uint8_t *data_3DMI       = nullptr;
+        int data_3DMI_size       =  0;
+        int bytes_per_frame_3DMI =  0;
+        int frames_gen_3DHS      = -1;
+        int frames_gen_AnmD      = -1;
+        
 
-    while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
-        auto identifier    = reader.readU32( settings.endian );
-        auto tag_size      = reader.readU32( settings.endian );
-        auto data_tag_size = tag_size - sizeof( uint32_t ) * 2;
+        while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+            auto identifier    = reader.readU32( settings.endian );
+            auto tag_size      = reader.readU32( settings.endian );
+            auto data_tag_size = tag_size - sizeof( uint32_t ) * 2;
 
-        *settings.output_ref << std::hex;
+            *settings.output_ref << std::hex;
 
-        if( identifier == TAG_4DGI ) {
-            file_is_not_valid = false;
-            auto reader4DGI = reader.getReader( data_tag_size );
+            if( identifier == TAG_4DGI ) {
+                file_is_not_valid = false;
+                auto reader4DGI = reader.getReader( data_tag_size );
 
-            // It always has a size of 0x3C for the full chunk size;
-            if( tag_size != 0x3C && settings.output_level >= 1 )
-            {
-                *settings.output_ref << "Mission::ObjResource::load() 4DGI should have size of 0x3c not 0x"
-                          << tag_size << std::endl;
+                // It always has a size of 0x3C for the full chunk size;
+                if( tag_size != 0x3C && settings.output_level >= 1 )
+                {
+                    *settings.output_ref << "Mission::ObjResource::load() 4DGI should have size of 0x3c not 0x"
+                              << tag_size << std::endl;
+                }
+                else
+                {
+                    if( settings.output_level >= 2 )
+                        *settings.output_ref << "Mission::ObjResource::load() index #"
+                            << std::dec << getIndexNumber() << std::hex
+                            << " at location 0x" << this->getOffset() << std::endl;
+
+                    auto un1 = reader4DGI.readU32( settings.endian );
+                    auto number_of_bone_pos_frames = reader4DGI.readU16( settings.endian );
+                    auto un3 = reader4DGI.readU16( settings.endian ); // Could be a checksum?
+
+                    // Skip the zeros.
+                    reader4DGI.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
+
+                    auto un4  = reader4DGI.readU32( settings.endian );
+                    auto un5  = reader4DGI.readU32( settings.endian );
+                    auto un6  = reader4DGI.readU32( settings.endian );
+                    auto un7  = reader4DGI.readU32( settings.endian );
+                    auto un8  = reader4DGI.readU32( settings.endian ); // 0x30?
+                    auto un9  = reader4DGI.readU8();  // 0x31
+                    auto un10 = reader4DGI.readU8();  // 0x32
+                    auto un11 = reader4DGI.readU8(); // 0x33
+                    auto un12 = reader4DGI.readU8(); // 0x34
+                    auto un13 = reader4DGI.readU32( settings.endian ); // 0x38
+                    auto un14 = reader4DGI.readU32( settings.endian ); // 0x3C
+
+                    // The file is then proven to be valid.
+                    file_is_not_valid = false;
+                }
             }
             else
-            {
+            if( identifier == TAG_3DTL ) {
+                auto reader3DTL = reader.getReader( data_tag_size );
+                
+                if( reader3DTL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
+                {
+                    *settings.output_ref << "Mission::ObjResource::load() 3DTL unexpected number at beginning!" << std::endl;
+                }
+
+                auto texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
                 if( settings.output_level >= 2 )
-                    *settings.output_ref << "Mission::ObjResource::load() index #"
-                        << std::dec << getIndexNumber() << std::hex
-                        << " at location 0x" << this->getOffset() << std::endl;
+                    *settings.output_ref << "triangle amount " << std::dec << texture_ref_amount << std::hex << std::endl;
 
-                auto un1 = reader4DGI.readU32( settings.endian );
-                auto number_of_bone_pos_frames = reader4DGI.readU16( settings.endian );
-                auto un3 = reader4DGI.readU16( settings.endian ); // Could be a checksum?
-
-                // Skip the zeros.
-                reader4DGI.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
-
-                auto un4  = reader4DGI.readU32( settings.endian );
-                auto un5  = reader4DGI.readU32( settings.endian );
-                auto un6  = reader4DGI.readU32( settings.endian );
-                auto un7  = reader4DGI.readU32( settings.endian );
-                auto un8  = reader4DGI.readU32( settings.endian ); // 0x30?
-                auto un9  = reader4DGI.readU8();  // 0x31
-                auto un10 = reader4DGI.readU8();  // 0x32
-                auto un11 = reader4DGI.readU8(); // 0x33
-                auto un12 = reader4DGI.readU8(); // 0x34
-                auto un13 = reader4DGI.readU32( settings.endian ); // 0x38
-                auto un14 = reader4DGI.readU32( settings.endian ); // 0x3C
-
-                // The file is then proven to be valid.
-                file_is_not_valid = false;
-            }
-        }
-        else
-        if( identifier == TAG_3DTL ) {
-            auto reader3DTL = reader.getReader( data_tag_size );
-            
-            if( reader3DTL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
-            {
-                *settings.output_ref << "Mission::ObjResource::load() 3DTL unexpected number at beginning!" << std::endl;
-            }
-
-            auto texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "triangle amount " << std::dec << texture_ref_amount << std::hex << std::endl;
-
-            for( auto i = 0; i < texture_ref_amount; i++ )
-            {
-                /*if( DataHandler::read_u8( start_data ) != 2 )
-                    std::cout << "Mission::ObjResource::load() expected 2 at uv not " << std::dec
-                              << (static_cast<uint32_t>(DataHandler::read_u8( start_data )) & 0xFF)
-                              << std::hex << std::endl;*/
-                
-                reader3DTL.readU32( settings.endian ); // Skip unknown bytes
-
-                texture_quads.push_back( TextureQuad() );
-
-                texture_quads.back().coords[0].x = reader3DTL.readU8();
-                texture_quads.back().coords[0].y = reader3DTL.readU8();
-
-                texture_quads.back().coords[1].x = reader3DTL.readU8();
-                texture_quads.back().coords[1].y = reader3DTL.readU8();
-
-                texture_quads.back().coords[2].x = reader3DTL.readU8();
-                texture_quads.back().coords[2].y = reader3DTL.readU8();
-
-                texture_quads.back().coords[3].x = reader3DTL.readU8();
-                texture_quads.back().coords[3].y = reader3DTL.readU8();
-                
-                // For some reason the Slim's Windows English version has a 64th Cobj that goes beyond 10 textures.
-                
-                texture_quads.back().index = reader3DTL.readU32( settings.endian );
-            }
-        }
-        else
-        if( identifier == TAG_3DQL ) {
-            auto reader3DQL = reader.getReader( data_tag_size );
-            
-            if( reader3DQL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
-            {
-                *settings.output_ref << "Mission::ObjResource::load() 3DQL unexpected number at beginning!" << std::endl;
-            }
-            
-            auto number_of_faces = reader3DQL.readU32( settings.endian );
-
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DQL has 0x" << number_of_faces << " faces" << std::endl;
-
-            for( unsigned int i = 0; i < number_of_faces; i++ )
-            {
-                auto face_type = reader3DQL.readU8();
-
-                // Skip unknown bytes!
-                auto face_type_2 = reader3DQL.readU8();
-
-                auto texture_quad_ref = (reader3DQL.readU16( settings.endian ) / 0x10) + texture_quads.data();
-
-                /*
-                // Add to the indexes of this texture to the list when it is not contained in the data base.
-                if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_ref - texture_quads.data() > texture_quads.size() ) {
-                    texture_dependences.push_back( texture_quad_ref->index );
-                    std::sort( texture_dependences.begin(), texture_dependences.end() );
-                }*/
-                bool reflect = ((face_type_2 & 0xF0) == 0x80);
-                bool is_quad;
-                bool is_triangle;
-                
-                if( settings.type == Data::Mission::Resource::ParseSettings::Macintosh ) {
-                    is_quad     = ((face_type_2 & 0xF0) == 0x40);
-                    is_triangle = ((face_type_2 & 0xF0) == 0x30);
-                }
-                else
+                for( auto i = 0; i < texture_ref_amount; i++ )
                 {
-                    is_quad     = ((face_type_2 & 0x0F) == 0x04);
-                    is_triangle = ((face_type_2 & 0x0F) == 0x03);
-                }
-
-                if( is_quad )
-                {
-                    face_quads.push_back( FaceQuad() );
-
-                    face_quads.back().texture_quad_ref = texture_quad_ref;
-                    // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
-                    // 0x07 Appears to be its own face type
-                    face_quads.back().is_reflective = reflect;
-
-                    face_quads.back().v0 = reader3DQL.readU8();
-                    face_quads.back().v1 = reader3DQL.readU8();
-                    face_quads.back().v2 = reader3DQL.readU8();
-                    face_quads.back().v3 = reader3DQL.readU8();
+                    /*if( DataHandler::read_u8( start_data ) != 2 )
+                        std::cout << "Mission::ObjResource::load() expected 2 at uv not " << std::dec
+                                  << (static_cast<uint32_t>(DataHandler::read_u8( start_data )) & 0xFF)
+                                  << std::hex << std::endl;*/
                     
-                    face_quads.back().n0 = reader3DQL.readU8();
-                    face_quads.back().n1 = reader3DQL.readU8();
-                    face_quads.back().n2 = reader3DQL.readU8();
-                    face_quads.back().n3 = reader3DQL.readU8();
-                }
-                else
-                if( is_triangle )
-                {
-                    face_trinagles.push_back( FaceTriangle() );
+                    reader3DTL.readU32( settings.endian ); // Skip unknown bytes
 
-                    face_trinagles.back().is_other_side = false;
-                    face_trinagles.back().texture_quad_ref = texture_quad_ref;
-                    // (face_type & 0x08) seems to be the effect bit.
-                    // (face_type & 0x28) seems to be the tranlucent bit.
-                    face_trinagles.back().is_reflective = reflect;
+                    texture_quads.push_back( TextureQuad() );
 
-                    face_trinagles.back().v0 = reader3DQL.readU8();
-                    face_trinagles.back().v1 = reader3DQL.readU8();
-                    face_trinagles.back().v2 = reader3DQL.readU8();
+                    texture_quads.back().coords[0].x = reader3DTL.readU8();
+                    texture_quads.back().coords[0].y = reader3DTL.readU8();
+
+                    texture_quads.back().coords[1].x = reader3DTL.readU8();
+                    texture_quads.back().coords[1].y = reader3DTL.readU8();
+
+                    texture_quads.back().coords[2].x = reader3DTL.readU8();
+                    texture_quads.back().coords[2].y = reader3DTL.readU8();
+
+                    texture_quads.back().coords[3].x = reader3DTL.readU8();
+                    texture_quads.back().coords[3].y = reader3DTL.readU8();
                     
-                    reader3DQL.readU8();
-
-                    face_trinagles.back().n0 = reader3DQL.readU8();
-                    face_trinagles.back().n1 = reader3DQL.readU8();
-                    face_trinagles.back().n2 = reader3DQL.readU8();
+                    // For some reason the Slim's Windows English version has a 64th Cobj that goes beyond 10 textures.
                     
-                    reader3DQL.readU8();
+                    texture_quads.back().index = reader3DTL.readU32( settings.endian );
                 }
-                else
+            }
+            else
+            if( identifier == TAG_3DQL ) {
+                auto reader3DQL = reader.getReader( data_tag_size );
+                
+                if( reader3DQL.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
                 {
-                    //  TODO Not all the faces are discovered!
-                    reader3DQL.readU64();
+                    *settings.output_ref << "Mission::ObjResource::load() 3DQL unexpected number at beginning!" << std::endl;
                 }
-            }
-        }
-        else
-        if( identifier == TAG_3DRF ) {
-            // std::cout << "Mission::ObjResource::load() 3DRF" << std::endl;
-            auto reader3DRF = reader.getReader( data_tag_size );
-        }
-        else
-        if( identifier == TAG_3DRL ) {
-            // std::cout << "Mission::ObjResource::load() 3DRL" << std::endl;
-            auto reader3DRL = reader.getReader( data_tag_size );
-        }
-        else
-        if( identifier == TAG_3DHY ) {
-            auto reader3DHY = reader.getReader( data_tag_size );
-
-            if( reader3DHY.readU32( settings.endian ) != 1 && settings.output_level >= 1)
-            {
-                *settings.output_ref << "Mission::ObjResource::load() 3DHY unexpected number at beginning!" << std::endl;
-            }
-
-            const auto bones_space = reader3DHY.totalSize() - reader3DHY.getPosition();
-            const auto amount_of_bones = bones_space / 0x14;
-
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DHY: size = " << amount_of_bones << std::endl;
-
-            if( (bones_space % 0x14) != 0 && settings.output_level >= 1 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DHY bones are not right!" << std::endl;
-            
-            this->bones.reserve( amount_of_bones );
-            
-            this->max_bone_childern = 0;
-
-            for( int i = 0; i < amount_of_bones; i++ ) {
-                // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
-                bones.push_back( Bone() );
                 
-                bones.at(i).parent_amount = reader3DHY.readU8();
-                bones.at(i).normal_start  = reader3DHY.readU8();
-                bones.at(i).normal_stride = reader3DHY.readU8();
-                bones.at(i).vertex_start  = reader3DHY.readU8();
-                bones.at(i).vertex_stride = reader3DHY.readU8();
-                auto byte0 = reader3DHY.readU8();
-                auto byte1 = reader3DHY.readU8();
-                // assert( Utilities::DataHandler::read_u8(start_data + 0x5) ); // can be zero
-                // assert( Utilities::DataHandler::read_u8(start_data + 0x6) ); // can be zero
-                auto opcode = reader3DHY.readU8();
-                
-                bones.at(i).opcode.unknown          = (opcode & 0b11000000) >> 6;
-                bones.at(i).opcode.position.x_const = (opcode & 0b00100000) >> 5;
-                bones.at(i).opcode.position.y_const = (opcode & 0b00010000) >> 4;
-                bones.at(i).opcode.position.z_const = (opcode & 0b00001000) >> 3;
-                bones.at(i).opcode.rotation.x_const = (opcode & 0b00000100) >> 2;
-                bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
-                bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
-                
-                bones.at(i).position.x = reader3DHY.readI16( settings.endian );
-                bones.at(i).position.y = reader3DHY.readI16( settings.endian );
-                bones.at(i).position.z = reader3DHY.readI16( settings.endian );
-                bones.at(i).rotation.x = reader3DHY.readI16( settings.endian );
-                bones.at(i).rotation.y = reader3DHY.readI16( settings.endian );
-                bones.at(i).rotation.z = reader3DHY.readI16( settings.endian );
-
-                bytes_per_frame_3DMI += getOpcodeBytesPerFrame( bones.at(i).opcode );
-                
-                this->max_bone_childern = std::max( bones.at(i).parent_amount, this->max_bone_childern );
-                
-                if( settings.output_level >= 3 )
-                {
-                    *settings.output_ref << "bone: ";
-
-                    *settings.output_ref 
-                        << "parent index: 0x" << bones.at(i).parent_amount << ", "
-                        << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
-                        << "0x" <<    bones.at(i).vertex_start << " with 0x" <<  bones.at(i).vertex_stride << " vertices, "
-                        << "opcode: 0x" << opcode << std::dec
-                        << ", position( " << bones.at(i).position.x << ", " << bones.at(i).position.y << ", " << bones.at(i).position.z << " )"
-                        << ", rotation( " << bones.at(i).rotation.x << ", " << bones.at(i).rotation.y << ", " << bones.at(i).rotation.z << " )" << std::hex << std::endl;
-                }
-            }
-            
-            if( settings.output_level >= 3 )
-            {
-                // The bytes_per_frame_3DMI might not actually hold true.
-                // I found out that the position and the rotation contains the index to 3DMI.
-                *settings.output_ref << "bytes_per_frame_3DMI = 0x" << bytes_per_frame_3DMI << std::endl;
-            }
-        }
-        else
-        if( identifier == TAG_3DHS ) {
-            auto reader3DHS = reader.getReader( data_tag_size );
-            
-            auto bone_depth_number = reader3DHS.readU32( settings.endian );
-            auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
-            const auto BONE_SIZE = 4 * sizeof( uint16_t );
-
-            auto read_3D_positions = data_size / BONE_SIZE; // vec3 with an empty space.
-            
-            frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
-
-            if( settings.output_level >= 2 )
-            {
-                *settings.output_ref
-                    << std::dec
-                    << "Mission::ObjResource::load() 3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames." << std::endl
-                    << std::hex;
-            }
-            
-            for( int d = 0; d < frames_gen_3DHS; d++ )
-            {
-                for( int i = 0; i < bone_depth_number; i++ )
-                {
-                    auto u_x = reader3DHS.readU16( settings.endian );
-                    auto u_y = reader3DHS.readU16( settings.endian );
-                    auto u_z = reader3DHS.readU16( settings.endian );
-                    // I determined that this value stays zero, so no reading needs to be done.
-                    auto u_w = reader3DHS.readU16( settings.endian );
-                }
-            }
-        }
-        else
-        if( identifier == TAG_3DMI ) {
-            auto reader3DMI = reader.getReader( data_tag_size );
-            
-            if( reader3DMI.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DMI unexpected number at beginning!" << std::endl;
-            
-            this->bone_animation_data_size = (reader3DMI.totalSize() - reader3DMI.getPosition()) / sizeof( uint16_t );
-            
-            if( this->bone_animation_data != nullptr )
-                delete [] this->bone_animation_data;
-            
-            this->bone_animation_data = new int16_t [ this->bone_animation_data_size ];
-            
-            for( int d = 0; d < this->bone_animation_data_size; d++ )
-                this->bone_animation_data[ d ] = reader3DMI.readU16( settings.endian );
-        }
-        else
-        if( identifier == TAG_3DTA ) {
-            auto reader3DTA = reader.getReader( data_tag_size );
-            
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DTA" << std::endl;
-        }
-        else
-        if( identifier == TAG_3DAL ) {
-            auto reader3DAL = reader.getReader( data_tag_size );
-            
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "Mission::ObjResource::load() 3DAL" << std::endl;
-        }
-        else
-        if( identifier == TAG_4DVL ) {
-            auto reader4DVL = reader.getReader( data_tag_size );
-            
-            auto start_number = reader4DVL.readU32( settings.endian );
-            auto amount_of_vertices = reader4DVL.readU32( settings.endian );
-            
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "Mission::ObjResource::load() 4DVL has 0x" << amount_of_vertices << " vertices" << std::endl;
-
-            auto positions_pointer = &vertex_positions;
-
-            // If vertex_positions is not empty then it is a morph target.
-            if( positions_pointer->size() != 0 ) {
-                vertex_anm_positions.push_back( std::vector< Utilities::DataTypes::Vec3Short >() );
-                positions_pointer = &vertex_anm_positions.back();
-            }
-
-            positions_pointer->resize( amount_of_vertices );
-
-            for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                positions_pointer->at(i).x = reader4DVL.readI16( settings.endian );
-                positions_pointer->at(i).y = reader4DVL.readI16( settings.endian );
-                positions_pointer->at(i).z = reader4DVL.readI16( settings.endian );
-                // positions_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                reader4DVL.readI16( settings.endian );
-            }
-        }
-        else
-        if( identifier == TAG_4DNL ) {
-            auto reader4DNL = reader.getReader( data_tag_size );
-            
-            auto start_number = reader4DNL.readU32( settings.endian );
-            auto amount_of_normals = reader4DNL.readU32( settings.endian );
-
-            if( settings.output_level >= 2 )
-                *settings.output_ref << "Mission::ObjResource::load() 4DNL has 0x" << amount_of_normals << " normals" << std::endl;
-
-            auto normals_pointer = &vertex_normals;
-
-            if( normals_pointer->size() != 0 ) {
-                vertex_anm_normals.push_back( std::vector< Utilities::DataTypes::Vec3Short >() );
-                normals_pointer = &vertex_anm_normals.back();
-            }
-
-            normals_pointer->resize( amount_of_normals );
-
-            for( unsigned int i = 0; i < amount_of_normals; i++ ) {
-                normals_pointer->at(i).x = reader4DNL.readI16( settings.endian );
-                normals_pointer->at(i).y = reader4DNL.readI16( settings.endian );
-                normals_pointer->at(i).z = reader4DNL.readI16( settings.endian );
-
-                // normals_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                reader4DNL.readI16( settings.endian );
-            }
-        }
-        else
-        if( identifier == TAG_AnmD ) {
-            auto readerAnmD = reader.getReader( data_tag_size );
-
-            if( readerAnmD.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
-                *settings.output_ref << "Mission::ObjResource::load() AnmD unexpected number at beginning!" << std::endl;
-
-            auto data_size = readerAnmD.totalSize() - readerAnmD.getPosition();
-            const auto TRACK_AMOUNT = data_size / 0x10;
-
-            if( settings.output_level >= 2 )
-                *settings.output_ref << std::dec << "Mission::ObjResource::load() AnmD has " << TRACK_AMOUNT << " tracks" << std::endl << std::hex;
-
-            unsigned int start = 0xFFFF, end = 0x0;
-            
-            for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
-                auto u0 = readerAnmD.readU8();
-                auto u1 = readerAnmD.readU8();
-                auto u2 = readerAnmD.readU8();
-                auto u3 = readerAnmD.readU8();
-                auto from_frame = readerAnmD.readU16( settings.endian );
-                auto to_frame   = readerAnmD.readU16( settings.endian );
-                auto u6 = readerAnmD.readU8();
-                auto u7 = readerAnmD.readU8();
-                auto u8 = readerAnmD.readU16( settings.endian );
-                auto frame_duration = readerAnmD.readU32( settings.endian );
-                
-                start = std::min( start, static_cast<unsigned int>( from_frame ) );
-                start = std::min( start, static_cast<unsigned int>( to_frame ) );
-                
-                end = std::max( end, static_cast<unsigned int>( from_frame ) );
-                end = std::max( end, static_cast<unsigned int>( to_frame ) );
+                auto number_of_faces = reader3DQL.readU32( settings.endian );
 
                 if( settings.output_level >= 2 )
-                    *settings.output_ref << std::dec
-                          << "f: " << from_frame << " t: " << to_frame
-                          << " f.d: " << frame_duration << std::endl
-                          << std::hex;
-            }
-            
-            frames_gen_AnmD = end - start + 1;
-        }
-        else
-        if( identifier == TAG_3DBB ) {
-            auto reader3DBB = reader.getReader( data_tag_size );
-            
-            bounding_box_per_frame = reader3DBB.readU32( settings.endian );
-            
-            if( bounding_box_per_frame >= 1 )
-            {
-                // This is a proof by exhastion example of the first numbers that appears in the 3DBB tag.
-                // Numbers 1 through 7 appears throughout the English version of Future Cop on the ps1, Mac, and Windows.
-                // I could of used the greater and less thans, but this would not show that the numbers are every number that is 1, 2, 3, 4, 5, 6, 7
-                // This might be a bit field of some kind, this is most likely something like the number of bounding boxes.
-                assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
-                
-                const auto bounding_box_amount = reader3DBB.readU32( settings.endian );
-                
-                bounding_boxes.reserve( bounding_box_amount );
-                
-                bounding_box_frames = bounding_box_amount / bounding_box_per_frame;
-                
-                size_t BOUNDING_BOX_SIZE = 8 * sizeof( uint16_t );
-                
-                size_t bounding_boxes_amount = bounding_box_frames * bounding_box_per_frame;
-                
-                size_t test_tag_size = bounding_boxes_amount * BOUNDING_BOX_SIZE + 4 * sizeof( uint32_t );
-                
-                if( test_tag_size != tag_size )
+                    *settings.output_ref << "Mission::ObjResource::load() 3DQL has 0x" << number_of_faces << " faces" << std::endl;
+
+                for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
-                    *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
-                    *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
-                    *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
-                    *settings.output_ref << "Mission::ObjResource::load() The tag size should be " << test_tag_size;
-                    *settings.output_ref << " instead it is " << tag_size << std::endl;
-                }
-                
-                // Another proof by exhaustion. The all the remaining data consists
-                // of the bounding_boxes_amount of data structs which are 0x10 in size.
-                assert( test_tag_size == tag_size );
-                
-                for( size_t frame_index = 0; frame_index < bounding_box_frames; frame_index++ )
-                {
-                    for( size_t box_index = 0; box_index < bounding_box_per_frame; box_index++ )
+                    auto face_type = reader3DQL.readU8();
+
+                    // Skip unknown bytes!
+                    auto face_type_2 = reader3DQL.readU8();
+
+                    auto texture_quad_ref = (reader3DQL.readU16( settings.endian ) / 0x10) + texture_quads.data();
+
+                    /*
+                    // Add to the indexes of this texture to the list when it is not contained in the data base.
+                    if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_ref - texture_quads.data() > texture_quads.size() ) {
+                        texture_dependences.push_back( texture_quad_ref->index );
+                        std::sort( texture_dependences.begin(), texture_dependences.end() );
+                    }*/
+                    bool reflect = ((face_type_2 & 0xF0) == 0x80);
+                    bool is_quad;
+                    bool is_triangle;
+                    
+                    if( settings.type == Data::Mission::Resource::ParseSettings::Macintosh ) {
+                        is_quad     = ((face_type_2 & 0xF0) == 0x40);
+                        is_triangle = ((face_type_2 & 0xF0) == 0x30);
+                    }
+                    else
                     {
-                        bounding_boxes.push_back( BoundingBox3D() );
+                        is_quad     = ((face_type_2 & 0x0F) == 0x04);
+                        is_triangle = ((face_type_2 & 0x0F) == 0x03);
+                    }
+
+                    if( is_quad )
+                    {
+                        face_quads.push_back( FaceQuad() );
+
+                        face_quads.back().texture_quad_ref = texture_quad_ref;
+                        // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
+                        // 0x07 Appears to be its own face type
+                        face_quads.back().is_reflective = reflect;
+
+                        face_quads.back().v0 = reader3DQL.readU8();
+                        face_quads.back().v1 = reader3DQL.readU8();
+                        face_quads.back().v2 = reader3DQL.readU8();
+                        face_quads.back().v3 = reader3DQL.readU8();
                         
-                        // Fact Positive and negative: Assumption position x
-                        bounding_boxes.back().x = reader3DBB.readI16( settings.endian );
+                        face_quads.back().n0 = reader3DQL.readU8();
+                        face_quads.back().n1 = reader3DQL.readU8();
+                        face_quads.back().n2 = reader3DQL.readU8();
+                        face_quads.back().n3 = reader3DQL.readU8();
+                    }
+                    else
+                    if( is_triangle )
+                    {
+                        face_trinagles.push_back( FaceTriangle() );
+
+                        face_trinagles.back().is_other_side = false;
+                        face_trinagles.back().texture_quad_ref = texture_quad_ref;
+                        // (face_type & 0x08) seems to be the effect bit.
+                        // (face_type & 0x28) seems to be the tranlucent bit.
+                        face_trinagles.back().is_reflective = reflect;
+
+                        face_trinagles.back().v0 = reader3DQL.readU8();
+                        face_trinagles.back().v1 = reader3DQL.readU8();
+                        face_trinagles.back().v2 = reader3DQL.readU8();
                         
-                        // Fact Positive and negative: Assumption position y
-                        bounding_boxes.back().y = reader3DBB.readI16( settings.endian );
+                        reader3DQL.readU8();
+
+                        face_trinagles.back().n0 = reader3DQL.readU8();
+                        face_trinagles.back().n1 = reader3DQL.readU8();
+                        face_trinagles.back().n2 = reader3DQL.readU8();
                         
-                        // Fact Positive and negative: Assumption position z
-                        bounding_boxes.back().z = reader3DBB.readI16( settings.endian );
-                        
-                        // Fact [0, 4224]: Assumption length x
-                        bounding_boxes.back().length_x = reader3DBB.readU16( settings.endian );
-                        assert( bounding_boxes.back().length_x >= 0 );
-                        
-                        // Fact [0, 1438]: Assumption length y
-                        bounding_boxes.back().length_y = reader3DBB.readU16( settings.endian );
-                        assert( bounding_boxes.back().length_y >= 0 );
-                        
-                        // Fact [0, 3584]: Assumption length z
-                        bounding_boxes.back().length_z = reader3DBB.readU16( settings.endian );
-                        assert( bounding_boxes.back().length_z >= 0 );
-                        
-                        // Fact [0, 4293]: Assumption rotation x
-                        bounding_boxes.back().rotation_x = reader3DBB.readU16( settings.endian );
-                        assert( bounding_boxes.back().rotation_x >= 0 );
-                        
-                        // Fact [0, 4293]: Assumption rotation y
-                        bounding_boxes.back().rotation_y = reader3DBB.readU16( settings.endian );
-                        assert( bounding_boxes.back().rotation_y >= 0 );
+                        reader3DQL.readU8();
+                    }
+                    else
+                    {
+                        //  TODO Not all the faces are discovered!
+                        reader3DQL.readU64();
                     }
                 }
             }
             else
+            if( identifier == TAG_3DRF ) {
+                // std::cout << "Mission::ObjResource::load() 3DRF" << std::endl;
+                auto reader3DRF = reader.getReader( data_tag_size );
+            }
+            else
+            if( identifier == TAG_3DRL ) {
+                // std::cout << "Mission::ObjResource::load() 3DRL" << std::endl;
+                auto reader3DRL = reader.getReader( data_tag_size );
+            }
+            else
+            if( identifier == TAG_3DHY ) {
+                auto reader3DHY = reader.getReader( data_tag_size );
+
+                if( reader3DHY.readU32( settings.endian ) != 1 && settings.output_level >= 1)
+                {
+                    *settings.output_ref << "Mission::ObjResource::load() 3DHY unexpected number at beginning!" << std::endl;
+                }
+
+                const auto bones_space = reader3DHY.totalSize() - reader3DHY.getPosition();
+                const auto amount_of_bones = bones_space / 0x14;
+
+                if( settings.output_level >= 2 )
+                    *settings.output_ref << "Mission::ObjResource::load() 3DHY: size = " << amount_of_bones << std::endl;
+
+                if( (bones_space % 0x14) != 0 && settings.output_level >= 1 )
+                    *settings.output_ref << "Mission::ObjResource::load() 3DHY bones are not right!" << std::endl;
+                
+                this->bones.reserve( amount_of_bones );
+                
+                this->max_bone_childern = 0;
+
+                for( int i = 0; i < amount_of_bones; i++ ) {
+                    // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
+                    bones.push_back( Bone() );
+                    
+                    bones.at(i).parent_amount = reader3DHY.readU8();
+                    bones.at(i).normal_start  = reader3DHY.readU8();
+                    bones.at(i).normal_stride = reader3DHY.readU8();
+                    bones.at(i).vertex_start  = reader3DHY.readU8();
+                    bones.at(i).vertex_stride = reader3DHY.readU8();
+                    auto byte0 = reader3DHY.readU8();
+                    auto byte1 = reader3DHY.readU8();
+                    // assert( Utilities::DataHandler::read_u8(start_data + 0x5) ); // can be zero
+                    // assert( Utilities::DataHandler::read_u8(start_data + 0x6) ); // can be zero
+                    auto opcode = reader3DHY.readU8();
+                    
+                    bones.at(i).opcode.unknown          = (opcode & 0b11000000) >> 6;
+                    bones.at(i).opcode.position.x_const = (opcode & 0b00100000) >> 5;
+                    bones.at(i).opcode.position.y_const = (opcode & 0b00010000) >> 4;
+                    bones.at(i).opcode.position.z_const = (opcode & 0b00001000) >> 3;
+                    bones.at(i).opcode.rotation.x_const = (opcode & 0b00000100) >> 2;
+                    bones.at(i).opcode.rotation.y_const = (opcode & 0b00000010) >> 1;
+                    bones.at(i).opcode.rotation.z_const = (opcode & 0b00000001) >> 0;
+                    
+                    bones.at(i).position.x = reader3DHY.readI16( settings.endian );
+                    bones.at(i).position.y = reader3DHY.readI16( settings.endian );
+                    bones.at(i).position.z = reader3DHY.readI16( settings.endian );
+                    bones.at(i).rotation.x = reader3DHY.readI16( settings.endian );
+                    bones.at(i).rotation.y = reader3DHY.readI16( settings.endian );
+                    bones.at(i).rotation.z = reader3DHY.readI16( settings.endian );
+
+                    bytes_per_frame_3DMI += getOpcodeBytesPerFrame( bones.at(i).opcode );
+                    
+                    this->max_bone_childern = std::max( bones.at(i).parent_amount, this->max_bone_childern );
+                    
+                    if( settings.output_level >= 3 )
+                    {
+                        *settings.output_ref << "bone: ";
+
+                        *settings.output_ref 
+                            << "parent index: 0x" << bones.at(i).parent_amount << ", "
+                            << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
+                            << "0x" <<    bones.at(i).vertex_start << " with 0x" <<  bones.at(i).vertex_stride << " vertices, "
+                            << "opcode: 0x" << opcode << std::dec
+                            << ", position( " << bones.at(i).position.x << ", " << bones.at(i).position.y << ", " << bones.at(i).position.z << " )"
+                            << ", rotation( " << bones.at(i).rotation.x << ", " << bones.at(i).rotation.y << ", " << bones.at(i).rotation.z << " )" << std::hex << std::endl;
+                    }
+                }
+                
+                if( settings.output_level >= 3 )
+                {
+                    // The bytes_per_frame_3DMI might not actually hold true.
+                    // I found out that the position and the rotation contains the index to 3DMI.
+                    *settings.output_ref << "bytes_per_frame_3DMI = 0x" << bytes_per_frame_3DMI << std::endl;
+                }
+            }
+            else
+            if( identifier == TAG_3DHS ) {
+                auto reader3DHS = reader.getReader( data_tag_size );
+                
+                auto bone_depth_number = reader3DHS.readU32( settings.endian );
+                auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
+                const auto BONE_SIZE = 4 * sizeof( uint16_t );
+
+                auto read_3D_positions = data_size / BONE_SIZE; // vec3 with an empty space.
+                
+                frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
+
+                if( settings.output_level >= 2 )
+                {
+                    *settings.output_ref
+                        << std::dec
+                        << "Mission::ObjResource::load() 3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames." << std::endl
+                        << std::hex;
+                }
+                
+                for( int d = 0; d < frames_gen_3DHS; d++ )
+                {
+                    for( int i = 0; i < bone_depth_number; i++ )
+                    {
+                        auto u_x = reader3DHS.readU16( settings.endian );
+                        auto u_y = reader3DHS.readU16( settings.endian );
+                        auto u_z = reader3DHS.readU16( settings.endian );
+                        // I determined that this value stays zero, so no reading needs to be done.
+                        auto u_w = reader3DHS.readU16( settings.endian );
+                    }
+                }
+            }
+            else
+            if( identifier == TAG_3DMI ) {
+                auto reader3DMI = reader.getReader( data_tag_size );
+                
+                if( reader3DMI.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
+                    *settings.output_ref << "Mission::ObjResource::load() 3DMI unexpected number at beginning!" << std::endl;
+                
+                this->bone_animation_data_size = (reader3DMI.totalSize() - reader3DMI.getPosition()) / sizeof( uint16_t );
+                
+                if( this->bone_animation_data != nullptr )
+                    delete [] this->bone_animation_data;
+                
+                this->bone_animation_data = new int16_t [ this->bone_animation_data_size ];
+                
+                for( int d = 0; d < this->bone_animation_data_size; d++ )
+                    this->bone_animation_data[ d ] = reader3DMI.readU16( settings.endian );
+            }
+            else
+            if( identifier == TAG_3DTA ) {
+                auto reader3DTA = reader.getReader( data_tag_size );
+                
+                if( settings.output_level >= 2 )
+                    *settings.output_ref << "Mission::ObjResource::load() 3DTA" << std::endl;
+            }
+            else
+            if( identifier == TAG_3DAL ) {
+                auto reader3DAL = reader.getReader( data_tag_size );
+                
+                if( settings.output_level >= 2 )
+                    *settings.output_ref << "Mission::ObjResource::load() 3DAL" << std::endl;
+            }
+            else
+            if( identifier == TAG_4DVL ) {
+                auto reader4DVL = reader.getReader( data_tag_size );
+                
+                auto start_number = reader4DVL.readU32( settings.endian );
+                auto amount_of_vertices = reader4DVL.readU32( settings.endian );
+                
+                if( settings.output_level >= 2 )
+                    *settings.output_ref << "Mission::ObjResource::load() 4DVL has 0x" << amount_of_vertices << " vertices" << std::endl;
+
+                auto positions_pointer = &vertex_positions;
+
+                // If vertex_positions is not empty then it is a morph target.
+                if( positions_pointer->size() != 0 ) {
+                    vertex_anm_positions.push_back( std::vector< Utilities::DataTypes::Vec3Short >() );
+                    positions_pointer = &vertex_anm_positions.back();
+                }
+
+                positions_pointer->resize( amount_of_vertices );
+
+                for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
+                    positions_pointer->at(i).x = reader4DVL.readI16( settings.endian );
+                    positions_pointer->at(i).y = reader4DVL.readI16( settings.endian );
+                    positions_pointer->at(i).z = reader4DVL.readI16( settings.endian );
+                    // positions_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                    reader4DVL.readI16( settings.endian );
+                }
+            }
+            else
+            if( identifier == TAG_4DNL ) {
+                auto reader4DNL = reader.getReader( data_tag_size );
+                
+                auto start_number = reader4DNL.readU32( settings.endian );
+                auto amount_of_normals = reader4DNL.readU32( settings.endian );
+
+                if( settings.output_level >= 2 )
+                    *settings.output_ref << "Mission::ObjResource::load() 4DNL has 0x" << amount_of_normals << " normals" << std::endl;
+
+                auto normals_pointer = &vertex_normals;
+
+                if( normals_pointer->size() != 0 ) {
+                    vertex_anm_normals.push_back( std::vector< Utilities::DataTypes::Vec3Short >() );
+                    normals_pointer = &vertex_anm_normals.back();
+                }
+
+                normals_pointer->resize( amount_of_normals );
+
+                for( unsigned int i = 0; i < amount_of_normals; i++ ) {
+                    normals_pointer->at(i).x = reader4DNL.readI16( settings.endian );
+                    normals_pointer->at(i).y = reader4DNL.readI16( settings.endian );
+                    normals_pointer->at(i).z = reader4DNL.readI16( settings.endian );
+
+                    // normals_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
+                    reader4DNL.readI16( settings.endian );
+                }
+            }
+            else
+            if( identifier == TAG_AnmD ) {
+                auto readerAnmD = reader.getReader( data_tag_size );
+
+                if( readerAnmD.readU32( settings.endian ) != 1 && settings.output_level >= 1 )
+                    *settings.output_ref << "Mission::ObjResource::load() AnmD unexpected number at beginning!" << std::endl;
+
+                auto data_size = readerAnmD.totalSize() - readerAnmD.getPosition();
+                const auto TRACK_AMOUNT = data_size / 0x10;
+
+                if( settings.output_level >= 2 )
+                    *settings.output_ref << std::dec << "Mission::ObjResource::load() AnmD has " << TRACK_AMOUNT << " tracks" << std::endl << std::hex;
+
+                unsigned int start = 0xFFFF, end = 0x0;
+                
+                for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
+                    auto u0 = readerAnmD.readU8();
+                    auto u1 = readerAnmD.readU8();
+                    auto u2 = readerAnmD.readU8();
+                    auto u3 = readerAnmD.readU8();
+                    auto from_frame = readerAnmD.readU16( settings.endian );
+                    auto to_frame   = readerAnmD.readU16( settings.endian );
+                    auto u6 = readerAnmD.readU8();
+                    auto u7 = readerAnmD.readU8();
+                    auto u8 = readerAnmD.readU16( settings.endian );
+                    auto frame_duration = readerAnmD.readU32( settings.endian );
+                    
+                    start = std::min( start, static_cast<unsigned int>( from_frame ) );
+                    start = std::min( start, static_cast<unsigned int>( to_frame ) );
+                    
+                    end = std::max( end, static_cast<unsigned int>( from_frame ) );
+                    end = std::max( end, static_cast<unsigned int>( to_frame ) );
+
+                    if( settings.output_level >= 2 )
+                        *settings.output_ref << std::dec
+                              << "f: " << from_frame << " t: " << to_frame
+                              << " f.d: " << frame_duration << std::endl
+                              << std::hex;
+                }
+                
+                frames_gen_AnmD = end - start + 1;
+            }
+            else
+            if( identifier == TAG_3DBB ) {
+                auto reader3DBB = reader.getReader( data_tag_size );
+                
+                bounding_box_per_frame = reader3DBB.readU32( settings.endian );
+                
+                if( bounding_box_per_frame >= 1 )
+                {
+                    // This is a proof by exhastion example of the first numbers that appears in the 3DBB tag.
+                    // Numbers 1 through 7 appears throughout the English version of Future Cop on the ps1, Mac, and Windows.
+                    // I could of used the greater and less thans, but this would not show that the numbers are every number that is 1, 2, 3, 4, 5, 6, 7
+                    // This might be a bit field of some kind, this is most likely something like the number of bounding boxes.
+                    assert( (bounding_box_per_frame == 1) | (bounding_box_per_frame == 2) | (bounding_box_per_frame == 3) | (bounding_box_per_frame == 4) | (bounding_box_per_frame == 5) | (bounding_box_per_frame == 6) | (bounding_box_per_frame == 7) );
+                    
+                    const auto bounding_box_amount = reader3DBB.readU32( settings.endian );
+                    
+                    bounding_boxes.reserve( bounding_box_amount );
+                    
+                    bounding_box_frames = bounding_box_amount / bounding_box_per_frame;
+                    
+                    size_t BOUNDING_BOX_SIZE = 8 * sizeof( uint16_t );
+                    
+                    size_t bounding_boxes_amount = bounding_box_frames * bounding_box_per_frame;
+                    
+                    size_t test_tag_size = bounding_boxes_amount * BOUNDING_BOX_SIZE + 4 * sizeof( uint32_t );
+                    
+                    if( test_tag_size != tag_size )
+                    {
+                        *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+                        *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
+                        *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
+                        *settings.output_ref << "Mission::ObjResource::load() The tag size should be " << test_tag_size;
+                        *settings.output_ref << " instead it is " << tag_size << std::endl;
+                    }
+                    
+                    // Another proof by exhaustion. The all the remaining data consists
+                    // of the bounding_boxes_amount of data structs which are 0x10 in size.
+                    assert( test_tag_size == tag_size );
+                    
+                    for( size_t frame_index = 0; frame_index < bounding_box_frames; frame_index++ )
+                    {
+                        for( size_t box_index = 0; box_index < bounding_box_per_frame; box_index++ )
+                        {
+                            bounding_boxes.push_back( BoundingBox3D() );
+                            
+                            // Fact Positive and negative: Assumption position x
+                            bounding_boxes.back().x = reader3DBB.readI16( settings.endian );
+                            
+                            // Fact Positive and negative: Assumption position y
+                            bounding_boxes.back().y = reader3DBB.readI16( settings.endian );
+                            
+                            // Fact Positive and negative: Assumption position z
+                            bounding_boxes.back().z = reader3DBB.readI16( settings.endian );
+                            
+                            // Fact [0, 4224]: Assumption length x
+                            bounding_boxes.back().length_x = reader3DBB.readU16( settings.endian );
+                            assert( bounding_boxes.back().length_x >= 0 );
+                            
+                            // Fact [0, 1438]: Assumption length y
+                            bounding_boxes.back().length_y = reader3DBB.readU16( settings.endian );
+                            assert( bounding_boxes.back().length_y >= 0 );
+                            
+                            // Fact [0, 3584]: Assumption length z
+                            bounding_boxes.back().length_z = reader3DBB.readU16( settings.endian );
+                            assert( bounding_boxes.back().length_z >= 0 );
+                            
+                            // Fact [0, 4293]: Assumption rotation x
+                            bounding_boxes.back().rotation_x = reader3DBB.readU16( settings.endian );
+                            assert( bounding_boxes.back().rotation_x >= 0 );
+                            
+                            // Fact [0, 4293]: Assumption rotation y
+                            bounding_boxes.back().rotation_y = reader3DBB.readU16( settings.endian );
+                            assert( bounding_boxes.back().rotation_y >= 0 );
+                        }
+                    }
+                }
+                else
+                {
+                    *settings.output_ref << "Mission::ObjResource::load() 3DBB unexpected number at beginning! " << bounding_box_per_frame << std::endl;
+                }
+            }
+            else
             {
-                *settings.output_ref << "Mission::ObjResource::load() 3DBB unexpected number at beginning! " << bounding_box_per_frame << std::endl;
+                reader.setPosition( data_tag_size, Utilities::Buffer::Reader::CURRENT );
+                
+                char identifier_word[5] = {'\0'};
+                const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
+
+                for( unsigned int i = 0; i < IDENTIFIER_SIZE; i++ ) {
+                    identifier_word[ i ] = reinterpret_cast<char*>( &identifier )[ i ];
+                }
+                Utilities::DataHandler::swapBytes( reinterpret_cast< uint8_t* >( identifier_word ), 4 );
+
+                if( settings.output_level >= 1 )
+                    *settings.output_ref << "Mission::ObjResource::load() " << identifier_word << " not recognized" << std::endl;
+                
+                assert( false );
+            }
+
+            *settings.output_ref << std::dec;
+
+            if( file_is_not_valid ) {
+                if( settings.output_level >= 1 )
+                    *settings.output_ref << "Mission::ObjResource::load() This is not a valid Obj file!" << std::endl;
+                reader.setPosition( 0, Utilities::Buffer::Reader::ENDING );
+            }
+        }
+        
+        // This assertion statement tells that there are only two options for
+        // Animation either morphing or bone animation.
+        assert( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_anm_positions.size() > 0 )) );
+        
+        if( bytes_per_frame_3DMI > 0 )
+        {
+            this->bone_frames = this->bone_animation_data_size / (bytes_per_frame_3DMI / sizeof(int16_t));
+            
+            // This proves that the obj resource bone frame are roughly equvilent to the number of
+            // bounding box frames.
+            if( bounding_box_frames != bone_frames && bounding_box_frames + 1 != bone_frames )
+            {
+                *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << bone_frames << std::endl;
+                
+                assert( false );
+            }
+        }
+        else
+        if( vertex_anm_positions.size() > 0 )
+        {
+            // This proves that each model with morph animation has an equal number of
+            // vertex frames as the bounding box frames.
+            if( bounding_box_frames != vertex_anm_positions.size() + 1 )
+            {
+                *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << vertex_anm_positions.size() << std::endl;
+                
+                assert( false );
             }
         }
         else
         {
-            reader.setPosition( data_tag_size, Utilities::Buffer::Reader::CURRENT );
-            
-            char identifier_word[5] = {'\0'};
-            const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
-
-            for( unsigned int i = 0; i < IDENTIFIER_SIZE; i++ ) {
-                identifier_word[ i ] = reinterpret_cast<char*>( &identifier )[ i ];
-            }
-            Utilities::DataHandler::swapBytes( reinterpret_cast< uint8_t* >( identifier_word ), 4 );
-
-            if( settings.output_level >= 1 )
-                *settings.output_ref << "Mission::ObjResource::load() " << identifier_word << " not recognized" << std::endl;
-            
-            assert( false );
+            // This statement proves that each model without animation only has one bounding_box frame.
+            assert( bounding_box_frames == 1 );
         }
 
-        *settings.output_ref << std::dec;
-
-        if( file_is_not_valid ) {
-            if( settings.output_level >= 1 )
-                *settings.output_ref << "Mission::ObjResource::load() This is not a valid Obj file!" << std::endl;
-            reader.setPosition( 0, Utilities::Buffer::Reader::ENDING );
-        }
-    }
-    
-    // This assertion statement tells that there are only two options for
-    // Animation either morphing or bone animation.
-    assert( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_anm_positions.size() > 0 )) );
-    
-    if( bytes_per_frame_3DMI > 0 )
-    {
-        this->bone_frames = this->bone_animation_data_size / (bytes_per_frame_3DMI / sizeof(int16_t));
-        
-        // This proves that the obj resource bone frame are roughly equvilent to the number of
-        // bounding box frames.
-        if( bounding_box_frames != bone_frames && bounding_box_frames + 1 != bone_frames )
-        {
-            *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
-            *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
-            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
-            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << bone_frames << std::endl;
-            
-            assert( false );
-        }
+        return !file_is_not_valid;
     }
     else
-    if( vertex_anm_positions.size() > 0 )
-    {
-        // This proves that each model with morph animation has an equal number of
-        // vertex frames as the bounding box frames.
-        if( bounding_box_frames != vertex_anm_positions.size() + 1 )
-        {
-            *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
-            *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
-            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
-            *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << vertex_anm_positions.size() << std::endl;
-            
-            assert( false );
-        }
-    }
-    else
-    {
-        // This statement proves that each model without animation only has one bounding_box frame.
-        assert( bounding_box_frames == 1 );
-    }
-
-    return !file_is_not_valid;
+        return false;
 }
 
 Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
