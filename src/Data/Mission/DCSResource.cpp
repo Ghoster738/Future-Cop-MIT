@@ -18,39 +18,45 @@ uint32_t Data::Mission::DCSResource::getResourceTagID() const {
     return Data::Mission::DCSResource::IDENTIFIER_TAG;
 }
 
-bool Data::Mission::DCSResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
+bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
     const size_t  TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
     const size_t NUM_ENTRIES_SIZE = sizeof(uint32_t);
     const size_t       ENTRY_SIZE = 8 * sizeof(uint8_t);
-    auto reader = buffer.getReader();
+    
+    if( this->data_p != nullptr )
+    {
+        auto reader = this->data_p->getReader();
 
-    if( reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + ENTRY_SIZE ) {
-        auto header    = reader.readU32( settings.endian );
-        auto size      = reader.readU32( settings.endian );
-        auto num_entry = reader.readU32( settings.endian );
+        if( reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + ENTRY_SIZE ) {
+            auto header    = reader.readU32( settings.endian );
+            auto size      = reader.readU32( settings.endian );
+            auto num_entry = reader.readU32( settings.endian );
 
-        if( header == IDENTIFIER_TAG && reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + num_entry * ENTRY_SIZE ) {
-            element.reserve( num_entry );
+            if( header == IDENTIFIER_TAG && reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + num_entry * ENTRY_SIZE ) {
+                element.reserve( num_entry );
 
-            for( uint32_t i = 0; i < num_entry; i++ ) {
-                element.push_back( Element() );
+                for( uint32_t i = 0; i < num_entry; i++ ) {
+                    element.push_back( Element() );
 
-                element.back().unk_0 = reader.readU8();
-                element.back().unk_1 = reader.readU8();
-                element.back().unk_2 = reader.readU8();
-                element.back().unk_3 = reader.readU8();
-                element.back().unk_4 = reader.readU8();
+                    element.back().unk_0 = reader.readU8();
+                    element.back().unk_1 = reader.readU8();
+                    element.back().unk_2 = reader.readU8();
+                    element.back().unk_3 = reader.readU8();
+                    element.back().unk_4 = reader.readU8();
 
-                auto pad0 = reader.readU8();
-                auto pad1 = reader.readU8();
-                element.back().unk_5 = reader.readU8();
+                    auto pad0 = reader.readU8();
+                    auto pad1 = reader.readU8();
+                    element.back().unk_5 = reader.readU8();
 
-                assert( pad0 == 0 );
-                assert( pad1 == 0 );
-                //assert( element.back().unk_5 == i + 1 );
+                    assert( pad0 == 0 );
+                    assert( pad1 == 0 );
+                    //assert( element.back().unk_5 == i + 1 );
+                }
+
+                return true;
             }
-
-            return true;
+            else
+                return false;
         }
         else
             return false;

@@ -78,7 +78,7 @@ public:
      * This loads up the nodes.
      * @return If there was an error in the reading it will return false.
      */
-    virtual bool parse( const Utilities::Buffer &header, const Utilities::Buffer &data, const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
+    virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     /**
      * @param file_path the path to the file.

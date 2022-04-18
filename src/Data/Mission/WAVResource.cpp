@@ -13,80 +13,84 @@ namespace {
     const size_t DATA_START_FROM_HEADER = 0x2C;
 }
 
-bool Data::Mission::WAVResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto reader = reader_data.getReader();
-    
-    // Check to see if there is enough data for the WAV file to be passable.
-    // This is to check for buffer overflow attacks and the like.
-    if( reader.totalSize() > DATA_START_FROM_HEADER ) {
-        bool file_is_not_valid = false;
+bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr ) {
+        auto reader = this->data_p->getReader();
         
-        auto tag_chunk_id   = reader.readU32( Utilities::Buffer::Endian::BIG ); // 0
-        auto tag_chunk_size = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 4
-        auto tag_format     = reader.readU32( Utilities::Buffer::Endian::BIG ); // 8
-        auto tag_sub_1      = reader.readU32( Utilities::Buffer::Endian::BIG ); // 12
-        auto size_of_chunk_1 = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 16
-        auto size_sub_1     = reader.readU32( Utilities::Buffer::Endian::LITTLE );
-        reader.setPosition( 36, Utilities::Buffer::Reader::BEGINING );
-        auto tag_sub_2      = reader.readU32( Utilities::Buffer::Endian::BIG );
-
-        file_is_not_valid |= (tag_chunk_id    != TAG_CHUNK_ID );
-        file_is_not_valid |= (tag_format      != TAG_FORMAT );
-        file_is_not_valid |= (tag_sub_1       != TAG_SUB_CHUNK_1_ID );
-        file_is_not_valid |= (size_of_chunk_1 != 16); // This loader only supports size 16
-        file_is_not_valid |= (tag_sub_2       != TAG_SUB_CHUNK_2_ID );
-        file_is_not_valid |= (tag_chunk_size  >  reader.totalSize() - 8);
-
-        if( !file_is_not_valid ) {
-            reader.setPosition( 20, Utilities::Buffer::Reader::BEGINING );
+        // Check to see if there is enough data for the WAV file to be passable.
+        // This is to check for buffer overflow attacks and the like.
+        if( reader.totalSize() > DATA_START_FROM_HEADER ) {
+            bool file_is_not_valid = false;
             
-            audio_format        = reader.readU16( Utilities::Buffer::Endian::LITTLE );
-            channel_number      = reader.readU16( Utilities::Buffer::Endian::LITTLE );
-            sample_rate         = reader.readU32( Utilities::Buffer::Endian::LITTLE );
-            auto read_byte_rate = reader.readU32( Utilities::Buffer::Endian::LITTLE );
-            auto read_block_aln = reader.readU16( Utilities::Buffer::Endian::LITTLE );
-            bits_per_sample     = reader.readU16( Utilities::Buffer::Endian::LITTLE );
-            
-            reader.setPosition( 40, Utilities::Buffer::Reader::BEGINING );
-            audio_stream_length = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+            auto tag_chunk_id   = reader.readU32( Utilities::Buffer::Endian::BIG ); // 0
+            auto tag_chunk_size = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 4
+            auto tag_format     = reader.readU32( Utilities::Buffer::Endian::BIG ); // 8
+            auto tag_sub_1      = reader.readU32( Utilities::Buffer::Endian::BIG ); // 12
+            auto size_of_chunk_1 = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 16
+            auto size_sub_1     = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+            reader.setPosition( 36, Utilities::Buffer::Reader::BEGINING );
+            auto tag_sub_2      = reader.readU32( Utilities::Buffer::Endian::BIG );
 
-            // This sets block_align and byte_rate to their respective values
-            updateDependices();
-
-            file_is_not_valid |= (  audio_stream_length > (reader.totalSize() - DATA_START_FROM_HEADER) );
-            file_is_not_valid |= (  byte_rate  != read_byte_rate );
-            file_is_not_valid |= ( block_align != read_block_aln );
+            file_is_not_valid |= (tag_chunk_id    != TAG_CHUNK_ID );
+            file_is_not_valid |= (tag_format      != TAG_FORMAT );
+            file_is_not_valid |= (tag_sub_1       != TAG_SUB_CHUNK_1_ID );
+            file_is_not_valid |= (size_of_chunk_1 != 16); // This loader only supports size 16
+            file_is_not_valid |= (tag_sub_2       != TAG_SUB_CHUNK_2_ID );
+            file_is_not_valid |= (tag_chunk_size  >  reader.totalSize() - 8);
 
             if( !file_is_not_valid ) {
-                // Copy the rest of the sound data to the audio stream
-                reader.setPosition( DATA_START_FROM_HEADER, Utilities::Buffer::Reader::BEGINING );
+                reader.setPosition( 20, Utilities::Buffer::Reader::BEGINING );
                 
-                auto bytes = reader.getBytes();
+                audio_format        = reader.readU16( Utilities::Buffer::Endian::LITTLE );
+                channel_number      = reader.readU16( Utilities::Buffer::Endian::LITTLE );
+                sample_rate         = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+                auto read_byte_rate = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+                auto read_block_aln = reader.readU16( Utilities::Buffer::Endian::LITTLE );
+                bits_per_sample     = reader.readU16( Utilities::Buffer::Endian::LITTLE );
                 
-                setAudioStream( bytes.data(), bytes.size() );
+                reader.setPosition( 40, Utilities::Buffer::Reader::BEGINING );
+                audio_stream_length = reader.readU32( Utilities::Buffer::Endian::LITTLE );
 
-                if( settings.output_level >= 3 )
-                    *settings.output_ref << "This is a wav file." << std::endl;
-                
-                return true;
+                // This sets block_align and byte_rate to their respective values
+                updateDependices();
+
+                file_is_not_valid |= (  audio_stream_length > (reader.totalSize() - DATA_START_FROM_HEADER) );
+                file_is_not_valid |= (  byte_rate  != read_byte_rate );
+                file_is_not_valid |= ( block_align != read_block_aln );
+
+                if( !file_is_not_valid ) {
+                    // Copy the rest of the sound data to the audio stream
+                    reader.setPosition( DATA_START_FROM_HEADER, Utilities::Buffer::Reader::BEGINING );
+                    
+                    auto bytes = reader.getBytes();
+                    
+                    setAudioStream( bytes.data(), bytes.size() );
+
+                    if( settings.output_level >= 3 )
+                        *settings.output_ref << "This is a wav file." << std::endl;
+                    
+                    return true;
+                }
+                else {
+                    if( settings.output_level >= 1 )
+                        *settings.output_ref << "Potential buffer overflow attempt detected. Please at least scan it for viruses if you got this one from the internet!" << std::endl;
+                    return false;
+                }
             }
-            else {
+            else
+            {
                 if( settings.output_level >= 1 )
-                    *settings.output_ref << "Potential buffer overflow attempt detected. Please at least scan it for viruses if you got this one from the internet!" << std::endl;
+                {
+                    if( size_of_chunk_1 == 16 )
+                        *settings.output_ref << "This is not a wav file." << std::endl;
+                    else
+                        *settings.output_ref << "This pariticalar wav file's format is not supported." << std::endl;
+                }
                 return false;
             }
         }
         else
-        {
-            if( settings.output_level >= 1 )
-            {
-                if( size_of_chunk_1 == 16 )
-                    *settings.output_ref << "This is not a wav file." << std::endl;
-                else
-                    *settings.output_ref << "This pariticalar wav file's format is not supported." << std::endl;
-            }
             return false;
-        }
     }
     else
         return false;

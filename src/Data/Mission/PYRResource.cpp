@@ -119,149 +119,153 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::PYRResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
-
-    auto reader = buffer.getReader();
-    auto readerPYPL = buffer.getReader();
-    
-    bool file_is_not_valid = false;
-    uint32_t amount_of_tiles = 0;
-
-    size_t PYPL_offset;
-    size_t PYPL_tag_size = 0;
-    bool is_PS1 = false;
-
-    while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
-        auto identifier = reader.readU32( settings.endian );
-        auto tag_size   = reader.readU32( settings.endian );
-        auto tag_data_size = tag_size - 2 * sizeof( uint32_t );
-
-        if( identifier == TAG_PYDT ) {
-            auto readerPYDT = reader.getReader( tag_data_size );
-
-            // This number contains the amount of particles.
-            amount_of_tiles = readerPYDT.readU32( settings.endian );
-
-            for( unsigned int i = 0; i < amount_of_tiles; i++ )
-                particles.push_back( Particle( readerPYDT, settings.endian ) );
-        }
-        else
-        if( identifier == TAG_PYPL ) {
-            PYPL_offset = reader.getPosition( Utilities::Buffer::Reader::BEGINING );
-            PYPL_tag_size = tag_data_size;
-            reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
-        }
-        else
-        if( identifier == TAG_PIX8 ) {
-            auto readerPIX8 = reader.getReader( tag_data_size );
-
-            // setup the image
-            image.setWidth( 0x100 );
-            image.setHeight( 0x200 );
-            image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
-
-            auto image_data = image.getRawImageData();
-            
-            for( unsigned int a = 0; a < tag_data_size; a++ ) {
-                *image_data = readerPIX8.readU8();
-
-                image_data += image.getPixelSize();
-            }
-        }
-        else
-        if( identifier == TAG_PIX4 ) {
-            auto readerPIX4 = reader.getReader( tag_data_size );
-
-            // setup the image
-            image.setWidth( 0x100 );
-            image.setHeight( 0x200 );
-            image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
-
-            auto image_data = image.getRawImageData();
-
-            uint8_t pixel;
-
-            for( unsigned int a = 0; a < tag_data_size; a++ ) {
-                pixel = readerPIX4.readU8();
-
-                image_data[ 0 ] = (pixel >> 0) & 0xF;
-                image_data[ 1 ] = (pixel >> 4) & 0xF;
-                image_data += image.getPixelSize() * 2;
-            }
-
-            is_PS1 = true;
-        }
-        else
+bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
         {
-            if( settings.output_level >= 1 )
-                *settings.output_ref << "PYR Tag Error, 0x" << std::hex << identifier << std::dec << std::endl;
-            reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
+        auto reader = this->data_p->getReader();
+        auto readerPYPL = this->data_p->getReader();
+
+        bool file_is_not_valid = false;
+        uint32_t amount_of_tiles = 0;
+
+        size_t PYPL_offset;
+        size_t PYPL_tag_size = 0;
+        bool is_PS1 = false;
+
+        while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+            auto identifier = reader.readU32( settings.endian );
+            auto tag_size   = reader.readU32( settings.endian );
+            auto tag_data_size = tag_size - 2 * sizeof( uint32_t );
+
+            if( identifier == TAG_PYDT ) {
+                auto readerPYDT = reader.getReader( tag_data_size );
+
+                // This number contains the amount of particles.
+                amount_of_tiles = readerPYDT.readU32( settings.endian );
+
+                for( unsigned int i = 0; i < amount_of_tiles; i++ )
+                    particles.push_back( Particle( readerPYDT, settings.endian ) );
+            }
+            else
+            if( identifier == TAG_PYPL ) {
+                PYPL_offset = reader.getPosition( Utilities::Buffer::Reader::BEGINING );
+                PYPL_tag_size = tag_data_size;
+                reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
+            }
+            else
+            if( identifier == TAG_PIX8 ) {
+                auto readerPIX8 = reader.getReader( tag_data_size );
+
+                // setup the image
+                image.setWidth( 0x100 );
+                image.setHeight( 0x200 );
+                image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
+
+                auto image_data = image.getRawImageData();
+                
+                for( unsigned int a = 0; a < tag_data_size; a++ ) {
+                    *image_data = readerPIX8.readU8();
+
+                    image_data += image.getPixelSize();
+                }
+            }
+            else
+            if( identifier == TAG_PIX4 ) {
+                auto readerPIX4 = reader.getReader( tag_data_size );
+
+                // setup the image
+                image.setWidth( 0x100 );
+                image.setHeight( 0x200 );
+                image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
+
+                auto image_data = image.getRawImageData();
+
+                uint8_t pixel;
+
+                for( unsigned int a = 0; a < tag_data_size; a++ ) {
+                    pixel = readerPIX4.readU8();
+
+                    image_data[ 0 ] = (pixel >> 0) & 0xF;
+                    image_data[ 1 ] = (pixel >> 4) & 0xF;
+                    image_data += image.getPixelSize() * 2;
+                }
+
+                is_PS1 = true;
+            }
+            else
+            {
+                if( settings.output_level >= 1 )
+                    *settings.output_ref << "PYR Tag Error, 0x" << std::hex << identifier << std::dec << std::endl;
+                reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
+            }
         }
-    }
 
-    if( PYPL_tag_size != 0 ) {
-        reader.setPosition( PYPL_offset, Utilities::Buffer::Reader::BEGINING );
-        auto readerPYPL = reader.getReader( PYPL_tag_size );
+        if( PYPL_tag_size != 0 ) {
+            reader.setPosition( PYPL_offset, Utilities::Buffer::Reader::BEGINING );
+            auto readerPYPL = reader.getReader( PYPL_tag_size );
 
-        if( !is_PS1 ) {
-            // I had originally thought that it was the palette for the image, and I was sort of right.
-            // This chunk contains the palette for every explosion stored in this file.
-            // However by XORing the mac and windows version of the files I had determined that these are 16 bit numbers. I am thankful for the big endian macs systems of the 1990's.
+            if( !is_PS1 ) {
+                // I had originally thought that it was the palette for the image, and I was sort of right.
+                // This chunk contains the palette for every explosion stored in this file.
+                // However by XORing the mac and windows version of the files I had determined that these are 16 bit numbers. I am thankful for the big endian macs systems of the 1990's.
 
-            for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
-                uint16_t first_zero = readerPYPL.readU16( settings.endian );
-                uint16_t id = readerPYPL.readU16( settings.endian );
+                for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
+                    uint16_t first_zero = readerPYPL.readU16( settings.endian );
+                    uint16_t id = readerPYPL.readU16( settings.endian );
 
-                if( settings.output_level >= 2 )
-                    *settings.output_ref << "PYPL ID: " << id << std::endl;
+                    if( settings.output_level >= 2 )
+                        *settings.output_ref << "PYPL ID: " << id << std::endl;
 
-                if( id == particles.at( i ).getID() )
-                {
-                    auto palette_data = particles.at( i ).getTexture(0)->setupPallete( PC_PALLETE_SIZE );
+                    if( id == particles.at( i ).getID() )
+                    {
+                        auto palette_data = particles.at( i ).getTexture(0)->setupPallete( PC_PALLETE_SIZE );
 
-                    for( unsigned int d = 0; d < PC_PALLETE_SIZE; d++ ) {
-                        uint8_t red, green, blue;
+                        for( unsigned int d = 0; d < PC_PALLETE_SIZE; d++ ) {
+                            uint8_t red, green, blue;
 
-                        Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), blue, green, red );
+                            Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), blue, green, red );
 
-                        palette_data[0] = red;
-                        palette_data[1] = green;
-                        palette_data[2] = blue;
+                            palette_data[0] = red;
+                            palette_data[1] = green;
+                            palette_data[2] = blue;
 
-                        palette_data += particles.at( i ).getTexture(0)->getPalette()->getPixelSize();
+                            palette_data += particles.at( i ).getTexture(0)->getPalette()->getPixelSize();
+                        }
                     }
-                }
-                else
-                {
-                    if( settings.output_level >= 1 )
-                        *settings.output_ref << "PYPL Error: id, " << id << ", != " << particles.at( i ).getID() << std::endl;
-                    i = amount_of_tiles; // Cancel the reading.
-                }
-            }
-        }
-        else
-        {
-            for( unsigned int p = 0; p < amount_of_tiles; p++ ) {
-                for( unsigned int t = 0; t < particles.at( p ).getNumSprites(); t++ ) {
-                    auto palette_data = particles.at( p ).getTexture( t )->setupPallete( PS1_PALLETE_SIZE );
-
-                    for( unsigned int d = 0; d < PS1_PALLETE_SIZE; d++ ) {
-                        uint8_t red, green, blue;
-
-                        Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), red, green, blue );
-
-                        palette_data[0] = red;
-                        palette_data[1] = green;
-                        palette_data[2] = blue;
-
-                        palette_data += particles.at( p ).getTexture( t )->getPalette()->getPixelSize();
+                    else
+                    {
+                        if( settings.output_level >= 1 )
+                            *settings.output_ref << "PYPL Error: id, " << id << ", != " << particles.at( i ).getID() << std::endl;
+                        i = amount_of_tiles; // Cancel the reading.
                     }
                 }
             }
-        }
-    }
+            else
+            {
+                for( unsigned int p = 0; p < amount_of_tiles; p++ ) {
+                    for( unsigned int t = 0; t < particles.at( p ).getNumSprites(); t++ ) {
+                        auto palette_data = particles.at( p ).getTexture( t )->setupPallete( PS1_PALLETE_SIZE );
 
-    return !file_is_not_valid;
+                        for( unsigned int d = 0; d < PS1_PALLETE_SIZE; d++ ) {
+                            uint8_t red, green, blue;
+
+                            Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), red, green, blue );
+
+                            palette_data[0] = red;
+                            palette_data[1] = green;
+                            palette_data[2] = blue;
+
+                            palette_data += particles.at( p ).getTexture( t )->getPalette()->getPixelSize();
+                        }
+                    }
+                }
+            }
+        }
+
+        return !file_is_not_valid;
+    }
+    else
+        return false;
 }
 
 Data::Mission::Resource * Data::Mission::PYRResource::duplicate() const {

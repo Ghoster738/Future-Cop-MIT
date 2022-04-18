@@ -64,44 +64,49 @@ const Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned 
     return const_cast< Data::Mission::PTCResource* >(this)->getTile( x, y );
 }
 
-bool Data::Mission::PTCResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &buffer, const ParseSettings &settings ) {
-    auto reader = buffer.getReader();
-    bool file_is_not_valid = false;
+bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
+    {
+        auto reader = this->data_p->getReader();
+        bool file_is_not_valid = false;
 
-    while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
-        auto identifier = reader.readU32( settings.endian );
-        auto tag_size   = reader.readU32( settings.endian );
+        while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+            auto identifier = reader.readU32( settings.endian );
+            auto tag_size   = reader.readU32( settings.endian );
 
-        if( identifier == GRDB_TAG ) {
-            auto readerGRDB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
-            readerGRDB.setPosition( sizeof( uint32_t ), Utilities::Buffer::Reader::BEGINING );
-            
-            auto tile_amount = readerGRDB.readU32( settings.endian );
-            auto width       = readerGRDB.readU32( settings.endian );
-            auto height      = readerGRDB.readU32( settings.endian );
-            
-            readerGRDB.setPosition( 0x24, Utilities::Buffer::Reader::BEGINING );
+            if( identifier == GRDB_TAG ) {
+                auto readerGRDB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+                readerGRDB.setPosition( sizeof( uint32_t ), Utilities::Buffer::Reader::BEGINING );
+                
+                auto tile_amount = readerGRDB.readU32( settings.endian );
+                auto width       = readerGRDB.readU32( settings.endian );
+                auto height      = readerGRDB.readU32( settings.endian );
+                
+                readerGRDB.setPosition( 0x24, Utilities::Buffer::Reader::BEGINING );
 
-            // setup the grid
-            grid.setWidth(  width );
-            grid.setHeight( height );
-            grid.setFormat( Utilities::ImageData::BLACK_WHITE, 4 );
+                // setup the grid
+                grid.setWidth(  width );
+                grid.setHeight( height );
+                grid.setFormat( Utilities::ImageData::BLACK_WHITE, 4 );
 
-            auto image_data = grid.getRawImageData();
-            for( unsigned int a = 0; a < grid.getWidth() * grid.getHeight(); a++ ) {
+                auto image_data = grid.getRawImageData();
+                for( unsigned int a = 0; a < grid.getWidth() * grid.getHeight(); a++ ) {
 
-                *reinterpret_cast<uint32_t*>(image_data) = readerGRDB.readU32( settings.endian );
+                    *reinterpret_cast<uint32_t*>(image_data) = readerGRDB.readU32( settings.endian );
 
-                image_data += grid.getPixelSize();
+                    image_data += grid.getPixelSize();
+                }
+            }
+            else
+            {
+                reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
             }
         }
-        else
-        {
-            reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
-        }
-    }
 
-    return !file_is_not_valid;
+        return !file_is_not_valid;
+    }
+    else
+        return false;
 }
 
 Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {

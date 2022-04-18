@@ -115,75 +115,80 @@ uint32_t Data::Mission::ANMResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::ANMResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &reader_data, const ParseSettings &settings ) {
-    auto reader = reader_data.getReader();
-
-    size_t buffer_size = 0;
-    bool file_is_not_valid = false;
-
-    if( settings.output_level >= 1 )
-        *settings.output_ref << "ANM: " << getIndexNumber() << std::endl;
-
-    const auto FRAMES = reader.readU32( settings.endian );
-
-    if( (sizeof( uint32_t ) + sizeof( uint16_t ) * 0x100 ) < reader.totalSize() )
+bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
+    if( this->data_p != nullptr )
     {
-        uint8_t blue, green, red;
+        auto reader = this->data_p->getReader();
 
-        palette.setWidth( 1 );
-        palette.setHeight( 0x100 );
-        palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-        for( unsigned int i = 0; i < palette.getHeight(); i++ ) {
-            Utilities::ImageData::translate_16_to_24( reader.readU16( settings.endian ), blue, green, red );
+        size_t buffer_size = 0;
+        bool file_is_not_valid = false;
 
-            auto palettePixel = palette.getRawImageData() + i * palette.getPixelSize();
-            
-            palettePixel[0] = red;
-            palettePixel[1] = green;
-            palettePixel[2] = blue;
-        }
+        if( settings.output_level >= 1 )
+            *settings.output_ref << "ANM: " << getIndexNumber() << std::endl;
 
-        this->total_scanlines = FRAMES * Video::SCAN_LINE_POSITIONS;
-        
-        const auto REAL_SCANLINES = (reader.totalSize() - reader.getPosition()) / (Video::WIDTH * Video::SCAN_LINES_PER_FRAME);
+        const auto FRAMES = reader.readU32( settings.endian );
 
-        if( this->total_scanlines == REAL_SCANLINES )
+        if( (sizeof( uint32_t ) + sizeof( uint16_t ) * 0x100 ) < reader.totalSize() )
         {
-            if( this->total_scanlines >= Video::SCAN_LINE_POSITIONS )
+            uint8_t blue, green, red;
+
+            palette.setWidth( 1 );
+            palette.setHeight( 0x100 );
+            palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+            for( unsigned int i = 0; i < palette.getHeight(); i++ ) {
+                Utilities::ImageData::translate_16_to_24( reader.readU16( settings.endian ), blue, green, red );
+
+                auto palettePixel = palette.getRawImageData() + i * palette.getPixelSize();
+                
+                palettePixel[0] = red;
+                palettePixel[1] = green;
+                palettePixel[2] = blue;
+            }
+
+            this->total_scanlines = FRAMES * Video::SCAN_LINE_POSITIONS;
+            
+            const auto REAL_SCANLINES = (reader.totalSize() - reader.getPosition()) / (Video::WIDTH * Video::SCAN_LINES_PER_FRAME);
+
+            if( this->total_scanlines == REAL_SCANLINES )
             {
-                buffer_size = this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME;
-
-                this->scanline_raw_bytes_p = new uint8_t [ this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME ];
-
-                if( scanline_raw_bytes_p != nullptr )
+                if( this->total_scanlines >= Video::SCAN_LINE_POSITIONS )
                 {
-                    for( size_t i = 0; i < buffer_size; i++ )
-                        this->scanline_raw_bytes_p[ i ] = reader.readU8();
+                    buffer_size = this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME;
 
-                    return true;
+                    this->scanline_raw_bytes_p = new uint8_t [ this->total_scanlines * Video::WIDTH * Video::SCAN_LINES_PER_FRAME ];
+
+                    if( scanline_raw_bytes_p != nullptr )
+                    {
+                        for( size_t i = 0; i < buffer_size; i++ )
+                            this->scanline_raw_bytes_p[ i ] = reader.readU8();
+
+                        return true;
+                    }
+                    else
+                    {
+                        *settings.output_ref << "Failed to allocate for ANM data!" << std::endl;
+                        return false;
+                    }
                 }
                 else
                 {
-                    *settings.output_ref << "Failed to allocate for ANM data!" << std::endl;
+                    if( settings.output_level >= 1 )
+                        *settings.output_ref << "Unexpected error: Image data not big enough!" << std::endl;
                     return false;
                 }
             }
-            else
-            {
-                if( settings.output_level >= 1 )
-                    *settings.output_ref << "Unexpected error: Image data not big enough!" << std::endl;
-                return false;
-            }
         }
+        else
+        {
+            if( settings.output_level >= 1 )
+                *settings.output_ref << "This file is not valid!" << std::endl;
+            return false;
+        }
+
+        return !file_is_not_valid;
     }
     else
-    {
-        if( settings.output_level >= 1 )
-            *settings.output_ref << "This file is not valid!" << std::endl;
         return false;
-    }
-
-    return !file_is_not_valid;
 }
 
 Data::Mission::Resource * Data::Mission::ANMResource::duplicate() const {

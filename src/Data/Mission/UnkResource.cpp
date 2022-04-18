@@ -34,7 +34,7 @@ uint32_t Data::Mission::UnkResource::getResourceTagID() const {
     return identifierTag;
 }
 
-bool Data::Mission::UnkResource::parse( const Utilities::Buffer &header, const Utilities::Buffer &data, const ParseSettings &settings ) {
+bool Data::Mission::UnkResource::parse( const ParseSettings &settings ) {
     // Do nothing since the format is unidentified.
     return false; // This file cannot be loaded because it is not implemented.
 }
