@@ -203,7 +203,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         int bytes_per_frame_3DMI =  0;
         int frames_gen_3DHS      = -1;
         int frames_gen_AnmD      = -1;
-        
+        uint16_t num_frames_4DGI =  0;
 
         while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
             auto identifier    = reader.readU32( settings.endian );
@@ -221,6 +221,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 {
                     *settings.output_ref << "Mission::ObjResource::load() 4DGI should have size of 0x3c not 0x"
                               << tag_size << std::endl;
+                    assert( false );
                 }
                 else
                 {
@@ -230,23 +231,52 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             << " at location 0x" << this->getOffset() << std::endl;
 
                     auto un1 = reader4DGI.readU32( settings.endian );
-                    auto number_of_bone_pos_frames = reader4DGI.readU16( settings.endian );
-                    auto un3 = reader4DGI.readU16( settings.endian ); // Could be a checksum?
+                    assert( un1 == 1 ); // Always 1 for Mac, Playstation, and Windows
+                    num_frames_4DGI = reader4DGI.readU16( settings.endian );
+                    auto un3 = reader4DGI.readU16( settings.endian ); // Two the values is 0x1010 and 0x1051
+                    /* if( !((un3 == 0x1010) || (un3 == 0x1011) || (un3 == 0x1012) || (un3 == 0x1013) || (un3 == 0x1014) || (un3 == 0x1015) || (un3 == 0x1016) || (un3 == 0x1051) || (un3 == 0x1053) || (un3 == 0x1055)) )
+                    {
+                        if( settings.output_ref != nullptr )
+                            *settings.output_ref << "Mission::ObjResource::load() un3 actually is 0x" << std::hex << un3 << std::dec << std::endl;
+                        assert( (un3 == 0x1010) || (un3 == 0x1051) );
+                    } */
+                    /* if( !((un3 == 0x0801) || (un3 == 0x2801) || (un3 == 0x4801) || (un3 == 0x6801) ||(un3 == 0x8801) || (un3 == 0x8A01) || (un3 == 0xA801) || (un3 == 0xAA01) || (un3 == 0xC801) || (un3 == 0xCA01)) )
+                    {
+                        if( settings.output_ref != nullptr )
+                            *settings.output_ref << "Mission::ObjResource::load() un3 actually is 0x" << std::hex << un3 << std::dec << std::endl;
+                        assert( (un3 == 0x1010) || (un3 == 0x1051) );
+                    } */
+                    // assert( (un3 & 0xFF00) == 0x1000 ); // This works with Mac
+                    // assert( (un3 & 0x00FF) == 1 ); // This works with Windows and Playstation
 
                     // Skip the zeros.
-                    reader4DGI.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
+                    auto position_index = reader4DGI.getPosition( Utilities::Buffer::Reader::BEGINING );
+                    
+                    // The next 12 bytes are all zeros.
+                    assert( reader4DGI.readU32() == 0 ); // 0x0 - 0x3
+                    assert( reader4DGI.readU32() == 0 ); // 0x4 - 0x7
+                    assert( reader4DGI.readU32() == 0 ); // 0x8 - 0xA
+                    
+                    reader4DGI.setPosition( position_index + 0xC, Utilities::Buffer::Reader::BEGINING );
 
                     auto un4  = reader4DGI.readU32( settings.endian );
+                    assert( un4 == 1 ); // Always 1 for Mac, Playstation, and Windows.
                     auto un5  = reader4DGI.readU32( settings.endian );
+                    assert( un5 == 2 ); // Always 2 for Mac, Playstation, and Windows.
                     auto un6  = reader4DGI.readU32( settings.endian );
+                    assert( un6 == 1 ); // Always 1 for Mac, Playstation, and Windows.
                     auto un7  = reader4DGI.readU32( settings.endian );
+                    assert( un7 == 1 ); // Always 1 for Mac, Playstation, and Windows.
                     auto un8  = reader4DGI.readU32( settings.endian ); // 0x30?
-                    auto un9  = reader4DGI.readU8();  // 0x31
-                    auto un10 = reader4DGI.readU8();  // 0x32
-                    auto un11 = reader4DGI.readU8(); // 0x33
-                    auto un12 = reader4DGI.readU8(); // 0x34
+                    assert( un8 == 3 ); // Always 3 for Mac, Playstation, and Windows.
+                    auto un9  = reader4DGI.readU8(); // Unknown 0xFF and 0x6F values found.
+                    auto un10 = reader4DGI.readU8(); // Unknown 0xFF and 0x12 values found.
+                    auto un11 = reader4DGI.readU8(); // Unknown 0xFF and 0x00 values found.
+                    auto un12 = reader4DGI.readU8(); // Unknown 0xFF and 0x00 values found.
                     auto un13 = reader4DGI.readU32( settings.endian ); // 0x38
+                    assert( un13 == 4 ); // Always 4 for Mac, Playstation, and Windows.
                     auto un14 = reader4DGI.readU32( settings.endian ); // 0x3C
+                    assert( un14 == 5 ); // Always 5 for Mac, Playstation, and Windows.
 
                     // The file is then proven to be valid.
                     file_is_not_valid = false;
@@ -760,6 +790,15 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 assert( false );
             }
+            
+            if( num_frames_4DGI != bone_frames )
+            {
+                *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 4DGI frames is " << num_frames_4DGI << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 4DGI frames not equal to " << bone_frames << std::endl;
+                
+                assert( false );
+            }
         }
         else
         if( vertex_anm_positions.size() > 0 )
@@ -772,6 +811,15 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 *settings.output_ref << "Mission::ObjResource::load() bounding box per frame is " << bounding_box_per_frame << std::endl;
                 *settings.output_ref << "Mission::ObjResource::load() 3DBB frames is " << bounding_box_frames << std::endl;
                 *settings.output_ref << "Mission::ObjResource::load() 3DBB frames not equal to " << vertex_anm_positions.size() << std::endl;
+                
+                assert( false );
+            }
+            
+            if( num_frames_4DGI != vertex_anm_positions.size() + 1 )
+            {
+                *settings.output_ref << "Mission::ObjResource::load() " << getIndexNumber() << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 4DGI frames is " << num_frames_4DGI << std::endl;
+                *settings.output_ref << "Mission::ObjResource::load() 4DGI frames not equal to " << (vertex_anm_positions.size() + 1) << std::endl;
                 
                 assert( false );
             }
