@@ -155,7 +155,7 @@ int Data::Mission::Resource::writeRaw( const char *const file_path, const std::v
     {
         auto reader = data_p->getReader();
         
-        while( !reader.empty() )
+        while( !reader.ended() )
             resource.put( reader.readI8() );
 
         resource.close();
