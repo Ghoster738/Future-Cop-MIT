@@ -354,16 +354,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
-                    auto face_type = reader3DQL.readU8();
-                    
-                    if( !(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 )) )
-                    {
-                        if( settings.output_ref != nullptr )
-                            *settings.output_ref << "Mission::ObjResource::load() bitfield actually is 0x" << std::hex << static_cast<unsigned>( face_type ) << std::dec << ", face " << static_cast<unsigned>(face_type & 0x07) << std::endl;
-                        
-                        assert( false );
-                    }
-                    // Skip unknown bytes!
+                    auto face_type   = reader3DQL.readU8();
+                    assert(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 ));
                     auto face_type_2 = reader3DQL.readU8();
 
                     auto texture_quad_ref = (reader3DQL.readU16( settings.endian ) / 0x10) + texture_quads.data();
