@@ -69,6 +69,12 @@ namespace {
 
         normal.normalize();
     }
+uint8_t reverse(uint8_t b) {
+   b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
+   b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
+   b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
+   return b;
+}
 }
 
 bool Data::Mission::ObjResource::TextureQuad::isWithinBounds( size_t texture_amount ) const {
@@ -233,21 +239,30 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto un1 = reader4DGI.readU32( settings.endian );
                     assert( un1 == 1 ); // Always 1 for Mac, Playstation, and Windows
                     num_frames_4DGI = reader4DGI.readU16( settings.endian );
-                    auto un3 = reader4DGI.readU16( settings.endian ); // Two the values is 0x1010 and 0x1051
-                    /* if( !((un3 == 0x1010) || (un3 == 0x1011) || (un3 == 0x1012) || (un3 == 0x1013) || (un3 == 0x1014) || (un3 == 0x1015) || (un3 == 0x1016) || (un3 == 0x1051) || (un3 == 0x1053) || (un3 == 0x1055)) )
-                    {
-                        if( settings.output_ref != nullptr )
-                            *settings.output_ref << "Mission::ObjResource::load() un3 actually is 0x" << std::hex << un3 << std::dec << std::endl;
-                        assert( (un3 == 0x1010) || (un3 == 0x1051) );
-                    } */
-                    /* if( !((un3 == 0x0801) || (un3 == 0x2801) || (un3 == 0x4801) || (un3 == 0x6801) ||(un3 == 0x8801) || (un3 == 0x8A01) || (un3 == 0xA801) || (un3 == 0xAA01) || (un3 == 0xC801) || (un3 == 0xCA01)) )
-                    {
-                        if( settings.output_ref != nullptr )
-                            *settings.output_ref << "Mission::ObjResource::load() un3 actually is 0x" << std::hex << un3 << std::dec << std::endl;
-                        assert( (un3 == 0x1010) || (un3 == 0x1051) );
-                    } */
-                    // assert( (un3 & 0xFF00) == 0x1000 ); // This works with Mac
-                    // assert( (un3 & 0x00FF) == 1 ); // This works with Windows and Playstation
+                    auto id       = reader4DGI.readU8();
+                    auto bitfield = reader4DGI.readU8();
+                    
+                    // The first byte is decoded.
+                    if( id == 0x10 || id == 0x01 ) {
+                        // Reverse the bit order if in Playstation or Windows.
+                        if( id == 0x01 )
+                            bitfield = reverse( bitfield );
+                        
+                        // These are all the values that are seen in the CObj format.
+                        if( !((bitfield == 0x10) || (bitfield == 0x11) ||
+                              (bitfield == 0x12) || (bitfield == 0x13) ||
+                              (bitfield == 0x14) || (bitfield == 0x15) ||
+                              (bitfield == 0x16) || (bitfield == 0x51) ||
+                              (bitfield == 0x53) || (bitfield == 0x55)) )
+                        {
+                            if( settings.output_ref != nullptr )
+                                *settings.output_ref << "Mission::ObjResource::load() bitfield actually is 0x" << std::hex << bitfield << std::dec << std::endl;
+                            
+                            assert( false );
+                        }
+                    }
+                    else
+                        assert( false );
 
                     // Skip the zeros.
                     auto position_index = reader4DGI.getPosition( Utilities::Buffer::Reader::BEGINING );
@@ -340,7 +355,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
                     auto face_type = reader3DQL.readU8();
-
+                    
+                    if( !(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 )) )
+                    {
+                        if( settings.output_ref != nullptr )
+                            *settings.output_ref << "Mission::ObjResource::load() bitfield actually is 0x" << std::hex << static_cast<unsigned>( face_type ) << std::dec << ", face " << static_cast<unsigned>(face_type & 0x07) << std::endl;
+                        
+                        assert( false );
+                    }
                     // Skip unknown bytes!
                     auto face_type_2 = reader3DQL.readU8();
 
@@ -353,21 +375,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         std::sort( texture_dependences.begin(), texture_dependences.end() );
                     }*/
                     bool reflect = ((face_type_2 & 0xF0) == 0x80);
-                    bool is_quad;
-                    bool is_triangle;
                     
-                    if( settings.type == Data::Mission::Resource::ParseSettings::Macintosh ) {
-                        is_quad     = ((face_type_2 & 0xF0) == 0x40);
-                        is_triangle = ((face_type_2 & 0xF0) == 0x30);
-                    }
-                    else
-                    {
-                        is_quad     = ((face_type_2 & 0x0F) == 0x04);
-                        is_triangle = ((face_type_2 & 0x0F) == 0x03);
-                    }
-
-                    if( is_quad )
-                    {
+                    // Data::Mission::Resource::ParseSettings::Macintosh
+                    
+                    if( (face_type & 0x07) == 4 ) {
                         face_quads.push_back( FaceQuad() );
 
                         face_quads.back().texture_quad_ref = texture_quad_ref;
@@ -385,9 +396,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         face_quads.back().n2 = reader3DQL.readU8();
                         face_quads.back().n3 = reader3DQL.readU8();
                     }
-                    else
-                    if( is_triangle )
-                    {
+                    else {
                         face_trinagles.push_back( FaceTriangle() );
 
                         face_trinagles.back().is_other_side = false;
@@ -399,19 +408,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         face_trinagles.back().v0 = reader3DQL.readU8();
                         face_trinagles.back().v1 = reader3DQL.readU8();
                         face_trinagles.back().v2 = reader3DQL.readU8();
-                        
                         reader3DQL.readU8();
 
                         face_trinagles.back().n0 = reader3DQL.readU8();
                         face_trinagles.back().n1 = reader3DQL.readU8();
                         face_trinagles.back().n2 = reader3DQL.readU8();
-                        
                         reader3DQL.readU8();
-                    }
-                    else
-                    {
-                        //  TODO Not all the faces are discovered!
-                        reader3DQL.readU64();
                     }
                 }
             }
