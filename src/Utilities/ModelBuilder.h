@@ -35,6 +35,15 @@ public:
         ARRAY_BUFFER         = 34962,
         ELEMENT_ARRAY_BUFFER = 34963,
     };
+    enum MeshPrimativeMode {
+        POINTS         = 0,
+        LINES          = 1,
+        LINE_LOOP      = 2,
+        LINE_STRIP     = 3,
+        TRIANGLES      = 4,
+        TRIANGLE_STRIP = 5,
+        TRIANGLE_FAN   = 6
+    };
 
     class VertexComponent {
     private:
@@ -122,8 +131,10 @@ private:
 
     bool is_model_finished; // This tells if the ModelBuilder should edit the vertices
     bool components_are_done; // This tells if the ModelBuilder should edit the vertices
+    
+    MeshPrimativeMode mesh_primative_mode;
 public:
-    ModelBuilder();
+    ModelBuilder( MeshPrimativeMode mode = MeshPrimativeMode::TRIANGLES );
     ~ModelBuilder();
 
     /**
@@ -199,6 +210,8 @@ public:
     * @return The number of frames for the skeletal animation that exists.
     */
     unsigned int getNumJointFrames() const;
+    
+    MeshPrimativeMode getPrimativeMode() const;
     
     /**
     * This accesses a direct pointer to a joint frame.

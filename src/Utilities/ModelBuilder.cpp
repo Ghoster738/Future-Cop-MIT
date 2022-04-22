@@ -66,7 +66,7 @@ Utilities::ModelBuilder::NonMatchingVertexComponentTypes::NonMatchingVertexCompo
     this->param_type = param_type;
 }
 
-Utilities::ModelBuilder::ModelBuilder() {
+Utilities::ModelBuilder::ModelBuilder( MeshPrimativeMode mode ) {
 	current_vertex_index = 0;
 	vertex_amount = 0;
 	total_components_size = 0;
@@ -74,6 +74,8 @@ Utilities::ModelBuilder::ModelBuilder() {
 	is_model_finished = false;
 	components_are_done = false;
 	joint_amount = 0;
+    
+    mesh_primative_mode = mode;
 }
 
 Utilities::ModelBuilder::~ModelBuilder() {
@@ -180,6 +182,10 @@ unsigned int Utilities::ModelBuilder::getNumJoints() const {
 
 unsigned int Utilities::ModelBuilder::getNumJointFrames() const {
     return joint_matrix_frames.size();
+}
+
+Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimativeMode() const {
+    return mesh_primative_mode;
 }
 
 Utilities::DataTypes::Mat4* Utilities::ModelBuilder::getJointFrame( unsigned int frame_index ) {
@@ -604,6 +610,9 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
     // TODO Complete this implementation
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
         unsigned int position = i - texture_materials.begin();
+        
+        if( mesh_primative_mode != MeshPrimativeMode::TRIANGLES )
+            root["meshes"][0]["primitives"][position]["mode"] = mesh_primative_mode;
 
         if( (*i).texture_index > 0 )
         {
