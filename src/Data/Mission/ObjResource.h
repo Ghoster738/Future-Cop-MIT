@@ -114,6 +114,8 @@ public:
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
 
     virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
+    
+    Utilities::ModelBuilder * createBoundingBoxes() const;
 
     static std::vector<ObjResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<ObjResource*> getVector( const Data::Mission::IFF &mission_file );

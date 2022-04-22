@@ -914,7 +914,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
     
     // Specular is to exist if there is a single triangle or quad with a specular map.
     // if( is_specular )
-        specular_component_index = model_output->addVertexComponent( "_Specular", Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::SCALAR );
+    specular_component_index = model_output->addVertexComponent( "_Specular", Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::SCALAR );
 
     if( !bones.empty() ) {
         joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
@@ -1149,6 +1149,55 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
         }
     }
     return model_output;
+}
+
+Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() const {
+    if(bounding_box_per_frame > 0 && bounding_box_frames > 0) {
+        Utilities::ModelBuilder *box_output = new Utilities::ModelBuilder( Utilities::ModelBuilder::LINES );
+        
+        unsigned int position_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+        unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC2 );
+        unsigned int position_morph_component_index = 0;
+        
+        // TODO Add morph animations.
+        // if( bounding_box_frames > 1 )
+        //    position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
+        
+        Utilities::DataTypes::Vec3 position;
+        Utilities::DataTypes::Vec3 color(0.0f, 1.0f, 0.0f);
+        
+        // At this point it is time to start generating bounding box.
+        
+        // No texture should be used for this bounding box.
+        box_output->setMaterial( -1 );
+        
+        for( unsigned int box_index = 0; box_index < bounding_box_per_frame; box_index++ )
+        {
+            // TODO This is right now a line not a box.
+            
+            const BoundingBox3D &current_box = bounding_boxes[ box_index ];
+            
+            position.x = -(current_box.x + current_box.length_x) * INTEGER_FACTOR;
+            position.y =  (current_box.y + current_box.length_y) * INTEGER_FACTOR;
+            position.z =  (current_box.z + current_box.length_z) * INTEGER_FACTOR;
+            
+            box_output->startVertex();
+            box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
+            box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec3Type( color ) );
+            
+            position.x = -(current_box.x - current_box.length_x) * INTEGER_FACTOR;
+            position.y =  (current_box.y - current_box.length_y) * INTEGER_FACTOR;
+            position.z =  (current_box.z - current_box.length_z) * INTEGER_FACTOR;
+            
+            box_output->startVertex();
+            box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
+            box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec3Type( color ) );
+        }
+        
+        return box_output;
+    }
+    else
+        return nullptr;
 }
 
 unsigned int Data::Mission::ObjResource::getOpcodeBytesPerFrame( Data::Mission::ObjResource::Bone::Opcode opcode ) {
