@@ -332,6 +332,7 @@ int Data::Mission::IFF::open( const char *const file_path ) {
             new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
 
             new_resource_p->setMemory( i.header_p, i.data_p );
+            new_resource_p->processHeader( default_settings );
             new_resource_p->parse( default_settings );
             
             // TODO Add option to discard memory once loaded.
