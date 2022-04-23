@@ -37,6 +37,7 @@ private:
     
     // This data is contained within the tag.
     uint32_t mission_id; // Judging by the ACT resources, this is the main ID system used by Future Cop.
+    uint32_t data_size; // The size according to the header.
 public:
     Resource();
     Resource( const Resource &obj );
