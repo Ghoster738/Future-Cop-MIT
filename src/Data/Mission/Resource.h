@@ -36,7 +36,7 @@ private:
     size_t offset; // This tells the offset in which this file is loaded.
     
     // This data is contained within the tag.
-    uint32_t mission_id;
+    uint32_t mission_id; // Judging by the ACT resources, this is the main ID system used by Future Cop.
 public:
     Resource();
     Resource( const Resource &obj );
