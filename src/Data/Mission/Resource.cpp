@@ -78,14 +78,14 @@ void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
     std::cout << getFullName( getIndexNumber() + 1 ) << std::endl;
     
     mission_id = reader.readU32( settings.endian ); // 0x00
-    auto what = reader.readU32( settings.endian );
+    data_size  = reader.readU32( settings.endian ); // 0x04
+    auto unk_0 = reader.readU32( settings.endian ); // 0x08
+    auto unk_1 = reader.readU32( settings.endian ); // 0x0C
+    auto unk_2 = reader.readU32( settings.endian ); // 0x10
+    auto what  = reader.readU32( settings.endian ); // 0x14
     std::cout << "What = " << what << std::endl;
-    if( this->data_p != nullptr ) {
-       std::cout << "Size = " << this->data_p->getReader().totalSize() << std::endl;
-        assert( what == this->data_p->getReader().totalSize() );
-    }
-    else
-       std::cout << "Size = nullptr" << std::endl;
+    // assert( what == this->data_p->getReader().totalSize() );
+    assert( (what == 1) || (what == 2) || (what == 5) || (what == 10) || (what == 12) || (what == 15) || (what == 20) ); // || (what == 2136) || (what == 0xFFFFFFFF) );
 }
 
 void Data::Mission::Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {
