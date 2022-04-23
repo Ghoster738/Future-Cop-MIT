@@ -128,6 +128,7 @@ namespace {
         uint32_t type_enum;
         uint32_t offset;
         uint32_t iff_index;
+        uint32_t resource_id;
         Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
     };
@@ -248,15 +249,31 @@ int Data::Mission::IFF::open( const char *const file_path ) {
 
                 if( typeID == SHOC_TAG ) {
                     // this checks if the chunk holds a file header!
-                    if( data_size >= 20 && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SHDR_TAG ) {
-                        resource_pool.push_back( ResourceType() );
+                    if( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SHDR_TAG ) {
+                        if( data_size >= 20 ) {
+                            resource_pool.push_back( ResourceType() );
+                            
+                            // These are the tag sizes to be expected.
+                            // Subtract them by 20 and we would get the header size.
+                            // The smallest data_size is 52, and the biggest data size is 120.
+                            assert( (data_size == 52) || (data_size ==  56) || (data_size ==  60) || (data_size ==  64) ||
+                                    (data_size == 72) || (data_size ==  76) || (data_size ==  80) || (data_size ==  84) ||
+                                    (data_size == 96) || (data_size == 100) || (data_size == 116) || (data_size == 120) );
 
-                        resource_pool.back().type_enum = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 16), default_settings.is_opposite_endian );
-                        resource_pool.back().offset    = file_offset;
-                        resource_pool.back().iff_index = resource_pool.size() - 1;
+                            resource_pool.back().type_enum = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 16), default_settings.is_opposite_endian );
+                            resource_pool.back().offset    = file_offset;
+                            resource_pool.back().iff_index = resource_pool.size() - 1;
+                            resource_pool.back().resource_id = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 20), default_settings.is_opposite_endian );
+                            
+                            resource_pool.back().data_p = new Utilities::Buffer();
+                            if( resource_pool.back().data_p != nullptr )
+                                resource_pool.back().data_p->reserve( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 24),
+                                                                      default_settings.is_opposite_endian ) );
 
-                        resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 20), data_size - 20 );
-                        resource_pool.back().data_p = new Utilities::Buffer();
+                            resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 28), data_size - 28 );
+                        }
+                        else
+                            assert( 0 );
                     }
                     else
                     if( data_size >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
