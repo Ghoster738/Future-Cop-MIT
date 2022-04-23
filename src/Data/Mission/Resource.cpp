@@ -77,11 +77,15 @@ void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
     
     std::cout << getFullName( getIndexNumber() + 1 ) << std::endl;
     
+    mission_id = reader.readU32( settings.endian ); // 0x00
     auto what = reader.readU32( settings.endian );
-    mission_id = what;
     std::cout << "What = " << what << std::endl;
-    std::cout << "Index Number = " << getIndexNumber() << std::endl;
-    assert( (std::string("wav_").compare( getFullName(0).substr(0, 4) ) == 0) ||(std::string("cbmp").compare( getFullName(0).substr(0, 4) ) == 0) || (what == getIndexNumber() + 1) || (what == getIndexNumber()) );
+    if( this->data_p != nullptr ) {
+       std::cout << "Size = " << this->data_p->getReader().totalSize() << std::endl;
+        assert( what == this->data_p->getReader().totalSize() );
+    }
+    else
+       std::cout << "Size = nullptr" << std::endl;
 }
 
 void Data::Mission::Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {
