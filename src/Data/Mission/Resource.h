@@ -34,6 +34,9 @@ private:
     int mis_index_number; // This tells how many resource proceded this resource relative to the MissionFile.
     int index_number;
     size_t offset; // This tells the offset in which this file is loaded.
+    
+    // This data is contained within the tag.
+    uint32_t mission_id;
 public:
     Resource();
     Resource( const Resource &obj );
@@ -95,6 +98,8 @@ public:
      * Note: After this is called writeRaw will not work anymore.
      */
     void setMemory( Utilities::Buffer *header_p = nullptr, Utilities::Buffer *data_p = nullptr );
+    
+    virtual void processHeader( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
     
     /**
      * This is to be used when the file is finished loading everything into raw_data.
