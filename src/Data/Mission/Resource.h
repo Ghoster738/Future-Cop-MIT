@@ -36,8 +36,7 @@ private:
     size_t offset; // This tells the offset in which this file is loaded.
     
     // This data is contained within the tag.
-    uint32_t mission_id; // Judging by the ACT resources, this is the main ID system used by Future Cop.
-    uint32_t data_size; // The size according to the header.
+    uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
 public:
     Resource();
     Resource( const Resource &obj );
@@ -74,6 +73,17 @@ public:
      * Gets the index number or how many resources proceeded this before it in load order.
      */
     int getMisIndexNumber() const;
+    
+    /**
+     * This sets the resource id of this class. This might be the actual number that Future Cop uses.
+     * @param resoure_id The resource id for this resource.
+     */
+    void setResourceID( uint32_t resource_id );
+    
+    /**
+     * @return The resource id for this resource.
+     */
+    uint32_t getResourceID() const;
 
     /**
      * Sets the offset in which this file starts. To be used by loaders only.

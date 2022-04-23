@@ -75,21 +75,19 @@ Data::Mission::Resource* Data::Mission::Resource::genResourceByType( const Utili
 void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
     auto reader = header_p->getReader();
     
-    mission_id = reader.readU32( settings.endian ); // 0x00
-    data_size  = reader.readU32( settings.endian ); // 0x04
-    auto unk_0 = reader.readU32( settings.endian ); // 0x08
-    auto unk_1 = reader.readU32( settings.endian ); // 0x0C
-    auto unk_2 = reader.readU32( settings.endian ); // 0x10
-    auto unk_3 = reader.readU32( settings.endian ); // 0x14
-    auto unk_4 = reader.readU32( settings.endian ); // 0x18
+    auto unk_0  = reader.readU32( settings.endian ); // 0x00
+    auto unk_1  = reader.readU32( settings.endian ); // 0x04
+    auto unk_2  = reader.readU32( settings.endian ); // 0x08
+    auto unk_3  = reader.readU32( settings.endian ); // 0x0C
+    auto unk_4  = reader.readU32( settings.endian ); // 0x10
     // For Mac and Windows these are the values.
     // assert( (unk_4 ==  1) || (unk_4 ==  2) || (unk_4 ==  3) || (unk_4 ==  4) || (unk_4 ==  5) || (unk_4 ==  6) || (unk_4 ==  7) ||
     //         (unk_4 == 10) || (unk_4 == 11) || (unk_4 == 12) || (unk_4 == 13) || (unk_4 == 15) || (unk_4 == 19) || (unk_4 == 20) ||
     //         (unk_4 == 21) || (unk_4 == 22) || (unk_4 == 23) || (unk_4 == 25) || (unk_4 == 31) || (unk_4 == 39) || (unk_4 == 43) ||
     //         (unk_4 == 55) );
-    auto unk_5 = reader.readU8(); // 0x1C
+    auto unk_5 = reader.readU8(); // 0x14
     assert( (unk_5 == 0) || (unk_5 == 0x81) || (unk_5 == 0x82) || (unk_5 == 0x83) || (unk_5 == 0x89) || (unk_5 == 0x8a) || (unk_5 == 0x8b) || (unk_5 == 0x8c) );
-    auto unk_6 = reader.readU8(); // 0x1E
+    auto unk_6 = reader.readU8(); // 0x16
     // I gave up on unk_6 for this assertion test run.
     // assert( (unk_6 == 0) || (unk_6 == 2) || (unk_6 == 16) || (unk_6 == 129) || (unk_6 == 130) || (unk_6 == 135) || (unk_6 == 151) || (unk_6 == 170) || (unk_6 == 207) );
 }
