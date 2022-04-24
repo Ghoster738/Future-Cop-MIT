@@ -20,6 +20,13 @@ void Utilities::Buffer::reserve( size_t byte_amount ) {
     data.reserve( byte_amount );
 }
 
+bool Utilities::Buffer::allocate( size_t byte_amount ) {
+    reserve( byte_amount );
+    for( size_t i = 0; i < byte_amount; i++ )
+        addU8( 0 );
+    return true;
+}
+
 bool Utilities::Buffer::add( const uint8_t *const buffer, size_t byte_amount ) {
     reserve( byte_amount + data.size() );
 
@@ -37,10 +44,12 @@ bool Utilities::Buffer::set( const uint8_t *const buffer, size_t byte_amount ) {
 
 bool Utilities::Buffer::addU8( uint8_t value ) {
     data.push_back( value );
+    return true;
 }
 
 bool Utilities::Buffer::addI8( int8_t value ) {
     data.push_back( *reinterpret_cast<uint8_t*>(&value) );
+    return true;
 }
 
 bool Utilities::Buffer::addU16( uint16_t value, Endian endianess ) {
@@ -53,6 +62,7 @@ bool Utilities::Buffer::addU16( uint16_t value, Endian endianess ) {
     
     data.push_back( array[0] );
     data.push_back( array[1] );
+    return true;
 }
 
 bool Utilities::Buffer::addI16( int16_t value, Endian endianess ) {
@@ -65,6 +75,7 @@ bool Utilities::Buffer::addI16( int16_t value, Endian endianess ) {
     
     data.push_back( array[0] );
     data.push_back( array[1] );
+    return true;
 }
 
 bool Utilities::Buffer::addU32( uint32_t value, Endian endianess ) {
@@ -79,6 +90,7 @@ bool Utilities::Buffer::addU32( uint32_t value, Endian endianess ) {
     data.push_back( array[1] );
     data.push_back( array[2] );
     data.push_back( array[3] );
+    return true;
 }
 
 bool Utilities::Buffer::addI32( int32_t value, Endian endianess ) {
@@ -93,6 +105,7 @@ bool Utilities::Buffer::addI32( int32_t value, Endian endianess ) {
     data.push_back( array[1] );
     data.push_back( array[2] );
     data.push_back( array[3] );
+    return true;
 }
 
 bool Utilities::Buffer::addU64( uint64_t value, Endian endianess ) {
@@ -111,6 +124,7 @@ bool Utilities::Buffer::addU64( uint64_t value, Endian endianess ) {
     data.push_back( array[5] );
     data.push_back( array[6] );
     data.push_back( array[7] );
+    return true;
 }
 
 bool Utilities::Buffer::addI64(  int64_t value, Endian endianess ) {
@@ -129,6 +143,7 @@ bool Utilities::Buffer::addI64(  int64_t value, Endian endianess ) {
     data.push_back( array[5] );
     data.push_back( array[6] );
     data.push_back( array[7] );
+    return true;
 }
 
 bool Utilities::Buffer::write( const std::string& file_path ) const {
@@ -147,6 +162,14 @@ bool Utilities::Buffer::write( const std::string& file_path ) const {
     }
     else
         return false;
+}
+
+uint8_t* Utilities::Buffer::dangerousPointer() {
+    return data.data();
+}
+
+const uint8_t *const Utilities::Buffer::dangerousPointer() const {
+    return data.data();
 }
 
 Utilities::Buffer::Reader Utilities::Buffer::getReader( size_t offset, size_t byte_amount ) const {
@@ -229,7 +252,7 @@ size_t Utilities::Buffer::Reader::totalSize() const {
 }
 
 size_t Utilities::Buffer::Reader::getPosition( Direction way ) const {
-    if( way == ENDING )
+    if( way == END )
         return size - current_index;
     else
         return current_index;
@@ -239,13 +262,13 @@ void Utilities::Buffer::Reader::setPosition( int offset, Direction way ) {
     int new_offset;
 
     switch( way ) {
-        case BEGINING:
+        case BEGIN:
             new_offset = 0 + offset;
             break;
         case CURRENT:
             new_offset = static_cast<int>( current_index ) + offset;
             break;
-        case ENDING:
+        case END:
             new_offset = static_cast<int>( size ) - offset;
             break;
         default:

@@ -70,19 +70,19 @@ bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
         auto reader = this->data_p->getReader();
         bool file_is_not_valid = false;
 
-        while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+        while( reader.getPosition( Utilities::Buffer::Reader::BEGIN ) < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
             auto tag_size   = reader.readU32( settings.endian );
 
             if( identifier == GRDB_TAG ) {
                 auto readerGRDB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
-                readerGRDB.setPosition( sizeof( uint32_t ), Utilities::Buffer::Reader::BEGINING );
+                readerGRDB.setPosition( sizeof( uint32_t ), Utilities::Buffer::Reader::BEGIN );
                 
                 auto tile_amount = readerGRDB.readU32( settings.endian );
                 auto width       = readerGRDB.readU32( settings.endian );
                 auto height      = readerGRDB.readU32( settings.endian );
                 
-                readerGRDB.setPosition( 0x24, Utilities::Buffer::Reader::BEGINING );
+                readerGRDB.setPosition( 0x24, Utilities::Buffer::Reader::BEGIN );
 
                 // setup the grid
                 grid.setWidth(  width );

@@ -28,7 +28,8 @@ public:
     Buffer( const uint8_t *const buffer_r, size_t byte_amount );
     virtual ~Buffer();
 
-    void reserve( size_t byte_amount );
+    void reserve(  size_t byte_amount );
+    bool allocate( size_t byte_amount );
     bool add( const uint8_t *const buffer, size_t byte_amount );
     bool set( const uint8_t *const buffer, size_t byte_amount );
 
@@ -44,7 +45,9 @@ public:
     bool addI64(  int64_t value, Endian endianess = NO_SWAP );
     
     bool write( const std::string& file_path ) const;
-
+    
+    uint8_t* dangerousPointer();
+    const uint8_t *const dangerousPointer() const;
 public:
     class ReaderOutOfBounds: public std::exception {
     private:
@@ -64,9 +67,9 @@ public:
 
     public:
         enum Direction {
-            BEGINING,
+            BEGIN,
             CURRENT,
-            ENDING
+            END
         };
 
         static bool getSwap( Endian endianess );
@@ -77,7 +80,7 @@ public:
         bool empty() const;
         bool ended() const;
         size_t totalSize() const;
-        size_t getPosition( Direction way = BEGINING ) const;
+        size_t getPosition( Direction way = BEGIN ) const;
 
         void setPosition( int offset, Direction way );
 

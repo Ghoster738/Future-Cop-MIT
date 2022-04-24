@@ -4,10 +4,12 @@
 #include <vector>
 #include <stdint.h>
 
-#include "Buffer.h"
-#include "ImageData.h"
+#include "../Buffer.h"
+#include "../ImageData.h"
 
 namespace Utilities {
+
+namespace ImageFormat {
 
 /**
  * This class is to both encode and decode a losslessy compressed image format.
@@ -116,6 +118,8 @@ public:
     
     QOIStatus write( const ImageData& image_data, Buffer& buffer );
     QOIStatus read( const Buffer& buffer, ImageData& image_data, unsigned int back_header_search = 4);
+};
+
 };
 
 };

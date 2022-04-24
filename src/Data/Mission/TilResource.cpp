@@ -178,7 +178,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 colors.push_back( readerSect.readU16( settings.endian ) );
 
             // Read the texture_references, and shading info.
-            while( readerSect.getPosition( Utilities::Buffer::Reader::ENDING ) >= sizeof(uint16_t) ) {
+            while( readerSect.getPosition( Utilities::Buffer::Reader::END ) >= sizeof(uint16_t) ) {
                 // TileGraphics grp;
                 // grp.tile_graphics = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
 
