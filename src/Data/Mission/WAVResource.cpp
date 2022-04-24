@@ -150,7 +150,7 @@ bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &read
         for( unsigned int i = 0; i < reader.ended(); i++ ) {
             audio_stream.push_back( reader.readU8() );
         }
-        return false;
+        return true;
     }
     else
         return false;
