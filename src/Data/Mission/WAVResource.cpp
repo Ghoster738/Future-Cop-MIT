@@ -62,9 +62,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                     // Copy the rest of the sound data to the audio stream
                     reader.setPosition( DATA_START_FROM_HEADER, Utilities::Buffer::Reader::BEGINING );
                     
-                    auto bytes = reader.getBytes();
-                    
-                    setAudioStream( bytes.data(), bytes.size() );
+                    setAudioStream( reader );
 
                     if( settings.output_level >= 3 )
                         *settings.output_ref << "This is a wav file." << std::endl;
@@ -145,16 +143,22 @@ void Data::Mission::WAVResource::updateDependices() {
     byte_rate = sample_rate * block_align;
 }
 
-void Data::Mission::WAVResource::addAudioStream( const uint8_t *const buffer, unsigned int buffer_size ) {
-    audio_stream.reserve( audio_stream.size() + buffer_size );
-    for( unsigned int i = 0; i < buffer_size; i++ ) {
-        audio_stream.push_back( buffer[ i ] );
+bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &reader ) {
+    if( !reader.empty() )
+    {
+        audio_stream.reserve( audio_stream.size() + reader.totalSize() );
+        for( unsigned int i = 0; i < reader.ended(); i++ ) {
+            audio_stream.push_back( reader.readU8() );
+        }
+        return false;
     }
+    else
+        return false;
 }
 
-void Data::Mission::WAVResource::setAudioStream( const uint8_t *const buffer, unsigned int buffer_size ) {
+bool Data::Mission::WAVResource::setAudioStream( Utilities::Buffer::Reader &reader ) {
     audio_stream.clear();
-    addAudioStream( buffer, buffer_size );
+    return addAudioStream( reader );
 }
 
 void Data::Mission::WAVResource::updateAudioStreamLength() {

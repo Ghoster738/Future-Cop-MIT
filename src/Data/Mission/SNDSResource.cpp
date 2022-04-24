@@ -34,9 +34,7 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
 
         reader.readU32( settings.endian );
         
-        auto bytes = reader.getBytes();
-        
-        sound.addAudioStream( bytes.data(), bytes.size() );
+        sound.addAudioStream( reader );
 
         sound.updateAudioStreamLength();
 
