@@ -140,7 +140,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
             if( !file_is_not_valid )
             {
-                reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGINING );
+                reader.setPosition( offset_to_glyphs, Utilities::Buffer::Reader::BEGIN );
 
                 auto readerGlyphs = reader.getReader( number_of_glyphs * GLYPH_SIZE );
 
@@ -156,12 +156,12 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 for( unsigned int i = 0; i != this->glyphs.size(); i++ )
                     font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
 
-                reader.setPosition( offset_to_image_header, Utilities::Buffer::Reader::BEGINING );
+                reader.setPosition( offset_to_image_header, Utilities::Buffer::Reader::BEGIN );
 
                 auto readerImageHeader = reader.getReader( IMAGE_HEADER_SIZE );
 
                 auto width  = static_cast<uint16_t>( readerImageHeader.readU8() ) * 4;
-                readerImageHeader.setPosition( 0x6, Utilities::Buffer::Reader::BEGINING );
+                readerImageHeader.setPosition( 0x6, Utilities::Buffer::Reader::BEGIN );
                 auto height = readerImageHeader.readU16( settings.endian );
 
                 this->image.setWidth( width ); // For some reason they had this value divided by 4.

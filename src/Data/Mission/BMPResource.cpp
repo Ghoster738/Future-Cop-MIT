@@ -76,7 +76,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 
                 assert( cbb_reader.readU16( settings.endian ) == 0 );
                 
-                cbb_reader.setPosition( 0x2A, Utilities::Buffer::Reader::BEGINING );
+                cbb_reader.setPosition( 0x2A, Utilities::Buffer::Reader::BEGIN );
                 auto bitfield_byte = cbb_reader.readU8();
                 
                 assert( cbb_reader.readU8() == 0 );
@@ -85,7 +85,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 
                 assert( cbb_reader.readU32( settings.endian ) == 0 );
                 
-                cbb_reader.setPosition( 0x34, Utilities::Buffer::Reader::BEGINING );
+                cbb_reader.setPosition( 0x34, Utilities::Buffer::Reader::BEGIN );
                 auto first_u32 = cbb_reader.readU32( settings.endian );
                 
                 uint8_t array[4];

@@ -1,6 +1,5 @@
 #include "Data/Mission/IFF.h"
 #include "Utilities/DataHandler.h"
-#include "Utilities/QuiteOkImage.h"
 #include <iostream>
 #include <fstream>
 #include "Data/Mission/BMPResource.h"

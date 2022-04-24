@@ -132,7 +132,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
         size_t PYPL_tag_size = 0;
         bool is_PS1 = false;
 
-        while( reader.getPosition( Utilities::Buffer::Reader::BEGINING ) < reader.totalSize() ) {
+        while( reader.getPosition( Utilities::Buffer::Reader::BEGIN ) < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
             auto tag_size   = reader.readU32( settings.endian );
             auto tag_data_size = tag_size - 2 * sizeof( uint32_t );
@@ -148,7 +148,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == TAG_PYPL ) {
-                PYPL_offset = reader.getPosition( Utilities::Buffer::Reader::BEGINING );
+                PYPL_offset = reader.getPosition( Utilities::Buffer::Reader::BEGIN );
                 PYPL_tag_size = tag_data_size;
                 reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
             }
@@ -201,7 +201,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
         }
 
         if( PYPL_tag_size != 0 ) {
-            reader.setPosition( PYPL_offset, Utilities::Buffer::Reader::BEGINING );
+            reader.setPosition( PYPL_offset, Utilities::Buffer::Reader::BEGIN );
             auto readerPYPL = reader.getReader( PYPL_tag_size );
 
             if( !is_PS1 ) {

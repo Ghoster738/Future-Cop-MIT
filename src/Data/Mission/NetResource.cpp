@@ -96,7 +96,7 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
         const size_t SIZE_OF_NODE   = 0x0C;
 
         if( reader.totalSize() >= SIZE_OF_HEADER + SIZE_OF_NODE && TAG_NtDO == reader.readU32( settings.endian ) ) {
-            reader.setPosition( SIZE_OF_HEADER - sizeof( uint16_t ), Utilities::Buffer::Reader::BEGINING );
+            reader.setPosition( SIZE_OF_HEADER - sizeof( uint16_t ), Utilities::Buffer::Reader::BEGIN );
             
             auto nodes_amount = reader.readU16( settings.endian );
 
