@@ -38,18 +38,18 @@ public:
 
     /**
      * This adds new data to the back of the member variable audio_stream.
-     * @param buffer The pointer to the buffer to be copied to the audio_stream.
-     * @param buffersize The buffer's size.
+     * @note This function will advance the reader!
+     * @param reader This holds the reader to the data.
+     * @return If the reader is valid or non-empty this should return true.
      */
-    void addAudioStream( const uint8_t *const buffer, unsigned int buffer_size );
+    bool addAudioStream( Utilities::Buffer::Reader &reader );
 
     /**
      * This copies the buffer into the audio_stream. Warning this will clear audio_stream's
      * original content.
-     * @param buffer The pointer to the buffer to be copied to the audio_stream.
-     * @param buffersize The buffer's size.
+     * @note This function will advance the reader! 
      */
-    void setAudioStream( const uint8_t *const buffer, unsigned int buffer_size );
+    bool setAudioStream( Utilities::Buffer::Reader &reader );
 
     void updateAudioStreamLength();
 

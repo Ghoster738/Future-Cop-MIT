@@ -63,9 +63,9 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
             assert( zero3 == 0 ); // 2 bytes of zeros.
             
             // next_offset is multiplied by two.
-            auto byte_stream = reader.getBytes( 2 * static_cast<size_t>( next_offset ));
+            auto dataReader = reader.getReader( 2 * static_cast<size_t>( next_offset ));
 
-            sound.addAudioStream( byte_stream.data(), byte_stream.size() );
+            sound.addAudioStream( dataReader );
         }
         while( !reader.ended() );
 
