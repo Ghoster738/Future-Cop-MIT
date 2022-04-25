@@ -132,12 +132,18 @@ void Utilities::ImageFormat::QuiteOkImage::applyOPRun( Buffer& buffer ) {
 }
 
 Utilities::ImageFormat::QuiteOkImage::QuiteOkImage() {
+    back_header_search = 4;
 }
 
 Utilities::ImageFormat::QuiteOkImage::~QuiteOkImage() {
 }
 
-Utilities::ImageFormat::QuiteOkImage::QOIStatus Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data, Utilities::Buffer& buffer ) {
+
+bool Utilities::ImageFormat::QuiteOkImage::isSupported() {
+    return true; // This format will be compiled into the program.
+}
+
+int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data, Utilities::Buffer& buffer ) {
     // TODO Upgrade the image data to be able to make a new texture that would work well with this format.
     
     if( image_data.getBytesPerChannel() == 1 && (image_data.getType() == ImageData::RED_GREEN_BLUE || image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA ) )
@@ -226,14 +232,16 @@ Utilities::ImageFormat::QuiteOkImage::QOIStatus Utilities::ImageFormat::QuiteOkI
         status.complete = true;
         status.success  = true;
         status.status   = Status::OKAY;
+        
+        return 1;
     }
-    else
+    else {
         status.status = Status::INVALID_IMAGE_FORMAT;
-    
-    return status;
+        return -1;
+    }
 }
 
-Utilities::ImageFormat::QuiteOkImage::QOIStatus Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data, unsigned int back_search ) {
+int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data ) {
     size_t INFO_STRUCT = 14;
     size_t END_BYTES = 8;
     bool end_found = false;
@@ -368,18 +376,29 @@ Utilities::ImageFormat::QuiteOkImage::QOIStatus Utilities::ImageFormat::QuiteOkI
                     status.success = true;
                     
                     status.status = Status::OKAY;
+                    return status.complete;
                 }
-                else
+                else {
                     status.status = Status::INVALID_END_HEADER;
+                    return -4;
+                }
             }
-            else
+            else {
                 status.status = Status::INVALID_IMAGE_SIZE;
+                return -3;
+            }
         }
-        else
+        else {
             status.status = Status::INVALID_BEGIN_HEADER;
+            return -2;
+        }
     }
-    else
+    else {
         status.status = Status::INVALID_IMAGE_SIZE;
-    
+        return -1;
+    }
+}
+
+Utilities::ImageFormat::QuiteOkImage::QOIStatus Utilities::ImageFormat::QuiteOkImage::getStatus() const {
     return status;
 }

@@ -2,6 +2,10 @@
 #include <libpng16/png.h>
 #include <zlib.h>
 
+Utilities::ImageFormat::PortableNetworkGraphics::PortableNetworkGraphics() {}
+
+Utilities::ImageFormat::PortableNetworkGraphics::~PortableNetworkGraphics() {}
+
 bool Utilities::ImageFormat::PortableNetworkGraphics::isSupported() {
     return true; // TODO For now.
 }
