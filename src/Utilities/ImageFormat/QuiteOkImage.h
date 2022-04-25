@@ -1,11 +1,7 @@
 #ifndef QUITE_OK_IMAGE_HEADER
 #define QUITE_OK_IMAGE_HEADER
 
-#include <vector>
-#include <stdint.h>
-
-#include "../Buffer.h"
-#include "../ImageData.h"
+#include "ImageFormat.h"
 
 namespace Utilities {
 
@@ -18,7 +14,7 @@ namespace ImageFormat {
  * The specification for this format can be found in qoiformat.org
  * Note: This is a purely single threaded class. The only way to multithread is to encode seperate images.
  */
-class QuiteOkImage {
+class QuiteOkImage : public ImageFormat {
 public:
     struct Pixel {
         uint8_t red;
@@ -81,6 +77,8 @@ private:
     uint8_t run_amount; // 1 - 62
     QOIStatus status;
     
+    unsigned int back_header_search;
+    
     /**
      * This method fills the hash table with zeros and sets the previous pixel to its initial state.
      */
@@ -116,8 +114,12 @@ public:
     QuiteOkImage();
     ~QuiteOkImage();
     
-    QOIStatus write( const ImageData& image_data, Buffer& buffer );
-    QOIStatus read( const Buffer& buffer, ImageData& image_data, unsigned int back_header_search = 4);
+    static bool isSupported();
+    
+    int write( const ImageData& image_data, Buffer& buffer );
+    int read( const Buffer& buffer, ImageData& image_data );
+    
+    QOIStatus getStatus() const;
 };
 
 };

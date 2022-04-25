@@ -1,11 +1,10 @@
 #ifndef PORTABLE_NETWORK_GRAPHICS_HEADER
 #define PORTABLE_NETWORK_GRAPHICS_HEADER
 
-#include <vector>
-#include <stdint.h>
+#include "ImageFormat.h"
 
-#include "../Buffer.h"
-#include "../ImageData.h"
+#include <libpng16/png.h>
+#include <zlib.h>
 
 namespace Utilities {
 
@@ -16,10 +15,10 @@ namespace ImageFormat {
  *
  * This class uses a PNG library in order to do this task.
  */
-class PortableNetworkGraphics {
+class PortableNetworkGraphics : public ImageFormat {
 public:
-    PortableNetworkGraphics() {}
-    ~PortableNetworkGraphics() {}
+    PortableNetworkGraphics();
+    ~PortableNetworkGraphics();
     
     static bool isSupported();
     
