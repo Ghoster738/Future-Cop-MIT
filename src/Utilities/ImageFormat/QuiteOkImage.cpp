@@ -3,6 +3,7 @@
 
 const Utilities::ImageFormat::QuiteOkImage::Pixel Utilities::ImageFormat::QuiteOkImage::INITIAL_PIXEL = { 0, 0, 0, 0xFF };
 const Utilities::ImageFormat::QuiteOkImage::Pixel Utilities::ImageFormat::QuiteOkImage::ZERO_PIXEL = { 0, 0, 0, 0 };
+const std::string Utilities::ImageFormat::QuiteOkImage::FILE_EXTENSION = "qoi";
 
 void Utilities::ImageFormat::QuiteOkImage::reset() {
     previous_pixel = INITIAL_PIXEL;
@@ -138,9 +139,16 @@ Utilities::ImageFormat::QuiteOkImage::QuiteOkImage() {
 Utilities::ImageFormat::QuiteOkImage::~QuiteOkImage() {
 }
 
+bool Utilities::ImageFormat::QuiteOkImage::canRead() const {
+    return true; // By default this program can load qoi files.
+}
 
-bool Utilities::ImageFormat::QuiteOkImage::isSupported() {
-    return true; // This format will be compiled into the program.
+bool Utilities::ImageFormat::QuiteOkImage::canWrite() const {
+    return true; // By default this program can write qoi files.
+}
+
+std::string Utilities::ImageFormat::QuiteOkImage::getExtension() const {
+    return FILE_EXTENSION;
 }
 
 int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data, Utilities::Buffer& buffer ) {

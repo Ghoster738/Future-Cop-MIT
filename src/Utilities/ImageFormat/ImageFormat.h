@@ -2,6 +2,7 @@
 #define IMAGE_FORMAT_HEADER
 
 #include <vector>
+#include <string>
 #include <stdint.h>
 
 #include "../Buffer.h"
@@ -21,7 +22,13 @@ public:
     ImageFormat();
     virtual ~ImageFormat();
     
-    static bool isSupported() { return false; }
+    bool isSupported() const;
+    virtual bool canRead() const = 0;
+    virtual bool canWrite() const = 0;
+    
+    virtual std::string getExtension() const = 0;
+    
+    virtual std::string appendExtension( const std::string &name ) const;
     
     virtual int write( const ImageData& image_data, Buffer& buffer );
     virtual int read( const Buffer& buffer, ImageData& image_data );
