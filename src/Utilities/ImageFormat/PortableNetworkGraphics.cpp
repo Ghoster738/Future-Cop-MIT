@@ -1,13 +1,24 @@
 #include "PortableNetworkGraphics.h"
+
 #include <libpng16/png.h>
 #include <zlib.h>
+
+const std::string Utilities::ImageFormat::PortableNetworkGraphics::FILE_EXTENSION = "png";
 
 Utilities::ImageFormat::PortableNetworkGraphics::PortableNetworkGraphics() {}
 
 Utilities::ImageFormat::PortableNetworkGraphics::~PortableNetworkGraphics() {}
 
-bool Utilities::ImageFormat::PortableNetworkGraphics::isSupported() {
-    return true; // TODO For now.
+bool Utilities::ImageFormat::PortableNetworkGraphics::canRead() const {
+    return false;
+}
+
+bool Utilities::ImageFormat::PortableNetworkGraphics::canWrite() const {
+    return true;
+}
+
+std::string Utilities::ImageFormat::PortableNetworkGraphics::getExtension() const {
+    return FILE_EXTENSION;
 }
 
 int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& image_data, Buffer& buffer ) {

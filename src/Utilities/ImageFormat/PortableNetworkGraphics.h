@@ -17,10 +17,16 @@ namespace ImageFormat {
  */
 class PortableNetworkGraphics : public ImageFormat {
 public:
+    const static std::string FILE_EXTENSION;
+    
+public:
     PortableNetworkGraphics();
     ~PortableNetworkGraphics();
     
-    static bool isSupported();
+    virtual bool canRead() const;
+    virtual bool canWrite() const;
+    
+    virtual std::string getExtension() const;
     
     int write( const ImageData& image_data, Buffer& buffer );
 };
