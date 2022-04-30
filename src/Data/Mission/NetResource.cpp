@@ -35,36 +35,26 @@ int16_t Data::Mission::NetResource::Node::getSpawn() const {
 	return this->spawn;
 }
 
-namespace {
-    // I might move this FORCE_INLINE generator somewhere else.
-    #ifdef __GNUC__
-    #define FORCE_INLINE __attribute__((always_inline)) inline
-    #elif _WIN32
-    #define FORCE_INLINE __forceinline
-    #else
-    #define FORCE_INLINE inline
-    #endif
-
-    FORCE_INLINE void fillIndex( unsigned int *indexes, unsigned int &filled_indices, unsigned int &index_data, unsigned int MASK, unsigned int max_size ) {
-        indexes[ filled_indices ] = (MASK & index_data); // set the index with the current number
-        filled_indices += max_size > (MASK & index_data); // increment this if the max_size is not exceeded.
-        index_data = (index_data >> 10); // bit shift this by 10 bits.
-    }
-    #undef FORCE_INLINE
-}
-
 unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[3], unsigned int max_size ) const {
     unsigned int filled_indices = 0;
-    unsigned int index_data = this->data >> 2;
-    const unsigned int MASK = 0x3FF; // A maxiumun 10-bit number.
-
-    // This is branchless code, so the branch predictor would have less cache misses.
-    // I did this mostly for fun. :)
-
-    fillIndex( indexes, filled_indices, index_data, MASK, max_size );
-    fillIndex( indexes, filled_indices, index_data, MASK, max_size );
-    fillIndex( indexes, filled_indices, index_data, MASK, max_size );
-
+    
+    // Get rid of the last two bits on the index_data.
+    unsigned int index_data = (this->data & 0xFFFFFFFC) >> 2;
+    
+    // A maxiumun 10-bit number.
+    const unsigned int MASK = 0x3FF;
+    
+    // Loop three times to unpack from the index_data.
+    for( int i = 0; i < 3; i++ ) {
+        // First extract the index from the net resource.
+        indexes[ i ] = (MASK & (index_data >> (10 * i)));
+        
+        // If the index index is less than the mask then it is another path.
+        if( indexes[ i ] < MASK )
+            filled_indices++;
+    }
+    
+    // This has a range of 0 to 3. I do not know if there is a zero though.
     return filled_indices;
 }
 
