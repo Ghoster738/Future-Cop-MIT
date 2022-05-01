@@ -47,10 +47,10 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     // Loop three times to unpack from the index_data.
     for( int i = 0; i < 3; i++ ) {
         // First extract the index from the net resource.
-        indexes[ i ] = (MASK & (index_data >> (10 * i)));
+        indexes[ 2 - i ] = (MASK & (index_data >> (10 * i)));
         
         // If the index index is less than the mask then it is another path.
-        if( indexes[ i ] < MASK )
+        if( indexes[ 2 - i ] < MASK )
             filled_indices++;
     }
     
