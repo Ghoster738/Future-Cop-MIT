@@ -23,8 +23,12 @@ public:
     virtual ~ImageFormat();
     
     bool isSupported() const;
+    virtual ImageFormat* duplicate() const = 0;
+    virtual bool isFormat( const Buffer& buffer ) const = 0;
     virtual bool canRead() const = 0;
     virtual bool canWrite() const = 0;
+    virtual size_t getSpace( const ImageData& image_data ) const = 0;
+    virtual bool supports( ImageData::Type type, unsigned int bytes_per_channel ) const = 0;
     
     virtual std::string getExtension() const = 0;
     
