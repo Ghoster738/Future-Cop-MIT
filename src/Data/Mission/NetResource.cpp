@@ -2,11 +2,13 @@
 
 #include "../../Utilities/DataHandler.h"
 #include <fstream>
+#include <cassert>
 
 #include <json/json.h>
 
 namespace {
-    const uint32_t TAG_NtDO = 0x4F44744E; // NtDO
+    const uint16_t TAG_tN = 0x744E; // which is { 0x74, 0x43 } or { 't', 'N' } or "tN"
+    const uint16_t TAG_OD = 0x4F44; // which is { 0x4F, 0x44 } or { 'O', 'D' } or "OD"
 
     const auto INTEGER_FACTOR = 1.0 / 256.0;
 }
@@ -16,7 +18,7 @@ Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utili
     this->pad        = reader.readU16( endian ); // My guess is that this does nothing.
     this->position.x = reader.readU16( endian );
     this->position.y = reader.readU16( endian );
-    this->spawn      = reader.readU16( endian );
+    this->spawn      = reader.readU16( endian ); // I do not fully understand this value.
 }
 
 uint32_t Data::Mission::NetResource::Node::getData() const {
@@ -54,6 +56,9 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
             filled_indices++;
     }
     
+    // These two bits are always zero.
+    assert( (this->data & 0x3) == 0 );
+    
     // This has a range of 0 to 3. I do not know if there is a zero though.
     return filled_indices;
 }
@@ -85,7 +90,7 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
         const size_t SIZE_OF_HEADER = 0x10;
         const size_t SIZE_OF_NODE   = 0x0C;
 
-        if( reader.totalSize() >= SIZE_OF_HEADER + SIZE_OF_NODE && TAG_NtDO == reader.readU32( settings.endian ) ) {
+        if( reader.totalSize() >= SIZE_OF_HEADER + SIZE_OF_NODE && TAG_tN == reader.readU16( settings.endian ) && TAG_OD == reader.readU16( settings.endian ) ) {
             reader.setPosition( SIZE_OF_HEADER - sizeof( uint16_t ), Utilities::Buffer::Reader::BEGIN );
             
             auto nodes_amount = reader.readU16( settings.endian );
@@ -100,8 +105,10 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
 
             return true;
         }
-        else
+        else {
+            assert( false );
             return false;
+        }
     }
     else
         return false;
