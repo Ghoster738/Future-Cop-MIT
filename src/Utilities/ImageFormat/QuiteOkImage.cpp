@@ -139,6 +139,28 @@ Utilities::ImageFormat::QuiteOkImage::QuiteOkImage() {
 Utilities::ImageFormat::QuiteOkImage::~QuiteOkImage() {
 }
 
+Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::QuiteOkImage::duplicate() const {
+    return new QuiteOkImage();
+}
+
+bool Utilities::ImageFormat::QuiteOkImage::isFormat( const Buffer& buffer ) const {
+    auto reader = buffer.getReader();
+    size_t INFO_STRUCT = 14;
+    size_t END_BYTES = 8;
+    
+    if( reader.totalSize() > INFO_STRUCT + END_BYTES )
+    {
+        // Check the header
+        if( reader.readI8() == 'q' && reader.readI8() == 'o' &&
+            reader.readI8() == 'i' && reader.readI8() == 'f' )
+        {
+            return true;
+        }
+    
+    }
+    return false;
+}
+
 bool Utilities::ImageFormat::QuiteOkImage::canRead() const {
     return true; // By default this program can load qoi files.
 }
@@ -147,14 +169,40 @@ bool Utilities::ImageFormat::QuiteOkImage::canWrite() const {
     return true; // By default this program can write qoi files.
 }
 
+size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageData& image_data ) const {
+    const size_t INFO_STRUCT = 14;
+    const size_t END_BYTES = 8;
+    size_t current_size = 0;
+    
+    if( supports( image_data.getType(), image_data.getBytesPerChannel() ) ) {
+        QuiteOkImage qoi;
+        
+        // TODO Replace this with a more effient way.
+        Buffer buffer;
+        qoi.write( image_data, buffer );
+        
+        current_size = buffer.getReader().totalSize();
+    }
+    
+    return current_size;
+}
+
+bool Utilities::ImageFormat::QuiteOkImage::supports( ImageData::Type type,
+                                                     unsigned int bytes_per_channel ) const {
+    return (bytes_per_channel == 1) &
+           ((type == ImageData::RED_GREEN_BLUE) |
+            (type == ImageData::RED_GREEN_BLUE_ALHPA));
+}
+
 std::string Utilities::ImageFormat::QuiteOkImage::getExtension() const {
     return FILE_EXTENSION;
 }
 
-int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data, Utilities::Buffer& buffer ) {
+int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
+                                                 Utilities::Buffer& buffer ) {
     // TODO Upgrade the image data to be able to make a new texture that would work well with this format.
     
-    if( image_data.getBytesPerChannel() == 1 && (image_data.getType() == ImageData::RED_GREEN_BLUE || image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA ) )
+    if( supports( image_data.getType(), image_data.getBytesPerChannel() ) )
     {
         reset();
         
@@ -250,8 +298,8 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data, Ut
 }
 
 int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data ) {
-    size_t INFO_STRUCT = 14;
-    size_t END_BYTES = 8;
+    const size_t INFO_STRUCT = 14;
+    const size_t END_BYTES = 8;
     bool end_found = false;
     uint32_t width;
     uint32_t height;

@@ -116,8 +116,14 @@ public:
     QuiteOkImage();
     ~QuiteOkImage();
     
-    bool canRead() const;
-    bool canWrite() const;
+    virtual ImageFormat* duplicate() const;
+    
+    virtual bool isFormat( const Buffer& buffer ) const;
+    virtual bool canRead() const;
+    virtual bool canWrite() const;
+    virtual size_t getSpace( const ImageData& image_data ) const;
+    
+    virtual bool supports( ImageData::Type type, unsigned int bytes_per_channel ) const;
     
     virtual std::string getExtension() const;
     
