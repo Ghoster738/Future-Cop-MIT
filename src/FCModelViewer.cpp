@@ -19,7 +19,7 @@ bool test_Math();
 
 int main(int argc, char** argv)
 {
-    Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
+    // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
     const int WIDTH = 1024;
     const int HEIGHT = 764;
 
