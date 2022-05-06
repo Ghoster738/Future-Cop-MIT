@@ -6,7 +6,7 @@ namespace {
     const float TILE_CORNER_POSITION_X[4] = { 0.5, -0.5,  0.5, -0.5 };
     const float TILE_CORNER_POSITION_Z[4] = { 0.5,  0.5, -0.5, -0.5 };
 
-    Data::Mission::Til::Mesh::Polygon default_mesh[ 0x80 ];
+    #include "TileSet.h"
 }
 
 

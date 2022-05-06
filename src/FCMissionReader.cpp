@@ -29,7 +29,7 @@ namespace {
 }
 
 int main( int argc, char *argv[] ) {
-    Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
+    // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
 
     Data::Mission::IFF mission_file[2]; // Two mission files at a time for now.
     std::string output_folder_path = "./output/";
