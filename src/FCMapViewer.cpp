@@ -41,30 +41,54 @@ int main(int argc, char** argv)
     window->setFullScreen( true );
 
     std::string iff_mission_id = "pa_urban_jungle";
+    std::string global_id = "global";
     Data::Manager::Platform platform = Data::Manager::Platform::WINDOWS;
     auto load_all = Data::Manager::Importance::NEEDED;
+    std::string global_path = "";
+    std::string mission_path = "";
+    std::string variable_name = "";
     bool platform_all = false;
 
     for( int index = 1; index < argc; index++ ) {
         std::string input = std::string( argv[index] );
 
-        if( input.find( "--id=") == 0 )
-            iff_mission_id = input.substr( 5, input.length() - 5 );
-        else
-        if( input.find( "--load-all") == 0 )
-            load_all = Data::Manager::Importance::NOT_NEEDED;
-        else
-        if( input.find( "--platform-all") == 0 )
-            platform_all = true;
-        else
-        if( input.find( "-w") == 0 )
-            platform = Data::Manager::Platform::WINDOWS;
-        else
-        if( input.find( "-m") == 0 )
-            platform = Data::Manager::Platform::MACINTOSH;
-        else
-        if( input.find( "-p") == 0 )
-            platform = Data::Manager::Platform::PLAYSTATION;
+        if( variable_name.compare("") == 0 ) {
+            if( input.find( "--load-all") == 0 )
+                load_all = Data::Manager::Importance::NOT_NEEDED;
+            else
+            if( input.find( "--platform-all") == 0 )
+                platform_all = true;
+            else
+            if( input.find( "-w") == 0 )
+                platform = Data::Manager::Platform::WINDOWS;
+            else
+            if( input.find( "-m") == 0 )
+                platform = Data::Manager::Platform::MACINTOSH;
+            else
+            if( input.find( "-p") == 0 )
+                platform = Data::Manager::Platform::PLAYSTATION;
+            else
+            if( input.find( "--id") == 0 )
+                variable_name = "--id";
+            else
+            if( input.find( "--global") == 0 )
+                variable_name = "--global";
+            else
+            if( input.find( "--path") == 0 )
+                variable_name = "--path";
+        }
+        else {
+            if( variable_name.find( "--id") == 0 )
+                iff_mission_id = input;
+            else
+            if( variable_name.find( "--global") == 0 )
+                global_path = input;
+            else
+            if( variable_name.find( "--path") == 0 )
+                mission_path = input;
+            
+            variable_name = "";
+        }
     }
 
     Graphics::Environment *environment = new Graphics::Environment();
@@ -73,6 +97,26 @@ int main(int argc, char** argv)
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
+    
+    // If the global path is specified then use a specified path.
+    if( global_path.compare("") != 0 ) {
+        Data::Manager::IFFEntry entry = manager.getIFFEntry( global_id );
+        // Just in case if this was not set on global id.
+        entry.importance = Data::Manager::Importance::NEEDED;
+        // Overide the global path.
+        entry.setPath( platform, global_path );
+        manager.setIFFEntry( global_id, entry );
+    }
+    
+    // If the mission path is specified then use a specified path.
+    if( mission_path.compare("") != 0  ) {
+        iff_mission_id = "unk_custom_mission";
+        
+        Data::Manager::IFFEntry entry = manager.getIFFEntry( iff_mission_id );
+        // Overide the global path.
+        entry.setPath( platform, mission_path );
+        manager.setIFFEntry( iff_mission_id, entry );
+    }
 
     if( !manager.hasEntry( iff_mission_id ) )
         return -1;
@@ -96,7 +140,7 @@ int main(int argc, char** argv)
     }
 
     Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
-    Data::Mission::IFF   *global_r = manager.getIFFEntry( "global" ).getIFF( platform );
+    Data::Mission::IFF   *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
 
     if( resource_r == nullptr ) {
         std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
