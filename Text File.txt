@@ -1,5 +1,0 @@
-I think I discovered that the 16 bit colors are actually 15 bits...
-
-It is a very long story, but I got rid of LkUpKey as it was taking too much memory.
-
-
