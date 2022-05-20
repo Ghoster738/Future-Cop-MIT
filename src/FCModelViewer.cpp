@@ -27,34 +27,84 @@ int main(int argc, char** argv)
 
     std::string type = Data::Mission::ObjResource::FILE_EXTENSION;
     std::string iff_mission_id = "pa_urban_jungle";
-    std::string start_number = "0";
+    std::string global_id      = "global";
+    std::string start_number   = "0";
     Data::Manager::Platform platform = Data::Manager::Platform::WINDOWS;
+    std::string global_path = "";
+    std::string mission_path = "";
+    std::string variable_name = "";
 
     for( int index = 1; index < argc; index++ ) {
         std::string input = std::string( argv[index] );
-
-        if( input.find( "--id=") == 0 )
-            iff_mission_id = input.substr( 5, input.length() - 5 );
-        else
-        if( input.find( "-w") == 0 )
-            platform = Data::Manager::Platform::WINDOWS;
-        else
-        if( input.find( "-m") == 0 )
-            platform = Data::Manager::Platform::MACINTOSH;
-        else
-        if( input.find( "-p") == 0 )
-            platform = Data::Manager::Platform::PLAYSTATION;
-        else
-        if( input.find( "--type=") == 0 )
-            type = input.substr( 7, type.length() - 7 );
-        else
-        if( input.find( "--start=" ) == 0 )
-            start_number = input.substr( 8, type.length() - 8 );
+        
+        if( variable_name.compare("") == 0 ) {
+            if( input.find( "-w") == 0 )
+                platform = Data::Manager::Platform::WINDOWS;
+            else
+            if( input.find( "-m") == 0 )
+                platform = Data::Manager::Platform::MACINTOSH;
+            else
+            if( input.find( "-p") == 0 )
+                platform = Data::Manager::Platform::PLAYSTATION;
+            else
+            if( input.find( "--id") == 0 )
+                variable_name = "--id";
+            else
+            if( input.find( "--global") == 0 )
+                variable_name = "--global";
+            else
+            if( input.find( "--path") == 0 )
+                variable_name = "--path";
+            else
+            if( input.find( "--type") == 0 )
+                variable_name = "--type";
+            else
+            if( input.find( "--start" ) == 0 )
+                variable_name = "--start";
+        }
+        else {
+            if( variable_name.find( "--id") == 0 )
+                iff_mission_id = input;
+            else
+            if( variable_name.find( "--global") == 0 )
+                global_path = input;
+            else
+            if( variable_name.find( "--path") == 0 )
+                mission_path = input;
+            else
+            if( variable_name.find( "--type") == 0 )
+                type = input;
+            else
+            if( variable_name.find( "--start" ) == 0 )
+                start_number = input;
+            
+            variable_name = "";
+        }
     }
 
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
+    
+    // If the global path is specified then use a specified path.
+    if( global_path.compare("") != 0 ) {
+        Data::Manager::IFFEntry entry = manager.getIFFEntry( global_id );
+        // Just in case if this was not set on global id.
+        entry.importance = Data::Manager::Importance::NEEDED;
+        // Overide the global path.
+        entry.setPath( platform, global_path );
+        manager.setIFFEntry( global_id, entry );
+    }
+    
+    // If the mission path is specified then use a specified path.
+    if( mission_path.compare("") != 0  ) {
+        iff_mission_id = "unk_custom_mission";
+        
+        Data::Manager::IFFEntry entry = manager.getIFFEntry( iff_mission_id );
+        // Overide the global path.
+        entry.setPath( platform, mission_path );
+        manager.setIFFEntry( iff_mission_id, entry );
+    }
 
     if( !manager.hasEntry( iff_mission_id ) )
         return -1;
@@ -72,7 +122,7 @@ int main(int argc, char** argv)
         return -3;
 
     Data::Mission::IFF &resource = *manager.getIFFEntry( iff_mission_id ).getIFF( platform );
-    Data::Mission::IFF &global = *manager.getIFFEntry( "global" ).getIFF( platform );
+    Data::Mission::IFF &global = *manager.getIFFEntry( global_id ).getIFF( platform );
 
 	// Declare a pointer to the Environment.
     Graphics::Window *window =  new Graphics::Window();
