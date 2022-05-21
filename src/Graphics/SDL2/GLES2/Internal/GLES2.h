@@ -1,6 +1,8 @@
 #ifndef OPENGLES_2_DECLARATION
 #define OPENGLES_2_DECLARATION
 
+#include "Config.h"
+
 #define GL_GLEXT_PROTOTYPES 1
 
 #ifndef FORCE_FULL_OPENGL_2
