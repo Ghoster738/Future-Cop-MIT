@@ -1,14 +1,29 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
 project( FutureCopDecoder )
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -pthread ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "-Wall ${CMAKE_CXX_FLAGS}")
+# Set the C++ standard to C++ 11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/SDL2") # TODO Make including this optional!
+option(FORCE_FULL_OPENGL_2 "This enables the full OpenGL rather than OpenGLES" OFF)
+option(GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE "Disable the forcing of the use for OpenGLES 2. Use this if the graphics card has OpenGL 2.1 support, but not OpenGLES." OFF)
+option(USE_INTERNAL_SDL2 "Use the internal SDL 2 CMake files stored in this project." OFF)
+
+configure_file(src/Config.h.in src/Config.h)
+
+if( USE_INTERNAL_SDL2 )
+  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/SDL2")
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-add_library(FC_IFF_IO SHARED ./src/Utilities/DataTypes.cpp ./src/Utilities/DataHandler.cpp ./src/Utilities/Buffer.cpp ./src/Utilities/ImageFormat/ImageFormat.cpp ./src/Utilities/ImageFormat/QuiteOkImage.cpp ./src/Utilities/ImageFormat/PortableNetworkGraphics.cpp ./src/Utilities/ImageFormat/Chooser.cpp ./src/Utilities/Math.cpp ./src/Utilities/ImageData.cpp ./src/Utilities/ModelBuilder.cpp ./src/Data/Mission/Resource.cpp ./src/Data/Mission/ACT/Prop.cpp ./src/Data/Mission/ACT/Unknown.cpp ./src/Data/Mission/ACTResource.cpp ./src/Data/Mission/ACTManager.cpp ./src/Data/Mission/ACT/Internal/Hash.cpp ./src/Data/Mission/UnkResource.cpp  ./src/Data/Mission/DCSResource.cpp ./src/Data/Mission/PYRResource.cpp ./src/Data/Mission/Til/Colorizer.cpp ./src/Data/Mission/Til/Mesh.cpp ./src/Data/Mission/TilResource.cpp ./src/Data/Mission/NetResource.cpp ./src/Data/Mission/PTCResource.cpp ./src/Data/Mission/SNDSResource.cpp ./src/Data/Mission/MSICResource.cpp ./src/Data/Mission/ANMResource.cpp ./src/Data/Mission/BMPResource.cpp ./src/Data/Mission/FontResource.cpp ./src/Data/Mission/ObjResource.cpp ./src/Data/Mission/WAVResource.cpp ./src/Data/Mission/IFF.cpp ./src/Data/Manager.cpp )
+file(GLOB_RECURSE UTILITIES_SOURCE_FILES src/Utilities/*.cpp )
+file(GLOB_RECURSE DATA_SOURCE_FILES src/Data/*.cpp )
+
+add_library(FC_IFF_IO SHARED ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
+
+target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
 
 find_package(ZLIB     REQUIRED)
 find_package(PNG      REQUIRED)
@@ -25,25 +40,37 @@ include_directories(${OPENGL_LIBRARIES})
 target_link_libraries (FC_IFF_IO PRIVATE ${ZLIB_LIBRARY})
 target_link_libraries (FC_IFF_IO PRIVATE ${PNG_LIBRARIES})
 target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
-# target_link_libraries(FC_IFF_IO PRIVATE stdc++fs)
 
 add_executable( FCMissionReader ./src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
-# add_executable( FCPaletteFinder ./src/NumberSequenceGenerator.cpp ./src/FCPaletteFinder.cpp )
-# target_link_libraries( FCPaletteFinder PRIVATE FC_IFF_IO )
+# This where the sources are for the engine.
 
-add_library(FC_Graphics_OpenglES2 SHARED ./src/Controls/SDL2/Input.cpp ./src/Controls/SDL2/InputSet.cpp ./src/Controls/SDL2/StandardInputSet.cpp ./src/Controls/SDL2/CursorInputSet.cpp ./src/Controls/SDL2/System.cpp ./src/Graphics/SDL2/GLES2/Internal/Extensions.cpp ./src/Graphics/SDL2/GLES2/Internal/VertexAttributeArray.cpp ./src/Graphics/SDL2/GLES2/Internal/Mesh.cpp ./src/Graphics/SDL2/GLES2/Internal/StaticModelDraw.cpp ./src/Graphics/SDL2/GLES2/Internal/MorphModelDraw.cpp ./src/Graphics/SDL2/GLES2/Internal/SkeletalModelDraw.cpp ./src/Graphics/SDL2/GLES2/Internal/World.cpp ./src/Graphics/SDL2/GLES2/Internal/Texture2D.cpp ./src/Graphics/SDL2/GLES2/Internal/FontSystem.cpp ./src/Graphics/SDL2/GLES2/Internal/Shader.cpp ./src/Graphics/SDL2/GLES2/Internal/Program.cpp ./src/Graphics/SDL2/GLES2/Text2DBuffer.cpp ./src/Graphics/Camera.cpp ./src/Graphics/SDL2/Window.cpp ./src/Graphics/SDL2/GLES2/ModelInstance.cpp ./src/Graphics/SDL2/GLES2/Environment.cpp )
-target_link_libraries (FC_Graphics_OpenglES2 PRIVATE FC_IFF_IO)
-target_link_libraries (FC_Graphics_OpenglES2 PRIVATE ${SDL2_LIBRARIES})
-target_link_libraries (FC_Graphics_OpenglES2 PRIVATE ${OPENGL_gl_LIBRARY})
+# These source files in the engine always should be compiled no mater which API is used.
+file(GLOB CONTROL_SOURCE_FILES src/Controls/*.cpp )
+file(GLOB GRAPHICS_SOURCE_FILES src/Graphics/*.cpp )
 
-add_executable(FCModelViewer ./src/FCModelViewer.cpp )
+# SDL 2 is used for the controls.
+file(GLOB_RECURSE CONTROL_SDL2_SOURCE_FILES src/Controls/SDL2/*.cpp )
+
+# SDL 2 is also used for the Windowing library for OpenGLES 2, and possiably Vulkan.
+file(GLOB GRAPHICS_SDL2_SOURCE_FILES src/Graphics/SDL2/*.cpp )
+
+# OpenGLES 2 is the one and only API supported for now, but more will come.
+file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp )
+
+add_library(FC_Engine SHARED ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
+
+target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
+target_link_libraries (FC_Engine PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
+
+add_executable(FCModelViewer src/FCModelViewer.cpp )
 
 target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCModelViewer PRIVATE FC_Graphics_OpenglES2)
+target_link_libraries (FCModelViewer PRIVATE FC_Engine)
 
-add_executable(FCMapViewer ./src/FCMapViewer.cpp )
+add_executable(FCMapViewer src/FCMapViewer.cpp )
 
 target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCMapViewer PRIVATE FC_Graphics_OpenglES2)
+target_link_libraries (FCMapViewer PRIVATE FC_Engine)
