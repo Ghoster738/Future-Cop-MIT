@@ -23,6 +23,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cstring> // std::strerror
+#include <cassert> // std::strerror
 #include <iostream>
 
 namespace {
