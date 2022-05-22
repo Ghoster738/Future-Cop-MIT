@@ -227,9 +227,9 @@ bool Controls::System::isOrderedToExit() const {
     return controls_p->window_exit_command;
 }
 
-int Controls::System::read( std::string filepath ) {}
+int Controls::System::read( std::string filepath ) { return -1; }
 
-int Controls::System::write( std::string filepath ) const {}
+int Controls::System::write( std::string filepath ) const { return -1; }
 
 int Controls::System::addInputSet( InputSet *input_set_p ) {
     // Insert the input_set_p at the end.

@@ -87,6 +87,8 @@ bool Data::Mission::ObjResource::TextureQuad::isWithinBounds( size_t texture_amo
     {
         return (static_cast<size_t>(-index - 1) > texture_amount);
     }
+    else
+        return false; // This statement should not be reached.
 }
 
 bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_limit, size_t normal_limit, size_t texture_quad_limit, const TextureQuad *origin ) const {
