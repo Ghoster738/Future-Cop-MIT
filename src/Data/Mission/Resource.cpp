@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cassert>
 
 const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PARSE_SETTINGS = Data::Mission::Resource::ParseSettings();
 

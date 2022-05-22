@@ -1,5 +1,6 @@
 #include "PortableNetworkGraphics.h"
 
+#include <cstring>
 #include <libpng16/png.h>
 #include <zlib.h>
 
