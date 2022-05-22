@@ -1,0 +1,12 @@
+[submodule "submodules/libpng"]
+	path = submodules/libpng
+	url = https://git.code.sf.net/p/libpng/code
+[submodule "submodules/libz"]
+	path = submodules/libz
+	url = https://github.com/madler/zlib.git
+[submodule "submodules/jsoncpp"]
+	path = submodules/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "submodules/SDL2"]
+	path = submodules/SDL2
+	url = https://github.com/libsdl-org/SDL.git
