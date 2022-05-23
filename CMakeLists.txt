@@ -34,7 +34,10 @@ configure_file(src/Config.h.in src/Config.h)
 include_directories(${ZLIB_INCLUDE_DIR})
 include_directories(${PNG_INCLUDE_DIRS})
 include_directories(${JSON_CPP_INCLUDE_DIR})
-include_directories(${GLEW_INCLUDE_DIRS})
+
+if(GLEW_FOUND)
+  include_directories(${GLEW_INCLUDE_DIRS})
+endif()
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_LIBRARIES})
 
