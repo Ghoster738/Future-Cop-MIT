@@ -353,7 +353,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         SDL_GL_GetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, &major_version );
         
         if( window_internal_p->window_p == nullptr || major_version != 2 ) {
-            std::cout << "Failed to allocate OpenGLES attempting core profile" << std::endl;
+            std::cout << "Failed to allocate OpenGLES context. Using normal context." << std::endl;
             
             if( window_internal_p->window_p != nullptr )
                 SDL_DestroyWindow( window_internal_p->window_p );
@@ -361,7 +361,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,  0);
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,          1);
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,            24);
             
@@ -371,25 +371,6 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
                 flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
             
             SDL_GL_GetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, &major_version );
-        }
-        
-        if( window_internal_p->window_p == nullptr || major_version != 2 ) {
-            std::cout << "Failed to allocate OpenGLES attempting compatiability profile" << std::endl;
-            
-            if( window_internal_p->window_p != nullptr )
-                SDL_DestroyWindow( window_internal_p->window_p );
-            window_internal_p->window_p = nullptr;
-            
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,          1);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,            24);
-            
-            window_internal_p->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
-                window_instance.getPosition().x, window_instance.getPosition().y,
-                window_instance.getDimensions().x, window_instance.getDimensions().y,
-                flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
         }
         
         if( window_internal_p->window_p != nullptr )
@@ -409,7 +390,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             
             std::cout << "OpenGL version is " << glGetString( GL_VERSION ) << std::endl;
             
-            GLint major_version = 0;
+            GLint major_version = 2;
             glGetIntegerv(GL_MAJOR_VERSION, &major_version);
             
             if( major_version == 2 ) {
