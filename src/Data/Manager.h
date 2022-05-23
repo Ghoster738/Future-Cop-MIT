@@ -3,6 +3,7 @@
 
 #include "Mission/IFF.h"
 
+#include <thread>
 #include <mutex>
 #include <string>
 #include <vector>

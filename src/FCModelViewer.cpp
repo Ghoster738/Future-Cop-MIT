@@ -128,12 +128,15 @@ int main(int argc, char** argv)
     Graphics::Window *window =  new Graphics::Window();
 
     Graphics::Environment::initSystem();
-
+    std::cout << "Graphics::Environment::initSystem() loaded!" << std::endl;
+    
     Graphics::Environment *environment = new Graphics::Environment();
 
     window->setWindowTitle( "Future Cop Individual Model Viewer" );
     window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
-    environment->attachWindow( *window );
+    if( environment->attachWindow( *window ) != 1 )
+        return -40;
+        
 
     // First get the model textures from the resource file.
     {

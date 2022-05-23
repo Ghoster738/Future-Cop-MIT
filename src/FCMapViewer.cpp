@@ -92,7 +92,8 @@ int main(int argc, char** argv)
     }
 
     Graphics::Environment *environment = new Graphics::Environment();
-    environment->attachWindow( *window );
+    if( environment->attachWindow( *window ) != 1 )
+        return -40;
 
     Data::Manager manager;
 
