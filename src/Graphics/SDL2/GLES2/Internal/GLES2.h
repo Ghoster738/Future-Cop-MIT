@@ -9,10 +9,12 @@
 #include <GL/glew.h>
 #endif
 
-#ifndef FORCE_FULL_OPENGL_2
 #include <SDL2/SDL_opengles2.h>
+
+#ifndef FORCE_FULL_OPENGL_2
+#define GLES2_SDL_GL_CONTEXT_SETTING SDL_GL_CONTEXT_PROFILE_ES
 #else
-#include <SDL2/SDL_opengl.h>
+#define GLES2_SDL_GL_CONTEXT_SETTING SDL_GL_CONTEXT_PROFILE_CORE
 #endif
 
 #endif

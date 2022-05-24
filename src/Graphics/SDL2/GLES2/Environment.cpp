@@ -340,10 +340,14 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         // TODO modify variable flags ask for what kind of window to allocate.
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,  SDL_GL_CONTEXT_PROFILE_ES);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,          1);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,            24);
-
+        #ifndef GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 0);
+        #endif
+        
+        SDL_GL_SetSwapInterval(0);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        
         window_internal_p->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
             window_instance.getPosition().x, window_instance.getPosition().y,
             window_instance.getDimensions().x, window_instance.getDimensions().y,
