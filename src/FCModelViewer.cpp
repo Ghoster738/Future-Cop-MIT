@@ -133,7 +133,8 @@ int main(int argc, char** argv)
 
     window->setWindowTitle( "Future Cop Individual Model Viewer" );
     window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
-    environment->attachWindow( *window );
+    if( environment->attachWindow( *window ) != 1 )
+        return -40;
 
     // First get the model textures from the resource file.
     {
