@@ -342,8 +342,8 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
         
         #ifndef GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, GLES2_SDL_GL_CONTEXT_SETTING);
-        #endif GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 0);
+        #endif
         
         SDL_GL_SetSwapInterval(0);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -357,6 +357,17 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         if( window_internal_p->window_p != nullptr )
         {
             window_internal_p->GL_context = SDL_GL_CreateContext( window_internal_p->window_p );
+            
+            #ifdef GLEW_FOUND
+            auto glew_status = glewInit();
+            
+            if( glew_status != GLEW_OK ) {
+                std::cout << "GLEW INIT Failure: " << glewGetErrorString( glew_status ) << std::endl;
+            }
+            else {
+                std::cout << "GLEW INIT Success: " << glewGetErrorString( glew_status ) << std::endl;
+            }
+            #endif
             
             std::cout << "OpenGL version is " << glGetString( GL_VERSION ) << std::endl;
             
