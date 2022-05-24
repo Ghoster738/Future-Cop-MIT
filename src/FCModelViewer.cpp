@@ -136,7 +136,10 @@ int main(int argc, char** argv)
     window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
     if( environment->attachWindow( *window ) != 1 )
         return -40;
+<<<<<<< HEAD
         
+=======
+>>>>>>> safty_first
 
     // First get the model textures from the resource file.
     {
