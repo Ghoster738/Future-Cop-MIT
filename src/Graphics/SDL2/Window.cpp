@@ -1,8 +1,6 @@
 #include "../Window.h" // Include the interface class
 #include "Window.h" // Include the internal class
 
-#include <SDL2/SDL_stdinc.h>
-
 Graphics::Window::Window() :
     window_internal_data_p( nullptr ),
     window_title( "WINDOW TITLE NOT SET" ),

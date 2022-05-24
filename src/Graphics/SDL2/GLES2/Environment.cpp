@@ -2,6 +2,7 @@
 #include "Environment.h" // Include the internal class
 #include "../Window.h"
 #include "Text2DBuffer.h"
+#include "Internal/GLES2.h"
 #include "Internal/Extensions.h"
 #include <algorithm>
 
@@ -341,7 +342,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
         #ifndef GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, 0);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, GLES2_SDL_GL_CONTEXT_SETTING);
         #endif
         
         SDL_GL_SetSwapInterval(0);
@@ -392,72 +393,60 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             }
             #endif
             
-            std::cout << "OpenGL version is " << glGetString( GL_VERSION ) << std::endl;
+            GLenum err;
+            while((err = glGetError()) != GL_NO_ERROR)
+            {
+                std::cout << "GL_ERROR 351: 0x" << std::hex << err << std::dec << std::endl;
+            }
             
-            GLint major_version = 2;
-            glGetIntegerv(GL_MAJOR_VERSION, &major_version);
+            if( window_internal_p->GL_context != nullptr )
+            {
+                SDL_GL_MakeCurrent( window_internal_p->window_p, window_internal_p->GL_context );
+                SDL_GL_SetSwapInterval(0);
             
-            if( major_version == 2 ) {
-                GLenum err;
+                std::cout << "OpenGL version is " << glGetString( GL_VERSION ) << std::endl;
+                
+                // TODO check for the reason why GLES2 needs this? Am I doing something wrong?
+                #ifndef FORCE_FULL_OPENGL_2
+                SDL_CreateRenderer( window_internal_p->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
+                #endif
+                
                 while((err = glGetError()) != GL_NO_ERROR)
                 {
-                    std::cout << "GL_ERROR 351: 0x" << std::hex << err << std::dec << std::endl;
+                    std::cout << "GL_ERROR 363: 0x" << std::hex << err << std::dec << std::endl;
                 }
-                
-                if( window_internal_p->GL_context != nullptr )
+
+                // TODO Find a way for the user to turn the extensions off by command parameter.
+                if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
                 {
-                    SDL_GL_MakeCurrent( window_internal_p->window_p, window_internal_p->GL_context );
-                    SDL_GL_SetSwapInterval(0);
-                    
-                    // TODO check for the reason why GLES2 needs this? Am I doing something wrong?
-                    #ifndef FORCE_FULL_OPENGL_2
-                    SDL_CreateRenderer( window_internal_p->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
-                    #endif
-                    
                     while((err = glGetError()) != GL_NO_ERROR)
                     {
-                        std::cout << "GL_ERROR 363: 0x" << std::hex << err << std::dec << std::endl;
+                        std::cout << "GL_ERROR 371: 0x" << std::hex << err << std::dec << std::endl;
                     }
-
-                    // TODO Find a way for the user to turn the extensions off by command parameter.
-                    if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
+                    
+                    auto number = Graphics::SDL2::GLES2::Internal::getGlobalExtension()->loadAllExtensions();
+                    
+                    if( number < 0 )
                     {
                         while((err = glGetError()) != GL_NO_ERROR)
                         {
-                            std::cout << "GL_ERROR 371: 0x" << std::hex << err << std::dec << std::endl;
+                            std::cout << "GL_ERROR 380: 0x" << std::hex << err << std::dec << std::endl;
                         }
-                        
-                        auto number = Graphics::SDL2::GLES2::Internal::getGlobalExtension()->loadAllExtensions();
-                        
-                        if( number < 0 )
-                        {
-                            while((err = glGetError()) != GL_NO_ERROR)
-                            {
-                                std::cout << "GL_ERROR 380: 0x" << std::hex << err << std::dec << std::endl;
-                            }
-                        }
-
-                        std::cout << "Number of Extensions is " << number << std::endl;
-                        std::cout << "The available ones are " << std::endl;
-                        number = Graphics::SDL2::GLES2::Internal::Extensions::printAvailableExtensions( std::cout );
-                        std::cout << std::endl << "Which is " << number << std::endl;
-
-                        std::cout << std::hex << "Vertex binding is 0x" << Graphics::SDL2::GLES2::Internal::getGlobalExtension()->vertexArrayBindingStatus() << std::dec << std::endl;
                     }
-                    
-                    return 1;
+
+                    std::cout << "Number of Extensions is " << number << std::endl;
+                    std::cout << "The available ones are " << std::endl;
+                    number = Graphics::SDL2::GLES2::Internal::Extensions::printAvailableExtensions( std::cout );
+                    std::cout << std::endl << "Which is " << number << std::endl;
+
+                    std::cout << std::hex << "Vertex binding is 0x" << Graphics::SDL2::GLES2::Internal::getGlobalExtension()->vertexArrayBindingStatus() << std::dec << std::endl;
                 }
-                else
-                {
-                    std::cout << "SDL_GL_CreateContext ERROR: " << SDL_GetError() << std::endl; 
-                    return -2;
-                }
+                
+                return 1;
             }
-            else {
-                std::cout << "SDL_GL_CreateContext is not major OpenGL version 2, but " << major_version << " aborting" << std::endl;
-                if( window_internal_p->window_p != nullptr )
-                    SDL_DestroyWindow( window_internal_p->window_p );
-                window_internal_p->window_p = nullptr;
+            else
+            {
+                std::cout << "SDL_GL_CreateContext ERROR: " << SDL_GetError() << std::endl; 
                 return -2;
             }
         }
