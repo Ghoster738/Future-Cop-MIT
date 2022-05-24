@@ -147,7 +147,7 @@ bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &read
     if( !reader.empty() )
     {
         audio_stream.reserve( audio_stream.size() + reader.totalSize() );
-        for( unsigned int i = 0; i < reader.ended(); i++ ) {
+        while( !reader.ended() ) {
             audio_stream.push_back( reader.readU8() );
         }
         return true;
