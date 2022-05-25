@@ -10,6 +10,66 @@ This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right
 
 This has a map viewer, a model viewer, and a mission file ripper. However, these tools are not capable of making new mission files! They only decode and export. If you want to make a new map use BahTwoKooj's tools, https://github.com/BahKooJ/Fcop-Parse-Lib and https://github.com/BahKooJ/FCEditor-build. However, this code can actually read from three versions of Future Cop Windows, Macintosh and Playstation. However, this can read from the Windows version of Future Cop the best.
 
+## Command Line Arguments for FCMissionReader
+This is a pure terminal program built in order to show the decoding abitily of this program.
+
+This command will display what the commands do.
+
+./FCMissionReader -h
+
+The -i command loads the mission file to be read.
+
+./FCMissionReader -i path/to/mission/File
+
+The -o command tells where the output directory should go. **Warning:** This should be an existing directory, and it should be empty.
+
+./FCMissionReader -o path/to/mission/File
+
+The -r command dumps the raw resources of the mission file.
+
+./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -r
+
+The -d command exports the resources of the mission file into more common data formats.
+
+./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -d
+
+### The id system.
+This only works if the **Autoloading Requirements** are meet. These are the valid names of the system
+
+**The IDs for Crime War names.**
+
+griffith_park
+
+zuma_beach
+
+la_brea_tar_pits
+
+venice_beach
+
+hells_gate_prison
+
+studio_city
+
+lax_spaceport
+
+lax_spaceport_part_2
+
+long_beach
+
+**The IDs for Precinct Assault.**
+
+pa_urban_jungle
+
+pa_venice_beach
+
+pa_hollywood_keys
+
+pa_proving_ground
+
+pa_bug_hunt
+
+pa_la_centina
+
 # System Requirements
 
 I plan on making this code work on very low spec computers, but not the original computers that ran Future Cop. This should work on most computers, and in a mater of fact this code was successful compiled on the Raspberry PI 4! I plan on making this code on being very portable. The project is not planed to work on the Playstation 1, because of its lack of C++11 support. As making this project would be harder to write in C99 with the constant worry of memory management. However, the code might be able to run on Raspberry PI nano, which would be cool.
@@ -17,6 +77,16 @@ I plan on making this code work on very low spec computers, but not the original
 # Project Requirements
 
 The files from Future Cop: LAPD. I did not provide those files because they are under copyright for Electronic Arts.
+
+## Autoloading Requirements
+This holds the file structure of the program. (Right now only mission files can be read).
+In the future, this project should store these files to different places depending on the OS.
+
+Install_Destination/Data/Platform/Windows     -- should have the installation files that contains the primary executable and the missions floder.
+
+Install_Destination/Data/Platform/Macintosh   -- should have the installation files that contains the primary executable for the Mac files.
+
+Install_Destination/Data/Platform/Playstation -- should have the installation files that contains the Playstation 1 files.
 
 # Compilation Requirements
 
