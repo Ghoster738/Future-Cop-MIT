@@ -4,7 +4,7 @@ Open Source Game Engine Project
 
 # About
 
-This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right now there is no gameplay yet. However, there is a map viewer which views the contents of the mission files. There is also a model viewer which can view the models with animations if avialable. There is also a MissionReader which is a pure terminal program. These are all terminal commands, meaning that they require Linux experence to use.
+This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right now there is no gameplay yet. However, there is a map viewer which views the contents of the mission files. There is also a model viewer which can view the models with animations if avialable. There is also a MissionReader which is a pure terminal program. Unforturnatly for now, the programs require using the terminal.
 
 ## What are these tools
 
