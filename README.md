@@ -4,7 +4,7 @@ Open Source Game Engine Project
 
 # About
 
-This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right now there is no gameplay yet. The reason why I did not make this project public yet is because I do not want to make people wait for this project and let them down. Since this is somewhat of an ambitious project, and I do not want this to be another DaggerXL mistake. Plus, I feared that this project might be taken down by Electronic Arts. The reason why I realized this code is because BahTwoKooj is working on modding Future Cop. I also realized that I was hoarding the knowledge of Future Cop to myself. So this is why I am releasing this source code. I hope this would be of help to whoever is modding Future Cop. Right now, this project is nothing more than a reader, and exporter.
+This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right now there is no gameplay yet. However, there is a map viewer which views the contents of the mission files. There is also a model viewer which can view the models with animations if avialable. There is also a MissionReader which is a pure terminal program. These are all terminal commands, meaning that they require Linux experence to use.
 
 ## What are these tools
 
@@ -24,9 +24,7 @@ The files from Future Cop: LAPD. I did not provide those files because they are 
 
 &ensp; I only compiled this for the Linux operating system using g++.
 
-&ensp; This project partially compiles with the M1 MacOS operating system, but there is a compilation error for the graphics. For the MacOS now lacks OpenGLES 2.
-
-&ensp; The Windows port is planned.
+&ensp; The Windows port is graphics does not work.
 
 ## For the Mission Reader
 
