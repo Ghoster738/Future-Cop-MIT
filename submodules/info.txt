@@ -1,0 +1,6 @@
+These files are completely optional.
+
+They are there to potentially make the building process much easier.
+
+Call this command bellow at the root of this project if you want to complie some of these libraries.
+git submodule update --init
