@@ -17,7 +17,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 file(GLOB_RECURSE UTILITIES_SOURCE_FILES src/Utilities/*.cpp )
 file(GLOB_RECURSE DATA_SOURCE_FILES src/Data/*.cpp )
 
-add_library(FC_IFF_IO SHARED ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
+add_library(FC_IFF_IO STATIC ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
 
 target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
 
@@ -37,7 +37,7 @@ configure_file(src/Config.h.in src/Config.h)
 include_directories(${ZLIB_INCLUDE_DIR})
 include_directories(${PNG_INCLUDE_DIRS})
 include_directories(${JSON_CPP_INCLUDE_DIR})
-if(GLEW_FOUND EQUAL true)
+if(GLEW_FOUND)
   include_directories(${GLEW_INCLUDE_DIRS})
 endif()
 include_directories(${SDL2_INCLUDE_DIRS})
@@ -47,7 +47,7 @@ target_link_libraries (FC_IFF_IO PRIVATE ${ZLIB_LIBRARY})
 target_link_libraries (FC_IFF_IO PRIVATE ${PNG_LIBRARIES})
 target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
 
-add_executable( FCMissionReader ./src/FCMissionReader.cpp )
+add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
 # This where the sources are for the engine.
@@ -65,7 +65,7 @@ file(GLOB GRAPHICS_SDL2_SOURCE_FILES src/Graphics/SDL2/*.cpp )
 # OpenGLES 2 is the one and only API supported for now, but more will come.
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp )
 
-add_library(FC_Engine SHARED ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
+add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
 
 target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
 if(GLEW_FOUND)
@@ -73,9 +73,6 @@ if(GLEW_FOUND)
 endif()
 target_link_libraries (FC_Engine PRIVATE SDL2::Main)
 target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
-if(GLEW_FOUND EQUAL true)
-  target_link_libraries (FC_Engine PRIVATE ${GLEW_LIBRARIES})
-endif()
 
 add_executable(FCModelViewer src/FCModelViewer.cpp )
 
