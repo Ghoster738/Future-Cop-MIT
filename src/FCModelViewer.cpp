@@ -17,6 +17,9 @@
 
 namespace {
 void helpExit( std::ostream &stream ) {
+    stream << "These are the graphics settings" << std::endl;
+    stream << " --width NUMBER This is the width of the screen." << std::endl;
+    stream << " --height NUMBER This is the height of the screen." << std::endl;
     stream << "These are the autoloader commands" << std::endl;
     stream << " -w means load from ./Data/Platform/Windows" << std::endl;
     stream << " -m means load from ./Data/Platform/Macintosh" << std::endl;
@@ -42,8 +45,8 @@ bool test_Math();
 int main(int argc, char** argv)
 {
     // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
-    const int WIDTH = 1024;
-    const int HEIGHT = 764;
+    int WIDTH = 0;
+    int HEIGHT = 0;
 
     test_Math();
 
@@ -87,6 +90,12 @@ int main(int argc, char** argv)
             if( input.find( "--start" ) == 0 )
                 variable_name = "--start";
             else
+            if( input.find( "--width") == 0 )
+                variable_name = "--width";
+            else
+            if( input.find( "--height") == 0 )
+                variable_name = "--height";
+            else
                 helpExit( std::cout );
         }
         else {
@@ -104,10 +113,21 @@ int main(int argc, char** argv)
             else
             if( variable_name.find( "--start" ) == 0 )
                 start_number = input;
+            else
+            if( variable_name.find( "--width") == 0 )
+                WIDTH = std::stoi(input);
+            else
+            if( variable_name.find( "--height") == 0 )
+                HEIGHT = std::stoi(input);
             
             variable_name = "";
         }
     }
+    
+    if( WIDTH <= 0 )
+        WIDTH = 640;
+    if( HEIGHT <= 0 )
+        HEIGHT = 480;
 
     Data::Manager manager;
 
