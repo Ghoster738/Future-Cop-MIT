@@ -1,6 +1,61 @@
 #include "PortableNetworkGraphics.h"
 
+#include "Config.h"
+
 #include <cstring>
+
+std::string Utilities::ImageFormat::PortableNetworkGraphics::getExtension() const {
+    return FILE_EXTENSION;
+}
+
+bool Utilities::ImageFormat::PortableNetworkGraphics::isFormat( const Buffer& buffer ) const {
+    auto reader = buffer.getReader();
+    uint32_t FIRST = 0x89504E47; // \211 P N G
+    uint32_t LAST  = 0x0D0A1A0A; // \r \n \032 \n
+    if( reader.totalSize() < 0x8 )
+        return false;
+    else
+        return (reader.readU32( Buffer::Endian::BIG ) == FIRST) &
+               (reader.readU32( Buffer::Endian::BIG ) ==  LAST);
+}
+
+
+const std::string Utilities::ImageFormat::PortableNetworkGraphics::FILE_EXTENSION = "png";
+
+Utilities::ImageFormat::PortableNetworkGraphics::PortableNetworkGraphics() {}
+
+Utilities::ImageFormat::PortableNetworkGraphics::~PortableNetworkGraphics() {}
+
+Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::PortableNetworkGraphics::duplicate() const {
+    return new PortableNetworkGraphics();
+}
+
+#ifndef BUILD_WITH_LIBPNG
+
+size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageData& image_data ) const {
+    return 0; // The format is invalid for writing.
+}
+
+bool Utilities::ImageFormat::PortableNetworkGraphics::supports(
+     ImageData::Type type,
+     unsigned int bytes_per_channel ) const {
+    return 0;
+}
+
+bool Utilities::ImageFormat::PortableNetworkGraphics::canRead() const {
+    return false;
+}
+
+bool Utilities::ImageFormat::PortableNetworkGraphics::canWrite() const {
+    return false;
+}
+
+int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& image_data, Buffer& buffer ) {
+    return -1;
+}
+
+#else
+
 #include <libpng16/png.h>
 #include <zlib.h>
 
@@ -60,16 +115,6 @@ png_image setupImage( const Utilities::ImageData& image_data, bool &is_valid ) {
 }
 }
 
-const std::string Utilities::ImageFormat::PortableNetworkGraphics::FILE_EXTENSION = "png";
-
-Utilities::ImageFormat::PortableNetworkGraphics::PortableNetworkGraphics() {}
-
-Utilities::ImageFormat::PortableNetworkGraphics::~PortableNetworkGraphics() {}
-
-Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::PortableNetworkGraphics::duplicate() const {
-    return new PortableNetworkGraphics();
-}
-
 bool Utilities::ImageFormat::PortableNetworkGraphics::canRead() const {
     return false;
 }
@@ -112,21 +157,6 @@ size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageDat
     }
 }
 
-std::string Utilities::ImageFormat::PortableNetworkGraphics::getExtension() const {
-    return FILE_EXTENSION;
-}
-
-bool Utilities::ImageFormat::PortableNetworkGraphics::isFormat( const Buffer& buffer ) const {
-    auto reader = buffer.getReader();
-    uint32_t FIRST = 0x89504E47; // \211 P N G
-    uint32_t LAST  = 0x0D0A1A0A; // \r \n \032 \n
-    if( reader.totalSize() < 0x8 )
-        return false;
-    else
-        return (reader.readU32( Buffer::Endian::BIG ) == FIRST) &
-               (reader.readU32( Buffer::Endian::BIG ) ==  LAST);
-}
-
 int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& image_data, Buffer& buffer ) {
     bool is_valid;
     auto image_write = setupImage( image_data, is_valid );
@@ -154,4 +184,4 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& ima
         }
     }
 }
-
+#endif
