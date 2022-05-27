@@ -79,26 +79,26 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 }
 
 uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
-    std::cout << std::hex;
+    // std::cout << std::hex;
 
-    std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
+    // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
 
     if( ACT_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
 
-        std::cout << "chunk_size = " << chunk_size << std::endl;
+        // std::cout << "chunk_size = " << chunk_size << std::endl;
 
         this->matching_number = data_reader.readU32( endian );
 
-        std::cout << "matching_number = " << matching_number << std::endl;
+        // std::cout << "matching_number = " << matching_number << std::endl;
 
         const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 4;
         const uint_fast8_t act_type = data_reader.readU8();
 
-        std::cout << "ACT_SIZE = " << ACT_SIZE << std::endl;
-        std::cout << "act_type = " << act_type << std::endl;
-        std::cout << std::dec;
+        // std::cout << "ACT_SIZE = " << ACT_SIZE << std::endl;
+        // std::cout << "act_type = " << act_type << std::endl;
+        // std::cout << std::dec;
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
         data_reader.readU8();

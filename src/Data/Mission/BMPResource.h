@@ -3,6 +3,7 @@
 
 #include "Resource.h"
 #include "../../Utilities/ImageData.h"
+#include "../../Utilities/ImageFormat/ImageFormat.h"
 
 namespace Data {
 
@@ -25,11 +26,17 @@ private:
 
     // This holds color data from Windows and Mac. However, this will be empty for PlayStation 1 the textures only seems to use 8-bit data.
     Utilities::ImageData image_from_16_colors;
+
     // This should hold color data from the palette data for all the versions. However only the PlayStation 1 can write it currently
     Utilities::ImageData image_from_palette;
+
+    // This holds the format for getImage()
+    Utilities::ImageFormat::ImageFormat *format_p;
+
 public:
     BMPResource();
     BMPResource( const BMPResource &obj );
+    virtual ~BMPResource();
 
     virtual std::string getFileExtension() const;
 
@@ -40,6 +47,8 @@ public:
     virtual Resource * duplicate() const;
 
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+
+    const Utilities::ImageFormat::ImageFormat *const getImageFormat() const;
 
     Utilities::ImageData *const getImage() const;
     Utilities::ImageData *const getRGBImage() const;

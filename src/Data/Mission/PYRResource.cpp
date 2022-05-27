@@ -1,6 +1,7 @@
 #include "PYRResource.h"
 
 #include "../../Utilities/DataHandler.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
 #include <string.h>
 #include <fstream>
 #include <cassert>
@@ -276,6 +277,7 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
     bool export_prime_bw = false;
     bool enable_export = true;
     int return_value = 0;
+    Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
         if( (*arg).compare("--PYR_Prime_BlackWhite") == 0 )
@@ -284,6 +286,8 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
         if( (*arg).compare("--dry") == 0 )
             enable_export = false;
     }
+
+    Utilities::Buffer buffer;
 
     for( auto current_particle = particles.begin(); current_particle != particles.end(); current_particle++ ) {
 
@@ -294,11 +298,9 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
 
             if( (*current_particle).getNumSprites() != 1 )
             {
-                file_path_texture += " f:";
+                file_path_texture += " f ";
                 file_path_texture += std::to_string( index );
             }
-
-            file_path_texture += ".png";
 
             auto texture = (*current_particle).getTexture( index );
 
@@ -306,16 +308,26 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
                 texture->getLocation().x, texture->getLocation().y,
                 texture->getSize().x,     texture->getSize().y );
 
-            if( enable_export )
-                sub_image.applyPalette( (*texture->getPalette()) ).write( file_path_texture.c_str() );
+            auto palleted_image = sub_image.applyPalette( (*texture->getPalette()) );
+
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( palleted_image );
+
+            if( enable_export && the_choosen_r != nullptr ) {
+                the_choosen_r->write( palleted_image, buffer );
+                buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
+                buffer.set( nullptr, 0 );
+            }
         }
         return_value = 1;
     }
 
-    if( export_prime_bw && enable_export )
-    {
-        std::string file_path_texture = std::string( file_path ) + ".png";
-        return_value = image.write( file_path_texture.c_str() );
+    if( export_prime_bw && enable_export ) {
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
+
+        if( the_choosen_r != nullptr ) {
+            the_choosen_r->write( image, buffer );
+            buffer.write( the_choosen_r->appendExtension( file_path ) );
+        }
     }
 
     return return_value;

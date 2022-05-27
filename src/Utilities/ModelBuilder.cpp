@@ -1,6 +1,5 @@
 #include "ModelBuilder.h"
 
-#include "../Data/Mission/BMPResource.h"
 #include <limits>
 #include <fstream>
 
@@ -326,7 +325,7 @@ void Utilities::ModelBuilder::allocateVertices( unsigned int size ) {
     vertex_amount = size;
 }
 
-bool Utilities::ModelBuilder::setMaterial( unsigned int texture_index ) {
+bool Utilities::ModelBuilder::setMaterial( std::string file_name ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -335,7 +334,7 @@ bool Utilities::ModelBuilder::setMaterial( unsigned int texture_index ) {
     {
         texture_materials.push_back( TextureMaterial() );
 
-        texture_materials.back().texture_index = texture_index;
+        texture_materials.back().file_name = file_name;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
 
@@ -356,7 +355,7 @@ bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMa
 
         element.count                 = texture_materials[material_index].count;
         element.starting_vertex_index = texture_materials[material_index].starting_vertex_index;
-        element.texture_index         = texture_materials[material_index].texture_index;
+        element.file_name             = texture_materials[material_index].file_name;
 
         return true;
     }
@@ -604,9 +603,6 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
     root["samplers"][0]["wrapS"] = 10497;
     root["samplers"][0]["wrapT"] = 10497;
 
-    // TODO Find a better way other than using this TextureResource just for its name.
-    Data::Mission::BMPResource temp;
-
     // TODO Complete this implementation
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
         unsigned int position = i - texture_materials.begin();
@@ -614,9 +610,9 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
         if( mesh_primative_mode != MeshPrimativeMode::TRIANGLES )
             root["meshes"][0]["primitives"][position]["mode"] = mesh_primative_mode;
 
-        if( (*i).texture_index > 0 )
+        if( !(*i).file_name.empty() )
         {
-            root["images"][position]["uri"] = temp.getFullName( (*i).texture_index ) + ".png";
+            root["images"][position]["uri"] = (*i).file_name;
 
             root["textures"][position]["source"]  = position;
             root["textures"][position]["sampler"] = 0;
@@ -711,7 +707,7 @@ void test_ModelBuilder() {
     model.allocateVertices( 6 );
 
     // There is no texture for this.
-	model.setMaterial( 67 ); // -1 means no texture
+	model.setMaterial( "67" ); // -1 means no texture
 
 	Utilities::DataTypes::Vec3 position;
 	Utilities::DataTypes::Vec3 position_morph;
@@ -768,7 +764,7 @@ void test_ModelBuilder() {
 
 	model.addMorphVertexData( position_morph_component_index, 0, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( position_morph ) );
 
-	model.setMaterial( 68 ); // -1 means no texture
+	model.setMaterial( "68" ); // -1 means no texture
 
 	// Position is at the bottom left
 	position.x = 1.0; position.y = 1.0; position.z = 0.0;

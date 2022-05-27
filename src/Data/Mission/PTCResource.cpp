@@ -1,6 +1,7 @@
 #include "PTCResource.h"
 
 #include "../../Utilities/DataHandler.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -114,16 +115,27 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
 }
 
 int Data::Mission::PTCResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
-    std::string file_path_texture = std::string( file_path ) + ".png";
     bool enable_export = true;
+    Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
         if( (*arg).compare("--dry") == 0 )
             enable_export = false;
     }
 
-    if( enable_export )
-        return debug_map_display.write( file_path_texture.c_str() );
+    if( enable_export ) {
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( debug_map_display );
+
+        if( the_choosen_r != nullptr ) {
+            Utilities::Buffer buffer;
+            int state = the_choosen_r->write( debug_map_display, buffer );
+
+            buffer.write( the_choosen_r->appendExtension( file_path ) );
+            return state;
+        }
+        else
+            return 0;
+    }
     else
         return 0;
 }

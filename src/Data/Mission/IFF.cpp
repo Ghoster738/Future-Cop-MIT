@@ -348,6 +348,7 @@ int Data::Mission::IFF::open( const char *const file_path ) {
             new_resource_p->setOffset( i.offset );
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
+            new_resource_p->setResourceID( i.resource_id );
 
             new_resource_p->setMemory( i.header_p, i.data_p );
             new_resource_p->processHeader( default_settings );
@@ -384,6 +385,34 @@ int Data::Mission::IFF::open( const char *const file_path ) {
         else
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr )
             std::cerr << "Error: PYR resource is not found, but the Til resources are in the file." << std::endl;
+
+        if( getResource( Data::Mission::ObjResource::IDENTIFIER_TAG ) != nullptr ) {
+            std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
+
+            // TODO add optional global file.
+            // textures.insert( textures.end(), textures.begin(), textures.end() );
+
+            std::vector<Data::Mission::ObjResource*> objects = Data::Mission::ObjResource::getVector( *this );
+
+            for( auto it = objects.begin(); it != objects.end(); it++ ) {
+                bool valid_texture_obj = (*it)->loadTextures( textures_from_prime );
+                // assert(valid_texture_obj);
+            }
+        }
+
+        if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr ) {
+            std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
+
+            // TODO add optional global file.
+            // textures.insert( textures.end(), textures.begin(), textures.end() );
+
+            std::vector<Data::Mission::TilResource*> objects = Data::Mission::TilResource::getVector( *this );
+
+            for( auto it = objects.begin(); it != objects.end(); it++ ) {
+                bool valid_texture_til = (*it)->loadTextures( textures_from_prime );
+                assert(valid_texture_til);
+            }
+        }
 
         return 1;
     }

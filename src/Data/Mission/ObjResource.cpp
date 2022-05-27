@@ -855,12 +855,49 @@ int Data::Mission::ObjResource::write( const char *const file_path, const std::v
     return glTF_return;
 }
 
+bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &textures ) {
+    if( textures.size() != 0 ) {
+        bool valid = true;
+
+        std::map< uint32_t, BMPResource* > resource_id_to_bmp;
+        std::map< uint32_t, TextureReference > resource_id_to_reference;
+
+        for( uint32_t i = 0; i < textures.size(); i++ )
+            resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
+
+        for( size_t i = 0; i < texture_quads.size(); i++ ) {
+            if( resource_id_to_reference.count( texture_quads[ i ].index ) == 0 ) {
+                resource_id_to_reference[ texture_quads[ i ].index ].resource_id = texture_quads[ i ].index;
+
+                if( resource_id_to_bmp.count( texture_quads[ i ].index ) != 0 ) {
+                    if( resource_id_to_bmp[ texture_quads[ i ].index ]->getImageFormat() != nullptr ) {
+                        resource_id_to_reference[ texture_quads[ i ].index ].name = resource_id_to_bmp[ texture_quads[ i ].index ]->getImageFormat()->appendExtension( resource_id_to_bmp[ texture_quads[ i ].index ]->getFullName( texture_quads[ i ].index  ) );
+                    }
+                }
+                else
+                    valid = false;
+            }
+        }
+
+        texture_references.reserve( resource_id_to_reference.size() );
+
+        for( auto it = resource_id_to_reference.begin(); it != resource_id_to_reference.end(); it++ ) {
+            texture_references.push_back( (*it).second );
+        }
+
+        return valid;
+    }
+    else {
+        assert( false );
+        return false;
+    }
+}
+
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::vector<std::string> * arguments ) const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
     std::vector< FaceTriangle > triangle_buffer;
-    std::vector<unsigned int> used_textures;
     std::vector<unsigned int> triangle_counts;
     bool is_specular = false;
 
@@ -899,7 +936,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
 
             if( triangle_buffer.begin() == i || last_texture_quad_index != index) {
                 triangle_counts.push_back( 0 );
-                used_textures.push_back( index );
                 last_texture_quad_index = index;
             }
             triangle_counts.back()++;
@@ -1000,12 +1036,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
 
     model_output->allocateVertices( triangle_buffer.size() * 3 );
 
-    if( used_textures.size() == 0 )
-        model_output->setMaterial( -1 );
+    if( texture_references.size() == 0 )
+        model_output->setMaterial( "" );
     /*
-    for( unsigned int i = 0; i < used_textures.size(); i++ )
+    for( unsigned int i = 0; i < texture_references.size(); i++ )
     {
-        image_path = std::to_string(used_textures.at(i)) + ".png";
+        image_path = std::to_string( texture_references.at(i) ) + ".png";
 
         glTF_output->addTexturePath( image_path );
     }
@@ -1031,7 +1067,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
 
     for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
     {
-        model_output->setMaterial( used_textures.at(mat) );
+        model_output->setMaterial( texture_references.at( mat ).name );
 
         for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
         {
@@ -1171,7 +1207,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         // At this point it is time to start generating bounding box.
         
         // No texture should be used for this bounding box.
-        box_output->setMaterial( -1 );
+        box_output->setMaterial( "" );
         
         for( unsigned int box_index = 0; box_index < bounding_box_per_frame; box_index++ )
         {

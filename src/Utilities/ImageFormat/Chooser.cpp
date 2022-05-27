@@ -3,7 +3,7 @@
 #include "QuiteOkImage.h"
 
 Utilities::ImageFormat::Chooser::Chooser() {
-    formats.push_back( new Utilities::ImageFormat::PortableNetworkGraphics() );
+    // formats.push_back( new Utilities::ImageFormat::PortableNetworkGraphics() );
     formats.push_back( new Utilities::ImageFormat::QuiteOkImage() );
     
     for( auto x : formats ) {

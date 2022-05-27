@@ -1,6 +1,7 @@
 #include "ANMResource.h"
 
 #include "../../Utilities/DataHandler.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
 
 const unsigned Data::Mission::ANMResource::Video::WIDTH = 64;
 const unsigned Data::Mission::ANMResource::Video::HEIGHT = 48;
@@ -196,9 +197,9 @@ Data::Mission::Resource * Data::Mission::ANMResource::duplicate() const {
 }
 
 int Data::Mission::ANMResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
-    std::string file_path_texture = std::string( file_path ) + ".png";
     bool enable_color_palette_export = false;
     bool enable_export = true;
+    Utilities::ImageFormat::Chooser chooser;
 
     // Check if there is data to export.
     if( getTotalScanlines() != 0 )
@@ -221,11 +222,15 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
                 enable_export = false;
         }
 
-        if( enable_export )
-        {
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image_sheet );
+
+        if( enable_export && the_choosen_r != nullptr ) {
+            Utilities::Buffer buffer;
+
             if( enable_color_palette_export ) {
-                std::string file_path_texture_clut = std::string( file_path ) + " clut.png";
-                palette.write( file_path_texture_clut.c_str() );
+                the_choosen_r->write( palette, buffer );
+                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + " clut" ) );
+                buffer.set( nullptr, 0 );
             }
 
             for( unsigned i = 0; i < video_frames; i++ )
@@ -241,7 +246,10 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
                     video.nextFrame();
             }
 
-            return image_sheet.write( file_path_texture.c_str() );
+            int state = the_choosen_r->write( image_sheet, buffer );
+
+            buffer.write( the_choosen_r->appendExtension( file_path ) );
+            return state;
         }
         else
             return 0; // Indicate that nothing will be exported.

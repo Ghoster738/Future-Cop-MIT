@@ -80,7 +80,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         model.getMaterial( a, material );
 
         // The mod operation ensures that there is no out of bound case.
-        unsigned int texture_index = material.texture_index % textures.size();
+        unsigned int texture_index = (material.cbmp_resource_id - 1) % textures.size();
         if( texture_index == -1 )
             texture_index = 0;
 

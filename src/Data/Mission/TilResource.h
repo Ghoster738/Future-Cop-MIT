@@ -2,6 +2,7 @@
 #define MISSION_RESOURCE_TILE_HEADER
 
 #include "ModelResource.h"
+#include "BMPResource.h"
 #include "../../Utilities/ImageData.h"
 
 namespace Data {
@@ -67,6 +68,8 @@ private:
     std::vector<Utilities::DataTypes::Vec2UByte> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<uint16_t> colors;
     std::vector<TileGraphics> tile_texture_type;
+
+    std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
 public:
     TilResource();
     TilResource( const TilResource &obj );
@@ -80,6 +83,8 @@ public:
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual Resource * duplicate() const;
+
+    bool loadTextures( const std::vector<BMPResource*> &textures );
 
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
 

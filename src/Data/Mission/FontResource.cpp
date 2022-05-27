@@ -1,6 +1,7 @@
 #include "FontResource.h"
 
 #include "../../Utilities/DataHandler.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
 #include <string.h>
 #include <fstream>
 #include <cassert>
@@ -228,46 +229,54 @@ Utilities::ImageData *const Data::Mission::FontResource::getImage() const {
 int Data::Mission::FontResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
     bool export_enable = true;
+    Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
         if( (*arg).compare("--dry") == 0 )
             export_enable = false;
     }
 
-    if( export_enable )
-    {
+    if( export_enable ) {
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
 
-        if( resource.is_open() )
-        {
-            resource << "info face=\"" << file_path << "\" size=24 bold=0 italic=0 charset=\"ASCII\""
+        if( resource.is_open() ) {
+            // TODO Find a way to seperate the file_name from the path.
+
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
+
+            resource << "info face=\"" << getFullName( getResourceID() ) << "\" size=24 bold=0 italic=0 charset=\"ASCII\""
                      << " unicode=0 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0 outline=1"<< std::endl;
 
             resource << "common lineHeight=24 base=19 scaleW=" << image.getWidth() << " scaleH="
                      << image.getHeight() << " pages=1 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0"
                      << std::endl;
 
-            auto file_png = std::string( std::string(file_path), std::string(file_path).find_last_of( '/' ) + 1 );
-
-            resource << "page id=0 file=\"" << file_png << ".png\"" << std::endl;
+            resource << "page id=0 file=\"" << the_choosen_r->appendExtension( getFullName( getResourceID() ) ) << "\"" << std::endl;
 
             resource << "chars count=" << glyphs.size() << std::endl;
 
             for( unsigned int i = 0; i < glyphs.size(); i++ ) {
                 resource << "char id=" << (static_cast<unsigned int>(glyphs.at(i).getGlyph()) & 0xFF)
-                         << " x=" << glyphs.at(i).getLeft() << " y=" << glyphs.at(i).getTop()
-                         << " width="  << (glyphs.at(i).getRight() - glyphs.at(i).getLeft())
-                         << " height=" << (glyphs.at(i).getBottom() - glyphs.at(i).getTop())
+                         << " x=" << static_cast<int>( glyphs.at(i).getLeft() ) << " y=" << static_cast<int>( glyphs.at(i).getTop() )
+                         << " width="  << static_cast<int>(glyphs.at(i).getRight() - glyphs.at(i).getLeft())
+                         << " height=" << static_cast<int>(glyphs.at(i).getBottom() - glyphs.at(i).getTop())
                          << " xoffset=" << static_cast<int>( glyphs.at(i).getOffset().x )
                          << " yoffset=" << static_cast<int>( glyphs.at(i).getOffset().y )
-                         << " xadvance=" << glyphs.at(i).getXAdvance() << " page=0 chnl=15"
+                         << " xadvance=" << static_cast<int>( glyphs.at(i).getXAdvance() ) << " page=0 chnl=15"
                          << std::endl;
             }
 
             resource.close();
 
-            std::string file_path_texture = std::string( file_path ) + ".png";
-            return image.write( file_path_texture.c_str() );
+            if( the_choosen_r != nullptr ) {
+                Utilities::Buffer buffer;
+                int state = the_choosen_r->write( image, buffer );
+
+                buffer.write( the_choosen_r->appendExtension( file_path ) );
+                return state;
+            }
+            else
+                return -1;
         }
         else
             return -2;
