@@ -16,10 +16,15 @@ namespace Internal {
 class Texture2D {
 private:
     GLuint texture_id;
+    uint32_t cbmp_resource_id; // If zero then it is no cbmp.
     bool is_allocated;
 public:
     Texture2D();
     virtual ~Texture2D();
+
+    uint32_t getCBMPResourceID() const;
+
+    void setCBMPResourceID( uint32_t cbmp_resource_id );
 
     /**
      * This method generates the texture.

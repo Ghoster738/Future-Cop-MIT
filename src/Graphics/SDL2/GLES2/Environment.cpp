@@ -88,6 +88,7 @@ int Graphics::Environment::setModelTextures( const std::vector<Data::Mission::BM
         {
             auto image_accessor = converted_texture->getImage();
 
+            EnvironmentInternalData->general_textures[i].setCBMPResourceID( converted_texture->getResourceID() );
             EnvironmentInternalData->general_textures[i].setFilters( 0, GL_NEAREST, GL_LINEAR );
             EnvironmentInternalData->general_textures[i].setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
 

@@ -1,6 +1,6 @@
 #include "Texture2D.h"
 
-Graphics::SDL2::GLES2::Internal::Texture2D::Texture2D() : texture_id(0), is_allocated( false )
+Graphics::SDL2::GLES2::Internal::Texture2D::Texture2D() : texture_id( 0 ), cbmp_resource_id( 0 ), is_allocated( false )
 {
 }
 
@@ -8,6 +8,14 @@ Graphics::SDL2::GLES2::Internal::Texture2D::~Texture2D() {
     if( is_allocated ) {
         glDeleteTextures( 1, &texture_id );
     }
+}
+
+uint32_t Graphics::SDL2::GLES2::Internal::Texture2D::getCBMPResourceID() const {
+    return cbmp_resource_id;
+}
+
+void Graphics::SDL2::GLES2::Internal::Texture2D::setCBMPResourceID( uint32_t cbmp_resource_id ) {
+    this->cbmp_resource_id = cbmp_resource_id;
 }
 
 void Graphics::SDL2::GLES2::Internal::Texture2D::generate() {

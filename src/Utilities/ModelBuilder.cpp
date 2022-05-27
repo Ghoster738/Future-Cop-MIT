@@ -325,7 +325,7 @@ void Utilities::ModelBuilder::allocateVertices( unsigned int size ) {
     vertex_amount = size;
 }
 
-bool Utilities::ModelBuilder::setMaterial( std::string file_name ) {
+bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_resource_id ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -335,6 +335,7 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name ) {
         texture_materials.push_back( TextureMaterial() );
 
         texture_materials.back().file_name = file_name;
+        texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
 
@@ -356,6 +357,7 @@ bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMa
         element.count                 = texture_materials[material_index].count;
         element.starting_vertex_index = texture_materials[material_index].starting_vertex_index;
         element.file_name             = texture_materials[material_index].file_name;
+        element.cbmp_resource_id      = texture_materials[material_index].cbmp_resource_id;
 
         return true;
     }
