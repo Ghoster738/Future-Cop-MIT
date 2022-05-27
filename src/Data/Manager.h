@@ -25,6 +25,7 @@ public:
     const static std::string lax_spaceport_part_2;
     const static std::string long_beach;
     const static std::string *const crime_war_iffs[];
+    const static size_t AMOUNT_OF_CRIME_WAR_IDS;
 
     const static std::string pa_urban_jungle;
     const static std::string pa_venice_beach;
@@ -33,8 +34,10 @@ public:
     const static std::string pa_bug_hunt;
     const static std::string pa_la_centina;
     const static std::string *const precinct_assault_iffs[];
+    const static size_t AMOUNT_OF_PRECINCT_ASSAULT_IDS;
 
     const static std::string *const map_iffs[];
+    const static size_t AMOUNT_OF_IFF_IDS;
 
     enum Platform {
         MACINTOSH,
