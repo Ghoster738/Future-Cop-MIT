@@ -15,25 +15,55 @@ This is a pure terminal program built in order to show the decoding abitily of t
 
 This command will display what the commands do.
 
-./FCMissionReader -h
+**./FCMissionReader -h**
 
-The -i command loads the mission file to be read.
+The **-i** command loads the mission file to be read.
 
-./FCMissionReader -i path/to/mission/File
+**./FCMissionReader -i path/to/mission/File**
 
-The -o command tells where the output directory should go. **Warning:** This should be an existing directory, and it should be empty.
+The **-o** command tells where the output directory should go. **Warning:** This should be an existing directory, and it should be empty.
 
-./FCMissionReader -o path/to/mission/File
+**./FCMissionReader -o path/to/mission/File**
 
-The -r command dumps the raw resources of the mission file.
+The **-r** command dumps the raw resources of the mission file.
 
-./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -r
+**./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -r**
 
-The -d command exports the resources of the mission file into more common data formats.
+The **-d** command exports the resources of the mission file into more common data formats.
 
-./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -d
+**./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -d**
 
-### The id system.
+## Command Line Arguments for FCMapViewer and FCModelViewer
+The command line for the Future Cop Viewers are a bit different from the FCMissionReader.
+
+### Direct Pathing Method
+This indirect pathing is created for the modder, so they would be able to view their own maps.
+
+**./FCMapViewer --global /path/to/global_mission --path "/path/to/mission"**
+
+**--global** is the path to the global file which every map uses.
+
+**--path** is the path to the mission file which contains the rest of the data like the map.
+
+### Autoloader Method
+If you want to load a specific mission file with a specific global file you could do this.
+
+**-w** means load from ./Data/Platform/Windows
+
+**-m** means load from ./Data/Platform/Macintosh
+
+**-p** means load from ./Data/Platform/Playstation
+
+**--id** means which mission id to load from. See **The ID System** for more info
+
+### Testing Arguments for the Autoloader
+This is useful for testing only. **These arguments are useless and overkill for non-developers.**
+
+**--platform-all** This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels.
+
+**--load-all** If you like high loading times use this. This tells the mission manager to load every single map.
+
+#### The ID system.
 This only works if the **Autoloading Requirements** are meet. These are the valid names of the system
 
 **The IDs for Crime War names.**
@@ -100,9 +130,9 @@ Install_Destination/Data/Platform/Playstation -- should have the installation fi
 
 This source code requires C++ 11. It compiles fine using the G++ compiler. The libraries used are...
 
-&ensp; __zlib__
+&ensp; __zlib__ (Optional)
 
-&ensp; __libpng__
+&ensp; __libpng__ (Optional, but requires __zlib__)
 
 &ensp; __jsoncpp__
 
@@ -150,13 +180,15 @@ This source code requires C++ 11. It compiles fine using the G++ compiler. The l
 
 &ensp; __MSIC__: Also PCM audio.
 
-### PNG images for
+### QOI or PNG (if compilied with libpng) images for
 
 &ensp; __ANM__: All the animation frames are stored in a single texture with the images being stored vertically.
 
 &ensp; __BMP__: A single 256x256 texture for each BMP.
 
 &ensp; __PYR__: This gets separated into textures.
+
+&ensp; __FNTP__: The font is uses raster images after all.
 
 ### GLTF the model format
 
@@ -168,7 +200,7 @@ Every one of those files does not store the textures, but uses the paths to the 
 
 ### Font
 
-&ensp; __FNTP__: This writes two files. One is an BMFont text file, and the other is a PNG image corresponding to it.
+&ensp; __FNTP__: This writes two files. One is an BMFont text file.
 
 ### JSON is used to make the exports more readable
 
