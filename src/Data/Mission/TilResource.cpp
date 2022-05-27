@@ -5,6 +5,7 @@
 #include "IFF.h"
 
 #include "../../Utilities/DataHandler.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -148,7 +149,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 skipped_space = true;
             
             // Undo the read after the bytes are skipped.
-            readerSect.setPosition( -sizeof( uint32_t ), Utilities::Buffer::Reader::CURRENT );
+            readerSect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::Reader::CURRENT );
 
             if( skipped_space && settings.output_level >= 3 )
             {
@@ -198,6 +199,25 @@ Data::Mission::Resource * Data::Mission::TilResource::duplicate() const {
     return new Data::Mission::TilResource( *this );
 }
 
+bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
+    const static size_t TEXTURE_LIMIT = sizeof(texture_names) / sizeof( texture_names[0] );
+    bool valid = true;
+
+    for( auto cur = textures.begin(); cur != textures.end(); cur++ ) {
+        if( (*cur)->getResourceID() - 1 < TEXTURE_LIMIT ) {
+            if( (*cur)->getImageFormat() != nullptr )
+                texture_names[ (*cur)->getResourceID() - 1 ] = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
+        }
+    }
+
+    for( size_t i = 0; i < TEXTURE_LIMIT; i++ ) {
+        if( texture_names[ i ].empty() )
+            valid = false;
+    }
+
+    return valid;
+}
+
 using Data::Mission::Til::Mesh::BACK_LEFT;
 using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
@@ -207,6 +227,7 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
     bool enable_height_map_export = false;
     bool enable_export = true;
     int glTF_return = 0;
+    Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
         if( (*arg).compare("--TIL_EXPORT_HEIGHT_MAP") == 0 )
@@ -216,11 +237,14 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
             enable_export = false;
     }
 
-    if( enable_height_map_export && enable_export )
-    {
-        // Write the three heightmaps
-        std::string file_path_texture = std::string( file_path ) + ".png";
-        image.write( file_path_texture.c_str() ); // TODO Find out what to do if the image cannot be written.
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
+
+    if( enable_height_map_export && enable_export && the_choosen_r != nullptr ) {
+        // Write the three heightmaps encoded in three color channels.
+        // TODO Find out what to do if the image cannot be written.
+        Utilities::Buffer buffer;
+        the_choosen_r->write( image, buffer );
+        buffer.write( the_choosen_r->appendExtension( file_path ) );
     }
 
     Utilities::ModelBuilder *model_output = createModel( &arguments );
@@ -360,7 +384,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
                             }
 
                             if( is_first && current_tile_polygon_amount != 0 ) {
-                                model_output->setMaterial( a );
+                                model_output->setMaterial( texture_names[ a ] );
 
                                 is_first = false;
                             }

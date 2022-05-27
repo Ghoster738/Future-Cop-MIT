@@ -190,7 +190,8 @@ size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageData& image_da
 bool Utilities::ImageFormat::QuiteOkImage::supports( ImageData::Type type,
                                                      unsigned int bytes_per_channel ) const {
     return (bytes_per_channel == 1) &
-           ((type == ImageData::RED_GREEN_BLUE) |
+           ((type == ImageData::BLACK_WHITE) |
+            (type == ImageData::RED_GREEN_BLUE) |
             (type == ImageData::RED_GREEN_BLUE_ALHPA));
 }
 
@@ -200,8 +201,6 @@ std::string Utilities::ImageFormat::QuiteOkImage::getExtension() const {
 
 int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
                                                  Utilities::Buffer& buffer ) {
-    // TODO Upgrade the image data to be able to make a new texture that would work well with this format.
-    
     if( supports( image_data.getType(), image_data.getBytesPerChannel() ) )
     {
         reset();
@@ -228,12 +227,19 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
         {
             for( size_t y = 0; y < image_data.getHeight(); y++ )
             {
-                current_pixel.red   = image_data_buffer[0];
-                current_pixel.green = image_data_buffer[1];
-                current_pixel.blue  = image_data_buffer[2];
-                
-                if( image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA )
-                    current_pixel.alpha = image_data_buffer[3];
+                if( image_data.getType() != ImageData::BLACK_WHITE ) {
+                    current_pixel.red   = image_data_buffer[0];
+                    current_pixel.green = image_data_buffer[1];
+                    current_pixel.blue  = image_data_buffer[2];
+
+                    if( image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA )
+                        current_pixel.alpha = image_data_buffer[3];
+                }
+                else {
+                    current_pixel.red   = image_data_buffer[0];
+                    current_pixel.green = image_data_buffer[0];
+                    current_pixel.blue  = image_data_buffer[0];
+                }
                 
                 if( matchColor(current_pixel, this->previous_pixel) )
                 {

@@ -58,6 +58,14 @@ size_t Data::Mission::Resource::getOffset() const {
     return offset;
 }
 
+void Data::Mission::Resource::setResourceID( uint32_t resource_id ) {
+    this->resource_id = resource_id;
+}
+
+uint32_t Data::Mission::Resource::getResourceID() const {
+    return resource_id;
+}
+
 std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
     std::string full_name;
 

@@ -17,7 +17,7 @@ public:
 	static const uint32_t IDENTIFIER_TAG;
 
     struct TextureQuad {
-        unsigned int index;
+        unsigned int index; // This is the resource id of the BMPResource texture refernced.
 
         Utilities::DataTypes::Vec2UByte coords[4];
 
@@ -72,6 +72,11 @@ public:
         uint16_t rotation_x;
         uint16_t rotation_y;
     };
+    // This is all that a GLTF needs to know.
+    struct TextureReference {
+        uint32_t resource_id;
+        std::string name;
+    };
 private:
     std::vector< Utilities::DataTypes::Vec3Short > vertex_positions;
     std::vector< Utilities::DataTypes::Vec3Short > vertex_normals;
@@ -90,6 +95,8 @@ private:
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;
     std::vector<BoundingBox3D> bounding_boxes;
+
+    std::vector<TextureReference> texture_references;
     
     /**
      * This gets the bytes per frame rating for the specific opcode.
@@ -110,6 +117,8 @@ public:
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual Resource * duplicate() const;
+
+    bool loadTextures( const std::vector<BMPResource*> &textures );
 
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
 

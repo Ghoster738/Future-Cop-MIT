@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include "../../Utilities/DataHandler.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
 #include <fstream>
 #include <cassert>
 
@@ -22,10 +23,19 @@ const std::string Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
 const uint32_t Data::Mission::BMPResource::IDENTIFIER_TAG = 0x43626D70; // which is { 0x43, 0x62, 0x6D, 0x70 } or { 'C', 'b', 'm', 'p' } or "Cbmp"
 
 Data::Mission::BMPResource::BMPResource() {
-
+    format_p = nullptr;
 }
 
-Data::Mission::BMPResource::BMPResource( const BMPResource &obj ) : Resource( obj ), palette( obj.palette ), image_from_16_colors( obj.image_from_16_colors ), image_from_palette( obj.image_from_palette ) {
+Data::Mission::BMPResource::BMPResource( const BMPResource &obj ) : Resource( obj ), palette( obj.palette ), image_from_16_colors( obj.image_from_16_colors ), image_from_palette( obj.image_from_palette ), format_p( nullptr ) {
+    if( obj.format_p != nullptr ) {
+        format_p = obj.format_p->duplicate();
+    }
+}
+
+Data::Mission::BMPResource::~BMPResource() {
+    if( format_p != nullptr ) {
+        delete format_p;
+    }
 }
 
 std::string Data::Mission::BMPResource::getFileExtension() const {
@@ -226,6 +236,11 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             }
         }
 
+        Utilities::ImageFormat::Chooser chooser;
+
+        this->format_p = chooser.getWriterCopy( *getImage() );
+        assert( this->format_p != nullptr );
+
         return !file_is_not_valid;
     }
     else
@@ -236,7 +251,6 @@ Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
 int Data::Mission::BMPResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
-    std::string file_path_texture = std::string( file_path ) + ".png";
     bool export_enable = true;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
@@ -244,20 +258,30 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
             export_enable = false;
     }
 
-    if( export_enable && getImage() != nullptr)
-    {
-        unsigned int state = getImage()->write( file_path_texture.c_str() );
-        if( image_raw.getPixelSize() == 2 ) {
-            std::string file_path_8pal_texture = std::string( file_path ) + "_paletted.png";
-            image_from_palette.write( file_path_8pal_texture.c_str() );
+    if( export_enable && getImage() != nullptr ) {
+        if( this->format_p != nullptr ) {
+            Utilities::Buffer buffer;
+
+            int state = this->format_p->write( *getImage(), buffer );
+            buffer.write( this->format_p->appendExtension( file_path ) );
+
+            buffer.set( nullptr, 0 ); // This effectively clears the buffer.
+
+            state = this->format_p->write( palette, buffer );
+            buffer.write( this->format_p->appendExtension( std::string( file_path ) + "_paletted" ) );
+
+            return state;
         }
-        
-        return state;
+        else
+            return 0;
     }
     else
         return 0;
 }
 
+const Utilities::ImageFormat::ImageFormat *const Data::Mission::BMPResource::getImageFormat() const {
+    return format_p;
+}
 
 Utilities::ImageData *const Data::Mission::BMPResource::getImage() const {
     auto pointer = getRGBImage();
@@ -292,8 +316,10 @@ std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( 
 
     copy.reserve( to_copy.size() );
 
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
+    for( auto it = to_copy.begin(); it != to_copy.end(); it++ ) {
+        assert( dynamic_cast<BMPResource*>( (*it) ) );
         copy.push_back( dynamic_cast<BMPResource*>( (*it) ) );
+    }
 
     return copy;
 }

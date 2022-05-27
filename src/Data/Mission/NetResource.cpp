@@ -57,7 +57,7 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     }
     
     // These two bits are always zero.
-    assert( (this->data & 0x3) == 0 );
+    //assert( (this->data & 0x3) == 0 );
     
     // This has a range of 0 to 3. I do not know if there is a zero though.
     return filled_indices;
