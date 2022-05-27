@@ -4,6 +4,14 @@
 #cmakedefine GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
 #cmakedefine FORCE_FULL_OPENGL_2
 #cmakedefine GLEW_FOUND
+#cmakedefine ZLIB_FOUND
+#cmakedefine PNG_FOUND
+
+#ifdef ZLIB_FOUND
+#ifdef PNG_FOUND
+#define BUILD_WITH_LIBPNG
+#endif // PNG_FOUND
+#endif // ZLIB_FOUND
 
 // SDL_USE_BUILTIN_OPENGL_DEFINITIONS forces SDL to use its own OpenGLES definitions.
 // Use this if the compiler tells you if there is no such thing as a glProgram for example.

@@ -3,9 +3,6 @@
 
 #include "ImageFormat.h"
 
-#include <libpng16/png.h>
-#include <zlib.h>
-
 namespace Utilities {
 
 namespace ImageFormat {
