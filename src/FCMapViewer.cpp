@@ -24,6 +24,9 @@ bool test_MissionTilResource();
 
 namespace {
 void helpExit( std::ostream &stream ) {
+    stream << "These are the graphics settings" << std::endl;
+    stream << " --width NUMBER This is the width of the screen." << std::endl;
+    stream << " --height NUMBER This is the height of the screen." << std::endl;
     stream << "These are the autoloader commands" << std::endl;
     stream << " -w means load from ./Data/Platform/Windows" << std::endl;
     stream << " -m means load from ./Data/Platform/Macintosh" << std::endl;
@@ -49,20 +52,8 @@ int main(int argc, char** argv)
     // Reference the tile set data.
     // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", &std::cout );
     
-    const int WIDTH = 1024;
-    const int HEIGHT = 764;
-
-	// Declare a pointer
-    Graphics::Window *window = new Graphics::Window();
-    std::string title = "Future Cop Map Viewer";
-
-    Graphics::Environment::initSystem();
-
-    window->setWindowTitle( title );
-    if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center() << std::endl;
-    window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
-    window->setFullScreen( true );
+    int WIDTH = 0;
+    int HEIGHT = 0;
 
     std::string iff_mission_id = "pa_urban_jungle";
     std::string global_id = "global";
@@ -104,6 +95,12 @@ int main(int argc, char** argv)
             if( input.find( "--path") == 0 )
                 variable_name = "--path";
             else
+            if( input.find( "--width") == 0 )
+                variable_name = "--width";
+            else
+            if( input.find( "--height") == 0 )
+                variable_name = "--height";
+            else
                 helpExit( std::cout );
         }
         else {
@@ -115,10 +112,33 @@ int main(int argc, char** argv)
             else
             if( variable_name.find( "--path") == 0 )
                 mission_path = input;
+            else
+            if( variable_name.find( "--width") == 0 )
+                WIDTH = std::stoi(input);
+            else
+            if( variable_name.find( "--height") == 0 )
+                HEIGHT = std::stoi(input);
             
             variable_name = "";
         }
     }
+    
+    if( WIDTH <= 0 )
+        WIDTH = 320;
+    if( HEIGHT <= 0 )
+        HEIGHT = 200;
+
+    // Declare a pointer
+    Graphics::Window *window = new Graphics::Window();
+    std::string title = "Future Cop Map Viewer";
+
+    Graphics::Environment::initSystem();
+
+    window->setWindowTitle( title );
+    if( window->center() != 1 )
+        std::cout << "The window had failed to center! " << window->center() << std::endl;
+    window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
+    window->setFullScreen( true );
 
     Graphics::Environment *environment = new Graphics::Environment();
     if( environment->attachWindow( *window ) != 1 )
