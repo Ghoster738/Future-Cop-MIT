@@ -36,6 +36,13 @@ The **-d** command exports the resources of the mission file into more common da
 ## Command Line Arguments for FCMapViewer and FCModelViewer
 The command line for the Future Cop Viewers are a bit different from the FCMissionReader.
 
+### Graphics Arguments
+These commands are as basic right now.
+
+**--width** is the width of the screen resolution.
+
+**--height** is the height of the screen resolution.
+
 ### Direct Pathing Method
 This indirect pathing is created for the modder, so they would be able to view their own maps.
 
