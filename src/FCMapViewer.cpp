@@ -18,6 +18,8 @@
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
+#include "Utilities/ImageFormat/Chooser.h"
+
 bool test_MissionTilResource();
 
 int main(int argc, char** argv)
@@ -378,7 +380,14 @@ int main(int argc, char** argv)
             {
                 Utilities::ImageData image_screenshot( WIDTH, HEIGHT,  Utilities::ImageData::RED_GREEN_BLUE, 1 );
                 environment->screenshot( image_screenshot );
-                image_screenshot.write( "./dialog.png" );
+
+                Utilities::Buffer file;
+                Utilities::ImageFormat::Chooser chooser;
+                auto the_choosen_r = chooser.getWriterReference( image_screenshot );
+                if( the_choosen_r != nullptr ) {
+                    the_choosen_r->write( image_screenshot, file);
+                    file.write( the_choosen_r->appendExtension( "dialog" ) );
+                }
             }
         }
 

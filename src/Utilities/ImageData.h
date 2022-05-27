@@ -115,13 +115,6 @@ public:
      */
     const char *const getRawImageData() const;
 
-    /**
-     * This method exports a png file.
-     * @param file_path The file path to the PNG file.
-     * @return 1 for a successful write, 0 for a warning, less than 0 for any errors.
-     */
-    int write( const char *const file_path ) const;
-
     inline static void translate_16_to_24( uint16_t word, uint8_t &blue, uint8_t &green, uint8_t &red ) {
         // Thanks ktownsend of the adafruit forms.
         // Based on the code from https://forums.adafruit.com/viewtopic.php?t=21536
