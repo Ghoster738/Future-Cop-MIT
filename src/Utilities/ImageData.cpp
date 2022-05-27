@@ -254,20 +254,3 @@ char * Utilities::ImageData::getRawImageData() {
 const char *const Utilities::ImageData::getRawImageData() const {
     return image_data.data();
 }
-
-int Utilities::ImageData::write( const char *const file_path ) const {
-    Utilities::ImageFormat::PortableNetworkGraphics PNGLib;
-    
-    Utilities::Buffer buffer;
-    auto status = PNGLib.write( *this, buffer );
-    
-    if( status < 0 )
-        return status;
-    else {
-        if( buffer.write( file_path ) )
-            return 1;
-        else
-            return -6; // Image refused to be written.
-        
-    }
-}
