@@ -52,8 +52,8 @@ int main(int argc, char** argv)
     // Reference the tile set data.
     // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", &std::cout );
     
-    int WIDTH = 0;
-    int HEIGHT = 0;
+    int width = 0;
+    int height = 0;
 
     std::string iff_mission_id = "pa_urban_jungle";
     std::string global_id = "global";
@@ -114,19 +114,19 @@ int main(int argc, char** argv)
                 mission_path = input;
             else
             if( variable_name.find( "--width") == 0 )
-                WIDTH = std::stoi(input);
+                width = std::stoi(input);
             else
             if( variable_name.find( "--height") == 0 )
-                HEIGHT = std::stoi(input);
+                height = std::stoi(input);
             
             variable_name = "";
         }
     }
     
-    if( WIDTH <= 0 )
-        WIDTH = 320;
-    if( HEIGHT <= 0 )
-        HEIGHT = 200;
+    if( width <= 0 )
+        width = 640;
+    if( height <= 0 )
+        height = 480;
 
     // Declare a pointer
     Graphics::Window *window = new Graphics::Window();
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
     window->setWindowTitle( title );
     if( window->center() != 1 )
         std::cout << "The window had failed to center! " << window->center() << std::endl;
-    window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
+    window->setDimensions( Utilities::DataTypes::Vec2UInt( width, height ) );
     window->setFullScreen( true );
 
     Graphics::Environment *environment = new Graphics::Environment();
@@ -260,16 +260,16 @@ int main(int argc, char** argv)
     first_person->attachText2DBuffer( *text_2d_buffer );
     window->attachCamera( *first_person );
     first_person->setViewportOrigin( Utilities::DataTypes::Vec2UInt( 0, 0 ) );
-    first_person->setViewportDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
+    first_person->setViewportDimensions( Utilities::DataTypes::Vec2UInt( width, height ) );
     Utilities::DataTypes::Mat4 extra_matrix_0;
     Utilities::DataTypes::Mat4 extra_matrix_1;
     Utilities::DataTypes::Mat4 extra_matrix_2;
     
-    Utilities::Math::setOthro( extra_matrix_0, 0, WIDTH, -HEIGHT, 0, -1.0, 1.0 );
+    Utilities::Math::setOthro( extra_matrix_0, 0, width, -height, 0, -1.0, 1.0 );
     
     first_person->setProjection2D( extra_matrix_0 );
 
-    Utilities::Math::setPerspective( extra_matrix_0, Utilities::Math::toRadians(45.0), static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 200.0f );
+    Utilities::Math::setPerspective( extra_matrix_0, Utilities::Math::toRadians(45.0), static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f );
 
     first_person->setProjection3D( extra_matrix_0 );
 
@@ -427,7 +427,7 @@ int main(int argc, char** argv)
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                Utilities::ImageData image_screenshot( WIDTH, HEIGHT,  Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                Utilities::ImageData image_screenshot( width, height,  Utilities::ImageData::RED_GREEN_BLUE, 1 );
                 environment->screenshot( image_screenshot );
 
                 Utilities::Buffer file;
