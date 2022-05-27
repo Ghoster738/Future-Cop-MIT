@@ -6,9 +6,7 @@
 
 namespace {
 
-const auto FORBIDDIN_PNG_FORMAT_TYPE = 0;
-
-png_image setupImage( const Utilities::ImageData& image_data ) {
+png_image setupImage( const Utilities::ImageData& image_data, bool &is_valid ) {
     // Thanks for NonStatic
     png_image image_write;
     memset( &image_write, 0, sizeof(image_write) );
@@ -16,6 +14,8 @@ png_image setupImage( const Utilities::ImageData& image_data ) {
     image_write.format = PNG_FORMAT_RGB;
     image_write.height = image_data.getHeight();
     image_write.width  = image_data.getWidth();
+
+    is_valid = true;
 
     if( image_data.getBytesPerChannel() == 1 ) {
         switch( image_data.getType() ) {
@@ -32,7 +32,7 @@ png_image setupImage( const Utilities::ImageData& image_data ) {
             image_write.format = PNG_FORMAT_RGBA;
             break;
         default:
-            image_write.format = FORBIDDIN_PNG_FORMAT_TYPE;
+            is_valid = false;
         }
     }
     else if( image_data.getBytesPerChannel() == 2 ) {
@@ -50,11 +50,11 @@ png_image setupImage( const Utilities::ImageData& image_data ) {
             image_write.format = PNG_FORMAT_LINEAR_RGB_ALPHA;
             break;
         default:
-            image_write.format = FORBIDDIN_PNG_FORMAT_TYPE;
+            is_valid = false;
         }
     }
     else
-        image_write.format = FORBIDDIN_PNG_FORMAT_TYPE;
+        is_valid = false;
     
     return image_write;
 }
@@ -97,9 +97,10 @@ bool Utilities::ImageFormat::PortableNetworkGraphics::supports(
 }
 
 size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageData& image_data ) const {
-    auto image_write = setupImage( image_data );
+    bool is_valid;
+    auto image_write = setupImage( image_data, is_valid );
     
-    if( image_write.format == FORBIDDIN_PNG_FORMAT_TYPE )
+    if( !is_valid )
         return 0; // The format is invalid for writing.
     else {
         png_alloc_size_t length = 0;
@@ -127,9 +128,10 @@ bool Utilities::ImageFormat::PortableNetworkGraphics::isFormat( const Buffer& bu
 }
 
 int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& image_data, Buffer& buffer ) {
-    auto image_write = setupImage( image_data );
+    bool is_valid;
+    auto image_write = setupImage( image_data, is_valid );
     
-    if( image_write.format == FORBIDDIN_PNG_FORMAT_TYPE )
+    if( !is_valid )
         return -1; // The format is invalid for writing.
     else {
         png_alloc_size_t length = 0;
