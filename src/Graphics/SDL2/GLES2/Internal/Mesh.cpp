@@ -79,10 +79,13 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
         model.getMaterial( a, material );
 
-        // The mod operation ensures that there is no out of bound case.
-        unsigned int texture_index = (material.cbmp_resource_id - 1) % textures.size();
-        if( texture_index == -1 )
-            texture_index = 0;
+        // TODO Use a better algorithm that is not O( n^2 ).
+        unsigned int texture_index = 0;
+
+        for( auto b = textures.begin(); b != textures.end(); b++ ) {
+            if( (*b)->getCBMPResourceID() == material.cbmp_resource_id )
+                texture_index = ( b - textures.begin() ) % textures.size();
+        }
 
         addCommand( material.starting_vertex_index, material.count, textures[ texture_index ] );
     }

@@ -867,7 +867,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
         for( size_t i = 0; i < texture_quads.size(); i++ ) {
             if( resource_id_to_reference.count( texture_quads[ i ].index ) == 0 ) {
-                resource_id_to_reference[ texture_quads[ i ].index ].resource_id = texture_quads[ i ].index;
+                resource_id_to_reference[ texture_quads[ i ].index ].resource_id = texture_quads[ i ].index + 1;
 
                 if( resource_id_to_bmp.count( texture_quads[ i ].index ) != 0 ) {
                     if( resource_id_to_bmp[ texture_quads[ i ].index ]->getImageFormat() != nullptr ) {
@@ -1067,7 +1067,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
 
     for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
     {
-        model_output->setMaterial( texture_references.at( mat ).name );
+        model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id );
 
         for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
         {

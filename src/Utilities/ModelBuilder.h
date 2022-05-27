@@ -249,10 +249,11 @@ public:
     /**
     * This should be called when starting to write out the mesh or when the prievous material is done.
     * @param texture_index This is the index of the textures of the resource relative to the first texture.
+    * @param cbmp_resource_id Set this to zero if not cbmp.
     * @return True if the setupVertexComponents() method was called.
     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
     */
-    bool setMaterial( std::string file_name );
+    bool setMaterial( std::string file_name, uint32_t cbmp_resource_id = 0 );
 
     /**
     * This gets the number of materials for this class.

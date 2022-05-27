@@ -384,7 +384,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
                             }
 
                             if( is_first && current_tile_polygon_amount != 0 ) {
-                                model_output->setMaterial( texture_names[ a ] );
+                                model_output->setMaterial( texture_names[ a ], a + 1 );
 
                                 is_first = false;
                             }
