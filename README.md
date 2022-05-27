@@ -48,6 +48,8 @@ This indirect pathing is created for the modder, so they would be able to view t
 ### Autoloader Method
 If you want to load a specific mission file with a specific global file you could do this.
 
+**./FCMapViewer --global /path/to/global_mission --path "/path/to/mission"**
+
 **-w** means load from ./Data/Platform/Windows
 
 **-m** means load from ./Data/Platform/Macintosh
