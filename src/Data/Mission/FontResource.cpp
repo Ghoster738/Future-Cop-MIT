@@ -240,8 +240,6 @@ int Data::Mission::FontResource::write( const char *const file_path, const std::
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
 
         if( resource.is_open() ) {
-            // TODO Find a way to seperate the file_name from the path.
-
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
 
             resource << "info face=\"" << getFullName( getResourceID() ) << "\" size=24 bold=0 italic=0 charset=\"ASCII\""
