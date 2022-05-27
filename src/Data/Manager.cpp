@@ -15,6 +15,7 @@ const std::string Data::Manager::long_beach           = "long_beach";
 const std::string *const Data::Manager::crime_war_iffs[] =
     { &Data::Manager::griffith_park, &Data::Manager::zuma_beach, &Data::Manager::la_brea_tar_pits, &Data::Manager::venice_beach,
       &Data::Manager::hells_gate_prison, &Data::Manager::studio_city, &Data::Manager::lax_spaceport, &Data::Manager::lax_spaceport_part_2, &Data::Manager::long_beach };
+const size_t Data::Manager::AMOUNT_OF_CRIME_WAR_IDS = sizeof(Data::Manager::crime_war_iffs) / sizeof( Data::Manager::crime_war_iffs[0] );
 
 const std::string Data::Manager::pa_urban_jungle   = "pa_urban_jungle";
 const std::string Data::Manager::pa_venice_beach   = "pa_venice_beach";
@@ -26,6 +27,7 @@ const std::string Data::Manager::pa_la_centina     = "pa_la_centina";
 const std::string *const Data::Manager::precinct_assault_iffs[] =
     { &Data::Manager::pa_urban_jungle, &Data::Manager::pa_venice_beach, &Data::Manager::pa_hollywood_keys, &Data::Manager::pa_proving_ground,
       &Data::Manager::pa_bug_hunt, &Data::Manager::pa_la_centina };
+const size_t Data::Manager::AMOUNT_OF_PRECINCT_ASSAULT_IDS = sizeof(Data::Manager::precinct_assault_iffs) / sizeof( Data::Manager::precinct_assault_iffs[0] );
 
 const std::string *const Data::Manager::map_iffs[] =
     { &Data::Manager::griffith_park, &Data::Manager::zuma_beach, &Data::Manager::la_brea_tar_pits, &Data::Manager::venice_beach,
@@ -33,6 +35,7 @@ const std::string *const Data::Manager::map_iffs[] =
       &Data::Manager::pa_urban_jungle, &Data::Manager::pa_venice_beach, &Data::Manager::pa_hollywood_keys, &Data::Manager::pa_proving_ground,
       &Data::Manager::pa_bug_hunt, &Data::Manager::pa_la_centina
     };
+const size_t Data::Manager::AMOUNT_OF_IFF_IDS = Data::Manager::AMOUNT_OF_PRECINCT_ASSAULT_IDS + Data::Manager::AMOUNT_OF_CRIME_WAR_IDS;
 
 Data::Manager::IFFEntry::IFFEntry() : paths(), iff_p(),
                                 importance( NOT_NEEDED ) {

@@ -15,6 +15,28 @@
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
+namespace {
+void helpExit( std::ostream &stream ) {
+    stream << "These are the autoloader commands" << std::endl;
+    stream << " -w means load from ./Data/Platform/Windows" << std::endl;
+    stream << " -m means load from ./Data/Platform/Macintosh" << std::endl;
+    stream << " -p means load from ./Data/Platform/Playstation" << std::endl;
+    stream << " --id VALID_ID means which mission ID to load from. Type in an invalid id to get a listing of valid IDs." << std::endl;
+    stream << " --load-all If you like high loading times use this. This tells the mission manager to load every single map." << std::endl;
+    stream << " --platform-all This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels." << std::endl;
+    stream << "These are for loading more specific maps" << std::endl;
+    stream << " --global is the path to the global file which every map uses." << std::endl;
+    stream << " --path is the path to the mission file which contains the rest of the data like the map." << std::endl;
+    exit( 0 );
+}
+void listIDs( std::ostream &stream, Data::Manager &manager ) {
+    stream << "Printing all map IDs" << std::endl;
+    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
+        stream << " " << *Data::Manager::map_iffs[ i ] << std::endl;
+    }
+}
+}
+
 bool test_Math();
 
 int main(int argc, char** argv)
@@ -37,7 +59,10 @@ int main(int argc, char** argv)
     for( int index = 1; index < argc; index++ ) {
         std::string input = std::string( argv[index] );
         
-        if( variable_name.compare("") == 0 ) {
+        if( variable_name.empty() ) {
+            if( input.find( "--help") == 0 || input.find( "-h") == 0 )
+                helpExit( std::cout );
+            else
             if( input.find( "-w") == 0 )
                 platform = Data::Manager::Platform::WINDOWS;
             else
@@ -61,6 +86,8 @@ int main(int argc, char** argv)
             else
             if( input.find( "--start" ) == 0 )
                 variable_name = "--start";
+            else
+                helpExit( std::cout );
         }
         else {
             if( variable_name.find( "--id") == 0 )
@@ -106,8 +133,10 @@ int main(int argc, char** argv)
         manager.setIFFEntry( iff_mission_id, entry );
     }
 
-    if( !manager.hasEntry( iff_mission_id ) )
+    if( !manager.hasEntry( iff_mission_id ) ) {
+        listIDs( std::cout, manager );
         return -1;
+    }
 
     auto entry = manager.getIFFEntry( iff_mission_id );
     entry.importance = Data::Manager::Importance::NEEDED;
