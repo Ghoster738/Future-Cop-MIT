@@ -303,46 +303,50 @@ int main(int argc, char** argv)
     control_system_p->allocateCursor();
     auto control_cursor_r = control_system_p->getCursor();
 
-    for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
-    {
-        auto input_set_r = control_system_p->getInputSet( x );
-
-        for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
+    if( control_system_p->read("controls") <= 0 ) {
+        for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
         {
-            int status = 0;
+            auto input_set_r = control_system_p->getInputSet( x );
 
-            text_2d_buffer->setFont( 0 );
-            text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
-            text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
-            text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
-
-            text_2d_buffer->setFont( 0 );
-            text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
-            text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
-            text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
-
-            text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 0, 1 ) );
-            text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 40 ) );
-            if( control_cursor_r == nullptr )
-                text_2d_buffer->print( "There is no cursor!" );
-            else
-                text_2d_buffer->print( "One cursor is being used!" );
-
-            while( status < 1  && viewer_loop )
+            for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
             {
-                status = control_system_p->pollEventForInputSet( x, y );
+                int status = 0;
 
-                if( control_system_p->isOrderedToExit() )
-                    viewer_loop = false;
+                text_2d_buffer->setFont( 0 );
+                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
+                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+                text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
-                environment->drawFrame();
-                environment->advanceTime( 0 );
+                text_2d_buffer->setFont( 0 );
+                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
+                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
+                text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
 
-                std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
+                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 0, 1 ) );
+                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 40 ) );
+                if( control_cursor_r == nullptr )
+                    text_2d_buffer->print( "There is no cursor!" );
+                else
+                    text_2d_buffer->print( "One cursor is being used!" );
+
+                while( status < 1  && viewer_loop )
+                {
+                    status = control_system_p->pollEventForInputSet( x, y );
+
+                    if( control_system_p->isOrderedToExit() )
+                        viewer_loop = false;
+
+                    environment->drawFrame();
+                    environment->advanceTime( 0 );
+
+                    std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
+                }
+
+                text_2d_buffer->reset();
             }
-
-            text_2d_buffer->reset();
         }
+        
+        control_system_p->write( "controls" );
     }
 
     test_MissionTilResource();

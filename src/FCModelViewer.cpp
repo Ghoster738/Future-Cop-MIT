@@ -304,39 +304,43 @@ int main(int argc, char** argv)
         std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
     }
 
-    for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
-    {
-        auto input_set_r = control_system_p->getInputSet( x );
-
-        for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
+    if( control_system_p->read("controls") <= 0 ) {
+        for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
         {
-            int status = 0;
+            auto input_set_r = control_system_p->getInputSet( x );
 
-            while( status < 1  && viewer_loop )
+            for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
             {
-                text_2d_buffer->setFont( 2 );
-                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
-                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
-                text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
+                int status = 0;
 
-                text_2d_buffer->setFont( 5 );
-                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
-                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
-                text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
+                while( status < 1  && viewer_loop )
+                {
+                    text_2d_buffer->setFont( 2 );
+                    text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
+                    text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+                    text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
-                status = control_system_p->pollEventForInputSet( x, y );
+                    text_2d_buffer->setFont( 5 );
+                    text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
+                    text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
+                    text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
 
-                if( control_system_p->isOrderedToExit() )
-                    viewer_loop = false;
+                    status = control_system_p->pollEventForInputSet( x, y );
 
-                environment->drawFrame();
-                environment->advanceTime( 0 );
+                    if( control_system_p->isOrderedToExit() )
+                        viewer_loop = false;
 
-                text_2d_buffer->reset();
+                    environment->drawFrame();
+                    environment->advanceTime( 0 );
 
-                std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
+                    text_2d_buffer->reset();
+
+                    std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
+                }
             }
         }
+        
+        control_system_p->write( "controls" );
     }
 
     float rotate = 0.0;
