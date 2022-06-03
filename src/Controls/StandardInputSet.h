@@ -52,6 +52,14 @@ public:
     Input *const getInput( unsigned int index ) const {
         return InputSet::getInput( index, Buttons::TOTAL_BUTTONS, const_cast<Input *const>( states ) );
     }
+    
+    Input* getInput( std::string name ) {
+        return InputSet::getInput( name, Buttons::TOTAL_BUTTONS, states );
+    }
+    
+    Input *const getInput( std::string name ) const {
+        return InputSet::getInput( name, Buttons::TOTAL_BUTTONS, const_cast<Input *const>( states ) );
+    }
 };
 
 };

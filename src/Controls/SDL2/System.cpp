@@ -5,6 +5,9 @@
 #include "Input.h"
 #include "InputSet.h"
 
+#include <json/json.h>
+#include <fstream>
+
 namespace {
 
 void clearInputSet( Controls::InputSetInternal* input_set ) {
@@ -158,6 +161,12 @@ bool UpdateCursor( Controls::CursorInputSet &cursor, SDL_Event sdl_event ) {
         return false;
 }
 
+
+const std::string name_control_name = "FutureCopControl";
+const std::string name_subsystem = "subsystem";
+const std::string name_input_sets = "InputSets";
+
+
 };
 
 using Controls::InputSet;
@@ -227,9 +236,121 @@ bool Controls::System::isOrderedToExit() const {
     return controls_p->window_exit_command;
 }
 
-int Controls::System::read( std::string filepath ) { return -1; }
+int Controls::System::read( std::string filepath ) {
+    std::ifstream resource;
+    
+    resource.open( filepath + ".json", std::ios::in );
+    
+    if( !resource.is_open() ) {
+        return 0; // The config file either does not exist or could not be read.
+    }
+    else {
+        Json::Value root;
+        Json::CharReaderBuilder reader_settings;
+        std::string error_stream;
+        
+        if( !Json::parseFromStream( reader_settings, resource, &root, &error_stream ) )
+            return -1; // Invaled Json file.
+        else {
+            
+            Json::Value control_base = root[name_control_name][name_subsystem]["name"];
+            SDL_Event sdl_event;
+            
+            // Make sure that this is the SDL2 library config file.
+            if( control_base.isString() && control_base.asString().compare("Simple Direct Media Layer 2") == 0 ) {
+                // TODO Add more checks
+                
+                for( auto it = input_sets.begin(); it != input_sets.end(); it++) {
+                    Json::Value json_inputs = root[name_control_name][name_input_sets][(*it)->getName()];
+                    
+                    if( json_inputs.isObject() ) {
+                        for( auto const& member_name : json_inputs.getMemberNames() ) {
+                            auto input_r = (*it)->getInput( member_name );
+                            
+                            if( input_r != nullptr ) {
+                                Json::Value input_json = root[name_control_name][name_input_sets][(*it)->getName()][member_name];
+                                
+                                // This will test if there is a valid input event to input.
+                                if( input_json.isMember("key") ) {
+                                    memset( &sdl_event, 0, sizeof(sdl_event) );
+                                    
+                                    sdl_event.key.type = SDL_KEYUP;
+                                    sdl_event.key.state = SDL_PRESSED;
+                                    
+                                    SDL_Keycode key = SDL_GetKeyFromName( input_json["key"].asString().c_str() );
+                                    
+                                    if(key != SDLK_UNKNOWN) {
+                                        sdl_event.key.keysym.sym = key;
+                                        sdl_event.key.keysym.scancode = SDL_GetScancodeFromKey( key );
+                                    
+                                        auto input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( input_r->getInternalData() );
+                                        
+                                        input_internal_r->sdl_event = sdl_event;
+                                    }
+                                    else
+                                        return -5;
+                                }
+                                else
+                                    return -4;
+                            }
+                            else
+                                return -3; // Missing input.
+                        }
+                    }
+                    else
+                        return -5;
+                }
+                
+                return 1;
+            }
+            else
+                return -2; // Not the right configuration file.
+        }
+        
+        return 1;
+    }
+}
 
-int Controls::System::write( std::string filepath ) const { return -1; }
+int Controls::System::write( std::string filepath ) const {
+    std::ofstream resource;
+    Json::Value root;
+    
+    root[name_control_name][name_subsystem]["name"]  = "Simple Direct Media Layer 2";
+    root[name_control_name][name_subsystem]["major"] = 1;
+    root[name_control_name][name_subsystem]["minor"] = 0;
+    
+    root[name_control_name][name_input_sets];
+    
+    for( auto it = input_sets.begin(); it != input_sets.end(); it++) {
+        if( (*it) != nullptr ) {
+            // Write out the name for the input set.
+            root[name_control_name][name_input_sets][ (*it)->getName() ];
+            
+            for( unsigned int i = 0; (*it)->getInput( i ) != nullptr; i++ ) {
+                auto single_input_r = (*it)->getInput( i );
+                auto single_input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( single_input_r->getInternalData() );
+                
+                if( single_input_internal_r->sdl_event.type == SDL_KEYUP ) {
+                    // Write the keyname for the input set. Make sure that utf-8 is used on json.
+                    root[name_control_name][name_input_sets][ (*it)->getName() ][ single_input_r->getName() ][ "key" ] = SDL_GetKeyName( single_input_internal_r->sdl_event.key.keysym.sym );
+                }
+            }
+        }
+    }
+    resource.open( std::string(filepath) + ".json", std::ios::out );
+
+    if( resource.is_open() )
+    {
+        resource << root;
+
+        resource.close();
+
+        // TODO think of more ways to give an error.
+        return 1;
+    }
+    else
+        return 0;
+}
 
 int Controls::System::addInputSet( InputSet *input_set_p ) {
     // Insert the input_set_p at the end.

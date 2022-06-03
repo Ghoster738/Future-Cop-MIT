@@ -33,6 +33,10 @@ protected:
      * @return Either a nullptr, or a valid Input to use in order to access the available button.
      */
     Input *const getInput( unsigned int index, unsigned int size_of_array, Input *const array_r ) const;
+    
+    
+    Input * getInput( std::string name, unsigned int size_of_array, Input *const array_r );
+    Input *const getInput( std::string name, unsigned int size_of_array, Input* array_r ) const;
 public:
     /**
      * This sets the first defaults for the input set.
@@ -58,6 +62,20 @@ public:
      * @return the pointer to the button state if the button is accessed.
      */
     virtual Input *const getInput( unsigned int index ) const = 0;
+    
+    /**
+     * This is the accessor for the button states stored within the InputSetInternal class.
+     * @param index is index to the Input class would need to be accessed.
+     * @return the pointer to the button state if the button is accessed.
+     */
+    virtual Input* getInput( std::string name ) = 0;
+
+    /**
+     * This is the accessor for the button states stored within the InputSet class.
+     * @param index is index to the Input class would need to be accessed.
+     * @return the pointer to the button state if the button is accessed.
+     */
+    virtual Input *const getInput( std::string name ) const = 0;
 
     /**
      * Indicate if there are changes regarding this InputSet input.
