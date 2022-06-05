@@ -415,6 +415,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DRF ) {
                 // std::cout << "Mission::ObjResource::load() 3DRF" << std::endl;
                 auto reader3DRF = reader.getReader( data_tag_size );
+                
+                // std::cout << "Index " << getIndexNumber() << std::endl;
+                // std::cout << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << std::endl;
+                // assert( reader3DRF.totalSize() == 0x10 );
             }
             else
             if( identifier == TAG_3DRL ) {
@@ -424,8 +428,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_3DHY ) {
                 auto reader3DHY = reader.getReader( data_tag_size );
+                
+                const auto ONE_VALUE = reader3DHY.readU32( settings.endian );
+                
+                assert( ONE_VALUE == 1 );
 
-                if( reader3DHY.readU32( settings.endian ) != 1 && settings.output_level >= 1)
+                if( ONE_VALUE != 1 && settings.output_level >= 1)
                 {
                     *settings.output_ref << "Mission::ObjResource::load() 3DHY unexpected number at beginning!" << std::endl;
                 }

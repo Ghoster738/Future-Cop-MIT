@@ -288,20 +288,20 @@ int Controls::System::read( std::string filepath ) {
                                         input_internal_r->sdl_event = sdl_event;
                                     }
                                     else
-                                        return -5;
+                                        return -5; // Unknown cannot be set.
                                 }
                                 else
-                                    return -4;
+                                    return -4; // Unrecognized type.
                             }
                             else
                                 return -3; // Missing input.
                         }
                     }
                     else
-                        return -5;
+                        return -5; // Json Inputs is missing.
                 }
                 
-                return 1;
+                return 1; // Everything worked as predicted.
             }
             else
                 return -2; // Not the right configuration file.

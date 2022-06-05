@@ -11,6 +11,7 @@
 #include "Data/Mission/Til/Mesh.h"
 
 #include "Utilities/Math.h"
+#include "Utilities/DataHandler.h"
 #include "Graphics/Environment.h"
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
@@ -27,6 +28,8 @@ void helpExit( std::ostream &stream ) {
     stream << " --id VALID_ID means which mission ID to load from. Type in an invalid id to get a listing of valid IDs." << std::endl;
     stream << " --load-all If you like high loading times use this. This tells the mission manager to load every single map." << std::endl;
     stream << " --platform-all This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels." << std::endl;
+    stream << "This is the export options." << std::endl;
+    stream << " --model-path this is the model export path. Make sure that this points to a directory, or else it will not export at all." << std::endl;
     stream << "These are for loading more specific maps" << std::endl;
     stream << " --global is the path to the global file which every map uses." << std::endl;
     stream << " --path is the path to the mission file which contains the rest of the data like the map." << std::endl;
@@ -58,6 +61,8 @@ int main(int argc, char** argv)
     std::string global_path = "";
     std::string mission_path = "";
     std::string variable_name = "";
+    std::string resource_export_path = "";
+    bool exported_textures = false;
 
     for( int index = 1; index < argc; index++ ) {
         std::string input = std::string( argv[index] );
@@ -90,6 +95,9 @@ int main(int argc, char** argv)
             if( input.find( "--start" ) == 0 )
                 variable_name = "--start";
             else
+            if( input.find( "--model-path" ) == 0 )
+                variable_name = "--model-path";
+            else
             if( input.find( "--width") == 0 )
                 variable_name = "--width";
             else
@@ -114,6 +122,12 @@ int main(int argc, char** argv)
             if( variable_name.find( "--start" ) == 0 )
                 start_number = input;
             else
+            if( variable_name.find( "--model-path" ) == 0 ) {
+                resource_export_path = input;
+                if( *resource_export_path.end() != '/')
+                    resource_export_path += "/";
+            }
+            else
             if( variable_name.find( "--width") == 0 )
                 WIDTH = std::stoi(input);
             else
@@ -129,6 +143,7 @@ int main(int argc, char** argv)
     if( HEIGHT <= 0 )
         HEIGHT = 480;
 
+    Utilities::DataHandler::init();
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
@@ -379,6 +394,29 @@ int main(int argc, char** argv)
                     x = Controls::StandardInputSet::Buttons::TOTAL_BUTTONS;
                 }
             }
+            
+            auto input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
+            
+            if( input_r->isChanged() && input_r->getState() < 0.5 ) {
+                // Export the textures from the mission file.
+                if(!exported_textures) {
+                    auto bmps = Data::Mission::BMPResource::getVector( resource );
+                    
+                    for( auto it : bmps ) {
+                        auto str = resource_export_path + (*it).getFullName( (*it).getIndexNumber() );
+                        
+                        (*it).write( str.c_str(), std::vector<std::string>() );
+                    }
+                    
+                    exported_textures = true;
+                }
+                
+                auto obj = Data::Mission::ObjResource::getVector( resource )[ cobj_index ];
+                
+                auto str = resource_export_path + obj->getFullName( obj->getIndexNumber() );
+                
+                obj->write( str.c_str(), std::vector<std::string>() );
+            }
         }
 
         rotate += time_unit(delta).count();
@@ -418,6 +456,12 @@ int main(int argc, char** argv)
         text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
         text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
         text_2d_buffer->print( "index = " + std::to_string(cobj_index) );
+        
+        if( !resource_export_path.empty() ) {
+            text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0, 1, 1 ) );
+            text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 16 ) );
+            text_2d_buffer->print( "PRESS the \"" + player_1_controller_r->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
+        }
 
         environment->drawFrame();
         environment->advanceTime( time_unit(delta).count() );
