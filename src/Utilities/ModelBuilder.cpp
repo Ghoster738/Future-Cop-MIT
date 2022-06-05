@@ -905,7 +905,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             
             // Check if every model has the same component.
             for( unsigned index = 0; index < models[0]->getNumVertexComponents(); index++ ) {
-                if( models[0]->vertex_components[ index ].isEqual( (*it)->vertex_components[ index ] ) ) {
+                if( !models[0]->vertex_components[ index ].isEqual( (*it)->vertex_components[ index ] ) ) {
                     status = -7;
                     return nullptr;
                 }
