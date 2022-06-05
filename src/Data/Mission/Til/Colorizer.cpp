@@ -37,6 +37,12 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 result[1].x = static_cast<double>( input.tile.shading ) * 0.0078125;
                 result[1].y = result[1].x;
                 result[1].z = result[1].x;
+                for( unsigned int p = 0; p < 4; p++ )
+                {
+                    result[p].x = result[1].x;
+                    result[p].y = result[1].y;
+                    result[p].z = result[1].z;
+                }
                 break;
             case 0b10: // Dynamic Color
                 result[0] = colorFloatConvert( input.colors[ input.tile.shading % input.colors_amount ] );
@@ -45,6 +51,12 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                     result[p].x = 1.0 - result[0].x;
                     result[p].y = 1.0 - result[0].y;
                     result[p].z = 1.0 - result[0].z;
+                }
+                for( unsigned int p = 0; p < 4; p++ )
+                {
+                    result[p].x = result[1].x;
+                    result[p].y = result[1].y;
+                    result[p].z = result[1].z;
                 }
                 break;
             case 0b11: // Lava Animation
