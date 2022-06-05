@@ -28,8 +28,8 @@ void helpExit( std::ostream &stream ) {
     stream << " --id VALID_ID means which mission ID to load from. Type in an invalid id to get a listing of valid IDs." << std::endl;
     stream << " --load-all If you like high loading times use this. This tells the mission manager to load every single map." << std::endl;
     stream << " --platform-all This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels." << std::endl;
-    stream << "This is the export options." << std::endl;
-    stream << " --model-path this is the model export path. Make sure that this points to a directory, or else it will not export at all." << std::endl;
+    //stream << "This is the export options." << std::endl;
+    //stream << " --model-path this is the model export path. Make sure that this points to a directory, or else it will not export at all." << std::endl;
     stream << "These are for loading more specific maps" << std::endl;
     stream << " --global is the path to the global file which every map uses." << std::endl;
     stream << " --path is the path to the mission file which contains the rest of the data like the map." << std::endl;
@@ -94,9 +94,9 @@ int main(int argc, char** argv)
             else
             if( input.find( "--start" ) == 0 )
                 variable_name = "--start";
-            else
+            /*else
             if( input.find( "--model-path" ) == 0 )
-                variable_name = "--model-path";
+                variable_name = "--model-path";*/
             else
             if( input.find( "--width") == 0 )
                 variable_name = "--width";
