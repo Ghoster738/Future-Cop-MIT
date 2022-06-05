@@ -391,6 +391,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
                         }
 
                         // Generate the normals
+                        // TODO Fix the normal issues that Stein13 has described.
                         {
                             Utilities::DataTypes::Vec3 u;
                             Utilities::DataTypes::Vec3 v;

@@ -54,9 +54,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 }
                 for( unsigned int p = 0; p < 4; p++ )
                 {
-                    result[p].x = result[1].x;
-                    result[p].y = result[1].y;
-                    result[p].z = result[1].z;
+                    result[p].x = result[0].x;
+                    result[p].y = result[0].y;
+                    result[p].z = result[0].z;
                 }
                 break;
             case 0b11: // Lava Animation
