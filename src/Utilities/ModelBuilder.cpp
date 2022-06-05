@@ -867,6 +867,8 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             return nullptr;
         }
         
+        int stride = 0;
+        
         // Make sure that there is a position component.
         {
             bool found_position = false;
@@ -874,6 +876,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             for( unsigned index = 0; index < models[0]->vertex_components.size(); index++ ) {
                 if( models[0]->vertex_components[ index ].getName().compare( POSITION_COMPONENT_NAME ) == 0 ) {
                     found_position = true;
+                    stride = models[0]->vertex_components[ index ].stride;
                     index = models[0]->vertex_components.size();
                 }
             }
@@ -966,13 +969,15 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             
             // Finally copy the mesh information.
             while( destination_index > new_model->current_vertex_index ) {
-                new_model->primary_buffer[ new_model->current_vertex_index ] = (*it)->primary_buffer[ it_index ];
+                for( int b = 0; b < stride; b++ )
+                {
+                    new_model->primary_buffer[ new_model->current_vertex_index * stride + b ] = (*it)->primary_buffer[ it_index * stride + b ];
+                }
+                new_model->current_vertex_index++;
+                it_index++;
                 
                 // Increment the material
                 new_model->texture_materials.back().count++;
-                
-                new_model->current_vertex_index++;
-                it_index++;
             }
         }
         
