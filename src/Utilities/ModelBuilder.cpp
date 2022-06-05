@@ -848,7 +848,7 @@ void Utilities::ModelBuilder::about( std::ostream &stream ) const {
 
 Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<ModelBuilder*>& models, int &status ) {
     // Only two models could be combined.
-    if( models.size() > 2 ) {
+    if( models.size() <= 2 ) {
         status = 0;
         return nullptr;
     }
