@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <cassert>
 
 namespace {
@@ -855,8 +856,23 @@ int Data::Mission::ObjResource::write( const char *const file_path, const std::v
 
     Utilities::ModelBuilder *model_output = createModel( &arguments );
 
-    if( enable_export )
-        glTF_return = model_output->write( std::string( file_path ) );
+    if( enable_export ) {
+        // Make sure that the model has some vertex data.
+        if( model_output->getNumVertices() >= 3 )
+            glTF_return = model_output->write( std::string( file_path ) );
+        else {
+            // Make it easier on the user to identify empty Obj's
+            std::ofstream resource;
+            
+            resource.open( std::string(file_path) + "_empty.txt", std::ios::out );
+            
+            if( resource.is_open() ) {
+                resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " is empty." << std::endl;
+                resource.close();
+            }
+        }
+            
+    }
 
     delete model_output;
 
