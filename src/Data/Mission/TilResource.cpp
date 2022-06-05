@@ -280,6 +280,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
             std::cout << "  combine has resulted in status " << status << std::endl;
         }
         
+        // return texture_models.back(); // Test to see if this works.
+        
         // Delete the other models.
         for( auto i : texture_models ) {
             delete i;
