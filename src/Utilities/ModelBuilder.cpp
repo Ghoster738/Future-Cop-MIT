@@ -924,6 +924,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
         // Setup the vertex components.
         new_model->vertex_components = models[0]->vertex_components;
         new_model->total_components_size = models[0]->total_components_size;
+        new_model->components_are_done = true;
         
         // Size the new model for loading.
         {
@@ -966,12 +967,15 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             // Finally copy the mesh information.
             while( destination_index > new_model->current_vertex_index ) {
                 new_model->primary_buffer[ new_model->current_vertex_index ] = (*it)->primary_buffer[ it_index ];
+                
+                // Increment the material
+                new_model->texture_materials.back().count++;
+                
                 new_model->current_vertex_index++;
                 it_index++;
             }
         }
         
-        // Finish the new_model.
         if( !new_model->finish() ) {
             status = -9;
         }

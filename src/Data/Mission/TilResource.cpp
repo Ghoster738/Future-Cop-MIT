@@ -275,7 +275,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
         int status;
         Utilities::ModelBuilder* model_output = Utilities::ModelBuilder::combine( texture_models, status );
         
-        if( model_output == nullptr ) {
+        if( status != 1 ) {
             std::cout << "Data::Mission::TilResource::createModel has a problem" << std::endl;
             std::cout << "  combine has resulted in status " << status << std::endl;
         }
