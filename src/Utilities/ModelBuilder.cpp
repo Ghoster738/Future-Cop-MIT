@@ -40,6 +40,26 @@ void Utilities::ModelBuilder::VertexComponent::setNormalization( bool state ) {
 bool Utilities::ModelBuilder::VertexComponent::isPosition() const {
     return bit_field & 0x1;
 }
+bool Utilities::ModelBuilder::VertexComponent::isEqual( const VertexComponent &cmp ) const {
+    if( name.compare( cmp.name ) != 0 )
+        return false;
+    else if( isPosition() != cmp.isPosition() )
+        return false;
+    else if( isNormalized() != cmp.isNormalized() )
+        return false;
+    else if( begin != cmp.begin )
+        return false;
+    else if( stride != cmp.stride )
+        return false;
+    else if( size != cmp.size )
+        return false;
+    else if( type != cmp.type )
+        return false;
+    else if( component_type != cmp.component_type )
+        return false;
+    else
+        return true;
+}
 
 Utilities::ModelBuilder::TextureMaterial::TextureMaterial() {
     min.data.x = std::numeric_limits<float>::max();
@@ -618,7 +638,7 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
 
             root["textures"][position]["source"]  = position;
             root["textures"][position]["sampler"] = 0;
-            root["materials"][position]["doubleSided"] = true;
+            root["materials"][position]["doubleSided"] = true; // This is set, because I do not know how to deceren the correct direction.
 
             root["materials"][position]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = position;
             root["materials"][position]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
@@ -824,4 +844,139 @@ void Utilities::ModelBuilder::about( std::ostream &stream ) const {
     stream << "Vertex Amount: " << getNumVertices() << std::endl;
     stream << "Material Amount: " << getNumMaterials() << std::endl;
     stream << "Morph Frame Buffers: " << morph_frame_buffers.size() << std::endl;
+}
+
+Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<ModelBuilder*>& models, int &status ) {
+    // Only two models could be combined.
+    if( models.size() > 2 ) {
+        status = 0;
+        return nullptr;
+    }
+    else {
+        // Make sure the number of materials are either one.
+        if( models[0]->getNumMaterials() == 1 ) {
+            status = -1;
+            return nullptr;
+        }
+        
+        // Make sure that there are enough vertex components.
+        if( models[0]->getNumVertexComponents() == 0 ) {
+            status = -2;
+            return nullptr;
+        }
+        
+        // Make sure that there is a position component.
+        {
+            bool found_position = false;
+            
+            for( unsigned index = 0; index < models[0]->vertex_components.size(); index++ ) {
+                if( models[0]->vertex_components[ index ].getName().compare( POSITION_COMPONENT_NAME ) == 0 ) {
+                    found_position = true;
+                    index = models[0]->vertex_components.size();
+                }
+            }
+            
+            if( !found_position ) {
+                status = -3;
+                return nullptr;
+            }
+        }
+        
+        // Check if all the models have the same components.
+        for( auto it = models.begin() + 1; it != models.end(); it++ ) {
+            // Only one primative mode is aloud.
+            if( models[0]->getPrimativeMode() != (*it)->getPrimativeMode() ) {
+                status = -4;
+            }
+            
+            // Every model must have the same number of materials as well.
+            if( models[0]->getNumMaterials() != (*it)->getNumMaterials() ) {
+                status = -5;
+                return nullptr;
+            }
+            
+            // Check if every model has the same number of components.
+            if( models[0]->getNumVertexComponents() != (*it)->getNumVertexComponents() ) {
+                status = -6;
+                return nullptr;
+            }
+            
+            // Check if every model has the same component.
+            for( unsigned index = 0; index < models[0]->getNumVertexComponents(); index++ ) {
+                if( models[0]->vertex_components[ index ].isEqual( (*it)->vertex_components[ index ]  ) ) {
+                    status = -7;
+                    return nullptr;
+                }
+            }
+        }
+        
+        // Now that everything has been checked we can now attempt to allocate the combination mesh.
+        auto new_model = new Utilities::ModelBuilder( models[0]->getPrimativeMode() );
+        
+        // Check if C++ allocated this.
+        if( new_model == nullptr ) {
+            status = -8;
+            return nullptr;
+        }
+        
+        // Setup the vertex components.
+        new_model->vertex_components = models[0]->vertex_components;
+        new_model->total_components_size = models[0]->total_components_size;
+        
+        // Size the new model for loading.
+        {
+            unsigned int vertex_amount = 0;
+            
+            // Count the vertex amount for each model
+            for( auto it = models.begin(); it != models.end(); it++ ) {
+                vertex_amount += (*it)->vertex_amount;
+            }
+            
+            // Reserve for writing.
+            new_model->allocateVertices( vertex_amount );
+        }
+        
+        // Set the material of this new model.
+        new_model->setMaterial( models[0]->texture_materials[0].file_name, models[0]->texture_materials[0].cbmp_resource_id );
+        
+        // Finally fill in the primary model.
+        for( auto it = models.begin(); it != models.end(); it++ ) {
+            // This is what is needed for neatness.
+            auto new_cbmp_id = new_model->texture_materials.back().cbmp_resource_id;
+            auto new_file_name = new_model->texture_materials.back().file_name;
+            auto it_file_name = (*it)->texture_materials.back().file_name;
+            auto it_cbmp_id = (*it)->texture_materials.back().cbmp_resource_id;
+            
+            // The material does not match then set the (*it) material to new_model.
+            if( new_cbmp_id != it_cbmp_id ||
+                new_file_name.compare( it_file_name ) != 0 ) {
+                new_model->setMaterial( it_file_name, it_cbmp_id );
+            }
+            
+            // Now that the material has been set add the mesh info.
+            
+            // This is the destination index for the new model.
+            auto destination_index = (*it)->current_vertex_index + new_model->current_vertex_index;
+            
+            // This is the index for it.
+            size_t it_index = 0;
+            
+            // Finally copy the mesh information.
+            while( destination_index > new_model->current_vertex_index ) {
+                new_model->primary_buffer[ new_model->current_vertex_index ] = (*it)->primary_buffer[ it_index ];
+                new_model->current_vertex_index++;
+                it_index++;
+            }
+        }
+        
+        // Finish the new_model.
+        if( !new_model->finish() ) {
+            status = -9;
+        }
+        else
+            status = 1; // Okay.
+        
+        // Finally return the new model.
+        return new_model;
+    }
 }

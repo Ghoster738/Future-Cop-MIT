@@ -61,6 +61,7 @@ public:
         bool isNormalized() const;
         void setNormalization( bool state );
         bool isPosition() const;
+        bool isEqual( const VertexComponent &cmp ) const;
     };
     class TextureMaterial {
     public:
@@ -356,10 +357,17 @@ public:
     bool write( std::string file_path ) const;
     
     /**
-    * Display the number of vertices, vertex types, morph types, and what not.
-    * @param output this is the output stream.
+     * Display the number of vertices, vertex types, morph types, and what not.
+     * @param output this is the output stream.
     */
     void about( std::ostream &stream ) const;
+    
+    /**
+     * This is the combine function to create a model with all of the vertices.
+     * @param models must be a size of two in order for this program to work.
+     * @return a pointer to a valid ModelBuilder, or nullptr if it has an error.
+     */
+    static ModelBuilder* combine( const std::vector<ModelBuilder*>& models, int & status );
 };
 
 }
