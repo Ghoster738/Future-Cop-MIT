@@ -260,190 +260,30 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
 Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::vector<std::string> * arguments ) const {
     if( !mesh_tiles.empty() ) // Make sure there is no out of bounds error.
     {
-        // Now, export it in the glTF format.
-        Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
-        bool display_unread = false;
-        bool has_displayed = false;
-        bool has_texture_displayed = false;
-
-        if( arguments != nullptr )
-        {
-            for( auto i = arguments->begin(); i != arguments->end(); i++ )
-            {
-                if( (*i).compare( "--sayMissingAll" ) == 0)
-                    display_unread = true;
-                else
-                if( (*i).find( "--sayMissing=" ) == 0)
-                {
-                    std::string sub = (*i).substr( 13, (*i).length() - 13 );
-                    if( std::stoi(sub) == getIndexNumber() )
-                        display_unread = true;
-                }
-            }
+        const static size_t TEXTURE_AMOUNT = 8;
+        
+        // Single texture models are to be generated first.
+        std::vector<Utilities::ModelBuilder*> texture_models;
+        
+        for( unsigned int i = 0; i < TEXTURE_AMOUNT; i++ ) {
+            auto texture_model_p = createPartial( i );
+            
+            if( texture_model_p != nullptr )
+                texture_models.push_back( texture_model_p );
         }
-
-        unsigned int position_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int normal_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int color_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int tex_coord_0_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output->addVertexComponent( "_TileType", Utilities::DataTypes::ComponentType::INT, Utilities::DataTypes::SCALAR, false );
-
-        model_output->setupVertexComponents();
-
-        Utilities::DataTypes::Vec3 position_displacement;
-        Utilities::DataTypes::Vec3 position_floor_space[4];
-        Utilities::DataTypes::Vec3 position[6];
-        Utilities::DataTypes::Vec3 normal[6];
-        Utilities::DataTypes::Vec3 color[6];
-        Utilities::DataTypes::Vec2UByte coord[6];
-
-        position_floor_space[FRONT_LEFT].x =  0.5;
-        position_floor_space[FRONT_LEFT].z =  0.5;
-
-        position_floor_space[FRONT_RIGHT].x = -0.5;
-        position_floor_space[FRONT_RIGHT].z =  0.5;
-
-        position_floor_space[BACK_LEFT].x =  0.5;
-        position_floor_space[BACK_LEFT].z = -0.5;
-
-        position_floor_space[BACK_RIGHT].x = -0.5;
-        position_floor_space[BACK_RIGHT].z = -0.5;
-
-        position_displacement.x = 8.0;
-        position_displacement.y = 0.0;
-        position_displacement.z = 8.0;
-
-        TileGraphics tileGraphic;
-
-        for( unsigned int a = 0; a < 0x8; a++ ) {
-            bool is_first = true;
-
-            unsigned int mesh_tile_index = 0;
-
-            has_texture_displayed = false;
-
-            for( unsigned int x = 0; x < 16; x++ ) {
-                for( unsigned int y = 0; y < 16; y++ ) {
-                    for( auto t = 0; t < mesh_reference_grid[x][y].tile_amount; t++ )
-                    {
-                        unsigned int current_tile_polygon_amount = 0;
-
-                        const Tile current_tile = mesh_tiles.at( t + mesh_reference_grid[x][y].tiles_start );
-
-                        Data::Mission::Til::Mesh::Input input;
-                        input.pixels[ FRONT_LEFT  ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 0, x + 0 ) );
-                        input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 1, x + 0 ) );
-                        input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 1, x + 1 ) );
-                        input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 0, x + 1 ) );
-                        input.coord_index = current_tile.texture_cord_index;
-                        input.coord_index_limit = this->texture_cords.size();
-                        input.coord_data = this->texture_cords.data();
-
-                        Data::Mission::Til::Mesh::VertexData vertex_data;
-                        vertex_data.position = position;
-                        vertex_data.coords = coord;
-                        vertex_data.colors = color;
-                        vertex_data.element_amount = 6;
-                        vertex_data.element_start = 0;
-
-                        Data::Mission::Til::Colorizer::Input input_color;
-                        input_color.tile = this->tile_texture_type.at( current_tile.graphics_type_index );
-                        input_color.colors = colors.data();
-                        input_color.colors_amount = colors.size();
-                        input_color.unk = 0;
-
-                        // TODO Replace this color system witH 
-                        Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
-
-                        if( input_color.tile.texture_index == a ) {
-                            current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
-
-                            if( current_tile_polygon_amount == 0 && display_unread ) {
-                                if( !has_displayed ) {
-                                    std::cout << "Starting error log for " << this->getIndexNumber() << std::endl;
-                                    has_displayed = true;
-                                }
-
-                                if( !has_texture_displayed ) {
-                                    std::cout << "For texture index of " << a << std::endl;
-                                    has_texture_displayed = true;
-                                }
-
-                                std::cout << "Unknown tile at (" << x << "," << y << ") for " << current_tile.mesh_type << std::endl;
-                            }
-
-                            for( unsigned int i = 0; i < current_tile_polygon_amount; i++ ) {
-                                position[ i ].x += position_displacement.x;
-                                position[ i ].z += position_displacement.z;
-
-                                // Flip the x-axis.
-                                position[ i ].x = -position[ i ].x;
-                            }
-
-                            if( is_first && current_tile_polygon_amount != 0 ) {
-                                model_output->setMaterial( texture_names[ a ], a + 1 );
-
-                                is_first = false;
-                            }
-                        }
-
-                        // Generate the normals
-                        // TODO Fix the normal issues that Stein13 has described.
-                        {
-                            Utilities::DataTypes::Vec3 u;
-                            Utilities::DataTypes::Vec3 v;
-
-                            // Generate the normals
-                            for( unsigned int p = 0; p < current_tile_polygon_amount / 3; p++ )
-                            {
-                                u.x = position[ p * 3 + 1 ].x - position[ p * 3 + 0 ].x;
-                                u.y = position[ p * 3 + 1 ].y - position[ p * 3 + 0 ].y;
-                                u.z = position[ p * 3 + 1 ].z - position[ p * 3 + 0 ].z;
-
-                                v.x = position[ p * 3 + 2 ].x - position[ p * 3 + 0 ].x;
-                                v.y = position[ p * 3 + 2 ].y - position[ p * 3 + 0 ].y;
-                                v.z = position[ p * 3 + 2 ].z - position[ p * 3 + 0 ].z;
-
-                                normal[3 * p].x = u.y * v.z - u.z * v.y;
-                                normal[3 * p].y = u.z * v.x - u.x * v.z;
-                                normal[3 * p].z = u.x * v.y - u.y * v.x;
-
-                                // Fill in the value on all points
-                                for( unsigned int i = 1; i < 3; i++ ) {
-                                    normal[3 * p + i ].x = normal[3 * p].x;
-                                    normal[3 * p + i ].y = normal[3 * p].y;
-                                    normal[3 * p + i ].z = normal[3 * p].z;
-                                }
-                            }
-                        }
-
-                        {
-                            Utilities::DataTypes::ScalarUInt TileMeshValue;
-                            TileMeshValue.x = current_tile.mesh_type;
-
-                            // The write loop for the tiles.
-                            for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
-                            {
-                                model_output->startVertex();
-
-                                model_output->setVertexData( position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
-                                model_output->setVertexData( normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
-                                model_output->setVertexData( color_compon_index,  Utilities::DataTypes::Vec3Type( color[p] ) );
-                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                model_output->setVertexData( tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( TileMeshValue ) );
-                            }
-                        }
-                    }
-
-                    position_displacement.z -= 1.0;
-                }
-                position_displacement.x -= 1.0;
-                position_displacement.z = 8.0;
-            }
-            position_displacement.x = 8.0;
+        
+        int status;
+        Utilities::ModelBuilder* model_output = Utilities::ModelBuilder::combine( texture_models, status );
+        
+        if( status != 1 ) {
+            std::cout << "Data::Mission::TilResource::createModel has a problem" << std::endl;
+            std::cout << "  combine has resulted in status " << status << std::endl;
         }
-
-        model_output->finish();
+        
+        // Delete the other models.
+        for( auto i : texture_models ) {
+            delete i;
+        }
 
         return model_output;
     }
