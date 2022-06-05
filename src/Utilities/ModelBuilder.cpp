@@ -846,6 +846,8 @@ void Utilities::ModelBuilder::about( std::ostream &stream ) const {
     stream << "Morph Frame Buffers: " << morph_frame_buffers.size() << std::endl;
 }
 
+//#include <iostream>
+
 Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<ModelBuilder*>& models, int &status ) {
     // Only two models could be combined.
     if( models.size() <= 2 ) {
@@ -854,7 +856,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
     }
     else {
         // Make sure the number of materials are either one.
-        if( models[0]->getNumMaterials() == 1 ) {
+        if( models[0]->getNumMaterials() != 1 ) {
             status = -1;
             return nullptr;
         }
@@ -903,7 +905,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             
             // Check if every model has the same component.
             for( unsigned index = 0; index < models[0]->getNumVertexComponents(); index++ ) {
-                if( models[0]->vertex_components[ index ].isEqual( (*it)->vertex_components[ index ]  ) ) {
+                if( models[0]->vertex_components[ index ].isEqual( (*it)->vertex_components[ index ] ) ) {
                     status = -7;
                     return nullptr;
                 }
