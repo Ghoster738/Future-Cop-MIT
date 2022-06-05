@@ -618,6 +618,7 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
 
             root["textures"][position]["source"]  = position;
             root["textures"][position]["sampler"] = 0;
+            root["materials"][position]["doubleSided"] = true;
 
             root["materials"][position]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = position;
             root["materials"][position]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
