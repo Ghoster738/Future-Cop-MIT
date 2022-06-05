@@ -38,16 +38,16 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
                 for( uint32_t i = 0; i < num_entry; i++ ) {
                     element.push_back( Element() );
 
-                    element.back().unk_0 = reader.readU8();
-                    element.back().unk_1 = reader.readU8();
-                    element.back().unk_2 = reader.readU8();
-                    element.back().unk_3 = reader.readU8();
-                    element.back().unk_4 = reader.readU8();
+                    element.back().unk_0 = reader.readU8(); // This is probably an opcoce.
+                    element.back().unk_1 = reader.readU8(); // start x?
+                    element.back().unk_2 = reader.readU8(); // start y?
+                    element.back().unk_3 = reader.readU8(); // end x?
+                    element.back().unk_4 = reader.readU8(); // start y?
 
                     auto pad0 = reader.readU8();
                     auto pad1 = reader.readU8();
                     element.back().unk_5 = reader.readU8();
-
+                    
                     assert( pad0 == 0 );
                     assert( pad1 == 0 );
                     //assert( element.back().unk_5 == i + 1 );
