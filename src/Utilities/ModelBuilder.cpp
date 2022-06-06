@@ -96,6 +96,21 @@ Utilities::ModelBuilder::ModelBuilder( MeshPrimativeMode mode ) {
     
     mesh_primative_mode = mode;
 }
+Utilities::ModelBuilder::ModelBuilder( const ModelBuilder& to_copy ) :
+        primary_buffer( to_copy.primary_buffer ), vertex_components( to_copy.vertex_components ),
+        total_components_size( to_copy.total_components_size ),
+        morph_frame_buffers( to_copy.morph_frame_buffers ),
+        vertex_morph_components( to_copy.vertex_morph_components ),
+        total_morph_components_size( to_copy.total_morph_components_size ),
+        texture_materials( to_copy.texture_materials ),
+        current_vertex_index( to_copy.current_vertex_index ),
+        vertex_amount( to_copy.vertex_amount ),
+        joint_matrix_frames( to_copy.joint_matrix_frames ), joint_amount( to_copy.joint_amount ),
+        is_model_finished( to_copy.is_model_finished ),
+        components_are_done( to_copy.components_are_done ),
+        mesh_primative_mode( to_copy.mesh_primative_mode ){
+    //
+}
 
 Utilities::ModelBuilder::~ModelBuilder() {
     // Delete the joint matrix frames.
@@ -849,10 +864,16 @@ void Utilities::ModelBuilder::about( std::ostream &stream ) const {
 //#include <iostream>
 
 Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<ModelBuilder*>& models, int &status ) {
-    // Only two models could be combined.
-    if( models.size() <= 2 ) {
+    // Empty cannot be processed.
+    if( models.size() == 0 ) {
         status = 0;
         return nullptr;
+    }
+    else
+    if( models.size() == 1 ) {
+        // Just use the copy constructor.
+        status = 1;
+        return new ModelBuilder( *models[0] );
     }
     else {
         // Make sure the number of materials are either one.
