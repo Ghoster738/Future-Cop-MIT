@@ -418,6 +418,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             normal[3 * p].x = u.y * v.z - u.z * v.y;
                             normal[3 * p].y = u.z * v.x - u.x * v.z;
                             normal[3 * p].z = u.x * v.y - u.y * v.x;
+                            
+                            normal[3 * p].normalize();
 
                             // Fill in the value on all points
                             for( unsigned int i = 1; i < 3; i++ ) {

@@ -5,7 +5,7 @@ void Utilities::DataTypes::Vec2::normalize() {
 	// Get the unit vector length.
 	double unit = sqrt( x * x + y * y );
 
-	if( unit > 1.001 ) // If the unit is above one then compute this.
+	if( unit > 1.0078125 || unit < 0.9921875 )
 	{
 		// Normalize the vector.
 		unit = 1.0 / unit;
@@ -19,7 +19,7 @@ void Utilities::DataTypes::Vec3::normalize() {
 	// Get the unit vector length.
 	double unit = sqrt( x * x + y * y + z * z );
 
-	if( unit > 1.001 ) // If the unit is above one then compute this.
+	if( unit > 1.0078125 || unit < 0.9921875 )
 	{
 		// Normalize the vector.
 		unit = 1.0 / unit;
@@ -34,7 +34,7 @@ void Utilities::DataTypes::Vec4::normalize() {
 	// Get the unit vector length.
 	double unit = sqrt( x * x + y * y + z * z + w * w );
 
-	if( unit > 1.001 ) // If the unit is above one then compute this.
+	if( unit > 1.0078125 || unit < 0.9921875 )
 	{
 		// Normalize the vector.
 		unit = 1.0 / unit;
