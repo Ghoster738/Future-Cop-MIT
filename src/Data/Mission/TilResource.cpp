@@ -286,6 +286,10 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
         for( auto i : texture_models ) {
             delete i;
         }
+        
+        std::cout << "Data::Mission::TilResource::createModel " << getIndexNumber() << std::endl;
+        std::cout << "   " << model_output << std::endl;
+        assert( model_output != nullptr );
 
         return model_output;
     }

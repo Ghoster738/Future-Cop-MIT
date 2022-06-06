@@ -137,6 +137,7 @@ private:
     MeshPrimativeMode mesh_primative_mode;
 public:
     ModelBuilder( MeshPrimativeMode mode = MeshPrimativeMode::TRIANGLES );
+    ModelBuilder( const ModelBuilder& to_copy );
     ~ModelBuilder();
 
     /**
