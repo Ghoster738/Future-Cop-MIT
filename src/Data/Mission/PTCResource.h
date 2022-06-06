@@ -76,6 +76,8 @@ public:
      * @return zero if it is a dry run or the return results of the ImageData write operations.
      */
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    
+    int writeEntireMap( std::string file_path ) const;
 
     static std::vector<PTCResource*> getVector( IFF &mission_file );
     static const std::vector<PTCResource*> getVector( const IFF &mission_file );

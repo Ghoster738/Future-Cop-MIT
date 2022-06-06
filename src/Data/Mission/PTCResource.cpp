@@ -2,6 +2,7 @@
 
 #include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
+#include "../../Utilities/ModelBuilder.h"
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -116,28 +117,97 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
 
 int Data::Mission::PTCResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
+    bool entire_map = false;
     Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
         if( (*arg).compare("--dry") == 0 )
             enable_export = false;
+        else
+        if( (*arg).compare("--PTC_ENTIRE_MAP") == 0 ) {
+            entire_map = true;
+        }
     }
 
     if( enable_export ) {
-        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( debug_map_display );
+        if( !entire_map ) {
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( debug_map_display );
 
-        if( the_choosen_r != nullptr ) {
-            Utilities::Buffer buffer;
-            int state = the_choosen_r->write( debug_map_display, buffer );
+            if( the_choosen_r != nullptr ) {
+                Utilities::Buffer buffer;
+                int state = the_choosen_r->write( debug_map_display, buffer );
 
-            buffer.write( the_choosen_r->appendExtension( file_path ) );
-            return state;
+                buffer.write( the_choosen_r->appendExtension( file_path ) );
+                return state;
+            }
+            else
+                return 0;
         }
-        else
-            return 0;
+        else {
+            // Write the entire map.
+            return writeEntireMap( std::string(file_path) );
+        }
     }
     else
         return 0;
+}
+
+int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
+    // Write the entire map
+    std::vector<Utilities::ModelBuilder*> map_tils;
+    
+    for( unsigned i = 0; i < 8; i++ ) {
+        // This is to combine single textured tils into one.
+        std::vector<Utilities::ModelBuilder*> texture_tils;
+        
+        // Go through every til.
+        for( unsigned w = 0; w < getWidth(); w++ ) {
+            float x = static_cast<float>(w) - (static_cast<float>(getWidth()) / 2.0f);
+            
+            for( unsigned h = 0; h < getHeight(); h++ ) {
+                float y = static_cast<float>(h) - (static_cast<float>(getHeight()) / 2.0f);
+                auto tile_r = getTile( w, h );
+                
+                if( tile_r != nullptr ) {
+                    auto model_p = tile_r->createPartial( i, x * 16.0f, y * 16.0f );
+                    
+                    if( model_p != nullptr )
+                        texture_tils.push_back( model_p );
+                }
+            }
+        }
+        
+        // Combine every texture in common texture into one.
+        int result;
+        auto combine_model_p = Utilities::ModelBuilder::combine( texture_tils, result );
+        
+        // Delete the other models.
+        for( auto i : texture_tils ) {
+            delete i;
+        }
+        
+        // If a combine model is created add this to map_tils.
+        if( combine_model_p != nullptr )
+            map_tils.push_back( combine_model_p );
+    }
+    
+    // Combine everything.
+    int result;
+    auto combine_model_p = Utilities::ModelBuilder::combine( map_tils, result );
+    
+    for( auto i : map_tils ) {
+        delete i;
+    }
+    
+    if( combine_model_p == nullptr )
+        return -1; // There is no model to write.
+    
+    auto written = combine_model_p->write( file_path );
+    
+    if( written )
+        return 1; // The whole map had been written to the "disk"
+    else
+        return 0; // Combine model has failed to write.
 }
 
 std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( Data::Mission::IFF &mission_file ) {

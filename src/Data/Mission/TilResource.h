@@ -90,7 +90,7 @@ public:
 
     virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
     
-    Utilities::ModelBuilder * createPartial( unsigned int texture_index ) const;
+    Utilities::ModelBuilder * createPartial( unsigned int texture_index, float x_offset = 0.0f, float y_offset = 0.0f ) const;
 
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );
