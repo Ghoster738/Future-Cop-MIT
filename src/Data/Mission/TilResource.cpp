@@ -286,10 +286,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
         for( auto i : texture_models ) {
             delete i;
         }
-        
-        std::cout << "Data::Mission::TilResource::createModel " << getIndexNumber() << std::endl;
-        std::cout << "   " << model_output << std::endl;
-        assert( model_output != nullptr );
 
         return model_output;
     }
@@ -297,8 +293,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
         return nullptr;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index ) const {
-    if( texture_index >= 8 )
+Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, float x_offset, float y_offset ) const {
+    if( texture_index > 8 )
         return nullptr;
     else {
         Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
@@ -333,9 +329,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         position_floor_space[BACK_RIGHT].x = -0.5;
         position_floor_space[BACK_RIGHT].z = -0.5;
 
-        position_displacement.x = 8.0;
+        position_displacement.x = 8.0 + x_offset;
         position_displacement.y = 0.0;
-        position_displacement.z = 8.0;
+        position_displacement.z = 8.0 + y_offset;
         
         TileGraphics tileGraphic;
 
@@ -453,7 +449,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                 position_displacement.z -= 1.0;
             }
             position_displacement.x -= 1.0;
-            position_displacement.z = 8.0;
+            position_displacement.z = 8.0 + y_offset;
         }
         
         if( model_output->getNumVertices() < 3 ) {
