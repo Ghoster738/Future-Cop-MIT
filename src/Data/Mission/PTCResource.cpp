@@ -169,7 +169,7 @@ int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
                 auto tile_r = getTile( w, h );
                 
                 if( tile_r != nullptr ) {
-                    auto model_p = tile_r->createPartial( i, x * 16.0f, y * 16.0f );
+                    auto model_p = tile_r->createPartial( i, y * 16.0f, x * 16.0f );
                     
                     if( model_p != nullptr )
                         texture_tils.push_back( model_p );
