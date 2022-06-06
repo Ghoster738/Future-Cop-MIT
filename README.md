@@ -209,7 +209,7 @@ Every one of those files does not store the textures, but uses the paths to the 
 
 ### Font
 
-&ensp; __FNTP__: This writes two files. One is an BMFont text file.
+&ensp; __FNTP__: This writes two files. One is an BMFont text file, and one is an image file.
 
 ### JSON is used to make the exports more readable
 
