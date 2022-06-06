@@ -66,6 +66,13 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                     result[p].y = 0.00;
                     result[p].z = 1.00;
                 }
+                // Disable the lava stuff.
+                for( unsigned int p = 0; p < 4; p++ )
+                {
+                    result[p].x = 1.0;
+                    result[p].y = 1.0;
+                    result[p].z = 1.0;
+                }
                 break;
         }
 
