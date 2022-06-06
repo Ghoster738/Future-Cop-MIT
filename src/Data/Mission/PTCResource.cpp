@@ -195,16 +195,16 @@ int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
     int result;
     auto combine_model_p = Utilities::ModelBuilder::combine( map_tils, result );
     
+    // Do a clean up.
     for( auto i : map_tils ) {
         delete i;
     }
     
+    // If the combine fails return a negative one.
     if( combine_model_p == nullptr )
         return -1; // There is no model to write.
     
-    auto written = combine_model_p->write( file_path );
-    
-    if( written )
+    if( combine_model_p->write( file_path ) )
         return 1; // The whole map had been written to the "disk"
     else
         return 0; // Combine model has failed to write.

@@ -71,6 +71,8 @@ public:
         unsigned int starting_vertex_index; // The index of the starting vertices.
         unsigned int count; // The amount of vertices that the texture material covers.
         Utilities::DataTypes::Vec3Type min, max;
+        
+        void bounds( const TextureMaterial &material );
     };
     class Joint {
     public:
@@ -345,12 +347,6 @@ public:
     * @return true if setupVertexComponents was called before this method or if this method was called once.
     */
     bool finish();
-
-    /**
-    * This method makes a copy of
-    * @return A pointer to a new ModelBuilder; Please delete it!
-    */
-    ModelBuilder * makeNonInterleaved() const;
 
     /**
     * This writes a glTF file.

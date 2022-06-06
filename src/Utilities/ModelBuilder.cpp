@@ -70,6 +70,15 @@ Utilities::ModelBuilder::TextureMaterial::TextureMaterial() {
     max.data.z = -min.data.x;
 }
 
+void Utilities::ModelBuilder::TextureMaterial::bounds( const TextureMaterial &material ) {
+    min.data.x = std::min( min.data.x, material.min.data.x );
+    min.data.y = std::min( min.data.y, material.min.data.y );
+    min.data.z = std::min( min.data.z, material.min.data.z );
+    max.data.x = std::max( max.data.x, material.max.data.x );
+    max.data.y = std::max( max.data.y, material.max.data.y );
+    max.data.z = std::max( max.data.z, material.max.data.z );
+}
+
 Utilities::ModelBuilder::InvalidVertexComponentIndex::InvalidVertexComponentIndex( unsigned int offending_index, bool is_morph ) {
     this->offending_index = offending_index;
     this->is_morph = is_morph;
@@ -515,51 +524,6 @@ bool Utilities::ModelBuilder::finish()
         return false;
 }
 
-Utilities::ModelBuilder* Utilities::ModelBuilder::makeNonInterleaved() const
-{/*
-    Utilities::ModelBuilder *non_interleaved = new Utilities::ModelBuilder;
-
-    non_interleaved->primary_buffer.resize( primary_buffer.size() );
-    non_interleaved->vertex_components.resize( vertex_components.size() );
-
-    unsigned int position = 0;
-
-    for( unsigned int i = 0; i < vertex_components.size(); i++ ) {
-        // Carbon copy almost everything.
-        non_interleaved->vertex_components[i] = VertexComponent( vertex_components[i] );
-
-        non_interleaved->vertex_components[i].stride = vertex_components[i].size;
-        non_interleaved->vertex_components[i].begin = position;
-
-        position += vertex_components[i].size * vertex_amount;
-
-        for( unsigned int slot = 0; slot < vertex_amount; slot++ ) {
-            unsigned int non_interleaved_offset = non_interleaved->vertex_components[i].begin + non_interleaved->vertex_components[i].stride * slot;
-            unsigned int interleaved_offset = vertex_components[i].begin + vertex_components[i].stride * slot;
-
-            for( unsigned int size = 0; size < vertex_components[i].size; size++ )
-                non_interleaved->primary_buffer[ non_interleaved_offset + size ] = primary_buffer[ interleaved_offset + size ];
-        }
-    }
-
-    non_interleaved->texture_materials = std::vector<TextureMaterial>(texture_materials);
-
-    non_interleaved->total_components_size = total_components_size;
-    non_interleaved->total_morph_components_size = total_morph_components_size;
-
-    non_interleaved->current_vertex_index = vertex_amount;
-    non_interleaved->vertex_amount = vertex_amount;
-
-    // Lock this new class it should never be edited.
-    non_interleaved->is_model_finished = true;
-    non_interleaved->components_are_done = true;
-
-    return non_interleaved;
-    */
-    return nullptr;
-}
-
-
 bool Utilities::ModelBuilder::write( std::string file_path ) const {
     std::ofstream resource;
 
@@ -979,6 +943,9 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
                 new_file_name.compare( it_file_name ) != 0 ) {
                 new_model->setMaterial( it_file_name, it_cbmp_id );
             }
+            
+            // The texture bounds need to be applyed.
+            new_model->texture_materials.back().bounds( (*it)->texture_materials.back() );
             
             // Now that the material has been set add the mesh info.
             
