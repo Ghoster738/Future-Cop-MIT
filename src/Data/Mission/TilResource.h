@@ -51,7 +51,7 @@ public:
         };
     };
 private:
-    Utilities::ImageData image; // This contains an rgb channel that can have negative values.
+    Utilities::ImageData point_cloud_3_channel; // This contains an rgb channel that can have negative values.
 
     uint16_t culling_distance; // This affects the radius of the circle where the culling happens
     CullingTile culling_top_left;

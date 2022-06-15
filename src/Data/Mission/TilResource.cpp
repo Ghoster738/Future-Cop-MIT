@@ -35,7 +35,7 @@ Data::Mission::TilResource::TilResource() {
 
 }
 
-Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), image( obj.image ) {
+Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ) {
 }
 
 std::string Data::Mission::TilResource::getFileExtension() const {
@@ -47,7 +47,7 @@ uint32_t Data::Mission::TilResource::getResourceTagID() const {
 }
 
 Utilities::ImageData *const Data::Mission::TilResource::getImage() const {
-    return const_cast<Utilities::ImageData *const>(&image);
+    return const_cast<Utilities::ImageData *const>(&point_cloud_3_channel);
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
@@ -74,19 +74,19 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 *settings.output_ref << "texture_quads_amount = " << texture_cordinates_amount / 4 << std::endl;
             }
 
-            // setup the image
-            image.setWidth( 0x11 );
-            image.setHeight( 0x11 );
-            image.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+            // setup the point_cloud_3_channel
+            point_cloud_3_channel.setWidth( 0x11 );
+            point_cloud_3_channel.setHeight( 0x11 );
+            point_cloud_3_channel.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
 
-            auto image_data = image.getRawImageData();
-            for( unsigned int a = 0; a < image.getWidth() * image.getHeight(); a++ ) {
+            auto image_data = point_cloud_3_channel.getRawImageData();
+            for( unsigned int a = 0; a < point_cloud_3_channel.getWidth() * point_cloud_3_channel.getHeight(); a++ ) {
 
                 image_data[0] = readerSect.readU8();
                 image_data[1] = readerSect.readU8();
                 image_data[2] = readerSect.readU8();
 
-                image_data += image.getPixelSize();
+                image_data += point_cloud_3_channel.getPixelSize();
             }
 
             // These bytes seems to be only five zero bytes
@@ -237,13 +237,13 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
             enable_export = false;
     }
 
-    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( point_cloud_3_channel );
 
     if( enable_height_map_export && enable_export && the_choosen_r != nullptr ) {
         // Write the three heightmaps encoded in three color channels.
         // TODO Find out what to do if the image cannot be written.
         Utilities::Buffer buffer;
-        the_choosen_r->write( image, buffer );
+        the_choosen_r->write( point_cloud_3_channel, buffer );
         buffer.write( the_choosen_r->appendExtension( file_path ) );
     }
 
@@ -348,10 +348,10 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     const Tile current_tile = mesh_tiles.at( t + mesh_reference_grid[x][y].tiles_start );
 
                     Data::Mission::Til::Mesh::Input input;
-                    input.pixels[ FRONT_LEFT  ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 0, x + 0 ) );
-                    input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 1, x + 0 ) );
-                    input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 1, x + 1 ) );
-                    input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( image.getPixel( y + 0, x + 1 ) );
+                    input.pixels[ FRONT_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 0, x + 0 ) );
+                    input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 1, x + 0 ) );
+                    input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 1, x + 1 ) );
+                    input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 0, x + 1 ) );
                     input.coord_index = current_tile.texture_cord_index;
                     input.coord_index_limit = this->texture_cords.size();
                     input.coord_data = this->texture_cords.data();
