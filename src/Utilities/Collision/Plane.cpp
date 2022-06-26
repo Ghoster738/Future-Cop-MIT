@@ -17,7 +17,7 @@ Utilities::Collision::Plane::Plane( const Plane& plane ) :
 
 void Utilities::Collision::Plane::setByPoints( DataTypes::Vec3 pt[3] ) {
     // Deriving the plane from three points is surprisingly complicated.
-    // Use this only if you have to.
+    // Developer Advice: Use this only if you have to.
     a = (pt[1].y - pt[0].y) * (pt[2].z - pt[0].z) - (pt[1].y - pt[0].y) * (pt[2].z - pt[0].z);
     b = (pt[1].z - pt[0].z) * (pt[2].x - pt[0].x) - (pt[1].z - pt[0].z) * (pt[2].x - pt[0].x);
     c = (pt[1].x - pt[0].x) * (pt[2].y - pt[0].y) - (pt[1].x - pt[0].x) * (pt[2].y - pt[0].y);

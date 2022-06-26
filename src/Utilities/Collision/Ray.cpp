@@ -21,12 +21,12 @@ void Utilities::Collision::Ray::setUnit( Utilities::DataTypes::Vec3 unit ) {
     this->unit = unit;
 }
 
-void Utilities::Collision::Ray::setNormal( Utilities::DataTypes::Vec3 normal ) {
-    this->unit = normal;
+void Utilities::Collision::Ray::setDirection( Utilities::DataTypes::Vec3 direction ) {
+    this->unit = origin;
     
-    this->unit.x += origin.x;
-    this->unit.y += origin.y;
-    this->unit.z += origin.z;
+    this->unit.x -= direction.x;
+    this->unit.y -= direction.y;
+    this->unit.z -= direction.z;
 }
 
 Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getOrigin() const {
@@ -37,14 +37,14 @@ Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getUnit() const {
     return unit;
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getNormal() const {
-    DataTypes::Vec3 normal = unit;
+Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getDirection() const {
+    DataTypes::Vec3 direction = origin;
     
-    normal.x -= origin.x;
-    normal.y -= origin.y;
-    normal.z -= origin.z;
+    direction.x -= unit.x;
+    direction.y -= unit.y;
+    direction.z -= unit.z;
     
-    return normal;
+    return direction;
 }
 
 Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getSpot( float distance ) const {

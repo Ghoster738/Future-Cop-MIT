@@ -19,11 +19,11 @@ public:
     
     void setOrigin( DataTypes::Vec3 origin );
     void setUnit( DataTypes::Vec3 unit );
-    void setNormal( DataTypes::Vec3 normal );
+    void setDirection( DataTypes::Vec3 direction );
     
     DataTypes::Vec3 getOrigin() const;
     DataTypes::Vec3 getUnit() const;
-    DataTypes::Vec3 getNormal() const;
+    DataTypes::Vec3 getDirection() const;
     
     DataTypes::Vec3 getSpot( float distance ) const;
 };
