@@ -1,21 +1,7 @@
 #include "../../../Utilities/Collision/Triangle.h"
 #include <iostream>
 
-using Utilities::DataTypes::Vec3;
-
-bool isNotMatch( float op1, float op2, float tolerence = 0.0078125 ) {
-    return ( op1 > op2 + tolerence) | (op1 < op2 - tolerence );
-}
-
-bool isNotMatch( const Vec3& op1, const Vec3& op2, float tolerence = 0.0078125 ) {
-    bool is_not_valid = false;
-    
-    is_not_valid |= ( op1.x > op2.x + tolerence) | (op1.x < op2.x - tolerence );
-    is_not_valid |= ( op1.y > op2.y + tolerence) | (op1.y < op2.y - tolerence );
-    is_not_valid |= ( op1.z > op2.z + tolerence) | (op1.z < op2.z - tolerence );
-    
-    return is_not_valid;
-}
+#include "Helper.h"
 
 int main() {
     // This tests the plane class to see if it works as intended.
@@ -83,15 +69,9 @@ int main() {
                 std::cout << "Error: ray index " << i << " is not valid!" << std::endl;
                 std::cout << "Reason: the ray does not point to where it is supposded to go!" << std::endl;
                 std::cout << "depth = " << depths[ i ] << std::endl;
-                std::cout << "origin.x = " << ray[ i ].getOrigin().x << std::endl;
-                std::cout << "origin.y = " << ray[ i ].getOrigin().y << std::endl;
-                std::cout << "origin.z = " << ray[ i ].getOrigin().z << std::endl;
-                std::cout << "destination.x = " << ray[ i ].getUnit().x << std::endl;
-                std::cout << "destination.y = " << ray[ i ].getUnit().y << std::endl;
-                std::cout << "destination.z = " << ray[ i ].getUnit().z << std::endl;
-                std::cout << "points_to.x = " << points_to[ i ].x << std::endl;
-                std::cout << "points_to.y = " << points_to[ i ].y << std::endl;
-                std::cout << "points_to.z = " << points_to[ i ].z << std::endl;
+                displayVec3( "origin", ray[ i ].getOrigin(), std::cout );
+                displayVec3( "destination", ray[ i ].getUnit(), std::cout );
+                displayVec3( "points_to", points_to[ i ], std::cout );
                 return FAILURE;
             }
             
@@ -105,15 +85,9 @@ int main() {
                 std::cout << "Reason: the depth to the triangle does not match with the ray." << std::endl;
                 std::cout << "generated_depth = " << generated_depth << std::endl;
                 std::cout << "depth = " << depths[ i ] << std::endl;
-                std::cout << "origin.x = " << ray[ i ].getOrigin().x << std::endl;
-                std::cout << "origin.y = " << ray[ i ].getOrigin().y << std::endl;
-                std::cout << "origin.z = " << ray[ i ].getOrigin().z << std::endl;
-                std::cout << "destination.x = " << ray[ i ].getUnit().x << std::endl;
-                std::cout << "destination.y = " << ray[ i ].getUnit().y << std::endl;
-                std::cout << "destination.z = " << ray[ i ].getUnit().z << std::endl;
-                std::cout << "points_to.x = " << points_to[ i ].x << std::endl;
-                std::cout << "points_to.y = " << points_to[ i ].y << std::endl;
-                std::cout << "points_to.z = " << points_to[ i ].z << std::endl;
+                displayVec3( "origin", ray[ i ].getOrigin(), std::cout );
+                displayVec3( "destination", ray[ i ].getUnit(), std::cout );
+                displayVec3( "points_to", points_to[ i ], std::cout );
                 return FAILURE;
             }
             
@@ -126,45 +100,26 @@ int main() {
             if( isNotMatch( barycentric_span, 1.0f ) ) {
                 std::cout << "Error: triangle index " << i << " is not valid!" << std::endl;
                 std::cout << "Reason: the barycentric cordinates of the triangle is not the span of 1" << std::endl;
-                std::cout << "generated_barycentric.x = " << generated_barycentric.x << std::endl;
-                std::cout << "generated_barycentric.y = " << generated_barycentric.y << std::endl;
-                std::cout << "generated_barycentric.z = " << generated_barycentric.z << std::endl;
+                displayVec3( "generated_barycentric", generated_barycentric, std::cout );
                 std::cout << "barycentric_span = " << barycentric_span << std::endl;
-                std::cout << "origin.x = " << ray[ i ].getOrigin().x << std::endl;
-                std::cout << "origin.y = " << ray[ i ].getOrigin().y << std::endl;
-                std::cout << "origin.z = " << ray[ i ].getOrigin().z << std::endl;
-                std::cout << "destination.x = " << ray[ i ].getUnit().x << std::endl;
-                std::cout << "destination.y = " << ray[ i ].getUnit().y << std::endl;
-                std::cout << "destination.z = " << ray[ i ].getUnit().z << std::endl;
-                std::cout << "points_to.x = " << points_to[ i ].x << std::endl;
-                std::cout << "points_to.y = " << points_to[ i ].y << std::endl;
-                std::cout << "points_to.z = " << points_to[ i ].z << std::endl;
+                displayVec3( "origin", ray[ i ].getOrigin(), std::cout );
+                displayVec3( "destination", ray[ i ].getUnit(), std::cout );
+                displayVec3( "points_to", points_to[ i ], std::cout );
                 return FAILURE;
             }
             
+            // Check if the barycentric cordinates are working.
             if( isNotMatch( generated_barycentric, barycentric_cordinates[ i ] ) ) {
                 std::cout << "Error: triangle index " << i << " is not valid!" << std::endl;
                 std::cout << "Reason: the barycentric cordinates of the triangle is not the expected cordinates. barycentric cordinate generation is fawed" << std::endl;
-                std::cout << "generated_barycentric.x = " << generated_barycentric.x << std::endl;
-                std::cout << "generated_barycentric.y = " << generated_barycentric.y << std::endl;
-                std::cout << "generated_barycentric.z = " << generated_barycentric.z << std::endl;
-                std::cout << "expected_barycentric.x = " << barycentric_cordinates[ i ].x << std::endl;
-                std::cout << "expected_barycentric.y = " << barycentric_cordinates[ i ].y << std::endl;
-                std::cout << "expected_barycentric.z = " << barycentric_cordinates[ i ].z << std::endl;
-                std::cout << "origin.x = " << ray[ i ].getOrigin().x << std::endl;
-                std::cout << "origin.y = " << ray[ i ].getOrigin().y << std::endl;
-                std::cout << "origin.z = " << ray[ i ].getOrigin().z << std::endl;
-                std::cout << "destination.x = " << ray[ i ].getUnit().x << std::endl;
-                std::cout << "destination.y = " << ray[ i ].getUnit().y << std::endl;
-                std::cout << "destination.z = " << ray[ i ].getUnit().z << std::endl;
-                std::cout << "points_to.x = " << points_to[ i ].x << std::endl;
-                std::cout << "points_to.y = " << points_to[ i ].y << std::endl;
-                std::cout << "points_to.z = " << points_to[ i ].z << std::endl;
+                displayVec3( "expected_barycentric", barycentric_cordinates[ i ], std::cout );
+                displayVec3( "origin", ray[ i ].getOrigin(), std::cout );
+                displayVec3( "destination", ray[ i ].getUnit(), std::cout );
+                displayVec3( "points_to", points_to[ i ], std::cout );
                 return FAILURE;
             }
             
-            // Now we can test if these triangles will collide
-            
+            // Now we can test if these triangles will collide correctly.
             if( triangle.isInTriangle( generated_barycentric ) != is_in_triangle[ i ] ) {
                 std::cout << "Error: triangle index " << i << " is not valid!" << std::endl;
                 std::cout << "Reason: the ray should have " << std::endl;
@@ -173,18 +128,10 @@ int main() {
                 std::cout << "hit the triangle" << std::endl;
                 std::cout << "isInTriangle() = " <<
                     triangle.isInTriangle( generated_barycentric ) << std::endl;
-                std::cout << "generated_barycentric.x = " << generated_barycentric.x << std::endl;
-                std::cout << "generated_barycentric.y = " << generated_barycentric.y << std::endl;
-                std::cout << "generated_barycentric.z = " << generated_barycentric.z << std::endl;
-                std::cout << "origin.x = " << ray[ i ].getOrigin().x << std::endl;
-                std::cout << "origin.y = " << ray[ i ].getOrigin().y << std::endl;
-                std::cout << "origin.z = " << ray[ i ].getOrigin().z << std::endl;
-                std::cout << "destination.x = " << ray[ i ].getUnit().x << std::endl;
-                std::cout << "destination.y = " << ray[ i ].getUnit().y << std::endl;
-                std::cout << "destination.z = " << ray[ i ].getUnit().z << std::endl;
-                std::cout << "points_to.x = " << points_to[ i ].x << std::endl;
-                std::cout << "points_to.y = " << points_to[ i ].y << std::endl;
-                std::cout << "points_to.z = " << points_to[ i ].z << std::endl;
+                displayVec3( "expected_barycentric", barycentric_cordinates[ i ], std::cout );
+                displayVec3( "origin", ray[ i ].getOrigin(), std::cout );
+                displayVec3( "destination", ray[ i ].getUnit(), std::cout );
+                displayVec3( "points_to", points_to[ i ], std::cout );
                 return FAILURE;
             }
         }

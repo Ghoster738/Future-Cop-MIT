@@ -80,9 +80,9 @@ Utilities::DataTypes::Vec3 Utilities::Collision::Triangle::getBarycentricCordina
     denom = d00 * d11 - d01 * d01;
     
     if( denom > 0.0 || denom < 0.0 ) {
-        result.x = (d11 * d20 - d01 * d21) / denom;
-        result.y = (d00 * d21 - d01 * d20) / denom;
-        result.z = 1.0f - result.x - result.y;
+        result.z = (d00 * d21 - d01 * d20) / denom;
+        result.y = (d11 * d20 - d01 * d21) / denom;
+        result.x = 1.0f - result.z - result.y;
     }
     else
         result.x = -1; // The baycentric cordinates are invalid.

@@ -1,16 +1,6 @@
 #include "../../../Utilities/Collision/Ray.h"
 
-using Utilities::DataTypes::Vec3;
-
-bool isNotMatch( const Vec3& op1, const Vec3& op2, float tolerence = 0.0078125 ) {
-    bool is_not_valid = false;
-    
-    is_not_valid |= ( op1.x > op2.x + tolerence) | (op1.x < op2.x - tolerence );
-    is_not_valid |= ( op1.y > op2.y + tolerence) | (op1.y < op2.y - tolerence );
-    is_not_valid |= ( op1.z > op2.z + tolerence) | (op1.z < op2.z - tolerence );
-    
-    return is_not_valid;
-}
+#include "Helper.h"
 
 bool isNotValid( Vec3 origin, Vec3 dest, float distance, Vec3 expected, float tolerence = 0.0078125 ) {
     Utilities::Collision::Ray ray( origin, dest );
