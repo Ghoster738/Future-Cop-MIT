@@ -28,6 +28,7 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 }
 }
 
+
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
 
@@ -74,9 +75,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 *settings.output_ref << "texture_quads_amount = " << texture_cordinates_amount / 4 << std::endl;
             }
 
-            // setup the point_cloud_3_channel
-            point_cloud_3_channel.setWidth( 0x11 );
-            point_cloud_3_channel.setHeight( 0x11 );
+            // setup the point_cloud_3_channel.
+            point_cloud_3_channel.setWidth(  AMOUNT_OF_TILES + 1 );
+            point_cloud_3_channel.setHeight( AMOUNT_OF_TILES + 1 );
             point_cloud_3_channel.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
 
             auto image_data = point_cloud_3_channel.getRawImageData();
@@ -122,10 +123,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
             this->texture_reference = readerSect.readU16( settings.endian );
 
-            const unsigned int SIZE_OF_GRID = sizeof( mesh_reference_grid[0] ) / sizeof( mesh_reference_grid[0][0] );
-
-            for( unsigned int x = 0; x < SIZE_OF_GRID; x++ ) {
-                for( unsigned int y = 0; y < SIZE_OF_GRID; y++ ) {
+            for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
                     mesh_reference_grid[x][y].floor = readerSect.readU16( settings.endian );
                 }
             }
@@ -185,6 +184,13 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 tile_texture_type.push_back( { readerSect.readU16( settings.endian ) } );
             }
+            
+            // Create the physics cells for this Til.
+            for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
+                    createPhysicsCell( x, z );
+                }
+            }
         }
         else
             reader.setPosition( tag_size - 2 * sizeof( uint32_t ), Utilities::Buffer::Reader::CURRENT );
@@ -224,12 +230,16 @@ using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
 int Data::Mission::TilResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+    bool enable_point_cloud_export = false;
     bool enable_height_map_export = false;
     bool enable_export = true;
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
+        if( (*arg).compare("--TIL_EXPORT_POINT_CLOUD_MAP") == 0 )
+            enable_point_cloud_export = true;
+        else
         if( (*arg).compare("--TIL_EXPORT_HEIGHT_MAP") == 0 )
             enable_height_map_export = true;
         else
@@ -239,12 +249,46 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
 
     Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( point_cloud_3_channel );
 
-    if( enable_height_map_export && enable_export && the_choosen_r != nullptr ) {
-        // Write the three heightmaps encoded in three color channels.
-        // TODO Find out what to do if the image cannot be written.
-        Utilities::Buffer buffer;
-        the_choosen_r->write( point_cloud_3_channel, buffer );
-        buffer.write( the_choosen_r->appendExtension( file_path ) );
+    if( the_choosen_r != nullptr && enable_export ) {
+        if( enable_point_cloud_export ) {
+            // Write the three heightmaps encoded in three color channels.
+            // TODO Find out what to do if the image cannot be written.
+            Utilities::Buffer buffer;
+            the_choosen_r->write( point_cloud_3_channel, buffer );
+            buffer.write( the_choosen_r->appendExtension( file_path ) );
+        }
+        if( enable_height_map_export ) {
+            // Write out the depth field of the Til Resource.
+            Utilities::ImageData heightmap;
+            const unsigned int PIXELS_PER_TILE = 8;
+            
+            heightmap.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
+            heightmap.setWidth(  AMOUNT_OF_TILES * PIXELS_PER_TILE );
+            heightmap.setHeight( AMOUNT_OF_TILES * PIXELS_PER_TILE );
+            auto image_data = heightmap.getRawImageData();
+            
+            const float STEPER = static_cast<float>( AMOUNT_OF_TILES + 1 ) / ( static_cast<float>( AMOUNT_OF_TILES * PIXELS_PER_TILE) );
+            
+            for( unsigned int x = 0; x < AMOUNT_OF_TILES * PIXELS_PER_TILE; x++ ) {
+                
+                float x_pos = static_cast<float>(x) * STEPER - (SPAN_OF_TIL + 0.5);
+                
+                for( unsigned int z = 0; z < AMOUNT_OF_TILES * PIXELS_PER_TILE; z++ ) {
+                    
+                    float z_pos = static_cast<float>(z) * STEPER - (SPAN_OF_TIL + 0.5);
+                    
+                    float distance = getRayCast2D( x_pos, z_pos );
+                    
+                    if( distance <= 1.0f && distance >= 0.0f )
+                        image_data[0] = distance * 256.0;
+
+                    image_data += heightmap.getPixelSize();
+                }
+            }
+            Utilities::Buffer buffer;
+            the_choosen_r->write( heightmap, buffer );
+            buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+        }
     }
 
     Utilities::ModelBuilder *model_output = createModel( &arguments );
@@ -260,12 +304,10 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
 Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::vector<std::string> * arguments ) const {
     if( !mesh_tiles.empty() ) // Make sure there is no out of bounds error.
     {
-        const static size_t TEXTURE_AMOUNT = 8;
-        
         // Single texture models are to be generated first.
         std::vector<Utilities::ModelBuilder*> texture_models;
         
-        for( unsigned int i = 0; i < TEXTURE_AMOUNT; i++ ) {
+        for( unsigned int i = 0; i < TEXTURE_NAMES_AMOUNT; i++ ) {
             auto texture_model_p = createPartial( i );
             
             if( texture_model_p != nullptr )
@@ -280,8 +322,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
             std::cout << "  combine has resulted in status " << status << std::endl;
         }
         
-        // return texture_models.back(); // Test to see if this works.
-        
         // Delete the other models.
         for( auto i : texture_models ) {
             delete i;
@@ -294,7 +334,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
 }
 
 Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, float x_offset, float y_offset ) const {
-    if( texture_index > 8 )
+    if( texture_index > TEXTURE_NAMES_AMOUNT + 1 )
         return nullptr;
     else {
         Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
@@ -311,36 +351,24 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         model_output->setupVertexComponents();
 
         Utilities::DataTypes::Vec3 position_displacement;
-        Utilities::DataTypes::Vec3 position_floor_space[4];
         Utilities::DataTypes::Vec3 position[6];
         Utilities::DataTypes::Vec3 normal[6];
         Utilities::DataTypes::Vec3 color[6];
         Utilities::DataTypes::Vec2UByte coord[6];
 
-        position_floor_space[FRONT_LEFT].x =  0.5;
-        position_floor_space[FRONT_LEFT].z =  0.5;
-
-        position_floor_space[FRONT_RIGHT].x = -0.5;
-        position_floor_space[FRONT_RIGHT].z =  0.5;
-
-        position_floor_space[BACK_LEFT].x =  0.5;
-        position_floor_space[BACK_LEFT].z = -0.5;
-
-        position_floor_space[BACK_RIGHT].x = -0.5;
-        position_floor_space[BACK_RIGHT].z = -0.5;
-
-        position_displacement.x = 8.0 + x_offset;
+        position_displacement.x = SPAN_OF_TIL + x_offset;
         position_displacement.y = 0.0;
-        position_displacement.z = 8.0 + y_offset;
+        position_displacement.z = SPAN_OF_TIL + y_offset;
         
         TileGraphics tileGraphic;
 
         has_texture_displayed = false;
         
-        model_output->setMaterial( texture_names[ texture_index ], texture_index + 1 );
+        if( texture_index < TEXTURE_NAMES_AMOUNT )
+            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1 );
 
-        for( unsigned int x = 0; x < 16; x++ ) {
-            for( unsigned int y = 0; y < 16; y++ ) {
+        for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+            for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
                 for( auto t = 0; t < mesh_reference_grid[x][y].tile_amount; t++ )
                 {
                     unsigned int current_tile_polygon_amount = 0;
@@ -369,10 +397,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     input_color.colors_amount = colors.size();
                     input_color.unk = 0;
 
-                    // TODO Replace this color system witH
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                    if( input_color.tile.texture_index == texture_index ) {
+                    if( input_color.tile.texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
                         current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                         if( current_tile_polygon_amount == 0 && display_unread ) {
@@ -399,7 +426,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     }
 
                     // Generate the normals
-                    // TODO Fix the normal issues that Stein13 has described.
                     {
                         Utilities::DataTypes::Vec3 u;
                         Utilities::DataTypes::Vec3 v;
@@ -439,11 +465,11 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         {
                             model_output->startVertex();
 
-                            model_output->setVertexData( position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
-                            model_output->setVertexData( normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
-                            model_output->setVertexData( color_compon_index,  Utilities::DataTypes::Vec3Type( color[p] ) );
+                            model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
+                            model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
+                            model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                             model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                            model_output->setVertexData( tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( TileMeshValue ) );
+                            model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( TileMeshValue ) );
                         }
                     }
                 }
@@ -451,7 +477,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                 position_displacement.z -= 1.0;
             }
             position_displacement.x -= 1.0;
-            position_displacement.z = 8.0 + y_offset;
+            position_displacement.z = SPAN_OF_TIL + y_offset;
         }
         
         if( model_output->getNumVertices() < 3 ) {
@@ -490,6 +516,98 @@ bool test_MissionTilResource() {
     }
 
     return is_correct;
+}
+
+void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int z ) {
+    if( x > AMOUNT_OF_TILES && z > AMOUNT_OF_TILES ) {
+        Utilities::DataTypes::Vec3 position[6];
+        Utilities::DataTypes::Vec2UByte coord[6];
+        Utilities::DataTypes::Vec3 color[6];
+        
+        Tile current_tile;
+        Data::Mission::Til::Mesh::Input input;
+        Data::Mission::Til::Mesh::VertexData vertex_data;
+        
+        input.pixels[ FRONT_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 0, x + 0 ) );
+        input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 1, x + 0 ) );
+        input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 1, x + 1 ) );
+        input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 0, x + 1 ) );
+        input.coord_index = current_tile.texture_cord_index;
+        input.coord_index_limit = this->texture_cords.size();
+        input.coord_data = this->texture_cords.data();
+        
+        vertex_data.position = position;
+        vertex_data.coords = coord;
+        vertex_data.colors = color;
+        vertex_data.element_amount = 6;
+        vertex_data.element_start = 0;
+        
+        for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
+            current_tile = mesh_tiles.at( current_tile_index + mesh_reference_grid[x][z].tiles_start );
+            
+            auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
+            
+            for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
+                position[ i ].x += (SPAN_OF_TIL - x);
+                position[ i ].z += (SPAN_OF_TIL - z);
+
+                // Flip the x-axis.
+                position[ i ].x = -position[ i ].x;
+            }
+            
+            for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
+                all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
+            }
+        }
+    }
+}
+
+float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray ) const {
+    // TODO Develop a more complex, but more effient raycasting implementation like DDA.
+    bool found_triangle = false;
+    float final_distance = 1000000.0f;
+    float temp_distance;
+    Utilities::DataTypes::Vec3 point;
+    Utilities::DataTypes::Vec3 barycentric;
+    
+    for( auto i : all_triangles ) {
+        // Get the intersection distance from the plane first.
+        temp_distance = i.getIntersectionDistance( ray );
+        
+        // If temp_distance is positive and
+        // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
+        if( temp_distance > 0.0f && temp_distance < final_distance ) {
+            
+            // Get the point in 3D space.
+            point = ray.getSpot( temp_distance );
+            
+            // Get the barycentric cordinates.
+            barycentric = i.getBarycentricCordinates( point );
+            
+            // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
+            if( i.isInTriangle( barycentric ) ) {
+                
+                // A triangle has been found.
+                found_triangle = true;
+                
+                // The final_distance is now at the triangle.
+                final_distance = temp_distance;
+            }
+        }
+    }
+    
+    // If the triangle has been found then return a positive number.
+    if( found_triangle )
+        return final_distance;
+    else
+        return -1.0f;
+}
+
+float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
+    // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
+    Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, 256.0 * 0.05f, z ), Utilities::DataTypes::Vec3( x, 0, z ) );
+    
+    return getRayCast3D( downRay );
 }
 
 std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( Data::Mission::IFF &mission_file ) {
