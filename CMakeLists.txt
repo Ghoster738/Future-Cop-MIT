@@ -6,6 +6,7 @@ project( FutureCopDecoder )
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+option(ENABLED_FC_TESTS "Run tests to the project to see any potential problems." OFF)
 option(USE_INTERNAL_SDL2 "Use the internal SDL 2 CMake files stored in this project." ON)
 
 if( USE_INTERNAL_SDL2 )
@@ -91,3 +92,8 @@ add_executable(FCMapViewer src/FCMapViewer.cpp )
 
 target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
 target_link_libraries (FCMapViewer PRIVATE FC_Engine)
+
+if( ENABLED_FC_TESTS )
+  # This is the testing section.
+  add_subdirectory( src/Tests )
+endif()
