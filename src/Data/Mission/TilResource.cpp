@@ -290,8 +290,7 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
                         image_data[1] = 255;
                         image_data[2] = 255;
                     }
-                    else
-                    if( distance <= 1.0f ) {
+                    else {
                         image_data[0] = distance * 256.0;
                         image_data[1] = distance * 256.0;
                         image_data[2] = distance * 256.0;
