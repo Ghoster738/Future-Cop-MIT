@@ -4,6 +4,8 @@
 #include "ModelResource.h"
 #include "BMPResource.h"
 #include "../../Utilities/ImageData.h"
+#include "../../Utilities/Collision/Ray.h"
+#include "../../Utilities/Collision/Triangle.h"
 
 namespace Data {
 
@@ -50,8 +52,11 @@ public:
             uint16_t type : 2; // Tells how the tile will be drawn.
         };
     };
+    
+    static constexpr size_t AMOUNT_OF_TILES = 16;
+    static constexpr float  SPAN_OF_TIL = AMOUNT_OF_TILES / 2;
 private:
-    Utilities::ImageData point_cloud_3_channel; // This contains an rgb channel that can have negative values.
+    Utilities::ImageData point_cloud_3_channel; // I liked the Point Cloud Name. These are 3 channel signed bytes.
 
     uint16_t culling_distance; // This affects the radius of the circle where the culling happens
     CullingTile culling_top_left;
@@ -60,7 +65,7 @@ private:
     CullingTile culling_bottom_right;
 
     uint16_t texture_reference; // This is an unknown number, but it affects all the textures in the file. One change might mess up the tiles.
-    Floor mesh_reference_grid[16][16];
+    Floor mesh_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 
     uint16_t mesh_library_size; // This is the number of unknown numbers but 4 times bigger for some reason.
     std::vector<Tile> mesh_tiles; // These are descriptions of tiles that are used to make up the map format. The 32 bit numbers are packed with information
@@ -68,9 +73,14 @@ private:
     std::vector<Utilities::DataTypes::Vec2UByte> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<uint16_t> colors;
     std::vector<TileGraphics> tile_texture_type;
-
+    
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
+    
+    std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
+    // std::pair<size_t,size_t>[16][16] triangle_map;
 public:
+    static constexpr size_t TEXTURE_NAMES_AMOUNT = sizeof( texture_names ) / sizeof( texture_names[0] );
+    
     TilResource();
     TilResource( const TilResource &obj );
 
@@ -91,6 +101,11 @@ public:
     virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
     
     Utilities::ModelBuilder * createPartial( unsigned int texture_index, float x_offset = 0.0f, float y_offset = 0.0f ) const;
+    
+    void createPhysicsCell( unsigned int x, unsigned int z );
+    
+    float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
+    float getRayCast2D( float x, float z ) const;
 
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );

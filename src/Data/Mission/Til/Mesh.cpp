@@ -179,9 +179,9 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
 }
 
 unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Polygon &quad, VertexData &result ) {
-    unsigned int number_of_written_polygons = 0;
+    unsigned int number_of_written_vertices = 0;
 
-    number_of_written_polygons += Data::Mission::Til::Mesh::BuildTriangle( input, quad, result );
+    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, quad, result );
 
     Polygon other_triangle;
     other_triangle.flip = quad.flip;
@@ -189,13 +189,13 @@ unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Poly
     other_triangle.points[1] = quad.points[3];
     other_triangle.points[2] = quad.points[0];
 
-    number_of_written_polygons += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result );
+    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result );
 
-    return number_of_written_polygons;
+    return number_of_written_vertices;
 }
 
 unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexData &vertex_data, unsigned int tileType ) {
-    unsigned current_tile_polygon_amount = 0;
+    unsigned number_of_written_vertices = 0;
     bool found = false;
     Polygon tile_polygon;
 
@@ -217,16 +217,16 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
         vertex_data.colors[ 2 ] = input.colors[ 2 ];
 
         if( tile_polygon.points[3].heightmap_channel == NO_ELEMENT )
-            current_tile_polygon_amount += BuildTriangle( input, tile_polygon, vertex_data );
+            number_of_written_vertices += BuildTriangle( input, tile_polygon, vertex_data );
         else
         {
             vertex_data.colors[ 3 ] = input.colors[ 2 ];
             vertex_data.colors[ 4 ] = input.colors[ 3 ];
             vertex_data.colors[ 5 ] = input.colors[ 0 ];
-            current_tile_polygon_amount += BuildQuad( input, tile_polygon, vertex_data );
+            number_of_written_vertices += BuildQuad( input, tile_polygon, vertex_data );
         }
     }
 
 
-    return current_tile_polygon_amount;
+    return number_of_written_vertices;
 }
