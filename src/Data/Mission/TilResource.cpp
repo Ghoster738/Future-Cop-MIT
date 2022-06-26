@@ -262,10 +262,10 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
             Utilities::ImageData heightmap;
             const unsigned int PIXELS_PER_TILE = 8;
             
-            heightmap.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
             heightmap.setWidth(  AMOUNT_OF_TILES * PIXELS_PER_TILE );
             heightmap.setHeight( AMOUNT_OF_TILES * PIXELS_PER_TILE );
-            auto image_data = heightmap.getRawImageData();
+            heightmap.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+            auto image_data = reinterpret_cast<uint8_t*>( heightmap.getRawImageData() );
             
             const float STEPER = static_cast<float>( AMOUNT_OF_TILES + 1 ) / ( static_cast<float>( AMOUNT_OF_TILES * PIXELS_PER_TILE) );
             
@@ -279,8 +279,23 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
                     
                     float distance = getRayCast2D( x_pos, z_pos );
                     
-                    if( distance <= 1.0f && distance >= 0.0f )
+                    if( distance < 0.0f ) {
+                        image_data[0] = 255;
+                        image_data[1] = 0;
+                        image_data[2] = 0;
+                    }
+                    else
+                    if( distance > 1.0f ) {
+                        image_data[0] = 0;
+                        image_data[1] = 255;
+                        image_data[2] = 255;
+                    }
+                    else
+                    if( distance <= 1.0f ) {
                         image_data[0] = distance * 256.0;
+                        image_data[1] = distance * 256.0;
+                        image_data[2] = distance * 256.0;
+                    }
 
                     image_data += heightmap.getPixelSize();
                 }
@@ -521,7 +536,7 @@ bool test_MissionTilResource() {
 void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int z ) {
     if( x > AMOUNT_OF_TILES && z > AMOUNT_OF_TILES ) {
         Utilities::DataTypes::Vec3 position[6];
-        Utilities::DataTypes::Vec2UByte coord[6];
+        Utilities::DataTypes::Vec2UByte cord[6];
         Utilities::DataTypes::Vec3 color[6];
         
         Tile current_tile;
@@ -537,7 +552,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         input.coord_data = this->texture_cords.data();
         
         vertex_data.position = position;
-        vertex_data.coords = coord;
+        vertex_data.coords = cord;
         vertex_data.colors = color;
         vertex_data.element_amount = 6;
         vertex_data.element_start = 0;
