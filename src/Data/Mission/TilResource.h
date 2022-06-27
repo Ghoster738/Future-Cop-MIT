@@ -89,6 +89,8 @@ public:
     virtual uint32_t getResourceTagID() const;
 
     Utilities::ImageData *const getImage() const;
+    
+    void makeEmpty();
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
@@ -107,6 +109,8 @@ public:
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float z ) const;
 
+    const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
+    
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );
 };
