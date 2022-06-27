@@ -42,6 +42,8 @@ void Utilities::Collision::Triangle::setPoint( DataTypes::Vec3 point, unsigned i
     index %= 3;
     
     points[ index ] = point;
+    
+    setByPoints( this->points );
 }
 
 void Utilities::Collision::Triangle::setPoints( DataTypes::Vec3 points[3] ) {

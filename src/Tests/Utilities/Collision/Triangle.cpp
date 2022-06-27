@@ -135,9 +135,120 @@ int main() {
                 return FAILURE;
             }
         }
-        
     }
     
-    // There is probably no issue with the plane.
+    // Now, test the setPoint, setPoints and the copy constructor.
+    {
+        Utilities::Collision::Triangle set_s_point_tri;
+        Vec3 points[3];
+        
+        points[ 0 ] = Vec3(1, 2, 3);
+        points[ 1 ] = Vec3(4, 0, 6);
+        points[ 2 ] = Vec3(7, 8, 9);
+        
+        set_s_point_tri.setPoint( points[ 0 ], 0 );
+        set_s_point_tri.setPoint( points[ 1 ], 1 );
+        set_s_point_tri.setPoint( points[ 2 ], 2 );
+        
+        for( int i = 0; i < 3; i++ ) {
+            if( isNotMatch( set_s_point_tri.getPoint( i ), points[ i ] ) ) {
+                std::cout << "Error: triangle \"set_s_point_tri\" is not valid!" << std::endl;
+                std::cout << "Reason: the setter or getter methods are not working" << std::endl;
+                std::cout << "It happened at " << i << std::endl;
+                displayVec3( "point", points[ i ], std::cout );
+                displayVec3( "getPoint()", set_s_point_tri.getPoint( i ), std::cout );
+                return FAILURE;
+            }
+        }
+        
+        Utilities::Collision::Triangle set_points_tri;
+        
+        set_points_tri.setPoints( points );
+        
+        for( int i = 0; i < 3; i++ ) {
+            if( isNotMatch( set_points_tri.getPoint( i ), points[ i ] ) ) {
+                std::cout << "Error: triangle \"set_points_tri\" is not valid!" << std::endl;
+                std::cout << "Reason: the setPoints method is not working" << std::endl;
+                std::cout << "It happened at " << i << std::endl;
+                displayVec3( "point", points[ i ], std::cout );
+                displayVec3( "getPoint()", set_points_tri.getPoint( i ), std::cout );
+                return FAILURE;
+            }
+        }
+        
+        Utilities::Collision::Triangle copy_tri( set_points_tri );
+        
+        for( int i = 0; i < 3; i++ ) {
+            if( isNotMatch( copy_tri.getPoint( i ), points[ i ] ) ) {
+                std::cout << "Error: triangle \"set_points_tri\" is not valid!" << std::endl;
+                std::cout << "Reason: the copy constructor is broken" << std::endl;
+                std::cout << "It happened at " << i << std::endl;
+                displayVec3( "point", points[ i ], std::cout );
+                displayVec3( "getPoint()", set_points_tri.getPoint( i ), std::cout );
+                return FAILURE;
+            }
+        }
+        
+        // Now this test should test to see if the triangles act like each other.
+        static size_t AMOUNT_OF_RAYS = 2;
+        Utilities::Collision::Ray rays[AMOUNT_OF_RAYS];
+        bool expected_ray_collision_result[AMOUNT_OF_RAYS];
+        
+        rays[0] = Utilities::Collision::Ray( Vec3(0.0f, 0.0f, 0.0f), Vec3(2, 5.0/3.0, 3.0f) );
+        expected_ray_collision_result[0] = true;
+        
+        rays[1] = Utilities::Collision::Ray( Vec3(52.5f, 0.0f, -11.0f), Vec3(52.5f, 5.1f, -11.0f) );
+        expected_ray_collision_result[1] = false;
+        
+        for( size_t i = 0; i < AMOUNT_OF_RAYS; i++ ) {
+            const float gen_dist_s_point = set_s_point_tri.getIntersectionDistance( rays[ i ] );
+            const float gen_dist_points = set_points_tri.getIntersectionDistance( rays[ i ] );
+            const float gen_dist_copy = copy_tri.getIntersectionDistance( rays[ i ] );
+            
+            if( isNotMatch( gen_dist_s_point, gen_dist_points ) ) {
+                std::cout << "Error: triangle(s) is not valid!" << std::endl;
+                std::cout << "Reason: gen_dist_s_point != gen_dist_points (broken setPoints() or/and setPoint())" << std::endl;
+                std::cout << "It happened at ray " << i << std::endl;
+                std::cout << "gen_dist_s_point = " << gen_dist_s_point << std::endl;
+                std::cout << "gen_dist_points = " << gen_dist_points << std::endl;
+                return FAILURE;
+            }
+            
+            if( isNotMatch( gen_dist_points, gen_dist_copy ) ) {
+                std::cout << "Error: triangle(s) is not valid!" << std::endl;
+                std::cout << "Reason: gen_dist_points != gen_dist_copy (broken setPoints() or/and setPoint())" << std::endl;
+                std::cout << "It happened at ray " << i << std::endl;
+                std::cout << "gen_dist_points = " << gen_dist_points << std::endl;
+                std::cout << "gen_dist_copy = " << gen_dist_copy << std::endl;
+                return FAILURE;
+            }
+            
+            const Vec3 spot_s_point = rays[ i ].getSpot( gen_dist_s_point );
+            const Vec3 spot_points  = rays[ i ].getSpot( gen_dist_points );
+            const Vec3 spot_copy    = rays[ i ].getSpot( gen_dist_copy );
+            
+            const Vec3 bary_s_point = set_s_point_tri.getBarycentricCordinates( spot_s_point );
+            const Vec3 bary_points  = set_points_tri.getBarycentricCordinates( spot_points );
+            const Vec3 bary_copy    = copy_tri.getBarycentricCordinates( spot_copy );
+            
+            if( isNotMatch( spot_s_point, spot_points ) ) {
+                std::cout << "Error: triangle(s) is not valid!" << std::endl;
+                std::cout << "Reason: the barycentric cordinates do not match!" << std::endl;
+                displayVec3( "bary_s_point", bary_s_point, std::cout );
+                displayVec3( "bary_points", bary_points, std::cout );
+                return FAILURE;
+            }
+            
+            if( isNotMatch( bary_points, bary_copy ) ) {
+                std::cout << "Error: triangle(s) is not valid!" << std::endl;
+                std::cout << "Reason: the barycentric cordinates do not match!" << std::endl;
+                displayVec3( "bary_points", bary_points, std::cout );
+                displayVec3( "bary_copy", bary_copy, std::cout );
+                return FAILURE;
+            }
+        }
+    }
+    
+    // There is probably no issue with the triangle class.
     return SUCCESS;
 }
