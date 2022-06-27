@@ -43,15 +43,11 @@ void listIDs( std::ostream &stream, Data::Manager &manager ) {
 }
 }
 
-bool test_Math();
-
 int main(int argc, char** argv)
 {
     // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
     int WIDTH = 0;
     int HEIGHT = 0;
-
-    test_Math();
 
     std::string type = Data::Mission::ObjResource::FILE_EXTENSION;
     std::string iff_mission_id = "pa_urban_jungle";
