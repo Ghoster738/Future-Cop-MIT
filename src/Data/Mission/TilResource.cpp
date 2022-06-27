@@ -51,6 +51,87 @@ Utilities::ImageData *const Data::Mission::TilResource::getImage() const {
     return const_cast<Utilities::ImageData *const>(&point_cloud_3_channel);
 }
 
+void Data::Mission::TilResource::makeEmpty() {
+    point_cloud_3_channel.setWidth(  AMOUNT_OF_TILES + 1 );
+    point_cloud_3_channel.setHeight( AMOUNT_OF_TILES + 1 );
+    point_cloud_3_channel.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+    
+    auto image_data = point_cloud_3_channel.getRawImageData();
+    for( unsigned int a = 0; a < point_cloud_3_channel.getWidth() * point_cloud_3_channel.getHeight(); a++ ) {
+
+        image_data[0] = 0;
+        image_data[1] = 128;
+        image_data[2] = 255;
+
+        image_data += point_cloud_3_channel.getPixelSize();
+    }
+    
+    // I decided to set these anyways.
+    this->culling_distance = 0;
+    this->culling_top_left.primary = 0;
+    this->culling_top_left.top_left = 0;
+    this->culling_top_left.top_right = 0;
+    this->culling_top_left.bottom_left = 0;
+    this->culling_top_left.bottom_right = 0;
+    this->culling_top_right    = this->culling_top_left;
+    this->culling_bottom_left  = this->culling_top_left;
+    this->culling_bottom_right = this->culling_top_left;
+    
+    this->texture_reference = 0;
+    
+    for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+        for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
+            mesh_reference_grid[x][y].floor = 0;
+            mesh_reference_grid[x][y].tile_amount = 1;
+            mesh_reference_grid[x][y].tiles_start = 0; // It will refer to one tile.
+        }
+    }
+    
+    // Make a generic tile
+    Tile one_tile;
+    
+    one_tile.tile = 0;
+    
+    one_tile.unknown_0 = 0;
+    one_tile.texture_cord_index = 0;
+    one_tile.collision_type = 0; // This means the floor
+    one_tile.unknown_1 = 0;
+    one_tile.mesh_type = 60; // This should make an interesting pattern.
+    one_tile.graphics_type_index = 0;
+    
+    this->mesh_tiles.clear();
+    this->mesh_tiles.push_back( one_tile );
+    
+    this->texture_cords.clear();
+    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte( 0,  0) );
+    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte(32,  0) );
+    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte(32, 32) );
+    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte(32,  0) );
+    
+    this->colors.clear();
+    
+    this->tile_texture_type.clear();
+    
+    TileGraphics flat;
+    
+    flat.shading = 127;
+    flat.texture_index = 0;
+    flat.unknown_0 = 0;
+    flat.rectangle = 1; // This is a rectangle.
+    flat.type = 0; // Make a pure flat
+    
+    this->tile_texture_type.push_back( flat );
+    
+    this->all_triangles.clear();
+    
+    // Create the physics cells for this Til.
+    for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+        for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
+            createPhysicsCell( x, z );
+        }
+    }
+}
+
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
@@ -593,6 +674,11 @@ float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
     Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, 256.0 * 0.05f, z ), Utilities::DataTypes::Vec3( x, 0, z ) );
     
     return getRayCast3D( downRay );
+}
+
+
+const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::getAllTriangles() const {
+    return all_triangles;
 }
 
 std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( Data::Mission::IFF &mission_file ) {
