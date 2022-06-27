@@ -585,7 +585,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 }
 
 void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int z ) {
-    if( x > AMOUNT_OF_TILES && z > AMOUNT_OF_TILES ) {
+    if( x < AMOUNT_OF_TILES && z < AMOUNT_OF_TILES ) {
         Utilities::DataTypes::Vec3 position[6];
         Utilities::DataTypes::Vec2UByte cord[6];
         Utilities::DataTypes::Vec3 color[6];
