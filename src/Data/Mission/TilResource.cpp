@@ -503,35 +503,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
     }
 }
 
-bool test_MissionTilResource() {
-    bool is_correct = true;
-
-    Data::Mission::TilResource::Tile floor = { 0x05e28011 };
-
-    // First test if my getters are correct!
-    if( floor.graphics_type_index != 23 ) {
-        std::cout << "graphics_type_index is wrong!" << std::endl;
-        is_correct = false;
-    }
-
-    if( floor.texture_cord_index != 8 ) {
-        std::cout << "texture_cord_index is wrong!" << std::endl;
-        is_correct = false;
-    }
-
-    if( floor.mesh_type != 0x44 ) {
-        std::cout << "mesh_type is wrong!" << std::endl;
-        is_correct = false;
-    }
-
-    if( floor.unknown_0 != 1 ) {
-        std::cout << "unknown_0 is wrong!" << std::endl;
-        is_correct = false;
-    }
-
-    return is_correct;
-}
-
 void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int z ) {
     if( x > AMOUNT_OF_TILES && z > AMOUNT_OF_TILES ) {
         Utilities::DataTypes::Vec3 position[6];

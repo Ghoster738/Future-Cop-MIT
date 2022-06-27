@@ -22,3 +22,8 @@ add_test( NAME triangle_test COMMAND $<TARGET_FILE:triangle_test> )
 add_executable(math_test Utilities/Math.cpp)
 target_link_libraries(math_test PRIVATE FC_IFF_IO)
 add_test( NAME math_test COMMAND $<TARGET_FILE:math_test> )
+
+# Test TilResource Code
+add_executable(til_resource_test Data/Mission/TilResource.cpp)
+target_link_libraries(til_resource_test PRIVATE FC_IFF_IO)
+add_test( NAME til_resource_test COMMAND $<TARGET_FILE:til_resource_test> )

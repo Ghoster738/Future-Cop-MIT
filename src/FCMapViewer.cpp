@@ -20,8 +20,6 @@
 
 #include "Utilities/ImageFormat/Chooser.h"
 
-bool test_MissionTilResource();
-
 namespace {
 void helpExit( std::ostream &stream ) {
     stream << "These are the graphics settings" << std::endl;
@@ -348,8 +346,6 @@ int main(int argc, char** argv)
         
         control_system_p->write( "controls" );
     }
-
-    test_MissionTilResource();
 
     while(viewer_loop)
     {
