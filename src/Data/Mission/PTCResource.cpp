@@ -118,6 +118,7 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
 int Data::Mission::PTCResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
     bool entire_map = false;
+    bool entire_height_map = false;
     Utilities::ImageFormat::Chooser chooser;
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
@@ -127,6 +128,10 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
         if( (*arg).compare("--PTC_ENTIRE_MAP") == 0 ) {
             entire_map = true;
         }
+        else
+        if( (*arg).compare("--PTC_ENTIRE_HEIGHT_MAP") == 0 ) {
+            entire_height_map = true;
+        }
     }
 
     if( enable_export ) {
@@ -135,18 +140,43 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
 
             if( the_choosen_r != nullptr ) {
                 Utilities::Buffer buffer;
-                int state = the_choosen_r->write( debug_map_display, buffer );
+                the_choosen_r->write( debug_map_display, buffer );
 
                 buffer.write( the_choosen_r->appendExtension( file_path ) );
-                return state;
             }
-            else
-                return 0;
         }
         else {
             // Write the entire map.
             return writeEntireMap( std::string(file_path) );
         }
+        if( entire_height_map ) {
+            Utilities::ImageData height_map;
+            
+            unsigned int rays_per_tile = 4;
+            
+            height_map.setWidth(  grid.getWidth()  * rays_per_tile * 16 );
+            height_map.setHeight( grid.getHeight() * rays_per_tile * 16 );
+            height_map.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+
+            for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
+                for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
+                    auto pixel = grid.getPixel( x, y );
+
+                    if( pixel != nullptr && *reinterpret_cast<const uint8_t*>(pixel) != 0 )
+                        height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, *this->tile_array_r.at( (*reinterpret_cast<const uint8_t*>( pixel ) / sizeof( uint32_t ) - 1) % this->tile_array_r.size() )->getHeightMap( rays_per_tile ) );
+                }
+            }
+            
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( height_map );
+            
+            if( the_choosen_r != nullptr ) {
+                Utilities::Buffer buffer;
+                the_choosen_r->write( height_map, buffer );
+
+                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+            }
+        }
+        return 1;
     }
     else
         return 0;
