@@ -110,6 +110,7 @@ public:
     float getRayCast2D( float x, float z ) const;
 
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
+    Utilities::ImageData* getHeightMap( unsigned int rays_per_tile = 4 ) const;
     
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );

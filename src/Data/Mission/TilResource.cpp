@@ -340,49 +340,13 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
         }
         if( enable_height_map_export ) {
             // Write out the depth field of the Til Resource.
-            Utilities::ImageData heightmap;
-            const unsigned int PIXELS_PER_TILE = 8;
+            Utilities::ImageData *heightmap_p = getHeightMap( 8 );
             
-            heightmap.setWidth(  AMOUNT_OF_TILES * PIXELS_PER_TILE );
-            heightmap.setHeight( AMOUNT_OF_TILES * PIXELS_PER_TILE );
-            heightmap.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-            auto image_data = reinterpret_cast<uint8_t*>( heightmap.getRawImageData() );
-            
-            const float STEPER = static_cast<float>( AMOUNT_OF_TILES + 1 ) / ( static_cast<float>( AMOUNT_OF_TILES * PIXELS_PER_TILE) );
-            
-            for( unsigned int x = 0; x < AMOUNT_OF_TILES * PIXELS_PER_TILE; x++ ) {
-                
-                float x_pos = static_cast<float>(x) * STEPER - (SPAN_OF_TIL + 0.5);
-                
-                for( unsigned int z = 0; z < AMOUNT_OF_TILES * PIXELS_PER_TILE; z++ ) {
-                    
-                    float z_pos = static_cast<float>(z) * STEPER - (SPAN_OF_TIL + 0.5);
-                    
-                    float distance = getRayCast2D( x_pos, z_pos );
-                    
-                    if( distance < 0.0f ) {
-                        image_data[0] = 255;
-                        image_data[1] = 0;
-                        image_data[2] = 0;
-                    }
-                    else
-                    if( distance > 1.0f ) {
-                        image_data[0] = 0;
-                        image_data[1] = 255;
-                        image_data[2] = 255;
-                    }
-                    else {
-                        image_data[0] = distance * 256.0;
-                        image_data[1] = distance * 256.0;
-                        image_data[2] = distance * 256.0;
-                    }
-
-                    image_data += heightmap.getPixelSize();
-                }
+            if( heightmap_p != nullptr ) {
+                Utilities::Buffer buffer;
+                the_choosen_r->write( *heightmap_p, buffer );
+                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
             }
-            Utilities::Buffer buffer;
-            the_choosen_r->write( heightmap, buffer );
-            buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
         }
     }
 
@@ -679,6 +643,52 @@ float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
 
 const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::getAllTriangles() const {
     return all_triangles;
+}
+
+Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int rays_per_tile ) const {
+    const unsigned int PIXELS_PER_TILE = rays_per_tile;
+    
+    auto heightmap_p = new Utilities::ImageData;
+    
+    heightmap_p->setWidth(  AMOUNT_OF_TILES * PIXELS_PER_TILE );
+    heightmap_p->setHeight( AMOUNT_OF_TILES * PIXELS_PER_TILE );
+    heightmap_p->setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+    auto image_data = reinterpret_cast<uint8_t*>( heightmap_p->getRawImageData() );
+    
+    const float STEPER = static_cast<float>( AMOUNT_OF_TILES + 1 ) / ( static_cast<float>( AMOUNT_OF_TILES * PIXELS_PER_TILE) );
+    
+    for( unsigned int x = 0; x < AMOUNT_OF_TILES * PIXELS_PER_TILE; x++ ) {
+        
+        float x_pos = static_cast<float>(x) * STEPER - (SPAN_OF_TIL + 0.5);
+        
+        for( unsigned int z = 0; z < AMOUNT_OF_TILES * PIXELS_PER_TILE; z++ ) {
+            
+            float z_pos = static_cast<float>(z) * STEPER - (SPAN_OF_TIL + 0.5);
+            
+            float distance = getRayCast2D( x_pos, z_pos );
+            
+            if( distance < 0.0f ) {
+                image_data[0] = 255;
+                image_data[1] = 0;
+                image_data[2] = 0;
+            }
+            else
+            if( distance > 1.0f ) {
+                image_data[0] = 0;
+                image_data[1] = 255;
+                image_data[2] = 255;
+            }
+            else {
+                image_data[0] = distance * 256.0;
+                image_data[1] = distance * 256.0;
+                image_data[2] = distance * 256.0;
+            }
+
+            image_data += heightmap_p->getPixelSize();
+        }
+    }
+    
+    return heightmap_p;
 }
 
 std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( Data::Mission::IFF &mission_file ) {
