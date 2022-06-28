@@ -1,5 +1,8 @@
 #include "../../../Data/Mission/TilResource.h"
+#include <limits>
+#include <algorithm>
 #include <iostream>
+#include "../../Utilities/Collision/Helper.h"
 
 int main() {
     const static int FAILURE = 1;
@@ -60,6 +63,31 @@ int main() {
         if( triangles.empty() ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It has no triangles." << std::endl;
+            return FAILURE;
+        }
+        
+        Vec3 min = Vec3( std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() );
+        Vec3 max = Vec3( std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min() );
+        
+        for( auto i : triangles ) {
+            for( size_t p = 0; p < 3; p++ ) {
+                Vec3 point = i.getPoint( p );
+                
+                min.x = std::min( point.x, min.x );
+                min.y = std::min( point.y, min.y );
+                min.z = std::min( point.z, min.z );
+                
+                max.x = std::max<float>( point.x, max.x );
+                max.y = std::max<float>( point.y, max.y );
+                max.z = std::max<float>( point.z, max.z );
+            }
+        }
+        
+        if( isNotMatch( min, max ) ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "The triangles are not center." << std::endl;
+            displayVec3( "min", min, std::cout );
+            displayVec3( "max", max, std::cout );
             return FAILURE;
         }
         
