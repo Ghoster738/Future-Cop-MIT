@@ -119,10 +119,22 @@ int main() {
         for( int depth = 1; depth <= 8; depth++ ) {
             const float STEPER = 1.0f / ( static_cast<float>( depth ) );
             
-            const auto LOW   = (static_cast<float>(00) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL) + 0.5;
-            const auto HEIGH = (static_cast<float>(15 * depth) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL) + 0.5;
+            const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - STEPER;
             
-            if( isNotMatch( -LOW, HEIGH ) ) {
+            const auto LOW   = static_cast<float>(00) * STEPER + (-LENGTH / 2.0f); // (static_cast<float>(01) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL);
+            const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth + depth - 1) * STEPER + (-LENGTH / 2.0f); // (static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES * depth) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL);
+            
+            if( HEIGH > 8.0f )
+            {
+                std::cout << "TilResource error it is invalid!" << std::endl;
+                std::cout << "Out of bounds." << std::endl;
+                std::cout << "Depth: " << depth << std::endl;
+                std::cout << "Heigh: " << HEIGH << std::endl;
+                return FAILURE;
+            }
+            
+            if( isNotMatch( -LOW, HEIGH ) )
+            {
                 std::cout << "TilResource error it is invalid!" << std::endl;
                 std::cout << "The function is flawed." << std::endl;
                 std::cout << "Depth: " << depth << std::endl;
