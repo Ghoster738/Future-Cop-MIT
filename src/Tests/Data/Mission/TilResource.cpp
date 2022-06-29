@@ -126,11 +126,12 @@ int main() {
             const auto LOW   = static_cast<float>(00) * STEPER + -HALF_LENGTH;
             const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth) * STEPER + -HALF_LENGTH;
             
-            if( HEIGH > 8.0f )
+            if( isNotMatch( HALF_LENGTH, HEIGH ) )
             {
                 std::cout << "TilResource error it is invalid!" << std::endl;
                 std::cout << "Out of bounds." << std::endl;
                 std::cout << "Depth: " << depth << std::endl;
+                std::cout << "Expected: " << HALF_LENGTH << std::endl;
                 std::cout << "Heigh: " << HEIGH << std::endl;
                 return FAILURE;
             }
