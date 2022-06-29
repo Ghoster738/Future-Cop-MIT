@@ -162,8 +162,18 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
                 for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
                     auto pixel = grid.getPixel( x, y );
 
-                    if( pixel != nullptr && *reinterpret_cast<const uint8_t*>(pixel) != 0 )
-                        height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, *this->tile_array_r.at( (*reinterpret_cast<const uint8_t*>( pixel ) / sizeof( uint32_t ) - 1) % this->tile_array_r.size() )->getHeightMap( rays_per_tile ) );
+                    if( pixel != nullptr && *reinterpret_cast<const uint8_t*>(pixel) != 0 ) {
+                        const auto OFFSET = *reinterpret_cast<const uint8_t*>( pixel ) / sizeof( uint32_t ) - 1;
+                        const auto NORMALIZED_OFFSET = OFFSET % this->tile_array_r.size();
+                        
+                        auto height_map_p  = this->tile_array_r[ NORMALIZED_OFFSET ]->getHeightMap( rays_per_tile );
+                        
+                        if( height_map_p != nullptr ) {
+                            height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, *height_map_p );
+                        }
+                        
+                        delete height_map_p;
+                    }
                 }
             }
             
