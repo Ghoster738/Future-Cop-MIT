@@ -117,12 +117,14 @@ int main() {
         }
         
         for( int depth = 1; depth <= 8; depth++ ) {
-            const float STEPER = 1.0f / ( static_cast<float>( depth ) );
             
-            const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - STEPER;
+            const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( depth ));
+            const float HALF_LENGTH = LENGTH / 2.0f;
             
-            const auto LOW   = static_cast<float>(00) * STEPER + (-LENGTH / 2.0f); // (static_cast<float>(01) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL);
-            const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth + depth - 1) * STEPER + (-LENGTH / 2.0f); // (static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES * depth) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL);
+            const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth);
+            
+            const auto LOW   = static_cast<float>(00) * STEPER + -HALF_LENGTH;
+            const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth) * STEPER + -HALF_LENGTH;
             
             if( HEIGH > 8.0f )
             {
