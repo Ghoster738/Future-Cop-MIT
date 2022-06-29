@@ -103,6 +103,34 @@ int main() {
             std::cout << "It is not raycastable." << std::endl;
             return FAILURE;
         }
+        
+        if( til_resource.getRayCast2D( 7.5, 7.5 ) < 0 ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not spanning 8." << std::endl;
+            return FAILURE;
+        }
+        
+        if( til_resource.getRayCast2D( 8.5, 8.5 ) > 0 ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not spanning 9." << std::endl;
+            return FAILURE;
+        }
+        
+        for( int depth = 1; depth <= 8; depth++ ) {
+            const float STEPER = 1.0f / ( static_cast<float>( depth ) );
+            
+            const auto LOW   = (static_cast<float>(00) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL) + 0.5;
+            const auto HEIGH = (static_cast<float>(15 * depth) * STEPER - Data::Mission::TilResource::SPAN_OF_TIL) + 0.5;
+            
+            if( isNotMatch( -LOW, HEIGH ) ) {
+                std::cout << "TilResource error it is invalid!" << std::endl;
+                std::cout << "The function is flawed." << std::endl;
+                std::cout << "Depth: " << depth << std::endl;
+                std::cout << "Low: " << LOW << std::endl;
+                std::cout << "Heigh: " << HEIGH << std::endl;
+                return FAILURE;
+            }
+        }
     }
 
     return SUCCESS;
