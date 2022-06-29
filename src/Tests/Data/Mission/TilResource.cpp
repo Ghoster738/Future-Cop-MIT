@@ -120,11 +120,10 @@ int main() {
             
             const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( depth ));
             const float HALF_LENGTH = LENGTH / 2.0f;
+            const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * depth - 1));
             
-            const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth);
-            
-            const auto LOW   = static_cast<float>(00) * STEPER + -HALF_LENGTH;
-            const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES - 1) * depth) * STEPER + -HALF_LENGTH;
+            const auto LOW   = static_cast<float>(00) * STEPER - HALF_LENGTH;
+            const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * depth - 1)) * STEPER - HALF_LENGTH;
             
             if( isNotMatch( HALF_LENGTH, HEIGH ) )
             {
