@@ -73,15 +73,21 @@ int main() {
             for( size_t p = 0; p < 3; p++ ) {
                 Vec3 point = i.getPoint( p );
                 
-                min.x = std::min( point.x, min.x );
-                min.y = std::min( point.y, min.y );
-                min.z = std::min( point.z, min.z );
+                min.x = std::min<float>( point.x, min.x );
+                min.y = std::min<float>( point.y, min.y );
+                min.z = std::min<float>( point.z, min.z );
                 
                 max.x = std::max<float>( point.x, max.x );
                 max.y = std::max<float>( point.y, max.y );
                 max.z = std::max<float>( point.z, max.z );
             }
         }
+        
+        min.x = -min.x;
+        min.y =  0;
+        min.z = -min.z;
+        
+        max.y = 0;
         
         if( isNotMatch( min, max ) ) {
             std::cout << "TilResource error it is invalid!" << std::endl;

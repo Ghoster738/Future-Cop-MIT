@@ -578,8 +578,8 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
             auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
             
             for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                position[ i ].x += (SPAN_OF_TIL - x);
-                position[ i ].z += (SPAN_OF_TIL - z);
+                position[ i ].x += (SPAN_OF_TIL - x) - 0.5;
+                position[ i ].z += (SPAN_OF_TIL - z) - 0.5;
 
                 // Flip the x-axis.
                 position[ i ].x = -position[ i ].x;
