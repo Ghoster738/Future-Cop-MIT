@@ -653,15 +653,17 @@ Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int ray
     heightmap_p->setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
     auto image_data = reinterpret_cast<uint8_t*>( heightmap_p->getRawImageData() );
     
-    const float STEPER = 1.0f / ( static_cast<float>( rays_per_tile ) );
+    const float LENGTH = static_cast<float>(AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( rays_per_tile ));
+    const float HALF_LENGTH = LENGTH / 2.0f;
+    const float STEPER = LENGTH / static_cast<float>((AMOUNT_OF_TILES * rays_per_tile - 1));
     
     for( unsigned int x = 0; x < AMOUNT_OF_TILES * rays_per_tile; x++ ) {
         
-        float x_pos = (static_cast<float>(x) * STEPER - SPAN_OF_TIL) + 0.5;
+        float x_pos = static_cast<float>(x) * STEPER - HALF_LENGTH;
         
         for( unsigned int z = 0; z < AMOUNT_OF_TILES * rays_per_tile; z++ ) {
             
-            float z_pos = (static_cast<float>(z) * STEPER - SPAN_OF_TIL) + 0.5;
+            float z_pos = static_cast<float>(z) * STEPER - HALF_LENGTH;
             
             float distance = getRayCast2D( x_pos, z_pos );
             

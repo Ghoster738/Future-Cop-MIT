@@ -2,7 +2,24 @@
 #include <limits>
 #include <algorithm>
 #include <iostream>
+#include <complex>
 #include "../../Utilities/Collision/Helper.h"
+
+float distance( const Vec3 &p0, const Vec3 &p1 ) {
+    Vec3 pUnit = p0;
+    
+    pUnit.x -= p1.x;
+    pUnit.y -= p1.y;
+    pUnit.z -= p1.z;
+    
+    pUnit.x *= pUnit.x;
+    pUnit.y *= pUnit.y;
+    pUnit.z *= pUnit.z;
+    
+    float distance_2 = pUnit.x + pUnit.y + pUnit.z;
+    
+    return std::sqrt( distance_2 );
+}
 
 int main() {
     const static int FAILURE = 1;
@@ -83,11 +100,12 @@ int main() {
             }
         }
         
+        // Flip min to positive.
         min.x = -min.x;
-        min.y =  0;
+        min.y =  0; // Do not compare y.
         min.z = -min.z;
         
-        max.y = 0;
+        max.y = 0; // Do not compare y.
         
         if( isNotMatch( min, max ) ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
@@ -95,6 +113,38 @@ int main() {
             displayVec3( "min", min, std::cout );
             displayVec3( "max", max, std::cout );
             return FAILURE;
+        }
+        
+        std::vector<float> side_lengths;
+        
+        side_lengths.resize(3);
+        
+        // Now check for degenerate triangles!
+        for( auto i : triangles ) {
+            auto point_0 = i.getPoint( 0 );
+            auto point_1 = i.getPoint( 1 );
+            auto point_2 = i.getPoint( 2 );
+            
+            // Let the indexes a = 0, b = 1, c = 2
+            side_lengths[ 0 ] = distance( point_0, point_1 );
+            side_lengths[ 1 ] = distance( point_1, point_2 );
+            side_lengths[ 2 ] = distance( point_2, point_0 );
+            
+            // This sorting algorithm will do this a <= b <= c
+            std::sort( side_lengths.begin(), side_lengths.end() );
+            
+            float ab_sum = side_lengths[ 0 ] + side_lengths[ 1 ];
+            
+            // If a + b = c then the triangle is degenerate.
+            if( !isNotMatch( ab_sum, side_lengths[2]) ) {
+                std::cout << "TilResource error it is invalid!" << std::endl;
+                std::cout << "There are degenerate triangles." << std::endl;
+                // std::cout << "The triangle index is " << (triangles.begin() - i) << std::endl;
+                displayVec3( "[0]:", point_0, std::cout );
+                displayVec3( "[1]:", point_1, std::cout );
+                displayVec3( "[2]:", point_2, std::cout );
+                return FAILURE;
+            }
         }
         
         // There always should be a center to the til resource.
@@ -143,6 +193,34 @@ int main() {
                 std::cout << "Low: " << LOW << std::endl;
                 std::cout << "Heigh: " << HEIGH << std::endl;
                 return FAILURE;
+            }
+        }
+        
+        for( int rays_per_tile = 1; rays_per_tile <= 8; rays_per_tile++ ) {
+            const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( rays_per_tile ));
+            const float HALF_LENGTH = LENGTH / 2.0f;
+            const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile - 1));
+            
+            
+            for( unsigned int x = 0; x < Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile; x++ ) {
+                float x_pos = static_cast<float>(x) * STEPER - HALF_LENGTH;
+                
+                for( unsigned int z = 0; z < Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile; z++ ) {
+                    float z_pos = static_cast<float>(z) * STEPER - HALF_LENGTH;
+                    
+                    float distance = til_resource.getRayCast2D( x_pos, z_pos );
+                    
+                    if( distance < 0 )
+                    {
+                        std::cout << "TilResource error it is invalid!" << std::endl;
+                        std::cout << "The ray are not hitting the triangles." << std::endl;
+                        std::cout << "rays_per_tile: " << rays_per_tile << std::endl;
+                        std::cout << "distance: " << distance << std::endl;
+                        std::cout << "x_pos: " << x_pos << std::endl;
+                        std::cout << "z_pos: " << z_pos << std::endl;
+                        return FAILURE;
+                    }
+                }
             }
         }
     }
