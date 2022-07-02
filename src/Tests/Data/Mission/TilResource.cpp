@@ -4,6 +4,7 @@
 #include <iostream>
 #include <complex>
 #include "../../Utilities/Collision/Helper.h"
+#include "../../../Utilities/ImageFormat/Chooser.h"
 
 float distance( const Vec3 &p0, const Vec3 &p1 ) {
     Vec3 pUnit = p0;
@@ -196,30 +197,66 @@ int main() {
             }
         }
         
-        for( int rays_per_tile = 1; rays_per_tile <= 8; rays_per_tile++ ) {
-            const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( rays_per_tile ));
-            const float HALF_LENGTH = LENGTH / 2.0f;
-            const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile - 1));
+        {
+            const unsigned DEPTH = 8;
+            auto heightmap_p = til_resource.getHeightMap( DEPTH );
             
-            for( unsigned int x = 0; x < Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile; x++ ) {
-                float x_pos = static_cast<float>(x) * STEPER - HALF_LENGTH;
-                
-                for( unsigned int z = 0; z < Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile; z++ ) {
-                    float z_pos = static_cast<float>(z) * STEPER - HALF_LENGTH;
+            if( heightmap_p == nullptr ) {
+                std::cout << "The test cannot test the height map. This test either asks the tile_resource too much depth, or til_resource is refusing to allocate more data." << std::endl;
+                return FAILURE;
+            }
+            else {
+                if( heightmap_p->getPixelSize() != 3 ) {
+                    std::cout << "Heightmap need 3 pixels." << std::endl;
                     
-                    float distance = til_resource.getRayCast2D( x_pos, z_pos );
-                    
-                    if( distance < 0 )
-                    {
-                        std::cout << "TilResource error it is invalid!" << std::endl;
-                        std::cout << "The ray are not hitting the triangles." << std::endl;
-                        std::cout << "rays_per_tile: " << rays_per_tile << std::endl;
-                        std::cout << "distance: " << distance << std::endl;
-                        std::cout << "x_pos: " << x_pos << std::endl;
-                        std::cout << "z_pos: " << z_pos << std::endl;
-                        return FAILURE;
-                    }
+                    return FAILURE;
                 }
+                
+                // Scan the heightmap for errors.
+                auto pixels_r = reinterpret_cast<uint8_t*>( heightmap_p->getRawImageData() );
+                
+                unsigned int tested_pixels = heightmap_p->getWidth() * heightmap_p->getHeight();
+                int missing_pixels = 0;
+                int too_far_pixels = 0;
+                
+                // Cannot do a test with zero pixels to check.
+                if( tested_pixels == 0 ) {
+                    std::cout << "Test invalid." << std::endl;
+                    std::cout << "There is no pixels tested..." << std::endl;
+                    std::cout << "The heightmap is empty." << std::endl;
+                    
+                    return FAILURE;
+                }
+                
+                for( unsigned int x = 0; x < tested_pixels; x++ ) {
+                    // If the color does not match then there is a problem with the heightmap.
+                    if( pixels_r[0] == 255 && pixels_r[1] == 0 && pixels_r[2] == 0 )
+                        missing_pixels++;
+                    else
+                    if( pixels_r[0] == 0 && pixels_r[1] == 255 && pixels_r[2] == 255 )
+                        too_far_pixels++;
+                    
+                    pixels_r += heightmap_p->getPixelSize();
+                }
+                
+                Utilities::ImageFormat::Chooser chooser;
+                Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *heightmap_p );
+                Utilities::Buffer buffer;
+                the_choosen_r->write( *heightmap_p, buffer );
+                buffer.write( the_choosen_r->appendExtension( "HeightMap" ) );
+                
+                if( ( missing_pixels + too_far_pixels ) != 0 ) {
+                    std::cout << "TilResource error it is invalid!" << std::endl;
+                    std::cout << "The heightmap has problems." << std::endl;
+                    std::cout << "Rays per tile : " << DEPTH << std::endl;
+                    std::cout << "Error rate: " << (static_cast<float>( missing_pixels + too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
+                    std::cout << "missing pixels: " << (static_cast<float>( missing_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
+                    std::cout << "too far pixels: " << (static_cast<float>( too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
+                    
+                    return FAILURE;
+                }
+                
+                delete heightmap_p;
             }
         }
     }

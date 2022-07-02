@@ -59,9 +59,9 @@ void Data::Mission::TilResource::makeEmpty() {
     auto image_data = point_cloud_3_channel.getRawImageData();
     for( unsigned int a = 0; a < point_cloud_3_channel.getWidth() * point_cloud_3_channel.getHeight(); a++ ) {
 
-        image_data[0] = 128;
-        image_data[1] = 128;
-        image_data[2] = 128;
+        image_data[0] = -128;
+        image_data[1] =  127;
+        image_data[2] = -128;
 
         image_data += point_cloud_3_channel.getPixelSize();
     }
@@ -667,20 +667,20 @@ Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int ray
             
             float distance = getRayCast2D( x_pos, z_pos );
             
+            // This means that no triangles had been hit
             if( distance < 0.0f ) {
                 image_data[0] = 255;
                 image_data[1] = 0;
                 image_data[2] = 0;
             }
-            else
-            if( distance > 1.0f ) {
+            else // This means beyond of range.
+            if( distance > 2.0f * MAX_HEIGHT ) {
                 image_data[0] = 0;
                 image_data[1] = 255;
                 image_data[2] = 255;
             }
-            else {
-                distance -= MAX_HEIGHT;
-                distance *= -1.0f / SAMPLE_HEIGHT;
+            else { // This means that the pixel works for the image format.
+                distance *= 1.0f / SAMPLE_HEIGHT;
                 
                 image_data[0] = distance;
                 image_data[1] = distance;
