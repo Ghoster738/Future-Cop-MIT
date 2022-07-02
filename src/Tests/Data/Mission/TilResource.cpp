@@ -120,10 +120,10 @@ int main() {
         side_lengths.resize(3);
         
         // Now check for degenerate triangles!
-        for( auto i : triangles ) {
-            auto point_0 = i.getPoint( 0 );
-            auto point_1 = i.getPoint( 1 );
-            auto point_2 = i.getPoint( 2 );
+        for( auto i = triangles.begin(); i != triangles.end(); i++ ) {
+            auto point_0 = i->getPoint( 0 );
+            auto point_1 = i->getPoint( 1 );
+            auto point_2 = i->getPoint( 2 );
             
             // Let the indexes a = 0, b = 1, c = 2
             side_lengths[ 0 ] = distance( point_0, point_1 );
@@ -139,7 +139,7 @@ int main() {
             if( !isNotMatch( ab_sum, side_lengths[2]) ) {
                 std::cout << "TilResource error it is invalid!" << std::endl;
                 std::cout << "There are degenerate triangles." << std::endl;
-                // std::cout << "The triangle index is " << (triangles.begin() - i) << std::endl;
+                std::cout << "The triangle index is " << (i - triangles.begin()) << std::endl;
                 displayVec3( "[0]:", point_0, std::cout );
                 displayVec3( "[1]:", point_1, std::cout );
                 displayVec3( "[2]:", point_2, std::cout );
@@ -172,26 +172,26 @@ int main() {
             const float HALF_LENGTH = LENGTH / 2.0f;
             const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * depth - 1));
             
-            const auto LOW   = static_cast<float>(00) * STEPER - HALF_LENGTH;
-            const auto HEIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * depth - 1)) * STEPER - HALF_LENGTH;
+            const auto LOW  = static_cast<float>(00) * STEPER - HALF_LENGTH;
+            const auto HIGH = static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * depth - 1)) * STEPER - HALF_LENGTH;
             
-            if( isNotMatch( HALF_LENGTH, HEIGH ) )
+            if( isNotMatch( HALF_LENGTH, HIGH ) )
             {
                 std::cout << "TilResource error it is invalid!" << std::endl;
                 std::cout << "Out of bounds." << std::endl;
                 std::cout << "Depth: " << depth << std::endl;
                 std::cout << "Expected: " << HALF_LENGTH << std::endl;
-                std::cout << "Heigh: " << HEIGH << std::endl;
+                std::cout << "High: " << HIGH << std::endl;
                 return FAILURE;
             }
             
-            if( isNotMatch( -LOW, HEIGH ) )
+            if( isNotMatch( -LOW, HIGH ) )
             {
                 std::cout << "TilResource error it is invalid!" << std::endl;
                 std::cout << "The function is flawed." << std::endl;
                 std::cout << "Depth: " << depth << std::endl;
                 std::cout << "Low: " << LOW << std::endl;
-                std::cout << "Heigh: " << HEIGH << std::endl;
+                std::cout << "High: " << HIGH << std::endl;
                 return FAILURE;
             }
         }
@@ -200,7 +200,6 @@ int main() {
             const float LENGTH = static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( rays_per_tile ));
             const float HALF_LENGTH = LENGTH / 2.0f;
             const float STEPER = LENGTH / static_cast<float>((Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile - 1));
-            
             
             for( unsigned int x = 0; x < Data::Mission::TilResource::AMOUNT_OF_TILES * rays_per_tile; x++ ) {
                 float x_pos = static_cast<float>(x) * STEPER - HALF_LENGTH;

@@ -59,9 +59,9 @@ void Data::Mission::TilResource::makeEmpty() {
     auto image_data = point_cloud_3_channel.getRawImageData();
     for( unsigned int a = 0; a < point_cloud_3_channel.getWidth() * point_cloud_3_channel.getHeight(); a++ ) {
 
-        image_data[0] = 0;
+        image_data[0] = 128;
         image_data[1] = 128;
-        image_data[2] = 255;
+        image_data[2] = 128;
 
         image_data += point_cloud_3_channel.getPixelSize();
     }
@@ -635,7 +635,7 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
 
 float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
     // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
-    Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, 256.0 * 0.05f, z ), Utilities::DataTypes::Vec3( x, 0, z ) );
+    Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, MAX_HEIGHT, z ), Utilities::DataTypes::Vec3( x, MAX_HEIGHT - 1.0f, z ) );
     
     return getRayCast3D( downRay );
 }
@@ -679,9 +679,12 @@ Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int ray
                 image_data[2] = 255;
             }
             else {
-                image_data[0] = distance * 256.0;
-                image_data[1] = distance * 256.0;
-                image_data[2] = distance * 256.0;
+                distance -= MAX_HEIGHT;
+                distance *= -1.0f / SAMPLE_HEIGHT;
+                
+                image_data[0] = distance;
+                image_data[1] = distance;
+                image_data[2] = distance;
             }
 
             image_data += heightmap_p->getPixelSize();
