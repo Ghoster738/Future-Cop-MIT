@@ -553,7 +553,6 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         Utilities::DataTypes::Vec3 position[6];
         Utilities::DataTypes::Vec2UByte cord[6];
         Utilities::DataTypes::Vec3 color[6];
-        
         Tile current_tile;
         Data::Mission::Til::Mesh::Input input;
         Data::Mission::Til::Mesh::VertexData vertex_data;
@@ -562,18 +561,22 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 1, x + 0 ) );
         input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 1, x + 1 ) );
         input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 0, x + 1 ) );
-        input.coord_index = current_tile.texture_cord_index;
-        input.coord_index_limit = this->texture_cords.size();
-        input.coord_data = this->texture_cords.data();
         
         vertex_data.position = position;
         vertex_data.coords = cord;
         vertex_data.colors = color;
-        vertex_data.element_amount = 6;
-        vertex_data.element_start = 0;
+        
+        input.coord_index_limit = this->texture_cords.size();
+        input.coord_data = this->texture_cords.data();
         
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
+            
             current_tile = mesh_tiles.at( current_tile_index + mesh_reference_grid[x][z].tiles_start );
+            
+            input.coord_index = current_tile.texture_cord_index;
+            
+            vertex_data.element_amount = 6;
+            vertex_data.element_start = 0;
             
             auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
             
