@@ -105,12 +105,13 @@ public:
 
     virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
     
-    Utilities::ModelBuilder * createPartial( unsigned int texture_index, float x_offset = 0.0f, float y_offset = 0.0f ) const;
+    Utilities::ModelBuilder * createPartial( unsigned int texture_index, float x_offset = 0.0f, float z_offset = 0.0f ) const;
     
     void createPhysicsCell( unsigned int x, unsigned int z );
     
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float z ) const;
+    float getRayCastDownward( float x, float z, float from_highest_point ) const;
 
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::ImageData* getHeightMap( unsigned int rays_per_tile = 4 ) const;

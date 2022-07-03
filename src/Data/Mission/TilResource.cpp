@@ -638,12 +638,15 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
 }
 
 float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
+    return getRayCastDownward( x, z, MAX_HEIGHT );
+}
+
+float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point ) const {
     // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
-    Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, MAX_HEIGHT, z ), Utilities::DataTypes::Vec3( x, MAX_HEIGHT - 1.0f, z ) );
+    Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, from_highest_point, z ), Utilities::DataTypes::Vec3( x, from_highest_point - 1.0f, z ) );
     
     return getRayCast3D( downRay );
 }
-
 
 const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::getAllTriangles() const {
     return all_triangles;
