@@ -239,11 +239,14 @@ int main() {
                     pixels_r += heightmap_p->getPixelSize();
                 }
                 
-                Utilities::ImageFormat::Chooser chooser;
-                Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *heightmap_p );
-                Utilities::Buffer buffer;
-                the_choosen_r->write( *heightmap_p, buffer );
-                buffer.write( the_choosen_r->appendExtension( "HeightMap" ) );
+                // TODO Find a way to enable this.
+                if( false ) {
+                    Utilities::ImageFormat::Chooser chooser;
+                    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *heightmap_p );
+                    Utilities::Buffer buffer;
+                    the_choosen_r->write( *heightmap_p, buffer );
+                    buffer.write( the_choosen_r->appendExtension( "HeightMap" ) );
+                }
                 
                 if( ( missing_pixels + too_far_pixels ) != 0 ) {
                     std::cout << "TilResource error it is invalid!" << std::endl;
