@@ -581,8 +581,9 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
                 position[ i ].x += (SPAN_OF_TIL - x) - 0.5;
                 position[ i ].z += (SPAN_OF_TIL - z) - 0.5;
 
-                // Flip the x-axis.
+                // Flip Both Axis's
                 position[ i ].x = -position[ i ].x;
+                position[ i ].z = -position[ i ].z;
             }
             
             for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
@@ -680,6 +681,7 @@ Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int ray
                 image_data[2] = 255;
             }
             else { // This means that the pixel works for the image format.
+                distance = 2.0f * MAX_HEIGHT - distance;
                 distance *= 1.0f / SAMPLE_HEIGHT;
                 
                 image_data[0] = distance;
