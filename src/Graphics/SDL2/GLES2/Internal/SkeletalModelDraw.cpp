@@ -1,5 +1,6 @@
 #include "SkeletalModelDraw.h"
 #include "../../../ModelInstance.h"
+#include <glm/gtc/type_ptr.hpp>
 #include <cassert>
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames ) {
@@ -11,7 +12,7 @@ Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalA
 
 glm::mat4* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::getFrames( unsigned int current_frame, unsigned int current_bone ) {
     if( current_frame < bone_frames.size() )
-        return bone_frames.data() +  current_frame * this->num_bones + current_bone;
+        return bone_frames.data() + current_frame * this->num_bones + current_bone;
     else
         return nullptr;
 }
@@ -88,7 +89,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
 
     for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
     {
-        auto frame_r = model_animation[ index ]->getFrames( frame_index, 0 );
+        glm::mat4* frame_r = model_animation[ index ]->getFrames( frame_index, 0 );
 
         for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
         {
@@ -158,8 +159,9 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
                 int current_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
 
                 assert( animate->getFrames( current_frame, 0 ) != nullptr );
+                assert( animate->getFrames( current_frame, animate->getNumBones() - 1 ) != nullptr );
 
-                glUniformMatrix4fv( mat4_array_uniform_id, animate->getNumBones(), GL_FALSE, reinterpret_cast<const GLfloat*>( animate->getFrames( current_frame, 0 ) ) );
+                glUniformMatrix4fv( mat4_array_uniform_id, animate->getNumBones(), GL_FALSE, glm::value_ptr( *animate->getFrames( current_frame, 0 ) ) );
 
                 mesh->draw( 0, diffusive_texture_uniform_id );
             }

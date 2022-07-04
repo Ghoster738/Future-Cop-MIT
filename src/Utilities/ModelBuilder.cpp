@@ -220,14 +220,14 @@ Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimative
 }
 
 glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsigned int joint_index ) const {
-    if( getNumJoints() > 0 && frame_index < getNumJointFrames() )
+    if( getNumJoints() > joint_index && frame_index < getNumJointFrames() )
         return joint_matrix_frames[ getNumJoints() * frame_index + joint_index ];
     else
         return glm::mat4();
 }
 
 bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::mat4 &matrix ) {
-    if( getNumJoints() > 0 && frame_index < getNumJointFrames() ) {
+    if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
         joint_matrix_frames[ getNumJoints() * frame_index + joint_index ] = matrix;
         
         return true;
