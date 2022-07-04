@@ -85,19 +85,19 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
     
     if( ret >= 0 )
     {
-    model_animation[ index ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
+        model_animation[ index ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
 
-    for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
-    {
-        glm::mat4* frame_r = model_animation[ index ]->getFrames( frame_index, 0 );
-
-        for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
+        for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
         {
-            frame_r[ bone_index ] = model_type->getJointFrame( frame_index, bone_index );
-        }
-    }
+            glm::mat4* frame_r = model_animation[ index ]->getFrames( frame_index, 0 );
 
-    models.at( index )->setFrameAmount( model_type->getNumJointFrames() );
+            for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
+            {
+                frame_r[ bone_index ] = model_type->getJointFrame( frame_index, bone_index );
+            }
+        }
+
+        models.at( index )->setFrameAmount( model_type->getNumJointFrames() );
     }
     
     return ret;
