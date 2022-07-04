@@ -1018,7 +1018,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 if( !(*current_bone).opcode.rotation.z_const )
                     frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
                 
-                matrix_translate = glm::translate( matrix_translate, glm::vec3(
+                matrix_translate = glm::translate( glm::mat4(1.0f), glm::vec3(
                     -static_cast<float>( frame_position.x ) * INTEGER_FACTOR,
                      static_cast<float>( frame_position.y ) * INTEGER_FACTOR,
                      static_cast<float>( frame_position.z ) * INTEGER_FACTOR) );
