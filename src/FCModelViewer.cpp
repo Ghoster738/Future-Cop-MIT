@@ -420,7 +420,7 @@ int main(int argc, char** argv)
 
         rotate += time_unit(delta).count();
 
-        displayed_instance->setRotation( glm::rotate( glm::quat(), rotate, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
+        displayed_instance->setRotation( glm::quat( glm::vec3( 0, rotate, 0 ) ) );
 
         count_down -= time_unit(delta).count();
 
