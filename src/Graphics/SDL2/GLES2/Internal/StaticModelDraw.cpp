@@ -1,6 +1,5 @@
 #include "StaticModelDraw.h"
 #include "../ModelInstance.h"
-#include "../../../../Utilities/Math.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath> // fmod()
@@ -186,14 +185,14 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Camera &camera ) {
-    Utilities::DataTypes::Mat4 camera_3D_position; // Used to store the current model instance position before multiplaction to camera_3D_model_transform.
-    Utilities::DataTypes::Mat4 camera_3D_rotation; // Used to store the current model instance rotation before multiplaction to camera_3D_model_transform.
-    Utilities::DataTypes::Mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
-    Utilities::DataTypes::Mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
-    Utilities::DataTypes::Mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
-    Utilities::DataTypes::Mat4 view;
-    Utilities::DataTypes::Mat4 model_view;
-    Utilities::DataTypes::Mat4 model_view_inv;
+    glm::mat4 camera_3D_position; // Used to store the current model instance position before multiplaction to camera_3D_model_transform.
+    glm::mat4 camera_3D_rotation; // Used to store the current model instance rotation before multiplaction to camera_3D_model_transform.
+    glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
+    glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
+    glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
+    glm::mat4 view;
+    glm::mat4 model_view;
+    glm::mat4 model_view_inv;
     
     camera.getProjectionView3D( camera_3D_projection_view ); // camera_3D_projection_view = current_camera 3D matrix.
 
@@ -219,23 +218,23 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
             for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
             {
                 // Get the position and rotation of the model, and place them in there respective matrices.
-                Utilities::Math::setTranslation( camera_3D_position, (*instance)->getPosition() );
-                Utilities::Math::setRotation( camera_3D_rotation, (*instance)->getRotation() );
+                camera_3D_position = glm::translate( camera_3D_position, (*instance)->getPosition() );
+                camera_3D_rotation = glm::toMat4( (*instance)->getRotation() );
 
                 // Multiply them into one matrix which will hold the entire model transformation.
-                Utilities::Math::multiply( camera_3D_model_transform, camera_3D_position, camera_3D_rotation );
+                camera_3D_model_transform = camera_3D_position * camera_3D_rotation;
 
                 // Then multiply it to the projection, and view to get projection, view, and model matrix.
-                Utilities::Math::multiply( camera_3D_projection_view_model, camera_3D_projection_view, camera_3D_model_transform );
+                camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
 
                 // We can now send the matrix to the program.
-                glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model.data ) );
+                glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
 
                 // TODO Find a cleaner way.
-                Utilities::Math::multiply( model_view, view, camera_3D_model_transform );
-                Utilities::Math::invert( model_view_inv, model_view );
-                glUniformMatrix4fv(     view_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &model_view.data ) );
-                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &model_view_inv.data ) );
+                model_view = view * camera_3D_model_transform;
+                model_view_inv = glm::inverse( model_view );
+                glUniformMatrix4fv(     view_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
 
                 // Finally we can draw the mesh!
                 mesh->draw( 0, diffusive_texture_uniform_id );

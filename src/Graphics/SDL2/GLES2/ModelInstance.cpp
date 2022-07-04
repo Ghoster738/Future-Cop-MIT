@@ -7,7 +7,7 @@ Graphics::ModelInstance::ModelInstance() {
     ModelInternalData_data = new Graphics::SDL2::GLES2::ModelInternalData;
 }
 
-Graphics::ModelInstance::ModelInstance( const Utilities::DataTypes::Vec3 &position_param, const Utilities::DataTypes::Vec4 &rotation_param, const Utilities::DataTypes::Vec2 &texture_offset_param ) :
+Graphics::ModelInstance::ModelInstance( const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param ) :
     ModelInternalData_data( nullptr ),
     position( position_param ),
     rotation( rotation_param ),
@@ -34,26 +34,26 @@ Graphics::ModelInstance::~ModelInstance() {
     delete internal_data;
 }
 
-void Graphics::ModelInstance::setPosition( const Utilities::DataTypes::Vec3 &position ) {
+void Graphics::ModelInstance::setPosition( const glm::vec3 &position ) {
     this->position = position;
 }
 
-void Graphics::ModelInstance::setRotation( const Utilities::DataTypes::Vec4 &rotation ) {
+void Graphics::ModelInstance::setRotation( const glm::quat &rotation ) {
     this->rotation = rotation;
 }
 
-void Graphics::ModelInstance::setTextureOffset( const Utilities::DataTypes::Vec2 &texture_offset ) {
+void Graphics::ModelInstance::setTextureOffset( const glm::vec2 &texture_offset ) {
     this->texture_offset = texture_offset;
 }
 
-Utilities::DataTypes::Vec3 Graphics::ModelInstance::getPosition() const {
+glm::vec3 Graphics::ModelInstance::getPosition() const {
     return this->position;
 }
 
-Utilities::DataTypes::Vec4 Graphics::ModelInstance::getRotation() const {
+glm::quat Graphics::ModelInstance::getRotation() const {
     return this->rotation;
 }
 
-Utilities::DataTypes::Vec2 Graphics::ModelInstance::getTextureOffset() const {
+glm::vec2 Graphics::ModelInstance::getTextureOffset() const {
     return this->texture_offset;
 }

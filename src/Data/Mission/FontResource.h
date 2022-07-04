@@ -23,7 +23,7 @@ private:
 
     // This is the spacing of the characters.
     uint8_t x_advance;
-    Utilities::DataTypes::Vec2Byte offset;
+    glm::i16vec2 offset;
 public:
     FontGlyph( Utilities::Buffer::Reader& reader );
     uint8_t getGlyph() const;
@@ -43,7 +43,7 @@ public:
     uint8_t getHeight() const;
 
     uint8_t getXAdvance() const;
-    Utilities::DataTypes::Vec2Byte getOffset() const;
+    glm::i16vec2 getOffset() const;
 };
 
 class FontResource : public Resource {

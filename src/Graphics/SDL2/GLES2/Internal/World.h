@@ -27,7 +27,7 @@ public:
         float change_rate;
         float current; // [ -change_rate, change_rate ]
         unsigned int positions_amount;
-        Utilities::DataTypes::Vec2Int *positions;
+        glm::i32vec2 *positions;
     };
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;

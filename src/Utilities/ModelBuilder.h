@@ -130,7 +130,7 @@ private:
 
     // This holds the bone transformations.
     // Its size indicates the number of frames avialable.
-    std::vector< Utilities::DataTypes::Mat4* > joint_matrix_frames;
+    std::vector< glm::mat4 > joint_matrix_frames;
     unsigned int joint_amount;
 
     bool is_model_finished; // This tells if the ModelBuilder should edit the vertices
@@ -219,11 +219,13 @@ public:
     MeshPrimativeMode getPrimativeMode() const;
     
     /**
-    * This accesses a direct pointer to a joint frame.
-    * @param frame_index the frame index to the matrix joints.
-    * @return either a direct pointer to the joint frames, or a nullptr if the frame_index is out of bounds or there are no joints.
+     * This gets a copy of the matrix for the joint frame.
+     * @param frame_index the frame index to the matrix joints.
+     * @return either a direct pointer to the joint frames, or a nullptr if the frame_index is out of bounds or there are no joints.
     */
-    Utilities::DataTypes::Mat4* getJointFrame( unsigned int frame_index );
+    glm::mat4 getJointFrame( unsigned int frame_index, unsigned int joint_index ) const;
+    
+    bool setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::mat4 &matrix );
 
     /**
     * This tests to see if the any of the vertex components are invalid in glTF standards.

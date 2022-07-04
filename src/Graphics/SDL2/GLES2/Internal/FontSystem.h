@@ -18,7 +18,7 @@ public:
     struct Font {
         const Data::Mission::FontResource *font_resource_r;
         Texture2D texture;
-        Utilities::DataTypes::Vec2UInt texture_scale;
+        glm::u32vec2 texture_scale;
 
         /**
          * @return A pointer to Text2D.
@@ -35,8 +35,8 @@ public:
 
         GLuint vertex_buffer_object;
 
-        Utilities::DataTypes::Vec2 pen_position;
-        uint32_t                   pen_color;
+        glm::vec2 pen_position;
+        uint32_t  pen_color;
     public:
         Text2D( Font *fontR );
         virtual ~Text2D();
@@ -57,7 +57,7 @@ public:
          * @note The pen's position starts at (0,0).
          * @param position the position of the pen.
          */
-        void setPenPosition( const Utilities::DataTypes::Vec2 &pen_position );
+        void setPenPosition( const glm::vec2 &pen_position );
 
         /**
          * Steal the color and the position from this other pen to take its place.
@@ -180,7 +180,7 @@ public:
      */
     int compilieProgram();
 
-    void draw( const Utilities::DataTypes::Mat4 &projection, const std::vector<Text2D*> &text_2d_array );
+    void draw( const glm::mat4 &projection, const std::vector<Text2D*> &text_2d_array );
 };
 
 }

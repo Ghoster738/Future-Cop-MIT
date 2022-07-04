@@ -213,14 +213,14 @@ void Graphics::Environment::drawFrame() const {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_p->getInternalData() );
     Graphics::Camera* current_camera; // Used to store the camera.
-    Utilities::DataTypes::Mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
-    Utilities::DataTypes::Mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
-    Utilities::DataTypes::Mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
-    Utilities::DataTypes::Mat4 camera_3D_position; // Used to store the current model instance position before multiplication to camera_3D_model_transform.
-    Utilities::DataTypes::Mat4 camera_3D_rotation; // Used to store the current model instance rotation before multiplication to camera_3D_model_transform.
-    Utilities::DataTypes::Mat4 view;
-    Utilities::DataTypes::Mat4 model_view;
-    Utilities::DataTypes::Mat4 model_view_inv;
+    glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
+    glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
+    glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
+    glm::mat4 camera_3D_position; // Used to store the current model instance position before multiplication to camera_3D_model_transform.
+    glm::mat4 camera_3D_rotation; // Used to store the current model instance rotation before multiplication to camera_3D_model_transform.
+    glm::mat4 view;
+    glm::mat4 model_view;
+    glm::mat4 model_view_inv;
 
     // Clear the screen to black
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

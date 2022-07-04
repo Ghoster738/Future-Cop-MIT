@@ -2,16 +2,16 @@
 #include <fstream>
 
 namespace {
-    inline Utilities::DataTypes::Vec3 colorFloatConvert( uint16_t color ) {
+    inline glm::vec3 colorFloatConvert( uint16_t color ) {
         uint8_t blue, green, red;
 
         Utilities::ImageData::translate_16_to_24( color, blue, green, red );
 
-        return Utilities::DataTypes::Vec3( static_cast<double>(red) / 256.0, static_cast<double>(green) / 256.0, static_cast<double>(blue) / 256.0 );
+        return glm::vec3( static_cast<double>(red) / 256.0, static_cast<double>(green) / 256.0, static_cast<double>(blue) / 256.0 );
     }
 }
 
-unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, Utilities::DataTypes::Vec3 *result ) {
+unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result ) {
     if( result != nullptr )
     {
         // Generate the color

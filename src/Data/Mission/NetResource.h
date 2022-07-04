@@ -2,7 +2,7 @@
 #define MISSION_RESOURCE_NET_HEADER
 
 #include "Resource.h"
-#include "../../Utilities/DataTypes.h"
+#include <glm/vec2.hpp>
 
 namespace Data {
 
@@ -24,14 +24,14 @@ public:
     private:
         uint32_t data; // This contains which node it goes to.
         int16_t pad;
-        Utilities::DataTypes::Vec2Short position;
+        glm::i16vec2 position;
         int16_t spawn; // Could be a special node sepecifier.
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
 
         uint32_t getData() const;
         int16_t getPad() const;
-        Utilities::DataTypes::Vec2Short getPosition() const;
+        glm::i16vec2 getPosition() const;
         int16_t getSpawn() const;
 
         unsigned int getIndexes( unsigned int indexes[3], unsigned int max_size ) const;

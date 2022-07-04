@@ -20,14 +20,14 @@ public:
     public:
         class Texture {
         private:
-            Utilities::DataTypes::Vec2UShort location;
-            Utilities::DataTypes::Vec2UByte size;
+            glm::u16vec2 location;
+            glm::u8vec2 size;
             Utilities::ImageData palette;
         public:
             Texture( Utilities::Buffer::Reader &reader );
 
-            Utilities::DataTypes::Vec2UShort getLocation() const;
-            Utilities::DataTypes::Vec2UByte getSize() const;
+            glm::u16vec2 getLocation() const;
+            glm::u8vec2 getSize() const;
 
             char* setupPallete( unsigned int number_of_colors );
 

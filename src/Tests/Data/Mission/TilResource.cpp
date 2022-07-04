@@ -6,22 +6,6 @@
 #include "../../Utilities/Collision/Helper.h"
 #include "../../../Utilities/ImageFormat/Chooser.h"
 
-float distance( const Vec3 &p0, const Vec3 &p1 ) {
-    Vec3 pUnit = p0;
-    
-    pUnit.x -= p1.x;
-    pUnit.y -= p1.y;
-    pUnit.z -= p1.z;
-    
-    pUnit.x *= pUnit.x;
-    pUnit.y *= pUnit.y;
-    pUnit.z *= pUnit.z;
-    
-    float distance_2 = pUnit.x + pUnit.y + pUnit.z;
-    
-    return std::sqrt( distance_2 );
-}
-
 int main() {
     const static int FAILURE = 1;
     const static int SUCCESS = 0;
@@ -84,12 +68,12 @@ int main() {
             return FAILURE;
         }
         
-        Vec3 min = Vec3( std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() );
-        Vec3 max = Vec3( std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min() );
+        glm::vec3 min = glm::vec3( std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() );
+        glm::vec3 max = glm::vec3( std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min() );
         
         for( auto i : triangles ) {
             for( size_t p = 0; p < 3; p++ ) {
-                Vec3 point = i.getPoint( p );
+                glm::vec3 point = i.getPoint( p );
                 
                 min.x = std::min<float>( point.x, min.x );
                 min.y = std::min<float>( point.y, min.y );

@@ -122,9 +122,6 @@ Utilities::ModelBuilder::ModelBuilder( const ModelBuilder& to_copy ) :
 }
 
 Utilities::ModelBuilder::~ModelBuilder() {
-    // Delete the joint matrix frames.
-    for( int i = 0; i < joint_matrix_frames.size(); i++ )
-	delete [] joint_matrix_frames[ i ];
 }
 
 unsigned int Utilities::ModelBuilder::addVertexComponent( const std::string &name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized ) {
@@ -199,23 +196,14 @@ bool Utilities::ModelBuilder::getMorphVertexComponent(unsigned int vertex_morph_
 void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsigned int num_of_frames ) {
     if( num_of_joints > 0 && num_of_frames > 0 )
     {
-	// Clean up the original memory if possiable
-	if( getNumJoints() > 0 ) {
-	    // Delete the joint matrix frames.
-	    for( int i = 0; i < joint_matrix_frames.size(); i++ )
-		delete [] joint_matrix_frames[ i ];
-	    
-	    joint_matrix_frames.clear();
-	}
+        // Clean up the original memory if possiable
+        joint_matrix_frames.clear();
 
-	// set the joint amount.
-	joint_amount = num_of_joints;
-	
-	// set the joint matrix frames.
-	joint_matrix_frames.resize( num_of_frames );
-
-	for( int i = 0; i < joint_matrix_frames.size(); i++ )
-	    joint_matrix_frames[ i ] = new Utilities::DataTypes::Mat4 [ joint_amount ];
+        // set the joint amount.
+        this->joint_amount = num_of_joints;
+        
+        // set the joint matrix frames.
+        joint_matrix_frames.resize( num_of_frames * num_of_joints );
     }
 }
 
@@ -231,11 +219,21 @@ Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimative
     return mesh_primative_mode;
 }
 
-Utilities::DataTypes::Mat4* Utilities::ModelBuilder::getJointFrame( unsigned int frame_index ) {
+glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsigned int joint_index ) const {
     if( getNumJoints() > 0 && frame_index < getNumJointFrames() )
-        return joint_matrix_frames[ frame_index ];
+        return joint_matrix_frames[ getNumJoints() * frame_index + joint_index ];
     else
-        return nullptr;
+        return glm::mat4();
+}
+
+bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::mat4 &matrix ) {
+    if( getNumJoints() > 0 && frame_index < getNumJointFrames() ) {
+        joint_matrix_frames[ getNumJoints() * frame_index + joint_index ] = matrix;
+        
+        return true;
+    }
+    else
+        return false;
 }
 
 bool Utilities::ModelBuilder::checkForInvalidComponent( int &begin, std::ostream *warning_output ) const {
@@ -711,10 +709,10 @@ void test_ModelBuilder() {
     // There is no texture for this.
 	model.setMaterial( "67" ); // -1 means no texture
 
-	Utilities::DataTypes::Vec3 position;
-	Utilities::DataTypes::Vec3 position_morph;
-	Utilities::DataTypes::Vec3 normal;
-	Utilities::DataTypes::Vec2UByte uv_coords;
+	glm::vec3 position;
+    glm::vec3 position_morph;
+    glm::vec3 normal;
+    glm::u8vec2 uv_coords;
 
 	// Set to a single direction.
 	normal.x = 1.0;

@@ -19,7 +19,7 @@ public:
     struct TextureQuad {
         unsigned int index; // This is the resource id of the BMPResource texture refernced.
 
-        Utilities::DataTypes::Vec2UByte coords[4];
+        glm::u8vec2 coords[4];
 
         bool isWithinBounds( size_t texture_amount ) const;
     };
@@ -46,7 +46,7 @@ public:
         unsigned int parent_amount; // Minus one is the parent amount.
         unsigned int normal_start, normal_stride;
         unsigned int vertex_start, vertex_stride;
-        Utilities::DataTypes::Vec3Short position, rotation; // They are all of a 3D system.
+        glm::i16vec3 position, rotation; // They are all of a 3D system.
         struct Opcode {
             struct Axis {
                 unsigned int x_const : 1;
@@ -78,8 +78,8 @@ public:
         std::string name;
     };
 private:
-    std::vector< Utilities::DataTypes::Vec3Short > vertex_positions;
-    std::vector< Utilities::DataTypes::Vec3Short > vertex_normals;
+    std::vector< glm::i16vec3 > vertex_positions;
+    std::vector< glm::i16vec3 > vertex_normals;
     std::vector< TextureQuad >     texture_quads;
     std::vector< FaceTriangle >    face_trinagles;
     std::vector< FaceQuad >        face_quads;
@@ -89,8 +89,8 @@ private:
     int16_t                       *bone_animation_data; // Where the animation data is stored.
     unsigned int                   bone_animation_data_size;
 
-    std::vector< std::vector< Utilities::DataTypes::Vec3Short > > vertex_anm_positions;
-    std::vector< std::vector< Utilities::DataTypes::Vec3Short > > vertex_anm_normals;
+    std::vector< std::vector< glm::i16vec3 > > vertex_anm_positions;
+    std::vector< std::vector< glm::i16vec3 > > vertex_anm_normals;
     
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;

@@ -1,8 +1,8 @@
 #include "World.h"
-#include "../../../../Utilities/Math.h"
 #include "../../../../Data/Mission/IFF.h"
 #include "GLES2.h"
 
+#include <glm/ext/matrix_transform.hpp>
 #include <cassert>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
@@ -133,7 +133,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
     // Allocate them. O(n)
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        (*i).positions = new Utilities::DataTypes::Vec2Int [ (*i).positions_amount ];
+        (*i).positions = new glm::i32vec2 [ (*i).positions_amount ];
         (*i).positions_amount = 0; // This will be used as an index. Later it will change back into the orignal amount of positions.
     }
 
@@ -158,9 +158,9 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 }
 
 void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera ) {
-    Utilities::DataTypes::Mat4 til_position;
-    Utilities::DataTypes::Mat4 projection_view;
-    Utilities::DataTypes::Mat4 projection_view_model_pos;
+    glm::mat4 til_position;
+    glm::mat4 projection_view;
+    glm::mat4 projection_view_model_pos;
     
     // Use the map shader for the 3D map or the world.
     program.use();
@@ -170,12 +170,12 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).positions_amount; d++ ) {
-            Utilities::Math::setTranslation( til_position, Utilities::DataTypes::Vec3( ((*i).positions[d].x * 16), 0, ((*i).positions[d].y * 16 ) ) );
+            til_position = glm::translate( glm::mat4( 1.0 ), glm::vec3( ((*i).positions[d].x * 16), 0, ((*i).positions[d].y * 16 ) ) );
 
-            Utilities::Math::multiply( projection_view_model_pos, projection_view, til_position );
+            projection_view_model_pos = projection_view * til_position;
 
             // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &projection_view_model_pos.data ) );
+            glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &projection_view_model_pos[0][0] ) );
 
             (*i).mesh->draw( 0, texture_uniform_id );
         }

@@ -76,11 +76,11 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     assert( u5 == 0 ); // This will crash on PS1 not PC
 }
 
-Utilities::DataTypes::Vec2UShort Data::Mission::PYRResource::Particle::Texture::getLocation() const {
+glm::u16vec2 Data::Mission::PYRResource::Particle::Texture::getLocation() const {
     return this->location;
 }
 
-Utilities::DataTypes::Vec2UByte Data::Mission::PYRResource::Particle::Texture::getSize() const {
+glm::u8vec2 Data::Mission::PYRResource::Particle::Texture::getSize() const {
     return this->size;
 }
 

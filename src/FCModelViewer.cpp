@@ -10,11 +10,13 @@
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/Til/Mesh.h"
 
-#include "Utilities/Math.h"
 #include "Utilities/DataHandler.h"
 #include "Graphics/Environment.h"
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 namespace {
 void helpExit( std::ostream &stream ) {
@@ -193,7 +195,7 @@ int main(int argc, char** argv)
     Graphics::Environment *environment = new Graphics::Environment();
 
     window->setWindowTitle( "Future Cop Individual Model Viewer" );
-    window->setDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
+    window->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
     if( environment->attachWindow( *window ) != 1 )
         return -40;
 
@@ -255,31 +257,32 @@ int main(int argc, char** argv)
 
     // Setup the camera
     Graphics::Camera *first_person = new Graphics::Camera();
-    first_person->setViewportOrigin( Utilities::DataTypes::Vec2UInt( 0, 0 ) );
-    first_person->setViewportDimensions( Utilities::DataTypes::Vec2UInt( WIDTH, HEIGHT ) );
+    first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
+    first_person->setViewportDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
     window->attachCamera( *first_person );
-    Utilities::DataTypes::Mat4 extra_matrix_0;
-    Utilities::DataTypes::Mat4 extra_matrix_1;
-    Utilities::DataTypes::Mat4 extra_matrix_2;
+    glm::mat4 extra_matrix_0;
+    glm::mat4 extra_matrix_1;
+    glm::mat4 extra_matrix_2;
 
     // Setup the font
     Graphics::Text2DBuffer *text_2d_buffer = new Graphics::Text2DBuffer( 128 ); // 128 Kibibytes.
     text_2d_buffer->loadFontLibrary( *environment );
-    Utilities::Math::setOthro( extra_matrix_0, 0, WIDTH, -HEIGHT, 0, -1.0, 1.0 );
+    extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(WIDTH), -static_cast<float>(HEIGHT), 0.0f, -1.0f, 1.0f );
+    
     first_person->attachText2DBuffer( *text_2d_buffer );
     first_person->setProjection2D( extra_matrix_0 );
 
-    Utilities::Math::setPerspective( extra_matrix_0, M_PI / 4.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f );
+    extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f );
     first_person->setProjection3D( extra_matrix_0 );
 
-    Utilities::Math::setRotation( extra_matrix_0, Utilities::DataTypes::Vec3( 1.0f, 0.0f, 0.0f ), M_PI / 4.0f );
+    extra_matrix_0 = glm::rotate( glm::mat4(1.0f), glm::pi<float>() / 4.0f, glm::vec3( 1.0f, 0.0f, 0.0f ) );
 
     if( type.compare( "til" ) == 0 )
-        Utilities::Math::setTranslation( extra_matrix_1, Utilities::DataTypes::Vec3( 0.0f, -18.0f, -24.0f ) );
+        extra_matrix_1 = glm::translate( glm::mat4(1.0f), glm::vec3( 0.0f, -18.0f, -24.0f ) );
     else
-        Utilities::Math::setTranslation( extra_matrix_1, Utilities::DataTypes::Vec3( 0.0f, -4.0f, -5.0f ) );
+        extra_matrix_1 = glm::translate( glm::mat4(1.0f), glm::vec3( 0.0f, -4.0f, -5.0f ) );
 
-    Utilities::Math::multiply( extra_matrix_2, extra_matrix_0, extra_matrix_1 );
+    extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
     first_person->setView3D( extra_matrix_2 );
 
     // Setup the timer
@@ -299,8 +302,8 @@ int main(int argc, char** argv)
     while( is_error )
     {
         text_2d_buffer->setFont( 0 );
-        text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
-        text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+        text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
+        text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( error_message );
 
         control_system_p->advanceTime( 0 );
@@ -327,13 +330,13 @@ int main(int argc, char** argv)
                 while( status < 1  && viewer_loop )
                 {
                     text_2d_buffer->setFont( 2 );
-                    text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
-                    text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+                    text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
+                    text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
                     text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
                     text_2d_buffer->setFont( 5 );
-                    text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
-                    text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
+                    text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
+                    text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
                     text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
 
                     status = control_system_p->pollEventForInputSet( x, y );
@@ -360,7 +363,7 @@ int main(int argc, char** argv)
 
     bool nextModel = false; // The next model
 
-    Graphics::ModelInstance* displayed_instance = new Graphics::ModelInstance( Utilities::DataTypes::Vec3( 0, 0, 0 ) );
+    Graphics::ModelInstance* displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
 
     environment->attachInstanceObj( cobj_index, *displayed_instance );
 
@@ -417,7 +420,7 @@ int main(int argc, char** argv)
 
         rotate += time_unit(delta).count();
 
-        displayed_instance->setRotation( Utilities::Math::setRotation( Utilities::DataTypes::Vec3( 0.0f, 1.0f, 0.0f ), rotate ) );
+        displayed_instance->setRotation( glm::rotate( glm::quat(), rotate, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
 
         count_down -= time_unit(delta).count();
 
@@ -427,7 +430,7 @@ int main(int argc, char** argv)
 
             cobj_index++;
 
-            displayed_instance = new Graphics::ModelInstance( Utilities::DataTypes::Vec3( 0, 0, 0 ) );
+            displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
 
             // Check to see if the cobj_index is in bounds
             if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
@@ -449,13 +452,13 @@ int main(int argc, char** argv)
         }
 
         text_2d_buffer->setFont( 2 );
-        text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
-        text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+        text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
+        text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( "index = " + std::to_string(cobj_index) );
         
         if( !resource_export_path.empty() ) {
-            text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0, 1, 1 ) );
-            text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 16 ) );
+            text_2d_buffer->setColor( glm::vec4( 1, 0, 1, 1 ) );
+            text_2d_buffer->setPosition( glm::vec2( 0, 16 ) );
             text_2d_buffer->print( "PRESS the \"" + player_1_controller_r->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
         }
 
