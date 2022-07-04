@@ -212,7 +212,7 @@ unsigned int Utilities::ModelBuilder::getNumJoints() const {
 }
 
 unsigned int Utilities::ModelBuilder::getNumJointFrames() const {
-    return joint_matrix_frames.size();
+    return joint_matrix_frames.size() / joint_amount;
 }
 
 Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimativeMode() const {
