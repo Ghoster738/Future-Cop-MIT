@@ -175,7 +175,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
             projection_view_model_pos = projection_view * til_position;
 
             // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &projection_view_model_pos[0][0] ) );
+            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &projection_view_model_pos[0][0] ) );
 
             (*i).mesh->draw( 0, texture_uniform_id );
         }

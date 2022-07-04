@@ -228,13 +228,13 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
                 camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
 
                 // We can now send the matrix to the program.
-                glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
+                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
 
                 // TODO Find a cleaner way.
                 model_view = view * camera_3D_model_transform;
                 model_view_inv = glm::inverse( model_view );
-                glUniformMatrix4fv(     view_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
-                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
+                glUniformMatrix4fv(     view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
 
                 // Finally we can draw the mesh!
                 mesh->draw( 0, diffusive_texture_uniform_id );
