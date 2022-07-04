@@ -451,7 +451,7 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &project
     program.use();
 
     // We can now send the matrix to the program.
-    glUniformMatrix4fv( matrix_uniform_id, 1, GL_TRUE, reinterpret_cast<const GLfloat*>( &projection ) );
+    glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &projection ) );
 
     for( auto i = text_2d_array.begin(); i != text_2d_array.end(); i++ )
     {
