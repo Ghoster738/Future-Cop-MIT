@@ -18,11 +18,6 @@ add_executable(triangle_test Utilities/Collision/Triangle.cpp)
 target_link_libraries(triangle_test PRIVATE FC_IFF_IO)
 add_test( NAME triangle_test COMMAND $<TARGET_FILE:triangle_test> )
 
-# Test Math Code
-add_executable(math_test Utilities/Math.cpp)
-target_link_libraries(math_test PRIVATE FC_IFF_IO)
-add_test( NAME math_test COMMAND $<TARGET_FILE:math_test> )
-
 # Test TilResource Code
 add_executable(til_resource_test Data/Mission/TilResource.cpp)
 target_link_libraries(til_resource_test PRIVATE FC_IFF_IO)

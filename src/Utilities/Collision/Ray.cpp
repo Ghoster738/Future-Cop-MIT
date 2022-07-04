@@ -7,48 +7,40 @@ float Utilities::Collision::Ray::getSpotUnit( float origin, float unit, float di
 Utilities::Collision::Ray::Ray() : origin(0,0,0), unit(1,0,0) {
 }
 
-Utilities::Collision::Ray::Ray( Utilities::DataTypes::Vec3 p_origin, Utilities::DataTypes::Vec3 p_unit ) : origin( p_origin ), unit( p_unit ) {
+Utilities::Collision::Ray::Ray( glm::vec3 p_origin, glm::vec3 p_unit ) : origin( p_origin ), unit( p_unit ) {
 }
 
 Utilities::Collision::Ray::Ray( const Ray& ray ) : origin( ray.origin ), unit( ray.unit ) {
 }
 
-void Utilities::Collision::Ray::setOrigin( Utilities::DataTypes::Vec3 origin ) {
+void Utilities::Collision::Ray::setOrigin( glm::vec3 origin ) {
     this->origin = origin;
 }
 
-void Utilities::Collision::Ray::setUnit( Utilities::DataTypes::Vec3 unit ) {
+void Utilities::Collision::Ray::setUnit( glm::vec3 unit ) {
     this->unit = unit;
 }
 
-void Utilities::Collision::Ray::setDirection( Utilities::DataTypes::Vec3 direction ) {
+void Utilities::Collision::Ray::setDirection( glm::vec3 direction ) {
     this->unit = origin;
     
-    this->unit.x -= direction.x;
-    this->unit.y -= direction.y;
-    this->unit.z -= direction.z;
+    this->unit -= direction;
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getOrigin() const {
+glm::vec3 Utilities::Collision::Ray::getOrigin() const {
     return origin;
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getUnit() const {
+glm::vec3 Utilities::Collision::Ray::getUnit() const {
     return unit;
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getDirection() const {
-    DataTypes::Vec3 direction = origin;
-    
-    direction.x -= unit.x;
-    direction.y -= unit.y;
-    direction.z -= unit.z;
-    
-    return direction;
+glm::vec3 Utilities::Collision::Ray::getDirection() const {
+    return origin - unit;
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Ray::getSpot( float distance ) const {
-    DataTypes::Vec3 spot;
+glm::vec3 Utilities::Collision::Ray::getSpot( float distance ) const {
+    glm::vec3 spot;
     
     spot.x = getSpotUnit( origin.x, unit.x, distance );
     spot.y = getSpotUnit( origin.y, unit.y, distance );

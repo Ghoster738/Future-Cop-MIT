@@ -83,7 +83,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::Text2D( Graphics::SDL2::GLE
     this->vertex_buffer_object = 0;
 
     setPenColor( DEFAULT_COLOR );
-    setPenPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+    setPenPosition( glm::vec2( 0, 0 ) );
 
     // font_r should never be null!
     assert( this->font_r != nullptr );
@@ -103,7 +103,7 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setPenColor( const uin
     this->pen_color = *reinterpret_cast<const uint32_t*>( pen_color );
 }
 
-void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setPenPosition( const Utilities::DataTypes::Vec2 &pen_position ) {
+void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setPenPosition( const glm::vec2 &pen_position ) {
     this->pen_position = pen_position;
 }
 
@@ -177,8 +177,8 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
 int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const char *const text ) {
     size_t appended_size = 0;
     auto character_buffer = reinterpret_cast<TextVertex*>(this->buffer_p);
-    Utilities::DataTypes::Vec2 lower_font, higher_font;
-    Utilities::DataTypes::Vec2 texture_low, texture_high;
+    glm::vec2 lower_font, higher_font;
+    glm::vec2 texture_low, texture_high;
 
     if( this->max_amount_of_characters != 0 ) {
         glBindBuffer( GL_ARRAY_BUFFER, vertex_buffer_object );
@@ -446,7 +446,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::compilieProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const Utilities::DataTypes::Mat4 &projection, const std::vector<Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array ) {
+void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &projection, const std::vector<Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array ) {
     // Use the text shader.
     program.use();
 

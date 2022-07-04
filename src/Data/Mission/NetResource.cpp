@@ -29,7 +29,7 @@ int16_t Data::Mission::NetResource::Node::getPad() const {
 	return this->pad;
 }
 
-Utilities::DataTypes::Vec2Short Data::Mission::NetResource::Node::getPosition() const {
+glm::i16vec2 Data::Mission::NetResource::Node::getPosition() const {
 	return this->position;
 }
 

@@ -10,8 +10,8 @@ protected:
     void *window_internal_data_p;
 
     std::string window_title;
-    Utilities::DataTypes::Vec2UInt position;
-    Utilities::DataTypes::Vec2UInt dimensions; // x = width, y = height
+    glm::u32vec2 position;
+    glm::u32vec2 dimensions; // x = width, y = height
 
     enum Status {
         FULL_SCREEN    = 0b00,
@@ -30,14 +30,14 @@ public:
     virtual ~Window();
 
     void setWindowTitle( const std::string &window_title );
-    void setPosition( Utilities::DataTypes::Vec2UInt position );
+    void setPosition( glm::u32vec2 position );
 
     /**
      * This method sets the dimensions of the window.
      * @note The dimensions will always successfully work when the window was not attached to the environment yet by the time this method is called.
      * @return If the window is successfully resized this will return a 1, any other value is an error.
      */
-    int setDimensions( Utilities::DataTypes::Vec2UInt dimensions );
+    int setDimensions( glm::u32vec2 dimensions );
 
     /**
      * Set the window to full screen or in windowed mode.
@@ -68,8 +68,8 @@ public:
     const std::vector<Camera*> *const getCameras() const;
 
     std::string getWindowTitle() const;
-    Utilities::DataTypes::Vec2UInt getPosition() const;
-    Utilities::DataTypes::Vec2UInt getDimensions() const;
+    glm::u32vec2 getPosition() const;
+    glm::u32vec2 getDimensions() const;
 
     /**
      * This gets the Graphics API variables for use in the internal code for the Environment.

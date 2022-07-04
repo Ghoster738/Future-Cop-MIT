@@ -2,6 +2,8 @@
 #define GRAPHICS_2D_TEXT_BUFFER_H
 
 #include "../Utilities/DataTypes.h"
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 namespace Graphics {
 
@@ -23,8 +25,8 @@ public:
     bool loadFontLibrary( Environment &environment );
 
     int setFont( unsigned index );
-    int setPosition( const Utilities::DataTypes::Vec2 &position );
-    int setColor( const Utilities::DataTypes::Vec4 &color );
+    int setPosition( const glm::vec2 &position );
+    int setColor( const glm::vec4 &color );
     int print( const std::string &text );
 
     /**

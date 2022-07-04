@@ -1,79 +1,21 @@
 #include "DataTypes.h"
-#include <cmath>
 
-void Utilities::DataTypes::Vec2::normalize() {
-	// Get the unit vector length.
-	double unit = sqrt( x * x + y * y );
-
-	if( unit > 1.0078125 || unit < 0.9921875 )
-	{
-		// Normalize the vector.
-		unit = 1.0 / unit;
-
-		x *= unit;
-		y *= unit;
-	}
-}
-
-void Utilities::DataTypes::Vec3::normalize() {
-	// Get the unit vector length.
-	double unit = sqrt( x * x + y * y + z * z );
-
-	if( unit > 1.0078125 || unit < 0.9921875 )
-	{
-		// Normalize the vector.
-		unit = 1.0 / unit;
-
-		x *= unit;
-		y *= unit;
-		z *= unit;
-	}
-}
-
-void Utilities::DataTypes::Vec4::normalize() {
-	// Get the unit vector length.
-	double unit = sqrt( x * x + y * y + z * z + w * w );
-
-	if( unit > 1.0078125 || unit < 0.9921875 )
-	{
-		// Normalize the vector.
-		unit = 1.0 / unit;
-
-		x *= unit;
-		y *= unit;
-		z *= unit;
-		w *= unit;
-	}
-}
-
-void Utilities::DataTypes::Mat4::setIdentity() {
-    for( unsigned int row = 0; row < 4; row++ )
-    {
-        for( unsigned int col = 0; col < 4; col++ )
-        {
-            if( col == row )
-                data[col][row] = 1.0;
-            else
-                data[col][row] = 0.0;
-        }
-    }
-}
-
+#include <glm/gtc/type_ptr.hpp>
 
 Utilities::DataTypes::DataType::~DataType() {
     // This is just there to satisfy g++. So far there is not much need for the destructor.
 }
 
 void Utilities::DataTypes::ScalarType::writeBuffer( uint32_t *buffer ) const {
-    buffer[0] = *reinterpret_cast<const uint32_t *const>( &data.x );
+    buffer[0] = *reinterpret_cast<const uint32_t *const>( &data );
 }
 
 void Utilities::DataTypes::ScalarType::writeBuffer(std::vector<uint32_t> &buffer) const {
-    buffer.push_back( *reinterpret_cast<const uint32_t *const>( &data.x ) );
+    buffer.push_back( *reinterpret_cast<const uint32_t *const>( &data ) );
 }
 
 void Utilities::DataTypes::ScalarType::writeJSON( Json::Value &json ) const {
-    json.append( data.x );
+    json.append( data );
 }
 
 Utilities::DataTypes::Type Utilities::DataTypes::ScalarType::getType() const {
@@ -167,7 +109,7 @@ void Utilities::DataTypes::Mat4Type::writeBuffer( uint32_t *buffer ) const {
     {
         for( unsigned int col = 0; col < 4; col++ )
         {
-            *buffer = *reinterpret_cast<const uint32_t *const>( &data.data[col][row] );
+            *buffer = *reinterpret_cast<const uint32_t *const>( &data[col][row] );
             buffer++;
         }
     }
@@ -178,7 +120,7 @@ void Utilities::DataTypes::Mat4Type::writeBuffer(std::vector<uint32_t> &buffer) 
     {
         for( unsigned int col = 0; col < 4; col++ )
         {
-            buffer.push_back( *reinterpret_cast<const uint32_t *const>( &data.data[col][row] ) );
+            buffer.push_back( *reinterpret_cast<const uint32_t *const>( &data[col][row] ) );
         }
     }
 }
@@ -188,7 +130,7 @@ void Utilities::DataTypes::Mat4Type::writeJSON( Json::Value &json ) const {
     {
         for( unsigned int col = 0; col < 4; col++ )
         {
-            json.append( &data.data[col][row] );
+            json.append( data[col][row] );
         }
     }
 }
@@ -202,19 +144,19 @@ Utilities::DataTypes::ComponentType Utilities::DataTypes::Mat4Type::getComponent
 }
 
 void Utilities::DataTypes::ScalarUByteType::writeBuffer( uint32_t *buffer ) const {
-    uint8_t integer[ sizeof(uint32_t) ] = { data.x, 0, 0, 0 };
+    uint8_t integer[ sizeof(uint32_t) ] = { data, 0, 0, 0 };
 
     buffer[0] = *reinterpret_cast<const uint32_t *const>( integer );
 }
 
 void Utilities::DataTypes::ScalarUByteType::writeBuffer(std::vector<uint32_t> &buffer) const {
-    uint8_t integer[ sizeof(uint32_t) ] = { data.x, 0, 0, 0 };
+    uint8_t integer[ sizeof(uint32_t) ] = { data, 0, 0, 0 };
 
     buffer.push_back( *reinterpret_cast<const uint32_t *const>( integer ) );
 }
 
 void Utilities::DataTypes::ScalarUByteType::writeJSON( Json::Value &json ) const {
-    json.append( data.x );
+    json.append( data );
 }
 
 Utilities::DataTypes::Type Utilities::DataTypes::ScalarUByteType::getType() const {
@@ -304,17 +246,17 @@ Utilities::DataTypes::ComponentType Utilities::DataTypes::Vec4UByteType::getComp
 }
 
 void Utilities::DataTypes::ScalarUIntType::writeBuffer( uint32_t *buffer ) const {
-    buffer[0] = data.x;
+    buffer[0] = data;
 }
 
 void Utilities::DataTypes::ScalarUIntType::writeBuffer(std::vector<uint32_t> &buffer) const {
-    uint32_t integer[ 1 ] = { data.x };
+    uint32_t integer[ 1 ] = { data };
 
     buffer.push_back( *reinterpret_cast<const uint32_t *const>( integer ) );
 }
 
 void Utilities::DataTypes::ScalarUIntType::writeJSON( Json::Value &json ) const {
-    json.append( data.x );
+    json.append( data );
 }
 
 Utilities::DataTypes::Type Utilities::DataTypes::ScalarUIntType::getType() const {

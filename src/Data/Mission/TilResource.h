@@ -73,7 +73,7 @@ private:
     uint16_t mesh_library_size; // This is the number of unknown numbers but 4 times bigger for some reason.
     std::vector<Tile> mesh_tiles; // These are descriptions of tiles that are used to make up the map format. The 32 bit numbers are packed with information
 
-    std::vector<Utilities::DataTypes::Vec2UByte> texture_cords; // They contain the UV's for the tiles, they are often read as quads
+    std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<uint16_t> colors;
     std::vector<TileGraphics> tile_texture_type;
     

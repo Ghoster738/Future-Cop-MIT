@@ -13,7 +13,7 @@ int main() {
     {
         Utilities::Collision::Plane plane( 5, -7, 9, -11 );
         Utilities::Collision::Ray ray(
-            Vec3( 1, 3, -5), Vec3( -6, 2, 7 ) );
+            glm::vec3( 1, 3, -5), glm::vec3( -6, 2, 7 ) );
         const float expected_distance = 0.9; // A very clean number
         
         float distance = plane.getIntersectionDistance( ray );
@@ -29,15 +29,15 @@ int main() {
     
     // Test Plane( DataTypes::Vec3 points[3] ), Plane( a, b, c, d ), getIntersectionDistance.
     {
-        Vec3 points[3];
+        glm::vec3 points[3];
         
-        points[0] = Vec3(  15, 10, 20 );
-        points[1] = Vec3( -30, 90, 30 );
-        points[2] = Vec3(  45,  8,  0 );
+        points[0] = glm::vec3(  15, 10, 20 );
+        points[1] = glm::vec3( -30, 90, 30 );
+        points[2] = glm::vec3(  45,  8,  0 );
         
         Utilities::Collision::Plane plane( points );
         
-        Utilities::Collision::Ray ray( Vec3(0.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0) );
+        Utilities::Collision::Ray ray( glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0) );
         
         const float distance1 = plane.getIntersectionDistance( ray );
         

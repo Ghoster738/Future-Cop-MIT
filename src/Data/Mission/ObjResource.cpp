@@ -3,7 +3,8 @@
 #include "IFF.h"
 
 #include "../../Utilities/DataHandler.h"
-#include "../../Utilities/Math.h"
+#include <glm/geometric.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -42,33 +43,33 @@ namespace {
 
     const auto INTEGER_FACTOR = 1.0 / 256.0;
 
-    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, Utilities::DataTypes::Vec2UByte *coords )
+    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, glm::u8vec2 *cords )
     {
         if( !triangle.is_other_side )
         {
-            coords[0] = triangle.texture_quad_ref->coords[0];
-            coords[1] = triangle.texture_quad_ref->coords[1];
-            coords[2] = triangle.texture_quad_ref->coords[2];
+            cords[0] = triangle.texture_quad_ref->coords[0];
+            cords[1] = triangle.texture_quad_ref->coords[1];
+            cords[2] = triangle.texture_quad_ref->coords[2];
         }
         else
         {
-            coords[0] = triangle.texture_quad_ref->coords[2];
-            coords[1] = triangle.texture_quad_ref->coords[3];
-            coords[2] = triangle.texture_quad_ref->coords[0];
+            cords[0] = triangle.texture_quad_ref->coords[2];
+            cords[1] = triangle.texture_quad_ref->coords[3];
+            cords[2] = triangle.texture_quad_ref->coords[0];
         }
     }
 
-    void handlePositions( Utilities::DataTypes::Vec3 &position, const Utilities::DataTypes::Vec3Short *array, int index ) {
+    void handlePositions( glm::vec3 &position, const glm::i16vec3 *array, int index ) {
         position.x = -array[ index ].x * INTEGER_FACTOR;
         position.y =  array[ index ].y * INTEGER_FACTOR;
         position.z =  array[ index ].z * INTEGER_FACTOR;
     }
-    void handleNormals( Utilities::DataTypes::Vec3 &normal, const Utilities::DataTypes::Vec3Short *array, int index ) {
+    void handleNormals( glm::vec3 &normal, const glm::i16vec3 *array, int index ) {
         normal.x = array[ index ].x;
         normal.y = array[ index ].y;
         normal.z = array[ index ].z;
 
-        normal.normalize();
+        normal = glm::normalize( normal );
     }
 uint8_t reverse(uint8_t b) {
    b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
@@ -584,7 +585,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 // If vertex_positions is not empty then it is a morph target.
                 if( positions_pointer->size() != 0 ) {
-                    vertex_anm_positions.push_back( std::vector< Utilities::DataTypes::Vec3Short >() );
+                    vertex_anm_positions.push_back( std::vector< glm::i16vec3 >() );
                     positions_pointer = &vertex_anm_positions.back();
                 }
 
@@ -611,7 +612,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto normals_pointer = &vertex_normals;
 
                 if( normals_pointer->size() != 0 ) {
-                    vertex_anm_normals.push_back( std::vector< Utilities::DataTypes::Vec3Short >() );
+                    vertex_anm_normals.push_back( std::vector< glm::i16vec3 >() );
                     normals_pointer = &vertex_anm_normals.back();
                 }
 
@@ -985,11 +986,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
         model_output->allocateJoints( bones.size(), bone_frames );
         
         unsigned int *childern = new unsigned int [ max_bone_childern ]; // This can be a stack
-        Utilities::DataTypes::Mat4 matrix_translate;
-        Utilities::DataTypes::Mat4 matrix_rotation[3];
-        Utilities::DataTypes::Mat4 matrix_combine;
-        Utilities::DataTypes::Mat4 bone_transformation_matrix; // The combination of all the matrices.
-        Utilities::DataTypes::Mat4 frame_matrix;
+        glm::mat4 matrix_translate;
+        glm::mat4 matrix_rotation[3];
+        glm::mat4 matrix_combine;
+        glm::mat4 bone_transformation_matrix; // The combination of all the matrices.
+        glm::mat4 frame_matrix;
         unsigned int opcode_decode = 0;
         
         const float ANGLE_UNITS_TO_RADIANS = M_PI / 2048.0;
@@ -1017,26 +1018,25 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 if( !(*current_bone).opcode.rotation.z_const )
                     frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
                 
-                Utilities::Math::setTranslation( matrix_translate, 
-                Utilities::DataTypes::Vec3(
-                   -static_cast<float>( frame_position.x ) * INTEGER_FACTOR,
-                    static_cast<float>( frame_position.y ) * INTEGER_FACTOR,
-                    static_cast<float>( frame_position.z ) * INTEGER_FACTOR ) );
+                matrix_translate = glm::translate( matrix_translate, glm::vec3(
+                    -static_cast<float>( frame_position.x ) * INTEGER_FACTOR,
+                     static_cast<float>( frame_position.y ) * INTEGER_FACTOR,
+                     static_cast<float>( frame_position.z ) * INTEGER_FACTOR) );
                 
-                Utilities::Math::setRotation( matrix_rotation[0], Utilities::DataTypes::Vec3( 0, 1, 0 ), -static_cast<float>( frame_rotation.x ) * ANGLE_UNITS_TO_RADIANS );
-                Utilities::Math::setRotation( matrix_rotation[1], Utilities::DataTypes::Vec3( 1, 0, 0 ),  static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS );
-                Utilities::Math::multiply( matrix_rotation[2], matrix_rotation[0], matrix_rotation[1] );
-                Utilities::Math::setRotation( matrix_rotation[1], Utilities::DataTypes::Vec3( 0, 0, 1 ), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS );
-                Utilities::Math::multiply( matrix_rotation[0], matrix_rotation[1], matrix_rotation[2] );
+                matrix_rotation[0] = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 1, 0 ) );
+                matrix_rotation[1] = glm::rotate( glm::mat4(1.0f), static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
+                matrix_rotation[2] = matrix_rotation[0] * matrix_rotation[1];
+                matrix_rotation[1] = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) );
+                matrix_rotation[0] = matrix_rotation[1] * matrix_rotation[2];
                 
-                Utilities::Math::multiply( frame_matrix, matrix_translate, matrix_rotation[0] );
+                frame_matrix = matrix_translate * matrix_rotation[0];
                 
-                bone_transformation_matrix.setIdentity();
+                bone_transformation_matrix = glm::mat4( 1.0f );
                 if( (*current_bone).parent_amount > 1 ) {
-                    bone_transformation_matrix = model_output->getJointFrame( frame )[ childern[ (*current_bone).parent_amount - 2 ] ];
+                    bone_transformation_matrix = model_output->getJointFrame( frame, childern[ (*current_bone).parent_amount - 2 ] );
                 }
                 
-                Utilities::Math::multiply( model_output->getJointFrame( frame )[ bone_index ], bone_transformation_matrix, frame_matrix );
+                model_output->setJointFrame( frame, bone_index, bone_transformation_matrix * frame_matrix );
             }
         }
         
@@ -1071,14 +1071,14 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
     }
     */
 
-    Utilities::DataTypes::Vec3 position;
-    Utilities::DataTypes::Vec3 new_position;
-    Utilities::DataTypes::Vec3 normal;
-    Utilities::DataTypes::Vec3 new_normal;
-    Utilities::DataTypes::Scalar specular;
-    Utilities::DataTypes::Vec2UByte coords[3];
-    Utilities::DataTypes::Vec4UByte weights;
-    Utilities::DataTypes::Vec4UByte joints;
+    glm::vec3 position;
+    glm::vec3 new_position;
+    glm::vec3 normal;
+    glm::vec3 new_normal;
+    float specular;
+    glm::u8vec2 coords[3];
+    glm::u8vec4 weights;
+    glm::u8vec4 joints;
 
     // Future Cop only uses one joint, so it only needs one weight.
     weights.x = 0xFF;
@@ -1098,9 +1098,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             triangleToCoords( (*triangle), coords );
             
             if( (*triangle).is_reflective )
-                specular.x = 1.0f;
+                specular = 1.0f;
             else
-                specular.x = 0.0f;
+                specular = 0.0f;
 
             model_output->startVertex();
 
@@ -1225,8 +1225,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         // if( bounding_box_frames > 1 )
         //    position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
         
-        Utilities::DataTypes::Vec3 position;
-        Utilities::DataTypes::Vec3 color(0.0f, 1.0f, 0.0f);
+        glm::vec3 position;
+        glm::vec3 color(0.0f, 1.0f, 0.0f);
         
         // At this point it is time to start generating bounding box.
         

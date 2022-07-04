@@ -13,7 +13,6 @@
 #include "Data/Mission/Til/Mesh.h"
 #include "Data/Mission/Til/Colorizer.h"
 
-#include "Utilities/Math.h"
 #include "Graphics/Environment.h"
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
@@ -135,7 +134,7 @@ int main(int argc, char** argv)
     window->setWindowTitle( title );
     if( window->center() != 1 )
         std::cout << "The window had failed to center! " << window->center() << std::endl;
-    window->setDimensions( Utilities::DataTypes::Vec2UInt( width, height ) );
+    window->setDimensions( glm::u32vec2( width, height ) );
     window->setFullScreen( true );
 
     Graphics::Environment *environment = new Graphics::Environment();
@@ -257,17 +256,17 @@ int main(int argc, char** argv)
     Graphics::Camera *first_person = new Graphics::Camera();
     first_person->attachText2DBuffer( *text_2d_buffer );
     window->attachCamera( *first_person );
-    first_person->setViewportOrigin( Utilities::DataTypes::Vec2UInt( 0, 0 ) );
-    first_person->setViewportDimensions( Utilities::DataTypes::Vec2UInt( width, height ) );
-    Utilities::DataTypes::Mat4 extra_matrix_0;
-    Utilities::DataTypes::Mat4 extra_matrix_1;
-    Utilities::DataTypes::Mat4 extra_matrix_2;
+    first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
+    first_person->setViewportDimensions( glm::u32vec2( width, height ) );
+    glm::mat4 extra_matrix_0;
+    glm::mat4 extra_matrix_1;
+    glm::mat4 extra_matrix_2;
     
-    Utilities::Math::setOthro( extra_matrix_0, 0, width, -height, 0, -1.0, 1.0 );
+    extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(width), -static_cast<float>(height), 0.0f, -1.0f, 1.0f );
     
     first_person->setProjection2D( extra_matrix_0 );
 
-    Utilities::Math::setPerspective( extra_matrix_0, Utilities::Math::toRadians(45.0), static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f );
+    extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f );
 
     first_person->setProjection3D( extra_matrix_0 );
 
@@ -283,10 +282,10 @@ int main(int argc, char** argv)
 	//glUniform1f( WhichTileLoc, current_tile_selected );
 	bool entering_number = false;
 
-    Utilities::DataTypes::Vec3 position_of_camera = Utilities::DataTypes::Vec3( 16, 0, 16 );
-    Utilities::DataTypes::Vec4 direction_keyboard = Utilities::DataTypes::Vec4( 0, 0, 0, 0 );
-    Utilities::DataTypes::Vec4 movement_of_camera = Utilities::DataTypes::Vec4( 0, 0, 0, 0 );
-    Utilities::DataTypes::Vec2 rotation = Utilities::DataTypes::Vec2( 0, Utilities::Math::toRadians(45.0) );
+    glm::vec3 position_of_camera = glm::vec3( 16, 0, 16 );
+    glm::vec4 direction_keyboard = glm::vec4( 0, 0, 0, 0 );
+    glm::vec4 movement_of_camera = glm::vec4( 0, 0, 0, 0 );
+    glm::vec2 rotation = glm::vec2( 0, glm::pi<float>() / 4.0f );
     double distance_away = -10;
     bool isCameraMoving = false;
 
@@ -311,17 +310,17 @@ int main(int argc, char** argv)
                 int status = 0;
 
                 text_2d_buffer->setFont( 0 );
-                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 1, 1 ) );
-                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+                text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
+                text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
                 text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
                 text_2d_buffer->setFont( 0 );
-                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0.25, 0.25, 1 ) );
-                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
+                text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
+                text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
                 text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
 
-                text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 1, 0, 1 ) );
-                text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 40 ) );
+                text_2d_buffer->setColor( glm::vec4( 1, 1, 0, 1 ) );
+                text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
                 if( control_cursor_r == nullptr )
                     text_2d_buffer->print( "There is no cursor!" );
                 else
@@ -467,37 +466,36 @@ int main(int argc, char** argv)
             }
         }
 
-        Utilities::Math::setRotation( extra_matrix_0, Utilities::DataTypes::Vec3( 0.0, 1.0, 0.0 ), -rotation.x );
-        Utilities::DataTypes::Vec4 tmp;
-        Utilities::Math::multiply( tmp, extra_matrix_0, Utilities::DataTypes::Vec4(movement_of_camera.x * delta_f, movement_of_camera.y * delta_f, movement_of_camera.z * delta_f, 1) );
+        extra_matrix_0 = glm::rotate( glm::mat4(1.0f), -rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) );
+        glm::vec4 tmp = extra_matrix_0 * glm::vec4(movement_of_camera.x * delta_f, movement_of_camera.y * delta_f, movement_of_camera.z * delta_f, 1 );
 
         position_of_camera.x += tmp.x;
         position_of_camera.y += tmp.y;
         position_of_camera.z += tmp.z;
 
-        Utilities::Math::setTranslation( extra_matrix_0, Utilities::DataTypes::Vec3( 0, 0, distance_away ) );
-        Utilities::Math::setRotation( extra_matrix_1, Utilities::DataTypes::Vec3( 1.0, 0.0, 0.0), rotation.y ); // rotate up and down.
-        Utilities::Math::multiply( extra_matrix_2, extra_matrix_0, extra_matrix_1 );
-        Utilities::Math::setRotation( extra_matrix_1, Utilities::DataTypes::Vec3( 0.0, 1.0, 0.0), rotation.x ); // rotate left and right.
-        Utilities::Math::multiply( extra_matrix_0, extra_matrix_2, extra_matrix_1 );
-        Utilities::Math::setTranslation( extra_matrix_1, position_of_camera );
-        Utilities::Math::multiply( extra_matrix_2, extra_matrix_0, extra_matrix_1 );
+        extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, distance_away ) );
+        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
+        extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
+        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
+        extra_matrix_0 = extra_matrix_2 * extra_matrix_1;
+        extra_matrix_1 = glm::translate( glm::mat4(1.0f), position_of_camera );
+        extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
         first_person->setView3D( extra_matrix_2 );
 
         text_2d_buffer->setFont( 5 );
-        text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 1, 0, 0, 1 ) );
-        text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 0 ) );
+        text_2d_buffer->setColor( glm::vec4( 1, 0, 0, 1 ) );
+        text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( "Position = (" + std::to_string(position_of_camera.x) + ", " + std::to_string(position_of_camera.y) + ", " + std::to_string(position_of_camera.z) + ")" );
 
         text_2d_buffer->setFont( 4 );
-        text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 0, 1, 0, 1 ) );
-        text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 20 ) );
+        text_2d_buffer->setColor( glm::vec4( 0, 1, 0, 1 ) );
+        text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
 
         text_2d_buffer->setFont( 2 );
-        text_2d_buffer->setColor( Utilities::DataTypes::Vec4( 0, 1, 1, 1 ) );
-        text_2d_buffer->setPosition( Utilities::DataTypes::Vec2( 0, 40 ) );
+        text_2d_buffer->setColor( glm::vec4( 0, 1, 1, 1 ) );
+        text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
         text_2d_buffer->print( "TilRes = " + std::to_string(current_tile_selected) );
 
         environment->drawFrame();

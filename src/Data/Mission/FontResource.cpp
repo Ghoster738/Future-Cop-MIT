@@ -51,12 +51,10 @@ uint8_t Data::Mission::FontGlyph::getTop() const {
 }
 
 uint8_t Data::Mission::FontGlyph::getBottom() const {
-    // This does not make sense!
-    // What was I thinking!
     return this->top + this->height;
 }
 
-Utilities::DataTypes::Vec2Byte Data::Mission::FontGlyph::getOffset() const {
+glm::i16vec2 Data::Mission::FontGlyph::getOffset() const {
     return this->offset;
 }
 

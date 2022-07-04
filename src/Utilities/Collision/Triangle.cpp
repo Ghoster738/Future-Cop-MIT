@@ -1,10 +1,6 @@
 #include "Triangle.h"
 
-namespace {
-float dot_product( const Utilities::DataTypes::Vec3 &a, const Utilities::DataTypes::Vec3 &b ) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-}
+#include <glm/geometric.hpp>
 
 Utilities::Collision::Triangle::Triangle() {
     points[ 0 ].x =  0;
@@ -20,7 +16,7 @@ Utilities::Collision::Triangle::Triangle() {
     setByPoints( points );
 }
 
-Utilities::Collision::Triangle::Triangle( DataTypes::Vec3 points[3] ) {
+Utilities::Collision::Triangle::Triangle( glm::vec3 points[3] ) {
     setPoints( points );
 }
 
@@ -30,14 +26,14 @@ Utilities::Collision::Triangle::Triangle( const Triangle& triangle ) : Plane( tr
     points[ 2 ] = triangle.points[ 2 ];
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Triangle::getPoint( unsigned index ) const {
+glm::vec3 Utilities::Collision::Triangle::getPoint( unsigned index ) const {
     // Do not go beyond three.
     index %= 3;
     
     return points[ index ];
 }
 
-void Utilities::Collision::Triangle::setPoint( DataTypes::Vec3 point, unsigned index ) {
+void Utilities::Collision::Triangle::setPoint( glm::vec3 point, unsigned index ) {
     // Do not go beyond three.
     index %= 3;
     
@@ -46,7 +42,7 @@ void Utilities::Collision::Triangle::setPoint( DataTypes::Vec3 point, unsigned i
     setByPoints( this->points );
 }
 
-void Utilities::Collision::Triangle::setPoints( DataTypes::Vec3 points[3] ) {
+void Utilities::Collision::Triangle::setPoints( glm::vec3 points[3] ) {
     this->points[ 0 ] = points[ 0 ];
     this->points[ 1 ] = points[ 1 ];
     this->points[ 2 ] = points[ 2 ];
@@ -54,30 +50,22 @@ void Utilities::Collision::Triangle::setPoints( DataTypes::Vec3 points[3] ) {
     setByPoints( this->points );
 }
 
-Utilities::DataTypes::Vec3 Utilities::Collision::Triangle::getBarycentricCordinates( DataTypes::Vec3 intersection_point ) const {
-    DataTypes::Vec3 v0, v1, v2;
+glm::vec3 Utilities::Collision::Triangle::getBarycentricCordinates( glm::vec3 intersection_point ) const {
+    glm::vec3 v0, v1, v2;
     float d00, d01, d11, d20, d21, denom;
-    DataTypes::Vec3 result;
+    glm::vec3 result;
     
     // To do cache v0 and v1, d0, d01, d1, and denom.
-    v0.x = points[1].x - points[0].x;
-    v0.y = points[1].y - points[0].y;
-    v0.z = points[1].z - points[0].z;
-    
-    v1.x = points[2].x - points[0].x;
-    v1.y = points[2].y - points[0].y;
-    v1.z = points[2].z - points[0].z;
-    
-    v2.x = intersection_point.x - points[0].x;
-    v2.y = intersection_point.y - points[0].y;
-    v2.z = intersection_point.z - points[0].z;
+    v0 = points[1] - points[0];
+    v1 = points[2] - points[0];
+    v2 = intersection_point - points[0];
     
     // Calculate the dot products
-    d00 = dot_product(v0, v0);
-    d01 = dot_product(v0, v1);
-    d11 = dot_product(v1, v1);
-    d20 = dot_product(v2, v0);
-    d21 = dot_product(v2, v1);
+    d00 = glm::dot(v0, v0);
+    d01 = glm::dot(v0, v1);
+    d11 = glm::dot(v1, v1);
+    d20 = glm::dot(v2, v0);
+    d21 = glm::dot(v2, v1);
     
     denom = d00 * d11 - d01 * d01;
     
@@ -92,7 +80,7 @@ Utilities::DataTypes::Vec3 Utilities::Collision::Triangle::getBarycentricCordina
     return result;
 }
 
-bool Utilities::Collision::Triangle::isInTriangle( DataTypes::Vec3 weighted_sum ) {
+bool Utilities::Collision::Triangle::isInTriangle( glm::vec3 weighted_sum ) {
     if( weighted_sum.x < 0 )
         return false;
     else

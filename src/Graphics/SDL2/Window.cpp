@@ -4,8 +4,8 @@
 Graphics::Window::Window() :
     window_internal_data_p( nullptr ),
     window_title( "WINDOW TITLE NOT SET" ),
-    position( Utilities::DataTypes::Vec2UInt( 0, 0 ) ),
-    dimensions( Utilities::DataTypes::Vec2UInt( 320, 200 ) )
+    position( glm::u32vec2( 0, 0 ) ),
+    dimensions( glm::u32vec2( 320, 200 ) )
 {
     status.window_status = Status::WINDOW;
 
@@ -36,7 +36,7 @@ void Graphics::Window::setWindowTitle( const std::string &window_title ) {
         SDL_SetWindowTitle( window_internal_p->window_p, this->window_title.c_str() );
 }
 
-void Graphics::Window::setPosition( Utilities::DataTypes::Vec2UInt position ) {
+void Graphics::Window::setPosition( glm::u32vec2 position ) {
     this->position = position;
 
     auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_internal_data_p );
@@ -44,7 +44,7 @@ void Graphics::Window::setPosition( Utilities::DataTypes::Vec2UInt position ) {
         SDL_SetWindowPosition( window_internal_p->window_p, this->position.x, this->position.y );
 }
 
-int Graphics::Window::setDimensions( Utilities::DataTypes::Vec2UInt dimensions ) {
+int Graphics::Window::setDimensions( glm::u32vec2 dimensions ) {
     // For now simply forbid the resizing of a window.
     auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_internal_data_p );
 
@@ -92,7 +92,7 @@ int Graphics::Window::center() {
             // Attempt to get the bounds of the window
             if( SDL_GetDisplayBounds( display_index, &screen ) == 0 )
             {
-                setPosition( Utilities::DataTypes::Vec2UInt( (screen.w - dimensions.x) / 2, (screen.h - dimensions.y) / 2 ) );
+                setPosition( glm::u32vec2( (screen.w - dimensions.x) / 2, (screen.h - dimensions.y) / 2 ) );
 
                 return 1;
             }
@@ -144,10 +144,10 @@ std::string Graphics::Window::getWindowTitle() const {
     return window_title;
 }
 
-Utilities::DataTypes::Vec2UInt Graphics::Window::getPosition() const {
+glm::u32vec2 Graphics::Window::getPosition() const {
     return position;
 }
 
-Utilities::DataTypes::Vec2UInt Graphics::Window::getDimensions() const {
+glm::u32vec2 Graphics::Window::getDimensions() const {
     return dimensions;
 }

@@ -103,10 +103,10 @@ void Data::Mission::TilResource::makeEmpty() {
     this->mesh_tiles.push_back( one_tile );
     
     this->texture_cords.clear();
-    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte( 0,  0) );
-    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte(32,  0) );
-    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte(32, 32) );
-    this->texture_cords.push_back( Utilities::DataTypes::Vec2UByte(32,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 0,  0) );
+    this->texture_cords.push_back( glm::u8vec2(32,  0) );
+    this->texture_cords.push_back( glm::u8vec2(32, 32) );
+    this->texture_cords.push_back( glm::u8vec2(32,  0) );
     
     this->colors.clear();
     
@@ -244,7 +244,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             texture_cords.reserve( texture_cordinates_amount );
             
             for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
-                texture_cords.push_back( Utilities::DataTypes::Vec2UByte() );
+                texture_cords.push_back( glm::u8vec2() );
 
                 texture_cords.back().x = readerSect.readU8();
                 texture_cords.back().y = readerSect.readU8();
@@ -409,11 +409,11 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
         model_output->setupVertexComponents();
 
-        Utilities::DataTypes::Vec3 position_displacement;
-        Utilities::DataTypes::Vec3 position[6];
-        Utilities::DataTypes::Vec3 normal[6];
-        Utilities::DataTypes::Vec3 color[6];
-        Utilities::DataTypes::Vec2UByte coord[6];
+        glm::vec3   position_displacement;
+        glm::vec3   position[6];
+        glm::vec3   normal[6];
+        glm::vec3   color[6];
+        glm::u8vec2 coord[6];
 
         position_displacement.x = SPAN_OF_TIL + x_offset;
         position_displacement.y = 0.0;
@@ -486,8 +486,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                     // Generate the normals
                     {
-                        Utilities::DataTypes::Vec3 u;
-                        Utilities::DataTypes::Vec3 v;
+                        glm::vec3 u;
+                        glm::vec3 v;
 
                         // Generate the normals
                         for( unsigned int p = 0; p < current_tile_polygon_amount / 3; p++ )
@@ -504,7 +504,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             normal[3 * p].y = u.z * v.x - u.x * v.z;
                             normal[3 * p].z = u.x * v.y - u.y * v.x;
                             
-                            normal[3 * p].normalize();
+                            normal[3 * p] = glm::normalize( normal[3 * p] );
 
                             // Fill in the value on all points
                             for( unsigned int i = 1; i < 3; i++ ) {
@@ -516,9 +516,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     }
 
                     {
-                        Utilities::DataTypes::ScalarUInt TileMeshValue;
-                        TileMeshValue.x = current_tile.mesh_type;
-
                         // The write loop for the tiles.
                         for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
                         {
@@ -528,7 +525,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                             model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                             model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                            model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( TileMeshValue ) );
+                            model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
                         }
                     }
                 }
@@ -550,9 +547,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
 void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int z ) {
     if( x < AMOUNT_OF_TILES && z < AMOUNT_OF_TILES ) {
-        Utilities::DataTypes::Vec3 position[6];
-        Utilities::DataTypes::Vec2UByte cord[6];
-        Utilities::DataTypes::Vec3 color[6];
+        glm::vec3 position[6];
+        glm::u8vec2 cord[6];
+        glm::vec3 color[6];
         Tile current_tile;
         Data::Mission::Til::Mesh::Input input;
         Data::Mission::Til::Mesh::VertexData vertex_data;
@@ -601,8 +598,8 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
     bool found_triangle = false;
     float final_distance = 1000000.0f;
     float temp_distance;
-    Utilities::DataTypes::Vec3 point;
-    Utilities::DataTypes::Vec3 barycentric;
+    glm::vec3 point;
+    glm::vec3 barycentric;
     
     for( auto i : all_triangles ) {
         // Get the intersection distance from the plane first.
@@ -643,7 +640,7 @@ float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
 
 float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point ) const {
     // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
-    Utilities::Collision::Ray downRay( Utilities::DataTypes::Vec3( x, from_highest_point, z ), Utilities::DataTypes::Vec3( x, from_highest_point - 1.0f, z ) );
+    Utilities::Collision::Ray downRay( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
     
     return getRayCast3D( downRay );
 }

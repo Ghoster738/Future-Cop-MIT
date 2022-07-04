@@ -11,11 +11,11 @@ int main() {
     
     // Test Plane( DataTypes::Vec3 points[3] ), Plane( a, b, c, d ), getIntersectionDistance.
     {
-        Vec3 points[3];
+        glm::vec3 points[3];
         
-        points[0] = Vec3(  15, 10, 20 );
-        points[1] = Vec3( -30, 90, 30 );
-        points[2] = Vec3(  45,  8,  0 );
+        points[0] = glm::vec3(  15, 10, 20 );
+        points[1] = glm::vec3( -30, 90, 30 );
+        points[2] = glm::vec3(  45,  8,  0 );
         
         Utilities::Collision::Triangle triangle( points );
         
@@ -23,44 +23,44 @@ int main() {
         const size_t NUMBER_OF_RAYS = 6;
         Utilities::Collision::Ray ray[ NUMBER_OF_RAYS ];
         float depths[ NUMBER_OF_RAYS ];
-        Vec3 points_to[ NUMBER_OF_RAYS ];
-        Vec3 barycentric_cordinates[ NUMBER_OF_RAYS ];
+        glm::vec3 points_to[ NUMBER_OF_RAYS ];
+        glm::vec3 barycentric_cordinates[ NUMBER_OF_RAYS ];
         bool is_in_triangle[ NUMBER_OF_RAYS ];
         
-        ray[ 0 ] = Utilities::Collision::Ray( Vec3(0, 0, 0), Vec3(5.25f, 6.25f, 3.0f) );
+        ray[ 0 ] = Utilities::Collision::Ray( glm::vec3(0, 0, 0), glm::vec3(5.25f, 6.25f, 3.0f) );
         depths[ 0 ] = 4.0f;
-        points_to[ 0 ] = Vec3( 21.0f, 25.0f, 12.0f );
-        barycentric_cordinates[ 0 ] = Vec3( 0.3f, 0.2f, 0.5f );
+        points_to[ 0 ] = glm::vec3( 21.0f, 25.0f, 12.0f );
+        barycentric_cordinates[ 0 ] = glm::vec3( 0.3f, 0.2f, 0.5f );
         is_in_triangle[ 0 ] = true;
         
-        ray[ 1 ] = Utilities::Collision::Ray( Vec3(52.5f, 0.0f, -11.0f), Vec3(52.5f, 5.1f, -11.0f) );
+        ray[ 1 ] = Utilities::Collision::Ray( glm::vec3(52.5f, 0.0f, -11.0f), glm::vec3(52.5f, 5.1f, -11.0f) );
         depths[ 1 ] = 6.0f;
-        points_to[ 1 ] = Vec3( 52.5f, 30.6f, -11.0f );
-        barycentric_cordinates[ 1 ] = Vec3( -1.0f, 0.3f, 1.7f );
+        points_to[ 1 ] = glm::vec3( 52.5f, 30.6f, -11.0f );
+        barycentric_cordinates[ 1 ] = glm::vec3( -1.0f, 0.3f, 1.7f );
         is_in_triangle[ 1 ] = false;
         
-        ray[ 2 ] = Utilities::Collision::Ray( Vec3(3.0f, 7.0f, 13.0f), Vec3(25.5f, 20.8f, 26.0f) );
+        ray[ 2 ] = Utilities::Collision::Ray( glm::vec3(3.0f, 7.0f, 13.0f), glm::vec3(25.5f, 20.8f, 26.0f) );
         depths[ 2 ] = 0.5f;
-        points_to[ 2 ] = Vec3( 14.25f, 13.9f, 19.5f );
-        barycentric_cordinates[ 2 ] = Vec3( 0.9f, 0.05f, 0.05f );
+        points_to[ 2 ] = glm::vec3( 14.25f, 13.9f, 19.5f );
+        barycentric_cordinates[ 2 ] = glm::vec3( 0.9f, 0.05f, 0.05f );
         is_in_triangle[ 2 ] = true;
         
-        ray[ 3 ] = Utilities::Collision::Ray( Vec3(-52.5f, 73.0f, 105.0f), Vec3(-36.75f, 58.4f, 92.5f) );
+        ray[ 3 ] = Utilities::Collision::Ray( glm::vec3(-52.5f, 73.0f, 105.0f), glm::vec3(-36.75f, 58.4f, 92.5f) );
         depths[ 3 ] = 10.0f;
-        points_to[ 3 ] = Vec3( 105.0f, -73.0f, -20.0f );
-        barycentric_cordinates[ 3 ] = Vec3( 0.5f, -1.0f, 1.5f );
+        points_to[ 3 ] = glm::vec3( 105.0f, -73.0f, -20.0f );
+        barycentric_cordinates[ 3 ] = glm::vec3( 0.5f, -1.0f, 1.5f );
         is_in_triangle[ 3 ] = false;
         
-        ray[ 4 ] = Utilities::Collision::Ray( Vec3(3.0f, -4.0f, 8.0f), Vec3(10.0f, 36.0f, 50.0/3.0) );
+        ray[ 4 ] = Utilities::Collision::Ray( glm::vec3(3.0f, -4.0f, 8.0f), glm::vec3(10.0f, 36.0f, 50.0/3.0) );
         depths[ 4 ] = 1.0f;
-        points_to[ 4 ] = Vec3( 10.0f, 36.0f, 50.0/3.0 );
-        barycentric_cordinates[ 4 ] = Vec3( 1.0/3.0, 1.0/3.0, 1.0/3.0 );
+        points_to[ 4 ] = glm::vec3( 10.0f, 36.0f, 50.0/3.0 );
+        barycentric_cordinates[ 4 ] = glm::vec3( 1.0/3.0, 1.0/3.0, 1.0/3.0 );
         is_in_triangle[ 4 ] = true;
         
-        ray[ 5 ] = Utilities::Collision::Ray( Vec3(7.0f, 10.0f, -3.0f), Vec3(121.0/30.0, 12.8f, 0.2f) );
+        ray[ 5 ] = Utilities::Collision::Ray( glm::vec3(7.0f, 10.0f, -3.0f), glm::vec3(121.0/30.0, 12.8f, 0.2f) );
         depths[ 5 ] = 15.0f;
-        points_to[ 5 ] = Vec3( -37.5f, 52.0f, 45.0f );
-        barycentric_cordinates[ 5 ] = Vec3( 1.5f, 0.5f, -1.0f );
+        points_to[ 5 ] = glm::vec3( -37.5f, 52.0f, 45.0f );
+        barycentric_cordinates[ 5 ] = glm::vec3( 1.5f, 0.5f, -1.0f );
         is_in_triangle[ 5 ] = false;
         
         // The first test should test that I had correctly calculated these rays.
@@ -92,7 +92,7 @@ int main() {
             }
             
             // Test the barycentric cordinates.
-            const Vec3 generated_barycentric = triangle.getBarycentricCordinates( ray[ i ].getSpot( depths[ i ] ) );
+            const glm::vec3 generated_barycentric = triangle.getBarycentricCordinates( ray[ i ].getSpot( depths[ i ] ) );
             
             const float barycentric_span = generated_barycentric.x + generated_barycentric.y + generated_barycentric.z;
             
@@ -140,11 +140,11 @@ int main() {
     // Now, test the setPoint, setPoints and the copy constructor.
     {
         Utilities::Collision::Triangle set_s_point_tri;
-        Vec3 points[3];
+        glm::vec3 points[3];
         
-        points[ 0 ] = Vec3(1, 2, 3);
-        points[ 1 ] = Vec3(4, 0, 6);
-        points[ 2 ] = Vec3(7, 8, 9);
+        points[ 0 ] = glm::vec3(1, 2, 3);
+        points[ 1 ] = glm::vec3(4, 0, 6);
+        points[ 2 ] = glm::vec3(7, 8, 9);
         
         set_s_point_tri.setPoint( points[ 0 ], 0 );
         set_s_point_tri.setPoint( points[ 1 ], 1 );
@@ -194,10 +194,10 @@ int main() {
         Utilities::Collision::Ray rays[AMOUNT_OF_RAYS];
         bool expected_ray_collision_result[AMOUNT_OF_RAYS];
         
-        rays[0] = Utilities::Collision::Ray( Vec3(0.0f, 0.0f, 0.0f), Vec3(2, 5.0/3.0, 3.0f) );
+        rays[0] = Utilities::Collision::Ray( glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2, 5.0/3.0, 3.0f) );
         expected_ray_collision_result[0] = true;
         
-        rays[1] = Utilities::Collision::Ray( Vec3(52.5f, 0.0f, -11.0f), Vec3(52.5f, 5.1f, -11.0f) );
+        rays[1] = Utilities::Collision::Ray( glm::vec3(52.5f, 0.0f, -11.0f), glm::vec3(52.5f, 5.1f, -11.0f) );
         expected_ray_collision_result[1] = false;
         
         for( size_t i = 0; i < AMOUNT_OF_RAYS; i++ ) {
@@ -223,13 +223,13 @@ int main() {
                 return FAILURE;
             }
             
-            const Vec3 spot_s_point = rays[ i ].getSpot( gen_dist_s_point );
-            const Vec3 spot_points  = rays[ i ].getSpot( gen_dist_points );
-            const Vec3 spot_copy    = rays[ i ].getSpot( gen_dist_copy );
+            const glm::vec3 spot_s_point = rays[ i ].getSpot( gen_dist_s_point );
+            const glm::vec3 spot_points  = rays[ i ].getSpot( gen_dist_points );
+            const glm::vec3 spot_copy    = rays[ i ].getSpot( gen_dist_copy );
             
-            const Vec3 bary_s_point = set_s_point_tri.getBarycentricCordinates( spot_s_point );
-            const Vec3 bary_points  = set_points_tri.getBarycentricCordinates( spot_points );
-            const Vec3 bary_copy    = copy_tri.getBarycentricCordinates( spot_copy );
+            const glm::vec3 bary_s_point = set_s_point_tri.getBarycentricCordinates( spot_s_point );
+            const glm::vec3 bary_points  = set_points_tri.getBarycentricCordinates( spot_points );
+            const glm::vec3 bary_copy    = copy_tri.getBarycentricCordinates( spot_copy );
             
             if( isNotMatch( spot_s_point, spot_points ) ) {
                 std::cout << "Error: triangle(s) is not valid!" << std::endl;

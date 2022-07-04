@@ -92,7 +92,7 @@ int Graphics::Text2DBuffer::setFont( unsigned index ) {
         return -1;
 }
 
-int Graphics::Text2DBuffer::setPosition( const Utilities::DataTypes::Vec2 &position ) {
+int Graphics::Text2DBuffer::setPosition( const glm::vec2 &position ) {
     auto internal_data_r = reinterpret_cast<Graphics::SDL2::GLES2::Text2DBufferInternalData*>( text_2d_buffer_internal_data_p );
 
     if( internal_data_r->font_system_r != nullptr )
@@ -112,7 +112,7 @@ int Graphics::Text2DBuffer::setPosition( const Utilities::DataTypes::Vec2 &posit
         return -1;
 }
 
-int Graphics::Text2DBuffer::setColor( const Utilities::DataTypes::Vec4 &color ) {
+int Graphics::Text2DBuffer::setColor( const glm::vec4 &color ) {
     auto internal_data_r = reinterpret_cast<Graphics::SDL2::GLES2::Text2DBufferInternalData*>( text_2d_buffer_internal_data_p );
     uint8_t color_rgba[4];
 

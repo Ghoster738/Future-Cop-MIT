@@ -19,12 +19,11 @@ protected:
     class SkeletalAnimation {
     private:
         unsigned int num_bones;
-        std::vector<Utilities::DataTypes::Mat4*> bone_frames;
+        std::vector<glm::mat4> bone_frames;
     public:
         SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames );
-        ~SkeletalAnimation();
 
-        Utilities::DataTypes::Mat4* getFrame( unsigned int current_frame );
+        glm::mat4* getFrames( unsigned int current_frame, unsigned int starting_bone = 0 );
 
         unsigned int getNumBones() const { return num_bones; }
     };

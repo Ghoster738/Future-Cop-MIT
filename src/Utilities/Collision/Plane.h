@@ -16,10 +16,10 @@ private:
 public:
     Plane();
     Plane( float a, float b, float c, float d );
-    Plane( DataTypes::Vec3 points[3] );
+    Plane( glm::vec3 points[3] );
     Plane( const Plane& );
     
-    void setByPoints( DataTypes::Vec3 points[3] );
+    void setByPoints( glm::vec3 points[3] );
     
     /**
      * This gets the intersection distance of the ray to the point on the plane.

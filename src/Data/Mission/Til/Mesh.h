@@ -34,19 +34,19 @@ namespace Mesh {
     };
 
     struct VertexData {
-        Utilities::DataTypes::Vec3 *position;
-        Utilities::DataTypes::Vec2UByte *coords;
-        Utilities::DataTypes::Vec3 *colors;
+        glm::vec3 *position;
+        glm::u8vec2 *coords;
+        glm::vec3 *colors;
         unsigned int element_start;
         unsigned int element_amount; // This describes the structual limit position and coords.
     };
 
     struct Input {
         const int8_t *pixels[4]; // Almost treated like an RGB 8 bit per channel.
-        Utilities::DataTypes::Vec3 colors[4]; // The colors for the tiles.
+        glm::vec3 colors[4]; // The colors for the tiles.
         unsigned int coord_index;
         unsigned int coord_index_limit;
-        const Utilities::DataTypes::Vec2UByte *coord_data; // This is the data that holds the coordinates.
+        const glm::u8vec2 *coord_data; // This is the data that holds the coordinates.
     };
 
     /**
