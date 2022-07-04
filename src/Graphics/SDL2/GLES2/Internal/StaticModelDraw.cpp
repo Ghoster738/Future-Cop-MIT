@@ -218,7 +218,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
             for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
             {
                 // Get the position and rotation of the model, and place them in there respective matrices.
-                camera_3D_position = glm::translate( camera_3D_position, (*instance)->getPosition() );
+                camera_3D_position = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() );
                 camera_3D_rotation = glm::toMat4( (*instance)->getRotation() );
 
                 // Multiply them into one matrix which will hold the entire model transformation.
