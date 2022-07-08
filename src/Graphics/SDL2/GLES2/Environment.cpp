@@ -213,14 +213,7 @@ void Graphics::Environment::drawFrame() const {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_p->getInternalData() );
     Graphics::Camera* current_camera; // Used to store the camera.
-    glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
-    glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
-    glm::mat4 camera_3D_position; // Used to store the current model instance position before multiplication to camera_3D_model_transform.
-    glm::mat4 camera_3D_rotation; // Used to store the current model instance rotation before multiplication to camera_3D_model_transform.
-    glm::mat4 view;
-    glm::mat4 model_view;
-    glm::mat4 model_view_inv;
 
     // Clear the screen to black
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -235,11 +228,6 @@ void Graphics::Environment::drawFrame() const {
         {
             // Set the viewport
             glViewport( current_camera->getViewportOrigin().x, current_camera->getViewportOrigin().y, current_camera->setViewportDimensions().x, current_camera->setViewportDimensions().y );
-
-            // Setup the 3D matrix.
-            current_camera->getProjectionView3D( camera_3D_projection_view ); // camera_3D_projection_view = current_camera 3D matrix.
-
-            current_camera->getView3D( view );
 
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
