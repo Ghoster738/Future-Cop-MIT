@@ -985,12 +985,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
 
         model_output->allocateJoints( bones.size(), bone_frames );
         
-        unsigned int *childern = new unsigned int [ max_bone_childern ]; // This can be a stack
-        glm::mat4 matrix_translate;
-        glm::mat4 matrix_rotation[3];
-        glm::mat4 matrix_combine;
-        glm::mat4 bone_transformation_matrix; // The combination of all the matrices.
-        glm::mat4 frame_matrix;
+        unsigned int childern[ max_bone_childern ];
+        glm::mat4 bone_matrix;
         unsigned int opcode_decode = 0;
         
         const float ANGLE_UNITS_TO_RADIANS = M_PI / 2048.0;
@@ -1018,29 +1014,22 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 if( !(*current_bone).opcode.rotation.z_const )
                     frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
                 
-                matrix_translate = glm::translate( glm::mat4(1.0f), glm::vec3(
-                    -static_cast<float>( frame_position.x ) * INTEGER_FACTOR,
-                     static_cast<float>( frame_position.y ) * INTEGER_FACTOR,
-                     static_cast<float>( frame_position.z ) * INTEGER_FACTOR) );
+                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 1, 0 ) );
+                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
+                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
                 
-                matrix_rotation[0] = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 1, 0 ) );
-                matrix_rotation[1] = glm::rotate( glm::mat4(1.0f), static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
-                matrix_rotation[2] = matrix_rotation[0] * matrix_rotation[1];
-                matrix_rotation[1] = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) );
-                matrix_rotation[0] = matrix_rotation[1] * matrix_rotation[2];
+                bone_matrix = glm::translate( glm::mat4(1.0f), glm::vec3(
+                                  -static_cast<float>( frame_position.x ) * INTEGER_FACTOR,
+                                   static_cast<float>( frame_position.y ) * INTEGER_FACTOR,
+                                   static_cast<float>( frame_position.z ) * INTEGER_FACTOR) ) * bone_matrix;
                 
-                frame_matrix = matrix_translate * matrix_rotation[0];
-                
-                bone_transformation_matrix = glm::mat4( 1.0f );
                 if( (*current_bone).parent_amount > 1 ) {
-                    bone_transformation_matrix = model_output->getJointFrame( frame, childern[ (*current_bone).parent_amount - 2 ] );
+                    bone_matrix = model_output->getJointFrame( frame, childern[ (*current_bone).parent_amount - 2 ] ) * bone_matrix;
                 }
                 
-                model_output->setJointFrame( frame, bone_index, bone_transformation_matrix * frame_matrix );
+                model_output->setJointFrame( frame, bone_index, bone_matrix );
             }
         }
-        
-        delete [] childern;
     }
     unsigned int position_morph_component_index = -1;
     unsigned int normal_morph_component_index = -1;

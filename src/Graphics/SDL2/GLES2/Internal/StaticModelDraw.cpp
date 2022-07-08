@@ -185,8 +185,6 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Camera &camera ) {
-    glm::mat4 camera_3D_position; // Used to store the current model instance position before multiplaction to camera_3D_model_transform.
-    glm::mat4 camera_3D_rotation; // Used to store the current model instance rotation before multiplaction to camera_3D_model_transform.
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
@@ -217,20 +215,16 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
             // Go through every instance that refers to this mesh.
             for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
             {
-                // Get the position and rotation of the model, and place them in there respective matrices.
-                camera_3D_position = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() );
-                camera_3D_rotation = glm::toMat4( (*instance)->getRotation() );
-
+                // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
-                camera_3D_model_transform = camera_3D_position * camera_3D_rotation;
+                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
 
                 // Then multiply it to the projection, and view to get projection, view, and model matrix.
-                camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
+                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
 
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
 
-                // TODO Find a cleaner way.
                 model_view = view * camera_3D_model_transform;
                 model_view_inv = glm::inverse( model_view );
                 glUniformMatrix4fv(     view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );

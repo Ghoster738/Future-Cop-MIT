@@ -158,9 +158,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 }
 
 void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera ) {
-    glm::mat4 til_position;
-    glm::mat4 projection_view;
-    glm::mat4 projection_view_model_pos;
+    glm::mat4 projection_view, final_position;
     
     // Use the map shader for the 3D map or the world.
     program.use();
@@ -170,12 +168,10 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).positions_amount; d++ ) {
-            til_position = glm::translate( glm::mat4( 1.0 ), glm::vec3( ((*i).positions[d].x * 16), 0, ((*i).positions[d].y * 16 ) ) );
-
-            projection_view_model_pos = projection_view * til_position;
+            final_position = glm::translate( projection_view, glm::vec3( ((*i).positions[d].x * 16), 0, ((*i).positions[d].y * 16 ) ) );
 
             // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &projection_view_model_pos[0][0] ) );
+            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
             (*i).mesh->draw( 0, texture_uniform_id );
         }
