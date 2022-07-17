@@ -1,4 +1,9 @@
 #include "../../Utilities/ModelBuilder.h"
+#include <iostream>
+
+const uint8_t ORIGINAL_MODEL_BUFFER[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x20,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x3f,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x20,0x00,0x00};
+
+const size_t ORIGINAL_MODEL_BUFFER_SIZE = sizeof( ORIGINAL_MODEL_BUFFER ) / sizeof( ORIGINAL_MODEL_BUFFER[0] );
 
 int main() {
     Utilities::ModelBuilder model;
@@ -123,10 +128,72 @@ int main() {
     model.addMorphVertexData( position_morph_component_index, 0, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( position_morph ) );
     model.addMorphVertexData( position_morph_component_index, 0, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( position_morph ) );
 
-    model.finish();
-
-    model.write( "./test_model");
+    // This is a series of tests to see if the example model works.
     
-    // TODO Make this test actually do something.
+    if( !model.finish() ) {
+        std::cout << "The test model has failed to allocate." << std::endl;
+        return 1;
+    }
+    
+    if( model.getNumVertices() != 6 ) {
+        std::cout << "The test model does not have 6 vertices." << std::endl;
+        std::cout << model.getNumVertices() << std::endl;
+        return 1;
+    }
+    
+    if( model.getNumMaterials() != 2 ) {
+        std::cout << "The test model does have 2 materials." << std::endl;
+        std::cout << model.getNumMaterials() << std::endl;
+        return 1;
+    }
+    
+    if( model.getNumMorphFrames() != 1 ) {
+        std::cout << "The test model does not have 1 morph frame." << std::endl;
+        std::cout << model.getNumMorphFrames() << std::endl;
+        return 1;
+    }
+    
+    unsigned int buffer_size = 0;
+    
+    // Finally compare the buffer that is created.
+    auto buffer = reinterpret_cast< uint8_t* >( model.getBuffer( buffer_size ) );
+    
+    if( buffer == nullptr ) {
+        std::cout << "The test model does not have a primary vertex buffer." << std::endl;
+        return 1;
+    }
+    
+    // This is a strange error case, but I am adding this anyways.
+    if( buffer_size == 0 ) {
+        std::cout << "The test model has a buffer, but it weirdly has a zero buffer size." << std::endl;
+        return 1;
+    }
+    
+    if( buffer_size != ORIGINAL_MODEL_BUFFER_SIZE ) {
+        std::cout << "The test model's buffer size does not match the one it should generate." << std::endl;
+        std::cout << "buffer_size = " << buffer_size << std::endl;
+        std::cout << "ORIGINAL_MODEL_BUFFER_SIZE = " << ORIGINAL_MODEL_BUFFER_SIZE << std::endl;
+        return 1;
+    }
+    else
+    {
+        for( unsigned int i = 0; i < buffer_size; i++ ) {
+            if( buffer[i] != ORIGINAL_MODEL_BUFFER[ i ] ) {
+                std::cout << "At index " << i << " the buffer made by the code does";
+                std::cout << " not match the buffer it should make." << std::endl;
+                
+                std::cout << std::hex;
+                std::cout << "ORIGINAL_MODEL_BUFFER byte ";
+                std::cout << "0x" << static_cast<unsigned int>( ORIGINAL_MODEL_BUFFER[ i ] );
+                std::cout << std::endl;
+                std::cout << "buffer byte ";
+                std::cout << "0x" << static_cast<unsigned int>( buffer[ i ] );
+                std::cout << std::endl;
+                std::cout << std::dec;
+                return 1;
+            }
+        }
+    }
+    
     return 0;
 }
