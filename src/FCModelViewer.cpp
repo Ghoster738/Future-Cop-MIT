@@ -215,7 +215,7 @@ int main(int argc, char** argv)
     {
         auto cbmp_resources = Data::Mission::BMPResource::getVector( resource );
 
-        int status = environment->setModelTextures( cbmp_resources );
+        int status = environment->setupTextures( cbmp_resources );
 
         if( status < 0 )
             std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;

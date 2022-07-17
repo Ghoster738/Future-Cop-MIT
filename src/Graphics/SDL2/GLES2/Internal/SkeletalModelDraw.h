@@ -66,7 +66,7 @@ public:
      * @param This is the amount of models to load.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, int index, const std::vector<Texture2D*> textures );
+    int inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D>& textures );
 
     /**
      * This draws all of the models with the morph attribute.

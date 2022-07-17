@@ -12,7 +12,6 @@
 Graphics::Environment::Environment() {
     auto EnvironmentInternalData = new Graphics::SDL2::GLES2::EnvironmentInternalData;
 
-    EnvironmentInternalData->GUI_texture = nullptr;
     EnvironmentInternalData->world = nullptr;
     EnvironmentInternalData->text_draw_routine = nullptr;
     Environment_internals = reinterpret_cast<void*>( EnvironmentInternalData ); // This is very important! This contains all the API specific variables.
@@ -28,12 +27,6 @@ Graphics::Environment::~Environment() {
     {
         delete EnvironmentInternalData->text_draw_routine;
         EnvironmentInternalData->text_draw_routine = nullptr;
-    }
-    
-    if( EnvironmentInternalData->GUI_texture != nullptr )
-    {
-        delete EnvironmentInternalData->GUI_texture;
-        EnvironmentInternalData->GUI_texture = nullptr;
     }
     
     if( window_p != nullptr )
@@ -78,52 +71,42 @@ int Graphics::Environment::deinitEntireSystem() {
     return 1;
 }
 
-void Graphics::Environment::setGUITexture( const Data::Mission::BMPResource *gui_texture ) {
+int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
-    auto image_accessor = gui_texture->getImage();
-
-    if( EnvironmentInternalData->GUI_texture != nullptr )
-        delete EnvironmentInternalData->GUI_texture;
-
-    if( EnvironmentInternalData->GUI_texture != nullptr )
-    {
-        EnvironmentInternalData->GUI_texture = new Graphics::SDL2::GLES2::Internal::Texture2D;
-
-        EnvironmentInternalData->GUI_texture->setFilters( 0, GL_NEAREST, GL_LINEAR );
-        EnvironmentInternalData->GUI_texture->setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
-    }
-}
-
-int Graphics::Environment::setModelTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
-    auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
-    EnvironmentInternalData->general_textures.resize(   textures.size() );
-    EnvironmentInternalData->general_textures_r.resize( textures.size() );
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
+    int shine_index = -1;
+    
     for( unsigned int i = 0; i < textures.size(); i++ )
     {
         auto converted_texture = textures[i];
         if( converted_texture != nullptr )
         {
             auto image_accessor = converted_texture->getImage();
+            
+            const auto CBMP_ID = converted_texture->getResourceID();
 
-            EnvironmentInternalData->general_textures[i].setCBMPResourceID( converted_texture->getResourceID() );
-            EnvironmentInternalData->general_textures[i].setFilters( 0, GL_NEAREST, GL_LINEAR );
-            EnvironmentInternalData->general_textures[i].setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
-
-            EnvironmentInternalData->general_textures_r[ i ] = EnvironmentInternalData->general_textures.data() + i;
-
-            // Generate the environment map.
-            if( i == (textures.size() - 1) ) // The environment is stored in the last
-            {
-                auto environment_image = image_accessor->subImage( 0, 124, 128, 128 );
-
-                EnvironmentInternalData->shiney_texture.setFilters( 1, GL_NEAREST, GL_LINEAR );
-                EnvironmentInternalData->shiney_texture.setImage( 1, 0, GL_RGB, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, environment_image.getRawImageData() );
-            }
+            EnvironmentInternalData->textures[ CBMP_ID ].setCBMPResourceID( CBMP_ID );
+            EnvironmentInternalData->textures[ CBMP_ID ].setFilters( 0, GL_NEAREST, GL_LINEAR );
+            EnvironmentInternalData->textures[ CBMP_ID ].setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
+            
+            if( CBMP_ID == 10 )
+                shine_index = i;
         }
         else
             failed_texture_loads--;
+    }
+    
+    if( !textures.empty() ) {
+        Utilities::ImageData environment_image;
+        
+        if( shine_index < 0 )
+            environment_image = textures.back()->getImage()->subImage( 0, 124, 128, 128 );
+        else
+            environment_image = textures.at( shine_index )->getImage()->subImage( 0, 124, 128, 128 );
+
+        EnvironmentInternalData->shiney_texture.setFilters( 1, GL_NEAREST, GL_LINEAR );
+        EnvironmentInternalData->shiney_texture.setImage( 1, 0, GL_RGB, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, environment_image.getRawImageData() );
     }
 
     if( failed_texture_loads == 0 )
@@ -144,7 +127,7 @@ void Graphics::Environment::setMap( const Data::Mission::PTCResource &ptc, const
     EnvironmentInternalData->world->compilieProgram();
     
     // Turn the map into a world.
-    EnvironmentInternalData->world->setWorld( ptc, tiles, EnvironmentInternalData->general_textures_r );
+    EnvironmentInternalData->world->setWorld( ptc, tiles, EnvironmentInternalData->textures );
 }
 
 int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
@@ -185,12 +168,12 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
             if( model != nullptr )
             {
             if( model->getNumJoints() > 0 )
-                EnvironmentInternalData->skeletal_model_draw_routine.inputModel( model, i, EnvironmentInternalData->general_textures_r );
+                EnvironmentInternalData->skeletal_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
             else
             if( model->getNumMorphFrames() > 0)
-                EnvironmentInternalData->morph_model_draw_routine.inputModel( model, i, EnvironmentInternalData->general_textures_r );
+                EnvironmentInternalData->morph_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
             else
-                EnvironmentInternalData->static_model_draw_routine.inputModel( model, i, EnvironmentInternalData->general_textures_r );
+                EnvironmentInternalData->static_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
             }
         }
     }

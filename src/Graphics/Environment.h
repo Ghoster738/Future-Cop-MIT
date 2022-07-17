@@ -72,17 +72,11 @@ public:
     static int deinitEntireSystem();
 
     /**
-     * This is used to setup the textures for the GUI of the playable game.
-     * @param gui_texture The gui texture of the HUD. If this is null then the Environment will assume that we are reading the Playstation version.
-     */
-    void setGUITexture( const Data::Mission::BMPResource *gui_texture );
-
-    /**
-     * This is used to setup the textures for the 3D models.
+     * This is used to setup the textures.
      * @param textures The pointer vector to the textures for the models.
      * @return It will return 1 for success or a negative number stating how many textures failed to load.
      */
-    int setModelTextures( const std::vector<Data::Mission::BMPResource*> &textures );
+    int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures );
 
     /**
      * This is used to setup the textures for the 3D models.
