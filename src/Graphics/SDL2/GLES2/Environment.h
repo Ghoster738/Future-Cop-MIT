@@ -18,7 +18,7 @@ namespace SDL2 {
 namespace GLES2 {
 
 struct EnvironmentInternalData {
-    std::map<uint32_t, Internal::Texture2D> textures;
+    std::map<uint32_t, Internal::Texture2D*> textures;
     
     Internal::Texture2D shiney_texture; // This holds the environment map.
 

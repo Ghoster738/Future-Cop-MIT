@@ -81,7 +81,7 @@ public:
      * @param textures The default textures also color the map.
      * @return If ptc does not exist in the parameter resource it will return false and do nothing.
      */
-    void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D>& textures );
+    void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * This draws the entire map.

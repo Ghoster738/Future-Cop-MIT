@@ -80,7 +80,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::setNumModelTypes( size_
     model_animation.resize( model_amount, nullptr );
 }
 
-int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D>& textures ) {
+int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type, index, textures );
     
     if( ret >= 0 )
