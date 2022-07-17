@@ -29,6 +29,11 @@ Graphics::Environment::~Environment() {
         EnvironmentInternalData->text_draw_routine = nullptr;
     }
     
+    for( auto texture : EnvironmentInternalData->textures ) {
+        delete texture.second;
+        texture.second = nullptr;
+    }
+    
     if( window_p != nullptr )
         delete window_p;
 
@@ -86,9 +91,11 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
             
             const auto CBMP_ID = converted_texture->getResourceID();
 
-            EnvironmentInternalData->textures[ CBMP_ID ].setCBMPResourceID( CBMP_ID );
-            EnvironmentInternalData->textures[ CBMP_ID ].setFilters( 0, GL_NEAREST, GL_LINEAR );
-            EnvironmentInternalData->textures[ CBMP_ID ].setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
+            EnvironmentInternalData->textures[ CBMP_ID ] = new SDL2::GLES2::Internal::Texture2D;
+            
+            EnvironmentInternalData->textures[ CBMP_ID ]->setCBMPResourceID( CBMP_ID );
+            EnvironmentInternalData->textures[ CBMP_ID ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
+            EnvironmentInternalData->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
             
             if( CBMP_ID == 10 )
                 shine_index = i;

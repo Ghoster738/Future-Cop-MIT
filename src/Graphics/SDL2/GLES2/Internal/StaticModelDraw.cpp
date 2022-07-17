@@ -169,7 +169,7 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( size_t mod
         return false;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D>& textures ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     int state = 0;
 
     if( model_type->getNumVertices() > 0 )
