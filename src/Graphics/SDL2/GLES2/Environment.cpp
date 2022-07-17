@@ -42,6 +42,29 @@ Graphics::Environment::~Environment() {
     delete EnvironmentInternalData;
 }
 
+std::vector<std::string> Graphics::Environment::getAvailableIdentifiers() {
+    std::vector<std::string> identifiers = { "OpenGL ES 2" };
+    
+    return identifiers;
+}
+
+bool Graphics::Environment::isIdentifier( const std::string &identifier ) {
+    if( identifier.compare( "OpenGL ES 2" ) == 0 )
+        return true;
+    else
+        return false;
+}
+
+Graphics::Environment* Graphics::Environment::alloc( const std::string &identifier ) {
+    // TODO Choose which renderer to attach this to based on the identifier.
+    // However, the only choice right now is OpenGLES 2.
+    
+    if( isIdentifier(identifier) )
+        return new Environment();
+    else
+        return nullptr;
+}
+
 int Graphics::Environment::initSystem() {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) == 0 )
         return 1;
@@ -53,10 +76,6 @@ int Graphics::Environment::deinitEntireSystem() {
     SDL_Quit();
 
     return 1;
-}
-
-Graphics::Environment::RendererType Graphics::Environment::getRenderType() {
-    return Graphics::Environment::RendererType::OPENGLES_2;
 }
 
 void Graphics::Environment::setGUITexture( const Data::Mission::BMPResource *gui_texture ) {

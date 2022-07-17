@@ -192,7 +192,19 @@ int main(int argc, char** argv)
     Graphics::Environment::initSystem();
     std::cout << "Graphics::Environment::initSystem() loaded!" << std::endl;
     
-    Graphics::Environment *environment = new Graphics::Environment();
+
+    auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
+    
+    
+    if( graphics_identifiers.size() == 0 )
+        return -37;
+    
+    if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
+        return -38;
+    
+    Graphics::Environment *environment = Graphics::Environment::alloc( graphics_identifiers[0] );
+    if( environment == nullptr )
+        return -39;
 
     window->setWindowTitle( "Future Cop Individual Model Viewer" );
     window->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );

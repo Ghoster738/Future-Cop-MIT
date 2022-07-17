@@ -25,46 +25,51 @@ class Environment {
 protected:
     void *Environment_internals; // This contains graphics programing language specific variables.
     Window* window_p;
-public:
+    
     /**
-     * This declares the environment
+     * This declares the environment.
      */
     Environment();
-
+public:
     /**
      * When you are done with the program this should clean up the rest of the graphics.
      * It will throw an exception if not every Element of the graphics had been manually deleted.
      */
-    ~Environment();
+    virtual ~Environment();
+    
+    /**
+     * This gets all the identifiers that is optionaly complied.
+     * Identifiers are used to support different rendering schemes.
+     */
+    static std::vector<std::string> getAvailableIdentifiers();
+    
+    static bool isIdentifier( const std::string &identifier );
+    
+    /**
+     * Initialize the graphics library used by this graphics system.
+     * @param identifier This is used to identify which environment should be allocated.
+     * @return A valid pointer for success, a nullptr for failure.
+     */
+    static Environment* alloc( const std::string &identifier );
+    
+    /**
+     * Get the identifer that the environment is using.
+     * Basically, use the render system that this engine has provided.
+     * @return The type of renderer the program is using.
+     */
+    std::string getEnvironmentIdentifier() const;
 
     /**
      * Initialize the graphics library used by this graphics system.
      * @return 1 for success. 0 for failure.
      */
     static int initSystem();
-
+    
     /**
      * Deinitilizes every library used by the system. Graphics, controls, and sound system will be deinitialized.
      * @return 1 for success.
      */
     static int deinitEntireSystem();
-
-    /**
-     * This is used to display what kind of graphics api is being used.
-     * For example loading in an opengl specific configuration file.
-     */
-    enum RendererType {
-        SOFTWARE = 0, // TODO Consider adding this feature, but first I have to get OpenGLES 2 in a more stable state. I also need to find out how to make seperate libraries.
-        OPENGLES_2 = 1
-    };
-
-    /**
-     * Get the type of renderer that the environment is using.
-     * My way of implementing it is to just have the library link to it.
-     * @note The reseason why this is static is because I do not know how to switch librarys programacally like quake 3 can.
-     * @return The type of renderer the program is using.
-     */
-    static RendererType getRenderType();
 
     /**
      * This is used to setup the textures for the GUI of the playable game.
