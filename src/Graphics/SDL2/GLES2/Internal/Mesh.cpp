@@ -19,7 +19,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei cou
     draw_command.back().texture_ref = texture_ref;
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::vector<Texture2D*> textures ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D>& textures ) {
     void * vertex_buffer_data = model.getBuffer( vertex_buffer_size );
     
     morph_buffer_size = 0;
@@ -79,15 +79,15 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
         model.getMaterial( a, material );
 
-        // TODO Use a better algorithm that is not O( n^2 ).
-        unsigned int texture_index = 0;
-
-        for( auto b = textures.begin(); b != textures.end(); b++ ) {
-            if( (*b)->getCBMPResourceID() == material.cbmp_resource_id )
-                texture_index = ( b - textures.begin() ) % textures.size();
+        Internal::Texture2D *texture_2d_r = nullptr;
+        
+        if( textures.find( material.cbmp_resource_id ) != textures.end() )
+            texture_2d_r = const_cast<Internal::Texture2D *>( &textures.at( material.cbmp_resource_id ) );
+        else if( !textures.empty() ) {
+            texture_2d_r = const_cast<Internal::Texture2D *>( &textures.begin()->second );
         }
-
-        addCommand( material.starting_vertex_index, material.count, textures[ texture_index ] );
+            
+        addCommand( material.starting_vertex_index, material.count, texture_2d_r );
     }
 }
 

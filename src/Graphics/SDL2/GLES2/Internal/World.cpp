@@ -99,7 +99,7 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::vector<Texture2D*> textures ) {
+void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til,  const std::map<uint32_t, Internal::Texture2D>& textures ) {
     tiles.resize( resources_til.size() );
 
     // Set up the primary tiles. O(n)

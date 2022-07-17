@@ -18,9 +18,8 @@ namespace SDL2 {
 namespace GLES2 {
 
 struct EnvironmentInternalData {
-    Internal::Texture2D *GUI_texture; // This holds the indicators of Health, Ammo, and Radar for the game.
-    std::vector<Internal::Texture2D> general_textures; // This holds the primary textures for the 3d map and the 3d models, and sometimes the small gui elements.
-    std::vector<Internal::Texture2D*> general_textures_r;
+    std::map<uint32_t, Internal::Texture2D> textures;
+    
     Internal::Texture2D shiney_texture; // This holds the environment map.
 
     Internal::World *world; // This handles drawing the whole world.
