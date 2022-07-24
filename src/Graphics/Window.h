@@ -2,29 +2,12 @@
 #define GRAPHICS_WINDOW_INSTANCE_H
 
 #include "Camera.h"
-#include "Manager.h"
 
 namespace Graphics {
 
 class Window {
-public:
-    class Manager : Graphics::Manager {
-    protected:
-        Manager();
-    public:
-        virtual ~Manager() = 0;
-        
-        static Manager* getManagerReference( Environment *env_r );
-        
-        virtual Window* allocWindow() = 0;
-        
-        /**
-         * This is temporary.
-         */
-        virtual Window* getWindowReference( unsigned int index = 0 ) = 0;
-    };
 protected:
-    void *window_internal_data_p;
+    Environment* env_r;
 
     std::string window_title;
     glm::u32vec2 position;
@@ -45,33 +28,35 @@ protected:
     
     Window();
 public:
+    static Window* alloc( Environment &env_r );
+    
     virtual ~Window();
 
-    void setWindowTitle( const std::string &window_title );
-    void setPosition( glm::u32vec2 position );
+    virtual void setWindowTitle( const std::string &window_title );
+    virtual void setPosition( glm::u32vec2 position );
 
     /**
      * This method sets the dimensions of the window.
      * @note The dimensions will always successfully work when the window was not attached to the environment yet by the time this method is called.
      * @return If the window is successfully resized this will return a 1, any other value is an error.
      */
-    int setDimensions( glm::u32vec2 dimensions );
+    virtual int setDimensions( glm::u32vec2 dimensions );
 
     /**
      * Set the window to full screen or in windowed mode.
      */
-    void setFullScreen( bool is_full_screen );
+    virtual void setFullScreen( bool is_full_screen );
 
     /**
      * Set the window boarder, by default the window has a boarder.
      */
-    void setBoarder( bool boarder );
+    virtual void setBoarder( bool boarder );
 
     /**
      * Center the window if possible.
      * @return whether or not if the window had been centered.
      */
-    int center();
+    virtual int center() = 0;
 
     /**
      * Attach the camera to this window.
@@ -79,20 +64,15 @@ public:
      * @param camera_instance The instance that will be attached.
      * @return 0 for camera_instance already being used, 1 for camera_instance being successfully attached to the model.
      */
-    int attachCamera( Graphics::Camera &camera_instance );
+    virtual int attachCamera( Graphics::Camera &camera_instance );
 
-    int removeCamera( Camera* camera );
+    virtual int removeCamera( Camera* camera );
 
-    const std::vector<Camera*> *const getCameras() const;
+    virtual const std::vector<Camera*> *const getCameras() const;
 
-    std::string getWindowTitle() const;
-    glm::u32vec2 getPosition() const;
-    glm::u32vec2 getDimensions() const;
-
-    /**
-     * This gets the Graphics API variables for use in the internal code for the Environment.
-     */
-    void* getInternalData() { return window_internal_data_p; }
+    virtual std::string getWindowTitle() const;
+    virtual glm::u32vec2 getPosition() const;
+    virtual glm::u32vec2 getDimensions() const;
 };
 
 }

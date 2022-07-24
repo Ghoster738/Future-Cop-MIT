@@ -205,20 +205,17 @@ int main(int argc, char** argv)
     Graphics::Window *window_r = nullptr;
     
     {
-        auto manager_r = Graphics::Window::Manager::getManagerReference( environment );
-        
-        if( manager_r == nullptr)
-            return -40;
-        
-        window_r = manager_r->allocWindow();
+        window_r = Graphics::Window::alloc( *environment );
         
         if( window_r == nullptr )
-            return -41;
+            return -40;
     }
     
     
     window_r->setWindowTitle( "Future Cop Individual Model Viewer" );
     window_r->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
+    
+    environment->attachWindow( *window_r );
 
     // First get the model textures from the resource file.
     {

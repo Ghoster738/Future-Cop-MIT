@@ -125,17 +125,7 @@ int main(int argc, char** argv)
     if( height <= 0 )
         height = 480;
 
-    // Declare a pointer
-    Graphics::Window *window = new Graphics::Window();
-    std::string title = "Future Cop Map Viewer";
-
     Graphics::Environment::initSystem();
-
-    window->setWindowTitle( title );
-    if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center() << std::endl;
-    window->setDimensions( glm::u32vec2( width, height ) );
-    window->setFullScreen( true );
 
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
@@ -148,6 +138,24 @@ int main(int argc, char** argv)
     Graphics::Environment *environment = Graphics::Environment::alloc( graphics_identifiers[0] );
     if( environment == nullptr )
         return -39;
+    
+    
+    // Declare a pointer
+    Graphics::Window *window = nullptr;
+    
+    {
+        window = Graphics::Window::alloc( *environment );
+        
+        if( window == nullptr )
+            return -40;
+    }
+    std::string title = "Future Cop Map Viewer";
+
+    window->setWindowTitle( title );
+    if( window->center() != 1 )
+        std::cout << "The window had failed to center! " << window->center() << std::endl;
+    window->setDimensions( glm::u32vec2( width, height ) );
+    window->setFullScreen( true );
     
     if( environment->attachWindow( *window ) != 1 )
         return -40;

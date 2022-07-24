@@ -3,24 +3,23 @@
 
 #include <SDL2/SDL.h>
 #include "GLES2/Internal/GLES2.h"
+#include "../Window.h"
 
 namespace Graphics {
 namespace SDL2 {
 
-struct WindowInternalData {
-    SDL_Window *window_p;
-    SDL_GLContext GL_context; // This stores SDL OpenGL Rendering context.
-};
-
-class WindowManager : public Graphics::Window::Manager {
-protected:
-    Graphics::Window *window_p;
+class Window : public Graphics::Window {
 public:
-    WindowManager();
+    SDL_Window *window_p;
     
-    ~WindowManager();
+    Window();
+    virtual ~Window();
     
-    Window* allocWindow();
+    virtual void setWindowTitle( const std::string &window_title );
+    virtual void setPosition( glm::u32vec2 position );
+    virtual int setDimensions( glm::u32vec2 dimensions );
+    
+    virtual int center();
 };
 
 }

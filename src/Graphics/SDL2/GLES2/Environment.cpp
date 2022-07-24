@@ -1,6 +1,6 @@
 #include "../../Environment.h" // Include the interface class
 #include "Environment.h" // Include the internal class
-#include "../Window.h"
+#include "Window.h"
 #include "Text2DBuffer.h"
 #include "Internal/GLES2.h"
 #include "Internal/Extensions.h"
@@ -15,8 +15,6 @@ Graphics::Environment::Environment() {
     EnvironmentInternalData->world = nullptr;
     EnvironmentInternalData->text_draw_routine = nullptr;
     Environment_internals = reinterpret_cast<void*>( EnvironmentInternalData ); // This is very important! This contains all the API specific variables.
-
-    window_manager_p = nullptr;
 }
 
 Graphics::Environment::~Environment() {
@@ -34,14 +32,13 @@ Graphics::Environment::~Environment() {
         texture.second = nullptr;
     }
     
-    if( window_manager_p != nullptr )
-        delete window_manager_p;
-
     delete EnvironmentInternalData;
 }
 
 std::vector<std::string> Graphics::Environment::getAvailableIdentifiers() {
-    std::vector<std::string> identifiers = { "OpenGL ES 2" };
+    std::vector<std::string> identifiers;
+    
+    identifiers.push_back( "OpenGL ES 2" );
     
     return identifiers;
 }
@@ -61,6 +58,10 @@ Graphics::Environment* Graphics::Environment::alloc( const std::string &identifi
         return new Environment();
     else
         return nullptr;
+}
+
+std::string Graphics::Environment::getEnvironmentIdentifier() const {
+    return "OpenGL ES 2";
 }
 
 int Graphics::Environment::initSystem() {
@@ -221,9 +222,9 @@ int Graphics::Environment::setTilBlink( int til_index, float seconds ) {
 void Graphics::Environment::drawFrame() const {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     
-    auto window_r = window_manager_p->getWindowReference( 0 );
+    auto window_r =  window_p;
     
-    auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_r->getInternalData() );
+    auto window_SDL_r = dynamic_cast<Graphics::SDL2::GLES2::Window*>( window_r );
     Graphics::Camera* current_camera; // Used to store the camera.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
@@ -280,7 +281,7 @@ void Graphics::Environment::drawFrame() const {
         }
 
         // Finally swap the window.
-        SDL_GL_SwapWindow( window_internal_p->window_p );
+        SDL_GL_SwapWindow( window_SDL_r->window_p );
     }
 }
 
@@ -329,16 +330,15 @@ int Graphics::Environment::deleteQueue( ElementInternalData *beginning ) {
     return num_deleted;
 }
 
-/*
 int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
     // auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     Uint32 flags = 0;
+    
+    auto window_allocate = dynamic_cast<Graphics::SDL2::GLES2::Window*>( &window_instance );
 
-    if( window_p == nullptr )
+    if( window_p == nullptr && window_allocate != nullptr )
     {
         window_p = &window_instance;
-
-        auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_p->getInternalData() );
 
         // TODO modify variable flags ask for what kind of window to allocate.
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -351,7 +351,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         
-        window_internal_p->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
+        window_allocate->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
             window_instance.getPosition().x, window_instance.getPosition().y,
             window_instance.getDimensions().x, window_instance.getDimensions().y,
             flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
@@ -359,12 +359,12 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
         int major_version = 0;
         SDL_GL_GetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, &major_version );
         
-        if( window_internal_p->window_p == nullptr || major_version != 2 ) {
+        if( window_allocate->window_p == nullptr || major_version != 2 ) {
             std::cout << "Failed to allocate OpenGLES context. Using normal context." << std::endl;
             
-            if( window_internal_p->window_p != nullptr )
-                SDL_DestroyWindow( window_internal_p->window_p );
-            window_internal_p->window_p = nullptr;
+            if( window_allocate->window_p != nullptr )
+                SDL_DestroyWindow( window_allocate->window_p );
+            window_allocate->window_p = nullptr;
             
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -372,7 +372,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,          1);
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,            24);
             
-            window_internal_p->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
+            window_allocate->window_p = SDL_CreateWindow( window_instance.getWindowTitle().c_str(),
                 window_instance.getPosition().x, window_instance.getPosition().y,
                 window_instance.getDimensions().x, window_instance.getDimensions().y,
                 flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
@@ -380,9 +380,9 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
             SDL_GL_GetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, &major_version );
         }
         
-        if( window_internal_p->window_p != nullptr )
+        if( window_allocate->window_p != nullptr )
         {
-            window_internal_p->GL_context = SDL_GL_CreateContext( window_internal_p->window_p );
+            window_allocate->GL_context = SDL_GL_CreateContext( window_allocate->window_p );
             
             #ifdef GLEW_FOUND
             auto glew_status = glewInit();
@@ -401,16 +401,16 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
                 std::cout << "GL_ERROR 351: 0x" << std::hex << err << std::dec << std::endl;
             }
             
-            if( window_internal_p->GL_context != nullptr )
+            if( window_allocate->GL_context != nullptr )
             {
-                SDL_GL_MakeCurrent( window_internal_p->window_p, window_internal_p->GL_context );
+                SDL_GL_MakeCurrent( window_allocate->window_p, window_allocate->GL_context );
                 SDL_GL_SetSwapInterval(0);
             
                 std::cout << "OpenGL version is " << glGetString( GL_VERSION ) << std::endl;
                 
                 // TODO check for the reason why GLES2 needs this? Am I doing something wrong?
                 #ifndef FORCE_FULL_OPENGL_2
-                SDL_CreateRenderer( window_internal_p->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
+                SDL_CreateRenderer( window_allocate->window_p, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
                 #endif
                 
                 while((err = glGetError()) != GL_NO_ERROR)
@@ -460,7 +460,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
     }
     else
         return 0;
-} */
+}
 
 int Graphics::Environment::attachInstanceObj( int index_obj, Graphics::ModelInstance &model_instance ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
