@@ -16,7 +16,7 @@ Graphics::Environment::Environment() {
     EnvironmentInternalData->text_draw_routine = nullptr;
     Environment_internals = reinterpret_cast<void*>( EnvironmentInternalData ); // This is very important! This contains all the API specific variables.
 
-    window_p = nullptr;
+    window_manager_p = nullptr;
 }
 
 Graphics::Environment::~Environment() {
@@ -34,8 +34,8 @@ Graphics::Environment::~Environment() {
         texture.second = nullptr;
     }
     
-    if( window_p != nullptr )
-        delete window_p;
+    if( window_manager_p != nullptr )
+        delete window_manager_p;
 
     delete EnvironmentInternalData;
 }
@@ -220,7 +220,10 @@ int Graphics::Environment::setTilBlink( int til_index, float seconds ) {
 
 void Graphics::Environment::drawFrame() const {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
-    auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_p->getInternalData() );
+    
+    auto window_r = window_manager_p->getWindowReference( 0 );
+    
+    auto window_internal_p = reinterpret_cast<Graphics::SDL2::WindowInternalData*>( window_r->getInternalData() );
     Graphics::Camera* current_camera; // Used to store the camera.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
@@ -228,10 +231,10 @@ void Graphics::Environment::drawFrame() const {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ )
+    for( unsigned int i = 0; i < window_r->getCameras()->size(); i++ )
     {
         // Setup the current camera.
-        current_camera = window_p->getCameras()->at( i );
+        current_camera = window_r->getCameras()->at( i );
 
         if( current_camera != nullptr )
         {
@@ -326,6 +329,7 @@ int Graphics::Environment::deleteQueue( ElementInternalData *beginning ) {
     return num_deleted;
 }
 
+/*
 int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
     // auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     Uint32 flags = 0;
@@ -456,7 +460,7 @@ int Graphics::Environment::attachWindow( Graphics::Window &window_instance ) {
     }
     else
         return 0;
-}
+} */
 
 int Graphics::Environment::attachInstanceObj( int index_obj, Graphics::ModelInstance &model_instance ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );

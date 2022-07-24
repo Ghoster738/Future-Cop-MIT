@@ -10,7 +10,7 @@
 
 namespace Graphics {
 
-class Camera : public ElementInternalData {
+class Camera {
 protected:
     // These are for the 3D environment.
     glm::mat4 projection3D;

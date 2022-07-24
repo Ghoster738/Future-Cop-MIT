@@ -1,6 +1,26 @@
 #include "../Window.h" // Include the interface class
 #include "Window.h" // Include the internal class
 
+Graphics::Window::Manager::Manager() {}
+
+Graphics::Window::Manager* Graphics::Window::Manager::getManagerReference( Graphics::Environment *env_r ) {
+    if( env_r == nullptr )
+        return nullptr;
+    else {
+        //
+        return nullptr;
+    }
+}
+
+Graphics::Window* Graphics::SDL2::WindowManager::allocWindow() {
+    if( window_p == nullptr ) {
+        window_p = new Window();
+        return window_p;
+    }
+    else
+        return nullptr;
+}
+
 Graphics::Window::Window() :
     window_internal_data_p( nullptr ),
     window_title( "WINDOW TITLE NOT SET" ),

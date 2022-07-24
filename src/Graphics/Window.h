@@ -2,10 +2,27 @@
 #define GRAPHICS_WINDOW_INSTANCE_H
 
 #include "Camera.h"
+#include "Manager.h"
 
 namespace Graphics {
 
 class Window {
+public:
+    class Manager : Graphics::Manager {
+    protected:
+        Manager();
+    public:
+        virtual ~Manager() = 0;
+        
+        static Manager* getManagerReference( Environment *env_r );
+        
+        virtual Window* allocWindow() = 0;
+        
+        /**
+         * This is temporary.
+         */
+        virtual Window* getWindowReference( unsigned int index = 0 ) = 0;
+    };
 protected:
     void *window_internal_data_p;
 
@@ -25,8 +42,9 @@ protected:
 
     // The cameras attached to the window.
     std::vector<Camera*> cameras;
-public:
+    
     Window();
+public:
     virtual ~Window();
 
     void setWindowTitle( const std::string &window_title );
