@@ -42,9 +42,6 @@ protected:
     void updatePV2D();
 
 public:
-    /**
-     * This method is to be called only in Environment, because this class is responsiable for handling this camera.
-     */
     Camera();
     virtual ~Camera();
 
