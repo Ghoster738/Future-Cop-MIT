@@ -24,7 +24,9 @@ namespace Graphics {
 class Environment {
 protected:
     void *Environment_internals; // This contains graphics programing language specific variables.
-    Window* window_p;
+    
+    // This holds the managers for each instances.
+    std::map<uint32_t, Manager*> managers;
     
     /**
      * This declares the environment.
@@ -43,6 +45,9 @@ public:
      */
     static std::vector<std::string> getAvailableIdentifiers();
     
+    /**
+     * @return If this identifier string is supported then it would return true.
+     */
     static bool isIdentifier( const std::string &identifier );
     
     /**
@@ -51,6 +56,11 @@ public:
      * @return A valid pointer for success, a nullptr for failure.
      */
     static Environment* alloc( const std::string &identifier );
+    
+    /**
+     * This returns a manager if there is any allocated.
+     */
+    Manager* getManager( uint32_t identifier );
     
     /**
      * Get the identifer that the environment is using.
@@ -135,14 +145,6 @@ public:
      * @return the number of items deleted.
      */
     int deleteQueue( ElementInternalData *beginning );
-
-    /**
-     * Attach the window to this environment.
-     * @warning The window instance should only be attached once. Any more and any less would cause allocation issues.
-     * @param window_instance The instance that will be attached.
-     * @return 0 for window_instance already being used, 1 for window_instance being succesfully attached to the model.
-     */
-    int attachWindow( Graphics::Window &window_instance );
 
     /**
      * Attach the instance to a fully textured 3D model.

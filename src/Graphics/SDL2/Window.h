@@ -12,6 +12,17 @@ struct WindowInternalData {
     SDL_GLContext GL_context; // This stores SDL OpenGL Rendering context.
 };
 
+class WindowManager : public Graphics::Window::Manager {
+protected:
+    Graphics::Window *window_p;
+public:
+    WindowManager();
+    
+    ~WindowManager();
+    
+    Window* allocWindow();
+};
+
 }
 }
 

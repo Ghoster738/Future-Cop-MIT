@@ -186,15 +186,10 @@ int main(int argc, char** argv)
     Data::Mission::IFF &resource = *manager.getIFFEntry( iff_mission_id ).getIFF( platform );
     Data::Mission::IFF &global = *manager.getIFFEntry( global_id ).getIFF( platform );
 
-	// Declare a pointer to the Environment.
-    Graphics::Window *window =  new Graphics::Window();
-
     Graphics::Environment::initSystem();
     std::cout << "Graphics::Environment::initSystem() loaded!" << std::endl;
-    
 
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
-    
     
     if( graphics_identifiers.size() == 0 )
         return -37;
@@ -206,10 +201,24 @@ int main(int argc, char** argv)
     if( environment == nullptr )
         return -39;
 
-    window->setWindowTitle( "Future Cop Individual Model Viewer" );
-    window->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
-    if( environment->attachWindow( *window ) != 1 )
-        return -40;
+    // Declare a pointer to the Environment.
+    Graphics::Window *window_r = nullptr;
+    
+    {
+        auto manager_r = Graphics::Window::Manager::getManagerReference( environment );
+        
+        if( manager_r == nullptr)
+            return -40;
+        
+        window_r = manager_r->allocWindow();
+        
+        if( window_r == nullptr )
+            return -41;
+    }
+    
+    
+    window_r->setWindowTitle( "Future Cop Individual Model Viewer" );
+    window_r->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
 
     // First get the model textures from the resource file.
     {
@@ -271,7 +280,7 @@ int main(int argc, char** argv)
     Graphics::Camera *first_person = new Graphics::Camera();
     first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
     first_person->setViewportDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
-    window->attachCamera( *first_person );
+    window_r->attachCamera( *first_person );
     glm::mat4 extra_matrix_0;
     glm::mat4 extra_matrix_1;
     glm::mat4 extra_matrix_2;
