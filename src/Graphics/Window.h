@@ -26,7 +26,7 @@ protected:
     // The cameras attached to the window.
     std::vector<Camera*> cameras;
     
-    Window();
+    Window( Environment &env_r );
 public:
     static Window* alloc( Environment &env_r );
     
@@ -73,6 +73,8 @@ public:
     virtual std::string getWindowTitle() const;
     virtual glm::u32vec2 getPosition() const;
     virtual glm::u32vec2 getDimensions() const;
+    
+    virtual int attach() = 0;
 };
 
 }

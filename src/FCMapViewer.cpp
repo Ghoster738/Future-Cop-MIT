@@ -157,7 +157,7 @@ int main(int argc, char** argv)
     window->setDimensions( glm::u32vec2( width, height ) );
     window->setFullScreen( true );
     
-    if( environment->attachWindow( *window ) != 1 )
+    if( window->attach() != 1 )
         return -40;
 
     Data::Manager manager;

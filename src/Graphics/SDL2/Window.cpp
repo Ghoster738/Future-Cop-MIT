@@ -1,6 +1,6 @@
 #include "Window.h" // Include the internal class
 
-Graphics::SDL2::Window::Window() : Graphics::Window(), window_p( nullptr )
+Graphics::SDL2::Window::Window( Environment &env ) : Graphics::Window( env ), window_p( nullptr )
 {
 }
 

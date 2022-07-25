@@ -215,7 +215,7 @@ int main(int argc, char** argv)
     window_r->setWindowTitle( "Future Cop Individual Model Viewer" );
     window_r->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
     
-    environment->attachWindow( *window_r );
+    window_r->attach();
 
     // First get the model textures from the resource file.
     {
