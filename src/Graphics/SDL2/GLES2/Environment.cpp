@@ -282,10 +282,10 @@ void Graphics::Environment::drawFrame() const {
                 auto buffer_upcast_r = dynamic_cast<Graphics::SDL2::GLES2::Text2DBuffer*>( *i );
                 
                 assert( buffer_upcast_r != nullptr );
-                assert( buffer_upcast_r->internal_data.font_system_r != nullptr );
-                assert( buffer_upcast_r->internal_data.text_data.size() != 0 );
+                assert( buffer_upcast_r->font_system_r != nullptr );
+                assert( buffer_upcast_r->text_data.size() != 0 );
                 
-                buffer_upcast_r->internal_data.font_system_r->draw( camera_3D_projection_view_model, buffer_upcast_r->internal_data.text_data );
+                buffer_upcast_r->font_system_r->draw( camera_3D_projection_view_model, buffer_upcast_r->text_data );
             }
         }
 

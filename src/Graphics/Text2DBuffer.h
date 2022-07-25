@@ -30,8 +30,6 @@ public:
      *   Zero means everything worked perfectly.
      */
     virtual int reset() = 0;
-    
-    virtual int attach() = 0;
 };
 
 }

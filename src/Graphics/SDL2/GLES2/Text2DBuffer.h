@@ -8,21 +8,16 @@ namespace Graphics {
 namespace SDL2 {
 namespace GLES2 {
 
-struct Text2DBufferInternalData {
+class Text2DBuffer : public Graphics::Text2DBuffer {
+public:
     Internal::FontSystem *font_system_r;
     std::vector<Internal::FontSystem::Text2D*> text_data;
     Internal::FontSystem::Text2D *current_text_2D_r; // This merely references the text_data vector.
     unsigned int buffer_size_per_font_KiB; // This is the memory size of the pages.
     unsigned int text_2D_expand_factor; // The amount of characters the text 2D expands
-};
-
-class Text2DBuffer : public Graphics::Text2DBuffer {
-public:
-    Text2DBufferInternalData internal_data;
     
     Text2DBuffer( Environment &env_r );
     virtual ~Text2DBuffer();
-    
     
     /**
      * Load the font library from the environment.
@@ -43,8 +38,6 @@ public:
      *   Zero means everything worked perfectly.
      */
     virtual int reset();
-    
-    virtual int attach();
 };
 
 }
