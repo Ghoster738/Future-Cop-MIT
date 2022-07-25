@@ -10,7 +10,6 @@ namespace GLES2 {
 
 class Text2DBuffer : public Graphics::Text2DBuffer {
 public:
-    Internal::FontSystem *font_system_r;
     std::vector<Internal::FontSystem::Text2D*> text_data;
     Internal::FontSystem::Text2D *current_text_2D_r; // This merely references the text_data vector.
     unsigned int buffer_size_per_font_KiB; // This is the memory size of the pages.
