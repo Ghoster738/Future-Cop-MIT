@@ -11,35 +11,27 @@ class Environment;
 
 class Text2DBuffer {
 protected:
-    void *text_2d_buffer_internal_data_p;
+    Environment *env_r;
+    
+    Text2DBuffer( Environment &environment );
 public:
-    Text2DBuffer( unsigned int buffer_size_per_font_KiB );
+    static Graphics::Text2DBuffer* alloc( Environment &env_r );
+    
     virtual ~Text2DBuffer();
 
-    /**
-     * Load the font library from the environment.
-     * @note Make sure that the Environment has successfully loaded the font.
-     * @param environment This is the environment to get the font from.
-     * @return 1 for success, or 0 for the font library not existing in the environment.
-     */
-    bool loadFontLibrary( Environment &environment );
-
-    int setFont( unsigned index );
-    int setPosition( const glm::vec2 &position );
-    int setColor( const glm::vec4 &color );
-    int print( const std::string &text );
+    virtual int setFont( unsigned index ) = 0;
+    virtual int setPosition( const glm::vec2 &position ) = 0;
+    virtual int setColor( const glm::vec4 &color ) = 0;
+    virtual int print( const std::string &text ) = 0;
 
     /**
      * Restart the whole font buffer clearing the data.
      * @return How many font buffers were NOT cleared successfully, or a negative number indicating an error.
      *   Zero means everything worked perfectly.
      */
-    int reset();
-
-    /**
-     * This gets the Graphics API variables for use in the internal code for the Environment.
-     */
-    void* getInternalData() { return text_2d_buffer_internal_data_p; }
+    virtual int reset() = 0;
+    
+    virtual int attach() = 0;
 };
 
 }

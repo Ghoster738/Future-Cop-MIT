@@ -159,14 +159,6 @@ public:
     int attachInstanceTil( int index_til, Graphics::ModelInstance &model_instance );
 
     /**
-     * Allocate a 2D text buffer.
-     * @warning The text buffer instance should only be attached once. Any more and any less would cause allocation issues.
-     * @param size The size in kilobites that this buffer would use.
-     * @return A pointer to the text2D interface.
-     */
-    void attachText2DBuffer( size_t sizeKiB );
-
-    /**
      * This gets the Graphics API variables for use in the internal code for the Environment.
      */
     void* getInternalData() { return Environment_internals; }

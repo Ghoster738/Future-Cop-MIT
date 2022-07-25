@@ -12,6 +12,7 @@
 
 #include "Utilities/DataHandler.h"
 #include "Graphics/Environment.h"
+#include "Graphics/Text2DBuffer.h"
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
@@ -283,8 +284,7 @@ int main(int argc, char** argv)
     glm::mat4 extra_matrix_2;
 
     // Setup the font
-    Graphics::Text2DBuffer *text_2d_buffer = new Graphics::Text2DBuffer( 128 ); // 128 Kibibytes.
-    text_2d_buffer->loadFontLibrary( *environment );
+    Graphics::Text2DBuffer *text_2d_buffer = Graphics::Text2DBuffer::alloc( *environment );
     extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(WIDTH), -static_cast<float>(HEIGHT), 0.0f, -1.0f, 1.0f );
     
     first_person->attachText2DBuffer( *text_2d_buffer );
