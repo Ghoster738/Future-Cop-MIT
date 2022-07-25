@@ -268,8 +268,7 @@ int main(int argc, char** argv)
 
 	bool viewer_loop = true;
 
-    Graphics::Text2DBuffer *text_2d_buffer = new Graphics::Text2DBuffer( 128 ); // 128 Kibibytes.
-    text_2d_buffer->loadFontLibrary( *environment );
+    Graphics::Text2DBuffer *text_2d_buffer = Graphics::Text2DBuffer::alloc( *environment );
 
     // Setup the camera
     Graphics::Camera *first_person = new Graphics::Camera();

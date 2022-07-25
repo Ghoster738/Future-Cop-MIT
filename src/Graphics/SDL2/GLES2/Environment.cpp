@@ -279,9 +279,13 @@ void Graphics::Environment::drawFrame() const {
 
             for( auto i = current_camera->getText2DBuffer()->begin(); i != current_camera->getText2DBuffer()->end(); i++ )
             {
-                auto buffer_internal_data_p = reinterpret_cast<Graphics::SDL2::GLES2::Text2DBufferInternalData*>( (*i)->getInternalData() );
-
-                buffer_internal_data_p->font_system_r->draw( camera_3D_projection_view_model, buffer_internal_data_p->text_data );
+                auto buffer_upcast_r = dynamic_cast<Graphics::SDL2::GLES2::Text2DBuffer*>( *i );
+                
+                assert( buffer_upcast_r != nullptr );
+                assert( buffer_upcast_r->internal_data.font_system_r != nullptr );
+                assert( buffer_upcast_r->internal_data.text_data.size() != 0 );
+                
+                buffer_upcast_r->internal_data.font_system_r->draw( camera_3D_projection_view_model, buffer_upcast_r->internal_data.text_data );
             }
         }
 
@@ -349,9 +353,4 @@ int Graphics::Environment::attachInstanceObj( int index_obj, Graphics::ModelInst
         model_state = EnvironmentInternalData->static_model_draw_routine.allocateObjModel( index_obj, model_instance );
     
     return model_state;
-}
-
-int Graphics::Environment::attachInstanceTil( int index_til, Graphics::ModelInstance &model_instance ) {
-    // TODO Finish setMap first.
-    return -1;
 }

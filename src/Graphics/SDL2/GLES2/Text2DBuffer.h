@@ -16,8 +16,38 @@ struct Text2DBufferInternalData {
     unsigned int text_2D_expand_factor; // The amount of characters the text 2D expands
 };
 
-}
-}
-}
+class Text2DBuffer : public Graphics::Text2DBuffer {
+public:
+    Text2DBufferInternalData internal_data;
+    
+    Text2DBuffer( Environment &env_r );
+    virtual ~Text2DBuffer();
+    
+    
+    /**
+     * Load the font library from the environment.
+     * @note Make sure that the Environment has successfully loaded the font.
+     * @param environment This is the environment to get the font from.
+     * @return 1 for success, or 0 for the font library not existing in the environment.
+     */
+    bool loadFontLibrary( Environment &environment );
+    
+    virtual int setFont( unsigned index );
+    virtual int setPosition( const glm::vec2 &position );
+    virtual int setColor( const glm::vec4 &color );
+    virtual int print( const std::string &text );
 
+    /**
+     * Restart the whole font buffer clearing the data.
+     * @return How many font buffers were NOT cleared successfully, or a negative number indicating an error.
+     *   Zero means everything worked perfectly.
+     */
+    virtual int reset();
+    
+    virtual int attach();
+};
+
+}
+}
+}
 #endif // GRAPHICS_2D_TEXT_BUFFER_H
