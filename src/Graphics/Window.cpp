@@ -4,7 +4,7 @@
 #include "SDL2/Window.h"
 #include "SDL2/GLES2/Window.h"
 
-Graphics::Window::Window() :
+Graphics::Window::Window( Environment &env ) : env_r( &env ),
     window_title( "WINDOW TITLE NOT SET" ),
     position( glm::u32vec2( 0, 0 ) ),
     dimensions( glm::u32vec2( 320, 200 ) )
@@ -14,7 +14,7 @@ Graphics::Window::Window() :
 
 Graphics::Window* Graphics::Window::alloc( Environment &env_r ) {
     if( env_r.getEnvironmentIdentifier().compare( "OpenGL ES 2" ) == 0 ) {
-        return new Graphics::SDL2::GLES2::Window();
+        return new Graphics::SDL2::GLES2::Window( env_r );
     }
     else
         return nullptr;

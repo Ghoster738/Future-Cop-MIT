@@ -9,10 +9,11 @@ namespace Graphics {
 namespace SDL2 {
 
 class Window : public Graphics::Window {
+protected:
+    Window( Environment &env_r );
 public:
     SDL_Window *window_p;
     
-    Window();
     virtual ~Window();
     
     virtual void setWindowTitle( const std::string &window_title );

@@ -12,8 +12,10 @@ class Window : public Graphics::SDL2::Window {
 public:
     SDL_GLContext GL_context;
     
-    Window();
+    Window( Environment &env_r );
     virtual ~Window();
+    
+    int attach();
 };
 
 }

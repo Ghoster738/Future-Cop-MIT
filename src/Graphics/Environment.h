@@ -24,13 +24,14 @@ namespace Graphics {
 class Environment {
 protected:
     void *Environment_internals; // This contains graphics programing language specific variables.
-    Window* window_p;
     
     /**
      * This declares the environment.
      */
     Environment();
 public:
+    Window* window_p;
+    
     /**
      * When you are done with the program this should clean up the rest of the graphics.
      * It will throw an exception if not every Element of the graphics had been manually deleted.
@@ -138,14 +139,6 @@ public:
      * @return the number of items deleted.
      */
     int deleteQueue( ElementInternalData *beginning );
-
-    /**
-     * Attach the window to this environment.
-     * @warning The window instance should only be attached once. Any more and any less would cause allocation issues.
-     * @param window_instance The instance that will be attached.
-     * @return 0 for window_instance already being used, 1 for window_instance being succesfully attached to the model.
-     */
-    int attachWindow( Graphics::Window &window_instance );
     
     /**
      * Attach the instance to a fully textured 3D model.
