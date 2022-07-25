@@ -12,7 +12,6 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     unsigned int buffer_size_per_font_KiB = 128;
 
     // To be set by the environment when this buffer gets attached.
-    font_system_r = nullptr;
     current_text_2D_r = nullptr;
     buffer_size_per_font_KiB = buffer_size_per_font_KiB;
     text_2D_expand_factor = (buffer_size_per_font_KiB * KIBIBYTE_TO_BYTE) / (Graphics::SDL2::GLES2::Internal::FontSystem::getVertexSize() * VERTICES_PER_CHARACTER);
@@ -53,7 +52,7 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary()
     // Make sure there is text.
     if( env_r->text_draw_routine_p != nullptr )
     {
-        font_system_r = env_r->text_draw_routine_p;
+        auto font_system_r = env_r->text_draw_routine_p;
 
         if( font_system_r->getNumFonts() > 0 )
         {
@@ -80,6 +79,8 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary()
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
+    auto font_system_r = env_r->text_draw_routine_p;
+    
     assert( font_system_r != nullptr );
     assert( text_data.size() != 0 );
 
@@ -87,6 +88,8 @@ void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) co
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setFont( unsigned index ) {
+    auto font_system_r = env_r->text_draw_routine_p;
+    
     auto last_text_2D_r = current_text_2D_r;
 
     if( font_system_r != nullptr )
@@ -110,6 +113,8 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setFont( unsigned index ) {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position ) {
+    auto font_system_r = env_r->text_draw_routine_p;
+    
     if( font_system_r != nullptr )
     {
         if( current_text_2D_r != nullptr )
@@ -128,6 +133,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position 
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
+    auto font_system_r = env_r->text_draw_routine_p;
     uint8_t color_rgba[4];
 
     if( font_system_r != nullptr )
@@ -152,6 +158,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
+    auto font_system_r = env_r->text_draw_routine_p;
     size_t expand_amount;
     size_t expand_sum;
     int add_text_state;
@@ -212,6 +219,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
+    auto font_system_r = env_r->text_draw_routine_p;
     int problematic_font = 0;
 
     if( font_system_r != nullptr )
