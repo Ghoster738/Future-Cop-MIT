@@ -4,6 +4,7 @@
 #include "../Utilities/DataTypes.h"
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include "../Data/Mission/FontResource.h"
 
 namespace Graphics {
 
@@ -18,6 +19,8 @@ public:
     static Graphics::Text2DBuffer* alloc( Environment &env_r );
     
     virtual ~Text2DBuffer();
+    
+    static int loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts );
 
     virtual int setFont( unsigned index ) = 0;
     virtual int setPosition( const glm::vec2 &position ) = 0;

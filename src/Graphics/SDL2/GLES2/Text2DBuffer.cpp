@@ -21,7 +21,7 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     if( text_2D_expand_factor < 0x100 )
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
-    loadFontLibrary( env );
+    loadFontLibrary();
 }
 
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
@@ -29,14 +29,31 @@ Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
         delete (*i);
 }
 
-bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary( Graphics::Environment &environment )
-{
-    auto environment_internal_data_r = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData *>( environment.getInternalData() );
 
-    // Make sure there is text.
-    if( environment_internal_data_r->text_draw_routine != nullptr )
+int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts ) {
+    
+    if( environment.text_draw_routine_p != nullptr )
+        delete environment.text_draw_routine_p;
+
+    if( fonts.size() != 0 )
     {
-        font_system_r = environment_internal_data_r->text_draw_routine;
+        environment.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts );
+        environment.text_draw_routine_p->setVertexShader();
+        environment.text_draw_routine_p->setFragmentShader();
+        environment.text_draw_routine_p->compileProgram();
+
+        return fonts.size();
+    }
+    else
+        return 0;
+}
+
+bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary()
+{
+    // Make sure there is text.
+    if( env_r->text_draw_routine_p != nullptr )
+    {
+        font_system_r = env_r->text_draw_routine_p;
 
         if( font_system_r->getNumFonts() > 0 )
         {
@@ -60,6 +77,13 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary( Graphics::Environment
     }
     else
         return false;
+}
+
+void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
+    assert( font_system_r != nullptr );
+    assert( text_data.size() != 0 );
+
+    font_system_r->draw( projection, text_data );
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setFont( unsigned index ) {

@@ -245,7 +245,7 @@ int main(int argc, char** argv)
         auto font_resources = Data::Mission::FontResource::getVector( *resource_r );
 
         if( font_resources.size() != 0 )
-            environment->setFonts( font_resources );
+            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
         else
         {
             font_resources = Data::Mission::FontResource::getVector( *global_r );
@@ -253,8 +253,8 @@ int main(int argc, char** argv)
             for( auto i : font_resources ) {
                 std::cout << "Pointer " << i << std::endl;
             }
-
-            environment->setFonts( font_resources );
+            
+            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
             if( font_resources.size() == 0 )
                 std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
         }

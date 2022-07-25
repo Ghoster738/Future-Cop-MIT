@@ -16,3 +16,11 @@ Graphics::Text2DBuffer* Graphics::Text2DBuffer::alloc( Environment &env_r ) {
 
 Graphics::Text2DBuffer::~Text2DBuffer() {
 }
+
+int Graphics::Text2DBuffer::loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts ) {
+    if( environment.getEnvironmentIdentifier().compare( "OpenGL ES 2" ) == 0 ) {
+        return Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( environment, fonts );
+    }
+    else
+        return -1;
+}

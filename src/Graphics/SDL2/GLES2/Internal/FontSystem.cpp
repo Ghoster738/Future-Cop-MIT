@@ -335,7 +335,7 @@ size_t Graphics::SDL2::GLES2::Internal::FontSystem::getVertexSize() {
     return sizeof( TextVertex );
 }
 
-int Graphics::SDL2::GLES2::Internal::FontSystem::compilieProgram() {
+int Graphics::SDL2::GLES2::Internal::FontSystem::compileProgram() {
     // The two shaders should be allocated first.
     if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
 
@@ -360,83 +360,6 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::compilieProgram() {
         vertex_array.allocate( program );
     
         vertex_array.cullUnfound( &std::cout );
-
-        /*
-        stored_text_p = font_bank.at( 2 ).allocateText2D();
-
-        stored_text_p->setTextMax( 0x200 );
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 136 - 1, 4 ) );
-        Color color;
-
-        color.set( 0x00, 0x00, 0xFF, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "The " );
-
-        color.set( 0x00, 0xFF, 0xFF, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "quick " );
-
-        color.set( 86, 27, 1, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "brown " );
-
-        color.set( 247, 139, 51, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "fox " );
-
-        color.set( 0xFF, 0x00, 0xFF, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "jumps " );
-
-        color.set( 0x00, 0xFF, 0x00, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "over " );
-
-        color.set( 0xFF, 0x00, 0x00, 0x80 );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "the " );
-
-        color.set( 0x00, 0x00, 0xFF, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "lazy " );
-
-        color.set( 0x80, 0x00, 0x00, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-        stored_text_p->addText( "dog." );
-
-        stored_text_p->setPenColor( DEFAULT_COLOR );
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 4, 119 ) );
-        stored_text_p->addText( "Close-Up Camera" );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 82, 455 ) );
-        stored_text_p->addText( "7500" );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 164, 455 ) );
-        stored_text_p->addText( "181" );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 246, 455) );
-        stored_text_p->addText( "31" );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 573 - 1, 460 - 5 ) );
-        stored_text_p->addText( "L01" );
-
-        color.set( 0xFF, 0x52, 0x51, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 580, 3 ) );
-        stored_text_p->addText( "010" );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 565 - 1, 32 - 5 ) );
-        stored_text_p->addText( "00/00" );
-
-        color.set( 0x51, 0x52, 0xFF, 0xFF );
-        stored_text_p->setPenColor( color.toPointer() );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 580, 56 - 5 ) );
-        stored_text_p->addText( "010" );
-
-        stored_text_p->setPenPosition( Utilities::DataTypes::Vec2( 565 - 1, 80 - 5 ) );
-        stored_text_p->addText( "00/00" );*/
 
         return 1;
     }

@@ -178,7 +178,7 @@ public:
      * Link every shader to the program.
      * @return false if one of the shaders are not loaded.
      */
-    int compilieProgram();
+    int compileProgram();
 
     void draw( const glm::mat4 &projection, const std::vector<Text2D*> &text_2d_array );
 };
