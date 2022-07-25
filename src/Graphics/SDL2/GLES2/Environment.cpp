@@ -13,7 +13,7 @@ Graphics::Environment::Environment() {
     auto EnvironmentInternalData = new Graphics::SDL2::GLES2::EnvironmentInternalData;
 
     EnvironmentInternalData->world = nullptr;
-    EnvironmentInternalData->text_draw_routine = nullptr;
+    text_draw_routine_p = nullptr;
     Environment_internals = reinterpret_cast<void*>( EnvironmentInternalData ); // This is very important! This contains all the API specific variables.
     
     window_p = nullptr;
@@ -23,10 +23,10 @@ Graphics::Environment::~Environment() {
     // Close and destroy the window
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     
-    if( EnvironmentInternalData->text_draw_routine != nullptr )
+    if( text_draw_routine_p != nullptr )
     {
-        delete EnvironmentInternalData->text_draw_routine;
-        EnvironmentInternalData->text_draw_routine = nullptr;
+        delete text_draw_routine_p;
+        text_draw_routine_p = nullptr;
     }
     
     for( auto texture : EnvironmentInternalData->textures ) {
@@ -194,25 +194,6 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     return number_of_failures;
 }
 
-int Graphics::Environment::setFonts( const std::vector<Data::Mission::FontResource*> &fonts ) {
-    auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
-    
-    if( EnvironmentInternalData->text_draw_routine != nullptr )
-        delete EnvironmentInternalData->text_draw_routine;
-
-    if( fonts.size() != 0 )
-    {
-        EnvironmentInternalData->text_draw_routine = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts );
-        EnvironmentInternalData->text_draw_routine->setVertexShader();
-        EnvironmentInternalData->text_draw_routine->setFragmentShader();
-        EnvironmentInternalData->text_draw_routine->compilieProgram();
-
-        return fonts.size();
-    }
-    else
-        return 0;
-}
-
 int Graphics::Environment::setTilBlink( int til_index, float seconds ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
 
@@ -279,13 +260,12 @@ void Graphics::Environment::drawFrame() const {
 
             for( auto i = current_camera->getText2DBuffer()->begin(); i != current_camera->getText2DBuffer()->end(); i++ )
             {
-                auto buffer_upcast_r = dynamic_cast<Graphics::SDL2::GLES2::Text2DBuffer*>( *i );
+                // TODO Eventually remove this kind of upcasts. They are dangerious.
+                auto text_2d_draw_routine = dynamic_cast<Graphics::SDL2::GLES2::Text2DBuffer*>( *i );
                 
-                assert( buffer_upcast_r != nullptr );
-                assert( buffer_upcast_r->font_system_r != nullptr );
-                assert( buffer_upcast_r->text_data.size() != 0 );
+                assert( text_2d_draw_routine != nullptr );
                 
-                buffer_upcast_r->font_system_r->draw( camera_3D_projection_view_model, buffer_upcast_r->text_data );
+                text_2d_draw_routine->draw( camera_3D_projection_view_model );
             }
         }
 

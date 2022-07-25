@@ -10,7 +10,9 @@
 #include "../Data/Mission/PTCResource.h"
 #include "../Data/Mission/TilResource.h"
 #include "../Data/Mission/ObjResource.h"
-#include "../Data/Mission/FontResource.h"
+
+// TODO Make this environment into SDL2 GLES2 to abstract these data types again.
+#include "SDL2/GLES2/Internal/FontSystem.h"
 
 namespace Graphics {
 
@@ -31,6 +33,7 @@ protected:
     Environment();
 public:
     Window* window_p;
+    SDL2::GLES2::Internal::FontSystem *text_draw_routine_p;
     
     /**
      * When you are done with the program this should clean up the rest of the graphics.
@@ -89,7 +92,7 @@ public:
      * @param tile_amount The amount of elements in tiles.
      */
     void setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles );
-
+    
     /**
      * This is used to setup the 3D models.
      * @param model_types All the objects that are 3D models goes here.
@@ -97,15 +100,6 @@ public:
      * @return It will return 1 for success or a negative number stating how many textures failed to load.
      */
     int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types );
-
-    /**
-     * This is used to setup the fonts. It does not account for the playstation layouts.
-     * @param fonts All the fonts of that exist.
-     * @param font_amount The amount of the fonts of the array.
-     * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
-     */
-    int setFonts( const std::vector<Data::Mission::FontResource*> &fonts );
-
     /**
      * This sets the blink rate to an entire tile set for the use of selection.
      * @param til_index The index to the til_index

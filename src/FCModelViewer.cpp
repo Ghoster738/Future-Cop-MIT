@@ -262,11 +262,11 @@ int main(int argc, char** argv)
         auto font_resources = Data::Mission::FontResource::getVector( resource );
 
         if( font_resources.size() != 0 )
-            environment->setFonts( font_resources );
+            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
         else
         {
             font_resources = Data::Mission::FontResource::getVector( global );
-            environment->setFonts( font_resources );
+            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
             if( font_resources.size() == 0 )
                 std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
         }

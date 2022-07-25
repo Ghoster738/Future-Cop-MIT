@@ -20,12 +20,16 @@ public:
     virtual ~Text2DBuffer();
     
     /**
-     * Load the font library from the environment.
-     * @note Make sure that the Environment has successfully loaded the font.
-     * @param environment This is the environment to get the font from.
-     * @return 1 for success, or 0 for the font library not existing in the environment.
+     * This is used to setup the fonts. It does not account for the playstation layouts.
+     * @param environment The environment that stores the data types.
+     * @param fonts All the fonts of that exist.
+     * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
      */
-    bool loadFontLibrary( Environment &environment );
+    static int loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts );
+    
+    bool loadFontLibrary();
+    
+    void draw( const glm::mat4 &projection ) const;
     
     virtual int setFont( unsigned index );
     virtual int setPosition( const glm::vec2 &position );
