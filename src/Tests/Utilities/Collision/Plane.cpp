@@ -11,7 +11,7 @@ int main() {
     
     // Test Plane( a, b, c, d ), getIntersectionDistance
     {
-        Utilities::Collision::Plane plane( 5, -7, 9, -11 );
+        Utilities::Collision::Plane plane( glm::vec3( 5, -7, 9 ), -11 );
         Utilities::Collision::Ray ray(
             glm::vec3( 1, 3, -5), glm::vec3( -6, 2, 7 ) );
         const float expected_distance = 0.9; // A very clean number
@@ -41,7 +41,7 @@ int main() {
         
         const float distance1 = plane.getIntersectionDistance( ray );
         
-        Utilities::Collision::Plane plane2( -1580.0, -600, -2310, 75900 );
+        Utilities::Collision::Plane plane2( glm::vec3( -1580.0, -600, -2310 ), 75900 );
         
         const float distance2 = plane2.getIntersectionDistance( ray );
         
