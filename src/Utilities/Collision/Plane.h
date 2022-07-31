@@ -8,14 +8,12 @@ namespace Collision {
 
 class Plane {
 private:
-    // Formula aA + bB + cC + d = 0
-    float a;
-    float b;
-    float c;
-    float d;
+    glm::vec3 direction;
+    glm::vec3 normal;
+    float distance;
 public:
     Plane();
-    Plane( float a, float b, float c, float d );
+    Plane( glm::vec3 direction, float distance );
     Plane( glm::vec3 points[3] );
     Plane( const Plane& );
     
@@ -26,6 +24,10 @@ public:
      * @return a positive distance value.
      */
     float getIntersectionDistance( const Ray& ray ) const;
+    
+    glm::vec3 getDirection() const { return direction; }
+    glm::vec3 getNormal() const { return normal; }
+    float getDistance() const { return distance; }
 };
 
 }
