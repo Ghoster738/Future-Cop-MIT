@@ -29,7 +29,7 @@ public:
             glm::u16vec2 getLocation() const;
             glm::u8vec2 getSize() const;
 
-            char* setupPallete( unsigned int number_of_colors );
+            uint8_t* setupPallete( unsigned int number_of_colors );
 
             const Utilities::ImageData* getPalette() const;
             Utilities::ImageData* getPalette();

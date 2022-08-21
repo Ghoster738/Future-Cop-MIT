@@ -13,7 +13,7 @@ protected:
     unsigned int width;
     unsigned int height;
     unsigned int bytes_per_channel;
-    std::vector<char> image_data;
+    std::vector<uint8_t> image_data;
     Type type;
 public:
     ImageData();
@@ -80,9 +80,9 @@ public:
      * @param y the y location bounded by width.
      * @return True if the pixel is written, false if no pixel is written.
      */
-    bool setPixel( unsigned int x, unsigned int y, const char *const pixel );
+    bool setPixel( unsigned int x, unsigned int y, const uint8_t *const pixel );
 
-    const char *const getPixel( unsigned int x, unsigned int y ) const;
+    const uint8_t *const getPixel( unsigned int x, unsigned int y ) const;
     
     /**
      * Flip the image vertically.It is an O(p) operation, and p is the
@@ -107,13 +107,13 @@ public:
      * This gets the raw image data. However, note that the pointer could change at reallocations if this is possible.
      * @return the pointer of the member variable image_data.
      */
-    char * getRawImageData();
+    uint8_t * getRawImageData();
 
     /**
      * This gets the raw image data. However, note that the pointer could change at reallocations if this is possible.
      * @return the pointer of the member variable image_data.
      */
-    const char *const getRawImageData() const;
+    const uint8_t *const getRawImageData() const;
 
     inline static void translate_16_to_24( uint16_t word, uint8_t &blue, uint8_t &green, uint8_t &red ) {
         // Thanks ktownsend of the adafruit forms.

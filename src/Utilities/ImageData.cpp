@@ -58,8 +58,8 @@ Utilities::ImageData Utilities::ImageData::subImage( unsigned int x, unsigned in
 
         for( unsigned int sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ ) {
             for( unsigned int sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ ) {
-                const char *source_pixel = image_data.data() + (getWidth() * (sub_y + y) + sub_x + x) * getPixelSize();
-                char *destination_pixel = sub_image.image_data.data() + ((sub_image.getWidth() * sub_y) + sub_x) * getPixelSize();
+                const uint8_t *source_pixel = image_data.data() + (getWidth() * (sub_y + y) + sub_x + x) * getPixelSize();
+                uint8_t *destination_pixel = sub_image.image_data.data() + ((sub_image.getWidth() * sub_y) + sub_x) * getPixelSize();
                 for( unsigned int i = 0; i < getPixelSize(); i++ ) {
                     destination_pixel[i] = source_pixel[i];
                 }
@@ -77,17 +77,17 @@ Utilities::ImageData Utilities::ImageData::applyPalette( const ImageData& palett
         if( bytes_per_channel == 1 || bytes_per_channel == 2  ) {
             ImageData color_image( getWidth(), getHeight(), palette.type, palette.bytes_per_channel );
 
-            const char *source_pixel = image_data.data();
-            char *destination_pixel = color_image.image_data.data();
+            const uint8_t *source_pixel = image_data.data();
+            uint8_t *destination_pixel = color_image.image_data.data();
 
             for( unsigned int sub_x = 0; sub_x < getWidth() * getHeight(); sub_x++ ) {
-                const char *pix = palette.image_data.data();
+                const uint8_t *pix = palette.image_data.data();
 
                 if( bytes_per_channel == 1 )
                     pix += (static_cast<uint8_t>(*source_pixel) & 0xff) * palette.getPixelSize();
                 else
                 if( bytes_per_channel == 2 )
-                    pix += *reinterpret_cast<uint16_t*>( const_cast<char*>(source_pixel) ) * palette.getPixelSize();
+                    pix += *reinterpret_cast<uint16_t*>( const_cast<uint8_t*>(source_pixel) ) * palette.getPixelSize();
 
                 for( unsigned int i = 0; i < color_image.getPixelSize(); i++ ) {
                     destination_pixel[i] = pix[i];
@@ -133,8 +133,8 @@ bool Utilities::ImageData::inscribeSubImage( unsigned int position_x, unsigned i
         {
             for( unsigned int ref_y = 0; ref_y < ref.getHeight(); ref_y++ ) {
 
-                const char *source_pixel = ref.image_data.data() + ((ref.getWidth() * ref_y) + ref_x) * getPixelSize();
-                char *destination_pixel = image_data.data() + (getWidth() * (ref_y + position_y) + ref_x + position_x) * getPixelSize();
+                const uint8_t *source_pixel = ref.image_data.data() + ((ref.getWidth() * ref_y) + ref_x) * getPixelSize();
+                uint8_t *destination_pixel = image_data.data() + (getWidth() * (ref_y + position_y) + ref_x + position_x) * getPixelSize();
 
                 for( unsigned int i = 0; i < getPixelSize(); i++ ) {
                     destination_pixel[i] = source_pixel[i];
@@ -171,10 +171,10 @@ unsigned int Utilities::ImageData::getPixelSize() const {
     return channels * bytes_per_channel;
 }
 
-bool Utilities::ImageData::setPixel( unsigned int x, unsigned int y, const char *const pixel ) {
+bool Utilities::ImageData::setPixel( unsigned int x, unsigned int y, const uint8_t *const pixel ) {
     if( x < width && y < height )
     {
-        char *destination_pixel = image_data.data() + (width * y + x) * getPixelSize();
+        uint8_t *destination_pixel = image_data.data() + (width * y + x) * getPixelSize();
         for( unsigned int i = 0; i < getPixelSize(); i++ ) {
             destination_pixel[i] = pixel[i];
         }
@@ -185,7 +185,7 @@ bool Utilities::ImageData::setPixel( unsigned int x, unsigned int y, const char 
 }
 
 
-const char *const Utilities::ImageData::getPixel( unsigned int x, unsigned int y ) const {
+const uint8_t *const Utilities::ImageData::getPixel( unsigned int x, unsigned int y ) const {
     if( x < width && y < height )
     {
         return image_data.data() + (width * y + x) * getPixelSize();
@@ -204,7 +204,7 @@ bool Utilities::ImageData::flipVertically() {
     {
         for( unsigned int y = 0; y < this->getHeight(); y++ )
         {
-            char *row_data_r = image_data.data() + y * this->getWidth() * PIXEL_SIZE;
+            uint8_t *row_data_r = image_data.data() + y * this->getWidth() * PIXEL_SIZE;
             for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
             {
                 // swap( pixel[x][y], pixel[ this->getWidth() - x ][y] )
@@ -228,8 +228,8 @@ bool Utilities::ImageData::flipHorizontally() {
     {
         for( unsigned int y = 0; y < this->getHeight() / 2; y++ )
         {
-            char *row_data_up_r   = image_data.data() + y * this->getWidth() * PIXEL_SIZE;
-            char *row_data_down_r = image_data.data() + (this->getHeight() - y) * this->getWidth() * PIXEL_SIZE;
+            uint8_t *row_data_up_r   = image_data.data() + y * this->getWidth() * PIXEL_SIZE;
+            uint8_t *row_data_down_r = image_data.data() + (this->getHeight() - y) * this->getWidth() * PIXEL_SIZE;
             for( unsigned int x = 0; x < this->getWidth(); x++ )
             {
                 for( unsigned int p = 0; p < PIXEL_SIZE; p++ )
@@ -247,10 +247,10 @@ bool Utilities::ImageData::isValid() {
     return ( getPixelSize() != 0 && (bytes_per_channel <= 2) );
 }
 
-char * Utilities::ImageData::getRawImageData() {
+uint8_t * Utilities::ImageData::getRawImageData() {
     return image_data.data();
 }
 
-const char *const Utilities::ImageData::getRawImageData() const {
+const uint8_t *const Utilities::ImageData::getRawImageData() const {
     return image_data.data();
 }
