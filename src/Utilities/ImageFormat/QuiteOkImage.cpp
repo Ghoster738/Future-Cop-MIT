@@ -361,7 +361,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                     reader.setPosition( INFO_STRUCT, Buffer::Reader::Direction::BEGIN );
                     
                     bool no_abort = true;
-                    char *m;
+                    uint8_t *m;
                     
                     for( m = image_data.getRawImageData(); m != image_data.getRawImageData() + image_data.getPixelSize() * width * height && no_abort; m += image_data.getPixelSize() )
                     {

@@ -84,7 +84,7 @@ glm::u8vec2 Data::Mission::PYRResource::Particle::Texture::getSize() const {
     return this->size;
 }
 
-char* Data::Mission::PYRResource::Particle::Texture::setupPallete( unsigned int number_of_colors ) {
+uint8_t* Data::Mission::PYRResource::Particle::Texture::setupPallete( unsigned int number_of_colors ) {
     this->palette.setWidth(  1 );
     this->palette.setHeight( number_of_colors );
     this->palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
