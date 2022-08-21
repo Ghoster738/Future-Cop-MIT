@@ -1,5 +1,4 @@
 #include "ImageData.h"
-#include "ImageFormat/PortableNetworkGraphics.h"
 
 bool Utilities::ImageData::setFormat( Type type, unsigned int bytes_per_channel ) {
     bool is_type_valid;
@@ -207,7 +206,6 @@ bool Utilities::ImageData::flipVertically() {
             uint8_t *row_data_r = image_data.data() + y * this->getWidth() * PIXEL_SIZE;
             for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
             {
-                // swap( pixel[x][y], pixel[ this->getWidth() - x ][y] )
                 for( unsigned int p = 0; p < PIXEL_SIZE; p++ )
                 {
                     std::swap( row_data_r[ x * PIXEL_SIZE + p ], row_data_r[ (this->getWidth() - x) * PIXEL_SIZE + p ] );
