@@ -18,6 +18,12 @@ public:
         LITTLE,
         BIG
     };
+    
+    enum Direction {
+        BEGIN,
+        CURRENT,
+        END
+    };
 
 protected:
     std::vector<uint8_t> data;
@@ -66,12 +72,6 @@ public:
         size_t current_index;
 
     public:
-        enum Direction {
-            BEGIN,
-            CURRENT,
-            END
-        };
-
         static bool getSwap( Endian endianess );
     public:
         Reader( const uint8_t *const buffer_r, size_t byte_amount );
@@ -99,6 +99,36 @@ public:
 
         uint8_t readU8();
         int8_t  readI8();
+    };
+    
+    class Writer {
+    protected:
+        uint8_t *const data_r;
+        size_t size;
+
+        size_t current_index;
+    public:
+        Writer( uint8_t *const buffer_r, size_t byte_amount );
+        virtual ~Writer();
+        
+        bool empty() const;
+        bool ended() const;
+        size_t totalSize() const;
+        size_t getPosition( Direction way = BEGIN ) const;
+        
+        Writer getWriter( size_t writer_size );
+
+        bool writeU64( uint64_t content, Endian endianess = NO_SWAP );
+        bool writeI64(  int64_t content, Endian endianess = NO_SWAP );
+
+        bool writeU32( uint32_t content, Endian endianess = NO_SWAP );
+        bool writeI32(  int32_t content, Endian endianess = NO_SWAP );
+
+        bool writeU16( uint16_t content, Endian endianess = NO_SWAP );
+        bool writeI16(  int16_t content, Endian endianess = NO_SWAP );
+
+        bool writeU8( uint8_t content );
+        bool writeI8(  int8_t content );
     };
 };
 
