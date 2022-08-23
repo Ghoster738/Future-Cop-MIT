@@ -55,7 +55,7 @@ bool Utilities::Buffer::addI8( int8_t value ) {
 bool Utilities::Buffer::addU16( uint16_t value, Endian endianess ) {
     uint16_t store = value;
     
-    if( Reader::getSwap( endianess ) )
+    if( getSwap( endianess ) )
         DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
@@ -68,7 +68,7 @@ bool Utilities::Buffer::addU16( uint16_t value, Endian endianess ) {
 bool Utilities::Buffer::addI16( int16_t value, Endian endianess ) {
     int16_t store = value;
     
-    if( Reader::getSwap( endianess ) )
+    if( getSwap( endianess ) )
         DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
@@ -81,7 +81,7 @@ bool Utilities::Buffer::addI16( int16_t value, Endian endianess ) {
 bool Utilities::Buffer::addU32( uint32_t value, Endian endianess ) {
     uint32_t store = value;
     
-    if( Reader::getSwap( endianess ) )
+    if( getSwap( endianess ) )
         DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
@@ -96,7 +96,7 @@ bool Utilities::Buffer::addU32( uint32_t value, Endian endianess ) {
 bool Utilities::Buffer::addI32( int32_t value, Endian endianess ) {
     int32_t store = value;
     
-    if( Reader::getSwap( endianess ) )
+    if( getSwap( endianess ) )
         DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
@@ -111,7 +111,7 @@ bool Utilities::Buffer::addI32( int32_t value, Endian endianess ) {
 bool Utilities::Buffer::addU64( uint64_t value, Endian endianess ) {
     uint64_t store = value;
     
-    if( Reader::getSwap( endianess ) )
+    if( getSwap( endianess ) )
         DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
@@ -130,7 +130,7 @@ bool Utilities::Buffer::addU64( uint64_t value, Endian endianess ) {
 bool Utilities::Buffer::addI64(  int64_t value, Endian endianess ) {
     int64_t store = value;
     
-    if( Reader::getSwap( endianess ) )
+    if( getSwap( endianess ) )
         DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
@@ -213,7 +213,7 @@ const char* Utilities::Buffer::ReaderOutOfBounds::what() const throw() {
     return what_is_wrong.c_str();
 }
 
-bool Utilities::Buffer::Reader::getSwap( Endian endianess ) {
+bool Utilities::Buffer::getSwap( Endian endianess ) {
     bool swap_value;
 
     switch( endianess ) {

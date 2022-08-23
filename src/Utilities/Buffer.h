@@ -29,6 +29,8 @@ protected:
     std::vector<uint8_t> data;
 
 public:
+    static bool getSwap( Endian endianess );
+    
     Buffer();
     Buffer( const Buffer &buffer );
     Buffer( const uint8_t *const buffer_r, size_t byte_amount );
@@ -70,10 +72,8 @@ public:
         size_t size;
 
         size_t current_index;
-
     public:
-        static bool getSwap( Endian endianess );
-    public:
+        
         Reader( const uint8_t *const buffer_r, size_t byte_amount );
         virtual ~Reader();
 
