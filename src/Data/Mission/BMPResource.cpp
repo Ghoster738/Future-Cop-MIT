@@ -86,7 +86,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 
                 assert( cbb_reader.readU16( settings.endian ) == 0 );
                 
-                cbb_reader.setPosition( 0x2A, Utilities::Buffer::Reader::BEGIN );
+                cbb_reader.setPosition( 0x2A, Utilities::Buffer::BEGIN );
                 auto bitfield_byte = cbb_reader.readU8();
                 
                 assert( cbb_reader.readU8() == 0 );
@@ -95,7 +95,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 
                 assert( cbb_reader.readU32( settings.endian ) == 0 );
                 
-                cbb_reader.setPosition( 0x34, Utilities::Buffer::Reader::BEGIN );
+                cbb_reader.setPosition( 0x34, Utilities::Buffer::BEGIN );
                 auto first_u32 = cbb_reader.readU32( settings.endian );
                 
                 uint8_t array[4];
@@ -158,7 +158,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 auto plut_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
                 // The color pallette is located 12 bytes away from the start of the tag.
-                plut_reader.setPosition( 0xC, Utilities::Buffer::Reader::CURRENT );
+                plut_reader.setPosition( 0xC, Utilities::Buffer::CURRENT );
 
                 // Now store the color palette.
                 palette.setWidth( 1 );
@@ -180,7 +180,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             }
             else
             {
-                reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::Reader::CURRENT );
+                reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::CURRENT );
             }
         }
 

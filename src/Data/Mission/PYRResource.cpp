@@ -133,7 +133,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
         size_t PYPL_tag_size = 0;
         bool is_PS1 = false;
 
-        while( reader.getPosition( Utilities::Buffer::Reader::BEGIN ) < reader.totalSize() ) {
+        while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
             auto tag_size   = reader.readU32( settings.endian );
             auto tag_data_size = tag_size - 2 * sizeof( uint32_t );
@@ -149,9 +149,9 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == TAG_PYPL ) {
-                PYPL_offset = reader.getPosition( Utilities::Buffer::Reader::BEGIN );
+                PYPL_offset = reader.getPosition( Utilities::Buffer::BEGIN );
                 PYPL_tag_size = tag_data_size;
-                reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
+                reader.setPosition( tag_data_size, Utilities::Buffer::CURRENT );
             }
             else
             if( identifier == TAG_PIX8 ) {
@@ -197,12 +197,12 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             {
                 if( settings.output_level >= 1 )
                     *settings.output_ref << "PYR Tag Error, 0x" << std::hex << identifier << std::dec << std::endl;
-                reader.setPosition( tag_data_size, Utilities::Buffer::Reader::CURRENT );
+                reader.setPosition( tag_data_size, Utilities::Buffer::CURRENT );
             }
         }
 
         if( PYPL_tag_size != 0 ) {
-            reader.setPosition( PYPL_offset, Utilities::Buffer::Reader::BEGIN );
+            reader.setPosition( PYPL_offset, Utilities::Buffer::BEGIN );
             auto readerPYPL = reader.getReader( PYPL_tag_size );
 
             if( !is_PS1 ) {

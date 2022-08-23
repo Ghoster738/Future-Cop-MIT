@@ -215,7 +215,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         int frames_gen_AnmD      = -1;
         uint16_t num_frames_4DGI =  0;
 
-        while( reader.getPosition( Utilities::Buffer::Reader::BEGIN ) < reader.totalSize() ) {
+        while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
             auto identifier    = reader.readU32( settings.endian );
             auto tag_size      = reader.readU32( settings.endian );
             auto data_tag_size = tag_size - sizeof( uint32_t ) * 2;
@@ -269,14 +269,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         assert( false );
 
                     // Skip the zeros.
-                    auto position_index = reader4DGI.getPosition( Utilities::Buffer::Reader::BEGIN );
+                    auto position_index = reader4DGI.getPosition( Utilities::Buffer::BEGIN );
                     
                     // The next 12 bytes are all zeros.
                     assert( reader4DGI.readU32() == 0 ); // 0x0 - 0x3
                     assert( reader4DGI.readU32() == 0 ); // 0x4 - 0x7
                     assert( reader4DGI.readU32() == 0 ); // 0x8 - 0xA
                     
-                    reader4DGI.setPosition( position_index + 0xC, Utilities::Buffer::Reader::BEGIN );
+                    reader4DGI.setPosition( position_index + 0xC, Utilities::Buffer::BEGIN );
 
                     auto un4  = reader4DGI.readU32( settings.endian );
                     assert( un4 == 1 ); // Always 1 for Mac, Playstation, and Windows.
@@ -752,7 +752,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
             else
             {
-                reader.setPosition( data_tag_size, Utilities::Buffer::Reader::CURRENT );
+                reader.setPosition( data_tag_size, Utilities::Buffer::CURRENT );
                 
                 char identifier_word[5] = {'\0'};
                 const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
@@ -773,7 +773,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( file_is_not_valid ) {
                 if( settings.output_level >= 1 )
                     *settings.output_ref << "Mission::ObjResource::load() This is not a valid Obj file!" << std::endl;
-                reader.setPosition( 0, Utilities::Buffer::Reader::END );
+                reader.setPosition( 0, Utilities::Buffer::END );
             }
         }
         

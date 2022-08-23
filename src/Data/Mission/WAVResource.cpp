@@ -28,7 +28,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
             auto tag_sub_1      = reader.readU32( Utilities::Buffer::Endian::BIG ); // 12
             auto size_of_chunk_1 = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 16
             auto size_sub_1     = reader.readU32( Utilities::Buffer::Endian::LITTLE );
-            reader.setPosition( 36, Utilities::Buffer::Reader::BEGIN );
+            reader.setPosition( 36, Utilities::Buffer::BEGIN );
             auto tag_sub_2      = reader.readU32( Utilities::Buffer::Endian::BIG );
 
             file_is_not_valid |= (tag_chunk_id    != TAG_CHUNK_ID );
@@ -39,7 +39,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
             file_is_not_valid |= (tag_chunk_size  >  reader.totalSize() - 8);
 
             if( !file_is_not_valid ) {
-                reader.setPosition( 20, Utilities::Buffer::Reader::BEGIN );
+                reader.setPosition( 20, Utilities::Buffer::BEGIN );
                 
                 audio_format        = reader.readU16( Utilities::Buffer::Endian::LITTLE );
                 channel_number      = reader.readU16( Utilities::Buffer::Endian::LITTLE );
@@ -48,7 +48,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                 auto read_block_aln = reader.readU16( Utilities::Buffer::Endian::LITTLE );
                 bits_per_sample     = reader.readU16( Utilities::Buffer::Endian::LITTLE );
                 
-                reader.setPosition( 40, Utilities::Buffer::Reader::BEGIN );
+                reader.setPosition( 40, Utilities::Buffer::BEGIN );
                 audio_stream_length = reader.readU32( Utilities::Buffer::Endian::LITTLE );
 
                 // This sets block_align and byte_rate to their respective values
@@ -60,7 +60,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
 
                 if( !file_is_not_valid ) {
                     // Copy the rest of the sound data to the audio stream
-                    reader.setPosition( DATA_START_FROM_HEADER, Utilities::Buffer::Reader::BEGIN );
+                    reader.setPosition( DATA_START_FROM_HEADER, Utilities::Buffer::BEGIN );
                     
                     setAudioStream( reader );
 

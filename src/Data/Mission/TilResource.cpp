@@ -229,7 +229,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 skipped_space = true;
             
             // Undo the read after the bytes are skipped.
-            readerSect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::Reader::CURRENT );
+            readerSect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
 
             if( skipped_space && settings.output_level >= 3 )
             {
@@ -259,7 +259,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 colors.push_back( readerSect.readU16( settings.endian ) );
 
             // Read the texture_references, and shading info.
-            while( readerSect.getPosition( Utilities::Buffer::Reader::END ) >= sizeof(uint16_t) ) {
+            while( readerSect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
                 // TileGraphics grp;
                 // grp.tile_graphics = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
 
@@ -274,7 +274,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             }
         }
         else
-            reader.setPosition( tag_size - 2 * sizeof( uint32_t ), Utilities::Buffer::Reader::CURRENT );
+            reader.setPosition( tag_size - 2 * sizeof( uint32_t ), Utilities::Buffer::CURRENT );
 
         return !file_is_not_valid;
     }

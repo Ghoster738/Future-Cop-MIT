@@ -333,7 +333,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                 
                 for( size_t i = 0; i < back_limit && !end_found; i++ )
                 {
-                    reader.setPosition(i + END_BYTES, Buffer::Reader::Direction::END);
+                    reader.setPosition(i + END_BYTES, Buffer::END);
                     
                     if( reader.readU64( Utilities::Buffer::Endian::BIG ) == 0x1 )
                         end_found = true;
@@ -358,7 +358,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                     
                     // TODO Make colorspace > 1 warning Although colorspace has no effect on color space anyways.
                     
-                    reader.setPosition( INFO_STRUCT, Buffer::Reader::Direction::BEGIN );
+                    reader.setPosition( INFO_STRUCT, Buffer::Direction::BEGIN );
                     
                     bool no_abort = true;
                     uint8_t *m;
@@ -432,7 +432,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                         
                         this->previous_pixel = current_pixel;
                         
-                        no_abort = reader.getPosition( Buffer::Reader::END ) > 8;
+                        no_abort = reader.getPosition( Buffer::END ) > 8;
                     }
                     status.complete = (m == image_data.getRawImageData() + image_data.getPixelSize() * width * height);
                     status.success = true;
