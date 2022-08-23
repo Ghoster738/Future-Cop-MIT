@@ -486,36 +486,160 @@ size_t Utilities::Buffer::Writer::getPosition( Direction way ) const {
 
 Utilities::Buffer::Writer Utilities::Buffer::Writer::getWriter( size_t writer_size )
 {
+    if( current_index + writer_size > size )
+        throw BufferOutOfBounds( "getWriter", data_r, size, current_index );
+    else
+    {
+        auto writer = Writer( this->data_r + current_index, writer_size );
+
+        current_index += writer_size;
+
+        return writer;
+    }
 }
 
 void Utilities::Buffer::Writer::writeU64( uint64_t content, Endian endianess )
 {
+    size_t new_offset = current_index + sizeof( uint64_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeU64", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeU64", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<uint64_t*>( data_r + current_index - sizeof( uint64_t )) = content;
+        
+        if( getSwap( endianess ) )
+            DataHandler::swapBytes( data_r + current_index - sizeof( uint64_t ), sizeof( uint64_t ) );
+    }
 }
 
-void Utilities::Buffer::Writer::writeI64(  int64_t content, Endian endianess )
+void Utilities::Buffer::Writer::writeI64( int64_t content, Endian endianess )
 {
+    size_t new_offset = current_index + sizeof( int64_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeI64", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeI64", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<int64_t*>( data_r + current_index - sizeof( int64_t )) = content;
+        
+        if( getSwap( endianess ) )
+            DataHandler::swapBytes( data_r + current_index - sizeof( int64_t ), sizeof( int64_t ) );
+    }
 }
 
 void Utilities::Buffer::Writer::writeU32( uint32_t content, Endian endianess )
 {
+    size_t new_offset = current_index + sizeof( uint32_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeU32", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeU32", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<uint32_t*>( data_r + current_index - sizeof( uint32_t )) = content;
+        
+        if( getSwap( endianess ) )
+            DataHandler::swapBytes( data_r + current_index - sizeof( uint32_t ), sizeof( uint32_t ) );
+    }
 }
 
-void Utilities::Buffer::Writer::writeI32(  int32_t content, Endian endianess )
+void Utilities::Buffer::Writer::writeI32( int32_t content, Endian endianess )
 {
+    size_t new_offset = current_index + sizeof( int32_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeI32", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeI32", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<int32_t*>( data_r + current_index - sizeof( int32_t )) = content;
+        
+        if( getSwap( endianess ) )
+            DataHandler::swapBytes( data_r + current_index - sizeof( int32_t ), sizeof( int32_t ) );
+    }
 }
 
 void Utilities::Buffer::Writer::writeU16( uint16_t content, Endian endianess )
 {
+    size_t new_offset = current_index + sizeof( uint16_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeU16", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeU16", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<uint16_t*>( data_r + current_index - sizeof( uint16_t )) = content;
+        
+        if( getSwap( endianess ) )
+            DataHandler::swapBytes( data_r + current_index - sizeof( uint16_t ), sizeof( uint16_t ) );
+    }
 }
 
 void Utilities::Buffer::Writer::writeI16(  int16_t content, Endian endianess )
 {
+    size_t new_offset = current_index + sizeof( int16_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeI16", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeI16", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<int16_t*>( data_r + current_index - sizeof( int16_t )) = content;
+        
+        if( getSwap( endianess ) )
+            DataHandler::swapBytes( data_r + current_index - sizeof( int16_t ), sizeof( int16_t ) );
+    }
 }
 
 void Utilities::Buffer::Writer::writeU8( uint8_t content )
 {
+    size_t new_offset = current_index + sizeof( uint8_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeU8", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeU8", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<uint8_t*>( data_r + current_index - sizeof( uint8_t )) = content;
+    }
 }
 
 void Utilities::Buffer::Writer::writeI8(  int8_t content )
 {
+    size_t new_offset = current_index + sizeof( int8_t );
+
+    if( new_offset < current_index )
+        throw BufferOutOfBounds( "writeI8", data_r, size, current_index );
+    else
+    if( new_offset > size )
+        throw BufferOutOfBounds( "writeI8", data_r, size, current_index );
+    else
+    {
+        current_index = new_offset;
+        *reinterpret_cast<int8_t*>( data_r + current_index - sizeof( int8_t )) = content;
+    }
 }
