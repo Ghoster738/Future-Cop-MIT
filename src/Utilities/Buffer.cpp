@@ -194,7 +194,7 @@ Utilities::Buffer::Reader Utilities::Buffer::getReader( size_t offset, size_t by
     }
 }
 
-Utilities::Buffer::ReaderOutOfBounds::ReaderOutOfBounds( const char *const method_name_r, const uint8_t *const data_r, size_t byte_amount, size_t current_index ) {
+Utilities::Buffer::BufferOutOfBounds::BufferOutOfBounds( const char *const method_name_r, const uint8_t *const data_r, size_t byte_amount, size_t current_index ) {
     std::stringstream error_out;
 
     error_out << "Utilities::Buffer overflowed using \"";
@@ -209,7 +209,7 @@ Utilities::Buffer::ReaderOutOfBounds::ReaderOutOfBounds( const char *const metho
     what_is_wrong = error_out.str();
 }
 
-const char* Utilities::Buffer::ReaderOutOfBounds::what() const throw() {
+const char* Utilities::Buffer::BufferOutOfBounds::what() const throw() {
     return what_is_wrong.c_str();
 }
 
@@ -278,7 +278,7 @@ void Utilities::Buffer::Reader::setPosition( int offset, Direction way ) {
     current_index = new_offset;
 
     if( new_offset < 0 || static_cast<size_t>( new_offset ) > size )
-        throw ReaderOutOfBounds( "setPosition", data_r, size, current_index );
+        throw BufferOutOfBounds( "setPosition", data_r, size, current_index );
 
 }
 
@@ -297,10 +297,10 @@ std::vector<uint8_t> Utilities::Buffer::Reader::getBytes( size_t byte_amount, En
         new_offset = current_index + byte_amount;
 
         if( new_offset < current_index )
-            throw ReaderOutOfBounds( "getBytes", data_r, size, current_index );
+            throw BufferOutOfBounds( "getBytes", data_r, size, current_index );
         else
         if( new_offset > size )
-            throw ReaderOutOfBounds( "getBytes", data_r, size, current_index );
+            throw BufferOutOfBounds( "getBytes", data_r, size, current_index );
         else {
             buffer.reserve( byte_amount );
 
@@ -324,7 +324,7 @@ std::vector<uint8_t> Utilities::Buffer::Reader::getBytes( size_t byte_amount, En
 
 Utilities::Buffer::Reader Utilities::Buffer::Reader::getReader( size_t reader_size ) {
     if( current_index + reader_size > size )
-        throw ReaderOutOfBounds( "getReader", data_r, size, current_index );
+        throw BufferOutOfBounds( "getReader", data_r, size, current_index );
     else
     {
         auto reader = Reader( this->data_r + current_index, reader_size );
@@ -339,10 +339,10 @@ uint64_t Utilities::Buffer::Reader::readU64( Endian endianess ) {
     size_t new_offset = current_index + sizeof( uint64_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readU64", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU64", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readU64", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU64", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -354,10 +354,10 @@ int64_t Utilities::Buffer::Reader::readI64( Endian endianess ) {
     size_t new_offset = current_index + sizeof( int64_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readI64", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI64", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readI64", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI64", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -369,10 +369,10 @@ uint32_t Utilities::Buffer::Reader::readU32( Endian endianess ) {
     size_t new_offset = current_index + sizeof( uint32_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readU32", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU32", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readU32", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU32", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -384,10 +384,10 @@ int32_t Utilities::Buffer::Reader::readI32( Endian endianess ) {
     size_t new_offset = current_index + sizeof( int32_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readI32", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI32", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readI32", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI32", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -399,10 +399,10 @@ uint16_t Utilities::Buffer::Reader::readU16( Endian endianess ) {
     size_t new_offset = current_index + sizeof( uint16_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readU16", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU16", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readU16", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU16", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -414,10 +414,10 @@ int16_t Utilities::Buffer::Reader::readI16( Endian endianess ) {
     size_t new_offset = current_index + sizeof( int16_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readI16", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI16", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readI16", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI16", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -429,10 +429,10 @@ uint8_t Utilities::Buffer::Reader::readU8() {
     size_t new_offset = current_index + sizeof( uint8_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readU8", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU8", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readU8", data_r, size, current_index );
+        throw BufferOutOfBounds( "readU8", data_r, size, current_index );
     else
     {
         current_index = new_offset;
@@ -444,13 +444,78 @@ int8_t Utilities::Buffer::Reader::readI8() {
     size_t new_offset = current_index + sizeof( int8_t );
 
     if( new_offset < current_index )
-        throw ReaderOutOfBounds( "readI8", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI8", data_r, size, current_index );
     else
     if( new_offset > size )
-        throw ReaderOutOfBounds( "readI8", data_r, size, current_index );
+        throw BufferOutOfBounds( "readI8", data_r, size, current_index );
     else
     {
         current_index = new_offset;
         return Utilities::DataHandler::read_8( data_r + current_index - sizeof( uint8_t ) );
     }
+}
+
+
+Utilities::Buffer::Writer::Writer( uint8_t *const buffer_r_param, size_t byte_amount ) : data_r( buffer_r_param ), size( byte_amount ), current_index( 0 )
+{
+}
+
+Utilities::Buffer::Writer::~Writer() {}
+
+bool Utilities::Buffer::Writer::empty() const
+{
+    return (data_r == nullptr) | (size == 0);
+}
+
+bool Utilities::Buffer::Writer::ended() const
+{
+    return size == current_index;
+}
+
+size_t Utilities::Buffer::Writer::totalSize() const
+{
+    return size;
+}
+
+size_t Utilities::Buffer::Writer::getPosition( Direction way ) const {
+    if( way == END )
+        return size - current_index;
+    else
+        return current_index;
+}
+
+Utilities::Buffer::Writer Utilities::Buffer::Writer::getWriter( size_t writer_size )
+{
+}
+
+void Utilities::Buffer::Writer::writeU64( uint64_t content, Endian endianess )
+{
+}
+
+void Utilities::Buffer::Writer::writeI64(  int64_t content, Endian endianess )
+{
+}
+
+void Utilities::Buffer::Writer::writeU32( uint32_t content, Endian endianess )
+{
+}
+
+void Utilities::Buffer::Writer::writeI32(  int32_t content, Endian endianess )
+{
+}
+
+void Utilities::Buffer::Writer::writeU16( uint16_t content, Endian endianess )
+{
+}
+
+void Utilities::Buffer::Writer::writeI16(  int16_t content, Endian endianess )
+{
+}
+
+void Utilities::Buffer::Writer::writeU8( uint8_t content )
+{
+}
+
+void Utilities::Buffer::Writer::writeI8(  int8_t content )
+{
 }

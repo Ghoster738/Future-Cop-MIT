@@ -57,11 +57,11 @@ public:
     uint8_t* dangerousPointer();
     const uint8_t *const dangerousPointer() const;
 public:
-    class ReaderOutOfBounds: public std::exception {
+    class BufferOutOfBounds: public std::exception {
     private:
         std::string what_is_wrong;
     public:
-        ReaderOutOfBounds( const char *const method_name_r, const uint8_t *const data_r, size_t byte_amount, size_t current_index );
+        BufferOutOfBounds( const char *const method_name_r, const uint8_t *const data_r, size_t byte_amount, size_t current_index );
 
         virtual const char* what() const throw();
     };
@@ -118,17 +118,17 @@ public:
         
         Writer getWriter( size_t writer_size );
 
-        bool writeU64( uint64_t content, Endian endianess = NO_SWAP );
-        bool writeI64(  int64_t content, Endian endianess = NO_SWAP );
+        void writeU64( uint64_t content, Endian endianess = NO_SWAP );
+        void writeI64(  int64_t content, Endian endianess = NO_SWAP );
 
-        bool writeU32( uint32_t content, Endian endianess = NO_SWAP );
-        bool writeI32(  int32_t content, Endian endianess = NO_SWAP );
+        void writeU32( uint32_t content, Endian endianess = NO_SWAP );
+        void writeI32(  int32_t content, Endian endianess = NO_SWAP );
 
-        bool writeU16( uint16_t content, Endian endianess = NO_SWAP );
-        bool writeI16(  int16_t content, Endian endianess = NO_SWAP );
+        void writeU16( uint16_t content, Endian endianess = NO_SWAP );
+        void writeI16(  int16_t content, Endian endianess = NO_SWAP );
 
-        bool writeU8( uint8_t content );
-        bool writeI8(  int8_t content );
+        void writeU8( uint8_t content );
+        void writeI8(  int8_t content );
     };
 };
 
