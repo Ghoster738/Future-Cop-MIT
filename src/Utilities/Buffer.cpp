@@ -194,6 +194,33 @@ Utilities::Buffer::Reader Utilities::Buffer::getReader( size_t offset, size_t by
     }
 }
 
+Utilities::Buffer::Writer Utilities::Buffer::getWriter( size_t offset, size_t byte_amount )
+{
+    if( byte_amount == 0 )
+        byte_amount = data.size() - offset;
+
+    size_t offset_sum = offset + byte_amount;
+
+    if( byte_amount <= 0 )
+        return Writer( nullptr, 0 ); // If the byte_amount is 0 or lesser then return nullptr.
+    else
+    {
+        offset_sum = offset + byte_amount;
+
+        if( offset_sum < byte_amount )
+            return Writer( nullptr, 0 ); // If offset_sum has been overflowed return nullptr.
+        else
+        if( offset_sum > data.size() )
+            return Writer( nullptr, 0 ); // If the requested data is too much then return nullptr;
+        else
+        {
+            uint8_t *const ref_r = data.data() + offset;
+            
+            return Writer( ref_r, byte_amount );
+        }
+    }
+}
+
 Utilities::Buffer::BufferOutOfBounds::BufferOutOfBounds( const char *const method_name_r, const uint8_t *const data_r, size_t byte_amount, size_t current_index ) {
     std::stringstream error_out;
 
@@ -462,6 +489,31 @@ Utilities::Buffer::Writer::Writer( uint8_t *const buffer_r_param, size_t byte_am
 
 Utilities::Buffer::Writer::~Writer() {}
 
+
+void Utilities::Buffer::Writer::setPosition( int offset, Direction way ) {
+    int new_offset;
+
+    switch( way ) {
+        case BEGIN:
+            new_offset = 0 + offset;
+            break;
+        case CURRENT:
+            new_offset = static_cast<int>( current_index ) + offset;
+            break;
+        case END:
+            new_offset = static_cast<int>( size ) - offset;
+            break;
+        default:
+            new_offset = -1;
+    }
+
+    current_index = new_offset;
+
+    if( new_offset < 0 || static_cast<size_t>( new_offset ) > size )
+        throw BufferOutOfBounds( "setPosition", data_r, size, current_index );
+
+}
+
 bool Utilities::Buffer::Writer::empty() const
 {
     return (data_r == nullptr) | (size == 0);
@@ -642,4 +694,10 @@ void Utilities::Buffer::Writer::writeI8(  int8_t content )
         current_index = new_offset;
         *reinterpret_cast<int8_t*>( data_r + current_index - sizeof( int8_t )) = content;
     }
+}
+
+void Utilities::Buffer::Writer::addToBuffer( Buffer& buffer ) const
+{
+    for( size_t i = 0; i < size; i++ )
+        buffer.addU8( data_r[i] );
 }
