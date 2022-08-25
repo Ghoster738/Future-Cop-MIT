@@ -11,6 +11,7 @@ namespace Utilities {
 class Buffer {
 public:
     class Reader;
+    class Writer;
     
     enum Endian {
         NO_SWAP,
@@ -42,6 +43,7 @@ public:
     bool set( const uint8_t *const buffer, size_t byte_amount );
 
     Reader getReader( size_t offset = 0, size_t byte_amount = 0 ) const;
+    Writer getWriter( size_t offset = 0, size_t byte_amount = 0 );
     
     bool addU8(   uint8_t value );
     bool addI8(    int8_t value );
@@ -111,6 +113,8 @@ public:
         Writer( uint8_t *const buffer_r, size_t byte_amount );
         virtual ~Writer();
         
+        void setPosition( int offset, Direction way );
+        
         bool empty() const;
         bool ended() const;
         size_t totalSize() const;
@@ -129,6 +133,8 @@ public:
 
         void writeU8( uint8_t content );
         void writeI8(  int8_t content );
+        
+        void addToBuffer( Buffer& buffer ) const;
     };
 };
 
