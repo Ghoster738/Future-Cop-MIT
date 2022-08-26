@@ -11,11 +11,11 @@ namespace Utilities {
  * It is for textures that are stored in a regular way.
  */
 template <class image_2d_pixel>
-class GridReg2D : public Grid2D<image_2d_pixel> {
+class GridReg2D : public GridBase2D<image_2d_pixel> {
 public:
-    GridReg2D() : Grid2D<image_2d_pixel>() {}
-    GridReg2D( const GridReg2D& obj ) : Grid2D<image_2d_pixel>( obj ) {}
-    GridReg2D( grid_2d_unit width_param, grid_2d_unit height_param ) : Grid2D<image_2d_pixel>( width_param, height_param ) {}
+    GridReg2D() : GridBase2D<image_2d_pixel>() {}
+    GridReg2D( const GridReg2D& obj ) : GridBase2D<image_2d_pixel>( obj ) {}
+    GridReg2D( grid_2d_unit width_param, grid_2d_unit height_param ) : GridBase2D<image_2d_pixel>( width_param, height_param ) {}
     
     
     virtual bool getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {

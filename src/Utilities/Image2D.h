@@ -17,7 +17,7 @@ typedef grid_2d_unit_strict image_strict_unit;
  */
 class Image2D {
 protected:
-    Grid2D<uint8_t> *storage_p;
+    GridBase2D<uint8_t> *storage_p;
     PixelFormatColor *pixel_format_p;
     Buffer::Endian endian;
     

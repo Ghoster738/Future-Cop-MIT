@@ -16,7 +16,7 @@ typedef uint_fast32_t grid_2d_offset;
  * This class is a pure virtual class.
  */
 template <class grid_2d_cell>
-class Grid2D {
+class GridBase2D {
 protected:
     grid_2d_unit width;
     grid_2d_unit height;
@@ -30,13 +30,13 @@ protected:
                       static_cast<uint32_t>( height ) );
     }
 public:
-    Grid2D() : width( 0 ), height( 0 ), cells() {}
-    Grid2D( const Grid2D &grid_2d ) :
+    GridBase2D() : width( 0 ), height( 0 ), cells() {}
+    GridBase2D( const GridBase2D &grid_2d ) :
     width( grid_2d.width ), height( grid_2d.height ), cells( grid_2d.cells ) {}
-    Grid2D( grid_2d_unit width_param, grid_2d_unit height_param ) : width( width_param ), height( height_param ) {
+    GridBase2D( grid_2d_unit width_param, grid_2d_unit height_param ) : width( width_param ), height( height_param ) {
         updateCellBuffer();
     }
-    virtual ~Grid2D() {
+    virtual ~GridBase2D() {
         // Do not do anything cells will handle the deletations.
     }
 
@@ -92,7 +92,7 @@ public:
      */
     const grid_2d_cell *const getDirectPixelData() const { return cells.data(); }
     
-    virtual bool inscribeSubGrid( grid_2d_unit x, grid_2d_unit y, const Grid2D& ref ) {
+    virtual bool inscribeSubGrid( grid_2d_unit x, grid_2d_unit y, const GridBase2D& ref ) {
         // Check to see if the image format is compatible with ref or else it would cause errors.
         if( x + ref.getWidth()  <= getWidth()  &&
             y + ref.getHeight() <= getHeight() ) {
@@ -111,7 +111,7 @@ public:
             return false;
     }
 
-    bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, Grid2D &sub_image ) const {
+    bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, GridBase2D &sub_image ) const {
         if( x + width <= this->width &&
             y + height <= this->height )
         {
