@@ -18,7 +18,7 @@ public:
     GridReg2D( grid_2d_unit width_param, grid_2d_unit height_param ) : Grid2D<image_2d_pixel>( width_param, height_param ) {}
     
     
-    virtual bool getCordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
+    virtual bool getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
         y = offset / this->width;
         x = offset % this->width;
         return true;

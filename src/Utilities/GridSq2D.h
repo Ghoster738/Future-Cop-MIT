@@ -90,7 +90,7 @@ public:
             return this->cells.at( 0 );
     }
     
-    virtual bool getCordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
+    virtual bool getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
         x = 0;
         y = 0;
         

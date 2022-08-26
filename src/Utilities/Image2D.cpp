@@ -78,7 +78,7 @@ bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endi
         for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
-            storage_p->getCordinates( i, x, y );
+            storage_p->getCoordinates( i, x, y );
             
             writePixel( x, y, pixel_format_p->readPixel( reader, endian ) );
         }
@@ -100,7 +100,7 @@ bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian
         for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
-            storage_p->getCordinates( i, x, y );
+            storage_p->getCoordinates( i, x, y );
             
             pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
         }
@@ -125,7 +125,7 @@ bool Utilities::Image2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) co
         for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
-            storage_p->getCordinates( i, x, y );
+            storage_p->getCoordinates( i, x, y );
             
             pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
             
