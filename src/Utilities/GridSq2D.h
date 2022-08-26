@@ -24,7 +24,7 @@ typedef uint_fast32_t order_unit;
  * I know it has another name, but due to current events I name this Morton Curve.
  */
 template <class image_2d_pixel>
-class GridSq2D : public Grid2D<image_2d_pixel> {
+class GridSq2D : public GridBase2D<image_2d_pixel> {
 protected:
     /**
      * This method gets the m order unit from the cordinates.
@@ -54,9 +54,9 @@ protected:
         return static_cast<order_unit>(x | (y << 1));
     }
 public:
-    GridSq2D() : Grid2D<image_2d_pixel>() {}
-    GridSq2D( const GridSq2D& obj ) : Grid2D<image_2d_pixel>( obj ) {}
-    GridSq2D( grid_2d_unit width_param, grid_2d_unit height_param ) : Grid2D<image_2d_pixel>( width_param, height_param ) {}
+    GridSq2D() : GridBase2D<image_2d_pixel>() {}
+    GridSq2D( const GridSq2D& obj ) : GridBase2D<image_2d_pixel>( obj ) {}
+    GridSq2D( grid_2d_unit width_param, grid_2d_unit height_param ) : GridBase2D<image_2d_pixel>( width_param, height_param ) {}
     
     static bool isPowerOfTwo( grid_2d_unit dimension ) {
         // This is based on this
