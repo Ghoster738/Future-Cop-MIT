@@ -11,7 +11,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
     
     Utilities::PixelFormatColor::GenericColor generic;
     
-    // Brute force will be used for this kind of test.
+    // Brute force will be used to test the various color formats.
     
     {
         Utilities::PixelFormatColor_W8 white( interpolate );
@@ -37,7 +37,35 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
         }
     }
     
-    Utilities::PixelFormatColor_W8A8     white_alpha( interpolate );
+    {
+        Utilities::PixelFormatColor_W8A8 white_alpha( interpolate );
+        Utilities::PixelFormatColor_W8A8::Color color[2];
+        
+        for( uint16_t w = 0; w <= 255; w++ )
+        {
+            color[0].white = w;
+            
+            for( uint16_t a = 0; a <= 255; a++ )
+            {
+                color[0].alpha = a;
+                
+                generic = color[0].toGeneric( interpolate );
+                color[1] = Utilities::PixelFormatColor_W8A8::Color( generic, interpolate );
+                
+                if( color[0].white != color[1].white || color[0].alpha != color[1].alpha )
+                {
+                    std::cout << "The color conversion for PixelFormatColor_W8A8 test has failed!" << std::endl;
+                    std::cout << "  At (" << w << ", " << a << ") the colors do not match." << std::endl;
+                    std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
+                    std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
+                    printGeneric( generic );
+                    w = 256;
+                    a = 256;
+                    problem = 1;
+                }
+            }
+        }
+    }
     Utilities::PixelFormatColor_R5G5B5A1 r5g5b5a1( interpolate );
     Utilities::PixelFormatColor_R8G8B8   r8g8b8( interpolate );
     Utilities::PixelFormatColor_R8G8B8A8 r8g8b8a8( interpolate );
