@@ -1,18 +1,20 @@
 #include "../../Utilities/PixelFormat.h"
 #include <iostream>
+#include <string>
+
+void printGeneric( const Utilities::PixelFormatColor::GenericColor generic ) {
+    std::cout << "  Generic ( " << generic.red << ", " << generic.green << ", " << generic.blue << ", " << generic.alpha << " )"<< std::endl;
+}
 
 int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpolate ) {
     int problem = 0;
     
     Utilities::PixelFormatColor::GenericColor generic;
     
-    Utilities::PixelFormatColor_W8       white( interpolate );
-    Utilities::PixelFormatColor_W8A8     white_alpha( interpolate );
-    Utilities::PixelFormatColor_R5G5B5A1 r5g5b5a1( interpolate );
-    Utilities::PixelFormatColor_R8G8B8   r8g8b8( interpolate );
-    Utilities::PixelFormatColor_R8G8B8A8 r8g8b8a8( interpolate );
+    // Brute force will be used for this kind of test.
     
     {
+        Utilities::PixelFormatColor_W8 white( interpolate );
         Utilities::PixelFormatColor_W8::Color color[2];
         
         for( uint16_t i = 0; i <= 255; i++ )
@@ -28,11 +30,17 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  At " << i << " the colors do not match." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << std::endl;
-                i = 255;
+                printGeneric( generic );
+                //i = 256;
                 problem = 1;
             }
         }
     }
+    
+    Utilities::PixelFormatColor_W8A8     white_alpha( interpolate );
+    Utilities::PixelFormatColor_R5G5B5A1 r5g5b5a1( interpolate );
+    Utilities::PixelFormatColor_R8G8B8   r8g8b8( interpolate );
+    Utilities::PixelFormatColor_R8G8B8A8 r8g8b8a8( interpolate );
     
     if( problem != 0 )
     {
