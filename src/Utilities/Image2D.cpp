@@ -25,7 +25,7 @@ Utilities::Image2D::Image2D( const Image2D &obj, const PixelFormatColor& format 
 Utilities::Image2D::Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : endian( endian_param )
 {
     pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
-    storage_p = new GridReg2D<uint8_t>( width * pixel_format_p->byteSize(), height );
+    storage_p = new Grid2D<uint8_t>( width * pixel_format_p->byteSize(), height );
 }
 
 Utilities::Image2D::~Image2D()
