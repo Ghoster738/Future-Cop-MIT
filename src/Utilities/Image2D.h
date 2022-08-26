@@ -1,7 +1,7 @@
 #ifndef UTILITIES_IMAGE_2D_HEADER
 #define UTILITIES_IMAGE_2D_HEADER
 
-#include "Grid2D.h"
+#include "GridBase2D.h"
 #include "PixelFormat.h"
 #include "Buffer.h"
 

@@ -1,7 +1,7 @@
 #ifndef UTILITIES_GRID_SQ_2D_HEADER
 #define UTILITIES_GRID_SQ_2D_HEADER
 
-#include "Grid2D.h"
+#include "GridBase2D.h"
 
 namespace Utilities {
 
