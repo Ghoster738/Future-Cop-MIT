@@ -50,7 +50,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::readPi
 Utilities::PixelFormatColor_W8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     if( interpolate == sRGB )
-        white = pow( generic.red, 1.0 / SRGB_VALUE ) * MAX_UBYTE_sRGB_VALUE;
+        white = pow( generic.red, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
     else
         white = generic.red * MAX_UBYTE_VALUE;
     
