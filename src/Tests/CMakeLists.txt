@@ -18,10 +18,10 @@ add_executable(triangle_test Utilities/Collision/Triangle.cpp)
 target_link_libraries(triangle_test PRIVATE FC_IFF_IO)
 add_test( NAME triangle_test COMMAND $<TARGET_FILE:triangle_test> )
 
-# Test GridReg2D Code
-add_executable(grid_reg_2d_test Utilities/GridReg2D.cpp)
-target_link_libraries(grid_reg_2d_test PRIVATE FC_IFF_IO)
-add_test( NAME grid_reg_2d_test COMMAND $<TARGET_FILE:grid_reg_2d_test> )
+# Test Grid2D Code
+add_executable(grid_2d_test Utilities/Grid2D.cpp)
+target_link_libraries(grid_2d_test PRIVATE FC_IFF_IO)
+add_test( NAME grid_2d_test COMMAND $<TARGET_FILE:grid_2d_test> )
 
 # Test GridSq2D Code
 add_executable(grid_sq_2d_test Utilities/GridSq2D.cpp)
