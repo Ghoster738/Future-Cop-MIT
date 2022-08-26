@@ -1,7 +1,7 @@
 #include "Image2D.h"
 
 #include "GridSq2D.h"
-#include "GridReg2D.h"
+#include "Grid2D.h"
 
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
 {

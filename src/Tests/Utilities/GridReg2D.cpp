@@ -1,4 +1,4 @@
-#include "../../Utilities/GridReg2D.h"
+#include "../../Utilities/Grid2D.h"
 #include "Grid2D.h"
 
 int main() {
