@@ -2,6 +2,13 @@
 #include <iostream>
 #include <string>
 
+Utilities::channel_fp compareChannel( Utilities::channel_fp a, Utilities::channel_fp b, Utilities::channel_fp bias = 0.078125 )
+{
+    if( (a-b) > bias || -(a-b) > bias )
+        return true;
+    return false;
+}
+
 void printGeneric( const Utilities::PixelFormatColor::GenericColor generic ) {
     std::cout << "  Generic ( " << generic.red << ", " << generic.green << ", " << generic.blue << ", " << generic.alpha << " )"<< std::endl;
 }
@@ -338,11 +345,91 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
     return problem;
 }
 
+int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::PixelFormatColor::GenericColor generic, Utilities::PixelFormatColor &format, std::string display )
+{
+    int problem = 0;
+    auto pixel_writer = pixel_buffer.getWriter();
+    auto pixel_reader = pixel_buffer.getReader();
+    
+    format.writePixel( pixel_writer, Utilities::Buffer::Endian::NO_SWAP, generic );
+    pixel_writer.setPosition( 0, Utilities::Buffer::Direction::BEGIN );
+    
+    auto modified_generic = format.readPixel( pixel_reader );
+    pixel_reader.setPosition( 0, Utilities::Buffer::Direction::BEGIN );
+    
+    format.writePixel( pixel_writer, Utilities::Buffer::Endian::NO_SWAP, modified_generic );
+    
+    auto recovered_generic = format.readPixel( pixel_reader );
+    
+    if( modified_generic.red   != recovered_generic.red   ||
+        modified_generic.green != recovered_generic.green ||
+        modified_generic.blue  != recovered_generic.blue  ||
+        modified_generic.alpha != recovered_generic.alpha )
+    {
+        std::cout << display << " pixel operations broken!";
+        printGeneric( modified_generic );
+        printGeneric( recovered_generic );
+        problem = 1;
+    }
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
+    // Test the generic "from" and "to" operations to make sure that they can be
+    // converted without data loss. If data is lost even when the pixel format is the same, then
+    // there is something wrong with the conversion process.
+    // These tests also tests to see if the generic color struct works.
     problem |= testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation::LINEAR );
     problem |= testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation::sRGB );
+    
+    // Test the write and read pixel operations
+    {
+        // Only one color is useful enough.
+        Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.75);
+        
+        const auto INTERPOLATE = Utilities::PixelFormatColor::ChannelInterpolation::LINEAR;
+        
+        Utilities::Buffer pixel_buffer;
+        
+        // Allocate enough memory for the pixel. For now 64 bit would due.
+        pixel_buffer.addI32( 0 );
+        pixel_buffer.addI32( 0 );
+        
+        // Test W8.
+        {
+            Utilities::PixelFormatColor_W8 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8" );
+        }
+        
+        // Test W8A8.
+        {
+            Utilities::PixelFormatColor_W8A8 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8A8" );
+        }
+        
+        // Test R5G5B5A1.
+        {
+            Utilities::PixelFormatColor_W8A8 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1" );
+            Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1" );
+        }
+        
+        // Test R8G8B8.
+        {
+            Utilities::PixelFormatColor_R8G8B8 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8" );
+        }
+        
+        // Test R8G8B8A8.
+        {
+            Utilities::PixelFormatColor_R8G8B8A8 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8A8" );
+        }
+    }
     
     return problem;
 }
