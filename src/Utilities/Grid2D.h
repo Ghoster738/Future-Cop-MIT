@@ -101,7 +101,7 @@ public:
             {
                 for( unsigned int ref_y = 0; ref_y < ref.getHeight(); ref_y++ )
                 {
-                    setPixel( ref_x, ref_y, ref.getPixel(ref_x + x, ref_y + y) );
+                    setPixel( ref_x + x, ref_y + y, ref.getPixel(ref_x, ref_y) );
                 }
             }
 
@@ -135,15 +135,15 @@ public:
      * Flip the image vertically.It is an O(p) operation, and p is the
      * number pixels.
      */
-    virtual void flipVertically() {
+    virtual void flipHorizontally() {
         for( unsigned int y = 0; y < this->getHeight(); y++ )
         {
             for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
             {
                 grid_2d_cell swappy = getPixel( x, y );
                 
-                setPixel( x, y, getPixel( this->getWidth() - x, y ) );
-                setPixel( this->getWidth() - x, y, swappy );
+                setPixel( x, y, getPixel( this->getWidth() - x - 1, y ) );
+                setPixel( this->getWidth() - x - 1, y, swappy );
             }
         }
     }
@@ -152,20 +152,20 @@ public:
      * Flip the image horizontally.It is an O(p) operation, and p is the
      * number pixels.
      */
-    virtual void flipHorizontally() {
+    virtual void flipVertically() {
         for( unsigned int y = 0; y < this->getHeight() / 2; y++ )
         {
             for( unsigned int x = 0; x < this->getWidth(); x++ )
             {
                 grid_2d_cell swappy = getPixel( x, y );
                 
-                setPixel( x, y, getPixel( x, this->getHeight() - y ) );
-                setPixel( x, this->getHeight() - y, swappy );
+                setPixel( x, y, getPixel( x, this->getHeight() - y - 1 ) );
+                setPixel( x, this->getHeight() - y - 1, swappy );
             }
         }
     }
     
-    virtual bool getCordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const = 0;
+    virtual bool getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const = 0;
     
     virtual grid_2d_offset getOffset( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
@@ -173,7 +173,6 @@ public:
      * This method only writes the pixel when it is in bounds.
      * @param x the x location bounded by width.
      * @param y the y location bounded by height.
-     * @return True if the pixel is written, false if no pixel is written.
      */
     virtual void setPixel( grid_2d_unit x, grid_2d_unit y, grid_2d_cell pixel ) = 0;
 
