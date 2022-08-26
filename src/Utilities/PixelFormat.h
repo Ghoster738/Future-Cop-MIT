@@ -8,7 +8,7 @@
 
 namespace Utilities {
 
-    typedef double channel_fp;
+    typedef float channel_fp;
     typedef uint16_t palette_index;
 
     class PixelFormat {
