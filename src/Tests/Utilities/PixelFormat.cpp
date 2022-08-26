@@ -345,11 +345,19 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
     return problem;
 }
 
-int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::PixelFormatColor::GenericColor generic, Utilities::PixelFormatColor &format, std::string display )
+int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::PixelFormatColor::GenericColor generic, Utilities::PixelFormatColor &format, std::string display, uint_fast8_t pixel_size )
 {
     int problem = 0;
     auto pixel_writer = pixel_buffer.getWriter();
     auto pixel_reader = pixel_buffer.getReader();
+    
+    if( pixel_size != format.byteSize() )
+    {
+        std::cout << "Error: the byte size for the pixels are invalid." << std::endl;
+        std::cout << "  Expected Size: " << static_cast<unsigned>( pixel_size ) << std::endl;
+        std::cout << "  Real Size: " << static_cast<unsigned>( format.byteSize() ) << std::endl;
+        problem = 1;
+    }
     
     format.writePixel( pixel_writer, Utilities::Buffer::Endian::NO_SWAP, generic );
     pixel_writer.setPosition( 0, Utilities::Buffer::Direction::BEGIN );
@@ -401,33 +409,33 @@ int main() {
         // Test W8.
         {
             Utilities::PixelFormatColor_W8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8" );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8", 1 );
         }
         
         // Test W8A8.
         {
             Utilities::PixelFormatColor_W8A8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8A8" );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8A8", 2 );
         }
         
         // Test R5G5B5A1.
         {
             Utilities::PixelFormatColor_W8A8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1" );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1", 2 );
             Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1" );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1", 2 );
         }
         
         // Test R8G8B8.
         {
             Utilities::PixelFormatColor_R8G8B8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8" );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8", 3 );
         }
         
         // Test R8G8B8A8.
         {
             Utilities::PixelFormatColor_R8G8B8A8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8A8" );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8A8", 4 );
         }
     }
     
