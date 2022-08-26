@@ -92,9 +92,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::read
 
 Utilities::PixelFormatColor_R5G5B5A1::Color::Color( PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate ) {
     if( interpolate == sRGB ) {
-        red   = pow( generic.red,   1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE;
-        green = pow( generic.green, 1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE;
-        blue  = pow( generic.blue,  1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE;
+        red   = pow( generic.red,   1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
+        green = pow( generic.green, 1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
+        blue  = pow( generic.blue,  1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
     }
     else {
         red   = generic.red   * MAX_U5BIT_VALUE;
@@ -204,9 +204,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::re
 Utilities::PixelFormatColor_R8G8B8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     if( interpolate == sRGB ) {
-        red   = pow( generic.red,   1.0 / SRGB_VALUE ) * MAX_UBYTE_sRGB_VALUE;
-        green = pow( generic.green, 1.0 / SRGB_VALUE ) * MAX_UBYTE_sRGB_VALUE;
-        blue  = pow( generic.blue,  1.0 / SRGB_VALUE ) * MAX_UBYTE_sRGB_VALUE;
+        red   = pow( generic.red,   1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
+        green = pow( generic.green, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
+        blue  = pow( generic.blue,  1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
     }
     else {
         red   = generic.red   * MAX_UBYTE_VALUE;
