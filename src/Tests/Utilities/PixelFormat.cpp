@@ -44,25 +44,42 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
         for( uint16_t w = 0; w <= 255; w++ )
         {
             color[0].white = w;
+            uint16_t a = 56;
             
-            for( uint16_t a = 0; a <= 255; a++ )
+            generic = color[0].toGeneric( interpolate );
+            color[1] = Utilities::PixelFormatColor_W8A8::Color( generic, interpolate );
+            
+            if( color[0].white != color[1].white || color[0].alpha != color[1].alpha )
             {
-                color[0].alpha = a;
-                
-                generic = color[0].toGeneric( interpolate );
-                color[1] = Utilities::PixelFormatColor_W8A8::Color( generic, interpolate );
-                
-                if( color[0].white != color[1].white || color[0].alpha != color[1].alpha )
-                {
-                    std::cout << "The color conversion for PixelFormatColor_W8A8 test has failed!" << std::endl;
-                    std::cout << "  At (" << w << ", " << a << ") the colors do not match." << std::endl;
-                    std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
-                    std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                    printGeneric( generic );
-                    w = 256;
-                    a = 256;
-                    problem = 1;
-                }
+                std::cout << "The color conversion for PixelFormatColor_W8A8 test has failed!" << std::endl;
+                std::cout << "  At (" << w << ", " << a << ") the colors do not match." << std::endl;
+                std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
+                std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
+                printGeneric( generic );
+                w = 256;
+                a = 256;
+                problem = 1;
+            }
+        }
+        
+        for( uint16_t a = 0; a <= 255; a++ )
+        {
+            uint16_t w = 80;
+            color[0].alpha = a;
+            
+            generic = color[0].toGeneric( interpolate );
+            color[1] = Utilities::PixelFormatColor_W8A8::Color( generic, interpolate );
+            
+            if( color[0].white != color[1].white || color[0].alpha != color[1].alpha )
+            {
+                std::cout << "The color conversion for PixelFormatColor_W8A8 test has failed!" << std::endl;
+                std::cout << "  At (" << w << ", " << a << ") the colors do not match." << std::endl;
+                std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
+                std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
+                printGeneric( generic );
+                w = 256;
+                a = 256;
+                problem = 1;
             }
         }
     }
