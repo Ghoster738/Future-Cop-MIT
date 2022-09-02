@@ -41,7 +41,7 @@ bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormat
 {
     if( getWidth() > x && getHeight() > y )
     {
-        auto bytes_r = storage_p->getPixelRef( x * pixel_format_p->byteSize(), y );
+        auto bytes_r = storage_p->getRef( x * pixel_format_p->byteSize(), y );
         auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );
         
         pixel_format_p->writePixel( writer, endian, color );
@@ -56,7 +56,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
 {
     if( getWidth() > x && getHeight() > y )
     {
-        auto bytes_r = storage_p->getPixelRef( x * pixel_format_p->byteSize(), y );
+        auto bytes_r = storage_p->getRef( x * pixel_format_p->byteSize(), y );
         auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
         
         return pixel_format_p->readPixel( reader );
