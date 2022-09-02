@@ -10,30 +10,38 @@ typedef uint_fast16_t grid_2d_unit;
 typedef uint16_t      grid_2d_unit_strict;
 typedef uint_fast32_t grid_2d_offset;
 
+struct GridDimensions2D {
+    grid_2d_unit width;
+    grid_2d_unit height;
+    
+    GridDimensions2D() {}
+    GridDimensions2D( grid_2d_unit w, grid_2d_unit h ) : width( w ), height( h ) {}
+    GridDimensions2D( const GridDimensions2D& copy ) :
+        GridDimensions2D( copy.width, copy.height ) {}
+};
+
 /**
  * This is to store things like texture data.
  *
  * This class is a pure virtual class.
  */
-template <class grid_2d_cell>
+template <class grid_2d_value>
 class GridBase2D {
 protected:
-    grid_2d_unit width;
-    grid_2d_unit height;
-    std::vector<grid_2d_cell> cells;
+    GridDimensions2D size;
+    std::vector<grid_2d_value> cells;
     
     /**
      * Update pixels.
      */
     void updateCellBuffer() {
-        cells.resize( static_cast<uint32_t>( width ) *
-                      static_cast<uint32_t>( height ) );
+        cells.resize( static_cast<uint32_t>( size.width ) *
+                      static_cast<uint32_t>( size.height ) );
     }
 public:
-    GridBase2D() : width( 0 ), height( 0 ), cells() {}
-    GridBase2D( const GridBase2D &grid_2d ) :
-    width( grid_2d.width ), height( grid_2d.height ), cells( grid_2d.cells ) {}
-    GridBase2D( grid_2d_unit width_param, grid_2d_unit height_param ) : width( width_param ), height( height_param ) {
+    GridBase2D() : size( 0, 0 ), cells() {}
+    GridBase2D( const GridBase2D &grid_2d ) : size( grid_2d.size ), cells( grid_2d.cells ) {}
+    GridBase2D( grid_2d_unit width_param, grid_2d_unit height_param ) : size( width_param, height_param ) {
         updateCellBuffer();
     }
     virtual ~GridBase2D() {
@@ -43,12 +51,12 @@ public:
     /**
      * @return the grid's width.
      */
-    grid_2d_unit getWidth() const { return width; }
+    grid_2d_unit getWidth() const { return size.width; }
 
     /**
      * @return the grid's height.
      */
-    grid_2d_unit getHeight() const { return height; }
+    grid_2d_unit getHeight() const { return size.height; }
 
     /**
      * This sets the width of the grid.
@@ -56,7 +64,7 @@ public:
      * @param width The width of the grid.
      */
     void setWidth( grid_2d_unit width ) {
-        setDimensions( width, height );
+        setDimensions( width, size.height );
     }
 
     /**
@@ -65,7 +73,7 @@ public:
      * @param height The height of the grid.
      */
     void setHeight( grid_2d_unit height ) {
-        setDimensions( width, height );
+        setDimensions( size.width, height );
     }
     
     /**
@@ -75,8 +83,8 @@ public:
      * @param height The height of the image.
      */
     void setDimensions( grid_2d_unit width, grid_2d_unit height ) {
-        this->width = width;
-        this->height = height;
+        this->size.width = width;
+        this->size.height = height;
         updateCellBuffer();
     }
     
@@ -84,13 +92,13 @@ public:
      * This gets the raw grid data. However, note that the pointer could change at reallocations.
      * @return the pointer of the member variable cells.
      */
-    grid_2d_cell * getDirectPixelData() { return cells.data(); }
+    grid_2d_value * getDirectPixelData() { return cells.data(); }
 
     /**
      * This gets the raw grid data. However, note that the pointer could change at reallocations.
      * @return the pointer of the member variable cells.
      */
-    const grid_2d_cell *const getDirectPixelData() const { return cells.data(); }
+    const grid_2d_value *const getDirectPixelData() const { return cells.data(); }
     
     virtual bool inscribeSubGrid( grid_2d_unit x, grid_2d_unit y, const GridBase2D& ref ) {
         // Check to see if the image format is compatible with ref or else it would cause errors.
@@ -112,8 +120,8 @@ public:
     }
 
     bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, GridBase2D &sub_image ) const {
-        if( x + width <= this->width &&
-            y + height <= this->height )
+        if( x + width <= this->size.width &&
+            y + height <= this->size.height )
         {
             sub_image.setDimensions( width, height );
 
@@ -140,7 +148,7 @@ public:
         {
             for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
             {
-                grid_2d_cell swappy = getPixel( x, y );
+                grid_2d_value swappy = getPixel( x, y );
                 
                 setPixel( x, y, getPixel( this->getWidth() - x - 1, y ) );
                 setPixel( this->getWidth() - x - 1, y, swappy );
@@ -157,7 +165,7 @@ public:
         {
             for( unsigned int x = 0; x < this->getWidth(); x++ )
             {
-                grid_2d_cell swappy = getPixel( x, y );
+                grid_2d_value swappy = getPixel( x, y );
                 
                 setPixel( x, y, getPixel( x, this->getHeight() - y - 1 ) );
                 setPixel( x, this->getHeight() - y - 1, swappy );
@@ -174,19 +182,19 @@ public:
      * @param x the x location bounded by width.
      * @param y the y location bounded by height.
      */
-    virtual void setPixel( grid_2d_unit x, grid_2d_unit y, grid_2d_cell pixel ) = 0;
+    virtual void setPixel( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) = 0;
 
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const grid_2d_cell getPixel( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    virtual const grid_2d_value getPixel( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const grid_2d_cell* getPixelRef( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    virtual const grid_2d_value* getPixelRef( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
-    virtual grid_2d_cell* getPixelRef( grid_2d_unit x, grid_2d_unit y ) = 0;
+    virtual grid_2d_value* getPixelRef( grid_2d_unit x, grid_2d_unit y ) = 0;
     
 };
 

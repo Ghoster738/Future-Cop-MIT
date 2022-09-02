@@ -19,17 +19,17 @@ public:
     
     
     virtual bool getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
-        y = offset / this->width;
-        x = offset % this->width;
+        y = offset / this->size.width;
+        x = offset % this->size.width;
         return true;
     }
     
     virtual grid_2d_offset getOffset( grid_2d_unit x, grid_2d_unit y ) const {
-        return this->width * y + x;
+        return this->size.width * y + x;
     }
     
     inline void setInlinePixel( grid_2d_unit x, grid_2d_unit y, image_2d_pixel pixel ) {
-        if( x < this->width && y < this->height )
+        if( x < this->size.width && y < this->size.height )
         {
             image_2d_pixel *destination_pixel = this->cells.data() + getOffset(x, y);
             *destination_pixel = pixel;
@@ -37,7 +37,7 @@ public:
     }
     
     inline image_2d_pixel getInlinePixel( grid_2d_unit x, grid_2d_unit y ) const {
-        if( x < this->width && y < this->height )
+        if( x < this->size.width && y < this->size.height )
         {
             return this->cells.at( getOffset(x, y) );
         }
@@ -60,14 +60,14 @@ public:
     }
     
     virtual const image_2d_pixel* getPixelRef( grid_2d_unit x, grid_2d_unit y ) const {
-        if( x < this->width && y < this->height )
+        if( x < this->size.width && y < this->size.height )
             return this->cells.data() + getOffset(x, y);
         else
             return nullptr;
     }
     
     virtual image_2d_pixel* getPixelRef( grid_2d_unit x, grid_2d_unit y ) {
-        if( x < this->width && y < this->height )
+        if( x < this->size.width && y < this->size.height )
             return this->cells.data() + getOffset(x, y);
         else
             return nullptr;
