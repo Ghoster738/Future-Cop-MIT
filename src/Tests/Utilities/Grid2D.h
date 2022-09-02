@@ -9,7 +9,7 @@ int test_Grid2DBase() {
     
     GRID_DEC grid( WIDTH, HEIGHT );
     
-    if( grid.getDirectPixelData() == nullptr ) {
+    if( grid.getDirectGridData() == nullptr ) {
         std::cout << "direct pixel data is invalid!" << std::endl;
         problem = 1;
     }
@@ -62,13 +62,13 @@ int test_Grid2DBase() {
     {
         GRID_DEC sub_image;
         
-        if( grid.subImage(0, 3,23,44, sub_image) )
+        if( grid.subGrid(0, 3,23,44, sub_image) )
         {
             std::cout << "Sub Image did not fail when it should" << std::endl;
             problem = 1;
         }
         
-        if( grid.subImage(0, 2, 2, 2, sub_image) ) {
+        if( grid.subGrid(0, 2, 2, 2, sub_image) ) {
             if( sub_image.getWidth() != 2 )
             {
                 std::cout << "The sub image's width is not " << 2 << "! " << sub_image.getWidth() << std::endl;
