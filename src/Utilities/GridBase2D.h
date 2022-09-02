@@ -258,28 +258,57 @@ public:
         }
     }
     
-    virtual bool getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const = 0;
-    
-    virtual grid_2d_offset getOffset( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    grid_2d_placement getPlacement() const {
+        return placement;
+    }
     
     /**
      * This method only writes the pixel when it is in bounds.
      * @param x the x location bounded by width.
      * @param y the y location bounded by height.
      */
-    virtual void setValue( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) = 0;
+    virtual void setValue( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) {
+        if( !this->size.withinBounds(x, y) )
+            return;
+        else
+        {
+            const auto OFFSET = placement.getOffset(x, y);
+            
+            cells[ OFFSET ] = pixel;
+        }
+    }
 
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const grid_2d_value getValue( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    virtual const grid_2d_value getValue( grid_2d_unit x, grid_2d_unit y ) const {
+        if( !this->size.withinBounds(x, y) )
+            return cells[0];
+        else
+        {
+            const auto OFFSET = placement.getOffset(x, y);
+            
+            return cells[ OFFSET ];
+        }
+    }
     
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    virtual const grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) const {
+        return const_cast<GridBase2D*>(this)->getRef( x, y );
+    }
     
-    virtual grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) = 0;
+    virtual grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) {
+        if( !this->size.withinBounds(x, y) )
+            return nullptr;
+        else
+        {
+            const auto OFFSET = placement.getOffset(x, y);
+            
+            return cells.data() + OFFSET;
+        }
+    }
     
 };
 
