@@ -1,8 +1,5 @@
 #include "Image2D.h"
 
-#include "GridSq2D.h"
-#include "Grid2D.h"
-
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
 {
 }
@@ -25,7 +22,7 @@ Utilities::Image2D::Image2D( const Image2D &obj, const PixelFormatColor& format 
 Utilities::Image2D::Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : endian( endian_param )
 {
     pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
-    storage_p = new Grid2D<uint8_t>( width * pixel_format_p->byteSize(), height );
+    storage_p = new GridBase2D<uint8_t>( width * pixel_format_p->byteSize(), height );
 }
 
 Utilities::Image2D::~Image2D()
@@ -78,7 +75,7 @@ bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endi
         for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
-            storage_p->getCoordinates( i, x, y );
+            storage_p->getPlacement().getCoordinates( i, x, y );
             
             writePixel( x, y, pixel_format_p->readPixel( reader, endian ) );
         }
@@ -100,7 +97,7 @@ bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian
         for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
-            storage_p->getCoordinates( i, x, y );
+            storage_p->getPlacement().getCoordinates( i, x, y );
             
             pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
         }
@@ -125,7 +122,7 @@ bool Utilities::Image2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) co
         for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
-            storage_p->getCoordinates( i, x, y );
+            storage_p->getPlacement().getCoordinates( i, x, y );
             
             pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
             

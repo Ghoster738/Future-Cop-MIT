@@ -1,13 +1,13 @@
-#include "../../Utilities/GridSq2D.h"
+#include "../../Utilities/GridBase2D.h"
 #include "Grid2D.h"
 
 int main() {
     // This test would simply crash, due to the specialized way the grid is stored.
-    int problem = 0; // = test_Grid2DBase<Utilities::GridSq2D<int>>();
+    int problem = 0; // = test_Grid2DBase<Utilities::GridBase2D<int, Utilities::Grid2DPlacementMorbin>>();
     
     {
         // Now, test the placement algorithm.
-        Utilities::GridSq2D<int> grid( 4, 4 );
+        Utilities::GridBase2D<int, Utilities::Grid2DPlacementMorbin> grid( 4, 4 );
         
         if( grid.getHeight() != 4 )
         {
@@ -56,7 +56,7 @@ int main() {
             {
                 for( Utilities::grid_2d_unit y = 0; y < grid.getHeight(); y++ )
                 {
-                    auto offset = grid.getOffset(x, y);
+                    auto offset = grid.getPlacement().getOffset(x, y);
                     
                     if( offset >= grid.getWidth() * grid.getHeight() )
                         within_bounds = false;
@@ -91,11 +91,11 @@ int main() {
         {
             for( Utilities::grid_2d_unit y = 0; y < grid.getHeight(); y++ )
             {
-                auto offset = grid.getOffset(x, y);
+                auto offset = grid.getPlacement().getOffset(x, y);
                 
                 Utilities::grid_2d_unit cx, cy;
                 
-                grid.getCoordinates(offset, cx, cy);
+                grid.getPlacement().getCoordinates(offset, cx, cy);
                 
                 if( cx != x || cy != y )
                 {

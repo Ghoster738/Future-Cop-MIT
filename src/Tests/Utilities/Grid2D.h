@@ -251,7 +251,7 @@ int test_Grid2DBase() {
             {
                 for( Utilities::grid_2d_unit y = 0; y < grid.getHeight(); y++ )
                 {
-                    auto offset = grid.getOffset(x, y);
+                    auto offset = grid.getPlacement().getOffset(x, y);
                     
                     if( offset >= grid.getWidth() * grid.getHeight() )
                         within_bounds = false;
@@ -286,11 +286,11 @@ int test_Grid2DBase() {
         {
             for( Utilities::grid_2d_unit y = 0; y < grid.getHeight(); y++ )
             {
-                auto offset = grid.getOffset(x, y);
+                auto offset = grid.getPlacement().getOffset(x, y);
                 
                 Utilities::grid_2d_unit cx, cy;
                 
-                grid.getCoordinates(offset, cx, cy);
+                grid.getPlacement().getCoordinates(offset, cx, cy);
                 
                 if( cx != x || cy != y )
                 {
