@@ -113,22 +113,22 @@ public:
      * @param y the y location bounded by height.
      * @return True if the pixel is written, false if no pixel is written.
      */
-    virtual void setPixel( grid_2d_unit x, grid_2d_unit y, image_2d_pixel pixel ) {
+    virtual void setValue( grid_2d_unit x, grid_2d_unit y, image_2d_pixel pixel ) {
         setInlinePixel( x, y, pixel );
     }
 
-    virtual const image_2d_pixel getPixel( grid_2d_unit x, grid_2d_unit y ) const {
+    virtual const image_2d_pixel getValue( grid_2d_unit x, grid_2d_unit y ) const {
         return getInlinePixel( x, y );
     }
     
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const image_2d_pixel* getPixelRef( grid_2d_unit x, grid_2d_unit y ) const {
+    virtual const image_2d_pixel* getRef( grid_2d_unit x, grid_2d_unit y ) const {
         return this->cells.data() + getOrderUnit( x, y );
     }
     
-    virtual image_2d_pixel* getPixelRef( grid_2d_unit x, grid_2d_unit y ) {
+    virtual image_2d_pixel* getRef( grid_2d_unit x, grid_2d_unit y ) {
         return this->cells.data() + getOrderUnit( x, y );
     }
     

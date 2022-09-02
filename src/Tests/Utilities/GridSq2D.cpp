@@ -26,7 +26,7 @@ int main() {
         {
             for( Utilities::grid_2d_unit y = 0; y < grid.getHeight(); y++ )
             {
-                grid.setPixel( x, y, 70 );
+                grid.setValue( x, y, 70 );
             }
         }
         
@@ -34,7 +34,7 @@ int main() {
         {
             for( Utilities::grid_2d_unit y = 0; y < grid.getHeight(); y++ )
             {
-                if( grid.getPixel( x, y ) != 70 )
+                if( grid.getValue( x, y ) != 70 )
                 {
                     std::cout << "The pixels had failed to be set properly." << std::endl;
                     

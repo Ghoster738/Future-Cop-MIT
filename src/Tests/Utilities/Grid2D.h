@@ -21,7 +21,7 @@ int test_Grid2DBase() {
         {
             for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
             {
-                grid.setPixel( x, y, pixel );
+                grid.setValue( x, y, pixel );
                 pixel++;
             }
         }
@@ -47,9 +47,9 @@ int test_Grid2DBase() {
         {
             for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
             {
-                if( grid.getPixel( x, y ) != pixel )
+                if( grid.getValue( x, y ) != pixel )
                 {
-                    std::cout << "Pixel at ( " << x << ", " << y << ") is not " << pixel << " but " <<  grid.getPixel( x, y ) << "." << std::endl;
+                    std::cout << "Pixel at ( " << x << ", " << y << ") is not " << pixel << " but " <<  grid.getValue( x, y ) << "." << std::endl;
                     x = WIDTH;
                     y = HEIGHT;
                     problem = 1;
@@ -82,22 +82,22 @@ int test_Grid2DBase() {
             
             if( problem == 0 )
             {
-                if( sub_image.getPixel( 0, 0 ) != 2 )
+                if( sub_image.getValue( 0, 0 ) != 2 )
                 {
                     std::cout << "Bad Pixel at (0, 0)" << std::endl;
                     problem = 1;
                 }
-                else if( sub_image.getPixel( 0, 1 ) != 3 )
+                else if( sub_image.getValue( 0, 1 ) != 3 )
                 {
                     std::cout << "Bad Pixel at (0, 1)" << std::endl;
                     problem = 1;
                 }
-                else if( sub_image.getPixel( 1, 0 ) != 6 )
+                else if( sub_image.getValue( 1, 0 ) != 6 )
                 {
                     std::cout << "Bad Pixel at (1, 0)" << std::endl;
                     problem = 1;
                 }
-                else if( sub_image.getPixel( 1, 1 ) != 7 )
+                else if( sub_image.getValue( 1, 1 ) != 7 )
                 {
                     std::cout << "Bad Pixel at (1, 1)" << std::endl;
                     problem = 1;
@@ -118,7 +118,7 @@ int test_Grid2DBase() {
         {
             for( Utilities::grid_2d_unit y = 0; y < 4; y++ )
             {
-                inscribe_surface.setPixel( x, y, 120 );
+                inscribe_surface.setValue( x, y, 120 );
             }
         }
         
@@ -137,7 +137,7 @@ int test_Grid2DBase() {
             {
                 for( Utilities::grid_2d_unit y = 0; y < inscribe_surface.getHeight(); y++ )
                 {
-                    if( inscribe_surface.getPixel( x, y ) != 120 )
+                    if( inscribe_surface.getValue( x, y ) != 120 )
                     {
                         found_nonmatch++;
                     }
@@ -160,10 +160,10 @@ int test_Grid2DBase() {
             {
                 for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
                 {
-                    if( inscribe_surface.getPixel( x + 2, y ) != pixel )
+                    if( inscribe_surface.getValue( x + 2, y ) != pixel )
                     {
                         std::cout << "Inscribe has failed." << std::endl;
-                        std::cout << "Pixel at ( " << x << ", " << y << ") is not " << pixel << " but " <<  inscribe_surface.getPixel( x + 2, y ) << "." << std::endl;
+                        std::cout << "Pixel at ( " << x << ", " << y << ") is not " << pixel << " but " <<  inscribe_surface.getValue( x + 2, y ) << "." << std::endl;
                         x = WIDTH;
                         y = HEIGHT;
                         problem = 1;
@@ -182,12 +182,12 @@ int test_Grid2DBase() {
     {
         GRID_DEC original(2, 3);
         
-        original.setPixel( 0, 0, 0 );
-        original.setPixel( 0, 1, 0 );
-        original.setPixel( 0, 2, 0 );
-        original.setPixel( 1, 0, 0 );
-        original.setPixel( 1, 1, 0 );
-        original.setPixel( 1, 2, 1 );
+        original.setValue( 0, 0, 0 );
+        original.setValue( 0, 1, 0 );
+        original.setValue( 0, 2, 0 );
+        original.setValue( 1, 0, 0 );
+        original.setValue( 1, 1, 0 );
+        original.setValue( 1, 2, 1 );
         
         GRID_DEC horizontal( original );
         
@@ -195,7 +195,7 @@ int test_Grid2DBase() {
         {
             for( Utilities::grid_2d_unit y = 0; y < horizontal.getHeight(); y++ )
             {
-                if( horizontal.getPixel(x,y) != original.getPixel(x,y) )
+                if( horizontal.getValue(x,y) != original.getValue(x,y) )
                 {
                     std::cout << "The copy constructor does not work!" << std::endl;
                     
@@ -208,7 +208,7 @@ int test_Grid2DBase() {
         
         horizontal.flipHorizontally();
         
-        if( horizontal.getPixel(0,2) != 1 )
+        if( horizontal.getValue(0,2) != 1 )
         {
             std::cout << "Flip horizontal operation failed." << std::endl;
             
@@ -217,7 +217,7 @@ int test_Grid2DBase() {
             {
                 for( Utilities::grid_2d_unit y = 0; y < horizontal.getHeight(); y++ )
                 {
-                    std::cout << horizontal.getPixel(x, y) << " ";
+                    std::cout << horizontal.getValue(x, y) << " ";
                 }
                 std::cout << std::endl;
             }
@@ -229,7 +229,7 @@ int test_Grid2DBase() {
         
         vertical.flipVertically();
         
-        if( vertical.getPixel(1,0) != 1 )
+        if( vertical.getValue(1,0) != 1 )
         {
             std::cout << "Flip vertical operation failed." << std::endl;
             problem = 1;

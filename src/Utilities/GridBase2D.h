@@ -109,7 +109,7 @@ public:
             {
                 for( unsigned int ref_y = 0; ref_y < ref.getHeight(); ref_y++ )
                 {
-                    setPixel( ref_x + x, ref_y + y, ref.getPixel(ref_x, ref_y) );
+                    setValue( ref_x + x, ref_y + y, ref.getValue(ref_x, ref_y) );
                 }
             }
 
@@ -129,7 +129,7 @@ public:
             {
                 for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
                 {
-                    sub_image.setPixel( sub_x, sub_y, getPixel(sub_x + x, sub_y + y) );
+                    sub_image.setValue( sub_x, sub_y, getValue(sub_x + x, sub_y + y) );
                 }
             }
 
@@ -148,10 +148,10 @@ public:
         {
             for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
             {
-                grid_2d_value swappy = getPixel( x, y );
+                grid_2d_value swappy = getValue( x, y );
                 
-                setPixel( x, y, getPixel( this->getWidth() - x - 1, y ) );
-                setPixel( this->getWidth() - x - 1, y, swappy );
+                setValue( x, y, getValue( this->getWidth() - x - 1, y ) );
+                setValue( this->getWidth() - x - 1, y, swappy );
             }
         }
     }
@@ -165,10 +165,10 @@ public:
         {
             for( unsigned int x = 0; x < this->getWidth(); x++ )
             {
-                grid_2d_value swappy = getPixel( x, y );
+                grid_2d_value swappy = getValue( x, y );
                 
-                setPixel( x, y, getPixel( x, this->getHeight() - y - 1 ) );
-                setPixel( x, this->getHeight() - y - 1, swappy );
+                setValue( x, y, getValue( x, this->getHeight() - y - 1 ) );
+                setValue( x, this->getHeight() - y - 1, swappy );
             }
         }
     }
@@ -182,19 +182,19 @@ public:
      * @param x the x location bounded by width.
      * @param y the y location bounded by height.
      */
-    virtual void setPixel( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) = 0;
+    virtual void setValue( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) = 0;
 
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const grid_2d_value getPixel( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    virtual const grid_2d_value getValue( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
     /**
      * This method is to get the pixel that is used.
      */
-    virtual const grid_2d_value* getPixelRef( grid_2d_unit x, grid_2d_unit y ) const = 0;
+    virtual const grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
-    virtual grid_2d_value* getPixelRef( grid_2d_unit x, grid_2d_unit y ) = 0;
+    virtual grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) = 0;
     
 };
 
