@@ -70,11 +70,11 @@ public:
     }
     
     bool isValid() {
-        return isPowerOfTwo( this->width ) & isPowerOfTwo( this->height );
+        return isPowerOfTwo( this->size.width ) & isPowerOfTwo( this->height );
     }
     
     inline void setInlinePixel( grid_2d_unit x, grid_2d_unit y, image_2d_pixel pixel ) {
-        if( x < this->width && y < this->height )
+        if( x < this->size.width && y < this->size.height )
         {
             image_2d_pixel *destination_pixel = this->cells.data() +  getOrderUnit(x, y);
             *destination_pixel = pixel;
@@ -82,7 +82,7 @@ public:
     }
     
     inline image_2d_pixel getInlinePixel( grid_2d_unit x, grid_2d_unit y ) const {
-        if( x < this->width && y < this->height )
+        if( x < this->size.width && y < this->size.height )
         {
             return this->cells.at( getOrderUnit(x, y) );
         }
