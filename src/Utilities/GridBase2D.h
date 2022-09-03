@@ -118,7 +118,7 @@ protected:
     /**
      * Update pixels.
      */
-    void updateCellBuffer() {
+    virtual void updateCellBuffer() {
         cells.resize( static_cast<uint32_t>( getWidth() ) *
                       static_cast<uint32_t>( getHeight() ) );
         placement.updatePlacement();
