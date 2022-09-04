@@ -57,6 +57,102 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
         return PixelFormatColor::GenericColor( 0, 0, 0, 1 );
 }
 
+bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const Image2D& sub_image )
+{
+    if( x + sub_image.getWidth() <= getWidth() &&
+        y + sub_image.getHeight() <= getHeight() )
+    {
+        for( grid_2d_unit sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ )
+        {
+            for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
+            {
+                auto SOURCE = sub_image.getRef( sub_x + x, sub_y + y );
+                auto DESTINATION = getRef( sub_x, sub_y );
+                
+                for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
+                {
+                    DESTINATION[ i ] = SOURCE[ i ];
+                }
+            }
+        }
+
+        return true;
+    }
+    else
+        return false;
+}
+
+bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, Image2D& sub_image ) const
+{
+    if( x + width <= getWidth() &&
+        y + height <= getHeight() )
+    {
+        sub_image.setDimensions( width, height );
+
+        for( grid_2d_unit sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ )
+        {
+            for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
+            {
+                auto SOURCE = getRef( sub_x + x, sub_y + y );
+                auto DESTINATION = sub_image.getRef( sub_x, sub_y );
+                
+                for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
+                {
+                    DESTINATION[ i ] = SOURCE[ i ];
+                }
+            }
+        }
+
+        return true;
+    }
+    else
+        return false;
+}
+
+void Utilities::Image2D::flipHorizontally()
+{
+    for( unsigned int y = 0; y < this->getHeight(); y++ )
+    {
+        for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
+        {
+            const auto OTHER_END = this->getWidth() - x - 1;
+            
+            auto FIRST = getRef( x, y );
+            auto SECOND = getRef( OTHER_END, y );
+            
+            for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
+            {
+                auto swappy = FIRST[ i ];
+                
+                FIRST[  i ] = SECOND[ i ];
+                SECOND[ i ] = swappy;
+            }
+        }
+    }
+}
+
+void Utilities::Image2D::flipVertically()
+{
+    for( unsigned int y = 0; y < this->getHeight() / 2; y++ )
+    {
+        const auto OTHER_END = this->getHeight() - y - 1;
+        
+        for( unsigned int x = 0; x < this->getWidth(); x++ )
+        {
+            auto FIRST = getRef( x, y );
+            auto SECOND = getRef( x, OTHER_END );
+            
+            for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
+            {
+                auto swappy = FIRST[ i ];
+                
+                FIRST[  i ] = SECOND[ i ];
+                SECOND[ i ] = swappy;
+            }
+        }
+    }
+}
+
 bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
     static grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
