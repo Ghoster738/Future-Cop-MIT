@@ -93,6 +93,22 @@ public:
     
     virtual PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<placement>& ref ) = 0;
+
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<placement> &sub_grid ) const = 0;
+    
+    /**
+     * Flip the image vertically.It is an O(p) operation, and p is the
+     * number pixels.
+     */
+    virtual void flipHorizontally() = 0;
+    
+    /**
+     * Flip the image horizontally.It is an O(p) operation, and p is the
+     * number pixels.
+     */
+    virtual void flipVertically() = 0;
+    
     virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian ) = 0;
     
     virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const = 0;
@@ -116,6 +132,14 @@ public:
     bool writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color );
     
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
+    
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const Image2D& ref );
+    
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, Image2D& sub_image ) const;
+    
+    virtual void flipHorizontally();
+    
+    virtual void flipVertically();
     
     bool fromReader( Buffer::Reader &reader, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
     
