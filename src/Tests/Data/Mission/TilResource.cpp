@@ -7,9 +7,78 @@
 #include "../../../Utilities/ImageFormat/Chooser.h"
 
 int main() {
-    const static int FAILURE = 1;
-    const static int SUCCESS = 0;
-
+    int is_not_success = false;
+    
+    {
+        Data::Mission::TilResource::Floor floor;
+        
+        floor.set( 0b0000000000010010 );
+        
+        if( floor.tile_amount != 0b10010 || floor.tiles_start != 0 ) {
+            std::cout << "Error: the Floor bitfield regarding tile_amount is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        floor.set( 0b0000010010000000 );
+        
+        if( floor.tiles_start != 0b10010 || floor.tile_amount != 0 ) {
+            std::cout << "Error: the Floor bitfield regarding tiles_start is flawed!" << std::endl;
+            is_not_success = true;
+        }
+    }
+    
+    {
+        Data::Mission::TilResource::Tile tile;
+        
+        tile.set( 0b00000000000000000000000000000001 );
+        if( tile.unknown_0      != 1 || tile.texture_cord_index  != 0 ||
+            tile.collision_type != 0 || tile.unknown_1           != 0 ||
+            tile.mesh_type      != 0 || tile.graphics_type_index != 0 ) {
+            std::cout << "Error: the Tile bitfield regarding unknown_0 is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile.set( 0b00000000000000000000010011001000 );
+        if( tile.unknown_0      != 0 || tile.texture_cord_index  != 0b1001100100 ||
+            tile.collision_type != 0 || tile.unknown_1           != 0 ||
+            tile.mesh_type      != 0 || tile.graphics_type_index != 0 ) {
+            std::cout << "Error: the Tile bitfield regarding texture_cord_index is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile.set( 0b00000000000000000001000000000000 );
+        if( tile.unknown_0      != 0    || tile.texture_cord_index  != 0 ||
+            tile.collision_type != 0b10 || tile.unknown_1           != 0 ||
+            tile.mesh_type      != 0    || tile.graphics_type_index != 0 ) {
+            std::cout << "Error: the Tile bitfield regarding collision_type is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile.set( 0b00000000000000000100000000000000 );
+        if( tile.unknown_0      != 0 || tile.texture_cord_index  != 0 ||
+            tile.collision_type != 0 || tile.unknown_1           != 0b10 ||
+            tile.mesh_type      != 0 || tile.graphics_type_index != 0 ) {
+            std::cout << "Error: the Tile bitfield regarding unknown_1 is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile.set( 0b00000000001000101000000000000000 );
+        if( tile.unknown_0      != 0         || tile.texture_cord_index  != 0 ||
+            tile.collision_type != 0         || tile.unknown_1           != 0 ||
+            tile.mesh_type      != 0b1000101 || tile.graphics_type_index != 0 ) {
+            std::cout << "Error: the Tile bitfield regarding mesh_type is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile.set( 0b10011001000000000000000000000000 );
+        if( tile.unknown_0      != 0 || tile.texture_cord_index  != 0 ||
+            tile.collision_type != 0 || tile.unknown_1           != 0 ||
+            tile.mesh_type      != 0 || tile.graphics_type_index != 0b1001100100) {
+            std::cout << "Error: the Tile bitfield regarding graphics_type_index is flawed!" << std::endl;
+            is_not_success = true;
+        }
+    }
+    
     // Testing the Data::Mission::TilResource::Tile
     {
         Data::Mission::TilResource::Tile floor = { 0x005e28011 };
@@ -18,38 +87,82 @@ int main() {
         if( floor.graphics_type_index != 23 ) {
             std::cout << "graphics_type_index is wrong!" << std::endl;
             std::cout << "should be 23 not " << floor.graphics_type_index << "!" << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         // TODO Do a check over for this value.
         if( floor.mesh_type != 69 ) {
             std::cout << "mesh_type is wrong!" << std::endl;
             std::cout << "should be 69 not " << floor.mesh_type << "!" << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         if( floor.unknown_1 != 0 ) {
             std::cout << "unknown_1 is wrong!" << std::endl;
             std::cout << "should be 1 not " << floor.unknown_1 << "!" << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         if( floor.collision_type != 0 ) {
             std::cout << "collision_type is wrong!" << std::endl;
             std::cout << "should be 1 not " << floor.collision_type << "!" << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
 
         if( floor.texture_cord_index != 8 ) {
             std::cout << "texture_cord_index is wrong!" << std::endl;
             std::cout << "should be 8 not " << floor.texture_cord_index << "!" << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
 
         if( floor.unknown_0 != 1 ) {
             std::cout << "unknown_0 is wrong!" << std::endl;
             std::cout << "should be 1 not " << floor.unknown_0 << "!" << std::endl;
-            return FAILURE;
+            is_not_success = true;
+        }
+    }
+    
+    {
+        Data::Mission::TilResource::TileGraphics tile_graphics;
+        
+        tile_graphics.set( 0b0000000010010111 );
+        if( tile_graphics.shading   != 0b10010111 || tile_graphics.texture_index != 0 ||
+            tile_graphics.unknown_0 != 0          || tile_graphics.rectangle     != 0 ||
+            tile_graphics.type      != 0 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding shading is flawed!" << std::endl;
+            is_not_success = true;
+        }
+
+        tile_graphics.set( 0b00000011100000000 );
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index != 0b111 ||
+            tile_graphics.unknown_0 != 0 || tile_graphics.rectangle     != 0 ||
+            tile_graphics.type      != 0 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding texture_index is flawed!" << std::endl;
+            is_not_success = true;
+        }
+
+        tile_graphics.set( 0b0001100000000000 );
+        if( tile_graphics.shading   != 0    || tile_graphics.texture_index != 0 ||
+            tile_graphics.unknown_0 != 0b11 || tile_graphics.rectangle     != 0 ||
+            tile_graphics.type      != 0 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding unknown_0 is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile_graphics.set( 0b0010000000000000 );
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index != 0 ||
+            tile_graphics.unknown_0 != 0 || tile_graphics.rectangle     != 1 ||
+            tile_graphics.type      != 0 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding rectangle is flawed!" << std::endl;
+            is_not_success = true;
+        }
+        
+        tile_graphics.set( 0b1100000000000000 );
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index != 0 ||
+            tile_graphics.unknown_0 != 0 || tile_graphics.rectangle     != 0 ||
+            tile_graphics.type      != 3 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding type is flawed!" << std::endl;
+            is_not_success = true;
         }
     }
     
@@ -65,7 +178,7 @@ int main() {
         if( triangles.empty() ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It has no triangles." << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         glm::vec3 min = glm::vec3( std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() );
@@ -97,7 +210,7 @@ int main() {
             std::cout << "The triangles are not center." << std::endl;
             displayVec3( "min", min, std::cout );
             displayVec3( "max", max, std::cout );
-            return FAILURE;
+            is_not_success = true;
         }
         
         std::vector<float> side_lengths;
@@ -128,7 +241,7 @@ int main() {
                 displayVec3( "[0]:", point_0, std::cout );
                 displayVec3( "[1]:", point_1, std::cout );
                 displayVec3( "[2]:", point_2, std::cout );
-                return FAILURE;
+                is_not_success = true;
             }
         }
         
@@ -136,19 +249,19 @@ int main() {
         if( til_resource.getRayCast2D( 0, 0 ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It is not raycastable." << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         if( til_resource.getRayCast2D( 7.5, 7.5 ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 8." << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         if( til_resource.getRayCast2D( 8.5, 8.5 ) > 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 9." << std::endl;
-            return FAILURE;
+            is_not_success = true;
         }
         
         for( int depth = 1; depth <= 8; depth++ ) {
@@ -167,7 +280,7 @@ int main() {
                 std::cout << "Depth: " << depth << std::endl;
                 std::cout << "Expected: " << HALF_LENGTH << std::endl;
                 std::cout << "High: " << HIGH << std::endl;
-                return FAILURE;
+                is_not_success = true;
             }
             
             if( isNotMatch( -LOW, HIGH ) )
@@ -177,7 +290,7 @@ int main() {
                 std::cout << "Depth: " << depth << std::endl;
                 std::cout << "Low: " << LOW << std::endl;
                 std::cout << "High: " << HIGH << std::endl;
-                return FAILURE;
+                is_not_success = true;
             }
         }
         
@@ -187,13 +300,13 @@ int main() {
             
             if( heightmap_p == nullptr ) {
                 std::cout << "The test cannot test the height map. This test either asks the tile_resource too much depth, or til_resource is refusing to allocate more data." << std::endl;
-                return FAILURE;
+                is_not_success = true;
             }
             else {
                 if( heightmap_p->getPixelSize() != 3 ) {
                     std::cout << "Heightmap need 3 pixels." << std::endl;
                     
-                    return FAILURE;
+                    is_not_success = true;
                 }
                 
                 // Scan the heightmap for errors.
@@ -209,7 +322,7 @@ int main() {
                     std::cout << "There is no pixels tested..." << std::endl;
                     std::cout << "The heightmap is empty." << std::endl;
                     
-                    return FAILURE;
+                    is_not_success = true;
                 }
                 
                 for( unsigned int x = 0; x < tested_pixels; x++ ) {
@@ -240,7 +353,7 @@ int main() {
                     std::cout << "missing pixels: " << (static_cast<float>( missing_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
                     std::cout << "too far pixels: " << (static_cast<float>( too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
                     
-                    return FAILURE;
+                    is_not_success = true;
                 }
                 
                 delete heightmap_p;
@@ -248,6 +361,6 @@ int main() {
         }
     }
 
-    return SUCCESS;
+    return is_not_success;
 }
 
