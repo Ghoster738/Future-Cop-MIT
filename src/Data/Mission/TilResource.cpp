@@ -81,16 +81,13 @@ void Data::Mission::TilResource::makeEmpty() {
     
     for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
         for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
-            mesh_reference_grid[x][y].floor = 0;
             mesh_reference_grid[x][y].tile_amount = 1;
             mesh_reference_grid[x][y].tiles_start = 0; // It will refer to one tile.
         }
     }
     
     // Make a generic tile
-    Tile one_tile;
-    
-    one_tile.tile = 0;
+    Tile one_tile( 0 );
     
     one_tile.unknown_0 = 0;
     one_tile.texture_cord_index = 0;
@@ -153,7 +150,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 *settings.output_ref << "Mission::TilResource::load() loc = 0x" << std::hex << getOffset() << std::dec << std::endl;
                 *settings.output_ref << "Color amount = " << color_amount << std::endl;
                 *settings.output_ref << "texture_cordinates_amount = " << texture_cordinates_amount << std::endl;
-                *settings.output_ref << "texture_quads_amount = " << texture_cordinates_amount / 4 << std::endl;
             }
 
             // setup the point_cloud_3_channel.
@@ -206,7 +202,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
             for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
                 for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
-                    mesh_reference_grid[x][y].floor = readerSect.readU16( settings.endian );
+                    mesh_reference_grid[x][y].set( readerSect.readU16( settings.endian ) );
                 }
             }
 
