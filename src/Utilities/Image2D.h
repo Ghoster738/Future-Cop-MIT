@@ -161,9 +161,9 @@ public:
     
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
     
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const Image2D& ref );
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementNormal>& ref );
     
-    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, Image2D& sub_image ) const;
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<Grid2DPlacementNormal>& sub_image ) const;
     
     virtual void flipHorizontally();
     
@@ -189,9 +189,9 @@ public:
 
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
 
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageMorbin2D& ref );
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementMorbin>& ref );
 
-    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageMorbin2D& sub_image ) const;
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<Grid2DPlacementMorbin>& sub_image ) const;
 
     virtual void flipHorizontally();
 
