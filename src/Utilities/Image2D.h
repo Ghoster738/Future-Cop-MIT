@@ -34,7 +34,11 @@ public:
         pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
     }
     
-    virtual ~ImageBase2D() {}
+    virtual ~ImageBase2D() {
+        if( pixel_format_p != nullptr)
+            delete pixel_format_p;
+        pixel_format_p = nullptr;
+    }
     
     /**
      * @return the grid's width.
@@ -89,8 +93,6 @@ public:
         }
     }
     
-    virtual bool writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color ) = 0;
-    
     virtual PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const = 0;
     
     virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<placement>& ref ) = 0;
@@ -116,12 +118,25 @@ public:
     virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const = 0;
 };
 
+template<class placement, class grid_2d_value = uint8_t>
+class ImageBaseWrite2D : public ImageBase2D<placement, grid_2d_value> {
+public:
+    ImageBaseWrite2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP ) :
+        ImageBase2D<placement, grid_2d_value>(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
+    ImageBaseWrite2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian = Buffer::Endian::NO_SWAP  ) :
+        ImageBase2D<placement, grid_2d_value>(width, height, format, endian ) {}
+    
+    virtual ~ImageBaseWrite2D() {}
+    
+    virtual bool writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color ) = 0;
+};
+
 /**
  * This class is meant to store an image.
  *
  * This is not a template class this time, but a class that can specifiy which image format it uses.
  */
-class Image2D : public ImageBase2D<Grid2DPlacementNormal> {
+class Image2D : public ImageBaseWrite2D<Grid2DPlacementNormal> {
 public:
     Image2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
     Image2D( const Image2D &obj  );
@@ -148,7 +163,34 @@ public:
     bool addToBuffer( Buffer &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
 };
 
+class ImageMorbin2D : public ImageBaseWrite2D<Grid2DPlacementMorbin> {
+public:
+    ImageMorbin2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+    ImageMorbin2D( const ImageMorbin2D &obj  );
+    ImageMorbin2D( const ImageMorbin2D &obj, const PixelFormatColor& format  );
+    ImageMorbin2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian = Buffer::Endian::NO_SWAP  );
+    virtual ~ImageMorbin2D();
+
+    bool writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color );
+
+    PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
+
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageMorbin2D& ref );
+
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageMorbin2D& sub_image ) const;
+
+    virtual void flipHorizontally();
+
+    virtual void flipVertically();
+
+    bool fromReader( Buffer::Reader &reader, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+
+    bool toWriter( Buffer::Writer &writer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
+
+    bool addToBuffer( Buffer &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
 };
+
+}
 
 #endif // UTILITIES_IMAGE_2D_HEADER
 
