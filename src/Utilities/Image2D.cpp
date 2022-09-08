@@ -4,6 +4,17 @@ Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelForma
 {
 }
 
+Utilities::Image2D::Image2D( const ImageMorbin2D &obj  ) : Image2D( obj.getWidth(), obj.getHeight(), *obj.getPixelFormat(), obj.getEndian() )
+{
+    for( grid_2d_unit x = 0; x < obj.getWidth(); x++ )
+    {
+        for( grid_2d_unit y = 0; y < obj.getHeight(); y++ )
+        {
+            writePixel( x, y, obj.readPixel( x, y ) );
+        }
+    }
+}
+
 Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_format_p )
 {
 }
@@ -226,6 +237,17 @@ bool Utilities::Image2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) co
 
 Utilities::ImageMorbin2D::ImageMorbin2D( Buffer::Endian endian ) : ImageMorbin2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
 {
+}
+
+Utilities::ImageMorbin2D::ImageMorbin2D( const Image2D &obj  ) : ImageMorbin2D( obj.getWidth(), obj.getHeight(), *obj.getPixelFormat(), obj.getEndian() )
+{
+    for( grid_2d_unit x = 0; x < obj.getWidth(); x++ )
+    {
+        for( grid_2d_unit y = 0; y < obj.getHeight(); y++ )
+        {
+            writePixel( x, y, obj.readPixel( x, y ) );
+        }
+    }
 }
 
 Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj ) : ImageMorbin2D( obj, *obj.pixel_format_p )
