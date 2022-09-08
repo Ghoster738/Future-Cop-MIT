@@ -50,6 +50,16 @@ public:
      */
     grid_2d_unit getHeight() const { return this->size.height; }
     
+    /**
+     * @return the endianess
+     */
+    Buffer::Endian getEndian() const { return endian; }
+    
+    /**
+     * @return the pixel format.
+     */
+    const PixelFormatColor *const getPixelFormat() const { return pixel_format_p; }
+    
     virtual void setValue( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) {
         if( !this->size.withinBounds(x, y) )
             return;
@@ -131,6 +141,8 @@ public:
     virtual bool writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color ) = 0;
 };
 
+class ImageMorbin2D;
+
 /**
  * This class is meant to store an image.
  *
@@ -139,6 +151,7 @@ public:
 class Image2D : public ImageBaseWrite2D<Grid2DPlacementNormal> {
 public:
     Image2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+    Image2D( const ImageMorbin2D &obj );
     Image2D( const Image2D &obj  );
     Image2D( const Image2D &obj, const PixelFormatColor& format  );
     Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian = Buffer::Endian::NO_SWAP  );
@@ -166,6 +179,7 @@ public:
 class ImageMorbin2D : public ImageBaseWrite2D<Grid2DPlacementMorbin> {
 public:
     ImageMorbin2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+    ImageMorbin2D( const Image2D &obj  );
     ImageMorbin2D( const ImageMorbin2D &obj  );
     ImageMorbin2D( const ImageMorbin2D &obj, const PixelFormatColor& format  );
     ImageMorbin2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian = Buffer::Endian::NO_SWAP  );
