@@ -50,6 +50,14 @@ namespace Utilities {
                 green = value;
                 blue = value;
             }
+            channel_fp getDistanceSq( const GenericColor& other ) const {
+                const channel_fp R = (other.red   - red);
+                const channel_fp G = (other.green - green);
+                const channel_fp B = (other.blue  - blue);
+                const channel_fp A = (other.alpha - alpha);
+                
+                return R * R + G * G + B * B + A * A;
+            }
         };
         enum ChannelInterpolation {
             LINEAR,
