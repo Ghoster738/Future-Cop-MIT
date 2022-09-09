@@ -32,10 +32,11 @@ int main() {
     {
         Utilities::Image2D dec_test(16,16, Utilities::PixelFormatColor_R5G5B5A1());
         
-        if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( dec_test.getPixelFormat() ) != nullptr )
+        if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( dec_test.getPixelFormat() ) == nullptr )
         {
             problem = 1;
             std::cout << "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1() ) did not set the pixel format!" << std::endl;
+            std::cout << "   The pixel format is " << dec_test.getPixelFormat()->getName() << std::endl;
         }
         if( dec_test.getWidth() != 16 )
         {
