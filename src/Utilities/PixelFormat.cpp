@@ -139,10 +139,10 @@ void Utilities::PixelFormatColor_R5G5B5A1::writePixel( Buffer::Writer &buffer, B
     PixelFormatColor_R5G5B5A1::Color color( generic_color, interpolation );
     
     uint16_t data;
-    data  = ((color.alpha << 8) & 0x8000);
-    data |= ((color.red   << 7) & 0x7C00);
-    data |= ((color.green << 2) & 0x03E0);
-    data |= ((color.blue  >> 3) & 0x001F);
+    data  = ((color.alpha << 15) & 0x8000);
+    data |= ((color.red   << 10) & 0x7C00);
+    data |= ((color.green <<  5) & 0x03E0);
+    data |= ((color.blue  <<  0) & 0x001F);
     
     buffer.writeU16( data, endian );
 }
@@ -157,7 +157,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::
     color.blue  = (word & 0x001F) << 3; // Left shift by 3
     color.green = (word & 0x03E0) >> 2; // Right shift by  4 and left shift by 2
     color.red   = (word & 0x7C00) >> 7; // Right shift by 10 and left shift by 3
-    color.alpha = (word & 0x8000) >> 8;
+    color.alpha = (word & 0x8000) != 0;
     
     return color.toGeneric( interpolation );
 }
