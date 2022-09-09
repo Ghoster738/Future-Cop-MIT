@@ -108,11 +108,27 @@ int main() {
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), little_name );
         problem |= test_pixel<Utilities::Image2D>( dec_test_big,    WIDTH - 1, HEIGHT - 1,
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), big_name );
+        
+        auto little_r = dec_test_little.getRef( WIDTH - 1, HEIGHT - 1 );
+        auto big_r    = dec_test_big.getRef(    WIDTH - 1, HEIGHT - 1 );
+        
+        // The endianess test for the Image2D
+        if( little_r[ 0 ] != big_r[ 1 ] || little_r[ 1 ] != big_r[ 0 ] )
+        {
+            problem = 1;
+            std::cout << "Endianess is wrong! for Image2D Utilities::PixelFormatColor_R5G5B5A1()" << std::endl;
+        }
     }
     {
+        const std::string name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE )";
         Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
         Utilities::Image2D dec_test_0( dec_confirmed );
+        
+        problem |= test_scale<Utilities::Image2D>( dec_test_0, WIDTH, HEIGHT, name );
+        
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
+        
+        problem |= test_scale<Utilities::Image2D>( dec_test_1, WIDTH, HEIGHT, name );
     }
     
     // 
