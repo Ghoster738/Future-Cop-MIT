@@ -150,7 +150,7 @@ void Utilities::PixelFormatColor_R5G5B5A1::writePixel( Buffer::Writer &buffer, B
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::readPixel( Buffer::Reader &buffer, Buffer::Endian endian  )
 {
     PixelFormatColor_R5G5B5A1::Color color;
-    auto word = buffer.readU16();
+    auto word = buffer.readU16( endian );
     
     // Thanks ktownsend of the adafruit forms.
     // Based on the code from https://forums.adafruit.com/viewtopic.php?t=21536

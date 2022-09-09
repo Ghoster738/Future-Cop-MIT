@@ -60,7 +60,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
         auto bytes_r = this->getRef( x, y );
         auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
         
-        return pixel_format_p->readPixel( reader );
+        return pixel_format_p->readPixel( reader, endian );
     }
     else
         return PixelFormatColor::GenericColor( 0, 0, 0, 1 );
@@ -298,7 +298,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( g
         auto bytes_r = this->getRef( x, y );
         auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
         
-        return pixel_format_p->readPixel( reader );
+        return pixel_format_p->readPixel( reader, endian );
     }
     else
         return PixelFormatColor::GenericColor( 0, 0, 0, 1 );
