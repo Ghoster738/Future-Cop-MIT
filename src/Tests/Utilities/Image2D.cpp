@@ -1,4 +1,7 @@
 #include "../../Utilities/Image2D.h"
+#include "../../Utilities/ImageData.h"
+#include "../../Utilities/ImageFormat/PortableNetworkGraphics.h"
+#include <glm/vec2.hpp>
 #include <iostream>
 
 template<class I>
@@ -61,6 +64,30 @@ int has_buffer( const I &dec_test, const std::string name ) {
     return problem;
 }
 
+float juliaFractal( glm::vec2 uv )
+{
+    const glm::vec2 c = glm::vec2( -0.84, 0.22 );
+    const glm::vec2 pos = glm::vec2( 0.0, 0.25 );
+    const int max_iterations = 150;
+    const float escape_radius = 1.5;
+    
+    glm::vec2 z = uv + pos;
+    
+    int iteration = 0;
+    float tempx;
+    
+    while( z.x*z.x + z.y*z.y < escape_radius*escape_radius && iteration < max_iterations )
+    {
+        tempx = z.x*z.x - z.y*z.y;
+        z.y = 2.0 * z.x * z.y + c.y;
+        z.x = tempx + c.x;
+        
+        iteration = iteration + 1;
+    }
+
+    return static_cast<float>(iteration) / static_cast<float>(max_iterations);
+}
+
 template<class I>
 int compare_texture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.125 ) {
     int problem = 0;
@@ -111,6 +138,29 @@ int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image
 
 int main() {
     int problem = 0;
+    
+    {
+        Utilities::ImageData image_fractal_test( 256, 256, Utilities::ImageData::BLACK_WHITE, 1 );
+        
+        const auto RES_VEC = glm::vec2(image_fractal_test.getHeight(), image_fractal_test.getWidth());
+        
+        for( int y = 0; y < image_fractal_test.getHeight(); y++ )
+        {
+            for( int x = 0; x < image_fractal_test.getWidth(); x++ )
+            {
+                const uint8_t value = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) ) * 256.0;
+                
+                image_fractal_test.setPixel( x, y, &value );
+            }
+        }
+        
+        auto output_generator = Utilities::ImageFormat::PortableNetworkGraphics();
+        Utilities::Buffer buffer;
+        
+        output_generator.write( image_fractal_test, buffer );
+        
+        buffer.write( "fractal." + output_generator.getExtension() );
+    }
     
     // *** Image2D Test here.
     const unsigned WIDTH = 16, HEIGHT = 16;
