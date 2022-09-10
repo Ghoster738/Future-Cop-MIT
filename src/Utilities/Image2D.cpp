@@ -43,6 +43,10 @@ bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormat
     if( this->size.withinBounds(x, y) )
     {
         auto bytes_r = getRef( x, y );
+        
+        if( bytes_r != nullptr )
+            throw std::overflow_error("Write Pixel has a limit!");
+        
         auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );
         
         pixel_format_p->writePixel( writer, endian, color );
@@ -55,15 +59,14 @@ bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormat
 
 Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
 {
-    if( this->size.withinBounds(x, y) )
-    {
-        auto bytes_r = getRef( x, y );
-        auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
-        
-        return pixel_format_p->readPixel( reader, endian );
-    }
-    else
-        return PixelFormatColor::GenericColor( 0, 0, 0, 1 );
+    auto bytes_r = getRef( x, y );
+    
+    if( bytes_r == nullptr )
+        throw std::overflow_error("Read Pixel has a limit!");
+    
+    auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
+    
+    return pixel_format_p->readPixel( reader, endian );
 }
 
 bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementNormal>& sub_image )

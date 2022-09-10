@@ -10,7 +10,7 @@ Utilities::channel_fp compareChannel( Utilities::channel_fp a, Utilities::channe
 }
 
 void printGeneric( const Utilities::PixelFormatColor::GenericColor generic ) {
-    std::cout << "  Generic ( " << generic.red << ", " << generic.green << ", " << generic.blue << ", " << generic.alpha << " )"<< std::endl;
+    std::cout << "  Generic " << generic.getString() << std::endl;
 }
 
 int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpolate ) {

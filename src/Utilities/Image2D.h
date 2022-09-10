@@ -20,12 +20,12 @@ protected:
         this->cells.resize(
             static_cast<uint32_t>( this->getWidth() ) *
             static_cast<uint32_t>( this->getHeight()) *
-            this->pixel_format_p->byteSize() );
+            static_cast<uint32_t>( this->pixel_format_p->byteSize() ) );
         this->placement.updatePlacement();
     }
 public:
-    ImageBase2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP ) : ImageBase2D(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
-    ImageBase2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param = Buffer::Endian::NO_SWAP  ) :
+    ImageBase2D( Buffer::Endian endian ) : ImageBase2D(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
+    ImageBase2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) :
         GridBase2D<grid_2d_value, placement>( width, height ),
         pixel_format_p( nullptr ),
         endian( endian_param )
@@ -65,9 +65,9 @@ public:
             return;
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x * static_cast<size_t>( pixel_format_p->byteSize() ), y);
+            const size_t OFFSET = this->placement.getOffset(x, y);
             
-            this->cells[ OFFSET ] = pixel;
+            this->cells[ OFFSET * static_cast<size_t>( pixel_format_p->byteSize() ) ] = pixel;
         }
     }
 
@@ -79,9 +79,9 @@ public:
             return this->cells[0];
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x * static_cast<size_t>( pixel_format_p->byteSize() ), y);
+            const size_t OFFSET = this->placement.getOffset(x, y);
             
-            return this->cells[ OFFSET ];
+            return this->cells[ OFFSET * static_cast<size_t>( pixel_format_p->byteSize() ) ];
         }
     }
     
@@ -97,9 +97,9 @@ public:
             return nullptr;
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x * static_cast<size_t>( pixel_format_p->byteSize() ), y);
+            const size_t OFFSET = this->placement.getOffset(x, y);
             
-            return this->cells.data() + OFFSET;
+            return this->cells.data() + (OFFSET * static_cast<size_t>( pixel_format_p->byteSize() ));
         }
     }
     
