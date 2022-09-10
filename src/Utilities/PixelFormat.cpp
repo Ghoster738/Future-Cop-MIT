@@ -224,9 +224,9 @@ Utilities::PixelFormatColor_R8G8B8A8::Color::Color( Utilities::PixelFormatColor:
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::Color::toGeneric( ChannelInterpolation interpolate ) const {
     GenericColor color;
     
-    float   red_value = static_cast<channel_fp>(red);
-    float green_value = static_cast<channel_fp>(green);
-    float  blue_value = static_cast<channel_fp>(blue);
+    auto   red_value = static_cast<channel_fp>(red);
+    auto green_value = static_cast<channel_fp>(green);
+    auto  blue_value = static_cast<channel_fp>(blue);
     
     if( interpolate == sRGB ) {
         color.red   = pow(   red_value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;

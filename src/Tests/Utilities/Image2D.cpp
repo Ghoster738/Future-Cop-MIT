@@ -136,9 +136,9 @@ int main() {
         const std::string name_1 = "Image2D( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
         Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
         
-        for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+        for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
         {
-            for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+            for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
             {
                 // Write a purple pixel.
                 dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f) );
@@ -160,9 +160,9 @@ int main() {
         }
         
         
-        for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+        for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
         {
-            for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+            for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
             {
                 auto source_color = dec_confirmed.readPixel( x, y );
                 auto copy_color   = dec_test_0.readPixel( x, y );
