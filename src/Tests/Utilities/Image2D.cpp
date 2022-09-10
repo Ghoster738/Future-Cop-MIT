@@ -1,11 +1,9 @@
 #include "../../Utilities/Image2D.h"
-#include "../../Utilities/ImageData.h"
-#include "../../Utilities/ImageFormat/PortableNetworkGraphics.h"
 #include <glm/vec2.hpp>
 #include <iostream>
 
 template<class I>
-int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp delta = 0.125 )
+int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp bias = 0.125 )
 {
     int problem = 0;
     
@@ -20,7 +18,7 @@ int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit 
         
         const auto distance = pixel.getDistanceSq( color );
         
-        if( distance > delta )
+        if( distance > bias )
         {
             problem = 1;
             std::cout << name << " pixel is not the correct color to ( " << x << ", " << y << ")!" << std::endl;
@@ -139,29 +137,6 @@ int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image
 int main() {
     int problem = 0;
     
-    {
-        Utilities::ImageData image_fractal_test( 256, 256, Utilities::ImageData::BLACK_WHITE, 1 );
-        
-        const auto RES_VEC = glm::vec2(image_fractal_test.getHeight(), image_fractal_test.getWidth());
-        
-        for( int y = 0; y < image_fractal_test.getHeight(); y++ )
-        {
-            for( int x = 0; x < image_fractal_test.getWidth(); x++ )
-            {
-                const uint8_t value = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) ) * 256.0;
-                
-                image_fractal_test.setPixel( x, y, &value );
-            }
-        }
-        
-        auto output_generator = Utilities::ImageFormat::PortableNetworkGraphics();
-        Utilities::Buffer buffer;
-        
-        output_generator.write( image_fractal_test, buffer );
-        
-        buffer.write( "fractal." + output_generator.getExtension() );
-    }
-    
     // *** Image2D Test here.
     const unsigned WIDTH = 16, HEIGHT = 16;
     
@@ -240,12 +215,12 @@ int main() {
             for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
             {
                 // Write a purple pixel.
-                dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f) );
+                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
+                
+                dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( shade, shade * 0.25f, 1.0f - shade, 1.0f ) );
             }
         }
-        
-        // Write a green pixel.
-        dec_confirmed.writePixel( WIDTH - 1, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f) );
         
         Utilities::Image2D dec_test_0( dec_confirmed );
         
