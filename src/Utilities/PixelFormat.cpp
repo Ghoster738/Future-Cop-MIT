@@ -16,6 +16,10 @@ const Utilities::channel_fp MAX_UBYTE_VALUE = 255.0;
 const Utilities::channel_fp MAX_UBYTE_sRGB_VALUE = 196964.6992;
 }
 
+std::string Utilities::PixelFormatColor::GenericColor::getString() const {
+    return "(" + std::to_string( red ) + ", " + std::to_string( green ) + ", " + std::to_string( blue ) + ", " + std::to_string( alpha ) + ")";
+}
+
 Utilities::PixelFormatColor_W8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     PixelFormatColor_W8A8::Color other_color( generic, interpolate );

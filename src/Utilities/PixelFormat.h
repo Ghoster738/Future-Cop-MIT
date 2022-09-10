@@ -58,6 +58,8 @@ namespace Utilities {
                 
                 return R * R + G * G + B * B + A * A;
             }
+            
+            std::string getString() const;
         };
         enum ChannelInterpolation {
             LINEAR,
