@@ -60,6 +60,33 @@ int has_buffer( const I &dec_test, const std::string name ) {
     return problem;
 }
 
+int compare_texture( const Utilities::Image2D &source, const Utilities::Image2D &copy, const std::string name ) {
+    int problem = 0;
+    
+    problem |= test_scale<Utilities::Image2D>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
+    
+    for( Utilities::grid_2d_unit y = 0; y < source.getHeight(); y++ )
+    {
+        for( Utilities::grid_2d_unit x = 0; x < source.getWidth(); x++ )
+        {
+            auto source_color = source.readPixel( x, y );
+            auto copy_color   =   copy.readPixel( x, y );
+            
+            if( !problem && source_color.getDistanceSq( copy_color ) > 0.125 )
+            {
+                std::cout << name << " did not copy correctly." << std::endl;
+                std::cout << "   x " << static_cast<unsigned>( x ) << std::endl;
+                std::cout << "   y " << static_cast<unsigned>( y ) << std::endl;
+                std::cout << "   source_color " << source_color.getString() << std::endl;
+                std::cout << "     copy_color " <<   copy_color.getString() << std::endl;
+                problem = 1;
+            }
+        }
+    }
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -159,25 +186,7 @@ int main() {
             problem = 1;
         }
         
-        
-        for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
-        {
-            for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
-            {
-                auto source_color = dec_confirmed.readPixel( x, y );
-                auto copy_color   = dec_test_0.readPixel( x, y );
-                
-                if( !problem && source_color.getDistanceSq( copy_color ) > 0.125 )
-                {
-                    std::cout << name_0 << " did not copy correctly." << std::endl;
-                    std::cout << "   x " << static_cast<unsigned>( x ) << std::endl;
-                    std::cout << "   y " << static_cast<unsigned>( y ) << std::endl;
-                    std::cout << "   source_color " << source_color.getString() << std::endl;
-                    std::cout << "     copy_color " <<   copy_color.getString() << std::endl;
-                    problem = 1;
-                }
-            }
-        }
+        problem |= compare_texture( dec_confirmed, dec_test_0, name_0 );
         
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
