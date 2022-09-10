@@ -2,7 +2,7 @@
 #include <iostream>
 
 template<class I>
-int test_pixel( I &dec_test, unsigned x, unsigned y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp delta = 0.125 )
+int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp delta = 0.125 )
 {
     int problem = 0;
     
@@ -22,8 +22,8 @@ int test_pixel( I &dec_test, unsigned x, unsigned y, const Utilities::PixelForma
             problem = 1;
             std::cout << name << " pixel is not the correct color to ( " << x << ", " << y << ")!" << std::endl;
             std::cout << "   The pixel difference is " << distance << std::endl;
-            std::cout << "   The pixel is ( " << pixel.red << ", " << pixel.green << ", " << pixel.blue << ", " << pixel.alpha << ")" << std::endl;
-            std::cout << "   The color is ( " << color.red << ", " << color.green << ", " << color.blue << ", " << color.alpha << ")" << std::endl;
+            std::cout << "   The pixel is " << pixel.getString() << std::endl;
+            std::cout << "   The color is " << color.getString() << std::endl;
         }
     }
     
@@ -43,6 +43,18 @@ int test_scale( const I &dec_test, Utilities::grid_2d_unit WIDTH, Utilities::gri
     {
         problem = 1;
         std::cout << name << " did not set the height!" << std::endl;
+    }
+    
+    return problem;
+}
+template<class I>
+int has_buffer( const I &dec_test, const std::string name ) {
+    int problem = 0;
+    
+    if( dec_test.getRef( 0, 0 ) == nullptr )
+    {
+        std::cout << name << " buffer does not exist!" << std::endl;
+        problem = 1;
     }
     
     return problem;
@@ -120,15 +132,56 @@ int main() {
         }
     }
     {
-        const std::string name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE )";
+        const std::string name_0 = "Image2D( dec_test_0, Utilities::PixelFormatColor_R8G8B8() )";
+        const std::string name_1 = "Image2D( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
         Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
+        
+        for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+        {
+            for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+            {
+                // Write a purple pixel.
+                dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f) );
+            }
+        }
+        
+        // Write a green pixel.
+        dec_confirmed.writePixel( WIDTH - 1, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f) );
+        
         Utilities::Image2D dec_test_0( dec_confirmed );
         
-        problem |= test_scale<Utilities::Image2D>( dec_test_0, WIDTH, HEIGHT, name );
+        problem |= test_scale<Utilities::Image2D>( dec_test_0, WIDTH, HEIGHT, name_0 );
+        
+        problem |= has_buffer<Utilities::Image2D>( dec_test_0, name_0 );
+        if( dec_test_0.getRef( 0, 0 ) == dec_confirmed.getRef( 0, 0 ) )
+        {
+            std::cout << name_0 << " buffer is not seperate from the source!" << std::endl;
+            problem = 1;
+        }
+        
+        
+        for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+        {
+            for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+            {
+                auto source_color = dec_confirmed.readPixel( x, y );
+                auto copy_color   = dec_test_0.readPixel( x, y );
+                
+                if( !problem && source_color.getDistanceSq( copy_color ) > 0.125 )
+                {
+                    std::cout << name_0 << " did not copy correctly." << std::endl;
+                    std::cout << "   x " << static_cast<unsigned>( x ) << std::endl;
+                    std::cout << "   y " << static_cast<unsigned>( y ) << std::endl;
+                    std::cout << "   source_color " << source_color.getString() << std::endl;
+                    std::cout << "     copy_color " <<   copy_color.getString() << std::endl;
+                    problem = 1;
+                }
+            }
+        }
         
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
-        problem |= test_scale<Utilities::Image2D>( dec_test_1, WIDTH, HEIGHT, name );
+        problem |= test_scale<Utilities::Image2D>( dec_test_1, WIDTH, HEIGHT, name_0 );
     }
     
     // 
