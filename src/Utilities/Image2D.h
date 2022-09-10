@@ -65,7 +65,7 @@ public:
             return;
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x, y) * static_cast<size_t>( pixel_format_p->byteSize() );
+            const size_t OFFSET = this->placement.getOffset(x * static_cast<size_t>( pixel_format_p->byteSize() ), y);
             
             this->cells[ OFFSET ] = pixel;
         }
@@ -79,7 +79,7 @@ public:
             return this->cells[0];
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x, y) * static_cast<size_t>( pixel_format_p->byteSize() );
+            const size_t OFFSET = this->placement.getOffset(x * static_cast<size_t>( pixel_format_p->byteSize() ), y);
             
             return this->cells[ OFFSET ];
         }
@@ -97,7 +97,7 @@ public:
             return nullptr;
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x, y) * static_cast<size_t>( pixel_format_p->byteSize() );
+            const size_t OFFSET = this->placement.getOffset(x * static_cast<size_t>( pixel_format_p->byteSize() ), y);
             
             return this->cells.data() + OFFSET;
         }
