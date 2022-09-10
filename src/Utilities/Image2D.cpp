@@ -40,9 +40,9 @@ Utilities::Image2D::~Image2D()
 
 bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color )
 {
-    if( getWidth() > x && getHeight() > y )
+    if( this->size.withinBounds(x, y) )
     {
-        auto bytes_r = this->getRef( x, y );
+        auto bytes_r = getRef( x, y );
         auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );
         
         pixel_format_p->writePixel( writer, endian, color );
@@ -55,9 +55,9 @@ bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormat
 
 Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
 {
-    if( getWidth() > x && getHeight() > y )
+    if( this->size.withinBounds(x, y) )
     {
-        auto bytes_r = this->getRef( x, y );
+        auto bytes_r = getRef( x, y );
         auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
         
         return pixel_format_p->readPixel( reader, endian );
@@ -278,9 +278,9 @@ Utilities::ImageMorbin2D::~ImageMorbin2D()
 
 bool Utilities::ImageMorbin2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color )
 {
-    if( getWidth() > x && getHeight() > y )
+    if( this->size.withinBounds(x, y) )
     {
-        auto bytes_r = this->getRef( x, y );
+        auto bytes_r = getRef( x, y );
         auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );
         
         pixel_format_p->writePixel( writer, endian, color );
@@ -293,9 +293,9 @@ bool Utilities::ImageMorbin2D::writePixel( grid_2d_unit x, grid_2d_unit y, Pixel
 
 Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
 {
-    if( getWidth() > x && getHeight() > y )
+    if( this->size.withinBounds(x, y) )
     {
-        auto bytes_r = this->getRef( x, y );
+        auto bytes_r = getRef( x, y );
         auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
         
         return pixel_format_p->readPixel( reader, endian );
