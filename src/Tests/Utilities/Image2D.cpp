@@ -47,6 +47,7 @@ int test_scale( const I &dec_test, Utilities::grid_2d_unit WIDTH, Utilities::gri
     
     return problem;
 }
+
 template<class I>
 int has_buffer( const I &dec_test, const std::string name ) {
     int problem = 0;
@@ -60,10 +61,11 @@ int has_buffer( const I &dec_test, const std::string name ) {
     return problem;
 }
 
-int compare_texture( const Utilities::Image2D &source, const Utilities::Image2D &copy, const std::string name ) {
+template<class I>
+int compare_texture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.125 ) {
     int problem = 0;
     
-    problem |= test_scale<Utilities::Image2D>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
+    problem |= test_scale<I>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
     
     for( Utilities::grid_2d_unit y = 0; y < source.getHeight(); y++ )
     {
@@ -72,9 +74,11 @@ int compare_texture( const Utilities::Image2D &source, const Utilities::Image2D 
             auto source_color = source.readPixel( x, y );
             auto copy_color   =   copy.readPixel( x, y );
             
-            if( !problem && source_color.getDistanceSq( copy_color ) > 0.125 )
+            if( !problem && source_color.getDistanceSq( copy_color ) > bias )
             {
                 std::cout << name << " did not copy correctly." << std::endl;
+                std::cout << "   bias " << bias << std::endl;
+                std::cout << "   distance " << source_color.getDistanceSq( copy_color ) << std::endl;
                 std::cout << "   x " << static_cast<unsigned>( x ) << std::endl;
                 std::cout << "   y " << static_cast<unsigned>( y ) << std::endl;
                 std::cout << "   source_color " << source_color.getString() << std::endl;
@@ -83,6 +87,24 @@ int compare_texture( const Utilities::Image2D &source, const Utilities::Image2D 
             }
         }
     }
+    
+    return problem;
+}
+
+int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image2D &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.125 ) {
+    int problem = 0;
+    
+    problem |= test_scale<Utilities::Image2D>( copy, WIDTH, HEIGHT, name );
+    
+    problem |= has_buffer<Utilities::Image2D>( copy, name );
+    
+    if( copy.getRef( 0, 0 ) == source.getRef( 0, 0 ) )
+    {
+        std::cout << name << " buffer is not seperate from the source!" << std::endl;
+        problem = 1;
+    }
+    
+    problem |= compare_texture<Utilities::Image2D>( source, copy, name, bias );
     
     return problem;
 }
@@ -177,20 +199,11 @@ int main() {
         
         Utilities::Image2D dec_test_0( dec_confirmed );
         
-        problem |= test_scale<Utilities::Image2D>( dec_test_0, WIDTH, HEIGHT, name_0 );
-        
-        problem |= has_buffer<Utilities::Image2D>( dec_test_0, name_0 );
-        if( dec_test_0.getRef( 0, 0 ) == dec_confirmed.getRef( 0, 0 ) )
-        {
-            std::cout << name_0 << " buffer is not seperate from the source!" << std::endl;
-            problem = 1;
-        }
-        
-        problem |= compare_texture( dec_confirmed, dec_test_0, name_0 );
+        problem |= test_copy_operator( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
         
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
-        problem |= test_scale<Utilities::Image2D>( dec_test_1, WIDTH, HEIGHT, name_0 );
+        problem |= test_copy_operator( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
     }
     
     // 
