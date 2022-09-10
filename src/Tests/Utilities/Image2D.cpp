@@ -210,6 +210,11 @@ int main() {
         const std::string name_1 = "Image2D( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
         Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
         
+        std::vector<uint8_t*> array_r;
+        
+        int offset = 0;
+        
+        // Write a Julia Set fractal in order to catch bugs.
         for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
         {
             for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
@@ -218,7 +223,7 @@ int main() {
                 const glm::vec2 RES_VEC(WIDTH, HEIGHT);
                 auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
                 
-                dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( shade, shade * 0.25f, 1.0f - shade, 1.0f ) );
+                dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( shade, 1.0f - shade, shade * 0.125, 1.0f ) );
             }
         }
         

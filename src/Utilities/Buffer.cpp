@@ -675,8 +675,8 @@ void Utilities::Buffer::Writer::writeU8( uint8_t content )
         throw BufferOutOfBounds( "writeU8", data_r, size, current_index );
     else
     {
+        reinterpret_cast<uint8_t*>( data_r + current_index )[ 0 ] = content;
         current_index = new_offset;
-        *reinterpret_cast<uint8_t*>( data_r + current_index - sizeof( uint8_t )) = content;
     }
 }
 
@@ -691,8 +691,8 @@ void Utilities::Buffer::Writer::writeI8(  int8_t content )
         throw BufferOutOfBounds( "writeI8", data_r, size, current_index );
     else
     {
+        reinterpret_cast<int8_t*>( data_r + current_index )[ 0 ] = content;
         current_index = new_offset;
-        *reinterpret_cast<int8_t*>( data_r + current_index - sizeof( int8_t )) = content;
     }
 }
 
