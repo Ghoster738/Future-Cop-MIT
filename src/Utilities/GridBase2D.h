@@ -125,7 +125,9 @@ protected:
     }
 public:
     GridBase2D() : size( 0, 0 ), cells(), placement( &size ) {}
-    GridBase2D( const GridBase2D &grid_2d ) : size( grid_2d.size ), cells( grid_2d.cells ), placement( &size ) {}
+    GridBase2D( const GridBase2D &grid_2d ) : size( grid_2d.size ), cells( grid_2d.cells ), placement( &size ) {
+        updateCellBuffer();
+    }
     GridBase2D( grid_2d_unit width_param, grid_2d_unit height_param ) : size( width_param, height_param ), placement( &size ) {
         updateCellBuffer();
     }
