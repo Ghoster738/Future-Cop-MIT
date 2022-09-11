@@ -132,7 +132,7 @@ template<class placement, class grid_2d_value = uint8_t>
 class ImageBaseWrite2D : public ImageBase2D<placement, grid_2d_value> {
 public:
     ImageBaseWrite2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP ) :
-        ImageBase2D<placement, grid_2d_value>(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
+        ImageBase2D<placement, grid_2d_value>( endian ) {}
     ImageBaseWrite2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian = Buffer::Endian::NO_SWAP  ) :
         ImageBase2D<placement, grid_2d_value>(width, height, format, endian ) {}
     
