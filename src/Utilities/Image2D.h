@@ -32,6 +32,7 @@ public:
     {
         // This casting is not dangerous as only the PixelFormatColor is being duplicated.
         pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
+        updateCellBuffer();
     }
     
     virtual ~ImageBase2D() {
