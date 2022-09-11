@@ -210,8 +210,6 @@ int main() {
         const std::string name_1 = "Image2D( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
         Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
         
-        std::vector<uint8_t*> array_r;
-        
         int offset = 0;
         
         // Write a Julia Set fractal in order to catch bugs.
@@ -222,8 +220,22 @@ int main() {
                 // Write a purple pixel.
                 const glm::vec2 RES_VEC(WIDTH, HEIGHT);
                 auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
+                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
                 
-                dec_confirmed.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( shade, 1.0f - shade, shade * 0.125, 1.0f ) );
+                dec_confirmed.writePixel( x, y, color );
+                
+                const auto other_color = dec_confirmed.readPixel( x, y );
+                
+                if( !problem && color.getDistanceSq( other_color ) > 0.03125 )
+                {
+                    std::cout << "dec_confirmed( WIDTH, HEIGHT, "
+                        << "Utilities::PixelFormatColor_R8G8B8()) pixel is not the "
+                        << "correct color to ( " << x << ", " << y << ")!" << std::endl;
+                    std::cout << "   The pixel difference is " << color.getDistanceSq( other_color ) << std::endl;
+                    std::cout << "   The other is " << other_color.getString() << std::endl;
+                    std::cout << "   The color is " << color.getString() << std::endl;
+                    problem = 1;
+                }
             }
         }
         

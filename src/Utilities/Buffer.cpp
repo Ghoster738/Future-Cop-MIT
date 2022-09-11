@@ -637,11 +637,12 @@ void Utilities::Buffer::Writer::writeU16( uint16_t content, Endian endianess )
         throw BufferOutOfBounds( "writeU16", data_r, size, current_index );
     else
     {
-        current_index = new_offset;
-        *reinterpret_cast<uint16_t*>( data_r + current_index - sizeof( uint16_t )) = content;
+        *reinterpret_cast<uint16_t*>( data_r + current_index ) = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index - sizeof( uint16_t ), sizeof( uint16_t ) );
+            DataHandler::swapBytes( data_r + current_index, sizeof( uint16_t ) );
+        
+        current_index = new_offset;
     }
 }
 
@@ -656,11 +657,12 @@ void Utilities::Buffer::Writer::writeI16(  int16_t content, Endian endianess )
         throw BufferOutOfBounds( "writeI16", data_r, size, current_index );
     else
     {
-        current_index = new_offset;
-        *reinterpret_cast<int16_t*>( data_r + current_index - sizeof( int16_t )) = content;
+        reinterpret_cast<int16_t*>( data_r + current_index )[ 0 ] = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index - sizeof( int16_t ), sizeof( int16_t ) );
+            DataHandler::swapBytes( data_r + current_index, sizeof( int16_t ) );
+        
+        current_index = new_offset;
     }
 }
 
