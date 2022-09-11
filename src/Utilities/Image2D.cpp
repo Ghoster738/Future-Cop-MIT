@@ -44,7 +44,7 @@ bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormat
     {
         auto bytes_r = getRef( x, y );
         
-        if( bytes_r != nullptr )
+        if( bytes_r == nullptr )
             throw std::overflow_error("Write Pixel has a limit!");
         
         auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );

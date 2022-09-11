@@ -360,12 +360,29 @@ int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::P
     }
     
     format.writePixel( pixel_writer, Utilities::Buffer::Endian::NO_SWAP, generic );
+    
+    if( pixel_writer.getPosition() != format.byteSize() )
+    {
+        std::cout << "pixel_writer in bad position" << std::endl;
+        std::cout << "    byte size: " << static_cast<int>( format.byteSize() ) << std::endl;
+        std::cout << "    written: " << pixel_writer.getPosition() << std::endl;
+        problem = 1;
+    }
+    
     pixel_writer.setPosition( 0, Utilities::Buffer::Direction::BEGIN );
     
     auto modified_generic = format.readPixel( pixel_reader );
     pixel_reader.setPosition( 0, Utilities::Buffer::Direction::BEGIN );
     
     format.writePixel( pixel_writer, Utilities::Buffer::Endian::NO_SWAP, modified_generic );
+    
+    if( pixel_writer.getPosition() != format.byteSize() )
+    {
+        std::cout << "pixel_writer in bad position" << std::endl;
+        std::cout << "    byte size: " << static_cast<int>( format.byteSize() ) << std::endl;
+        std::cout << "    written: " << pixel_writer.getPosition() << std::endl;
+        problem = 1;
+    }
     
     auto recovered_generic = format.readPixel( pixel_reader );
     
