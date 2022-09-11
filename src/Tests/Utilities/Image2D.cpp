@@ -7,7 +7,7 @@ int testColor( int problem,
                Utilities::PixelFormatColor::GenericColor other_color,
                const std::string& name,
                const std::string& extra,
-               const Utilities::channel_fp bias = 0.125 )
+               const Utilities::channel_fp bias = 0.00390625 )
 {
     const auto distance = other_color.getDistanceSq( color );
     
@@ -25,7 +25,7 @@ int testColor( int problem,
 }
 
 template<class I>
-int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp bias = 0.125 )
+int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp bias = 0.00390625 )
 {
     int problem = 0;
     
@@ -100,7 +100,7 @@ float juliaFractal( glm::vec2 uv )
 }
 
 template<class I>
-int compare_texture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.125 ) {
+int compare_texture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
     problem |= test_scale<I>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
@@ -119,7 +119,7 @@ int compare_texture( const I &source, const I &copy, const std::string name, con
     return problem;
 }
 
-int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image2D &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.125 ) {
+int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image2D &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
     problem |= test_scale<Utilities::Image2D>( copy, WIDTH, HEIGHT, name );
