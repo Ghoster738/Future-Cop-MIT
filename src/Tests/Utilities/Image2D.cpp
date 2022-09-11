@@ -2,6 +2,28 @@
 #include <glm/vec2.hpp>
 #include <iostream>
 
+int testColor( int problem,
+               Utilities::PixelFormatColor::GenericColor color,
+               Utilities::PixelFormatColor::GenericColor other_color,
+               const std::string& name,
+               const std::string& extra,
+               const Utilities::channel_fp bias = 0.125 )
+{
+    const auto distance = other_color.getDistanceSq( color );
+    
+    if( !problem && distance > bias )
+    {
+        problem = 1;
+        std::cout << name << " color is not the correct color" << extra << std::endl;
+        std::cout << "   The function bias is " << bias << std::endl;
+        std::cout << "   The pixel difference is " << distance << std::endl;
+        std::cout << "   The color is " << color.getString() << std::endl;
+        std::cout << "   The other_color is " << other_color.getString() << std::endl;
+    }
+    
+    return problem;
+}
+
 template<class I>
 int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp bias = 0.125 )
 {
@@ -16,16 +38,7 @@ int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit 
     {
         auto pixel = dec_test.readPixel( x, y );
         
-        const auto distance = pixel.getDistanceSq( color );
-        
-        if( distance > bias )
-        {
-            problem = 1;
-            std::cout << name << " pixel is not the correct color to ( " << x << ", " << y << ")!" << std::endl;
-            std::cout << "   The pixel difference is " << distance << std::endl;
-            std::cout << "   The pixel is " << pixel.getString() << std::endl;
-            std::cout << "   The color is " << color.getString() << std::endl;
-        }
+        problem |= testColor( problem, pixel, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!", bias );
     }
     
     return problem;
@@ -99,17 +112,7 @@ int compare_texture( const I &source, const I &copy, const std::string name, con
             auto source_color = source.readPixel( x, y );
             auto copy_color   =   copy.readPixel( x, y );
             
-            if( !problem && source_color.getDistanceSq( copy_color ) > bias )
-            {
-                std::cout << name << " did not copy correctly." << std::endl;
-                std::cout << "   bias " << bias << std::endl;
-                std::cout << "   distance " << source_color.getDistanceSq( copy_color ) << std::endl;
-                std::cout << "   x " << static_cast<unsigned>( x ) << std::endl;
-                std::cout << "   y " << static_cast<unsigned>( y ) << std::endl;
-                std::cout << "   source_color " << source_color.getString() << std::endl;
-                std::cout << "     copy_color " <<   copy_color.getString() << std::endl;
-                problem = 1;
-            }
+            problem |= testColor( problem, source_color, copy_color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!", bias );
         }
     }
     
@@ -206,6 +209,7 @@ int main() {
         }
     }
     {
+        const std::string name = "dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
         const std::string name_0 = "Image2D( dec_test_0, Utilities::PixelFormatColor_R8G8B8() )";
         const std::string name_1 = "Image2D( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
         Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
@@ -225,17 +229,25 @@ int main() {
                 dec_confirmed.writePixel( x, y, color );
                 
                 const auto other_color = dec_confirmed.readPixel( x, y );
+                const Utilities::channel_fp bias = 0.00390625;
                 
-                if( !problem && color.getDistanceSq( other_color ) > 0.03125 )
-                {
-                    std::cout << "dec_confirmed( WIDTH, HEIGHT, "
-                        << "Utilities::PixelFormatColor_R8G8B8()) pixel is not the "
-                        << "correct color to ( " << x << ", " << y << ")!" << std::endl;
-                    std::cout << "   The pixel difference is " << color.getDistanceSq( other_color ) << std::endl;
-                    std::cout << "   The other is " << other_color.getString() << std::endl;
-                    std::cout << "   The color is " << color.getString() << std::endl;
-                    problem = 1;
-                }
+                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!", bias );
+            }
+        }
+        
+        
+        for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+        {
+            for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+            {
+                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
+                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+                
+                const auto other_color = dec_confirmed.readPixel( x, y );
+                const Utilities::channel_fp bias = 0.00390625;
+                
+                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!", bias );
             }
         }
         
