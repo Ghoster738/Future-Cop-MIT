@@ -289,6 +289,22 @@ int main() {
                 problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
             }
         }
+        
+        image_julia.flipVertically();
+        
+        for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+        {
+            for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+            {
+                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                auto shade = juliaFractal( glm::vec2( WIDTH - x - 1, HEIGHT - y - 1 ) / RES_VEC * glm::vec2( 0.2 ) );
+                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+                
+                const auto other_color = image_julia.readPixel( x, y );
+                
+                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
+            }
+        }
     }
     
     // 
