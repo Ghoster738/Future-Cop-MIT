@@ -229,12 +229,10 @@ int main() {
                 dec_confirmed.writePixel( x, y, color );
                 
                 const auto other_color = dec_confirmed.readPixel( x, y );
-                const Utilities::channel_fp bias = 0.00390625;
                 
-                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!", bias );
+                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
             }
         }
-        
         
         for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
         {
@@ -245,9 +243,8 @@ int main() {
                 const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
                 
                 const auto other_color = dec_confirmed.readPixel( x, y );
-                const Utilities::channel_fp bias = 0.00390625;
                 
-                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!", bias );
+                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
             }
         }
         
@@ -258,6 +255,40 @@ int main() {
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
         problem |= test_copy_operator( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
+    }
+    {
+        const std::string name = "image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
+        Utilities::Image2D image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
+        
+        // Write a Julia Set fractal.
+        for( Utilities::grid_2d_unit y = 0; y < image_julia.getHeight(); y++ )
+        {
+            for( Utilities::grid_2d_unit x = 0; x < image_julia.getWidth(); x++ )
+            {
+                // Write a purple pixel.
+                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
+                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+                
+                image_julia.writePixel( x, y, color );
+            }
+        }
+        
+        image_julia.flipHorizontally();
+        
+        for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
+        {
+            for( Utilities::grid_2d_unit x = 0; x < WIDTH; x++ )
+            {
+                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                auto shade = juliaFractal( glm::vec2( WIDTH - x - 1, y ) / RES_VEC * glm::vec2( 0.2 ) );
+                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+                
+                const auto other_color = image_julia.readPixel( x, y );
+                
+                problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
+            }
+        }
     }
     
     // 
