@@ -45,7 +45,7 @@ int testPixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y
 }
 
 template<class I>
-int test_scale( const I &dec_test, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name ) {
+int testScale( const I &dec_test, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name ) {
     int problem = 0;
     
     if( dec_test.getWidth() != WIDTH )
@@ -63,7 +63,7 @@ int test_scale( const I &dec_test, Utilities::grid_2d_unit WIDTH, Utilities::gri
 }
 
 template<class I>
-int has_buffer( const I &dec_test, const std::string name ) {
+int hasBuffer( const I &dec_test, const std::string name ) {
     int problem = 0;
     
     if( dec_test.getRef( 0, 0 ) == nullptr )
@@ -100,10 +100,10 @@ float juliaFractal( glm::vec2 uv )
 }
 
 template<class I>
-int compare_texture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
+int compareTexture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
-    problem |= test_scale<I>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
+    problem |= testScale<I>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
     
     for( Utilities::grid_2d_unit y = 0; y < source.getHeight(); y++ )
     {
@@ -119,12 +119,12 @@ int compare_texture( const I &source, const I &copy, const std::string name, con
     return problem;
 }
 
-int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image2D &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
+int testCopyOperator( const Utilities::Image2D &source, const Utilities::Image2D &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
-    problem |= test_scale<Utilities::Image2D>( copy, WIDTH, HEIGHT, name );
+    problem |= testScale<Utilities::Image2D>( copy, WIDTH, HEIGHT, name );
     
-    problem |= has_buffer<Utilities::Image2D>( copy, name );
+    problem |= hasBuffer<Utilities::Image2D>( copy, name );
     
     if( copy.getRef( 0, 0 ) == source.getRef( 0, 0 ) )
     {
@@ -132,7 +132,7 @@ int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image
         problem = 1;
     }
     
-    problem |= compare_texture<Utilities::Image2D>( source, copy, name, bias );
+    problem |= compareTexture<Utilities::Image2D>( source, copy, name, bias );
     
     return problem;
 }
@@ -173,7 +173,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
             std::cout << name << " did not set the pixel format!" << std::endl;
             std::cout << "   The pixel format is " << dec_test.getPixelFormat()->getName() << std::endl;
         }
-        problem |= test_scale<Utilities::Image2D>( dec_test, WIDTH, HEIGHT, name );
+        problem |= testScale<Utilities::Image2D>( dec_test, WIDTH, HEIGHT, name );
         
         // Write to the 4 corners of the 2D image.
         problem |= testPixel<Utilities::Image2D>( dec_test, 0, 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0, 1.0f), name );
@@ -187,8 +187,8 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         const std::string little_name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE )";
         const std::string    big_name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::BIG )";
         
-        problem |= test_scale<Utilities::Image2D>( dec_test_little, WIDTH, HEIGHT, little_name );
-        problem |= test_scale<Utilities::Image2D>( dec_test_big,    WIDTH, HEIGHT,    big_name );
+        problem |= testScale<Utilities::Image2D>( dec_test_little, WIDTH, HEIGHT, little_name );
+        problem |= testScale<Utilities::Image2D>( dec_test_big,    WIDTH, HEIGHT,    big_name );
         
         problem |= testPixel<Utilities::Image2D>( dec_test_little, WIDTH - 1, HEIGHT - 1,
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), little_name );
@@ -247,11 +247,11 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         
         Utilities::Image2D dec_test_0( dec_confirmed );
         
-        problem |= test_copy_operator( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
+        problem |= testCopyOperator( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
         
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
-        problem |= test_copy_operator( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
+        problem |= testCopyOperator( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
     }
     {
         const std::string name = "image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
