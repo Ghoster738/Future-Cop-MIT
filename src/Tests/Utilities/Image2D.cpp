@@ -260,6 +260,79 @@ int main() {
         const std::string name = "image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
         Utilities::Image2D image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
         
+        {
+            std::string sub_name = "sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() )"
+            Utilities::Image2D sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
+            
+            if( image_julia.subImage( 0, 1, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
+            {
+                std::cout << sub_name << " sub_image succeeded when the x along with width was out of bounds by one!" << std::endl;
+                problem = 1;
+            }
+            
+            if( image_julia.subImage( 1, 0, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
+            {
+                std::cout << sub_name << " sub_image succeeded when the y along with height was out of bounds by one!" << std::endl;
+                problem = 1;
+            }
+            
+            const auto SUB_WIDTH  = image_julia.getWidth()  / 2;
+            const auto SUB_HEIGHT = image_julia.getHeight() / 2;
+            const auto SUB_X = image_julia.getWidth()  - SUB_WIDTH;
+            const auto SUB_Y = image_julia.getHeight() - SUB_HEIGHT;
+            
+            if( !image_julia.subImage( SUB_X, SUB_Y, SUB_WIDTH, SUB_HEIGHT, sub_image ) )
+            {
+                std::cout << sub_name << " sub_image failed when it is not supposed to!" << std::endl;
+                problem = 1;
+            }
+            else
+            {
+                int sub_problem = 0;
+                
+                if( sub_image.getWidth() != SUB_WIDTH )
+                {
+                    std::cout << sub_name << " sub_image width, " << sub_image.getWidth() << ", is not " << SUB_WIDTH << " which is the actual value that is set." << std::endl;
+                    sub_problem = 1;
+                }
+                if( sub_image.getHeight() != SUB_HEIGHT )
+                {
+                    std::cout << sub_name << " sub_image height, " << sub_image.getHeight() << ", is not " << SUB_HEIGHT << " which is the actual value that is set." << std::endl;
+                    sub_problem = 1;
+                }
+                if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( sub_image.getPixelFormat() ) == nullptr )
+                {
+                    std::cout << sub_name << " sub_image reference was supposed to maintain its color profile." << std::endl;
+                    sub_problem = 1;
+                }
+                if( sub_image.getRef(0,0) == nullptr )
+                {
+                    std::cout << sub_name << " sub_image reference is a nullptr. Something is very wrong with the texture." << std::endl;
+                    sub_problem = 1;
+                }
+                
+                // This if statement is there to protect this test from crashing.
+                if( !sub_problem )
+                {
+                    for( Utilities::grid_2d_unit y = 0; y < sub_image.getHeight(); y++ )
+                    {
+                        for( Utilities::grid_2d_unit x = 0; x < sub_image.getWidth(); x++ )
+                        {
+                            const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                            auto shade = juliaFractal( glm::vec2( SUB_X + x, SUB_Y + y ) / RES_VEC * glm::vec2( 0.2 ) );
+                            const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+                            
+                            const auto other_color = sub_image.readPixel( x, y );
+                            
+                            sub_problem |= testColor( problem, other_color, color, sub_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
+                        }
+                    }
+                }
+                
+                problem |= sub_problem;
+            }
+        }
+        
         // Write a Julia Set fractal.
         for( Utilities::grid_2d_unit y = 0; y < image_julia.getHeight(); y++ )
         {
@@ -304,81 +377,6 @@ int main() {
                 
                 problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
             }
-        }
-        
-        // Flip the image back to the Julia set.
-        image_julia.flipHorizontally();
-        image_julia.flipVertically();
-        
-        Utilities::Image2D sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
-        
-        
-        if( image_julia.subImage( 0, 1, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
-        {
-            std::cout << name << " sub_image succeeded when the x along with width was out of bounds by one!" << std::endl;
-            problem = 1;
-        }
-        
-        if( image_julia.subImage( 1, 0, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
-        {
-            std::cout << name << " sub_image succeeded when the y along with height was out of bounds by one!" << std::endl;
-            problem = 1;
-        }
-        
-        const auto SUB_WIDTH  = image_julia.getWidth()  / 2;
-        const auto SUB_HEIGHT = image_julia.getHeight() / 2;
-        const auto SUB_X = image_julia.getWidth()  - SUB_WIDTH;
-        const auto SUB_Y = image_julia.getHeight() - SUB_HEIGHT;
-        
-        if( !image_julia.subImage( SUB_X, SUB_Y, SUB_WIDTH, SUB_HEIGHT, sub_image ) )
-        {
-            std::cout << name << " sub_image failed when it is not supposed to!" << std::endl;
-            problem = 1;
-        }
-        else
-        {
-            int sub_problem = 0;
-            
-            if( sub_image.getWidth() != SUB_WIDTH )
-            {
-                std::cout << name << " sub_image width, " << sub_image.getWidth() << ", is not " << SUB_WIDTH << " which is the actual value that is set." << std::endl;
-                sub_problem = 1;
-            }
-            if( sub_image.getHeight() != SUB_HEIGHT )
-            {
-                std::cout << name << " sub_image height, " << sub_image.getHeight() << ", is not " << SUB_HEIGHT << " which is the actual value that is set." << std::endl;
-                sub_problem = 1;
-            }
-            if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( sub_image.getPixelFormat() ) == nullptr )
-            {
-                std::cout << name << " sub_image reference was supposed to maintain its color profile." << std::endl;
-                sub_problem = 1;
-            }
-            if( sub_image.getRef(0,0) == nullptr )
-            {
-                std::cout << name << " sub_image reference is a nullptr. Something is very wrong with the texture." << std::endl;
-                sub_problem = 1;
-            }
-            
-            // This if statement is there to protect this test from crashing.
-            if( !sub_problem )
-            {
-                for( Utilities::grid_2d_unit y = 0; y < sub_image.getHeight(); y++ )
-                {
-                    for( Utilities::grid_2d_unit x = 0; x < sub_image.getWidth(); x++ )
-                    {
-                        const glm::vec2 RES_VEC(WIDTH, HEIGHT);
-                        auto shade = juliaFractal( glm::vec2( SUB_X + x, SUB_Y + y ) / RES_VEC * glm::vec2( 0.2 ) );
-                        const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
-                        
-                        const auto other_color = sub_image.readPixel( x, y );
-                        
-                        problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
-                    }
-                }
-            }
-            
-            problem |= sub_problem;
         }
     }
     
