@@ -119,12 +119,13 @@ int compareTexture( const I &source, const I &copy, const std::string name, cons
     return problem;
 }
 
-int testCopyOperator( const Utilities::Image2D &source, const Utilities::Image2D &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
+template<class I>
+int testCopyOperator( const I &source, const I &copy, Utilities::grid_2d_unit WIDTH, Utilities::grid_2d_unit HEIGHT, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
-    problem |= testScale<Utilities::Image2D>( copy, WIDTH, HEIGHT, name );
+    problem |= testScale<I>( copy, WIDTH, HEIGHT, name );
     
-    problem |= hasBuffer<Utilities::Image2D>( copy, name );
+    problem |= hasBuffer<I>( copy, name );
     
     if( copy.getRef( 0, 0 ) == source.getRef( 0, 0 ) )
     {
@@ -132,7 +133,7 @@ int testCopyOperator( const Utilities::Image2D &source, const Utilities::Image2D
         problem = 1;
     }
     
-    problem |= compareTexture<Utilities::Image2D>( source, copy, name, bias );
+    problem |= compareTexture<I>( source, copy, name, bias );
     
     return problem;
 }
@@ -247,11 +248,11 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         
         Utilities::Image2D dec_test_0( dec_confirmed );
         
-        problem |= testCopyOperator( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
+        problem |= testCopyOperator<Utilities::Image2D>( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
         
         Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
-        problem |= testCopyOperator( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
+        problem |= testCopyOperator<Utilities::Image2D>( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
     }
     {
         const std::string name = "image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
