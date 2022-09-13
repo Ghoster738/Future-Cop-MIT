@@ -21,13 +21,9 @@ Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_for
 
 Utilities::Image2D::Image2D( const Image2D &obj, const PixelFormatColor& format  ) : Image2D( obj.getWidth(), obj.getHeight(), format, obj.endian )
 {
-    for( grid_2d_unit x = 0; x < obj.getWidth(); x++ )
-    {
-        for( grid_2d_unit y = 0; y < obj.getHeight(); y++ )
-        {
-            writePixel( x, y, obj.readPixel( x, y ) );
-        }
-    }
+    bool success = this->inscribeSubImage( 0, 0, obj );
+    
+    assert( success == true );
 }
 
 Utilities::Image2D::Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : ImageBaseWrite2D( width, height, format, endian_param )
@@ -250,13 +246,9 @@ Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj ) : ImageMorbi
 
 Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj, const PixelFormatColor& format  ) : ImageMorbin2D( obj.getWidth(), obj.getHeight(), format, obj.endian )
 {
-    for( grid_2d_unit x = 0; x < obj.getWidth(); x++ )
-    {
-        for( grid_2d_unit y = 0; y < obj.getHeight(); y++ )
-        {
-            writePixel( x, y, obj.readPixel( x, y ) );
-        }
-    }
+    bool success = this->inscribeSubImage( 0, 0, obj );
+    
+    assert( success == true );
 }
 
 Utilities::ImageMorbin2D::ImageMorbin2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : ImageBaseWrite2D( width, height, format, endian_param )
