@@ -313,9 +313,15 @@ int main() {
         Utilities::Image2D sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
         
         
-        if( image_julia.subImage( 0, image_julia.getWidth(), image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
+        if( image_julia.subImage( 0, 1, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
         {
-            std::cout << name << " sub_image succeeded when it is not supposed to!" << std::endl;
+            std::cout << name << " sub_image succeeded when the x along with width was out of bounds by one!" << std::endl;
+            problem = 1;
+        }
+        
+        if( image_julia.subImage( 1, 0, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
+        {
+            std::cout << name << " sub_image succeeded when the y along with height was out of bounds by one!" << std::endl;
             problem = 1;
         }
         
