@@ -79,13 +79,7 @@ bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const
         {
             for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
             {
-                auto SOURCE = sub_image.getRef( sub_x + x, sub_y + y );
-                auto DESTINATION = getRef( sub_x, sub_y );
-                
-                for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
-                {
-                    DESTINATION[ i ] = SOURCE[ i ];
-                }
+                writePixel( sub_x + x, sub_y + y, sub_image.readPixel( sub_x, sub_y ) );
             }
         }
 
@@ -109,13 +103,7 @@ bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit 
         {
             for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
             {
-                auto SOURCE = getRef( sub_x + x, sub_y + y );
-                auto DESTINATION = sub_image.getRef( sub_x, sub_y );
-                
-                for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
-                {
-                    DESTINATION[ i ] = SOURCE[ i ];
-                }
+                dyn_p->writePixel( sub_x, sub_y, readPixel( sub_x + x, sub_y + y ) );
             }
         }
 
@@ -317,13 +305,7 @@ bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y,
         {
             for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
             {
-                auto SOURCE = sub_image.getRef( sub_x + x, sub_y + y );
-                auto DESTINATION = getRef( sub_x, sub_y );
-                
-                for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
-                {
-                    DESTINATION[ i ] = SOURCE[ i ];
-                }
+                writePixel( sub_x + x, sub_y + y, sub_image.readPixel( sub_x, sub_y ) );
             }
         }
 
@@ -347,13 +329,7 @@ bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d
         {
             for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
             {
-                auto SOURCE = getRef( sub_x + x, sub_y + y );
-                auto DESTINATION = sub_image.getRef( sub_x, sub_y );
-                
-                for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
-                {
-                    DESTINATION[ i ] = SOURCE[ i ];
-                }
+                dyn_p->writePixel( sub_x, sub_y, readPixel( sub_x + x, sub_y + y ) );
             }
         }
 
