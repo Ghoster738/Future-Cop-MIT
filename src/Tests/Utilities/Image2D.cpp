@@ -25,7 +25,7 @@ int testColor( int problem,
 }
 
 template<class I>
-int test_pixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp bias = 0.00390625 )
+int testPixel( I &dec_test, Utilities::grid_2d_unit x, Utilities::grid_2d_unit y, const Utilities::PixelFormatColor::GenericColor color, const std::string& name, const Utilities::channel_fp bias = 0.00390625 )
 {
     int problem = 0;
     
@@ -176,10 +176,10 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         problem |= test_scale<Utilities::Image2D>( dec_test, WIDTH, HEIGHT, name );
         
         // Write to the 4 corners of the 2D image.
-        problem |= test_pixel<Utilities::Image2D>( dec_test, 0, 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0, 1.0f), name );
-        problem |= test_pixel<Utilities::Image2D>( dec_test, WIDTH - 1, 0, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 0.0, 1.0f), name );
-        problem |= test_pixel<Utilities::Image2D>( dec_test, WIDTH - 1, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), name );
-        problem |= test_pixel<Utilities::Image2D>( dec_test, 0, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f), name );
+        problem |= testPixel<Utilities::Image2D>( dec_test, 0, 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0, 1.0f), name );
+        problem |= testPixel<Utilities::Image2D>( dec_test, WIDTH - 1, 0, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 0.0, 1.0f), name );
+        problem |= testPixel<Utilities::Image2D>( dec_test, WIDTH - 1, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), name );
+        problem |= testPixel<Utilities::Image2D>( dec_test, 0, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f), name );
     }
     {
         Utilities::Image2D dec_test_little( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE);
@@ -190,9 +190,9 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         problem |= test_scale<Utilities::Image2D>( dec_test_little, WIDTH, HEIGHT, little_name );
         problem |= test_scale<Utilities::Image2D>( dec_test_big,    WIDTH, HEIGHT,    big_name );
         
-        problem |= test_pixel<Utilities::Image2D>( dec_test_little, WIDTH - 1, HEIGHT - 1,
+        problem |= testPixel<Utilities::Image2D>( dec_test_little, WIDTH - 1, HEIGHT - 1,
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), little_name );
-        problem |= test_pixel<Utilities::Image2D>( dec_test_big,    WIDTH - 1, HEIGHT - 1,
+        problem |= testPixel<Utilities::Image2D>( dec_test_big,    WIDTH - 1, HEIGHT - 1,
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), big_name );
         
         auto little_r = dec_test_little.getRef( WIDTH - 1, HEIGHT - 1 );
