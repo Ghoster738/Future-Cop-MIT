@@ -260,8 +260,22 @@ int main() {
         const std::string name = "image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
         Utilities::Image2D image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
         
+        // Write a Julia Set fractal.
+        for( Utilities::grid_2d_unit y = 0; y < image_julia.getHeight(); y++ )
         {
-            std::string sub_name = "sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() )"
+            for( Utilities::grid_2d_unit x = 0; x < image_julia.getWidth(); x++ )
+            {
+                // Write a purple pixel.
+                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+                auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
+                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+                
+                image_julia.writePixel( x, y, color );
+            }
+        }
+        
+        {
+            std::string sub_name = "sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() )";
             Utilities::Image2D sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
             
             if( image_julia.subImage( 0, 1, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
@@ -324,7 +338,7 @@ int main() {
                             
                             const auto other_color = sub_image.readPixel( x, y );
                             
-                            sub_problem |= testColor( problem, other_color, color, sub_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
+                            sub_problem |= testColor( sub_problem, other_color, color, sub_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
                         }
                     }
                 }
@@ -332,18 +346,35 @@ int main() {
                 problem |= sub_problem;
             }
         }
-        
-        // Write a Julia Set fractal.
-        for( Utilities::grid_2d_unit y = 0; y < image_julia.getHeight(); y++ )
         {
-            for( Utilities::grid_2d_unit x = 0; x < image_julia.getWidth(); x++ )
+            std::string inscribe_name = "sub_image( image_julia.getHeight() * 2, image_julia.getWidth() * 2, Utilities::PixelFormatColor_R8G8B8() )";
+            Utilities::Image2D inscribe_image( image_julia.getWidth() * 2, image_julia.getHeight() * 2, Utilities::PixelFormatColor_R8G8B8() );
+            
+            // Fill in the image with purple.
+            for( Utilities::grid_2d_unit y = 0; y < inscribe_image.getHeight(); y++ )
             {
-                // Write a purple pixel.
-                const glm::vec2 RES_VEC(WIDTH, HEIGHT);
-                auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
-                const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
-                
-                image_julia.writePixel( x, y, color );
+                for( Utilities::grid_2d_unit x = 0; x < inscribe_image.getWidth(); x++ )
+                {
+                    const Utilities::PixelFormatColor::GenericColor color( 1.0, 0, 1.0, 1.0f );
+                    
+                    inscribe_image.writePixel( x, y, color );
+                }
+            }
+            
+            auto PLACE_X = inscribe_image.getWidth()  / 4 - 1;
+            auto PLACE_Y = inscribe_image.getHeight() / 4 - 1;
+            
+            if( inscribe_image.inscribeSubImage( image_julia.getWidth() + 1, 0, image_julia ) ) {
+                std::cout << inscribe_name << " inscribe_image succeeded when the x along with width was out of bounds by one!" << std::endl;
+                problem = 1;
+            }
+            if( inscribe_image.inscribeSubImage( 0, image_julia.getHeight() + 1, image_julia ) ) {
+                std::cout << inscribe_name << " inscribe_image succeeded when the y along with height was out of bounds by one!" << std::endl;
+                problem = 1;
+            }
+            if( !inscribe_image.inscribeSubImage( PLACE_X, PLACE_Y, image_julia ) ) {
+                std::cout << inscribe_name << " inscribeSubImage failed when it should not have." << std::endl;
+                problem = 1;
             }
         }
         
