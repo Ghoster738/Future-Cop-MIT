@@ -32,6 +32,7 @@ public:
     {
         // This casting is not dangerous as only the PixelFormatColor is being duplicated.
         pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
+        updateCellBuffer();
     }
     
     virtual ~ImageBase2D() {
@@ -93,13 +94,17 @@ public:
     }
     
     virtual grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) {
+        
         if( !this->size.withinBounds(x, y) )
             return nullptr;
         else
         {
-            const size_t OFFSET = this->placement.getOffset(x, y);
+            const size_t OFFSET = this->placement.getOffset(x, y) * static_cast<size_t>( pixel_format_p->byteSize() );
+                                   
             
-            return this->cells.data() + (OFFSET * static_cast<size_t>( pixel_format_p->byteSize() ));
+            assert( OFFSET < this->cells.size() );
+            
+            return this->cells.data() + OFFSET;
         }
     }
     
