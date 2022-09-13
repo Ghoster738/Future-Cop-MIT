@@ -349,6 +349,8 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
             std::string inscribe_name = image_2D_type + "( image_julia.getHeight() * 2, image_julia.getWidth() * 2, Utilities::PixelFormatColor_R8G8B8() ) inscribe image ";
             I inscribe_image( image_julia.getWidth() * 2, image_julia.getHeight() * 2, Utilities::PixelFormatColor_R8G8B8() );
             
+            int julia_problem = 0;
+            
             const Utilities::PixelFormatColor::GenericColor inscribe_color( 1.0, 0, 1.0, 1.0f );
             
             // Fill in the image with purple.
@@ -367,15 +369,15 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
             
             if( inscribe_image.inscribeSubImage( image_julia.getWidth() + 1, 0, image_julia ) ) {
                 std::cout << inscribe_name << " inscribe_image succeeded when the x along with width was out of bounds by one!" << std::endl;
-                problem = 1;
+                julia_problem = 1;
             }
             if( inscribe_image.inscribeSubImage( 0, image_julia.getHeight() + 1, image_julia ) ) {
                 std::cout << inscribe_name << " inscribe_image succeeded when the y along with height was out of bounds by one!" << std::endl;
-                problem = 1;
+                julia_problem = 1;
             }
             if( !inscribe_image.inscribeSubImage( PLACE_X, PLACE_Y, image_julia ) ) {
                 std::cout << inscribe_name << " inscribeSubImage failed when it should not have." << std::endl;
-                problem = 1;
+                julia_problem = 1;
             }
             else
             {
@@ -390,7 +392,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
                         
                         const auto other_color = inscribe_image.readPixel( PLACE_X + x, PLACE_Y + y );
                         
-                        problem |= testColor( problem, other_color, color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Bad inscribe" );
+                        julia_problem |= testColor( julia_problem, other_color, color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Bad inscribe" );
                     }
                 }
                 
@@ -401,7 +403,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
                     {
                         const auto other_color = inscribe_image.readPixel( x, y );
                         
-                        problem |= testColor( problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Top Bad" );
+                        julia_problem |= testColor( julia_problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Top Bad" );
                     }
                 }
                 
@@ -412,7 +414,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
                     {
                         const auto other_color = inscribe_image.readPixel( x, y );
                         
-                        problem |= testColor( problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Bottom Bad" );
+                        julia_problem |= testColor( julia_problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Bottom Bad" );
                     }
                 }
                 
@@ -423,7 +425,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
                     {
                         const auto other_color = inscribe_image.readPixel( x, y );
                         
-                        problem |= testColor( problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Left Bad" );
+                        julia_problem |= testColor( julia_problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Left Bad" );
                     }
                 }
                 
@@ -434,10 +436,11 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
                     {
                         const auto other_color = inscribe_image.readPixel( x, y );
                         
-                        problem |= testColor( problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Right Bad" );
+                        julia_problem |= testColor( julia_problem, other_color, inscribe_color, inscribe_name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )! Right Bad" );
                     }
                 }
             }
+            problem |= julia_problem;
         }
         
         image_julia.flipHorizontally();
