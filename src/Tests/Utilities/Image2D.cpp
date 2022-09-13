@@ -138,13 +138,14 @@ int testCopyOperator( const I &source, const I &copy, Utilities::grid_2d_unit WI
     return problem;
 }
 
+template<class I>
 int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
     int problem = 0;
     
     // Test the declarations of the normal placement Image2D.
-    {Utilities::Image2D dec_test;}
+    {I dec_test;}
     {
-        Utilities::Image2D dec_test_0( Utilities::Buffer::Endian::SWAP );
+        I dec_test_0( Utilities::Buffer::Endian::SWAP );
         
         // Test the only parameter of the constructor.
         if( dec_test_0.getEndian() != Utilities::Buffer::Endian::SWAP )
@@ -154,7 +155,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         }
         else
         {
-            Utilities::Image2D dec_test_1( Utilities::Buffer::Endian::NO_SWAP );
+            I dec_test_1( Utilities::Buffer::Endian::NO_SWAP );
             
             // Test the endianess
             if( dec_test_1.getEndian() != Utilities::Buffer::Endian::NO_SWAP )
@@ -165,7 +166,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         }
     }
     {
-        Utilities::Image2D dec_test( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1() );
+        I dec_test( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1() );
         const std::string name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1() )";
         
         if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( dec_test.getPixelFormat() ) == nullptr )
@@ -174,26 +175,26 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
             std::cout << name << " did not set the pixel format!" << std::endl;
             std::cout << "   The pixel format is " << dec_test.getPixelFormat()->getName() << std::endl;
         }
-        problem |= testScale<Utilities::Image2D>( dec_test, WIDTH, HEIGHT, name );
+        problem |= testScale<I>( dec_test, WIDTH, HEIGHT, name );
         
         // Write to the 4 corners of the 2D image.
-        problem |= testPixel<Utilities::Image2D>( dec_test, 0, 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0, 1.0f), name );
-        problem |= testPixel<Utilities::Image2D>( dec_test, WIDTH - 1, 0, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 0.0, 1.0f), name );
-        problem |= testPixel<Utilities::Image2D>( dec_test, WIDTH - 1, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), name );
-        problem |= testPixel<Utilities::Image2D>( dec_test, 0, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f), name );
+        problem |= testPixel<I>( dec_test, 0, 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0, 1.0f), name );
+        problem |= testPixel<I>( dec_test, WIDTH - 1, 0, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 0.0, 1.0f), name );
+        problem |= testPixel<I>( dec_test, WIDTH - 1, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), name );
+        problem |= testPixel<I>( dec_test, 0, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f), name );
     }
     {
-        Utilities::Image2D dec_test_little( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE);
-        Utilities::Image2D dec_test_big(    WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::BIG);
+        I dec_test_little( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE);
+        I dec_test_big(    WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::BIG);
         const std::string little_name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE )";
         const std::string    big_name = "Image2D( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::BIG )";
         
-        problem |= testScale<Utilities::Image2D>( dec_test_little, WIDTH, HEIGHT, little_name );
-        problem |= testScale<Utilities::Image2D>( dec_test_big,    WIDTH, HEIGHT,    big_name );
+        problem |= testScale<I>( dec_test_little, WIDTH, HEIGHT, little_name );
+        problem |= testScale<I>( dec_test_big,    WIDTH, HEIGHT,    big_name );
         
-        problem |= testPixel<Utilities::Image2D>( dec_test_little, WIDTH - 1, HEIGHT - 1,
+        problem |= testPixel<I>( dec_test_little, WIDTH - 1, HEIGHT - 1,
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), little_name );
-        problem |= testPixel<Utilities::Image2D>( dec_test_big,    WIDTH - 1, HEIGHT - 1,
+        problem |= testPixel<I>( dec_test_big,    WIDTH - 1, HEIGHT - 1,
                     Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0, 1.0f), big_name );
         
         auto little_r = dec_test_little.getRef( WIDTH - 1, HEIGHT - 1 );
@@ -210,7 +211,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         const std::string name = "dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
         const std::string name_0 = "Image2D( dec_test_0, Utilities::PixelFormatColor_R8G8B8() )";
         const std::string name_1 = "Image2D( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
-        Utilities::Image2D dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
+        I dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
         
         int offset = 0;
         
@@ -246,17 +247,17 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
             }
         }
         
-        Utilities::Image2D dec_test_0( dec_confirmed );
+        I dec_test_0( dec_confirmed );
         
-        problem |= testCopyOperator<Utilities::Image2D>( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
+        problem |= testCopyOperator<I>( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
         
-        Utilities::Image2D dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
+        I dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
         
-        problem |= testCopyOperator<Utilities::Image2D>( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
+        problem |= testCopyOperator<I>( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
     }
     {
         const std::string name = "image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
-        Utilities::Image2D image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
+        I image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
         
         // Write a Julia Set fractal.
         for( Utilities::grid_2d_unit y = 0; y < image_julia.getHeight(); y++ )
@@ -274,7 +275,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         
         {
             std::string sub_name = "sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() )";
-            Utilities::Image2D sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
+            I sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
             
             if( image_julia.subImage( 0, 1, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
             {
@@ -346,7 +347,7 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
         }
         {
             std::string inscribe_name = "sub_image( image_julia.getHeight() * 2, image_julia.getWidth() * 2, Utilities::PixelFormatColor_R8G8B8() )";
-            Utilities::Image2D inscribe_image( image_julia.getWidth() * 2, image_julia.getHeight() * 2, Utilities::PixelFormatColor_R8G8B8() );
+            I inscribe_image( image_julia.getWidth() * 2, image_julia.getHeight() * 2, Utilities::PixelFormatColor_R8G8B8() );
             
             const Utilities::PixelFormatColor::GenericColor inscribe_color( 1.0, 0, 1.0, 1.0f );
             
@@ -479,9 +480,7 @@ int main() {
     int problem = 0;
     
     // *** Image2D Test here.
-    const unsigned WIDTH = 16, HEIGHT = 16;
-    
-    problem |= testImage2D( 16, 16 );
+    problem |= testImage2D<Utilities::Image2D>( 16, 16 );
     
     // *** ImageMorbin2D Test here.
     
