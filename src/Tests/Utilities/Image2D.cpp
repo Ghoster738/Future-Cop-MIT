@@ -305,6 +305,30 @@ int main() {
                 problem |= testColor( problem, other_color, color, name, " to ( " + std::to_string( x ) + ", " + std::to_string( y ) + " )!" );
             }
         }
+        
+        // Flip the image back to the Julia set.
+        image_julia.flipHorizontally();
+        image_julia.flipVertically();
+        
+        Utilities::Image2D sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
+        
+        
+        if( image_julia.subImage( 0, image_julia.getWidth(), image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
+        {
+            std::cout << name << " sub_image succeeded when it is not supposed to!" << std::endl;
+            problem = 1;
+        }
+        
+        const auto SUB_WIDTH  = image_julia.getWidth()  / 2;
+        const auto SUB_HEIGHT = image_julia.getHeight() / 2;
+        const auto SUB_X = image_julia.getWidth()  - SUB_WIDTH;
+        const auto SUB_Y = image_julia.getHeight() - SUB_HEIGHT;
+        
+        if( !image_julia.subImage( SUB_X, SUB_Y, SUB_WIDTH, SUB_HEIGHT, sub_image ) )
+        {
+            std::cout << name << " sub_image failed when it is not supposed to!" << std::endl;
+            problem = 1;
+        }
     }
     
     // 
