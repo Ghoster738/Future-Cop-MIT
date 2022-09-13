@@ -137,11 +137,8 @@ int test_copy_operator( const Utilities::Image2D &source, const Utilities::Image
     return problem;
 }
 
-int main() {
+int testImage2D( const unsigned WIDTH, const unsigned HEIGHT ) {
     int problem = 0;
-    
-    // *** Image2D Test here.
-    const unsigned WIDTH = 16, HEIGHT = 16;
     
     // Test the declarations of the normal placement Image2D.
     {Utilities::Image2D dec_test;}
@@ -474,7 +471,16 @@ int main() {
         }
     }
     
-    // 
+    return problem;
+}
+
+int main() {
+    int problem = 0;
+    
+    // *** Image2D Test here.
+    const unsigned WIDTH = 16, HEIGHT = 16;
+    
+    problem |= testImage2D( 16, 16 );
     
     // *** ImageMorbin2D Test here.
     
