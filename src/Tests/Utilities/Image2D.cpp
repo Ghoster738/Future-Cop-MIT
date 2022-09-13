@@ -335,6 +335,33 @@ int main() {
             std::cout << name << " sub_image failed when it is not supposed to!" << std::endl;
             problem = 1;
         }
+        else
+        {
+            int sub_problem = 0;
+            
+            if( sub_image.getWidth() != SUB_WIDTH )
+            {
+                std::cout << name << " sub_image width, " << sub_image.getWidth() << ", is not " << SUB_WIDTH << " which is the actual value that is set." << std::endl;
+                sub_problem = 1;
+            }
+            if( sub_image.getHeight() != SUB_HEIGHT )
+            {
+                std::cout << name << " sub_image height, " << sub_image.getHeight() << ", is not " << SUB_HEIGHT << " which is the actual value that is set." << std::endl;
+                sub_problem = 1;
+            }
+            if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( sub_image.getPixelFormat() ) == nullptr )
+            {
+                std::cout << name << " sub_image reference was supposed to maintain its color profile." << std::endl;
+                sub_problem = 1;
+            }
+            if( sub_image.getRef(0,0) == nullptr )
+            {
+                std::cout << name << " sub_image reference is a nullptr. Something is very wrong with the texture." << std::endl;
+                sub_problem = 1;
+            }
+            
+            problem |= sub_problem;
+        }
     }
     
     // 
