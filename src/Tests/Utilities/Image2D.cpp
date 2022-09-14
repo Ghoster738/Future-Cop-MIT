@@ -138,7 +138,7 @@ int testCopyOperator( const I &source, const I &copy, Utilities::grid_2d_unit WI
     return problem;
 }
 
-template<class I, class J>
+template<class I>
 int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_2D_type ) {
     int problem = 0;
     
@@ -442,18 +442,6 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
             }
             problem |= julia_problem;
         }
-        {
-            std::string name = "morbin & normal test for " + image_2D_type;
-            J morbin_and_normal( image_julia );
-            
-            if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( morbin_and_normal.getPixelFormat() ) == nullptr )
-            {
-                problem = 1;
-                std::cout << name << " did not set the pixel format!" << std::endl;
-                std::cout << "   The pixel format is " << morbin_and_normal.getPixelFormat()->getName() << std::endl;
-            }
-            problem |= compareTexture<I, J>( image_julia, morbin_and_normal, name );
-        }
         
         image_julia.flipHorizontally();
         
@@ -491,14 +479,52 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
     return problem;
 }
 
+
+template<class I, class J>
+int testConversions( const unsigned WIDTH, const unsigned HEIGHT, std::string image_2D_type )
+{
+    int problem = 0;
+    std::string name = "morbin & normal test for " + image_2D_type;
+    I source( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
+    
+    // Write a Julia Set fractal.
+    for( Utilities::grid_2d_unit y = 0; y < source.getHeight(); y++ )
+    {
+        for( Utilities::grid_2d_unit x = 0; x < source.getWidth(); x++ )
+        {
+            // Write a purple pixel.
+            const glm::vec2 RES_VEC(WIDTH, HEIGHT);
+            auto shade = juliaFractal( glm::vec2( x, y ) / RES_VEC * glm::vec2( 0.2 ) );
+            const Utilities::PixelFormatColor::GenericColor color( shade, 1.0f - shade, shade * 0.125, 1.0f );
+            
+            source.writePixel( x, y, color );
+        }
+    }
+    
+    J destination( source );
+    
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( destination.getPixelFormat() ) == nullptr )
+    {
+        problem = 1;
+        std::cout << name << " did not set the pixel format!" << std::endl;
+        std::cout << "   The pixel format is " << destination.getPixelFormat()->getName() << std::endl;
+    }
+    
+    problem |= compareTexture<I, J>( source, destination, name );
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
     // *** Image2D Test here.
-    problem |= testImage2D<Utilities::Image2D, Utilities::ImageMorbin2D>( 256, 256, "Image2D" );
+    problem |= testImage2D<Utilities::Image2D>( 100, 150, "Image2D" );
+    problem |= testConversions<Utilities::Image2D, Utilities::ImageMorbin2D>( 256, 256, "Image2D" );
     
     // *** ImageMorbin2D Test here.
-    problem |= testImage2D<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
+    problem |= testImage2D<Utilities::ImageMorbin2D>( 256, 256, "ImageMorbin2D" );
+    problem |= testConversions<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
     
     return problem;
 }
