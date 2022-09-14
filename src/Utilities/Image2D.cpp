@@ -154,7 +154,7 @@ void Utilities::Image2D::flipVertically()
 
 bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
-    static grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
+    static size_t TOTAL_PIXELS = getWidth() * getHeight();
     
     if( reader.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
         return false;
@@ -162,7 +162,7 @@ bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endi
     {
         grid_2d_unit x, y;
         
-        for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
+        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
             this->placement.getCoordinates( i, x, y );
@@ -376,7 +376,7 @@ void Utilities::ImageMorbin2D::flipVertically()
 
 bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
-    static grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
+    static size_t TOTAL_PIXELS = getWidth() * getHeight();
     
     if( reader.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
         return false;
@@ -384,7 +384,7 @@ bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endia
     {
         grid_2d_unit x, y;
         
-        for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
+        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
             this->placement.getCoordinates( i, x, y );
