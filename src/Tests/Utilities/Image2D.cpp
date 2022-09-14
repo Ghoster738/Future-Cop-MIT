@@ -100,7 +100,7 @@ float juliaFractal( glm::vec2 uv )
 }
 
 template<class I, class J = I>
-int compareTexture( const I &source, const J &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
+int compareImage2D( const I &source, const J &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
     problem |= testScale<I>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
@@ -133,7 +133,7 @@ int testCopyOperator( const I &source, const I &copy, Utilities::grid_2d_unit WI
         problem = 1;
     }
     
-    problem |= compareTexture<I>( source, copy, name, bias );
+    problem |= compareImage2D<I>( source, copy, name, bias );
     
     return problem;
 }
@@ -510,7 +510,7 @@ int testConversions( const unsigned WIDTH, const unsigned HEIGHT, std::string im
         std::cout << "   The pixel format is " << destination.getPixelFormat()->getName() << std::endl;
     }
     
-    problem |= compareTexture<I, J>( source, destination, name );
+    problem |= compareImage2D<I, J>( source, destination, name );
     
     return problem;
 }
