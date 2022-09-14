@@ -46,8 +46,8 @@ public:
     Grid2DPlacementNormal( const GridDimensions2D *const dim ) : Grid2DPlacement( dim ) {}
     
     virtual void getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
-        y = offset / grid_size_r->width;
-        x = offset % grid_size_r->width;
+        y = static_cast<size_t>( offset ) / static_cast<size_t>( grid_size_r->width );
+        x = static_cast<size_t>( offset ) % static_cast<size_t>( grid_size_r->width );
     }
     virtual grid_2d_offset getOffset( grid_2d_unit x, grid_2d_unit y ) const {
         return grid_size_r->width * y + x;

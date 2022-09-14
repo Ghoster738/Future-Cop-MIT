@@ -594,7 +594,7 @@ int main() {
     problem |= testConversions<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
     { // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader ImageMorbin2D";
-        Utilities::Image2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
+        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
         Utilities::Buffer buffer;
         
         {
@@ -684,8 +684,8 @@ int main() {
         problem |= testColor( problem, image.readPixel(3, 0), black, title, extra );
         problem |= testColor( problem, image.readPixel(0, 1), black, title, extra );
         problem |= testColor( problem, image.readPixel(1, 1), black, title, extra );
-        problem |= testColor( problem, image.readPixel(2, 1), black, title, extra ); // white
-        problem |= testColor( problem, image.readPixel(3, 1), black, title, extra ); // white
+        problem |= testColor( problem, image.readPixel(2, 1), white, title, extra );
+        problem |= testColor( problem, image.readPixel(3, 1), white, title, extra );
         problem |= testColor( problem, image.readPixel(0, 2), black, title, extra );
         problem |= testColor( problem, image.readPixel(1, 2), black, title, extra );
         problem |= testColor( problem, image.readPixel(2, 2), black, title, extra );
@@ -693,7 +693,7 @@ int main() {
         problem |= testColor( problem, image.readPixel(0, 3), black, title, extra );
         problem |= testColor( problem, image.readPixel(1, 3), black, title, extra );
         problem |= testColor( problem, image.readPixel(2, 3), black, title, extra );
-        problem |= testColor( problem, image.readPixel(3, 3), black, title, extra );
+        problem |= testColor( problem, image.readPixel(3, 3), white, title, extra );
     }
     
     return problem;
