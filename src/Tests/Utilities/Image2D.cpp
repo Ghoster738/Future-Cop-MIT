@@ -99,8 +99,8 @@ float juliaFractal( glm::vec2 uv )
     return static_cast<float>(iteration) / static_cast<float>(max_iterations);
 }
 
-template<class I>
-int compareTexture( const I &source, const I &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
+template<class I, class J = I>
+int compareTexture( const I &source, const J &copy, const std::string name, const Utilities::channel_fp bias = 0.00390625 ) {
     int problem = 0;
     
     problem |= testScale<I>( source, copy.getWidth(), copy.getHeight(), name + " comparision" );
@@ -138,7 +138,7 @@ int testCopyOperator( const I &source, const I &copy, Utilities::grid_2d_unit WI
     return problem;
 }
 
-template<class I>
+template<class I, class J>
 int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_2D_type ) {
     int problem = 0;
     
@@ -442,6 +442,18 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
             }
             problem |= julia_problem;
         }
+        {
+            std::string name = "morbin & normal test for " + image_2D_type;
+            J morbin_and_normal( image_julia );
+            
+            if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( morbin_and_normal.getPixelFormat() ) == nullptr )
+            {
+                problem = 1;
+                std::cout << name << " did not set the pixel format!" << std::endl;
+                std::cout << "   The pixel format is " << morbin_and_normal.getPixelFormat()->getName() << std::endl;
+            }
+            problem |= compareTexture<I, J>( image_julia, morbin_and_normal, name );
+        }
         
         image_julia.flipHorizontally();
         
@@ -483,10 +495,10 @@ int main() {
     int problem = 0;
     
     // *** Image2D Test here.
-    problem |= testImage2D<Utilities::Image2D>( 16, 16, "Image2D" );
+    problem |= testImage2D<Utilities::Image2D, Utilities::ImageMorbin2D>( 16, 16, "Image2D" );
     
     // *** ImageMorbin2D Test here.
-    problem |= testImage2D<Utilities::ImageMorbin2D>( 16, 16, "ImageMorbin2D" );
+    problem |= testImage2D<Utilities::ImageMorbin2D, Utilities::Image2D>( 16, 16, "ImageMorbin2D" );
     
     return problem;
 }
