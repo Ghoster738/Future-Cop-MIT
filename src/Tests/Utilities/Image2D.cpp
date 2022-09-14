@@ -495,10 +495,10 @@ int main() {
     int problem = 0;
     
     // *** Image2D Test here.
-    problem |= testImage2D<Utilities::Image2D, Utilities::ImageMorbin2D>( 16, 16, "Image2D" );
+    problem |= testImage2D<Utilities::Image2D, Utilities::ImageMorbin2D>( 256, 256, "Image2D" );
     
     // *** ImageMorbin2D Test here.
-    problem |= testImage2D<Utilities::ImageMorbin2D, Utilities::Image2D>( 16, 16, "ImageMorbin2D" );
+    problem |= testImage2D<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
     
     return problem;
 }
