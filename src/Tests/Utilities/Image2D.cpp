@@ -596,7 +596,7 @@ int main() {
     problem |= testConversions<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
     { // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader ImageMorbin2D";
-        Utilities::Image2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
+        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
         Utilities::Buffer buffer;
         
         {
@@ -669,33 +669,35 @@ int main() {
             problem = 1;
             std::cout << title << " failed to read the buffer!" << std::endl;
         }
-        
-        std::string extra = "";
-        Utilities::PixelFormatColor::GenericColor black(0, 0, 0, 0);
-        Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
-        
+        else
         {
-            Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
-            problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            std::string extra = "";
+            Utilities::PixelFormatColor::GenericColor black(0, 0, 0, 0);
+            Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
+            
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
+                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
+                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            }
+            problem |= testColor( problem, image.readPixel(2, 0), black, title, extra );
+            problem |= testColor( problem, image.readPixel(3, 0), black, title, extra );
+            problem |= testColor( problem, image.readPixel(0, 1), black, title, extra );
+            problem |= testColor( problem, image.readPixel(1, 1), black, title, extra );
+            problem |= testColor( problem, image.readPixel(2, 1), white, title, extra );
+            problem |= testColor( problem, image.readPixel(3, 1), white, title, extra );
+            problem |= testColor( problem, image.readPixel(0, 2), black, title, extra );
+            problem |= testColor( problem, image.readPixel(1, 2), black, title, extra );
+            problem |= testColor( problem, image.readPixel(2, 2), black, title, extra );
+            problem |= testColor( problem, image.readPixel(3, 2), black, title, extra );
+            problem |= testColor( problem, image.readPixel(0, 3), black, title, extra );
+            problem |= testColor( problem, image.readPixel(1, 3), black, title, extra );
+            problem |= testColor( problem, image.readPixel(2, 3), black, title, extra );
+            problem |= testColor( problem, image.readPixel(3, 3), white, title, extra );
         }
-        {
-            Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
-            problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
-        }
-        problem |= testColor( problem, image.readPixel(2, 0), black, title, extra );
-        problem |= testColor( problem, image.readPixel(3, 0), black, title, extra );
-        problem |= testColor( problem, image.readPixel(0, 1), black, title, extra );
-        problem |= testColor( problem, image.readPixel(1, 1), black, title, extra );
-        problem |= testColor( problem, image.readPixel(2, 1), white, title, extra );
-        problem |= testColor( problem, image.readPixel(3, 1), white, title, extra );
-        problem |= testColor( problem, image.readPixel(0, 2), black, title, extra );
-        problem |= testColor( problem, image.readPixel(1, 2), black, title, extra );
-        problem |= testColor( problem, image.readPixel(2, 2), black, title, extra );
-        problem |= testColor( problem, image.readPixel(3, 2), black, title, extra );
-        problem |= testColor( problem, image.readPixel(0, 3), black, title, extra );
-        problem |= testColor( problem, image.readPixel(1, 3), black, title, extra );
-        problem |= testColor( problem, image.readPixel(2, 3), black, title, extra );
-        problem |= testColor( problem, image.readPixel(3, 3), white, title, extra );
     }
     
     return problem;
