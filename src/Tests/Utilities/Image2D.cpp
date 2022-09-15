@@ -589,6 +589,64 @@ int main() {
             problem |= testColor( problem, image.readPixel(0, 2), color, title, extra );
             problem |= testColor( problem, image.readPixel(1, 2), color, title, extra );
         }
+        
+        // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
+        Utilities::Buffer buffer_to_be_written;
+        
+        // Make sure that buffer_to_be_written has as much memory as reader.
+        buffer_to_be_written.allocate( reader.totalSize() );
+        
+        // Test to make sure that the bounds checking works.
+        {
+            // Make it just enough where the toWriter should fail.
+            auto writer = buffer_to_be_written.getWriter(0, reader.totalSize() - 1 );
+            
+            if( image.toWriter( writer ) )
+            {
+                problem = 1;
+                std::cout << title << " toWriter should have not returned true!" << std::endl;
+            }
+        }
+        
+        auto writer = buffer_to_be_written.getWriter();
+        
+        if( !image.toWriter( writer ) )
+        {
+            problem = 1;
+            std::cout << title << " toWriter should have returned true!" << std::endl;
+        }
+        else
+        {
+            auto reader_other = buffer_to_be_written.getReader();
+            
+            if( reader_other.totalSize() != reader.totalSize() )
+            {
+                problem = 1;
+                std::cout << title << " toWriter reader_other != reader in size" << std::endl;
+                std::cout << "    reader_other " << reader_other.totalSize() << std::endl;
+                std::cout << "          reader " <<       reader.totalSize() << std::endl;
+            }
+            else
+            {
+                bool no_mismatch = true;
+                
+                reader_other.setPosition( 0, Utilities::Buffer::BEGIN );
+                reader.setPosition( 0, Utilities::Buffer::BEGIN );
+                
+                for( size_t i = 0; i < reader.totalSize(); i++ ) {
+                    auto b0 = reader_other.readU8();
+                    auto b1 = reader.readU8();
+                    
+                    if( b0 != b1 ) {
+                        no_mismatch = false;
+                        problem = 1;
+                        std::cout << title << " toWriter output does not agree with the source" << std::endl;
+                        std::cout << "    created " << static_cast<unsigned>(b0) << std::endl;
+                        std::cout << "    source  " << static_cast<unsigned>(b1) << std::endl;
+                    }
+                }
+            }
+        }
     }
     
     // *** ImageMorbin2D Test here.
@@ -697,6 +755,64 @@ int main() {
             problem |= testColor( problem, image.readPixel(1, 3), black, title, extra );
             problem |= testColor( problem, image.readPixel(2, 3), black, title, extra );
             problem |= testColor( problem, image.readPixel(3, 3), white, title, extra );
+        }
+        
+        // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
+        Utilities::Buffer buffer_to_be_written;
+        
+        // Make sure that buffer_to_be_written has as much memory as reader.
+        buffer_to_be_written.allocate( reader.totalSize() );
+        
+        // Test to make sure that the bounds checking works.
+        {
+            // Make it just enough where the toWriter should fail.
+            auto writer = buffer_to_be_written.getWriter(0, reader.totalSize() - 1 );
+            
+            if( image.toWriter( writer ) )
+            {
+                problem = 1;
+                std::cout << title << " toWriter should have not returned true!" << std::endl;
+            }
+        }
+        
+        auto writer = buffer_to_be_written.getWriter();
+        
+        if( !image.toWriter( writer ) )
+        {
+            problem = 1;
+            std::cout << title << " toWriter should have returned true!" << std::endl;
+        }
+        else
+        {
+            auto reader_other = buffer_to_be_written.getReader();
+            
+            if( reader_other.totalSize() != reader.totalSize() )
+            {
+                problem = 1;
+                std::cout << title << " toWriter reader_other != reader in size" << std::endl;
+                std::cout << "    reader_other " << reader_other.totalSize() << std::endl;
+                std::cout << "          reader " <<       reader.totalSize() << std::endl;
+            }
+            else
+            {
+                bool no_mismatch = true;
+                
+                reader_other.setPosition( 0, Utilities::Buffer::BEGIN );
+                reader.setPosition( 0, Utilities::Buffer::BEGIN );
+                
+                for( size_t i = 0; i < reader.totalSize(); i++ ) {
+                    auto b0 = reader_other.readU8();
+                    auto b1 = reader.readU8();
+                    
+                    if( b0 != b1 ) {
+                        no_mismatch = false;
+                        problem = 1;
+                        std::cout << title << " toWriter output does not agree with the source" << std::endl;
+                        std::cout << "    created " << static_cast<unsigned>(b0) << std::endl;
+                        std::cout << "    source  " << static_cast<unsigned>(b1) << std::endl;
+                    }
+                }
+            }
         }
     }
     
