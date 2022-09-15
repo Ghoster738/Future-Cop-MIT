@@ -565,28 +565,30 @@ int main() {
             problem = 1;
             std::cout << title << " failed to read the buffer!" << std::endl;
         }
-        
-        std::string extra = "";
-        Utilities::PixelFormatColor::GenericColor color(1, 1, 1, 1);
-        
+        else
         {
-            Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
-            problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            std::string extra = "";
+            Utilities::PixelFormatColor::GenericColor color(1, 1, 1, 1);
+            
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
+                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
+                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.501961, 0.501961, 0.501961, 0.125490);
+                problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.000000, 0.000000, 0.000000, 0.000000);
+                problem |= testColor( problem, image.readPixel(1, 1), color, title, extra );
+            }
+            problem |= testColor( problem, image.readPixel(0, 2), color, title, extra );
+            problem |= testColor( problem, image.readPixel(1, 2), color, title, extra );
         }
-        {
-            Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
-            problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
-        }
-        {
-            Utilities::PixelFormatColor::GenericColor color(0.501961, 0.501961, 0.501961, 0.125490);
-            problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
-        }
-        {
-            Utilities::PixelFormatColor::GenericColor color(0.000000, 0.000000, 0.000000, 0.000000);
-            problem |= testColor( problem, image.readPixel(1, 1), color, title, extra );
-        }
-        problem |= testColor( problem, image.readPixel(0, 2), color, title, extra );
-        problem |= testColor( problem, image.readPixel(1, 2), color, title, extra );
     }
     
     // *** ImageMorbin2D Test here.
@@ -594,7 +596,7 @@ int main() {
     problem |= testConversions<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
     { // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader ImageMorbin2D";
-        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
+        Utilities::Image2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
         Utilities::Buffer buffer;
         
         {
