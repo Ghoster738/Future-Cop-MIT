@@ -164,13 +164,10 @@ bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endi
     {
         grid_2d_unit x, y;
         
-        std::cout << "fromReader Width = " << getWidth() << ", Height = " << getHeight() << std::endl;
-        
         for( size_t i = 0; i < TOTAL_PIXELS; i++ )
         {
             // Gather the x and y cordinates.
             this->placement.getCoordinates( i, x, y );
-            std::cout << "i = " << i << ", x = " << static_cast<unsigned>( x ) << ", y = " << static_cast<unsigned>( y ) << std::endl;
             
             if( !writePixel( x, y, pixel_format_p->readPixel( reader, endian ) ) )
                 throw std::overflow_error( "There is a problem with the fromReader command!" );
@@ -182,7 +179,7 @@ bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endi
 
 bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
 {
-    static grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
+    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
     
     if( writer.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
         return false;
@@ -382,7 +379,7 @@ void Utilities::ImageMorbin2D::flipVertically()
 
 bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
-    static size_t TOTAL_PIXELS = getWidth() * getHeight();
+    const size_t TOTAL_PIXELS = getWidth() * getHeight();
     
     if( reader.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
         return false;
@@ -395,7 +392,8 @@ bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endia
             // Gather the x and y cordinates.
             this->placement.getCoordinates( i, x, y );
             
-            writePixel( x, y, pixel_format_p->readPixel( reader, endian ) );
+            if( !writePixel( x, y, pixel_format_p->readPixel( reader, endian ) ) )
+                throw std::overflow_error( "There is a problem with the fromReader command!" );
         }
         
         return true;
