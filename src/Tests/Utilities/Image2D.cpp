@@ -562,7 +562,52 @@ int testToWriter( const I &image, Utilities::Buffer::Reader &reader, std::string
             reader_other.setPosition( 0, Utilities::Buffer::BEGIN );
             reader.setPosition( 0, Utilities::Buffer::BEGIN );
             
-            for( size_t i = 0; i < reader.totalSize(); i++ ) {
+            for( size_t i = 0; i < reader.totalSize() && no_mismatch; i++ ) {
+                auto b0 = reader_other.readU8();
+                auto b1 = reader.readU8();
+                
+                if( b0 != b1 ) {
+                    no_mismatch = false;
+                    problem = 1;
+                    std::cout << title << " toWriter output does not agree with the source" << std::endl;
+                    std::cout << "    created " << static_cast<unsigned>(b0) << std::endl;
+                    std::cout << "    source  " << static_cast<unsigned>(b1) << std::endl;
+                }
+            }
+        }
+    }
+    
+    return problem;
+}
+
+template<class I>
+int testAddToBuffer( const I &image, Utilities::Buffer::Reader &reader, std::string title ) {
+    int problem = 0;
+    
+    // test addToBuffer( Buffer::Writer &writer, Buffer::Endian endian ) const
+    Utilities::Buffer new_buffer;
+    
+    if( !image.addToBuffer( new_buffer ) )
+    {
+        problem = 1;
+        std::cout << title << " addToBuffer should have returned true!" << std::endl;
+    }
+    else
+    {
+        auto reader_other = new_buffer.getReader();
+        
+        if( reader_other.totalSize() != reader.totalSize() )
+        {
+            problem = 1;
+            std::cout << title << " addToBuffer reader_other != reader in size" << std::endl;
+            std::cout << "    reader_other " << reader_other.totalSize() << std::endl;
+            std::cout << "          reader " <<       reader.totalSize() << std::endl;
+        }
+        else
+        {
+            bool no_mismatch = true;
+            
+            for( size_t i = 0; i < reader.totalSize() && no_mismatch; i++ ) {
                 auto b0 = reader_other.readU8();
                 auto b1 = reader.readU8();
                 
@@ -657,6 +702,7 @@ int main() {
         
         // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
         problem |= testToWriter<Utilities::Image2D>( image, reader, title );
+        problem |= testAddToBuffer<Utilities::Image2D>( image, reader, title );
     }
     
     // *** ImageMorbin2D Test here.
@@ -769,6 +815,7 @@ int main() {
         
         // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
         problem |= testToWriter<Utilities::ImageMorbin2D>( image, reader, title );
+        problem |= testAddToBuffer<Utilities::ImageMorbin2D>( image, reader, title );
     }
     
     return problem;
