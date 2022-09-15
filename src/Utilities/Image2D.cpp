@@ -402,7 +402,7 @@ bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endia
 
 bool Utilities::ImageMorbin2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
 {
-    static grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
+    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
     
     if( writer.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
         return false;
