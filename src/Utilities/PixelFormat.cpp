@@ -273,9 +273,19 @@ Utilities::ColorPalette::ColorPalette( const Utilities::PixelFormatColor& color_
     assert( color_p != nullptr );
 }
 
-uint_fast16_t Utilities::ColorPalette::getTotalIndex() const
+bool Utilities::ColorPalette::empty() const {
+    if( buffer.getReader().totalSize() < color_p->byteSize() )
+        return true;
+    else
+        return false;
+}
+
+uint_fast8_t Utilities::ColorPalette::getLastIndex() const
 {
-    return buffer.getReader().totalSize() / color_p->byteSize();
+    if( empty() )
+        return 0;
+    else
+        return buffer.getReader().totalSize() / color_p->byteSize() - 1;
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::ColorPalette::getIndex( palette_index index ) const
@@ -287,7 +297,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::ColorPalette::getIndex( pal
 
 bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatColor::GenericColor color )
 {
-    if( index < getTotalIndex() ) {
+    if( index <= getLastIndex() ) {
         auto writer = buffer.getWriter( index * color_p->byteSize(), color_p->byteSize() );
         
         color_p->writePixel( writer, endianess, getIndex( index ) );
@@ -296,61 +306,3 @@ bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatCo
     }
     return false;
 }
-
-Utilities::PixelFormatIndex::PixelFormatIndex( uint_fast8_t index_size_param ) : index_size( index_size_param ) {
-    if( index_size == 0 )
-        index_size = 1;
-    else
-    if( index_size <= 2 )
-        index_size = 2;
-};
-
-void Utilities::PixelFormatIndex::writePixel( palette_index indexValue, Buffer::Writer &buffer, Buffer::Endian endian ) {
-    if( index_size == 1 )
-        buffer.writeU8( indexValue );
-    else
-    if( index_size == 2 )
-        buffer.writeU16( indexValue, endian );
-}
-
-Utilities::palette_index Utilities::PixelFormatIndex::readPixel( Buffer::Reader &buffer, Buffer::Endian endian ) {
-    if( index_size == 1 )
-        return buffer.readU8();
-    else
-    if( index_size == 2 )
-        return buffer.readU16( endian );
-    return 0;
-}
-
-Utilities::PixelFormatBitIndex::PixelFormatBitIndex( uint_fast8_t bits_per_index_param ) : bits_per_index( bits_per_index_param )
-{
-    if( bits_per_index > 8 )
-        bits_per_index = 8;
-}
-
-void Utilities::PixelFormatBitIndex::writePixel( uint8_t *buffer_r, uint_fast8_t shift, palette_index indexValue )
-{
-    uint_fast8_t byte_offset = 0;
-    
-    buffer_r[ byte_offset ] = 0;
-    
-    for( uint_fast8_t s = shift; s < shift + bits_per_index; s++ ) {
-        if( (s % 8) == 0 ) {
-            byte_offset++;
-            buffer_r[ byte_offset ] = 0;
-        }
-        
-        buffer_r[ byte_offset ] |= (1 << ((s - shift) % 8)) & indexValue;
-    }
-}
-
-/*Utilities::palette_index Utilities::PixelFormatBitIndex::readPixel( Buffer::Reader &buffer, uint_fast8_t shift )
-{
-    if( index_size == 1 )
-        return buffer.readU8();
-    else
-    if( index_size == 2 )
-        return buffer.readU16();
-    return 0;
-}
-*/
