@@ -21,7 +21,7 @@ void Utilities::Buffer::reserve( size_t byte_amount ) {
 }
 
 bool Utilities::Buffer::allocate( size_t byte_amount ) {
-    reserve( byte_amount );
+    reserve( byte_amount + data.size() );
     for( size_t i = 0; i < byte_amount; i++ )
         addU8( 0 );
     return true;

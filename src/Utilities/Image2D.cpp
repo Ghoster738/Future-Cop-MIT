@@ -202,30 +202,14 @@ bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian
 
 bool Utilities::Image2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) const
 {
-    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
+    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight() * pixel_format_p->byteSize();
     
-    if( buffer.getReader().totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
-        return false;
-    else
-    {
-        grid_2d_unit x, y;
-        uint8_t PIXEL_BUFFER[ pixel_format_p->byteSize() ];
-        Buffer::Writer writer( PIXEL_BUFFER, pixel_format_p->byteSize() );
-        
-        for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
-        {
-            // Gather the x and y cordinates.
-            this->getPlacement().getCoordinates( i, x, y );
-            
-            pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
-            
-            writer.addToBuffer( buffer );
-            
-            writer.setPosition( 0, Buffer::Direction::BEGIN );
-        }
-        
-        return true;
-    }
+    const auto STARTING_POSITION = buffer.getReader().totalSize();
+    buffer.allocate( TOTAL_PIXELS );
+    
+    auto writer = buffer.getWriter( STARTING_POSITION );
+    
+    return toWriter( writer, endian );
 }
 
 Utilities::ImageMorbin2D::ImageMorbin2D( Buffer::Endian endian ) : ImageMorbin2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -425,28 +409,12 @@ bool Utilities::ImageMorbin2D::toWriter( Buffer::Writer &writer, Buffer::Endian 
 
 bool Utilities::ImageMorbin2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) const
 {
-    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
+    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight() * pixel_format_p->byteSize();
     
-    if( buffer.getReader().totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
-        return false;
-    else
-    {
-        grid_2d_unit x, y;
-        uint8_t PIXEL_BUFFER[ pixel_format_p->byteSize() ];
-        Buffer::Writer writer( PIXEL_BUFFER, pixel_format_p->byteSize() );
-        
-        for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
-        {
-            // Gather the x and y cordinates.
-            this->getPlacement().getCoordinates( i, x, y );
-            
-            pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
-            
-            writer.addToBuffer( buffer );
-            
-            writer.setPosition( 0, Buffer::Direction::BEGIN );
-        }
-        
-        return true;
-    }
+    const auto STARTING_POSITION = buffer.getReader().totalSize();
+    buffer.allocate( TOTAL_PIXELS );
+    
+    auto writer = buffer.getWriter( STARTING_POSITION );
+    
+    return toWriter( writer, endian );
 }
