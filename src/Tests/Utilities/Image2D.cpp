@@ -627,6 +627,148 @@ int testAddToBuffer( const I &image, Utilities::Buffer::Reader &reader, std::str
     return problem;
 }
 
+void addImageBuffer( Utilities::Buffer &buffer ) {
+    // Black & White, Alpha Pixels
+    // Row 0
+    buffer.addU8( 0x70 );
+    buffer.addU8( 0xFF );
+    
+    buffer.addU8( 0xFE );
+    buffer.addU8( 0x50 );
+    
+    // Row 1
+    buffer.addU8( 0x80 );
+    buffer.addU8( 0x20 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    // Row 2
+    buffer.addU8( 0xFF );
+    buffer.addU8( 0xFF );
+    
+    buffer.addU8( 0xFF );
+    buffer.addU8( 0xFF );
+}
+
+void addSquareImageBuffer( Utilities::Buffer &buffer ) {
+    // Black & White, Alpha Pixels
+    // Row 0
+    buffer.addU8( 0x70 );
+    buffer.addU8( 0xFF );
+    
+    buffer.addU8( 0xFE );
+    buffer.addU8( 0x50 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    // Row 1
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0xFF );
+    buffer.addU8( 0xFF );
+    
+    buffer.addU8( 0xFF );
+    buffer.addU8( 0xFF );
+    
+    // Row 2
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    // Row 3
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0x00 );
+    buffer.addU8( 0x00 );
+    
+    buffer.addU8( 0xFF );
+    buffer.addU8( 0xFF );
+}
+
+template<class I>
+int checkBuffer( const I &image, const std::string &title ) {
+    int problem = 0;
+    
+    std::string extra = "";
+    Utilities::PixelFormatColor::GenericColor color(1, 1, 1, 1);
+    
+    {
+        Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
+        problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+    }
+    {
+        Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
+        problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+    }
+    {
+        Utilities::PixelFormatColor::GenericColor color(0.501961, 0.501961, 0.501961, 0.125490);
+        problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
+    }
+    {
+        Utilities::PixelFormatColor::GenericColor color(0.000000, 0.000000, 0.000000, 0.000000);
+        problem |= testColor( problem, image.readPixel(1, 1), color, title, extra );
+    }
+    problem |= testColor( problem, image.readPixel(0, 2), color, title, extra );
+    problem |= testColor( problem, image.readPixel(1, 2), color, title, extra );
+    
+    return problem;
+}
+
+template<class I>
+int checkSquareBuffer( const I &image, const std::string &title ) {
+    int problem = 0;
+    
+    std::string extra = "";
+    Utilities::PixelFormatColor::GenericColor black(0, 0, 0, 0);
+    Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
+    
+    {
+        Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
+        problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+    }
+    {
+        Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
+        problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+    }
+    problem |= testColor( problem, image.readPixel(2, 0), black, title, extra );
+    problem |= testColor( problem, image.readPixel(3, 0), black, title, extra );
+    problem |= testColor( problem, image.readPixel(0, 1), black, title, extra );
+    problem |= testColor( problem, image.readPixel(1, 1), black, title, extra );
+    problem |= testColor( problem, image.readPixel(2, 1), white, title, extra );
+    problem |= testColor( problem, image.readPixel(3, 1), white, title, extra );
+    problem |= testColor( problem, image.readPixel(0, 2), black, title, extra );
+    problem |= testColor( problem, image.readPixel(1, 2), black, title, extra );
+    problem |= testColor( problem, image.readPixel(2, 2), black, title, extra );
+    problem |= testColor( problem, image.readPixel(3, 2), black, title, extra );
+    problem |= testColor( problem, image.readPixel(0, 3), black, title, extra );
+    problem |= testColor( problem, image.readPixel(1, 3), black, title, extra );
+    problem |= testColor( problem, image.readPixel(2, 3), black, title, extra );
+    problem |= testColor( problem, image.readPixel(3, 3), white, title, extra );
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -648,27 +790,7 @@ int main() {
             }
         }
         
-        // Black & White, Alpha Pixels
-        // Row 0
-        buffer.addU8( 0x70 );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFE );
-        buffer.addU8( 0x50 );
-        
-        // Row 1
-        buffer.addU8( 0x80 );
-        buffer.addU8( 0x20 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        // Row 2
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
+        addImageBuffer( buffer );
         
         auto reader = buffer.getReader();
         
@@ -679,27 +801,7 @@ int main() {
         }
         else
         {
-            std::string extra = "";
-            Utilities::PixelFormatColor::GenericColor color(1, 1, 1, 1);
-            
-            {
-                Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
-                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
-            }
-            {
-                Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
-                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
-            }
-            {
-                Utilities::PixelFormatColor::GenericColor color(0.501961, 0.501961, 0.501961, 0.125490);
-                problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
-            }
-            {
-                Utilities::PixelFormatColor::GenericColor color(0.000000, 0.000000, 0.000000, 0.000000);
-                problem |= testColor( problem, image.readPixel(1, 1), color, title, extra );
-            }
-            problem |= testColor( problem, image.readPixel(0, 2), color, title, extra );
-            problem |= testColor( problem, image.readPixel(1, 2), color, title, extra );
+            problem |= checkBuffer<Utilities::Image2D>( image, title );
         }
         
         // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
@@ -725,58 +827,7 @@ int main() {
             }
         }
         
-        // Black & White, Alpha Pixels
-        // Row 0
-        buffer.addU8( 0x70 );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFE );
-        buffer.addU8( 0x50 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        // Row 1
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
-        
-        // Row 2
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        // Row 3
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
+        addSquareImageBuffer( buffer );
         
         auto reader = buffer.getReader();
         
@@ -787,32 +838,7 @@ int main() {
         }
         else
         {
-            std::string extra = "";
-            Utilities::PixelFormatColor::GenericColor black(0, 0, 0, 0);
-            Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
-            
-            {
-                Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
-                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
-            }
-            {
-                Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
-                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
-            }
-            problem |= testColor( problem, image.readPixel(2, 0), black, title, extra );
-            problem |= testColor( problem, image.readPixel(3, 0), black, title, extra );
-            problem |= testColor( problem, image.readPixel(0, 1), black, title, extra );
-            problem |= testColor( problem, image.readPixel(1, 1), black, title, extra );
-            problem |= testColor( problem, image.readPixel(2, 1), white, title, extra );
-            problem |= testColor( problem, image.readPixel(3, 1), white, title, extra );
-            problem |= testColor( problem, image.readPixel(0, 2), black, title, extra );
-            problem |= testColor( problem, image.readPixel(1, 2), black, title, extra );
-            problem |= testColor( problem, image.readPixel(2, 2), black, title, extra );
-            problem |= testColor( problem, image.readPixel(3, 2), black, title, extra );
-            problem |= testColor( problem, image.readPixel(0, 3), black, title, extra );
-            problem |= testColor( problem, image.readPixel(1, 3), black, title, extra );
-            problem |= testColor( problem, image.readPixel(2, 3), black, title, extra );
-            problem |= testColor( problem, image.readPixel(3, 3), white, title, extra );
+            problem |= checkSquareBuffer<Utilities::ImageMorbin2D>( image, title );
         }
         
         // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
