@@ -596,6 +596,8 @@ int testAddToBuffer( const I &image, Utilities::Buffer::Reader &reader, std::str
     {
         auto reader_other = new_buffer.getReader();
         
+        reader.setPosition( 0, Utilities::Buffer::BEGIN );
+        
         if( reader_other.totalSize() != reader.totalSize() )
         {
             problem = 1;
