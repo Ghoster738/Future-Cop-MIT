@@ -16,19 +16,10 @@ namespace Utilities {
         virtual ~PixelFormat() {}
         virtual PixelFormat* duplicate() const = 0;
         virtual std::string getName() const = 0;
-    };
-
-    class PixelFormatByte : public PixelFormat {
-    public:
         virtual uint_fast8_t byteSize() const = 0;
     };
 
-    class PixelFormatBit : public PixelFormat {
-    public:
-        virtual uint_fast8_t bitSize() const = 0;
-    };
-
-    class PixelFormatColor : public PixelFormatByte {
+    class PixelFormatColor : public PixelFormat {
     public:
         /**
          * GenericColor is to always use linear color space.
@@ -80,12 +71,12 @@ namespace Utilities {
             uint8_t white;
             
             Color() {}
-            Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate );
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
             
-            PixelFormatColor::GenericColor toGeneric( ChannelInterpolation interpolate ) const;
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_W8() : PixelFormatColor(LINEAR) {}
-        PixelFormatColor_W8( ChannelInterpolation color ) : PixelFormatColor(color) {}
+        PixelFormatColor_W8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_W8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_W8( interpolation );
@@ -104,12 +95,12 @@ namespace Utilities {
             uint8_t alpha;
             
             Color() {}
-            Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate );
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
             
-            PixelFormatColor::GenericColor toGeneric( ChannelInterpolation interpolate ) const;
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_W8A8() : PixelFormatColor(LINEAR) {}
-        PixelFormatColor_W8A8( ChannelInterpolation color ) : PixelFormatColor(color) {}
+        PixelFormatColor_W8A8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_W8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_W8A8( interpolation );
@@ -129,12 +120,12 @@ namespace Utilities {
             uint16_t alpha : 1;
             
             Color() {}
-            Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate );
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
             
-            PixelFormatColor::GenericColor toGeneric( ChannelInterpolation interpolate ) const;
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R5G5B5A1() : PixelFormatColor(LINEAR) {}
-        PixelFormatColor_R5G5B5A1( ChannelInterpolation color ) : PixelFormatColor(color) {}
+        PixelFormatColor_R5G5B5A1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_R5G5B5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R5G5B5A1( interpolation );
@@ -153,12 +144,12 @@ namespace Utilities {
             uint8_t blue;
             
             Color() {}
-            Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate );
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
             
-            PixelFormatColor::GenericColor toGeneric( ChannelInterpolation interpolate ) const;
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R8G8B8() : PixelFormatColor(LINEAR) {}
-        PixelFormatColor_R8G8B8( ChannelInterpolation color ) : PixelFormatColor(color) {}
+        PixelFormatColor_R8G8B8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_R8G8B8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R8G8B8( interpolation );
@@ -178,12 +169,12 @@ namespace Utilities {
             uint8_t alpha;
             
             Color() {}
-            Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate );
+            Color( PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
             
-            PixelFormatColor::GenericColor toGeneric( ChannelInterpolation interpolate ) const;
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R8G8B8A8() : PixelFormatColor(LINEAR) {}
-        PixelFormatColor_R8G8B8A8( ChannelInterpolation color ) : PixelFormatColor(color) {}
+        PixelFormatColor_R8G8B8A8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_R8G8B8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R8G8B8A8( interpolation );
@@ -207,34 +198,11 @@ namespace Utilities {
         
         const PixelFormatColor& getColorFormat() const { return *color_p; }
         
-        uint_fast16_t getTotalIndex() const;
+        bool empty() const;
+        uint_fast8_t getLastIndex() const;
         
         PixelFormatColor::GenericColor getIndex( palette_index index ) const;
         bool setIndex( palette_index index, const PixelFormatColor::GenericColor color );
-    };
-
-    class PixelFormatIndex : public PixelFormatByte {
-    protected:
-        uint_fast8_t index_size;
-    public:
-        PixelFormatIndex( uint_fast8_t index_size_param );
-        
-        void writePixel( palette_index indexValue, Buffer::Writer &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
-        palette_index readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
-        virtual uint_fast8_t byteSize() const { return index_size; }
-        virtual std::string getName() const { return "Palette byte format"; }
-    };
-
-    class PixelFormatBitIndex : public PixelFormatBit {
-    protected:
-        uint_fast8_t bits_per_index;
-    public:
-        PixelFormatBitIndex( uint_fast8_t bits_per_index_param );
-        
-        void writePixel( uint8_t *buffer_r, uint_fast8_t shift, palette_index indexValue );
-        palette_index readPixel( Buffer::Reader &buffer, uint_fast8_t offset, Buffer::Endian endian );
-        virtual uint_fast8_t bitSize() const { return bits_per_index; }
-        virtual std::string getName() const { return "Palette bit format"; }
     };
 }
 
