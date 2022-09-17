@@ -63,7 +63,7 @@ public:
 };
 
 template<class placement, class grid_2d_value = uint8_t>
-class ImageBaseWrite2D : public ImageBase2D<placement, grid_2d_value> {
+class ImageColor2D : public ImageBase2D<placement, grid_2d_value> {
 protected:
     PixelFormatColor *pixel_format_p;
     Buffer::Endian endian;
@@ -76,15 +76,15 @@ protected:
         this->placement.updatePlacement();
     }
 public:
-    ImageBaseWrite2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP ) :
-        ImageBaseWrite2D(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
-    ImageBaseWrite2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param = Buffer::Endian::NO_SWAP  ) :
+    ImageColor2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP ) :
+        ImageColor2D(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
+    ImageColor2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param = Buffer::Endian::NO_SWAP  ) :
         ImageBase2D<placement, grid_2d_value>( width, height ), endian( endian_param ) {
         pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
         updateCellBuffer();
     }
     
-    virtual ~ImageBaseWrite2D() {
+    virtual ~ImageColor2D() {
         if( pixel_format_p != nullptr )
             delete pixel_format_p;
         pixel_format_p = nullptr;
@@ -133,7 +133,7 @@ public:
      * This method is to get the pixel that is used.
      */
     virtual const grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) const {
-        return const_cast<ImageBaseWrite2D<placement,grid_2d_value>*>(this)->getRef( x, y );
+        return const_cast<ImageColor2D<placement,grid_2d_value>*>(this)->getRef( x, y );
     }
     
     virtual grid_2d_value* getRef( grid_2d_unit x, grid_2d_unit y ) {
@@ -160,7 +160,7 @@ class ImageMorbin2D;
  *
  * This is not a template class this time, but a class that can specifiy which image format it uses.
  */
-class Image2D : public ImageBaseWrite2D<Grid2DPlacementNormal> {
+class Image2D : public ImageColor2D<Grid2DPlacementNormal> {
 public:
     Image2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
     Image2D( const ImageMorbin2D &obj );
@@ -188,7 +188,7 @@ public:
     bool addToBuffer( Buffer &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
 };
 
-class ImageMorbin2D : public ImageBaseWrite2D<Grid2DPlacementMorbin> {
+class ImageMorbin2D : public ImageColor2D<Grid2DPlacementMorbin> {
 public:
     ImageMorbin2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
     ImageMorbin2D( const Image2D &obj  );
