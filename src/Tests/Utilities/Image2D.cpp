@@ -841,6 +841,13 @@ int main() {
         Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
         Utilities::Buffer buffer;
         
+        {
+            Utilities::Image2D image_2( image );
+            Utilities::Buffer buffer_2;
+            std::string title_2 = "fromReader Image2D Extra test.";
+            problem |= testFromReader<Utilities::Image2D, SquareImage2D<Utilities::Image2D>>( image_2, buffer_2, title_2 );
+        }
+        
         problem |= testFromReader<Utilities::ImageMorbin2D, SquareImage2D<Utilities::ImageMorbin2D>>( image, buffer, title );
         
         auto reader = buffer.getReader();
