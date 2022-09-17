@@ -846,6 +846,12 @@ int main() {
             Utilities::Buffer buffer_2;
             std::string title_2 = "fromReader Image2D Extra test.";
             problem |= testFromReader<Utilities::Image2D, SquareImage2D<Utilities::Image2D>>( image_2, buffer_2, title_2 );
+            
+            auto reader = buffer_2.getReader();
+            
+            // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
+            problem |= testToWriter<Utilities::Image2D>( image_2, reader, title_2 );
+            problem |= testAddToBuffer<Utilities::Image2D>( image_2, reader, title_2 );
         }
         
         problem |= testFromReader<Utilities::ImageMorbin2D, SquareImage2D<Utilities::ImageMorbin2D>>( image, buffer, title );
