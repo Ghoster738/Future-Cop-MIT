@@ -630,13 +630,13 @@ int testAddToBuffer( const I &image, Utilities::Buffer::Reader &reader, std::str
 template<class I>
 struct MakeImage2D {
     virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian ) = 0;
-    virtual int checkBuffer( const I &image, const std::string &title ) = 0;
+    virtual int checkBuffer( const I &image, const std::string &title, Utilities::Buffer::Endian endian ) = 0;
 };
 
 template<class I>
 struct NonSquareImage2D : public MakeImage2D<I> {
     virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian ) {
-        // Black & White, Alpha Pixels
+        // 5 bit red, 5 bit green, 5 bit blue, 1 bit alpha.
         // Row 0
         buffer.addU16( 0x70FF, endian );
         buffer.addU16( 0xFE50, endian );
@@ -650,30 +650,47 @@ struct NonSquareImage2D : public MakeImage2D<I> {
         buffer.addU16( 0xFFFF, endian );
     }
     
-    virtual int checkBuffer( const I &image, const std::string &title ) {
+    virtual int checkBuffer( const I &image, const std::string &title, Utilities::Buffer::Endian endian ) {
         int problem = 0;
         
         std::string extra = "";
-        Utilities::PixelFormatColor::GenericColor color(1, 1, 1, 1);
+        Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
+        Utilities::PixelFormatColor::GenericColor black(0.000000, 0.000000, 0.000000, 0.000000);
         
+        if( endian == Utilities::Buffer::Endian::LITTLE )
         {
-            Utilities::PixelFormatColor::GenericColor color(0.903226, 0.225806, 1.000000, 0.000000);
-            problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.903226, 0.225806, 1.000000, 0.000000);
+                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(1.000000, 0.580645, 0.516129, 1.000000);
+                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.000000, 0.032258, 0.000000, 1.000000);
+                problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
+            }
         }
+        else // This is to test big endian.
         {
-            Utilities::PixelFormatColor::GenericColor color(1.000000, 0.580645, 0.516129, 1.000000);
-            problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            {
+                Utilities::PixelFormatColor::GenericColor color(1.000000, 0.870968, 0.516129, 1.000000);
+                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.645161, 0.225806, 0.967742, 0.000000);
+                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.258065, 0.129032, 0.000000, 0.000000);
+                problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
+            }
         }
-        {
-            Utilities::PixelFormatColor::GenericColor color(0.000000, 0.032258, 0.000000, 1.000000);
-            problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
-        }
-        {
-            Utilities::PixelFormatColor::GenericColor color(0.000000, 0.000000, 0.000000, 0.000000);
-            problem |= testColor( problem, image.readPixel(1, 1), color, title, extra );
-        }
-        problem |= testColor( problem, image.readPixel(0, 2), color, title, extra );
-        problem |= testColor( problem, image.readPixel(1, 2), color, title, extra );
+        
+        problem |= testColor( problem, image.readPixel(1, 1), black, title, extra );
+        problem |= testColor( problem, image.readPixel(0, 2), white, title, extra );
+        problem |= testColor( problem, image.readPixel(1, 2), white, title, extra );
         
         return problem;
     }
@@ -683,7 +700,7 @@ struct NonSquareImage2D : public MakeImage2D<I> {
 template<class I>
 struct SquareImage2D : public MakeImage2D<I> {
     virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian ) {
-        // Black & White, Alpha Pixels
+        // 5 bit red, 5 bit green, 5 bit blue, 1 bit alpha.
         // Row 0
         buffer.addU16( 0x70FF, endian );
         buffer.addU16( 0xFE50, endian );
@@ -709,20 +726,34 @@ struct SquareImage2D : public MakeImage2D<I> {
         buffer.addU16( 0xFFFF, endian );
     }
     
-    virtual int checkBuffer( const I &image, const std::string &title ) {
+    virtual int checkBuffer( const I &image, const std::string &title, Utilities::Buffer::Endian endian ) {
         int problem = 0;
         
         std::string extra = "";
         Utilities::PixelFormatColor::GenericColor black(0, 0, 0, 0);
         Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
         
+        if( endian == Utilities::Buffer::Endian::LITTLE )
         {
-            Utilities::PixelFormatColor::GenericColor color(0.903226, 0.225806, 1.000000, 0.000000);
-            problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.903226, 0.225806, 1.000000, 0.000000);
+                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(1.000000, 0.580645, 0.516129, 1.000000);
+                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            }
         }
+        else // This is to test big endian.
         {
-            Utilities::PixelFormatColor::GenericColor color(1.000000, 0.580645, 0.516129, 1.000000);
-            problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            {
+                Utilities::PixelFormatColor::GenericColor color(1.000000, 0.870968, 0.516129, 1.000000);
+                problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
+            }
+            {
+                Utilities::PixelFormatColor::GenericColor color(0.645161, 0.225806, 0.967742, 0.000000);
+                problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
+            }
         }
         problem |= testColor( problem, image.readPixel(2, 0), black, title, extra );
         problem |= testColor( problem, image.readPixel(3, 0), black, title, extra );
@@ -770,7 +801,7 @@ int testFromReader( I &image, Utilities::Buffer &buffer, const std::string &titl
     }
     else
     {
-        problem |= generator.checkBuffer( image, title );
+        problem |= generator.checkBuffer( image, title, endian );
     }
     
     return problem;
