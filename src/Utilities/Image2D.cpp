@@ -65,7 +65,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
     return pixel_format_p->readPixel( reader, endian );
 }
 
-bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementNormal>& sub_image )
+bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& sub_image )
 {
     if( x + sub_image.getWidth() <= getWidth() &&
         y + sub_image.getHeight() <= getHeight() )
@@ -84,7 +84,7 @@ bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const
         return false;
 }
 
-bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<Grid2DPlacementNormal>& sub_image ) const
+bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementNormal>& sub_image ) const
 {
     auto dyn_p = dynamic_cast<Image2D*>( &sub_image );
     
@@ -274,7 +274,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( g
         return PixelFormatColor::GenericColor( 0, 0, 0, 1 );
 }
 
-bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const  ImageBase2D<Grid2DPlacementMorbin>& sub_image )
+bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& sub_image )
 {
     if( x + sub_image.getWidth() <= getWidth() &&
         y + sub_image.getHeight() <= getHeight() )
@@ -293,7 +293,7 @@ bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y,
         return false;
 }
 
-bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height,  ImageBase2D<Grid2DPlacementMorbin>& sub_image ) const
+bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementMorbin>& sub_image ) const
 {
     auto dyn_p = dynamic_cast<ImageMorbin2D*>( &sub_image );
     
