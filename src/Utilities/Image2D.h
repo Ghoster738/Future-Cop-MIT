@@ -12,7 +12,6 @@ typedef grid_2d_unit_strict image_strict_unit;
 
 template<class placement, class grid_2d_value = uint8_t>
 class ImageBase2D : protected GridBase2D<grid_2d_value, placement> {
-protected:
 public:
     ImageBase2D( grid_2d_unit width, grid_2d_unit height ) : GridBase2D<grid_2d_value, placement>( width, height ) {}
     virtual ~ImageBase2D() {}
@@ -38,10 +37,6 @@ public:
     virtual const PixelFormatColor *const getPixelFormat() const = 0;
     
     virtual PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const = 0;
-    
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<placement>& ref ) = 0;
-
-    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<placement> &sub_grid ) const = 0;
     
     /**
      * Flip the image vertically.It is an O(p) operation, and p is the
@@ -103,6 +98,10 @@ public:
     virtual const PixelFormatColor *const getPixelFormat() const {
         return pixel_format_p;
     }
+    
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<placement>& ref ) = 0;
+
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<placement> &sub_grid ) const = 0;
     
     virtual void setValue( grid_2d_unit x, grid_2d_unit y, grid_2d_value pixel ) {
         if( !this->size.withinBounds(x, y) )
@@ -173,9 +172,9 @@ public:
     
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
     
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementNormal>& ref );
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& ref );
     
-    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<Grid2DPlacementNormal>& sub_image ) const;
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementNormal>& sub_image ) const;
     
     virtual void flipHorizontally();
     
@@ -201,9 +200,9 @@ public:
 
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
 
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementMorbin>& ref );
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& ref );
 
-    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageBase2D<Grid2DPlacementMorbin>& sub_image ) const;
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementMorbin>& sub_image ) const;
 
     virtual void flipHorizontally();
 
@@ -252,6 +251,10 @@ public:
     virtual const ColorPalette *const getColorPalette() const {
         return color_palette_p;
     }
+    
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePalette2D<placement>& ref ) = 0;
+
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePalette2D<placement> &sub_image ) const = 0;
     
     uint_fast8_t getPixelIndex( grid_2d_unit x, grid_2d_unit y ) {
         return this->getValue( x, y );
