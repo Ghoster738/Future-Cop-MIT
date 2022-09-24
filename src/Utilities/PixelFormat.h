@@ -191,12 +191,15 @@ namespace Utilities {
         Buffer buffer;
         Buffer::Endian endianess;
     public:
-        ColorPalette( const PixelFormatColor& color_palette, Buffer::Endian endianess = Buffer::Endian::NO_SWAP );
+        ColorPalette( const ColorPalette& palette );
+        ColorPalette( const PixelFormatColor& palette_color, Buffer::Endian endianess = Buffer::Endian::NO_SWAP );
         virtual ~ColorPalette() {
             delete color_p;
         }
         
         const PixelFormatColor& getColorFormat() const { return *color_p; }
+        
+        Buffer::Endian getEndian() const { return endianess; }
         
         bool empty() const;
         uint_fast8_t getLastIndex() const;

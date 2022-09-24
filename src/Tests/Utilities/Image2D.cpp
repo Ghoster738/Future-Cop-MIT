@@ -629,34 +629,25 @@ int testAddToBuffer( const I &image, Utilities::Buffer::Reader &reader, std::str
 
 template<class I>
 struct MakeImage2D {
-    virtual void addImageBuffer( Utilities::Buffer &buffer ) = 0;
+    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian ) = 0;
     virtual int checkBuffer( const I &image, const std::string &title ) = 0;
 };
 
 template<class I>
 struct NonSquareImage2D : public MakeImage2D<I> {
-    virtual void addImageBuffer( Utilities::Buffer &buffer ) {
+    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::LITTLE ) {
         // Black & White, Alpha Pixels
         // Row 0
-        buffer.addU8( 0x70 );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFE );
-        buffer.addU8( 0x50 );
+        buffer.addU16( 0x70FF, endian );
+        buffer.addU16( 0xFE50, endian );
         
         // Row 1
-        buffer.addU8( 0x80 );
-        buffer.addU8( 0x20 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
+        buffer.addU16( 0x8020, endian );
+        buffer.addU16( 0x0000, endian );
         
         // Row 2
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
+        buffer.addU16( 0xFFFF, endian );
+        buffer.addU16( 0xFFFF, endian );
     }
     
     virtual int checkBuffer( const I &image, const std::string &title ) {
@@ -666,15 +657,15 @@ struct NonSquareImage2D : public MakeImage2D<I> {
         Utilities::PixelFormatColor::GenericColor color(1, 1, 1, 1);
         
         {
-            Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
+            Utilities::PixelFormatColor::GenericColor color(0.903226, 0.225806, 1.000000, 0.000000);
             problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
         }
         {
-            Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
+            Utilities::PixelFormatColor::GenericColor color(1.000000, 0.580645, 0.516129, 1.000000);
             problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
         }
         {
-            Utilities::PixelFormatColor::GenericColor color(0.501961, 0.501961, 0.501961, 0.125490);
+            Utilities::PixelFormatColor::GenericColor color(0.000000, 0.032258, 0.000000, 1.000000);
             problem |= testColor( problem, image.readPixel(0, 1), color, title, extra );
         }
         {
@@ -691,7 +682,7 @@ struct NonSquareImage2D : public MakeImage2D<I> {
 
 template<class I>
 struct SquareImage2D : public MakeImage2D<I> {
-    virtual void addImageBuffer( Utilities::Buffer &buffer ) {
+    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::LITTLE  ) {
         // Black & White, Alpha Pixels
         // Row 0
         buffer.addU8( 0x70 );
@@ -807,7 +798,7 @@ int testFromReader( I &image, Utilities::Buffer &buffer, const std::string &titl
     }
     else
     {
-        generator.checkBuffer( image, title );
+        problem |= generator.checkBuffer( image, title );
     }
     
     return problem;
@@ -821,7 +812,7 @@ int main() {
     problem |= testConversions<Utilities::Image2D, Utilities::ImageMorbin2D>( 256, 256, "Image2D" );
     { // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader Image2D";
-        Utilities::Image2D image( 2, 3, Utilities::PixelFormatColor_W8A8() );
+        Utilities::Image2D image( 2, 3, Utilities::PixelFormatColor_R5G5B5A1() );
         Utilities::Buffer buffer;
         
         problem |= testFromReader<Utilities::Image2D, NonSquareImage2D<Utilities::Image2D>>( image, buffer, title );
