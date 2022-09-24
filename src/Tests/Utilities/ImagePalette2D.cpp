@@ -1,4 +1,4 @@
-#include "../../Utilities/Image2D.h"
+#include "../../Utilities/ImagePalette2D.h"
 #include <glm/vec2.hpp>
 #include <iostream>
 
@@ -809,58 +809,6 @@ int testFromReader( I &image, Utilities::Buffer &buffer, const std::string &titl
 
 int main() {
     int problem = 0;
-    const std::vector<Utilities::Buffer::Endian> ENDIANESS = { Utilities::Buffer::Endian::LITTLE, Utilities::Buffer::Endian::BIG };
-    
-    // *** Image2D Test here.
-    problem |= testImage2D<Utilities::Image2D>( 100, 150, "Image2D" );
-    problem |= testConversions<Utilities::Image2D, Utilities::ImageMorbin2D>( 256, 256, "Image2D" );
-    
-    for( auto endian = ENDIANESS.begin(); endian != ENDIANESS.end(); endian++ ) {
-        // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
-        std::string title = "fromReader Image2D";
-        Utilities::Image2D image( 2, 3, Utilities::PixelFormatColor_R5G5B5A1() );
-        Utilities::Buffer buffer;
-        
-        problem |= testFromReader<Utilities::Image2D, NonSquareImage2D<Utilities::Image2D>>( image, buffer, title, *endian );
-        
-        auto reader = buffer.getReader();
-        
-        // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
-        problem |= testToWriter<Utilities::Image2D>( image, reader, title );
-        problem |= testAddToBuffer<Utilities::Image2D>( image, reader, title );
-    }
-    
-    // *** ImageMorbin2D Test here.
-    problem |= testImage2D<Utilities::ImageMorbin2D>( 256, 256, "ImageMorbin2D" );
-    problem |= testConversions<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
-    
-    for( auto endian = ENDIANESS.begin(); endian != ENDIANESS.end(); endian++ ) {
-        // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
-        std::string title = "fromReader ImageMorbin2D";
-        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_R5G5B5A1() );
-        Utilities::Buffer buffer;
-        
-        {
-            Utilities::Image2D image_2( image );
-            Utilities::Buffer buffer_2;
-            std::string title_2 = "fromReader Image2D Extra test.";
-            problem |= testFromReader<Utilities::Image2D, SquareImage2D<Utilities::Image2D>>( image_2, buffer_2, title_2, *endian );
-            
-            auto reader = buffer_2.getReader();
-            
-            // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
-            problem |= testToWriter<Utilities::Image2D>( image_2, reader, title_2 );
-            problem |= testAddToBuffer<Utilities::Image2D>( image_2, reader, title_2 );
-        }
-        
-        problem |= testFromReader<Utilities::ImageMorbin2D, SquareImage2D<Utilities::ImageMorbin2D>>( image, buffer, title, *endian );
-        
-        auto reader = buffer.getReader();
-        
-        // test toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
-        problem |= testToWriter<Utilities::ImageMorbin2D>( image, reader, title );
-        problem |= testAddToBuffer<Utilities::ImageMorbin2D>( image, reader, title );
-    }
     
     return problem;
 }

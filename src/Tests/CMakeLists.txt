@@ -38,6 +38,11 @@ add_executable(image_2d_test Utilities/Image2D.cpp)
 target_link_libraries(image_2d_test PRIVATE FC_IFF_IO)
 add_test( NAME image_2d_test COMMAND $<TARGET_FILE:image_2d_test> )
 
+# Test ImagePalete2D Code
+add_executable(image_palette_2D_test Utilities/ImagePalette2D.cpp)
+target_link_libraries(image_palette_2D_test PRIVATE FC_IFF_IO)
+add_test( NAME image_paletet_2D_test COMMAND $<TARGET_FILE:image_palette_2D_test> )
+
 # Test Model Builder Code
 add_executable(model_builder_test Utilities/ModelBuilder.cpp)
 target_link_libraries(model_builder_test PRIVATE FC_IFF_IO)
