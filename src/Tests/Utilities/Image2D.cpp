@@ -635,7 +635,7 @@ struct MakeImage2D {
 
 template<class I>
 struct NonSquareImage2D : public MakeImage2D<I> {
-    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::LITTLE ) {
+    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian ) {
         // Black & White, Alpha Pixels
         // Row 0
         buffer.addU16( 0x70FF, endian );
@@ -682,59 +682,31 @@ struct NonSquareImage2D : public MakeImage2D<I> {
 
 template<class I>
 struct SquareImage2D : public MakeImage2D<I> {
-    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::LITTLE  ) {
+    virtual void addImageBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian ) {
         // Black & White, Alpha Pixels
         // Row 0
-        buffer.addU8( 0x70 );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFE );
-        buffer.addU8( 0x50 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
+        buffer.addU16( 0x70FF, endian );
+        buffer.addU16( 0xFE50, endian );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
         
         // Row 1
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0xFFFF, endian );
+        buffer.addU16( 0xFFFF, endian );
         
         // Row 2
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
         
         // Row 3
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0x00 );
-        buffer.addU8( 0x00 );
-        
-        buffer.addU8( 0xFF );
-        buffer.addU8( 0xFF );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0x0000, endian );
+        buffer.addU16( 0xFFFF, endian );
     }
     
     virtual int checkBuffer( const I &image, const std::string &title ) {
@@ -745,11 +717,11 @@ struct SquareImage2D : public MakeImage2D<I> {
         Utilities::PixelFormatColor::GenericColor white(1, 1, 1, 1);
         
         {
-            Utilities::PixelFormatColor::GenericColor color(0.439216, 0.439216, 0.439216, 1.000000);
+            Utilities::PixelFormatColor::GenericColor color(0.903226, 0.225806, 1.000000, 0.000000);
             problem |= testColor( problem, image.readPixel(0, 0), color, title, extra );
         }
         {
-            Utilities::PixelFormatColor::GenericColor color(0.996078, 0.996078, 0.996078, 0.313726);
+            Utilities::PixelFormatColor::GenericColor color(1.000000, 0.580645, 0.516129, 1.000000);
             problem |= testColor( problem, image.readPixel(1, 0), color, title, extra );
         }
         problem |= testColor( problem, image.readPixel(2, 0), black, title, extra );
@@ -772,7 +744,7 @@ struct SquareImage2D : public MakeImage2D<I> {
 };
 
 template<class I, class J>
-int testFromReader( I &image, Utilities::Buffer &buffer, const std::string &title )
+int testFromReader( I &image, Utilities::Buffer &buffer, const std::string &title, Utilities::Buffer::Endian endian )
 {
     int problem = 0;
     J generator;
@@ -787,7 +759,7 @@ int testFromReader( I &image, Utilities::Buffer &buffer, const std::string &titl
         }
     }
     
-    generator.addImageBuffer( buffer );
+    generator.addImageBuffer( buffer, endian );
     
     auto reader = buffer.getReader();
     
@@ -815,7 +787,7 @@ int main() {
         Utilities::Image2D image( 2, 3, Utilities::PixelFormatColor_R5G5B5A1() );
         Utilities::Buffer buffer;
         
-        problem |= testFromReader<Utilities::Image2D, NonSquareImage2D<Utilities::Image2D>>( image, buffer, title );
+        problem |= testFromReader<Utilities::Image2D, NonSquareImage2D<Utilities::Image2D>>( image, buffer, title, Utilities::Buffer::Endian::LITTLE );
         
         auto reader = buffer.getReader();
         
@@ -829,14 +801,14 @@ int main() {
     problem |= testConversions<Utilities::ImageMorbin2D, Utilities::Image2D>( 256, 256, "ImageMorbin2D" );
     { // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader ImageMorbin2D";
-        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_W8A8() );
+        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_R5G5B5A1() );
         Utilities::Buffer buffer;
         
         {
             Utilities::Image2D image_2( image );
             Utilities::Buffer buffer_2;
             std::string title_2 = "fromReader Image2D Extra test.";
-            problem |= testFromReader<Utilities::Image2D, SquareImage2D<Utilities::Image2D>>( image_2, buffer_2, title_2 );
+            problem |= testFromReader<Utilities::Image2D, SquareImage2D<Utilities::Image2D>>( image_2, buffer_2, title_2, Utilities::Buffer::Endian::LITTLE );
             
             auto reader = buffer_2.getReader();
             
@@ -845,7 +817,7 @@ int main() {
             problem |= testAddToBuffer<Utilities::Image2D>( image_2, reader, title_2 );
         }
         
-        problem |= testFromReader<Utilities::ImageMorbin2D, SquareImage2D<Utilities::ImageMorbin2D>>( image, buffer, title );
+        problem |= testFromReader<Utilities::ImageMorbin2D, SquareImage2D<Utilities::ImageMorbin2D>>( image, buffer, title, Utilities::Buffer::Endian::LITTLE );
         
         auto reader = buffer.getReader();
         
