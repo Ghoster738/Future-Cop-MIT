@@ -3,31 +3,16 @@
 // This should only exist in local space.
 namespace {
 
-template<class U, class I, class J>
-inline int fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destination, U d_x, U d_y, U d_w, U d_h )
+template<class U, class I, class J = I>
+inline void fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destination, U d_x, U d_y, U d_w, U d_h )
 {
-    if( s_x >= s_w )
-        return 0;
-    if( s_y >= s_h )
-        return 0;
-    if( d_x >= d_w )
-        return 0;
-    if( d_x >= d_h )
-        return 0;
-    
-    for( U x = s_x, dx = d_x; x < s_w; x++, dx++ )
+    for( U current_x = d_x; current_x < d_w; current_x++ )
     {
-        for( U y = s_y, dy = d_y; y < s_h; y++, dy++ )
+        for( U current_y = d_y; current_y < d_h; current_y++ )
         {
-            if( dx >= d_w )
-                dx = d_x;
-            if( dy >= d_h )
-                dy = d_y;
-            
-            destination.writePixel( dx, dy, source.readPixel( x, y ) );
+            destination.writePixel( current_x, current_y, source.readPixel( s_x + current_x, s_y + current_y ) );
         }
     }
-    return 1;
 }
 
 }
@@ -38,9 +23,7 @@ Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelForma
 
 Utilities::Image2D::Image2D( const ImageMorbin2D &obj  ) : Image2D( obj.getWidth(), obj.getHeight(), *obj.getPixelFormat(), obj.getEndian() )
 {
-    int successful_morbin_conversion = fillInImage<grid_2d_unit, ImageMorbin2D, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
-    
-    assert( successful_morbin_conversion );
+    fillInImage<grid_2d_unit, ImageMorbin2D, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
 Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_format_p )
@@ -49,9 +32,7 @@ Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_for
 
 Utilities::Image2D::Image2D( const Image2D &obj, const PixelFormatColor& format  ) : Image2D( obj.getWidth(), obj.getHeight(), format, obj.endian )
 {
-    bool success = this->inscribeSubImage( 0, 0, obj );
-    
-    assert( success == true );
+    fillInImage<grid_2d_unit, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
 Utilities::Image2D::Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : ImageColor2D( width, height, format, endian_param )
@@ -122,13 +103,7 @@ bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit 
     {
         dyn_p->setDimensions( width, height );
 
-        for( grid_2d_unit sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ )
-        {
-            for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
-            {
-                dyn_p->writePixel( sub_x, sub_y, readPixel( sub_x + x, sub_y + y ) );
-            }
-        }
+        fillInImage<grid_2d_unit, Image2D>( *this, x, y, width, height, *dyn_p, 0, 0, width, height );
 
         return true;
     }
