@@ -1,18 +1,46 @@
 #include "Image2D.h"
 
+// This should only exist in local space.
+namespace {
+
+template<class U, class I, class J>
+inline int fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destination, U d_x, U d_y, U d_w, U d_h )
+{
+    if( s_x >= s_w )
+        return 0;
+    if( s_y >= s_h )
+        return 0;
+    if( d_x >= d_w )
+        return 0;
+    if( d_x >= d_h )
+        return 0;
+    
+    for( U x = s_x, dx = d_x; x < s_w; x++, dx++ )
+    {
+        for( U y = s_y, dy = d_y; y < s_h; y++, dy++ )
+        {
+            if( dx >= d_w )
+                dx = d_x;
+            if( dy >= d_h )
+                dy = d_y;
+            
+            destination.writePixel( dx, dy, source.readPixel( x, y ) );
+        }
+    }
+    return 1;
+}
+
+}
+
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
 {
 }
 
 Utilities::Image2D::Image2D( const ImageMorbin2D &obj  ) : Image2D( obj.getWidth(), obj.getHeight(), *obj.getPixelFormat(), obj.getEndian() )
 {
-    for( grid_2d_unit x = 0; x < obj.getWidth(); x++ )
-    {
-        for( grid_2d_unit y = 0; y < obj.getHeight(); y++ )
-        {
-            writePixel( x, y, obj.readPixel( x, y ) );
-        }
-    }
+    int successful_morbin_conversion = fillInImage<grid_2d_unit, ImageMorbin2D, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
+    
+    assert( successful_morbin_conversion );
 }
 
 Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_format_p )
