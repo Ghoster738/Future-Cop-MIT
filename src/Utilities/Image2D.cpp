@@ -15,6 +15,20 @@ inline void fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destina
     }
 }
 
+template<class U, class I, class J>
+inline bool smallImageToImage( U x, U y, const I &sub_image, J &destination )
+{
+    if( x + sub_image.getWidth() <= destination.getWidth() &&
+        y + sub_image.getHeight() <= destination.getHeight() )
+    {
+        fillInImage<U, I, J>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), destination, x, y, sub_image.getWidth(), sub_image.getHeight() );
+
+        return true;
+    }
+    else
+        return false;
+}
+
 }
 
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -76,15 +90,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
 
 bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& sub_image )
 {
-    if( x + sub_image.getWidth() <= getWidth() &&
-        y + sub_image.getHeight() <= getHeight() )
-    {
-        fillInImage<grid_2d_unit, ImageColor2D<Grid2DPlacementNormal>>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), *this, x, y, sub_image.getWidth(), sub_image.getHeight() );
-
-        return true;
-    }
-    else
-        return false;
+    return smallImageToImage<grid_2d_unit, ImageColor2D<Grid2DPlacementNormal>, Image2D>( x, y, sub_image, *this );
 }
 
 bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementNormal>& sub_image ) const
@@ -265,15 +271,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( g
 
 bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& sub_image )
 {
-    if( x + sub_image.getWidth() <= getWidth() &&
-        y + sub_image.getHeight() <= getHeight() )
-    {
-        fillInImage<grid_2d_unit, ImageColor2D<Grid2DPlacementMorbin>>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), *this, x, y, sub_image.getWidth(), sub_image.getHeight() );
-
-        return true;
-    }
-    else
-        return false;
+    return smallImageToImage<grid_2d_unit, ImageColor2D<Grid2DPlacementMorbin>, ImageMorbin2D>( x, y, sub_image, *this );
 }
 
 bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementMorbin>& sub_image ) const
