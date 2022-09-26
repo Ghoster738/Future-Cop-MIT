@@ -215,13 +215,7 @@ Utilities::ImageMorbin2D::ImageMorbin2D( Buffer::Endian endian ) : ImageMorbin2D
 
 Utilities::ImageMorbin2D::ImageMorbin2D( const Image2D &obj  ) : ImageMorbin2D( obj.getWidth(), obj.getHeight(), *obj.getPixelFormat(), obj.getEndian() )
 {
-    for( grid_2d_unit x = 0; x < obj.getWidth(); x++ )
-    {
-        for( grid_2d_unit y = 0; y < obj.getHeight(); y++ )
-        {
-            writePixel( x, y, obj.readPixel( x, y ) );
-        }
-    }
+    fillInImage<grid_2d_unit, Image2D, ImageMorbin2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
 Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj ) : ImageMorbin2D( obj, *obj.pixel_format_p )
@@ -230,9 +224,7 @@ Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj ) : ImageMorbi
 
 Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj, const PixelFormatColor& format  ) : ImageMorbin2D( obj.getWidth(), obj.getHeight(), format, obj.endian )
 {
-    bool success = this->inscribeSubImage( 0, 0, obj );
-    
-    assert( success == true );
+    fillInImage<grid_2d_unit, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
 Utilities::ImageMorbin2D::ImageMorbin2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : ImageColor2D( width, height, format, endian_param )
@@ -276,13 +268,7 @@ bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y,
     if( x + sub_image.getWidth() <= getWidth() &&
         y + sub_image.getHeight() <= getHeight() )
     {
-        for( grid_2d_unit sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ )
-        {
-            for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
-            {
-                writePixel( sub_x + x, sub_y + y, sub_image.readPixel( sub_x, sub_y ) );
-            }
-        }
+        fillInImage<grid_2d_unit, ImageColor2D<Grid2DPlacementMorbin>>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), *this, x, y, sub_image.getWidth(), sub_image.getHeight() );
 
         return true;
     }
@@ -299,14 +285,8 @@ bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d
         y + height <= getHeight() )
     {
         dyn_p->setDimensions( width, height );
-
-        for( grid_2d_unit sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ )
-        {
-            for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
-            {
-                dyn_p->writePixel( sub_x, sub_y, readPixel( sub_x + x, sub_y + y ) );
-            }
-        }
+        
+        fillInImage<grid_2d_unit, ImageMorbin2D>( *this, x, y, width, height, *dyn_p, 0, 0, width, height );
 
         return true;
     }
