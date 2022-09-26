@@ -6,11 +6,11 @@ namespace {
 template<class U, class I, class J = I>
 inline void fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destination, U d_x, U d_y, U d_w, U d_h )
 {
-    for( U current_x = d_x; current_x < d_w; current_x++ )
+    for( U current_x = 0; current_x < d_w; current_x++ )
     {
-        for( U current_y = d_y; current_y < d_h; current_y++ )
+        for( U current_y = 0; current_y < d_h; current_y++ )
         {
-            destination.writePixel( current_x, current_y, source.readPixel( s_x + current_x, s_y + current_y ) );
+            destination.writePixel( d_x + current_x, d_y +current_y, source.readPixel( s_x + current_x, s_y + current_y ) );
         }
     }
 }
@@ -79,13 +79,7 @@ bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const
     if( x + sub_image.getWidth() <= getWidth() &&
         y + sub_image.getHeight() <= getHeight() )
     {
-        for( grid_2d_unit sub_x = 0; sub_x < sub_image.getWidth(); sub_x++ )
-        {
-            for( grid_2d_unit sub_y = 0; sub_y < sub_image.getHeight(); sub_y++ )
-            {
-                writePixel( sub_x + x, sub_y + y, sub_image.readPixel( sub_x, sub_y ) );
-            }
-        }
+        fillInImage<grid_2d_unit, ImageColor2D<Grid2DPlacementNormal>>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), *this, x, y, sub_image.getWidth(), sub_image.getHeight() );
 
         return true;
     }
