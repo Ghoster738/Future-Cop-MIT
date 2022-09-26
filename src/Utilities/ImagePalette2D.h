@@ -42,6 +42,9 @@ public:
         return color_palette_p;
     }
     
+    /**
+     @warning Make sure that the color palette of both images are the same.
+     */
     virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePalette2D<placement>& ref ) = 0;
 
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePalette2D<placement> &sub_image ) const = 0;
@@ -53,6 +56,9 @@ public:
     bool writePixel( grid_2d_unit x, grid_2d_unit y, uint_fast8_t index ) {
         return this->setValue( x, y, index );
     }
+    
+    Image2D toColorImage() const = 0;
+    ImageMorbin2D toColorMorbinImage() const = 0;
 };
 
 }
