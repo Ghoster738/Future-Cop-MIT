@@ -7,7 +7,7 @@ namespace {
 
 const Utilities::channel_fp SRGB_VALUE = 2.2;
 
-#define INCLUDECODE(MAX_VALUE, MAX_UNIT_sRGB_VALUE, FROM, TO) \
+#define COLOR_CONVERSION_FUNCTIONS(MAX_VALUE, MAX_UNIT_sRGB_VALUE, FROM, TO) \
 template<class U>\
 inline U FROM( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )\
 {\
@@ -29,13 +29,15 @@ inline Utilities::channel_fp TO( U value, Utilities::PixelFormatColor::ChannelIn
 const Utilities::channel_fp MAX_U5BIT_VALUE = 31.0;
 // A rounded up number of this MAX_U5BIT_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_U5BIT_sRGB_VALUE = 1909.834465;
-INCLUDECODE(MAX_U5BIT_VALUE, MAX_U5BIT_sRGB_VALUE, internalFromGenricColor5, internalToGenricColor5)
+COLOR_CONVERSION_FUNCTIONS(MAX_U5BIT_VALUE, MAX_U5BIT_sRGB_VALUE, internalFromGenricColor5, internalToGenricColor5)
 
 const Utilities::channel_fp MAX_UBYTE_VALUE = 255.0;
 // A rounded up number of this MAX_UBYTE_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_UBYTE_sRGB_VALUE = 196964.6992;
-INCLUDECODE(MAX_UBYTE_VALUE, MAX_UBYTE_sRGB_VALUE, internalFromGenricColor8, internalToGenricColor8)
+COLOR_CONVERSION_FUNCTIONS(MAX_UBYTE_VALUE, MAX_UBYTE_sRGB_VALUE, internalFromGenricColor8, internalToGenricColor8)
 
+// The color function declarations are no longer needed.
+#undef COLOR_CONVERSION_FUNCTIONS
 }
 
 std::string Utilities::PixelFormatColor::GenericColor::getString() const {
