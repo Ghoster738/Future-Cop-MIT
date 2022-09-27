@@ -19,9 +19,9 @@ template<class U>
 inline U internalFromGenricColor( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
 {
     if( interpolate == Utilities::PixelFormatColor::sRGB )
-        return pow( value, 1.0 / SRGB_VALUE ) * MAX_UBYTE_sRGB_VALUE + 0.5;
+        return pow( value, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
     else
-        return  value * MAX_UBYTE_sRGB_VALUE + 0.5;
+        return  value * MAX_UBYTE_VALUE + 0.5;
 }
 
 template<class U>
@@ -76,6 +76,7 @@ Utilities::PixelFormatColor_W8A8::Color::Color( Utilities::PixelFormatColor::Gen
         white = pow( generic.red, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
     else
         white = generic.red * MAX_UBYTE_VALUE + 0.5;
+    white = internalFromGenricColor<uint8_t>( generic.red, interpolate );
     
     alpha = generic.alpha * MAX_UBYTE_VALUE + 0.5;
 }
