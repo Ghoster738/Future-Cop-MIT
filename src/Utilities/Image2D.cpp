@@ -68,19 +68,23 @@ inline void internalFlipVertically( I &image )
 }
 
 template<class U, class I>
-inline bool internalWritePixel( I &image, U x, U y, Utilities::Buffer::Endian endian, const Utilities::PixelFormatColor::GenericColor &color )
+inline bool internalWritePixel( I &image, const Utilities::GridDimensions2D dimensions, U x, U y, Utilities::Buffer::Endian endian, const Utilities::PixelFormatColor::GenericColor &color )
 {
-    auto bytes_r = image.getRef( x, y );
-    
-    assert( bytes_r != nullptr );
-    
-    auto pixel_format_r = image.getPixelFormat();
-    
-    auto writer = Utilities::Buffer::Writer( bytes_r, pixel_format_r->byteSize() );
-    
-    pixel_format_r->writePixel( writer, endian, color );
-    
-    return true;
+    if( dimensions.withinBounds(x, y) )
+    {
+        auto bytes_r = image.getRef( x, y );
+        
+        assert( bytes_r != nullptr );
+        
+        auto pixel_format_r = image.getPixelFormat();
+        
+        auto writer = Utilities::Buffer::Writer( bytes_r, pixel_format_r->byteSize() );
+        
+        pixel_format_r->writePixel( writer, endian, color );
+        
+        return true;
+    }
+    return false;
 }
 
 }
@@ -113,10 +117,7 @@ Utilities::Image2D::~Image2D()
 
 bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color )
 {
-    if( this->size.withinBounds(x, y) )
-        return internalWritePixel<grid_2d_unit, Image2D>( *this, x, y, endian, color );
-    else
-        return false;
+    return internalWritePixel<grid_2d_unit, Image2D>( *this, this->size, x, y, endian, color );
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
@@ -163,8 +164,6 @@ void Utilities::Image2D::flipVertically()
 {
     internalFlipVertically<grid_2d_unit, Image2D>( *this );
 }
-
-#include <iostream>
 
 bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
@@ -252,12 +251,7 @@ Utilities::ImageMorbin2D::~ImageMorbin2D()
 
 bool Utilities::ImageMorbin2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color )
 {
-    if( this->size.withinBounds(x, y) )
-    {
-        return internalWritePixel<grid_2d_unit, ImageMorbin2D>( *this, x, y, endian, color );
-    }
-    else
-        return false;
+    return internalWritePixel<grid_2d_unit, ImageMorbin2D>( *this, this->size, x, y, endian, color );
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
