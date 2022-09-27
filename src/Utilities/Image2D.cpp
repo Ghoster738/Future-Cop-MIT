@@ -41,12 +41,8 @@ inline void internalFlipHorizontally( I &image )
             auto FIRST  = image.getRef( x, y );
             auto SECOND = image.getRef( OTHER_END, y );
             
-            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ )
-            {
-                auto swappy = FIRST[ i ];
-                
-                FIRST[  i ] = SECOND[ i ];
-                SECOND[ i ] = swappy;
+            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ ){
+                std::swap( FIRST[i], SECOND[i] );
             }
         }
     }
@@ -64,12 +60,8 @@ inline void internalFlipVertically( I &image )
             auto FIRST = image.getRef( x, y );
             auto SECOND = image.getRef( x, OTHER_END );
             
-            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ )
-            {
-                auto swappy = FIRST[ i ];
-                
-                FIRST[  i ] = SECOND[ i ];
-                SECOND[ i ] = swappy;
+            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ ) {
+                std::swap( FIRST[i], SECOND[i] );
             }
         }
     }
