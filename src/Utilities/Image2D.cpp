@@ -68,7 +68,7 @@ inline void internalFlipVertically( I &image )
 }
 
 template<class U, class I>
-inline bool internalWritePixel( I &image, const Utilities::GridDimensions2D dimensions, U x, U y, Utilities::Buffer::Endian endian, const Utilities::PixelFormatColor::GenericColor &color )
+inline bool internalWritePixel( I &image, const Utilities::GridDimensions2D &dimensions, U x, U y, Utilities::Buffer::Endian endian, const Utilities::PixelFormatColor::GenericColor &color )
 {
     if( dimensions.withinBounds(x, y) )
     {
@@ -85,6 +85,25 @@ inline bool internalWritePixel( I &image, const Utilities::GridDimensions2D dime
         return true;
     }
     return false;
+}
+
+template<class U, class I>
+inline Utilities::PixelFormatColor::GenericColor internalReadPixel( const I &image, const Utilities::GridDimensions2D &dimensions, U x, U y, Utilities::Buffer::Endian endian )
+{
+    if( dimensions.withinBounds(x, y) )
+    {
+        auto bytes_r = image.getRef( x, y );
+
+        assert( bytes_r != nullptr );
+        
+        auto pixel_format_r = image.getPixelFormat();
+
+        auto reader = Utilities::Buffer::Reader( bytes_r, pixel_format_r->byteSize() );
+
+        return pixel_format_r->readPixel( reader, endian );
+    }
+    else
+        return Utilities::PixelFormatColor::GenericColor( 0, 0, 0, 1 );
 }
 
 }
@@ -122,14 +141,7 @@ bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormat
 
 Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
 {
-    auto bytes_r = getRef( x, y );
-    
-    if( bytes_r == nullptr )
-        throw std::overflow_error("Read Pixel has a limit!");
-    
-    auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
-    
-    return pixel_format_p->readPixel( reader, endian );
+    return internalReadPixel<grid_2d_unit, Image2D>( *this, this->size, x, y, endian );
 }
 
 bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& sub_image )
@@ -256,15 +268,7 @@ bool Utilities::ImageMorbin2D::writePixel( grid_2d_unit x, grid_2d_unit y, Pixel
 
 Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( grid_2d_unit x, grid_2d_unit y ) const
 {
-    if( this->size.withinBounds(x, y) )
-    {
-        auto bytes_r = getRef( x, y );
-        auto reader = Buffer::Reader( bytes_r, pixel_format_p->byteSize() );
-        
-        return pixel_format_p->readPixel( reader, endian );
-    }
-    else
-        return PixelFormatColor::GenericColor( 0, 0, 0, 1 );
+    return internalReadPixel<grid_2d_unit, ImageMorbin2D>( *this, this->size, x, y, endian );
 }
 
 bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& sub_image )
