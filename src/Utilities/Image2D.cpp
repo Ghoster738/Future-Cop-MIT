@@ -106,6 +106,31 @@ inline Utilities::PixelFormatColor::GenericColor internalReadPixel( const I &ima
         return Utilities::PixelFormatColor::GenericColor( 0, 0, 0, 1 );
 }
 
+template<class U, class I, class J>
+bool internalFromReader( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian, I &image, const J &placement )
+{
+    const size_t TOTAL_PIXELS = image.getWidth() * image.getHeight();
+    auto pixel_format_r = image.getPixelFormat();
+    
+    if( reader.totalSize() < TOTAL_PIXELS * pixel_format_r->byteSize() )
+        return false;
+    else
+    {
+        U x, y;
+        
+        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
+        {
+            // Gather the x and y cordinates.
+            placement.getCoordinates( i, x, y );
+            
+            if( !image.writePixel( x, y, pixel_format_r->readPixel( reader, endian ) ) )
+                throw std::overflow_error( "There is a problem with the fromReader command!" );
+        }
+        
+        return true;
+    }
+}
+
 }
 
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -179,25 +204,7 @@ void Utilities::Image2D::flipVertically()
 
 bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
-    const size_t TOTAL_PIXELS = getWidth() * getHeight();
-    
-    if( reader.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
-        return false;
-    else
-    {
-        grid_2d_unit x, y;
-        
-        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
-        {
-            // Gather the x and y cordinates.
-            this->placement.getCoordinates( i, x, y );
-            
-            if( !writePixel( x, y, pixel_format_p->readPixel( reader, endian ) ) )
-                throw std::overflow_error( "There is a problem with the fromReader command!" );
-        }
-        
-        return true;
-    }
+    return internalFromReader<grid_2d_unit, Image2D, Grid2DPlacementNormal>( reader, endian, *this, this->placement );
 }
 
 bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
@@ -306,25 +313,7 @@ void Utilities::ImageMorbin2D::flipVertically()
 
 bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian )
 {
-    const size_t TOTAL_PIXELS = getWidth() * getHeight();
-    
-    if( reader.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
-        return false;
-    else
-    {
-        grid_2d_unit x, y;
-        
-        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
-        {
-            // Gather the x and y cordinates.
-            this->placement.getCoordinates( i, x, y );
-            
-            if( !writePixel( x, y, pixel_format_p->readPixel( reader, endian ) ) )
-                throw std::overflow_error( "There is a problem with the fromReader command!" );
-        }
-        
-        return true;
-    }
+    return internalFromReader<grid_2d_unit, ImageMorbin2D, Grid2DPlacementMorbin>( reader, endian, *this, this->placement );
 }
 
 bool Utilities::ImageMorbin2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
