@@ -30,20 +30,25 @@ inline bool internalInscribeImage( U x, U y, const I &sub_image, J &destination 
 }
 
 template<class U, class I>
+inline void internalSwitch( I &image, U x, U y, U end_x, U end_y )
+{
+    auto FIRST  = image.getRef( x, y );
+    auto SECOND = image.getRef( end_x, end_y );
+    
+    for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ )
+    {
+        std::swap( FIRST[i], SECOND[i] );
+    }
+}
+
+template<class U, class I>
 inline void internalFlipHorizontally( I &image )
 {
     for( U y = 0; y < image.getHeight(); y++ )
     {
         for( U x = 0; x < image.getWidth() / 2; x++ )
         {
-            const auto OTHER_END = image.getWidth() - x - 1;
-            
-            auto FIRST  = image.getRef( x, y );
-            auto SECOND = image.getRef( OTHER_END, y );
-            
-            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ ){
-                std::swap( FIRST[i], SECOND[i] );
-            }
+            internalSwitch<U, I>( image, x, y, image.getWidth() - x - 1, y );
         }
     }
 }
@@ -57,12 +62,7 @@ inline void internalFlipVertically( I &image )
         
         for( U x = 0; x < image.getWidth(); x++ )
         {
-            auto FIRST = image.getRef( x, y );
-            auto SECOND = image.getRef( x, OTHER_END );
-            
-            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ ) {
-                std::swap( FIRST[i], SECOND[i] );
-            }
+            internalSwitch<U, I>( image, x, y, x, OTHER_END );
         }
     }
 }
