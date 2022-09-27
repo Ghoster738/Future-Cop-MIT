@@ -7,49 +7,34 @@ namespace {
 
 const Utilities::channel_fp SRGB_VALUE = 2.2;
 
+#define INCLUDECODE(MAX_VALUE, MAX_UNIT_sRGB_VALUE, FROM, TO) \
+template<class U>\
+inline U FROM( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )\
+{\
+    if( interpolate == Utilities::PixelFormatColor::sRGB )\
+        return pow( value, 1.0 / SRGB_VALUE ) * MAX_VALUE + 0.5;\
+    else\
+        return  value * MAX_VALUE + 0.5;\
+}\
+\
+template<class U>\
+inline Utilities::channel_fp TO( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )\
+{\
+    if( interpolate == Utilities::PixelFormatColor::sRGB )\
+        return pow( value, SRGB_VALUE ) / MAX_UNIT_sRGB_VALUE;\
+    else\
+        return static_cast<Utilities::channel_fp>( value ) / MAX_VALUE;\
+}\
+
 const Utilities::channel_fp MAX_U5BIT_VALUE = 31.0;
 // A rounded up number of this MAX_U5BIT_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_U5BIT_sRGB_VALUE = 1909.834465;
-
-template<class U>
-inline U internalFromGenricColor5( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
-{
-    if( interpolate == Utilities::PixelFormatColor::sRGB )
-        return pow( value, 1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
-    else
-        return  value * MAX_U5BIT_VALUE + 0.5;
-}
-
-template<class U>
-inline Utilities::channel_fp internalToGenricColor5( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
-{
-    if( interpolate == Utilities::PixelFormatColor::sRGB )
-        return pow( value, SRGB_VALUE ) / MAX_U5BIT_sRGB_VALUE;
-    else
-        return static_cast<Utilities::channel_fp>( value ) / MAX_U5BIT_VALUE;
-}
+INCLUDECODE(MAX_U5BIT_VALUE, MAX_U5BIT_sRGB_VALUE, internalFromGenricColor5, internalToGenricColor5)
 
 const Utilities::channel_fp MAX_UBYTE_VALUE = 255.0;
 // A rounded up number of this MAX_UBYTE_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_UBYTE_sRGB_VALUE = 196964.6992;
-
-template<class U>
-inline U internalFromGenricColor8( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
-{
-    if( interpolate == Utilities::PixelFormatColor::sRGB )
-        return pow( value, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
-    else
-        return  value * MAX_UBYTE_VALUE + 0.5;
-}
-
-template<class U>
-inline Utilities::channel_fp internalToGenricColor8( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
-{
-    if( interpolate == Utilities::PixelFormatColor::sRGB )
-        return pow( value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
-    else
-        return static_cast<Utilities::channel_fp>( value ) / MAX_UBYTE_VALUE;
-}
+INCLUDECODE(MAX_UBYTE_VALUE, MAX_UBYTE_sRGB_VALUE, internalFromGenricColor8, internalToGenricColor8)
 
 }
 
