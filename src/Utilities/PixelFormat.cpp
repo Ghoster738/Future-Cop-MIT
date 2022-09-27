@@ -11,12 +11,30 @@ const Utilities::channel_fp MAX_U5BIT_VALUE = 31.0;
 // A rounded up number of this MAX_U5BIT_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_U5BIT_sRGB_VALUE = 1909.834465;
 
+template<class U>
+inline U internalFromGenricColor5( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+{
+    if( interpolate == Utilities::PixelFormatColor::sRGB )
+        return pow( value, 1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
+    else
+        return  value * MAX_U5BIT_VALUE + 0.5;
+}
+
+template<class U>
+inline Utilities::channel_fp internalToGenricColor5( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+{
+    if( interpolate == Utilities::PixelFormatColor::sRGB )
+        return pow( value, SRGB_VALUE ) / MAX_U5BIT_sRGB_VALUE;
+    else
+        return static_cast<Utilities::channel_fp>( value ) / MAX_U5BIT_VALUE;
+}
+
 const Utilities::channel_fp MAX_UBYTE_VALUE = 255.0;
 // A rounded up number of this MAX_UBYTE_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_UBYTE_sRGB_VALUE = 196964.6992;
 
 template<class U>
-inline U internalFromGenricColor( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+inline U internalFromGenricColor8( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
 {
     if( interpolate == Utilities::PixelFormatColor::sRGB )
         return pow( value, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
@@ -25,7 +43,7 @@ inline U internalFromGenricColor( Utilities::channel_fp value, Utilities::PixelF
 }
 
 template<class U>
-inline Utilities::channel_fp internalToGenricColor( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+inline Utilities::channel_fp internalToGenricColor8( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
 {
     if( interpolate == Utilities::PixelFormatColor::sRGB )
         return pow( value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
@@ -72,15 +90,15 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::readPi
 
 Utilities::PixelFormatColor_W8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
-    white = internalFromGenricColor<uint8_t>( generic.red,   interpolate );
-    alpha = internalFromGenricColor<uint8_t>( generic.alpha, LINEAR );
+    white = internalFromGenricColor8<uint8_t>( generic.red,   interpolate );
+    alpha = internalFromGenricColor8<uint8_t>( generic.alpha, LINEAR );
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::Color::toGeneric( ChannelInterpolation interpolate ) const {
     GenericColor color;
     
-    color.setValue( internalToGenricColor<uint8_t>( white, interpolate ) );
-    color.alpha = internalToGenricColor<uint8_t>( alpha, LINEAR );
+    color.setValue( internalToGenricColor8<uint8_t>( white, interpolate ) );
+    color.alpha = internalToGenricColor8<uint8_t>( alpha, LINEAR );
     
     return color;
 }
@@ -104,40 +122,19 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::read
 }
 
 Utilities::PixelFormatColor_R5G5B5A1::Color::Color( PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate ) {
-    if( interpolate == sRGB ) {
-        red   = pow( generic.red,   1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
-        green = pow( generic.green, 1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
-        blue  = pow( generic.blue,  1.0 / SRGB_VALUE ) * MAX_U5BIT_VALUE + 0.5;
-    }
-    else {
-        red   = generic.red   * MAX_U5BIT_VALUE + 0.5;
-        green = generic.green * MAX_U5BIT_VALUE + 0.5;
-        blue  = generic.blue  * MAX_U5BIT_VALUE + 0.5;
-    }
     
-    if( generic.alpha > 0.5 )
-        alpha = 1;
-    else
-        alpha = 0;
+    red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
+    green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
+    blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
+    alpha = ( generic.alpha > 0.5 );
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::Color::toGeneric( ChannelInterpolation interpolate ) const {
     GenericColor color;
     
-    float   red_value = static_cast<channel_fp>(red);
-    float green_value = static_cast<channel_fp>(green);
-    float  blue_value = static_cast<channel_fp>(blue);
-    
-    if( interpolate == sRGB ) {
-        color.red   = pow(   red_value, SRGB_VALUE ) / MAX_U5BIT_sRGB_VALUE;
-        color.green = pow( green_value, SRGB_VALUE ) / MAX_U5BIT_sRGB_VALUE;
-        color.blue  = pow(  blue_value, SRGB_VALUE ) / MAX_U5BIT_sRGB_VALUE;
-    }
-    else {
-        color.red   =   red_value / MAX_U5BIT_VALUE;
-        color.green = green_value / MAX_U5BIT_VALUE;
-        color.blue  =  blue_value / MAX_U5BIT_VALUE;
-    }
+    color.red   = internalToGenricColor5<uint8_t>( red,   interpolate );
+    color.green = internalToGenricColor5<uint8_t>( green, interpolate );
+    color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
     
     if( alpha )
         color.alpha = 1.0;
@@ -216,19 +213,19 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::re
 
 Utilities::PixelFormatColor_R8G8B8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
-    red   = internalFromGenricColor<uint8_t>( generic.red,   interpolate );
-    green = internalFromGenricColor<uint8_t>( generic.green, interpolate );
-    blue  = internalFromGenricColor<uint8_t>( generic.blue,  interpolate );
-    alpha = internalFromGenricColor<uint8_t>( generic.alpha, LINEAR );
+    red   = internalFromGenricColor8<uint8_t>( generic.red,   interpolate );
+    green = internalFromGenricColor8<uint8_t>( generic.green, interpolate );
+    blue  = internalFromGenricColor8<uint8_t>( generic.blue,  interpolate );
+    alpha = internalFromGenricColor8<uint8_t>( generic.alpha, LINEAR );
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::Color::toGeneric( ChannelInterpolation interpolate ) const {
     GenericColor color;
     
-    color.red   = internalToGenricColor<uint8_t>( red,   interpolate );
-    color.green = internalToGenricColor<uint8_t>( green, interpolate );
-    color.blue  = internalToGenricColor<uint8_t>( blue,  interpolate );
-    color.alpha = internalToGenricColor<uint8_t>( alpha, LINEAR );
+    color.red   = internalToGenricColor8<uint8_t>( red,   interpolate );
+    color.green = internalToGenricColor8<uint8_t>( green, interpolate );
+    color.blue  = internalToGenricColor8<uint8_t>( blue,  interpolate );
+    color.alpha = internalToGenricColor8<uint8_t>( alpha, LINEAR );
     
     return color;
 }
