@@ -4,8 +4,8 @@
 #include <cassert>
 
 namespace {
-const Utilities::channel_fp SRGB_VALUE = 2.2;
 
+const Utilities::channel_fp SRGB_VALUE = 2.2;
 
 const Utilities::channel_fp MAX_U5BIT_VALUE = 31.0;
 // A rounded up number of this MAX_U5BIT_VALUE powered by 2.2.
@@ -14,6 +14,25 @@ const Utilities::channel_fp MAX_U5BIT_sRGB_VALUE = 1909.834465;
 const Utilities::channel_fp MAX_UBYTE_VALUE = 255.0;
 // A rounded up number of this MAX_UBYTE_VALUE powered by 2.2.
 const Utilities::channel_fp MAX_UBYTE_sRGB_VALUE = 196964.6992;
+
+template<class U>
+inline U internalFromGenricColor( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+{
+    if( interpolate == Utilities::PixelFormatColor::sRGB )
+        return pow( value, 1.0 / SRGB_VALUE ) * MAX_UBYTE_sRGB_VALUE + 0.5;
+    else
+        return  value * MAX_UBYTE_sRGB_VALUE + 0.5;
+}
+
+template<class U>
+inline U internalToGenricColor( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+{
+    if( interpolate == Utilities::PixelFormatColor::sRGB )
+        return pow( value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
+    else
+        return value / MAX_UBYTE_VALUE;
+}
+
 }
 
 std::string Utilities::PixelFormatColor::GenericColor::getString() const {
