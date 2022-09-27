@@ -155,6 +155,19 @@ bool internalToWriter( Utilities::Buffer::Writer &writer, Utilities::Buffer::End
     }
 }
 
+template<class I>
+bool internalAddToBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian endian, const I &image )
+{
+    const size_t TOTAL_PIXELS = image.getWidth() * image.getHeight() * image.getPixelFormat()->byteSize();
+    
+    const auto STARTING_POSITION = buffer.getReader().totalSize();
+    buffer.allocate( TOTAL_PIXELS );
+    
+    auto writer = buffer.getWriter( STARTING_POSITION );
+    
+    return image.toWriter( writer, endian );
+}
+
 }
 
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -239,14 +252,7 @@ bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian
 
 bool Utilities::Image2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) const
 {
-    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight() * pixel_format_p->byteSize();
-    
-    const auto STARTING_POSITION = buffer.getReader().totalSize();
-    buffer.allocate( TOTAL_PIXELS );
-    
-    auto writer = buffer.getWriter( STARTING_POSITION );
-    
-    return toWriter( writer, endian );
+    return internalAddToBuffer<Image2D>( buffer, endian, *this );
 }
 
 Utilities::ImageMorbin2D::ImageMorbin2D( Buffer::Endian endian ) : ImageMorbin2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -331,12 +337,5 @@ bool Utilities::ImageMorbin2D::toWriter( Buffer::Writer &writer, Buffer::Endian 
 
 bool Utilities::ImageMorbin2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) const
 {
-    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight() * pixel_format_p->byteSize();
-    
-    const auto STARTING_POSITION = buffer.getReader().totalSize();
-    buffer.allocate( TOTAL_PIXELS );
-    
-    auto writer = buffer.getWriter( STARTING_POSITION );
-    
-    return toWriter( writer, endian );
+    return internalAddToBuffer<ImageMorbin2D>( buffer, endian, *this );
 }
