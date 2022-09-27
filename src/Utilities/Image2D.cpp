@@ -67,6 +67,22 @@ inline void internalFlipVertically( I &image )
     }
 }
 
+template<class U, class I>
+inline bool internalWritePixel( I &image, U x, U y, Utilities::Buffer::Endian endian, const Utilities::PixelFormatColor::GenericColor &color )
+{
+    auto bytes_r = image.getRef( x, y );
+    
+    assert( bytes_r != nullptr );
+    
+    auto pixel_format_r = image.getPixelFormat();
+    
+    auto writer = Utilities::Buffer::Writer( bytes_r, pixel_format_r->byteSize() );
+    
+    pixel_format_r->writePixel( writer, endian, color );
+    
+    return true;
+}
+
 }
 
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -98,18 +114,7 @@ Utilities::Image2D::~Image2D()
 bool Utilities::Image2D::writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color )
 {
     if( this->size.withinBounds(x, y) )
-    {
-        auto bytes_r = getRef( x, y );
-        
-        if( bytes_r == nullptr )
-            throw std::overflow_error("Write Pixel has a limit!");
-        
-        auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );
-        
-        pixel_format_p->writePixel( writer, endian, color );
-        
-        return true;
-    }
+        return internalWritePixel<grid_2d_unit, Image2D>( *this, x, y, endian, color );
     else
         return false;
 }
@@ -249,12 +254,7 @@ bool Utilities::ImageMorbin2D::writePixel( grid_2d_unit x, grid_2d_unit y, Pixel
 {
     if( this->size.withinBounds(x, y) )
     {
-        auto bytes_r = getRef( x, y );
-        auto writer  = Buffer::Writer( bytes_r, pixel_format_p->byteSize() );
-        
-        pixel_format_p->writePixel( writer, endian, color );
-        
-        return true;
+        return internalWritePixel<grid_2d_unit, ImageMorbin2D>( *this, x, y, endian, color );
     }
     else
         return false;

@@ -61,8 +61,8 @@ namespace Utilities {
         PixelFormatColor() : interpolation(LINEAR) {}
         PixelFormatColor( ChannelInterpolation interpolate ) : interpolation(interpolate) {}
         
-        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const GenericColor& color ) = 0;
-        virtual GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) = 0;
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const GenericColor& color ) const = 0;
+        virtual GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const = 0;
     };
 
     class PixelFormatColor_W8 : public PixelFormatColor {
@@ -82,8 +82,8 @@ namespace Utilities {
             return new PixelFormatColor_W8( interpolation );
         }
         virtual uint_fast8_t byteSize() const { return 1; }
-        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color );
-        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         
         virtual std::string getName() const { return "Black & White 8-bit"; }
     };
@@ -106,8 +106,8 @@ namespace Utilities {
             return new PixelFormatColor_W8A8( interpolation );
         }
         virtual uint_fast8_t byteSize() const { return 2; }
-        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color );
-        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Black & White 8-bit, Alpha 8-bit"; }
     };
 
@@ -131,8 +131,8 @@ namespace Utilities {
             return new PixelFormatColor_R5G5B5A1( interpolation );
         }
         virtual uint_fast8_t byteSize() const { return 2; }
-        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color );
-        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 5-bit, Green 5-bit, Blue 5-bit, Alpha 1-bit"; }
     };
 
@@ -155,8 +155,8 @@ namespace Utilities {
             return new PixelFormatColor_R8G8B8( interpolation );
         }
         virtual uint_fast8_t byteSize() const { return 3; }
-        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color );
-        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 8-bit, Green 8-bit, Blue 8-bit"; }
     };
 
@@ -180,8 +180,8 @@ namespace Utilities {
             return new PixelFormatColor_R8G8B8A8( interpolation );
         }
         virtual uint_fast8_t byteSize() const { return 4; }
-        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color );
-        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP );
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 8-bit, Green 8-bit, Blue 8-bit, Alpha 8-bit"; }
     };
 
