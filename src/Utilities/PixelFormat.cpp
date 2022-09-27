@@ -35,14 +35,14 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::Color:
     return expand.toGeneric( interpolate );
 }
 
-void Utilities::PixelFormatColor_W8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color )
+void Utilities::PixelFormatColor_W8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color ) const
 {
     PixelFormatColor_W8::Color color( generic_color, interpolation );
     
     buffer.writeU8( color.white );
 }
 
-Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian )
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian ) const
 {
     PixelFormatColor_W8::Color color;
     
@@ -76,7 +76,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::Colo
     return color;
 }
 
-void Utilities::PixelFormatColor_W8A8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color )
+void Utilities::PixelFormatColor_W8A8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color ) const
 {
     PixelFormatColor_W8A8::Color color( generic_color, interpolation );
     
@@ -84,7 +84,7 @@ void Utilities::PixelFormatColor_W8A8::writePixel( Buffer::Writer &buffer, Buffe
     buffer.writeU8( color.alpha );
 }
 
-Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian )
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian ) const
 {
     PixelFormatColor_W8A8::Color color;
     
@@ -138,7 +138,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::
     return color;
 }
 
-void Utilities::PixelFormatColor_R5G5B5A1::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color )
+void Utilities::PixelFormatColor_R5G5B5A1::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color ) const
 {
     PixelFormatColor_R5G5B5A1::Color color( generic_color, interpolation );
     
@@ -151,7 +151,7 @@ void Utilities::PixelFormatColor_R5G5B5A1::writePixel( Buffer::Writer &buffer, B
     buffer.writeU16( data, endian );
 }
 
-Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::readPixel( Buffer::Reader &buffer, Buffer::Endian endian  )
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::readPixel( Buffer::Reader &buffer, Buffer::Endian endian  ) const
 {
     PixelFormatColor_R5G5B5A1::Color color;
     auto word = buffer.readU16( endian );
@@ -185,7 +185,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::Co
     return expand.toGeneric( interpolate );
 }
 
-void Utilities::PixelFormatColor_R8G8B8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color )
+void Utilities::PixelFormatColor_R8G8B8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color ) const
 {
     PixelFormatColor_R8G8B8::Color color( generic_color, interpolation );
     
@@ -194,7 +194,7 @@ void Utilities::PixelFormatColor_R8G8B8::writePixel( Buffer::Writer &buffer, Buf
     buffer.writeU8( color.blue );
 }
 
-Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian )
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian ) const
 {
     PixelFormatColor_R8G8B8::Color color;
     
@@ -244,7 +244,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::
     return color;
 }
 
-void Utilities::PixelFormatColor_R8G8B8A8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color )
+void Utilities::PixelFormatColor_R8G8B8A8::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color ) const
 {
     PixelFormatColor_R8G8B8A8::Color color( generic_color, interpolation );
     
@@ -254,7 +254,7 @@ void Utilities::PixelFormatColor_R8G8B8A8::writePixel( Buffer::Writer &buffer, B
     buffer.writeU8( color.alpha );
 }
 
-Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian )
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::readPixel( Buffer::Reader &buffer, Buffer::Endian endian ) const
 {
     PixelFormatColor_R8G8B8A8::Color color;
     
