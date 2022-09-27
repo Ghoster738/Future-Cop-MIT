@@ -2,23 +2,24 @@
 #define UTILITIES_IMAGE_PALETTE_2D_HEADER
 
 #include "Image2D.h"
+#include <bitset>
 
 namespace Utilities {
 
 template<class placement, class grid_2d_value = uint8_t>
-class ImagePalette2D : public ImageBase2D<placement, grid_2d_value> {
+class ImagePaletteBase2D : public ImageBase2D<placement, grid_2d_value> {
 protected:
     ColorPalette *color_palette_p;
     
 public:
-    ImagePalette2D( const ColorPalette& palette ) :
-        ImagePalette2D(0, 0, palette ) {}
-    ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette  ) :
-        ImageBase2D<placement, grid_2d_value>( width, height ) {
+    ImagePaletteBase2D( const ColorPalette& palette ) :
+        ImagePaletteBase2D( 0, 0, palette ) {}
+    ImagePaletteBase2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette  ) :
+        ImagePaletteBase2D<placement, grid_2d_value>( width, height ) {
         color_palette_p = new ColorPalette( palette );
     }
     
-    virtual ~ImagePalette2D() {
+    virtual ~ImagePaletteBase2D() {
         if( color_palette_p != nullptr )
             delete color_palette_p;
         color_palette_p = nullptr;
@@ -45,9 +46,11 @@ public:
     /**
      @warning Make sure that the color palette of both images are the same.
      */
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePalette2D<placement>& ref ) = 0;
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<placement>& ref ) = 0;
 
-    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePalette2D<placement> &sub_image ) const = 0;
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<placement>& sub_image ) const = 0;
+    
+    virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 ) = 0;
     
     uint_fast8_t getPixelIndex( grid_2d_unit x, grid_2d_unit y ) {
         return this->getValue( x, y );
