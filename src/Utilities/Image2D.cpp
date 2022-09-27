@@ -131,6 +131,30 @@ bool internalFromReader( Utilities::Buffer::Reader &reader, Utilities::Buffer::E
     }
 }
 
+template<class U, class I, class J>
+bool internalToWriter( Utilities::Buffer::Writer &writer, Utilities::Buffer::Endian endian, const I &image, const J &placement )
+{
+    const size_t TOTAL_PIXELS = image.getWidth() * image.getHeight();
+    auto pixel_format_r = image.getPixelFormat();
+    
+    if( writer.totalSize() < TOTAL_PIXELS * pixel_format_r->byteSize() )
+        return false;
+    else
+    {
+        U x, y;
+        
+        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
+        {
+            // Gather the x and y cordinates.
+            placement.getCoordinates( i, x, y );
+            
+            pixel_format_r->writePixel( writer, endian, image.readPixel( x, y ) );
+        }
+        
+        return true;
+    }
+}
+
 }
 
 Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
@@ -209,24 +233,7 @@ bool Utilities::Image2D::fromReader( Buffer::Reader &reader, Buffer::Endian endi
 
 bool Utilities::Image2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
 {
-    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
-    
-    if( writer.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
-        return false;
-    else
-    {
-        grid_2d_unit x, y;
-        
-        for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
-        {
-            // Gather the x and y cordinates.
-            this->getPlacement().getCoordinates( i, x, y );
-            
-            pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
-        }
-        
-        return true;
-    }
+    return internalToWriter<grid_2d_unit, Image2D, Grid2DPlacementNormal>( writer, endian, *this, this->placement );
 }
 
 
@@ -318,24 +325,7 @@ bool Utilities::ImageMorbin2D::fromReader( Buffer::Reader &reader, Buffer::Endia
 
 bool Utilities::ImageMorbin2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const
 {
-    const grid_2d_offset TOTAL_PIXELS = getWidth() * getHeight();
-    
-    if( writer.totalSize() < TOTAL_PIXELS * pixel_format_p->byteSize() )
-        return false;
-    else
-    {
-        grid_2d_unit x, y;
-        
-        for( grid_2d_offset i = 0; i < TOTAL_PIXELS; i++ )
-        {
-            // Gather the x and y cordinates.
-            this->getPlacement().getCoordinates( i, x, y );
-            
-            pixel_format_p->writePixel( writer, endian, readPixel( x, y ) );
-        }
-        
-        return true;
-    }
+    return internalToWriter<grid_2d_unit, ImageMorbin2D, Grid2DPlacementMorbin>( writer, endian, *this, this->placement );
 }
 
 
