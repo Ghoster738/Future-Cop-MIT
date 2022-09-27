@@ -29,24 +29,27 @@ inline bool internalInscribeImage( U x, U y, const I &sub_image, J &destination 
         return false;
 }
 
-// This does not work because setDimensions is protected! I will fix it later.
-template<class U, class I, class J>
-inline bool internalSubImage( U x, U y, U width, U height, I& sub_image, J &destination  )
+template<class U, class I>
+void internalFlipHorizontally( I &image )
 {
-    auto dyn_p = dynamic_cast<J*>( &sub_image );
-    
-    if( dyn_p != nullptr &&
-        x + width <= destination.getWidth() &&
-        y + height <= destination.getHeight() )
+    for( U y = 0; y < image.getHeight(); y++ )
     {
-        dyn_p->setDimensions( width, height );
-
-        fillInImage<U, J>( destination, x, y, width, height, *dyn_p, 0, 0, width, height );
-
-        return true;
+        for( U x = 0; x < image.getWidth() / 2; x++ )
+        {
+            const auto OTHER_END = image.getWidth() - x - 1;
+            
+            auto FIRST  = image.getRef( x, y );
+            auto SECOND = image.getRef( OTHER_END, y );
+            
+            for( U i = 0; i < image.getPixelFormat()->byteSize(); i++ )
+            {
+                auto swappy = FIRST[ i ];
+                
+                FIRST[  i ] = SECOND[ i ];
+                SECOND[ i ] = swappy;
+            }
+        }
     }
-    else
-        return false;
 }
 
 }
@@ -133,24 +136,7 @@ bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit 
 
 void Utilities::Image2D::flipHorizontally()
 {
-    for( unsigned int y = 0; y < this->getHeight(); y++ )
-    {
-        for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
-        {
-            const auto OTHER_END = this->getWidth() - x - 1;
-            
-            auto FIRST = getRef( x, y );
-            auto SECOND = getRef( OTHER_END, y );
-            
-            for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
-            {
-                auto swappy = FIRST[ i ];
-                
-                FIRST[  i ] = SECOND[ i ];
-                SECOND[ i ] = swappy;
-            }
-        }
-    }
+    internalFlipHorizontally< grid_2d_unit, Image2D>( *this );
 }
 
 void Utilities::Image2D::flipVertically()
@@ -314,24 +300,7 @@ bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d
 
 void Utilities::ImageMorbin2D::flipHorizontally()
 {
-    for( unsigned int y = 0; y < this->getHeight(); y++ )
-    {
-        for( unsigned int x = 0; x < this->getWidth() / 2; x++ )
-        {
-            const auto OTHER_END = this->getWidth() - x - 1;
-            
-            auto FIRST = getRef( x, y );
-            auto SECOND = getRef( OTHER_END, y );
-            
-            for( unsigned i = 0; i < pixel_format_p->byteSize(); i++ )
-            {
-                auto swappy = FIRST[ i ];
-                
-                FIRST[  i ] = SECOND[ i ];
-                SECOND[ i ] = swappy;
-            }
-        }
-    }
+    internalFlipHorizontally<grid_2d_unit, ImageMorbin2D>( *this );
 }
 
 void Utilities::ImageMorbin2D::flipVertically()
