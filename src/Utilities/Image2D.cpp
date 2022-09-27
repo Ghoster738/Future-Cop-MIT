@@ -1,6 +1,6 @@
 #include "Image2D.h"
 
-// This should only exist in local space.
+// This should only exist in this source file.
 namespace {
 
 template<class U, class I, class J = I>
@@ -10,18 +10,38 @@ inline void fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destina
     {
         for( U current_y = 0; current_y < d_h; current_y++ )
         {
-            destination.writePixel( d_x + current_x, d_y +current_y, source.readPixel( s_x + current_x, s_y + current_y ) );
+            destination.writePixel( d_x + current_x, d_y + current_y, source.readPixel( s_x + current_x, s_y + current_y ) );
         }
     }
 }
 
 template<class U, class I, class J>
-inline bool smallImageToImage( U x, U y, const I &sub_image, J &destination )
+inline bool internalInscribeImage( U x, U y, const I &sub_image, J &destination )
 {
     if( x + sub_image.getWidth() <= destination.getWidth() &&
         y + sub_image.getHeight() <= destination.getHeight() )
     {
         fillInImage<U, I, J>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), destination, x, y, sub_image.getWidth(), sub_image.getHeight() );
+
+        return true;
+    }
+    else
+        return false;
+}
+
+// This does not work because setDimensions is protected! I will fix it later.
+template<class U, class I, class J>
+inline bool internalSubImage( U x, U y, U width, U height, I& sub_image, J &destination  )
+{
+    auto dyn_p = dynamic_cast<J*>( &sub_image );
+    
+    if( dyn_p != nullptr &&
+        x + width <= destination.getWidth() &&
+        y + height <= destination.getHeight() )
+    {
+        dyn_p->setDimensions( width, height );
+
+        fillInImage<U, J>( destination, x, y, width, height, *dyn_p, 0, 0, width, height );
 
         return true;
     }
@@ -90,7 +110,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
 
 bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& sub_image )
 {
-    return smallImageToImage<grid_2d_unit, ImageColor2D<Grid2DPlacementNormal>, Image2D>( x, y, sub_image, *this );
+    return internalInscribeImage<grid_2d_unit, ImageColor2D<Grid2DPlacementNormal>, Image2D>( x, y, sub_image, *this );
 }
 
 bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementNormal>& sub_image ) const
@@ -271,7 +291,7 @@ Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( g
 
 bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& sub_image )
 {
-    return smallImageToImage<grid_2d_unit, ImageColor2D<Grid2DPlacementMorbin>, ImageMorbin2D>( x, y, sub_image, *this );
+    return internalInscribeImage<grid_2d_unit, ImageColor2D<Grid2DPlacementMorbin>, ImageMorbin2D>( x, y, sub_image, *this );
 }
 
 bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementMorbin>& sub_image ) const
