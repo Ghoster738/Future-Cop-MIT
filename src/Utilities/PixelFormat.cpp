@@ -74,7 +74,6 @@ Utilities::PixelFormatColor_W8A8::Color::Color( Utilities::PixelFormatColor::Gen
 {
     white = internalFromGenricColor<uint8_t>( generic.red,   interpolate );
     alpha = internalFromGenricColor<uint8_t>( generic.alpha, LINEAR );
-    
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::Color::toGeneric( ChannelInterpolation interpolate ) const {
@@ -217,39 +216,19 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::re
 
 Utilities::PixelFormatColor_R8G8B8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
-    if( interpolate == sRGB ) {
-        red   = pow( generic.red,   1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
-        green = pow( generic.green, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
-        blue  = pow( generic.blue,  1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
-    }
-    else {
-        red   = generic.red   * MAX_UBYTE_VALUE + 0.5;
-        green = generic.green * MAX_UBYTE_VALUE + 0.5;
-        blue  = generic.blue  * MAX_UBYTE_VALUE + 0.5;
-    }
-    
-    alpha = generic.alpha * MAX_UBYTE_VALUE + 0.5;
+    red   = internalFromGenricColor<uint8_t>( generic.red,   interpolate );
+    green = internalFromGenricColor<uint8_t>( generic.green, interpolate );
+    blue  = internalFromGenricColor<uint8_t>( generic.blue,  interpolate );
+    alpha = internalFromGenricColor<uint8_t>( generic.alpha, LINEAR );
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::Color::toGeneric( ChannelInterpolation interpolate ) const {
     GenericColor color;
     
-    auto   red_value = static_cast<channel_fp>(red);
-    auto green_value = static_cast<channel_fp>(green);
-    auto  blue_value = static_cast<channel_fp>(blue);
-    
-    if( interpolate == sRGB ) {
-        color.red   = pow(   red_value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
-        color.green = pow( green_value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
-        color.blue  = pow(  blue_value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
-    }
-    else {
-        color.red   =   red_value / MAX_UBYTE_VALUE;
-        color.green = green_value / MAX_UBYTE_VALUE;
-        color.blue  =  blue_value / MAX_UBYTE_VALUE;
-    }
-    
-    color.alpha = static_cast<channel_fp>(alpha) / MAX_UBYTE_VALUE;
+    color.red   = internalToGenricColor<uint8_t>( red,   interpolate );
+    color.green = internalToGenricColor<uint8_t>( green, interpolate );
+    color.blue  = internalToGenricColor<uint8_t>( blue,  interpolate );
+    color.alpha = internalToGenricColor<uint8_t>( alpha, LINEAR );
     
     return color;
 }
