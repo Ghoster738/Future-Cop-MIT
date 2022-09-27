@@ -25,12 +25,12 @@ inline U internalFromGenricColor( Utilities::channel_fp value, Utilities::PixelF
 }
 
 template<class U>
-inline U internalToGenricColor( Utilities::channel_fp value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
+inline Utilities::channel_fp internalToGenricColor( U value, Utilities::PixelFormatColor::ChannelInterpolation interpolate )
 {
     if( interpolate == Utilities::PixelFormatColor::sRGB )
         return pow( value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE;
     else
-        return value / MAX_UBYTE_VALUE;
+        return static_cast<Utilities::channel_fp>( value ) / MAX_UBYTE_VALUE;
 }
 
 }
@@ -72,26 +72,16 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::readPi
 
 Utilities::PixelFormatColor_W8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
-    if( interpolate == sRGB )
-        white = pow( generic.red, 1.0 / SRGB_VALUE ) * MAX_UBYTE_VALUE + 0.5;
-    else
-        white = generic.red * MAX_UBYTE_VALUE + 0.5;
-    white = internalFromGenricColor<uint8_t>( generic.red, interpolate );
+    white = internalFromGenricColor<uint8_t>( generic.red,   interpolate );
+    alpha = internalFromGenricColor<uint8_t>( generic.alpha, LINEAR );
     
-    alpha = generic.alpha * MAX_UBYTE_VALUE + 0.5;
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::Color::toGeneric( ChannelInterpolation interpolate ) const {
     GenericColor color;
     
-    channel_fp value = static_cast<channel_fp>(white);
-    
-    if( interpolate == sRGB )
-        color.setValue( pow( value, SRGB_VALUE ) / MAX_UBYTE_sRGB_VALUE );
-    else
-        color.setValue( value / MAX_UBYTE_VALUE );
-    
-    color.alpha = static_cast<channel_fp>(alpha) / MAX_UBYTE_VALUE;
+    color.setValue( internalToGenricColor<uint8_t>( white, interpolate ) );
+    color.alpha = internalToGenricColor<uint8_t>( alpha, LINEAR );
     
     return color;
 }
