@@ -246,6 +246,14 @@ Utilities::ColorPalette::ColorPalette( const Utilities::PixelFormatColor& color_
     assert( color_p != nullptr );
 }
 
+Utilities::ColorPalette::ColorPalette( Utilities::ColorPalette const &color ) :
+    color_p( nullptr ),  buffer( color.buffer ), endianess( color.endianess )
+{
+    color_p = dynamic_cast<PixelFormatColor*>( color.color_p->duplicate() );
+    
+    assert( color_p != nullptr );
+}
+
 bool Utilities::ColorPalette::empty() const {
     if( buffer.getReader().totalSize() < color_p->byteSize() )
         return true;
@@ -268,9 +276,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::ColorPalette::getIndex( pal
     return color_p->readPixel( reader, endianess );
 }
 
-bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatColor::GenericColor color )
+bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatColor::GenericColor& color )
 {
-    if( index <= getLastIndex() ) {
+    if( !empty() && index <= getLastIndex() ) {
         auto writer = buffer.getWriter( index * color_p->byteSize(), color_p->byteSize() );
         
         color_p->writePixel( writer, endianess, getIndex( index ) );
@@ -278,4 +286,14 @@ bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatCo
         return true;
     }
     return false;
+}
+
+bool Utilities::ColorPalette::setAmount( uint16_t amount )
+{
+    if( amount > 256 )
+        amount = 256;
+    
+    auto palette_buffer_size = static_cast<size_t>( amount ) * static_cast<size_t>( color_p->byteSize() );
+    
+    return buffer.allocate( palette_buffer_size );
 }

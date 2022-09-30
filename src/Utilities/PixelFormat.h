@@ -197,15 +197,15 @@ namespace Utilities {
             delete color_p;
         }
         
-        const PixelFormatColor& getColorFormat() const { return *color_p; }
+        bool empty() const;
         
+        const PixelFormatColor& getColorFormat() const { return *color_p; }
+        PixelFormatColor::GenericColor getIndex( palette_index index ) const;
+        uint_fast8_t getLastIndex() const;
         Buffer::Endian getEndian() const { return endianess; }
         
-        bool empty() const;
-        uint_fast8_t getLastIndex() const;
-        
-        PixelFormatColor::GenericColor getIndex( palette_index index ) const;
-        bool setIndex( palette_index index, const PixelFormatColor::GenericColor color );
+        bool setIndex( palette_index index, const PixelFormatColor::GenericColor &color );
+        bool setAmount( uint16_t amount );
     };
 }
 
