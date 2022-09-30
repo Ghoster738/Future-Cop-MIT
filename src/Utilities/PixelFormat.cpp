@@ -295,5 +295,19 @@ bool Utilities::ColorPalette::setAmount( uint16_t amount )
     
     auto palette_buffer_size = static_cast<size_t>( amount ) * static_cast<size_t>( color_p->byteSize() );
     
-    return buffer.allocate( palette_buffer_size );
+    if( palette_buffer_size > buffer.getReader().totalSize() )
+        return buffer.set( nullptr, palette_buffer_size );
+    else
+    if( palette_buffer_size < buffer.getReader().totalSize() )
+    {
+        Buffer buffer_copy;
+        auto reader = buffer.getReader();
+        
+        for( size_t i = 0; i < palette_buffer_size; i++ )
+            buffer_copy.addU8( reader.readU8() );
+        
+        return true;
+    }
+    else // Do nothing if the size matches.
+        return true;
 }
