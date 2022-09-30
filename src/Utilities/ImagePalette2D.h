@@ -12,10 +12,8 @@ protected:
     ColorPalette *color_palette_p;
     
 public:
-    ImagePaletteBase2D( const ColorPalette& palette ) :
-        ImagePaletteBase2D( 0, 0, palette ) {}
     ImagePaletteBase2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette  ) :
-        ImagePaletteBase2D<placement, grid_2d_value>( width, height ) {
+        ImageBase2D<placement, grid_2d_value>( width, height ) {
         color_palette_p = new ColorPalette( palette );
     }
     
@@ -24,6 +22,9 @@ public:
             delete color_palette_p;
         color_palette_p = nullptr;
     }
+    
+    virtual void flipHorizontally() { GridBase2D<grid_2d_value, placement>::flipHorizontally(); }
+    virtual void flipVertically() { GridBase2D<grid_2d_value, placement>::flipVertically(); }
     
     /**
      * @return the endianess
@@ -52,18 +53,49 @@ public:
     
     virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 ) = 0;
     
-    uint_fast8_t getPixelIndex( grid_2d_unit x, grid_2d_unit y ) {
+    uint_fast8_t getPixelIndex( grid_2d_unit x, grid_2d_unit y ) const {
         return this->getValue( x, y );
+    }
+    
+    virtual PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const {
+        return color_palette_p->getIndex( getPixelIndex(x, y) );
     }
     
     bool writePixel( grid_2d_unit x, grid_2d_unit y, uint_fast8_t index ) {
         return this->setValue( x, y, index );
     }
     
-    Image2D toColorImage() const = 0;
-    ImageMorbin2D toColorMorbinImage() const = 0;
+    virtual Image2D toColorImage() const = 0;
+    virtual ImageMorbin2D toColorMorbinImage() const = 0;
 };
 
+class ImagePalette2D : public ImagePaletteBase2D<Grid2DPlacementNormal> {
+public:
+    ImagePalette2D( const ImagePalette2D &image );
+    ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
+    virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian );
+    virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const;
+    virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const;
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& ref );
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const;
+    virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 );
+    virtual Image2D toColorImage() const;
+    virtual ImageMorbin2D toColorMorbinImage() const;
+};
+
+class ImagePaletteMorbin2D : public ImagePaletteBase2D<Grid2DPlacementMorbin> {
+public:
+    ImagePaletteMorbin2D( const ImagePaletteMorbin2D &image );
+    ImagePaletteMorbin2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
+    virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian );
+    virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const;
+    virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const;
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementMorbin>& ref );
+    virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementMorbin>& sub_image ) const;
+    virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 );
+    virtual Image2D toColorImage() const;
+    virtual ImageMorbin2D toColorMorbinImage() const;
+};
 }
 
 #endif // UTILITIES_IMAGE_PALETTE_2D_HEADER
