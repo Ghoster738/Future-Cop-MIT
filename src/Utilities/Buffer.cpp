@@ -28,10 +28,15 @@ bool Utilities::Buffer::allocate( size_t byte_amount ) {
 }
 
 bool Utilities::Buffer::add( const uint8_t *const buffer, size_t byte_amount ) {
-    reserve( byte_amount + data.size() );
+    const auto TOTAL_SIZE = byte_amount + data.size();
 
-    for( size_t i = 0; i < byte_amount; i++ )
-        data.push_back( buffer[ i ] );
+    if( buffer != nullptr ) {
+        reserve( TOTAL_SIZE );
+        for( size_t i = 0; i < byte_amount; i++ )
+            data.push_back( buffer[ i ] );
+    }
+    else
+        data.resize( TOTAL_SIZE, 0 );
 
     return true;
 }
