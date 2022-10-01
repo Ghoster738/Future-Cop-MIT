@@ -4,15 +4,15 @@ Utilities::ImagePalette2D::ImagePalette2D( grid_2d_unit width, grid_2d_unit heig
 {
 }
 
-bool Utilities::ImagePalette2D::fromReader( Buffer::Reader &reader, Buffer::Endian endian ) {
+bool Utilities::ImagePalette2D::fromReader( Buffer::Reader &reader ) {
     return false;
 }
 
-bool Utilities::ImagePalette2D::toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const {
+bool Utilities::ImagePalette2D::toWriter( Buffer::Writer &writer ) const {
     return false;
 }
 
-bool Utilities::ImagePalette2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) const{
+bool Utilities::ImagePalette2D::addToBuffer( Buffer &buffer ) const{
     return false;
 }
 

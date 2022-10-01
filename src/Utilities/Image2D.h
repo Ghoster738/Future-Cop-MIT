@@ -49,12 +49,6 @@ public:
      * number pixels.
      */
     virtual void flipVertically() = 0;
-    
-    virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian ) = 0;
-    
-    virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const = 0;
-    
-    virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const = 0;
 };
 
 template<class placement, class grid_2d_value = uint8_t>
@@ -150,6 +144,12 @@ public:
     }
     
     virtual bool writePixel( grid_2d_unit x, grid_2d_unit y, PixelFormatColor::GenericColor color ) = 0;
+    
+    virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian ) = 0;
+    
+    virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const = 0;
+    
+    virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const = 0;
 };
 
 class ImageMorbin2D;
