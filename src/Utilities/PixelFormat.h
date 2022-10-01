@@ -203,6 +203,8 @@ namespace Utilities {
         PixelFormatColor::GenericColor getIndex( palette_index index ) const;
         uint_fast8_t getLastIndex() const;
         Buffer::Endian getEndian() const { return endianess; }
+        Buffer::Reader getReader() const { return buffer.getReader(); }
+        Buffer::Reader getReader( palette_index index ) const { return buffer.getReader( static_cast<size_t>( index ) * color_p->byteSize(), color_p->byteSize() ); }
         
         bool setIndex( palette_index index, const PixelFormatColor::GenericColor &color );
         bool setAmount( uint16_t amount );
