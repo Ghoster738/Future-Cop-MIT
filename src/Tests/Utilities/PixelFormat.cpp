@@ -558,6 +558,28 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
         return false;
     }
     
+    {
+        const unsigned INDEX = 40;
+        Utilities::Buffer buffer;
+        
+        buffer.addU16( 0xB260, endianess );
+        
+        auto expected_reader = buffer.getReader();
+        auto tested_reader = color_palette.getReader( INDEX );
+        
+        auto expected_value = expected_reader.readU16();
+        auto tested_value   =   tested_reader.readU16();
+        
+        if( expected_value != tested_value )
+        {
+            std::cout << "Endainess test had failed at " << INDEX << std::hex << std::endl;
+            std::cout << "Expected Value 0x" << expected_value << std::endl;
+            std::cout << "Tested Value 0x" << tested_value << std::endl;
+            std::cout << std::dec;
+            return false;
+        }
+    }
+    
     Utilities::ColorPalette color_palette_2( color_palette );
     
     for( unsigned i = 0; i < 256; i++ ) {
