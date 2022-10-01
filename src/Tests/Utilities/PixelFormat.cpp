@@ -509,6 +509,14 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
         return false;
     }
     
+    Utilities::ColorPalette color_palette_2( color_palette );
+    
+    for( unsigned i = 0; i < 256; i++ ) {
+        std::string test_string = "Palette Copy constructor failed at index " + std::to_string( i );
+        if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
+            return false;
+    }
+    
     return true;
 }
 
