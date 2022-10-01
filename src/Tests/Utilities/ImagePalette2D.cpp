@@ -106,7 +106,36 @@ bool checkColorPalette() {
         }
     }
     for( unsigned i = 0; i < 16; i++ ) {
-        std::string test_string = "Palette at index " + std::to_string( i );
+        std::string test_string = "Partial Palette at index " + std::to_string( i );
+        if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
+            return false;
+    }
+    
+    color_palette.setAmount( 8 );
+    // The color palette should only lose the index values that are high.
+    for( unsigned i = 0; i < 8; i++ ) {
+        std::string test_string = "Half-Partial Palette at index " + std::to_string( i );
+        if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
+            return false;
+    }
+    // The size should change.
+    if( color_palette.setIndex( 8, FIRST_COLOR ) )
+    {
+        std::cout << "Index 8 at Half-Partial Palete should not be written." << std::endl;
+        return false;
+    }
+    // Set to full amount.
+    color_palette.setAmount( 256 );
+    
+    for( unsigned i = 8; i < 256; i++ ) {
+        if( !color_palette.setIndex( i, palette[ i ] ) )
+        {
+            std::cout << "The color palette did not set the color when it should not have at index " << i << std::endl;
+            return false;
+        }
+    }
+    for( unsigned i = 0; i < 256; i++ ) {
+        std::string test_string = "Full Palette at index " + std::to_string( i );
         if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
             return false;
     }
