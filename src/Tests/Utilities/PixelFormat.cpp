@@ -387,11 +387,11 @@ int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::P
 
 
 bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE) {
-    Utilities::PixelFormatColor_R8G8B8 color;
+    Utilities::PixelFormatColor_R5G5B5A1 color;
     Utilities::ColorPalette color_palette( color, endianess );
     const auto FIRST_COLOR = Utilities::PixelFormatColor::GenericColor(1, 0, 0.5, 1);
     
-    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &color_palette.getColorFormat() ) == nullptr )
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( &color_palette.getColorFormat() ) == nullptr )
     {
         std::cout << "The color format is all wrong! " << color_palette.getColorFormat().getName() << std::endl;
         return false;
@@ -439,15 +439,15 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
     }
     if( testColor( 0, color_palette.getIndex( 0 ), FIRST_COLOR, "Palette test", "" ) )
         return false;
-    if( color_palette.getReader().totalSize() != 3 )
+    if( color_palette.getReader().totalSize() != 2 )
     {
-        std::cout << "The color palette's reader should be 3 not "
+        std::cout << "The color palette's reader should be 2 not "
             << color_palette.getReader().totalSize() << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader( 0 ).totalSize() != 3 )
+    if( color_palette.getReader( 0 ).totalSize() != 2 )
     {
-        std::cout << "The color palette's pixel size should be 3 not "
+        std::cout << "The color palette's pixel size should be 2 not "
             << color_palette.getReader( 0 ).totalSize() << "." << std::endl;
         return false;
     }
@@ -479,15 +479,15 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
             << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader().totalSize() != 48 )
+    if( color_palette.getReader().totalSize() != 32 )
     {
-        std::cout << "The color palette's reader should be 48 not "
+        std::cout << "The color palette's reader should be 32 not "
             << color_palette.getReader().totalSize() << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader( 8 ).totalSize() != 3 )
+    if( color_palette.getReader( 8 ).totalSize() != 2 )
     {
-        std::cout << "The color palette's pixel size should be 3 not "
+        std::cout << "The color palette's pixel size should be 2 not "
         << color_palette.getReader( 8 ).totalSize() << "." << std::endl;
         return false;
     }
@@ -511,13 +511,13 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
             << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader().totalSize() != 24 )
+    if( color_palette.getReader().totalSize() != 16 )
     {
-        std::cout << "The color palette's reader should be 24 not "
+        std::cout << "The color palette's reader should be 16 not "
             << color_palette.getReader().totalSize() << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader( 4 ).totalSize() != 3 )
+    if( color_palette.getReader( 4 ).totalSize() != 2 )
     {
         std::cout << "The color palette's pixel size should be 3 not "
         << color_palette.getReader( 4 ).totalSize() << "." << std::endl;
@@ -545,15 +545,15 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
             << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader().totalSize() != 768 )
+    if( color_palette.getReader().totalSize() != 512 )
     {
-        std::cout << "The color palette's reader should be 768 not "
+        std::cout << "The color palette's reader should be 512 not "
             << color_palette.getReader().totalSize() << "." << std::endl;
         return false;
     }
-    if( color_palette.getReader( 255 ).totalSize() != 3 )
+    if( color_palette.getReader( 255 ).totalSize() != 2 )
     {
-        std::cout << "The color palette's pixel size should be 3 not "
+        std::cout << "The color palette's pixel size should be 2 not "
         << color_palette.getReader( 255 ).totalSize() << "." << std::endl;
         return false;
     }
