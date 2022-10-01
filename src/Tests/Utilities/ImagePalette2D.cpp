@@ -38,10 +38,6 @@ std::vector<Utilities::PixelFormatColor::GenericColor> generateColorPalette()
     transitionColor( generated, 128 );
     transitionColor( generated, 192 );
     
-    for( unsigned i = 0; i < 256; i++ ) {
-        std::cout << "P[" << i << "] = " << generated[ i ].getString() << std::endl;
-    }
-    
     return generated;
 }
 
@@ -92,9 +88,29 @@ bool checkColorPalette() {
     }
     if( testColor( 0, color_palette.getIndex( 0 ), FIRST_COLOR, "Palette test", "" ) )
         return false;
-    generateColorPalette();
     
-    return false;
+    auto palette = generateColorPalette();
+    
+    if( palette.size() != 256 ) {
+        std::cout << "The expected size of the palette is not " << palette.size() << " rather than " << 256 << std::endl;
+        return false;
+    }
+    
+    color_palette.setAmount( 16 );
+    
+    for( unsigned i = 0; i < 16; i++ ) {
+        if( !color_palette.setIndex( i, palette[ i ] ) )
+        {
+            std::cout << "The color palette did not set the color when it should not have at index " << i << std::endl;
+            return false;
+        }
+    }
+    for( unsigned i = 0; i < 16; i++ ) {
+        std::string test_string = "Palette at index " + std::to_string( i );
+        if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
+            return false;
+    }
+    
     return true;
 }
 
