@@ -41,9 +41,9 @@ std::vector<Utilities::PixelFormatColor::GenericColor> generateColorPalette()
     return generated;
 }
 
-bool checkColorPalette() {
+bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE) {
     Utilities::PixelFormatColor_R8G8B8 color;
-    Utilities::ColorPalette color_palette( color );
+    Utilities::ColorPalette color_palette( color, endianess );
     const auto FIRST_COLOR = Utilities::PixelFormatColor::GenericColor(1, 0, 0.5, 1);
     
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &color_palette.getColorFormat() ) == nullptr )
@@ -59,6 +59,12 @@ bool checkColorPalette() {
     if( color_palette.setIndex( 0, FIRST_COLOR ) )
     {
         std::cout << "The color palette did set first color when it should." << std::endl;
+        return false;
+    }
+    if( color_palette.getEndian() != endianess )
+    {
+        std::cout << "The color palette is not the correct endian " << color_palette.getEndian()
+            << ", but " << endianess << std::endl;
         return false;
     }
     
@@ -164,7 +170,8 @@ bool checkColorPalette() {
 int main() {
     int problem = 0;
     
-    if( checkColorPalette() )
+    if( checkColorPalette( Utilities::Buffer::Endian::BIG ) &&
+        checkColorPalette( Utilities::Buffer::Endian::LITTLE ) )
     {
         Utilities::PixelFormatColor_R8G8B8 color;
         Utilities::ColorPalette color_palette( color );
