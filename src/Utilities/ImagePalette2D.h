@@ -22,7 +22,9 @@ public:
             delete color_palette_p;
         color_palette_p = nullptr;
     }
-    
+    virtual bool fromReader( Buffer::Reader &reader ) = 0;
+    virtual bool toWriter( Buffer::Writer &writer ) const = 0;
+    virtual bool addToBuffer( Buffer &buffer ) const = 0;
     virtual void flipHorizontally() { GridBase2D<grid_2d_value, placement>::flipHorizontally(); }
     virtual void flipVertically() { GridBase2D<grid_2d_value, placement>::flipVertically(); }
     
@@ -73,9 +75,9 @@ class ImagePalette2D : public ImagePaletteBase2D<Grid2DPlacementNormal> {
 public:
     ImagePalette2D( const ImagePalette2D &image );
     ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
-    virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian );
-    virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const;
-    virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const;
+    virtual bool fromReader( Buffer::Reader &reader );
+    virtual bool toWriter( Buffer::Writer &writer ) const;
+    virtual bool addToBuffer( Buffer &buffer ) const;
     virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& ref );
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const;
     virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 );
@@ -87,9 +89,9 @@ class ImagePaletteMorbin2D : public ImagePaletteBase2D<Grid2DPlacementMorbin> {
 public:
     ImagePaletteMorbin2D( const ImagePaletteMorbin2D &image );
     ImagePaletteMorbin2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
-    virtual bool fromReader( Buffer::Reader &reader, Buffer::Endian endian );
-    virtual bool toWriter( Buffer::Writer &writer, Buffer::Endian endian ) const;
-    virtual bool addToBuffer( Buffer &buffer, Buffer::Endian endian ) const;
+    virtual bool fromReader( Buffer::Reader &reader );
+    virtual bool toWriter( Buffer::Writer &writer ) const;
+    virtual bool addToBuffer( Buffer &buffer ) const;
     virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementMorbin>& ref );
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementMorbin>& sub_image ) const;
     virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 );
