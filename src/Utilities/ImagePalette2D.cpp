@@ -1,5 +1,35 @@
 #include "ImagePalette2D.h"
 
+namespace {
+
+template<class U, class I, class J = I>
+inline void fillInImage( const I &source, U s_x, U s_y, U s_w, U s_h, J &destination, U d_x, U d_y, U d_w, U d_h )
+{
+    auto min = destination.getColorPalette()->getLastIndex();
+    
+    for( U current_x = 0; current_x < d_w; current_x++ )
+    {
+        for( U current_y = 0; current_y < d_h; current_y++ )
+        {
+            destination.writePixel( d_x + current_x, d_y + current_y,
+                std::min( source.getPixelIndex( s_x + current_x, s_y + current_y ), min ) );
+        }
+    }
+}
+
+}
+
+Utilities::ImagePalette2D::ImagePalette2D( const ImagePalette2D &image ) : ImagePalette2D( image.getWidth(), image.getHeight(), *image.getColorPalette() )
+{
+    auto image_destination_r = getDirectGridData();
+    auto image_source_r = image.getDirectGridData();
+    
+    for( size_t i = 0; i < static_cast<size_t>(image.getWidth()) * static_cast<size_t>(image.getHeight()); i++ )
+    {
+        image_destination_r[ i ] = image_source_r[ i ];
+    }
+}
+
 Utilities::ImagePalette2D::ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette ) :  ImagePaletteBase2D<Grid2DPlacementNormal>( width, height, palette )
 {
 }
