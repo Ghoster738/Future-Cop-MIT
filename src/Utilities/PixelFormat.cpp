@@ -303,7 +303,7 @@ bool Utilities::ColorPalette::setAmount( uint16_t amount )
         for( size_t i = 0; i < std::min( palette_buffer_size, buffer.getReader().totalSize() ); i++ )
             buffer_copy.addU8( reader.readU8() );
         
-        buffer.set( buffer_copy.dangerousPointer(), palette_buffer_size);
+        buffer.set( buffer_copy.dangerousPointer(), palette_buffer_size );
         
         return true;
     }

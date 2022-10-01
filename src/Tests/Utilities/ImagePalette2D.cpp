@@ -110,6 +110,12 @@ bool checkColorPalette() {
         if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
             return false;
     }
+    if( color_palette.getLastIndex() != 15 )
+    {
+        std::cout << "The color palette's last index is not 15, but "
+            << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
+        return false;
+    }
     
     color_palette.setAmount( 8 );
     // The color palette should only lose the index values that are high.
@@ -122,6 +128,12 @@ bool checkColorPalette() {
     if( color_palette.setIndex( 8, FIRST_COLOR ) )
     {
         std::cout << "Index 8 at Half-Partial Palete should not be written." << std::endl;
+        return false;
+    }
+    if( color_palette.getLastIndex() != 7 )
+    {
+        std::cout << "The color palette's last index is not 8, but "
+            << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
         return false;
     }
     // Set to full amount.
@@ -138,6 +150,12 @@ bool checkColorPalette() {
         std::string test_string = "Full Palette at index " + std::to_string( i );
         if( testColor( 0, color_palette.getIndex( i ), palette[ i ], test_string, "" ) )
             return false;
+    }
+    if( color_palette.getLastIndex() != 255 )
+    {
+        std::cout << "The color palette's last index is not 256, but "
+            << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
+        return false;
     }
     
     return true;
