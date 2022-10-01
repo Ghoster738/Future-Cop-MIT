@@ -271,7 +271,7 @@ uint_fast8_t Utilities::ColorPalette::getLastIndex() const
 
 Utilities::PixelFormatColor::GenericColor Utilities::ColorPalette::getIndex( palette_index index ) const
 {
-    auto reader = buffer.getReader( index * color_p->byteSize(), color_p->byteSize() );
+    auto reader = buffer.getReader( static_cast<size_t>(index) * color_p->byteSize(), color_p->byteSize() );
     
     return color_p->readPixel( reader, endianess );
 }
@@ -279,9 +279,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::ColorPalette::getIndex( pal
 bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatColor::GenericColor& color )
 {
     if( !empty() && index <= getLastIndex() ) {
-        auto writer = buffer.getWriter( index * color_p->byteSize(), color_p->byteSize() );
+        auto writer = buffer.getWriter( static_cast<size_t>(index) * color_p->byteSize(), color_p->byteSize() );
         
-        color_p->writePixel( writer, endianess, getIndex( index ) );
+        color_p->writePixel( writer, endianess, color );
         
         return true;
     }
