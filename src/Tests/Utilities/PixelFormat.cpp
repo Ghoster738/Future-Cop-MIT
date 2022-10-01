@@ -439,6 +439,18 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
     }
     if( testColor( 0, color_palette.getIndex( 0 ), FIRST_COLOR, "Palette test", "" ) )
         return false;
+    if( color_palette.getReader().totalSize() != 3 )
+    {
+        std::cout << "The color palette's reader should be 3 not "
+            << color_palette.getReader().totalSize() << "." << std::endl;
+        return false;
+    }
+    if( color_palette.getReader( 0 ).totalSize() != 3 )
+    {
+        std::cout << "The color palette's pixel size should be 3 not "
+            << color_palette.getReader( 0 ).totalSize() << "." << std::endl;
+        return false;
+    }
     
     auto palette = generateColorPalette();
     
@@ -467,6 +479,18 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
             << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
         return false;
     }
+    if( color_palette.getReader().totalSize() != 48 )
+    {
+        std::cout << "The color palette's reader should be 48 not "
+            << color_palette.getReader().totalSize() << "." << std::endl;
+        return false;
+    }
+    if( color_palette.getReader( 8 ).totalSize() != 3 )
+    {
+        std::cout << "The color palette's pixel size should be 3 not "
+        << color_palette.getReader( 8 ).totalSize() << "." << std::endl;
+        return false;
+    }
     
     color_palette.setAmount( 8 );
     // The color palette should only lose the index values that are high.
@@ -487,6 +511,19 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
             << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
         return false;
     }
+    if( color_palette.getReader().totalSize() != 24 )
+    {
+        std::cout << "The color palette's reader should be 24 not "
+            << color_palette.getReader().totalSize() << "." << std::endl;
+        return false;
+    }
+    if( color_palette.getReader( 4 ).totalSize() != 3 )
+    {
+        std::cout << "The color palette's pixel size should be 3 not "
+        << color_palette.getReader( 4 ).totalSize() << "." << std::endl;
+        return false;
+    }
+    
     // Set to full amount.
     color_palette.setAmount( 256 );
     
@@ -506,6 +543,18 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
     {
         std::cout << "The color palette's last index is not 256, but "
             << static_cast<unsigned>( color_palette.getLastIndex() ) << "." << std::endl;
+        return false;
+    }
+    if( color_palette.getReader().totalSize() != 768 )
+    {
+        std::cout << "The color palette's reader should be 768 not "
+            << color_palette.getReader().totalSize() << "." << std::endl;
+        return false;
+    }
+    if( color_palette.getReader( 255 ).totalSize() != 3 )
+    {
+        std::cout << "The color palette's pixel size should be 3 not "
+        << color_palette.getReader( 255 ).totalSize() << "." << std::endl;
         return false;
     }
     
