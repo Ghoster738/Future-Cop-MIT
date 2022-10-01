@@ -7,17 +7,6 @@
 #include "TestImage2D.h"
 #include "TestPalette.h"
 
-Utilities::channel_fp compareChannel( Utilities::channel_fp a, Utilities::channel_fp b, Utilities::channel_fp bias = 0.078125 )
-{
-    if( (a-b) > bias || -(a-b) > bias )
-        return true;
-    return false;
-}
-
-void printGeneric( const Utilities::PixelFormatColor::GenericColor generic ) {
-    std::cout << "  Generic " << generic.getString() << std::endl;
-}
-
 int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpolate ) {
     int problem = 0;
     
@@ -42,7 +31,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  At " << i << " the colors do not match." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 //i = 256;
                 problem = 1;
             }
@@ -67,7 +56,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  At (" << w << ", " << a << ") the colors do not match." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 w = 256;
                 a = 256;
                 problem = 1;
@@ -88,7 +77,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  At (" << w << ", " << a << ") the colors do not match." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 w = 256;
                 a = 256;
                 problem = 1;
@@ -116,7 +105,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on red." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 32;
                 problem = 1;
             }
@@ -138,7 +127,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on green." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 32;
                 problem = 1;
             }
@@ -160,7 +149,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on blue." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue) << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue) << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 32;
                 problem = 1;
             }
@@ -186,7 +175,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on red." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -207,7 +196,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on green." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -228,7 +217,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on blue." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -255,7 +244,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on red." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue)  << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue)  << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -277,7 +266,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on green." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue)  << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue)  << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -299,7 +288,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on blue." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue)  << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue)  << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -321,7 +310,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
                 std::cout << "  Color[0] changes on alpha." << std::endl;
                 std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].red) << ", " << static_cast<uint32_t>(color[0].green) << ", " << static_cast<uint32_t>(color[0].blue)  << ", " << static_cast<uint32_t>(color[0].alpha) << std::endl;
                 std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].red) << ", " << static_cast<uint32_t>(color[1].green) << ", " << static_cast<uint32_t>(color[1].blue)  << ", " << static_cast<uint32_t>(color[1].alpha) << std::endl;
-                printGeneric( generic );
+                std::cout << "Generic: "<< generic.getString() << std::endl;
                 v = 256;
                 problem = 1;
             }
@@ -391,16 +380,7 @@ int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::P
     
     auto recovered_generic = format.readPixel( pixel_reader );
     
-    if( modified_generic.red   != recovered_generic.red   ||
-        modified_generic.green != recovered_generic.green ||
-        modified_generic.blue  != recovered_generic.blue  ||
-        modified_generic.alpha != recovered_generic.alpha )
-    {
-        std::cout << display << " pixel operations broken!";
-        printGeneric( modified_generic );
-        printGeneric( recovered_generic );
-        problem = 1;
-    }
+    testColor( problem, modified_generic, recovered_generic, display + " pixel operations broken!", "" );
     
     return problem;
 }
@@ -594,7 +574,7 @@ int main() {
     }
     else
     if( !checkColorPalette( Utilities::Buffer::Endian::LITTLE ) ) {
-        std::cout << "checkColorPalette() BIG has failed." << std::endl;
+        std::cout << "checkColorPalette() LITTLE has failed." << std::endl;
         return 1;
     }
     else
