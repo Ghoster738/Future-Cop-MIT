@@ -64,7 +64,14 @@ public:
     }
     
     bool writePixel( grid_2d_unit x, grid_2d_unit y, uint_fast8_t index ) {
-        return this->setValue( x, y, index );
+        if( index <= getColorPalette()->getLastIndex() )
+            return false;
+        else
+        if( this->size.withinBounds( x, y ) )
+            return false;
+        
+        this->setValue( x, y, index );
+        return true;
     }
     
     virtual Image2D toColorImage() const = 0;
