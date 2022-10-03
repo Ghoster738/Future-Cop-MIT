@@ -35,7 +35,25 @@ Utilities::ImagePalette2D::ImagePalette2D( grid_2d_unit width, grid_2d_unit heig
 }
 
 bool Utilities::ImagePalette2D::fromReader( Buffer::Reader &reader ) {
-    return false;
+    
+    const size_t TOTAL_PIXELS = getWidth() * getHeight();
+    
+    if( reader.totalSize() < TOTAL_PIXELS )
+        return false;
+    else
+    {
+        grid_2d_unit x, y;
+        
+        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
+        {
+            // Gather the x and y cordinates.
+            placement.getCoordinates( i, x, y );
+            
+            this->setValue( x, y, std::min( reader.readU8(), getColorPalette()->getLastIndex() ) );
+        }
+        
+        return true;
+    }
 }
 
 bool Utilities::ImagePalette2D::toWriter( Buffer::Writer &writer ) const {
