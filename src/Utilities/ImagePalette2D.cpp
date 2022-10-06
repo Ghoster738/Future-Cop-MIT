@@ -25,9 +25,7 @@ Utilities::ImagePalette2D::ImagePalette2D( const ImagePalette2D &image ) : Image
     auto image_source_r = image.getDirectGridData();
     
     for( size_t i = 0; i < static_cast<size_t>(image.getWidth()) * static_cast<size_t>(image.getHeight()); i++ )
-    {
         image_destination_r[ i ] = image_source_r[ i ];
-    }
 }
 
 Utilities::ImagePalette2D::ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette ) :  ImagePaletteBase2D<Grid2DPlacementNormal>( width, height, palette )
@@ -57,22 +55,59 @@ bool Utilities::ImagePalette2D::fromReader( Buffer::Reader &reader ) {
 }
 
 bool Utilities::ImagePalette2D::toWriter( Buffer::Writer &writer ) const {
-    return false;
+    const size_t TOTAL_PIXELS = this->getWidth() * this->getHeight();
+    
+    if( writer.totalSize() < TOTAL_PIXELS )
+        return false;
+    else
+    {
+        grid_2d_unit x, y;
+        
+        for( size_t i = 0; i < TOTAL_PIXELS; i++ )
+        {
+            // Gather the x and y cordinates.
+            placement.getCoordinates( i, x, y );
+            
+            writer.writeU8( this->getValue( x, y ) );
+        }
+        
+        return true;
+    }
 }
 
 bool Utilities::ImagePalette2D::addToBuffer( Buffer &buffer ) const{
-    return false;
+    const size_t TOTAL_PIXELS = getWidth() * getHeight();
+    
+    const auto STARTING_POSITION = buffer.getReader().totalSize();
+    buffer.allocate( TOTAL_PIXELS );
+    
+    auto writer = buffer.getWriter( STARTING_POSITION );
+    
+    return toWriter( writer );
 }
 
 bool Utilities::ImagePalette2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& ref ){
     return false;
 }
 
-bool Utilities::ImagePalette2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const{
-    return false;
+bool Utilities::ImagePalette2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const {
+    auto dyn_p = dynamic_cast<ImagePalette2D*>( &sub_image );
+    
+    if( dyn_p != nullptr &&
+        x + width <= getWidth() &&
+        y + height <= getHeight() )
+    {
+        dyn_p->setDimensions( width, height );
+
+        fillInImage<grid_2d_unit, ImagePalette2D>( *this, x, y, width, height, *dyn_p, 0, 0, width, height );
+
+        return true;
+    }
+    else
+        return false;
 }
 
-bool Utilities::ImagePalette2D::fromBitfield( const std::bitset<1> &packed, unsigned bitAmount )
+bool Utilities::ImagePalette2D::fromBitfield( const std::bitset<1> &packed, unsigned bit_amount )
 {
     return false;
 }
