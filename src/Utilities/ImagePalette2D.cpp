@@ -86,8 +86,16 @@ bool Utilities::ImagePalette2D::addToBuffer( Buffer &buffer ) const{
     return toWriter( writer );
 }
 
-bool Utilities::ImagePalette2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& ref ){
-    return false;
+bool Utilities::ImagePalette2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ){
+    if( x + sub_image.getWidth() <= getWidth() &&
+        y + sub_image.getHeight() <= getHeight() )
+    {
+        fillInImage<grid_2d_unit, ImagePaletteBase2D<Grid2DPlacementNormal>, ImagePalette2D>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), *this, x, y, sub_image.getWidth(), sub_image.getHeight() );
+
+        return true;
+    }
+    else
+        return false;
 }
 
 bool Utilities::ImagePalette2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const {
