@@ -159,8 +159,32 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::bitset<1> &packed, unsi
 
 Utilities::Image2D Utilities::ImagePalette2D::toColorImage() const
 {
+    Utilities::Image2D image( getWidth(), getHeight(), getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
+    
+    // TODO Find a faster algorithm for the case that the placement order is the same.
+    
+    for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
+    {
+        for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
+        {
+            image.writePixel( current_x, current_y, readPixel( current_x, current_y ) );
+        }
+    }
+        
+    return image;
 }
 
 Utilities::ImageMorbin2D Utilities::ImagePalette2D::toColorMorbinImage() const
 {
+    Utilities::ImageMorbin2D image( getWidth(), getHeight(), getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
+    
+    for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
+    {
+        for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
+        {
+            image.writePixel( current_x, current_y, readPixel( current_x, current_y ) );
+        }
+    }
+    
+    return image;
 }
