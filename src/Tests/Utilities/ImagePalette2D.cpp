@@ -34,22 +34,54 @@ int main() {
         }
     }
     
-    const unsigned JULIA_WIDTH = 16, JULIA_HEIGHT = 16;
-    
     // Generate the julia set first.
-    Utilities::GridBase2D<float> test_julia_set( JULIA_WIDTH, JULIA_HEIGHT );
+    Utilities::GridBase2D<float> test_julia_set( 16, 16 );
     
     {
-        const glm::vec2 RES_VEC( JULIA_WIDTH, JULIA_HEIGHT );
+        const glm::vec2 RES_VEC( test_julia_set.getWidth(), test_julia_set.getHeight() );
         
-        for( unsigned w = 0; w < JULIA_WIDTH; w++ ) {
-            for( unsigned h = 0; h < JULIA_HEIGHT; h++ ) {
+        for( unsigned w = 0; w < test_julia_set.getWidth(); w++ ) {
+            for( unsigned h = 0; h < test_julia_set.getHeight(); h++ ) {
                 test_julia_set.setValue( w, h, juliaFractal( glm::vec2( w, h ) / RES_VEC * glm::vec2( 0.2 ) ) );
             }
         }
     }
     
-    Utilities::ImagePalette2D image( JULIA_WIDTH, JULIA_HEIGHT, color_palette );
+    const std::string julia_image = "Julia Image";
+    
+    // Finally generate the image.
+    Utilities::ImagePalette2D image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
+    
+    problem = testScale<Utilities::ImagePalette2D>( image, test_julia_set.getWidth(), test_julia_set.getHeight(), julia_image );
+    
+    // Apply the julia set to this image.
+    {
+        auto const MAX_INDEX = static_cast<float>( color_palette.getLastIndex() );
+        
+        for( unsigned w = 0; w < image.getWidth(); w++ ) {
+            for( unsigned h = 0; h < image.getHeight(); h++ ) {
+                auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
+                
+                image.writePixel( w, h, VALUE );
+            }
+        }
+    }
+    
+    // Test the pixels
+    {
+        auto const MAX_INDEX = static_cast<float>( color_palette.getLastIndex() );
+        
+        for( unsigned w = 0; w < image.getWidth(); w++ ) {
+            for( unsigned h = 0; h < image.getHeight(); h++ ) {
+                auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
+                
+                auto const SOURCE    = image.readPixel( w, h );
+                auto const REFERENCE = color_palette.getIndex( VALUE );
+                
+                problem = testColor( problem, SOURCE, REFERENCE, julia_image, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
+            }
+        }
+    }
     
     return problem;
 }
