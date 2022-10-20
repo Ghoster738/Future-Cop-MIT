@@ -34,7 +34,22 @@ int main() {
         }
     }
     
-    Utilities::ImagePalette2D image( 16, 16, color_palette );
+    const unsigned JULIA_WIDTH = 16, JULIA_HEIGHT = 16;
+    
+    // Generate the julia set first.
+    Utilities::GridBase2D<float> test_julia_set( JULIA_WIDTH, JULIA_HEIGHT );
+    
+    {
+        const glm::vec2 RES_VEC( JULIA_WIDTH, JULIA_HEIGHT );
+        
+        for( unsigned w = 0; w < JULIA_WIDTH; w++ ) {
+            for( unsigned h = 0; h < JULIA_HEIGHT; h++ ) {
+                test_julia_set.setValue( w, h, juliaFractal( glm::vec2( w, h ) / RES_VEC * glm::vec2( 0.2 ) ) );
+            }
+        }
+    }
+    
+    Utilities::ImagePalette2D image( JULIA_WIDTH, JULIA_HEIGHT, color_palette );
     
     return problem;
 }
