@@ -64,10 +64,10 @@ public:
     }
     
     bool writePixel( grid_2d_unit x, grid_2d_unit y, uint_fast8_t index ) {
-        if( index <= getColorPalette()->getLastIndex() )
+        if( index > getColorPalette()->getLastIndex() )
             return false;
         else
-        if( this->size.withinBounds( x, y ) )
+        if( !this->size.withinBounds( x, y ) )
             return false;
         
         this->setValue( x, y, index );
