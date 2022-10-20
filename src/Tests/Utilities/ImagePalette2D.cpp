@@ -40,11 +40,20 @@ int main() {
     {
         const glm::vec2 RES_VEC( test_julia_set.getWidth(), test_julia_set.getHeight() );
         
+        float max = std::numeric_limits<float>::min();
+        float min = std::numeric_limits<float>::max();
+        
         for( unsigned w = 0; w < test_julia_set.getWidth(); w++ ) {
             for( unsigned h = 0; h < test_julia_set.getHeight(); h++ ) {
                 test_julia_set.setValue( w, h, juliaFractal( glm::vec2( w, h ) / RES_VEC * glm::vec2( 0.2 ) ) );
+                
+                max = std::max( test_julia_set.getValue( w, h ), max );
+                min = std::min( test_julia_set.getValue( w, h ), min );
             }
         }
+        
+        // TO DO Finish normalization algorithm.
+        // Force the range to be from 0 to 255 for max palette coverage.
     }
     
     const std::string julia_image = "Julia Image";
@@ -62,7 +71,10 @@ int main() {
             for( unsigned h = 0; h < image.getHeight(); h++ ) {
                 auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
                 
-                image.writePixel( w, h, VALUE );
+                if( !image.writePixel( w, h, VALUE ) && problem == 0 ) {
+                    problem = 1;
+                    std::cout << "Failure to write pixel at (" << w << ", " << h << ")" << std::endl;
+                }
             }
         }
     }
