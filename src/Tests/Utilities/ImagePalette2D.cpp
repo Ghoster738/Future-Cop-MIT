@@ -34,14 +34,14 @@ int main() {
         }
     }
     
-    // Generate the julia set first.
+    // Generate the julia set.
     Utilities::GridBase2D<float> test_julia_set( 16, 16 );
     
     {
         const glm::vec2 RES_VEC( test_julia_set.getWidth(), test_julia_set.getHeight() );
         
-        float max = std::numeric_limits<float>::min();
-        float min = std::numeric_limits<float>::max();
+        auto max = std::numeric_limits<float>::min();
+        auto min = std::numeric_limits<float>::max();
         
         for( unsigned w = 0; w < test_julia_set.getWidth(); w++ ) {
             for( unsigned h = 0; h < test_julia_set.getHeight(); h++ ) {
@@ -52,8 +52,16 @@ int main() {
             }
         }
         
-        // TO DO Finish normalization algorithm.
-        // Force the range to be from 0 to 255 for max palette coverage.
+        // The normalization is needed to test all the colors.
+        const auto expand = 1 / (max - min);
+        
+        for( unsigned w = 0; w < test_julia_set.getWidth(); w++ ) {
+            for( unsigned h = 0; h < test_julia_set.getHeight(); h++ ) {
+                auto value = (test_julia_set.getValue( w, h ) - min) * expand;
+                
+                test_julia_set.setValue( w, h, value );
+            }
+        }
     }
     
     const std::string julia_image = "Julia Image";
