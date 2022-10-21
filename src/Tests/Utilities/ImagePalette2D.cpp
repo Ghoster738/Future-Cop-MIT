@@ -133,7 +133,14 @@ int main() {
         const std::string julia_image = "Julia Image Constructor( const ImagePalette2D &image )";
         
         problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
-    }
+    }/*
+    {
+        Utilities::ImagePaletteMorbin2D image_copy( image );
+        
+        const std::string julia_image = "Julia Image Constructor( const ImagePaletteMorbin2D &image )";
+        
+        problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
+    } */
     
     return problem;
 }
