@@ -5,6 +5,62 @@
 #include "TestImage2D.h"
 #include "TestPalette.h"
 
+int testImage( Utilities::ImagePalette2D &image, const std::string &julia_image, const Utilities::ColorPalette& color_palette, Utilities::GridBase2D<float> test_julia_set ) {
+    int problem = 0;
+    
+    if( image.getColorPalette() == &color_palette ) {
+        // I am pretty sure this test will not fail.
+        problem |= 1;
+        std::cout << "Color Palette is supposed to be duplicated for " << julia_image << std::endl;
+        return problem;
+    }
+    
+    // Also make sure that the sizes match for the color palettes.
+    if( image.getColorPalette()->getLastIndex() != color_palette.getLastIndex() ) {
+        problem |= 1;
+        std::cout << "Color Palette of the image does not have the same number of colors for " << julia_image << std::endl;
+        std::cout << "  image palette " << static_cast<unsigned>( image.getColorPalette()->getLastIndex() ) << std::endl;
+        std::cout << "  original palette " << static_cast<unsigned>( color_palette.getLastIndex() ) << std::endl;
+        return problem;
+    }
+    
+    problem |= testScale<Utilities::ImagePalette2D>( image, test_julia_set.getWidth(), test_julia_set.getHeight(), julia_image );
+    
+    // Apply the julia set to this image.
+    {
+        auto const MAX_INDEX = static_cast<float>( color_palette.getLastIndex() );
+        
+        for( unsigned w = 0; w < image.getWidth(); w++ ) {
+            for( unsigned h = 0; h < image.getHeight(); h++ ) {
+                auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
+                
+                if( !image.writePixel( w, h, VALUE ) && problem == 0 ) {
+                    problem |= 1;
+                    std::cout << "Failure to write pixel at (" << w << ", " << h << ")" << std::endl;
+                }
+            }
+        }
+    }
+    
+    // Test the pixels
+    {
+        auto const MAX_INDEX = static_cast<float>( color_palette.getLastIndex() );
+        
+        for( unsigned w = 0; w < image.getWidth(); w++ ) {
+            for( unsigned h = 0; h < image.getHeight(); h++ ) {
+                auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
+                
+                auto const SOURCE    = image.readPixel( w, h );
+                auto const REFERENCE = color_palette.getIndex( VALUE );
+                
+                problem |= testColor( problem, SOURCE, REFERENCE, julia_image, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
+            }
+        }
+    }
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -64,60 +120,20 @@ int main() {
         }
     }
     
-    const std::string julia_image = "Julia Image";
+    const std::string julia_image = "Julia Image Constructor( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette )";
     
     // Finally generate the image.
     Utilities::ImagePalette2D image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
     
-    if( image.getColorPalette() == &color_palette ) {
-        // I am pretty sure this test will not fail.
-        problem |= 1;
-        std::cout << "Color Palette is supposed to be duplicated for " << julia_image << std::endl;
-    }
+    problem |= testImage( image, julia_image, color_palette, test_julia_set );
     
-    // Also make sure that the sizes match for the color palettes.
-    if( image.getColorPalette()->getLastIndex() != color_palette.getLastIndex() ) {
-        problem |= 1;
-        std::cout << "Color Palette of the image does not have the same number of colors for " << julia_image << std::endl;
-        std::cout << "  image palette " << static_cast<unsigned>( image.getColorPalette()->getLastIndex() ) << std::endl;
-        std::cout << "  original palette " << static_cast<unsigned>( color_palette.getLastIndex() ) << std::endl;
-    }
-    
-    problem |= testScale<Utilities::ImagePalette2D>( image, test_julia_set.getWidth(), test_julia_set.getHeight(), julia_image );
-    
-    // Apply the julia set to this image.
     {
-        auto const MAX_INDEX = static_cast<float>( color_palette.getLastIndex() );
+        Utilities::ImagePalette2D image_copy( image );
         
-        for( unsigned w = 0; w < image.getWidth(); w++ ) {
-            for( unsigned h = 0; h < image.getHeight(); h++ ) {
-                auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
-                
-                if( !image.writePixel( w, h, VALUE ) && problem == 0 ) {
-                    problem |= 1;
-                    std::cout << "Failure to write pixel at (" << w << ", " << h << ")" << std::endl;
-                }
-            }
-        }
-    }
-    
-    // Test the pixels
-    {
-        auto const MAX_INDEX = static_cast<float>( color_palette.getLastIndex() );
+        const std::string julia_image = "Julia Image Constructor( const ImagePalette2D &image )";
         
-        for( unsigned w = 0; w < image.getWidth(); w++ ) {
-            for( unsigned h = 0; h < image.getHeight(); h++ ) {
-                auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
-                
-                auto const SOURCE    = image.readPixel( w, h );
-                auto const REFERENCE = color_palette.getIndex( VALUE );
-                
-                problem |= testColor( problem, SOURCE, REFERENCE, julia_image, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
-            }
-        }
+        problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
     }
-    
-    
     
     return problem;
 }
