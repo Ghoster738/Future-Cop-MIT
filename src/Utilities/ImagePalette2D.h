@@ -74,12 +74,16 @@ public:
         return true;
     }
     
+    const grid_2d_value *const getDirectGridData() const { return const_cast<ImagePaletteBase2D *>( this )->getDirectGridData(); }
+    grid_2d_value * getDirectGridData() { return GridBase2D<grid_2d_value, placement>::getDirectGridData(); }
+    
     virtual Image2D toColorImage() const = 0;
     virtual ImageMorbin2D toColorMorbinImage() const = 0;
 };
 
 class ImagePalette2D : public ImagePaletteBase2D<Grid2DPlacementNormal> {
 public:
+    // ImagePalette2D( const ImagePaletteBase2D &image ); // TODO Make this into a morbin converter some how.
     ImagePalette2D( const ImagePalette2D &image );
     ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
     virtual bool fromReader( Buffer::Reader &reader );
