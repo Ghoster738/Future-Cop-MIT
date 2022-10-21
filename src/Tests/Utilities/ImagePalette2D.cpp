@@ -17,7 +17,7 @@ int main() {
         
         if( !color_palette.setAmount( colors.size() ) )
         {
-            problem = 1;
+            problem |= 1;
             std::cout << "Color Palette generation failed!" << std::endl;
             std::cout << "  Could not resize to " << colors.size() << std::endl;
         }
@@ -26,7 +26,7 @@ int main() {
             for( size_t i = 0; i < colors.size(); i++ ) {
                 if( !color_palette.setIndex( i, colors[ i ] ) && problem == 0 )
                 {
-                    problem = 1;
+                    problem |= 1;
                     std::cout << "setIndex at " << i << " has failed" << std::endl;
                     std::cout << " at this color: " << colors[ i ].getString() << std::endl;
                 }
@@ -69,7 +69,21 @@ int main() {
     // Finally generate the image.
     Utilities::ImagePalette2D image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
     
-    problem = testScale<Utilities::ImagePalette2D>( image, test_julia_set.getWidth(), test_julia_set.getHeight(), julia_image );
+    if( image.getColorPalette() == &color_palette ) {
+        // I am pretty sure this test will not fail.
+        problem |= 1;
+        std::cout << "Color Palette is supposed to be duplicated for " << julia_image << std::endl;
+    }
+    
+    // Also make sure that the sizes match for the color palettes.
+    if( image.getColorPalette()->getLastIndex() != color_palette.getLastIndex() ) {
+        problem |= 1;
+        std::cout << "Color Palette of the image does not have the same number of colors for " << julia_image << std::endl;
+        std::cout << "  image palette " << static_cast<unsigned>( image.getColorPalette()->getLastIndex() ) << std::endl;
+        std::cout << "  original palette " << static_cast<unsigned>( color_palette.getLastIndex() ) << std::endl;
+    }
+    
+    problem |= testScale<Utilities::ImagePalette2D>( image, test_julia_set.getWidth(), test_julia_set.getHeight(), julia_image );
     
     // Apply the julia set to this image.
     {
@@ -80,7 +94,7 @@ int main() {
                 auto const VALUE = test_julia_set.getValue( w, h ) * MAX_INDEX;
                 
                 if( !image.writePixel( w, h, VALUE ) && problem == 0 ) {
-                    problem = 1;
+                    problem |= 1;
                     std::cout << "Failure to write pixel at (" << w << ", " << h << ")" << std::endl;
                 }
             }
@@ -98,10 +112,12 @@ int main() {
                 auto const SOURCE    = image.readPixel( w, h );
                 auto const REFERENCE = color_palette.getIndex( VALUE );
                 
-                problem = testColor( problem, SOURCE, REFERENCE, julia_image, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
+                problem |= testColor( problem, SOURCE, REFERENCE, julia_image, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
             }
         }
     }
+    
+    
     
     return problem;
 }
