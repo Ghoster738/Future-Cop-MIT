@@ -125,6 +125,7 @@ int main() {
     // Finally generate the image.
     Utilities::ImagePalette2D image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
     
+    // Generate and test
     problem |= testImage( image, julia_image, color_palette, test_julia_set );
     
     {
@@ -141,6 +142,96 @@ int main() {
         
         problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
     } */
+    {
+        Utilities::ImagePalette2D image_copy( test_julia_set.getWidth() * 2, test_julia_set.getHeight() * 2, color_palette );
+        
+        const std::string inscribe_sub_image = "Inscribe Sub Image";
+        
+        // Draw the background.
+        for( unsigned w = 0; w < image_copy.getWidth(); w++ ) {
+            for( unsigned h = 0; h < image_copy.getHeight(); h++ ) {
+                if( !image_copy.writePixel( w, h, 0 ) && problem == 0 ) {
+                    problem |= 1;
+                    std::cout << "Failure to write pixel at (" << w << ", " << h << ") for " << inscribe_sub_image << std::endl;
+                }
+            }
+        }
+        
+        // Test the inscribe sub image methods.
+        if( image_copy.inscribeSubImage( test_julia_set.getWidth() + 1, 0, image ) )
+        {
+            problem |= 1;
+            std::cout << inscribe_sub_image << " inscribeSubImage() too much width method had succeeded." << std::endl;
+        }
+        if( image_copy.inscribeSubImage( 0, test_julia_set.getHeight() + 1, image ) )
+        {
+            problem |= 1;
+            std::cout << inscribe_sub_image << " inscribeSubImage() too much hieght method had succeeded." << std::endl;
+        }
+        if( !image_copy.inscribeSubImage( test_julia_set.getWidth() / 2, test_julia_set.getHeight() / 2, image ) )
+        {
+            problem |= 1;
+            std::cout << inscribe_sub_image << " inscribeSubImage() method had failed." << std::endl;
+        }
+        
+        // Test for the Julia Set
+        for( unsigned w = 0; w < test_julia_set.getWidth(); w++ ) {
+            for( unsigned h = 0; h < test_julia_set.getHeight(); h++ ) {
+                auto const SOURCE = image_copy.readPixel( test_julia_set.getWidth() / 2 + w, test_julia_set.getHeight() / 2 + h );
+                auto const REFERENCE = image.readPixel( w, h );
+                
+                problem |= testColor( problem, SOURCE, REFERENCE, inscribe_sub_image, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
+            }
+        }
+        
+        // Test the rest of the image_copy to see if they comprise of the first index.
+        // Bascially, it scans everywhere except where the Julia Set is placed.
+        
+        // This spans from the width of the image_copy.
+        for( unsigned w = 0; w < image_copy.getWidth(); w++ ) {
+            // Test top of the image_copy until it lowers to the Julia Set.
+            for( unsigned h = 0; h < test_julia_set.getHeight() / 2; h++ ) {
+                if( problem == 0 && image_copy.getPixelIndex( w, h ) != 0 ) {
+                    problem = 1;
+                    std::cout << inscribe_sub_image << "( " << w << ", " << h << " ) = ";
+                    std::cout << static_cast<unsigned>(image_copy.getPixelIndex( w, h )) << std::endl;
+                }
+            }
+            // Test the area bellow the Julia Set.
+            for( unsigned h = image_copy.getHeight() - test_julia_set.getHeight() / 2; h < image_copy.getHeight(); h++ ) {
+                if( problem == 0 && image_copy.getPixelIndex( w, h ) != 0 ) {
+                    problem = 1;
+                    std::cout << inscribe_sub_image << "( " << w << ", " << h << " ) = ";
+                    std::cout << static_cast<unsigned>(image_copy.getPixelIndex( w, h )) << std::endl;
+                }
+            }
+        }
+        
+        // Test the sides of the sub_image.
+        for( unsigned w = 0; w < test_julia_set.getWidth() / 2; w++ ) {
+            // Test the left side of the area next to the Julia Set
+            for( unsigned h = test_julia_set.getHeight() / 2; h < test_julia_set.getHeight() / 2 + test_julia_set.getHeight(); h++ ) {
+                if( problem == 0 && image_copy.getPixelIndex( w, h ) != 0 ) {
+                    problem = 1;
+                    std::cout << inscribe_sub_image << "( " << w << ", " << h << " ) = ";
+                    std::cout << static_cast<unsigned>(image_copy.getPixelIndex( w, h )) << std::endl;
+                }
+            }
+            
+            // Test the right side of the area next to the Julia Set.
+            auto x = w + test_julia_set.getWidth() / 2 + test_julia_set.getWidth();
+            
+            for( unsigned h = test_julia_set.getHeight() / 2; h < test_julia_set.getHeight() / 2 + test_julia_set.getHeight(); h++ ) {
+                
+                if( problem == 0 && image_copy.getPixelIndex( x, h ) != 0 ) {
+                    problem = 1;
+                    std::cout << inscribe_sub_image << "( " << x << ", " << h << " ) = ";
+                    std::cout << static_cast<unsigned>(image_copy.getPixelIndex( x, h )) << std::endl;
+                }
+            }
+        }
+    }
+    
     
     return problem;
 }
