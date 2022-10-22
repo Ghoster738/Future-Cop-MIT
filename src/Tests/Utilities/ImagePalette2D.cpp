@@ -230,6 +230,38 @@ int main() {
                 }
             }
         }
+        
+        // Test the sub image operation.
+        Utilities::ImagePalette2D sub_image( 0, 0, color_palette );
+        
+        const std::string sub_image_name = "Sub Image";
+        
+        if( image_copy.subImage( image_copy.getWidth() + 1, 0, test_julia_set.getWidth(), test_julia_set.getHeight(), sub_image ) ) {
+            problem = 1;
+            std::cout << sub_image_name << " subImage() method had succeeded when the sub image went out of bounds";
+            std::cout << " on the x-axis." << std::endl;
+        }
+        if( image_copy.subImage( 0, image_copy.getHeight() + 1, test_julia_set.getWidth(), test_julia_set.getHeight(), sub_image ) ) {
+            problem = 1;
+            std::cout << sub_image_name << " subImage() method had succeeded when the sub image went out of bounds";
+            std::cout << " on the y-axis." << std::endl;
+        }
+        
+        if( !image_copy.subImage( test_julia_set.getWidth() / 2, test_julia_set.getHeight() / 2, test_julia_set.getWidth(), test_julia_set.getHeight(), sub_image ) ) {
+            problem = 1;
+            std::cout << sub_image_name << " subImage() method had failed when it was prefectly fine." << std::endl;
+        }
+        else
+        {
+            for( unsigned w = 0; w < sub_image.getWidth(); w++ ) {
+                for( unsigned h = 0; h < sub_image.getHeight(); h++ ) {
+                    auto const SOURCE    = sub_image.readPixel( w, h );
+                    auto const REFERENCE = image.readPixel( w, h );
+                    
+                    problem |= testColor( problem, SOURCE, REFERENCE, sub_image_name, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
+                }
+            }
+        }
     }
     
     
