@@ -51,6 +51,23 @@ Utilities::ImageData::ImageData( unsigned int width, unsigned int height, Type t
     setFormat( type, bytes_per_channel );
 }
 
+Utilities::ImageData::ImageData( const Image2D::ImageBase2D& image ) : ImageData( image.getWidth(), image.getHeight(), RED_GREEN_BLUE_ALHPA, 1) {
+    auto point_r = this->getRawImageData();
+    
+    for( unsigned int x = 0; x < this->width; x++ ) {
+        for( unsigned int y = 0; y < this->height; y++ ) {
+            auto COLOR = image.readPixel( x, y );
+            
+            point_r[ 0 ] = COLOR.red * 255.0;
+            point_r[ 1 ] = COLOR.green * 255.0;
+            point_r[ 2 ] = COLOR.blue * 255.0;
+            point_r[ 3 ] = COLOR.alpha * 255.0;
+            
+            point_r += this->getBytesPerChannel();
+        }
+    }
+}
+
 Utilities::ImageData Utilities::ImageData::subImage( unsigned int x, unsigned int y, unsigned int width, unsigned int height ) const {
     if( x + width <= this->width && y + height <= this->height ) {
         ImageData sub_image( width, height, this->type, this->bytes_per_channel );
