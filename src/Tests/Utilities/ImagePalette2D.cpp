@@ -252,8 +252,6 @@ int main() {
             }
         }
         
-        exportImage( image_copy, "Image" );
-        
         // Test the sub image operation.
         Utilities::ImagePalette2D sub_image( 0, 0, color_palette );
         
