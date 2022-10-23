@@ -256,7 +256,7 @@ int main() {
         }
         
         //
-        Utilities::ImageData export_image( image_copy );
+        Utilities::ImageData export_image( image );
         
         Utilities::ImageFormat::Chooser chooser;
         
@@ -267,7 +267,7 @@ int main() {
             
             int state = the_choosen_r->write( export_image, buffer );
 
-            buffer.write( the_choosen_r->appendExtension( "Paletted Image" ) );
+            buffer.write( the_choosen_r->appendExtension( "Paletted Image 2" ) );
             
         }
         
