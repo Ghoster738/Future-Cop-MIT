@@ -274,14 +274,7 @@ int main() {
         }
         else
         {
-            for( unsigned w = 0; w < sub_image.getWidth(); w++ ) {
-                for( unsigned h = 0; h < sub_image.getHeight(); h++ ) {
-                    auto const SOURCE    = sub_image.readPixel( w, h );
-                    auto const REFERENCE = image.readPixel( w, h );
-                    
-                    problem |= testColor( problem, SOURCE, REFERENCE, sub_image_name, " (" + std::to_string(w) + ", " + std::to_string(h) + ")" );
-                }
-            }
+            problem |= compareImage2D<Utilities::ImagePalette2D>( sub_image, image, sub_image_name );
         }
     }
     
