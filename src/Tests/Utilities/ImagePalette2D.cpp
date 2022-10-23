@@ -139,7 +139,23 @@ int main() {
         const std::string julia_image = "Julia Image Constructor( const ImagePalette2D &image )";
         
         problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
-    }/*
+    }
+    { // Test Image2D generation.
+        auto image_copy = image.toColorImage();
+        const std::string unpaletted_image = "Unpaletted Image";
+        
+        problem |= testScale<Utilities::Image2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
+        
+        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::Image2D>( image, image_copy, unpaletted_image );
+    }
+    { // Test MorbinImage2D generation.
+        auto image_copy = image.toColorMorbinImage();
+        const std::string unpaletted_image = "Unpaletted Morbin Image";
+        
+        problem |= testScale<Utilities::ImageMorbin2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
+        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( image, image_copy, unpaletted_image );
+    }
+    /*
     {
         Utilities::ImagePaletteMorbin2D image_copy( image );
         
