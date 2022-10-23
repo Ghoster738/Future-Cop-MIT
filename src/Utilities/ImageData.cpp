@@ -63,7 +63,7 @@ Utilities::ImageData::ImageData( const Image2D::ImageBase2D& image ) : ImageData
             point_r[ 2 ] = COLOR.blue * 255.0;
             point_r[ 3 ] = COLOR.alpha * 255.0;
             
-            point_r += this->getBytesPerChannel();
+            point_r += this->getPixelSize();
         }
     }
 }
