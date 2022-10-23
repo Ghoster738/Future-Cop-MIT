@@ -1,6 +1,8 @@
 #ifndef DATA_IMAGE_HEADER
 #define DATA_IMAGE_HEADER
 
+#include "Image2D.h"
+
 #include <vector>
 #include <stdint.h>
 
@@ -19,6 +21,7 @@ public:
     ImageData();
     ImageData( const ImageData &obj );
     ImageData( unsigned int width, unsigned int height, Type type, unsigned int bytes_per_channel );
+    ImageData( const Image2D::ImageBase2D& image );
 
     /**
      * @return the image's width.
