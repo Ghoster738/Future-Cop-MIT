@@ -1,6 +1,9 @@
 #ifndef TEST_IMAGE_2D_H
 #define TEST_IMAGE_2D_H
 
+#include "../../Utilities/ImageData.h"
+#include "../../Utilities/ImageFormat/Chooser.h"
+
 int testColor( int problem,
                Utilities::PixelFormatColor::GenericColor source,
                Utilities::PixelFormatColor::GenericColor actual,
@@ -115,6 +118,25 @@ int testCopyOperator( const I &source, const I &copy, Utilities::grid_2d_unit WI
     problem |= compareImage2D<I>( source, copy, name, bias );
     
     return problem;
+}
+
+int exportImage( const Utilities::Image2D::ImageBase2D &image, std::string name ) {
+    Utilities::ImageData export_image( image );
+    int state = 0;
+    
+    Utilities::ImageFormat::Chooser chooser;
+    
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( export_image );
+    
+    if( the_choosen_r != nullptr ) {
+        Utilities::Buffer buffer;
+        
+        state = the_choosen_r->write( export_image, buffer );
+
+        buffer.write( the_choosen_r->appendExtension( name ) );
+    }
+    
+    return state;
 }
 
 #endif
