@@ -99,7 +99,7 @@ int main() {
     }
     
     // Generate the julia set.
-    Utilities::GridBase2D<float> test_julia_set( 16, 16 );
+    Utilities::GridBase2D<float> test_julia_set( 64, 64 );
     
     {
         const glm::vec2 RES_VEC( test_julia_set.getWidth(), test_julia_set.getHeight() );
@@ -256,7 +256,7 @@ int main() {
         }
         
         //
-        Utilities::ImageData export_image( image );
+        Utilities::ImageData export_image( image_copy );
         
         Utilities::ImageFormat::Chooser chooser;
         
@@ -267,7 +267,7 @@ int main() {
             
             int state = the_choosen_r->write( export_image, buffer );
 
-            buffer.write( the_choosen_r->appendExtension( "Paletted Image 2" ) );
+            buffer.write( the_choosen_r->appendExtension( "Paletted Image" ) );
             
         }
         
