@@ -332,8 +332,25 @@ int main() {
             1, 0, 0,  1, 0, 1,  1, 1, 0,  1, 1, 1
         } );
         
+        {
+            Utilities::ImagePalette2D simple_rect_image( 4, 4, color_palette );
+            
+            if( simple_rect_image.fromBitfield( SIMPLE_RECT, 3 ) ) {
+                std::cout << simple_rect_name << " bitfield succed to form with buffer overflow" << std::endl;
+                problem |= 1;
+            }
+        }
+        
         Utilities::ImagePalette2D simple_rect_image( 4, 2, color_palette );
         
+        if( simple_rect_image.fromBitfield( SIMPLE_RECT, 0 ) ) {
+            std::cout << simple_rect_name << " bitfield succeed at 0." << std::endl;
+            problem |= 1;
+        }
+        if( simple_rect_image.fromBitfield( SIMPLE_RECT, 9 ) ) {
+            std::cout << simple_rect_name << " bitfield succeed at 9." << std::endl;
+            problem |= 1;
+        }
         if( !simple_rect_image.fromBitfield( SIMPLE_RECT, 3 ) ) {
             std::cout << simple_rect_name << " bitfield failed to form." << std::endl;
             problem |= 1;
