@@ -53,7 +53,7 @@ public:
 
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<placement>& sub_image ) const = 0;
     
-    virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 ) = 0;
+    virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 ) = 0;
     
     uint_fast8_t getPixelIndex( grid_2d_unit x, grid_2d_unit y ) const {
         return this->getValue( x, y );
@@ -91,7 +91,7 @@ public:
     virtual bool addToBuffer( Buffer &buffer ) const;
     virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& ref );
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const;
-    virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 );
+    virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 );
     virtual Image2D toColorImage() const;
     virtual ImageMorbin2D toColorMorbinImage() const;
 };
@@ -105,7 +105,7 @@ public:
     virtual bool addToBuffer( Buffer &buffer ) const;
     virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementMorbin>& ref );
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementMorbin>& sub_image ) const;
-    virtual bool fromBitfield( const std::bitset<1> &packed, unsigned bitAmount = 1 );
+    virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 );
     virtual Image2D toColorImage() const;
     virtual ImageMorbin2D toColorMorbinImage() const;
 };
