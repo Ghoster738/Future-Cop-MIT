@@ -334,17 +334,17 @@ int main() {
         
         Utilities::ImagePalette2D simple_rect_image( 4, 2, color_palette );
         
-        if( !simple_rect_image.fromBitfield( SIMPLE_RECT ) ) {
+        if( !simple_rect_image.fromBitfield( SIMPLE_RECT, 3 ) ) {
             std::cout << simple_rect_name << " bitfield failed to form." << std::endl;
             problem |= 1;
         }
         
         size_t pixel_position = 0;
         
-        // Now check for a single flaw in the Arecibo Message.
+        // Now check for a single flaw in the simple rect
         for( size_t y = 0; y < simple_rect_image.getHeight(); y++ ) {
             for( size_t x = 0; x < simple_rect_image.getWidth(); x++) {
-                auto color = color_palette.getIndex( SIMPLE_RECT[ pixel_position ] );
+                auto color = color_palette.getIndex( pixel_position );
                 
                 if( problem == 0 ) {
                     if( color.getDistanceSq( simple_rect_image.readPixel(x, y) ) > 0.03125 )
@@ -352,7 +352,6 @@ int main() {
                         std::cout << simple_rect_name << " has wrong pixels" << std::endl;
                         problem |= 1;
                     }
-                    else
                     if( pixel_position != simple_rect_image.getPixelIndex(x, y) ) {
                         std::cout << "(" << x << ", " << y << ") = " << static_cast<unsigned>( simple_rect_image.getPixelIndex(x, y) ) << " but not " << pixel_position << std::endl;
                         problem |= 1;

@@ -139,7 +139,7 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, u
                 // This gathers the bit data from the bitset.
                 for( size_t offset = 0; offset < bit_amount; offset++ )
                 {
-                    index |= packed[ i * bit_amount + offset ] << offset;
+                    index |= packed[ i * bit_amount + (bit_amount - (offset + 1)) ] << offset;
                 }
                 
                 // This prevents buffer overflow with the color palettes.
