@@ -287,28 +287,79 @@ int main() {
         color_palette.setIndex( 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0f, 1.0f ) );
         color_palette.setIndex( 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
         
-        {
-            Utilities::ImagePalette2D arecibo_image( 23, 73, color_palette );
-            
-            if( !arecibo_image.fromBitfield( ARECIBO_MESSAGE ) ) {
-                std::cout << arecibo_name << " bitfield failed to form." << std::endl;
-                problem |= 1;
+        Utilities::ImagePalette2D arecibo_image( 23, 73, color_palette );
+        
+        if( !arecibo_image.fromBitfield( ARECIBO_MESSAGE ) ) {
+            std::cout << arecibo_name << " bitfield failed to form." << std::endl;
+            problem |= 1;
+        }
+        
+        size_t pixel_position = 0;
+        
+        // Now check for a single flaw in the Arecibo Message.
+        for( size_t y = 0; y < arecibo_image.getHeight(); y++ ) {
+            for( size_t x = 0; x < arecibo_image.getWidth(); x++) {
+                auto color = color_palette.getIndex( ARECIBO_MESSAGE[ pixel_position ] );
+                
+                if( problem == 0 && color.getDistanceSq( arecibo_image.readPixel(x, y) ) > 0.03125 ) {
+                    std::cout << arecibo_name << " has wrong pixels" << std::endl;
+                    problem |= 1;
+                }
+                
+                pixel_position++;
             }
-            
-            size_t pixel_position = 0;
-            
-            // Now check for a single flaw in the Arecibo Message.
-            for( size_t y = 0; y < arecibo_image.getHeight(); y++ ) {
-                for( size_t x = 0; x < arecibo_image.getWidth(); x++) {
-                    auto color = color_palette.getIndex( ARECIBO_MESSAGE[ pixel_position ] );
-                    
-                    if( problem == 0 && color.getDistanceSq( arecibo_image.readPixel(x, y) ) > 0.03125 ) {
-                        std::cout << arecibo_name << " has wrong pixels" << std::endl;
+        }
+    }
+    {
+        Utilities::PixelFormatColor_R5G5B5A1 color;
+        Utilities::ColorPalette color_palette( color );
+        
+        color_palette.setAmount( 8 );
+        
+        color_palette.setIndex( 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 2, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 3, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 4, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 1.0f, 1.0f ) );
+        color_palette.setIndex( 5, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 1.0f, 1.0f ) );
+        color_palette.setIndex( 6, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f ) );
+        color_palette.setIndex( 7, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        
+        std::string simple_rect_name = "Simple Rect Image";
+        const std::vector<bool> SIMPLE_RECT(
+        {
+            0, 0, 0,  0, 0, 1,  0, 1, 0,  0, 1, 1,
+            1, 0, 0,  1, 0, 1,  1, 1, 0,  1, 1, 1
+        } );
+        
+        Utilities::ImagePalette2D simple_rect_image( 4, 2, color_palette );
+        
+        if( !simple_rect_image.fromBitfield( SIMPLE_RECT ) ) {
+            std::cout << simple_rect_name << " bitfield failed to form." << std::endl;
+            problem |= 1;
+        }
+        
+        size_t pixel_position = 0;
+        
+        // Now check for a single flaw in the Arecibo Message.
+        for( size_t y = 0; y < simple_rect_image.getHeight(); y++ ) {
+            for( size_t x = 0; x < simple_rect_image.getWidth(); x++) {
+                auto color = color_palette.getIndex( SIMPLE_RECT[ pixel_position ] );
+                
+                if( problem == 0 ) {
+                    if( color.getDistanceSq( simple_rect_image.readPixel(x, y) ) > 0.03125 )
+                    {
+                        std::cout << simple_rect_name << " has wrong pixels" << std::endl;
                         problem |= 1;
                     }
-                    
-                    pixel_position++;
+                    else
+                    if( pixel_position != simple_rect_image.getPixelIndex(x, y) ) {
+                        std::cout << "(" << x << ", " << y << ") = " << static_cast<unsigned>( simple_rect_image.getPixelIndex(x, y) ) << " but not " << pixel_position << std::endl;
+                        problem |= 1;
+                    }
                 }
+                
+                pixel_position++;
             }
         }
     }
