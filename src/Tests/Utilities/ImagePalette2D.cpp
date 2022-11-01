@@ -365,11 +365,20 @@ int main() {
         std::string simple_rect_buffer_name = "Simple Rect Buffer Image";
         Utilities::Buffer simple_rect_buffer;
         
-        for( size_t i = 0; i < simple_rect_image.getHeight() * simple_rect_image.getWidth(); i++ )
-            simple_rect_buffer.addU8( i );
-        
         Utilities::ImagePalette2D simple_rect_buff_image(
             simple_rect_image.getWidth(), simple_rect_image.getHeight(), color_palette );
+        
+        {// This is a fail condition!
+            auto reader = simple_rect_buffer.getReader();
+            
+            if( simple_rect_buff_image.fromReader( reader ) ) {
+                std::cout << simple_rect_buffer_name << " fromReader has succeeded when it should have failed!" << std::endl;
+                problem |= 1;
+            }
+        }
+        
+        for( size_t i = 0; i < simple_rect_image.getHeight() * simple_rect_image.getWidth(); i++ )
+            simple_rect_buffer.addU8( i );
         
         auto reader = simple_rect_buffer.getReader();
         
