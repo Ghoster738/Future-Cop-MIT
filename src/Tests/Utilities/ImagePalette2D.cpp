@@ -288,14 +288,14 @@ int main() {
         color_palette.setIndex( 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
         color_palette.setIndex( 2, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
         
-        Utilities::ImagePalette2D arecibo_image( 23, 73, color_palette );
+        Utilities::ImagePalette2D arecibo_image( 73, 23, color_palette );
         
         if( !arecibo_image.fromBitfield( ARECIBO_MESSAGE ) ) {
             std::cout << arecibo_name << " bitfield failed." << std::endl;
             problem |= 1;
         }
         else
-            exportImage( arecibo_image, "Arecibo Message" );
+            exportImage( arecibo_image, "Arecibo Message 2" );
     }
     
     
