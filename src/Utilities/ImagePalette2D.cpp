@@ -114,7 +114,9 @@ bool Utilities::ImagePalette2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2
         return false;
 }
 
-bool Utilities::ImagePalette2D::fromBitfield( const std::bitset<1> &packed, unsigned bit_amount )
+#include <iostream>
+
+bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, unsigned bit_amount )
 {
     // Allowed range for bit amount [8,1]
     if( bit_amount > 8 || bit_amount == 0 )
@@ -122,6 +124,8 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::bitset<1> &packed, unsi
     else
     {
         const size_t TOTAL_BITS = getWidth() * getHeight() * bit_amount;
+        
+        std::cout << "Total bits " << TOTAL_BITS << " is actually " << packed.size() << std::endl;
         
         if( packed.size() < TOTAL_BITS )
             return false; // Not enough bits.
