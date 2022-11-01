@@ -291,11 +291,25 @@ int main() {
             Utilities::ImagePalette2D arecibo_image( 23, 73, color_palette );
             
             if( !arecibo_image.fromBitfield( ARECIBO_MESSAGE ) ) {
-                std::cout << arecibo_name << " bitfield failed." << std::endl;
+                std::cout << arecibo_name << " bitfield failed to form." << std::endl;
                 problem |= 1;
             }
-            else
-                exportImage( arecibo_image, "Arecibo Message" );
+            
+            size_t pixel_position = 0;
+            
+            // Now check for a single flaw in the Arecibo Message.
+            for( size_t y = 0; y < arecibo_image.getHeight(); y++ ) {
+                for( size_t x = 0; x < arecibo_image.getWidth(); x++) {
+                    auto color = color_palette.getIndex( ARECIBO_MESSAGE[ pixel_position ] );
+                    
+                    if( problem == 0 && color.getDistanceSq( arecibo_image.readPixel(x, y) ) > 0.03125 ) {
+                        std::cout << arecibo_name << " has wrong pixels" << std::endl;
+                        problem |= 1;
+                    }
+                    
+                    pixel_position++;
+                }
+            }
         }
     }
     
