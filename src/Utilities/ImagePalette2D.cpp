@@ -114,8 +114,6 @@ bool Utilities::ImagePalette2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2
         return false;
 }
 
-#include <iostream>
-
 bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, unsigned bit_amount )
 {
     // Allowed range for bit amount [8,1]
@@ -125,8 +123,6 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, u
     {
         const size_t TOTAL_BITS = getWidth() * getHeight() * bit_amount;
         
-        std::cout << "Total bits " << TOTAL_BITS << " is actually " << packed.size() << std::endl;
-        
         if( packed.size() < TOTAL_BITS )
             return false; // Not enough bits.
         else
@@ -135,24 +131,22 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, u
             
             uint8_t index;
             
-            for( size_t i = 0; i < TOTAL_BITS; i += bit_amount )
+            for( size_t i = 0; i < TOTAL_BITS; i++ )
             {
-                // Gather the x and y cordinates.
-                placement.getCoordinates( i, x, y );
-                
                 // Clear the index for the next write.
                 index = 0;
                 
                 // This gathers the bit data from the bitset.
-                for( size_t offset = 0; offset <= bit_amount; offset++ )
+                for( size_t offset = 0; offset < bit_amount; offset++ )
                 {
-                    index |= packed[ offset + i ] << offset;
+                    index |= packed[ i * bit_amount + offset ] << offset;
                 }
                 
                 // This prevents buffer overflow with the color palettes.
                 index = std::min( index, getColorPalette()->getLastIndex() );
                 
                 // Finally get the bit set.
+                placement.getCoordinates( i, x, y );
                 this->setValue( x, y, index );
             }
             

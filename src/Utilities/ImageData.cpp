@@ -52,18 +52,18 @@ Utilities::ImageData::ImageData( unsigned int width, unsigned int height, Type t
 }
 
 Utilities::ImageData::ImageData( const Image2D::ImageBase2D& image ) : ImageData( image.getWidth(), image.getHeight(), RED_GREEN_BLUE_ALHPA, 1) {
-    auto point_r = this->getRawImageData();
+    uint8_t point_r[4]; // = this->getRawImageData();
     
     for( unsigned int x = 0; x < this->width; x++ ) {
         for( unsigned int y = 0; y < this->height; y++ ) {
             auto COLOR = image.readPixel( x, y );
             
-            point_r[ 0 ] = COLOR.red * 255.0;
+            point_r[ 0 ] = COLOR.red   * 255.0;
             point_r[ 1 ] = COLOR.green * 255.0;
-            point_r[ 2 ] = COLOR.blue * 255.0;
+            point_r[ 2 ] = COLOR.blue  * 255.0;
             point_r[ 3 ] = COLOR.alpha * 255.0;
             
-            point_r += this->getPixelSize();
+            setPixel( x, y, point_r );
         }
     }
 }
