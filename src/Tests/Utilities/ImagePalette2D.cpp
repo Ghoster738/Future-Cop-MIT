@@ -660,15 +660,17 @@ int main() {
             problem |= compareBuffer( buffer.getReader(), buffer_copy.getReader(), reader_image_name );
         }
         
-        // Test ImagePalette2D.MorbinImage2D generation.
         std::string paletted_image_name = "Paletted Image";
-        Utilities::ImagePalette2D paletted_image( 4, 4, color_palette );
         
-        if( !paletted_image.fromBitfield( SIMPLE_RECT ) ) {
-            std::cout << paletted_image_name << " bitfield failed to form." << std::endl;
-            problem |= 1;
-        }
+        auto paletted_image = reader_image.toImagePalette2D();
         
+        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImagePaletteMorbin2D>( paletted_image, reader_image, paletted_image_name );
+        
+        auto paletted_twice_image = paletted_image.toImagePaletteMorbin2D();
+        
+        problem |= compareImage2D<Utilities::ImagePaletteMorbin2D>( reader_image, paletted_twice_image, paletted_image_name + " Morbin" );
+        
+        // Test ImagePalette2D.MorbinImage2D generation.
         auto image_copy = paletted_image.toColorMorbinImage();
         const std::string unpaletted_image = "Unpaletted Morbin Image";
         
