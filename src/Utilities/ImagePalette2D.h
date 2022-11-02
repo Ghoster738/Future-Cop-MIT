@@ -81,9 +81,10 @@ public:
     virtual ImageMorbin2D toColorMorbinImage() const = 0;
 };
 
+class ImagePaletteMorbin2D;
+
 class ImagePalette2D : public ImagePaletteBase2D<Grid2DPlacementNormal> {
 public:
-    // ImagePalette2D( const ImagePaletteBase2D &image ); // TODO Make this into a morbin converter some how.
     ImagePalette2D( const ImagePalette2D &image );
     ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
     virtual bool fromReader( Buffer::Reader &reader );
@@ -94,6 +95,7 @@ public:
     virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 );
     virtual Image2D toColorImage() const;
     virtual ImageMorbin2D toColorMorbinImage() const;
+    ImagePaletteMorbin2D toImagePaletteMorbin2D() const;
 };
 
 class ImagePaletteMorbin2D : public ImagePaletteBase2D<Grid2DPlacementMorbin> {
@@ -108,6 +110,7 @@ public:
     virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 );
     virtual Image2D toColorImage() const;
     virtual ImageMorbin2D toColorMorbinImage() const;
+    ImagePalette2D toImagePalette2D() const;
 };
 }
 
