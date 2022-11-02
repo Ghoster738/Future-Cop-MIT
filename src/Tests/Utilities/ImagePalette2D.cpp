@@ -270,6 +270,17 @@ int testPalette2D( const Utilities::ColorPalette &color_palette, std::string nam
     return problem;
 }
 
+template<class T>
+int compareColor( int problem, int index, const Utilities::ColorPalette &color_palette, const T &image, unsigned x, unsigned y, std::string name ) {
+    if( color_palette.getIndex( index ).getDistanceSq( image.readPixel(x, y) ) > 0.03125 )
+    {
+        std::cout << name << " (" << x << ", " << y << ") has wrong pixels" << std::endl;
+        problem |= 1;
+    }
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -359,7 +370,7 @@ int main() {
             Utilities::ImagePalette2D simple_rect_image( 4, 4, color_palette );
             
             if( simple_rect_image.fromBitfield( SIMPLE_RECT, 3 ) ) {
-                std::cout << simple_rect_name << " bitfield succed to form with buffer overflow" << std::endl;
+                std::cout << simple_rect_name << " bitfield should have not succeeded." << std::endl;
                 problem |= 1;
             }
         }
@@ -474,14 +485,95 @@ int main() {
     }
     // Implement this!
     problem |= testPalette2D<Utilities::ImagePaletteMorbin2D, 64, 64>( color_palette, "Morbin " );
-    /*
-    { // Test ImagePalette2D.MorbinImage2D generation.
-        auto image_copy = image.toColorMorbinImage();
+    {
+        Utilities::ColorPalette color_palette( color );
+        
+        color_palette.setAmount( 8 );
+        
+        color_palette.setIndex( 0, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 1, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 2, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 3, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0f, 1.0f ) );
+        color_palette.setIndex( 4, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 1.0f, 1.0f ) );
+        color_palette.setIndex( 5, Utilities::PixelFormatColor::GenericColor( 0.0f, 0.0f, 1.0f, 1.0f ) );
+        color_palette.setIndex( 6, Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f ) );
+        color_palette.setIndex( 7, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
+        
+        std::string simple_rect_name = "Simple Rect Morbin Image One bit";
+        const std::vector<bool> SIMPLE_RECT( {
+            0, 0, 0, 0,
+            1, 0, 0, 1,
+            0, 1, 1, 1,
+            0, 1, 1, 0
+        } );
+        
+        {
+            Utilities::ImagePaletteMorbin2D simple_rect_image( 8, 8, color_palette );
+            
+            if( simple_rect_image.fromBitfield( SIMPLE_RECT ) ) {
+                std::cout << simple_rect_name << " bitfield succeeded to form." << std::endl;
+                problem |= 1;
+            }
+        }
+        
+        Utilities::ImagePaletteMorbin2D simple_rect_image( 4, 4, color_palette );
+        
+        if( !simple_rect_image.fromBitfield( SIMPLE_RECT ) ) {
+            std::cout << simple_rect_name << " bitfield failed to form." << std::endl;
+            problem |= 1;
+        }
+        
+        // Compare the image in morbin order
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 0, 0, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 1, 0, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 2, 0, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 3, 0, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 0, 1, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 1, 1, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 2, 1, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 3, 1, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 0, 2, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 1, 2, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 2, 2, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 3, 2, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 0, 3, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 1, 3, simple_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_image, 2, 3, simple_rect_name );
+        problem |= compareColor( problem, 0, color_palette, simple_rect_image, 3, 3, simple_rect_name );
+        
+        std::string simple_3_bit_rect_name = "Simple Rect Morbin Image Three bit";
+        const std::vector<bool> SIMPLE_3_BIT_RECT( {
+            0, 0, 0,  0, 0, 1,
+            0, 1, 0,  1, 0, 0
+        } );
+        
+        {
+            Utilities::ImagePaletteMorbin2D simple_rect_image( 4, 4, color_palette );
+            
+            if( simple_rect_image.fromBitfield( SIMPLE_3_BIT_RECT, 3 ) ) {
+                std::cout << simple_3_bit_rect_name << " bitfield succeeded to form." << std::endl;
+                problem |= 1;
+            }
+        }
+        
+        Utilities::ImagePaletteMorbin2D simple_rect_3_bit_image( 2, 2, color_palette );
+        
+        if( !simple_rect_3_bit_image.fromBitfield( SIMPLE_3_BIT_RECT, 3 ) ) {
+            std::cout << simple_3_bit_rect_name << " bitfield failed to form." << std::endl;
+            problem |= 1;
+        }
+        problem |= compareColor( problem, 0, color_palette, simple_rect_3_bit_image, 0, 0, simple_3_bit_rect_name );
+        problem |= compareColor( problem, 1, color_palette, simple_rect_3_bit_image, 1, 0, simple_3_bit_rect_name );
+        problem |= compareColor( problem, 2, color_palette, simple_rect_3_bit_image, 0, 1, simple_3_bit_rect_name );
+        problem |= compareColor( problem, 4, color_palette, simple_rect_3_bit_image, 1, 1, simple_3_bit_rect_name );
+    
+        // Test ImagePalette2D.MorbinImage2D generation.
+        /*auto image_copy = image.toColorMorbinImage();
         const std::string unpaletted_image = "Unpaletted Morbin Image";
         
         problem |= testScale<Utilities::ImageMorbin2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
-        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( image, image_copy, unpaletted_image );
-    } */
+        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( image, image_copy, unpaletted_image );*/
+    }
     
     return problem;
 }
