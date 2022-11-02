@@ -113,7 +113,7 @@ public:
         Writer( uint8_t *const buffer_r, size_t byte_amount );
         virtual ~Writer();
         
-        void setPosition( int offset, Direction way );
+        void setPosition( int offset, Direction way = BEGIN );
         
         bool empty() const;
         bool ended() const;
