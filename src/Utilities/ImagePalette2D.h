@@ -88,6 +88,7 @@ public:
     ImagePalette2D( const ImagePaletteMorbin2D &image );
     ImagePalette2D( const ImagePalette2D &image );
     ImagePalette2D( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette );
+    ImagePalette2D( const ColorPalette& palette );
     virtual bool fromReader( Buffer::Reader &reader );
     virtual bool toWriter( Buffer::Writer &writer ) const;
     virtual bool addToBuffer( Buffer &buffer ) const;
