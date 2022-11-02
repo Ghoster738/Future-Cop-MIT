@@ -94,8 +94,8 @@ int compareBuffer( Utilities::Buffer::Reader source, Utilities::Buffer::Reader c
     return problem;
 }
 
-template<class T>
-int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalette &color_palette ) {
+template<class T, unsigned width, unsigned height>
+int testPalette2D( const Utilities::ColorPalette &color_palette, std::string name ) {
     int problem = 0;
     
     // Generate the julia set.
@@ -128,7 +128,7 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
         }
     }
     
-    const std::string julia_image = "Julia Image Constructor( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette )";
+    const std::string julia_image = "Julia Image " + name + "Constructor( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette )";
     
     // Finally generate the image.
     T image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
@@ -139,13 +139,13 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
     {
         T image_copy( image );
         
-        const std::string julia_image = "Julia Image Constructor( const ImagePalette2D &image )";
+        const std::string julia_image = "Julia Image " + name + "Constructor( const ImagePalette2D &image )";
         
         problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
     }
     { // Test Image2D generation.
         auto image_copy = image.toColorImage();
-        const std::string unpaletted_image = "Unpaletted Image";
+        const std::string unpaletted_image = "Unpaletted Image " + name + " ";
         
         problem |= testScale<Utilities::Image2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
         
@@ -154,7 +154,7 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
     {
         T image_copy( test_julia_set.getWidth() * 2, test_julia_set.getHeight() * 2, color_palette );
         
-        const std::string inscribe_sub_image = "Inscribe Sub Image";
+        const std::string inscribe_sub_image = "Inscribe Sub " + name + "Image";
         
         // Draw the background.
         for( unsigned w = 0; w < image_copy.getWidth(); w++ ) {
@@ -243,7 +243,7 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
         // Test the sub image operation.
         T sub_image( 0, 0, color_palette );
         
-        const std::string sub_image_name = "Sub Image";
+        const std::string sub_image_name = "Sub " + name + "Image";
         
         if( image_copy.subImage( image_copy.getWidth() + 1, 0, test_julia_set.getWidth(), test_julia_set.getHeight(), sub_image ) ) {
             problem = 1;
@@ -298,7 +298,7 @@ int main() {
         }
     }
     
-    problem |= testPalette2D<Utilities::ImagePalette2D>( 50, 100, color_palette );
+    problem |= testPalette2D<Utilities::ImagePalette2D, 50, 100>( color_palette, "" );
     
     {
         std::string arecibo_name = "Arecibo Image";
