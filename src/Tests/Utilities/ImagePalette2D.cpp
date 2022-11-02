@@ -94,6 +94,7 @@ int compareBuffer( Utilities::Buffer::Reader source, Utilities::Buffer::Reader c
     return problem;
 }
 
+template<class T>
 int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalette &color_palette ) {
     int problem = 0;
     
@@ -130,13 +131,13 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
     const std::string julia_image = "Julia Image Constructor( grid_2d_unit width, grid_2d_unit height, const ColorPalette& palette )";
     
     // Finally generate the image.
-    Utilities::ImagePalette2D image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
+    T image( test_julia_set.getWidth(), test_julia_set.getHeight(), color_palette );
     
     // Generate and test
     problem |= testImage( image, julia_image, color_palette, test_julia_set );
     
     {
-        Utilities::ImagePalette2D image_copy( image );
+        T image_copy( image );
         
         const std::string julia_image = "Julia Image Constructor( const ImagePalette2D &image )";
         
@@ -148,18 +149,10 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
         
         problem |= testScale<Utilities::Image2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
         
-        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::Image2D>( image, image_copy, unpaletted_image );
+        problem |= compareImage2D<T, Utilities::Image2D>( image, image_copy, unpaletted_image );
     }
-    /*
     {
-        Utilities::ImagePaletteMorbin2D image_copy( image );
-        
-        const std::string julia_image = "Julia Image Constructor( const ImagePaletteMorbin2D &image )";
-        
-        problem |= testImage( image_copy, julia_image, color_palette, test_julia_set );
-    } */
-    {
-        Utilities::ImagePalette2D image_copy( test_julia_set.getWidth() * 2, test_julia_set.getHeight() * 2, color_palette );
+        T image_copy( test_julia_set.getWidth() * 2, test_julia_set.getHeight() * 2, color_palette );
         
         const std::string inscribe_sub_image = "Inscribe Sub Image";
         
@@ -182,7 +175,7 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
         if( image_copy.inscribeSubImage( 0, test_julia_set.getHeight() + 1, image ) )
         {
             problem |= 1;
-            std::cout << inscribe_sub_image << " inscribeSubImage() too much hieght method had succeeded." << std::endl;
+            std::cout << inscribe_sub_image << " inscribeSubImage() too much height method had succeeded." << std::endl;
         }
         if( !image_copy.inscribeSubImage( test_julia_set.getWidth() / 2, test_julia_set.getHeight() / 2, image ) )
         {
@@ -248,7 +241,7 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
         }
         
         // Test the sub image operation.
-        Utilities::ImagePalette2D sub_image( 0, 0, color_palette );
+        T sub_image( 0, 0, color_palette );
         
         const std::string sub_image_name = "Sub Image";
         
@@ -269,7 +262,7 @@ int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalett
         }
         else
         {
-            problem |= compareImage2D<Utilities::ImagePalette2D>( sub_image, image, sub_image_name );
+            problem |= compareImage2D<T>( sub_image, image, sub_image_name );
         }
     }
     
@@ -305,7 +298,7 @@ int main() {
         }
     }
     
-    problem |= testPalette2D( 50, 100, color_palette );
+    problem |= testPalette2D<Utilities::ImagePalette2D>( 50, 100, color_palette );
     
     {
         std::string arecibo_name = "Arecibo Image";
