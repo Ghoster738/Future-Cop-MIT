@@ -94,37 +94,11 @@ int compareBuffer( Utilities::Buffer::Reader source, Utilities::Buffer::Reader c
     return problem;
 }
 
-int main() {
+int testPalette2D( unsigned width, unsigned height, const Utilities::ColorPalette &color_palette ) {
     int problem = 0;
     
-    Utilities::PixelFormatColor_R5G5B5A1 color;
-    Utilities::ColorPalette color_palette( color );
-    
-    // Setup the color palette
-    {
-        auto colors = generateColorPalette();
-        
-        if( !color_palette.setAmount( colors.size() ) )
-        {
-            problem |= 1;
-            std::cout << "Color Palette generation failed!" << std::endl;
-            std::cout << "  Could not resize to " << colors.size() << std::endl;
-        }
-        else
-        {
-            for( size_t i = 0; i < colors.size(); i++ ) {
-                if( !color_palette.setIndex( i, colors[ i ] ) && problem == 0 )
-                {
-                    problem |= 1;
-                    std::cout << "setIndex at " << i << " has failed" << std::endl;
-                    std::cout << " at this color: " << colors[ i ].getString() << std::endl;
-                }
-            }
-        }
-    }
-    
     // Generate the julia set.
-    Utilities::GridBase2D<float> test_julia_set( 64, 64 );
+    Utilities::GridBase2D<float> test_julia_set( width, height );
     
     {
         const glm::vec2 RES_VEC( test_julia_set.getWidth(), test_julia_set.getHeight() );
@@ -175,13 +149,6 @@ int main() {
         problem |= testScale<Utilities::Image2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
         
         problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::Image2D>( image, image_copy, unpaletted_image );
-    }
-    { // Test ImagePalette2D.MorbinImage2D generation.
-        auto image_copy = image.toColorMorbinImage();
-        const std::string unpaletted_image = "Unpaletted Morbin Image";
-        
-        problem |= testScale<Utilities::ImageMorbin2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
-        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( image, image_copy, unpaletted_image );
     }
     /*
     {
@@ -305,6 +272,41 @@ int main() {
             problem |= compareImage2D<Utilities::ImagePalette2D>( sub_image, image, sub_image_name );
         }
     }
+    
+    return problem;
+}
+
+int main() {
+    int problem = 0;
+    
+    Utilities::PixelFormatColor_R5G5B5A1 color;
+    Utilities::ColorPalette color_palette( color );
+    
+    // Setup the color palette
+    {
+        auto colors = generateColorPalette();
+        
+        if( !color_palette.setAmount( colors.size() ) )
+        {
+            problem |= 1;
+            std::cout << "Color Palette generation failed!" << std::endl;
+            std::cout << "  Could not resize to " << colors.size() << std::endl;
+        }
+        else
+        {
+            for( size_t i = 0; i < colors.size(); i++ ) {
+                if( !color_palette.setIndex( i, colors[ i ] ) && problem == 0 )
+                {
+                    problem |= 1;
+                    std::cout << "setIndex at " << i << " has failed" << std::endl;
+                    std::cout << " at this color: " << colors[ i ].getString() << std::endl;
+                }
+            }
+        }
+    }
+    
+    problem |= testPalette2D( 50, 100, color_palette );
+    
     {
         std::string arecibo_name = "Arecibo Image";
         Utilities::PixelFormatColor_R5G5B5A1 color;
@@ -339,7 +341,6 @@ int main() {
         }
     }
     {
-        Utilities::PixelFormatColor_R5G5B5A1 color;
         Utilities::ColorPalette color_palette( color );
         
         color_palette.setAmount( 8 );
@@ -477,6 +478,14 @@ int main() {
             problem |= compareBuffer( reader, simple_rect_buffer_copy.getReader(), simple_rect_buffer_name );
         }
     }
+    /*
+    { // Test ImagePalette2D.MorbinImage2D generation.
+        auto image_copy = image.toColorMorbinImage();
+        const std::string unpaletted_image = "Unpaletted Morbin Image";
+        
+        problem |= testScale<Utilities::ImageMorbin2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
+        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( image, image_copy, unpaletted_image );
+    } */
     
     return problem;
 }
