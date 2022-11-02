@@ -436,6 +436,7 @@ int main() {
         
         Utilities::Buffer simple_rect_buffer_copy;
         
+        // This tests toWriter bounds checking.
         {
             auto writer = simple_rect_buffer_copy.getWriter();
             
@@ -477,7 +478,9 @@ int main() {
             problem |= compareBuffer( reader, simple_rect_buffer_copy.getReader(), simple_rect_buffer_name );
         }
     }
-    // Implement this!
+    
+    // From this point on is the Morbin tests.
+    
     problem |= testPalette2D<Utilities::ImagePaletteMorbin2D, 64, 64>( color_palette, "Morbin " );
     {
         Utilities::ColorPalette color_palette( color );
@@ -610,7 +613,25 @@ int main() {
                 }
             }
         }
-    
+        
+        // This is to be allocated.
+        Utilities::Buffer buffer_copy;
+        
+        // This tests toWriter bounds checking.
+        {
+            auto writer = buffer_copy.getWriter();
+            
+            if( reader_image.toWriter( writer ) ) {
+                std::cout << reader_image_name << " toWriter should have failed!" << std::endl;
+                problem = 1;
+            }
+        }
+        
+        reader_image.addToBuffer( buffer_copy );
+        
+        // Compare the buffers
+        problem |= compareBuffer( buffer.getReader(), buffer_copy.getReader(), reader_image_name + " addToBuffer" );
+        
         // Test ImagePalette2D.MorbinImage2D generation.
         /*auto image_copy = image.toColorMorbinImage();
         const std::string unpaletted_image = "Unpaletted Morbin Image";
