@@ -272,13 +272,7 @@ int testPalette2D( const Utilities::ColorPalette &color_palette, std::string nam
 
 template<class T>
 int compareColor( int problem, int index, const Utilities::ColorPalette &color_palette, const T &image, unsigned x, unsigned y, std::string name ) {
-    if( color_palette.getIndex( index ).getDistanceSq( image.readPixel(x, y) ) > 0.03125 )
-    {
-        std::cout << name << " (" << x << ", " << y << ") has wrong pixels" << std::endl;
-        problem |= 1;
-    }
-    
-    return problem;
+    return testColor( problem, color_palette.getIndex( index ), image.readPixel(x, y), name, "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")");
 }
 
 int main() {
@@ -566,6 +560,56 @@ int main() {
         problem |= compareColor( problem, 1, color_palette, simple_rect_3_bit_image, 1, 0, simple_3_bit_rect_name );
         problem |= compareColor( problem, 2, color_palette, simple_rect_3_bit_image, 0, 1, simple_3_bit_rect_name );
         problem |= compareColor( problem, 4, color_palette, simple_rect_3_bit_image, 1, 1, simple_3_bit_rect_name );
+        
+        Utilities::Buffer buffer;
+        std::string reader_image_name = "Morbin Image Reader";
+        Utilities::ImagePaletteMorbin2D reader_image( 4, 4, color_palette );
+        
+        {
+            auto reader = buffer.getReader();
+            
+            if( reader_image.fromReader( reader ) )
+            {
+                std::cout << reader_image_name << " had succeeded!" << std::endl;
+                problem = 1;
+            }
+        }
+        
+        buffer.addU8( 0 );
+        buffer.addU8( 1 );
+        buffer.addU8( 4 );
+        buffer.addU8( 5 );
+        buffer.addU8( 2 );
+        buffer.addU8( 3 );
+        buffer.addU8( 6 );
+        buffer.addU8( 7 );
+        buffer.addU8( 0 );
+        buffer.addU8( 1 );
+        buffer.addU8( 4 );
+        buffer.addU8( 5 );
+        buffer.addU8( 2 );
+        buffer.addU8( 3 );
+        buffer.addU8( 6 );
+        buffer.addU8( 7 );
+        
+        {
+            auto reader = buffer.getReader();
+            
+            if( !reader_image.fromReader( reader ) )
+            {
+                std::cout << reader_image_name << " had failed!" << std::endl;
+                problem = 1;
+            }
+            
+            size_t i = 0;
+            
+            for( size_t y = 0; y < reader_image.getHeight(); y++ ) {
+                for( size_t x = 0; x < reader_image.getWidth(); x++ ) {
+                    problem |= compareColor( problem, i % 8, color_palette, reader_image, x, y, reader_image_name );
+                    i++;
+                }
+            }
+        }
     
         // Test ImagePalette2D.MorbinImage2D generation.
         /*auto image_copy = image.toColorMorbinImage();
