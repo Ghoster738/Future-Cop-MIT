@@ -661,11 +661,19 @@ int main() {
         }
         
         // Test ImagePalette2D.MorbinImage2D generation.
-        /*auto image_copy = image.toColorMorbinImage();
+        std::string paletted_image_name = "Paletted Image";
+        Utilities::ImagePalette2D paletted_image( 4, 4, color_palette );
+        
+        if( !paletted_image.fromBitfield( SIMPLE_RECT ) ) {
+            std::cout << paletted_image_name << " bitfield failed to form." << std::endl;
+            problem |= 1;
+        }
+        
+        auto image_copy = paletted_image.toColorMorbinImage();
         const std::string unpaletted_image = "Unpaletted Morbin Image";
         
-        problem |= testScale<Utilities::ImageMorbin2D>( image_copy, image.getWidth(), image.getHeight(), unpaletted_image );
-        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( image, image_copy, unpaletted_image );*/
+        problem |= testScale<Utilities::ImageMorbin2D>( image_copy, paletted_image.getWidth(), paletted_image.getHeight(), unpaletted_image );
+        problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImageMorbin2D>( paletted_image, image_copy, unpaletted_image );
     }
     
     return problem;
