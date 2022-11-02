@@ -187,6 +187,20 @@ Utilities::ImageMorbin2D Utilities::ImagePalette2D::toColorMorbinImage() const
     return image;
 }
 
+Utilities::ImagePaletteMorbin2D Utilities::ImagePalette2D::toImagePaletteMorbin2D() const {
+    Utilities::ImagePaletteMorbin2D image( getWidth(), getHeight(), *getColorPalette() );
+    
+    for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
+    {
+        for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
+        {
+            image.writePixel( current_x, current_y, getPixelIndex( current_x, current_y ) );
+        }
+    }
+    
+    return image;
+}
+
 Utilities::ImagePaletteMorbin2D::ImagePaletteMorbin2D( const ImagePaletteMorbin2D &image ) : ImagePaletteMorbin2D( image.getWidth(), image.getHeight(), *image.getColorPalette() )
 {
     auto image_destination_r = getDirectGridData();
@@ -349,6 +363,20 @@ Utilities::ImageMorbin2D Utilities::ImagePaletteMorbin2D::toColorMorbinImage() c
         for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
         {
             image.writePixel( current_x, current_y, readPixel( current_x, current_y ) );
+        }
+    }
+    
+    return image;
+}
+
+Utilities::ImagePalette2D Utilities::ImagePaletteMorbin2D::toImagePalette2D() const {
+    Utilities::ImagePalette2D image( getWidth(), getHeight(), *getColorPalette() );
+    
+    for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
+    {
+        for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
+        {
+            image.writePixel( current_x, current_y, getPixelIndex( current_x, current_y ) );
         }
     }
     
