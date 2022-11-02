@@ -42,6 +42,12 @@ Utilities::ImagePalette2D::ImagePalette2D( grid_2d_unit width, grid_2d_unit heig
 {
 }
 
+Utilities::ImagePalette2D::ImagePalette2D( const ColorPalette& palette ) : ImagePalette2D( 1, static_cast<grid_2d_unit>( palette.getLastIndex() ) + 1, palette )
+{
+    for( size_t i = 0; i <= palette.getLastIndex(); i++ )
+        writePixel( 0, i, i );
+}
+
 bool Utilities::ImagePalette2D::fromReader( Buffer::Reader &reader ) {
     const size_t TOTAL_PIXELS = getWidth() * getHeight();
     

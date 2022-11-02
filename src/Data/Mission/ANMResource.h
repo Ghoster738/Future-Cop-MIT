@@ -2,7 +2,7 @@
 #define MISSION_RESOURCE_ANM_HEADER
 
 #include "Resource.h"
-#include "../../Utilities/ImageData.h"
+#include "../../Utilities/ImagePalette2D.h"
 
 namespace Data {
 
@@ -24,11 +24,11 @@ public:
 
         unsigned frame_index;
 
-        Utilities::ImageData image;
+        Utilities::ImagePalette2D image;
 
         void readScanline( unsigned scanline_data_offset, unsigned scan_line_position );
     public:
-        Video( const ANMResource * resource_r );
+        Video( const ANMResource * resource_r, const Utilities::ColorPalette &palette );
         ~Video();
 
         void reset();
@@ -39,12 +39,12 @@ public:
 
         unsigned getIndex() const;
 
-        const Utilities::ImageData* getImage() const;
-        const Utilities::ImageData* getImage();
+        const Utilities::ImagePalette2D* getImage() const;
+        const Utilities::ImagePalette2D* getImage();
     };
 private:
     // This stores the palette of the ANM resource.
-    Utilities::ImageData palette;
+    Utilities::ColorPalette palette;
 
     // This holds scanline data
     size_t total_scanlines;
