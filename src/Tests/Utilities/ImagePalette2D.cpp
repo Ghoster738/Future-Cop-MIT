@@ -622,7 +622,7 @@ int main() {
             auto writer = buffer_copy.getWriter();
             
             if( reader_image.toWriter( writer ) ) {
-                std::cout << reader_image_name << " toWriter should have failed!" << std::endl;
+                std::cout << reader_image_name << " toWriter should have failed in 0 size case!" << std::endl;
                 problem = 1;
             }
         }
@@ -631,6 +631,34 @@ int main() {
         
         // Compare the buffers
         problem |= compareBuffer( buffer.getReader(), buffer_copy.getReader(), reader_image_name + " addToBuffer" );
+        
+        {
+            // Allocate a writer.
+            auto writer = buffer_copy.getWriter();
+            
+            // Clear the buffer
+            while( !writer.ended() ) {
+                writer.writeU8( 0 );
+            }
+            
+            // The toWriter should not attempt to run if writer is used up.
+            if( reader_image.toWriter( writer ) ) {
+                std::cout << reader_image_name << " toWriter should have failed in position case!" << std::endl;
+                problem = 1;
+            }
+            
+            // Reset writer.
+            writer.setPosition( 0 );
+            
+            // This time toWriter should succeed.
+            if( !reader_image.toWriter( writer ) ) {
+                std::cout << reader_image_name << " toWriter should have succeeded!" << std::endl;
+                problem = 1;
+            }
+            
+            // Compare the buffers.
+            problem |= compareBuffer( buffer.getReader(), buffer_copy.getReader(), reader_image_name );
+        }
         
         // Test ImagePalette2D.MorbinImage2D generation.
         /*auto image_copy = image.toColorMorbinImage();
