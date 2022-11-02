@@ -84,7 +84,7 @@ public:
         size_t totalSize() const;
         size_t getPosition( Direction way = BEGIN ) const;
 
-        void setPosition( int offset, Direction way );
+        void setPosition( int offset, Direction way = BEGIN );
 
         std::vector<uint8_t> getBytes( size_t byte_amount = 0, Endian endianess = NO_SWAP );
 

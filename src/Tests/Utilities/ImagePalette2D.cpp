@@ -405,6 +405,28 @@ int main() {
         }
         
         problem |= compareImage2D( simple_rect_image, simple_rect_buff_image, simple_rect_buffer_name );
+        
+        Utilities::Buffer simple_rect_buffer_copy;
+        
+        simple_rect_buff_image.addToBuffer( simple_rect_buffer_copy );
+        
+        {
+            auto reader_2 = simple_rect_buffer.getReader();
+            reader.setPosition( 0 );
+            
+            while( !reader_2.ended() && !reader.ended() ) {
+                auto source =   reader.readU8();
+                auto copy   = reader_2.readU8();
+                
+                if( problem == 0 && source != copy ) {
+                    std::cout << simple_rect_buffer_name << " source does not match!" << std::endl;
+                    std::cout << "  Position: " << reader.getPosition() - 1 << std::endl;
+                    std::cout << "  Source:   " << static_cast<unsigned>( source ) << std::endl;
+                    std::cout << "  Copy:     " << static_cast<unsigned>( copy )   << std::endl;
+                    problem = 1;
+                }
+            }
+        }
     }
     
     return problem;
