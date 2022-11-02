@@ -662,11 +662,11 @@ int main() {
         
         std::string paletted_image_name = "Paletted Image";
         
-        auto paletted_image = reader_image.toImagePalette2D();
+        Utilities::ImagePalette2D paletted_image( reader_image );
         
         problem |= compareImage2D<Utilities::ImagePalette2D, Utilities::ImagePaletteMorbin2D>( paletted_image, reader_image, paletted_image_name );
         
-        auto paletted_twice_image = paletted_image.toImagePaletteMorbin2D();
+        Utilities::ImagePaletteMorbin2D paletted_twice_image( paletted_image );
         
         problem |= compareImage2D<Utilities::ImagePaletteMorbin2D>( reader_image, paletted_twice_image, paletted_image_name + " Morbin" );
         
