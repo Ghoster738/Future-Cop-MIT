@@ -56,7 +56,7 @@ bool Utilities::ImagePalette2D::fromReader( Buffer::Reader &reader ) {
 bool Utilities::ImagePalette2D::toWriter( Buffer::Writer &writer ) const {
     const size_t TOTAL_PIXELS = this->getWidth() * this->getHeight();
     
-    if( writer.totalSize() < TOTAL_PIXELS )
+    if( writer.totalSize() < TOTAL_PIXELS + writer.getPosition() )
         return false;
     else
     {

@@ -408,6 +408,15 @@ int main() {
         
         Utilities::Buffer simple_rect_buffer_copy;
         
+        {
+            auto writer = simple_rect_buffer_copy.getWriter();
+            
+            if( simple_rect_buff_image.toWriter( writer ) ) {
+                std::cout << simple_rect_buffer_name << " toWriter should have failed!" << std::endl;
+                problem = 1;
+            }
+        }
+        
         simple_rect_buff_image.addToBuffer( simple_rect_buffer_copy );
         
         {
@@ -419,7 +428,51 @@ int main() {
                 auto copy   = reader_2.readU8();
                 
                 if( problem == 0 && source != copy ) {
-                    std::cout << simple_rect_buffer_name << " source does not match!" << std::endl;
+                    std::cout << simple_rect_buffer_name << " addToBuffer()!" << std::endl;
+                    std::cout << "  Position: " << reader.getPosition() - 1 << std::endl;
+                    std::cout << "  Source:   " << static_cast<unsigned>( source ) << std::endl;
+                    std::cout << "  Copy:     " << static_cast<unsigned>( copy )   << std::endl;
+                    problem = 1;
+                }
+            }
+        }
+        
+        {
+            auto writer = simple_rect_buffer_copy.getWriter(0);
+            
+            // Clear the buffer
+            while( !writer.ended() ) {
+                writer.writeU8( 0 );
+            }
+            
+            // The toWriter should not attempt to run if writer is used up.
+            if( simple_rect_buff_image.toWriter( writer ) ) {
+                std::cout << simple_rect_buffer_name << " toWriter should have failed!" << std::endl;
+                problem = 1;
+            }
+            
+            // Reset writer.
+            writer.setPosition( 0 );
+            
+            // This time toWriter should succeed.
+            if( !simple_rect_buff_image.toWriter( writer ) ) {
+                std::cout << simple_rect_buffer_name << " toWriter should have succeeded!" << std::endl;
+                problem = 1;
+            }
+            
+            // Reader_2 will read from the buffer.
+            auto reader_2 = simple_rect_buffer.getReader();
+            
+            // Reset the reader.
+            reader.setPosition( 0 );
+            
+            // Compare the buffers to see if they are the same.
+            while( !reader_2.ended() && !reader.ended() ) {
+                auto source =   reader.readU8();
+                auto copy   = reader_2.readU8();
+                
+                if( problem == 0 && source != copy ) {
+                    std::cout << simple_rect_buffer_name << " writeToBuffer()!" << std::endl;
                     std::cout << "  Position: " << reader.getPosition() - 1 << std::endl;
                     std::cout << "  Source:   " << static_cast<unsigned>( source ) << std::endl;
                     std::cout << "  Copy:     " << static_cast<unsigned>( copy )   << std::endl;
