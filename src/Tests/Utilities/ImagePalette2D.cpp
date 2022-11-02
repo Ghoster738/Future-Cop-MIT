@@ -473,7 +473,7 @@ int main() {
         }
     }
     // Implement this!
-    // problem |= testPalette2D<Utilities::ImagePaletteMorbin2D, 64, 64>( color_palette, "Morbin " );
+    problem |= testPalette2D<Utilities::ImagePaletteMorbin2D, 64, 64>( color_palette, "Morbin " );
     /*
     { // Test ImagePalette2D.MorbinImage2D generation.
         auto image_copy = image.toColorMorbinImage();
