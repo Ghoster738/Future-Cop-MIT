@@ -66,6 +66,34 @@ int testImage( Utilities::ImagePalette2D &image, const std::string &julia_image,
     return problem;
 }
 
+int compareBuffer( Utilities::Buffer::Reader source, Utilities::Buffer::Reader copy, std::string name )
+{
+    int problem = 0;
+    
+    source.setPosition( 0 );
+    copy.setPosition( 0 );
+    
+    if( source.totalSize() != copy.totalSize() ) {
+        std::cout << "Wrong size for " << name << std::endl;
+        return 1;
+    }
+    
+    while( !source.ended() && !copy.ended() ) {
+        auto source_byte = source.readU8();
+        auto copy_byte   =   copy.readU8();
+        
+        if( problem == 0 && source_byte != copy_byte ) {
+            std::cout << name << " addToBuffer()!" << std::endl;
+            std::cout << "  Position: " << source.getPosition() - 1 << std::endl;
+            std::cout << "  Source:   " << static_cast<unsigned>( source_byte ) << std::endl;
+            std::cout << "  Copy:     " << static_cast<unsigned>( copy_byte )   << std::endl;
+            problem = 1;
+        }
+    }
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -419,23 +447,8 @@ int main() {
         
         simple_rect_buff_image.addToBuffer( simple_rect_buffer_copy );
         
-        {
-            auto reader_2 = simple_rect_buffer.getReader();
-            reader.setPosition( 0 );
-            
-            while( !reader_2.ended() && !reader.ended() ) {
-                auto source =   reader.readU8();
-                auto copy   = reader_2.readU8();
-                
-                if( problem == 0 && source != copy ) {
-                    std::cout << simple_rect_buffer_name << " addToBuffer()!" << std::endl;
-                    std::cout << "  Position: " << reader.getPosition() - 1 << std::endl;
-                    std::cout << "  Source:   " << static_cast<unsigned>( source ) << std::endl;
-                    std::cout << "  Copy:     " << static_cast<unsigned>( copy )   << std::endl;
-                    problem = 1;
-                }
-            }
-        }
+        // Compare the buffers
+        problem |= compareBuffer( reader, simple_rect_buffer_copy.getReader(), simple_rect_buffer_name );
         
         {
             auto writer = simple_rect_buffer_copy.getWriter(0);
@@ -460,25 +473,8 @@ int main() {
                 problem = 1;
             }
             
-            // Reader_2 will read from the buffer.
-            auto reader_2 = simple_rect_buffer.getReader();
-            
-            // Reset the reader.
-            reader.setPosition( 0 );
-            
-            // Compare the buffers to see if they are the same.
-            while( !reader_2.ended() && !reader.ended() ) {
-                auto source =   reader.readU8();
-                auto copy   = reader_2.readU8();
-                
-                if( problem == 0 && source != copy ) {
-                    std::cout << simple_rect_buffer_name << " writeToBuffer()!" << std::endl;
-                    std::cout << "  Position: " << reader.getPosition() - 1 << std::endl;
-                    std::cout << "  Source:   " << static_cast<unsigned>( source ) << std::endl;
-                    std::cout << "  Copy:     " << static_cast<unsigned>( copy )   << std::endl;
-                    problem = 1;
-                }
-            }
+            // Compare the buffers.
+            problem |= compareBuffer( reader, simple_rect_buffer_copy.getReader(), simple_rect_buffer_name );
         }
     }
     
