@@ -500,19 +500,17 @@ std::vector<bool> Utilities::Buffer::Reader::getBitfield( size_t byte_amount ) {
            return value;
     }
     
-    if( byte_amount != 0 && this->size > byte_amount && byte_amount + this->current_index < this->size ) {
-        for( int i = 0; i < byte_amount; i++ ) {
-            auto byte = readU8();
-            
-            value.push_back( byte & 0x80 );
-            value.push_back( byte & 0x40 );
-            value.push_back( byte & 0x20 );
-            value.push_back( byte & 0x10 );
-            value.push_back( byte & 0x08 );
-            value.push_back( byte & 0x04 );
-            value.push_back( byte & 0x02 );
-            value.push_back( byte & 0x01 );
-        }
+    for( int i = 0; i < byte_amount; i++ ) {
+        auto byte = readU8();
+        
+        value.push_back( byte & 0x80 );
+        value.push_back( byte & 0x40 );
+        value.push_back( byte & 0x20 );
+        value.push_back( byte & 0x10 );
+        value.push_back( byte & 0x08 );
+        value.push_back( byte & 0x04 );
+        value.push_back( byte & 0x02 );
+        value.push_back( byte & 0x01 );
     }
     
     return value;
