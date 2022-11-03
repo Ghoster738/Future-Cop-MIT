@@ -2,7 +2,8 @@
 #define MISSION_RESOURCE_BMP_HEADER
 
 #include "Resource.h"
-#include "../../Utilities/ImageData.h"
+#include "../../Utilities/Image2D.h"
+#include "../../Utilities/ImagePalette2D.h"
 #include "../../Utilities/ImageFormat/ImageFormat.h"
 
 namespace Data {
@@ -17,22 +18,17 @@ private:
     // The Windows and Mac versions are strange. Both of the desktop versions still used a color pallete despite using 16 bit color.
     // Note: PS1 Versions do not have lookUpData
     uint8_t lookUpData[ 0x400 ];
-    // uint16_t lookUpDataOffsets[ 0x8000 ]; // This is used for actual 15 bit color conversions.
 
-    Utilities::ImageData image_raw; // Holds the image data as is.
+    // This holds the full color version of the texture. It is optional for Macintosh and Windows.
+    Utilities::Image2D *image_p;
 
-    // This holds the color pallete of the texture. It is required for PlayStation 1 version of Future Cop: LAPD
-    Utilities::ImageData palette;
-
-    // This holds color data from Windows and Mac. However, this will be empty for PlayStation 1 the textures only seems to use 8-bit data.
-    Utilities::ImageData image_from_16_colors;
-
-    // This should hold color data from the palette data for all the versions. However only the PlayStation 1 can write it currently
-    Utilities::ImageData image_from_palette;
-
-    // This holds the format for getImage()
+    // This holds the color palette version of the texture. It is required for PlayStation 1 version of Future Cop: LAPD
+    // TODO Deciper how the palette system works on the Windows and Mac versions.
+    Utilities::ImagePalette2D *image_palette_p;
+    
+    bool isPSX; // True if this CBMP file is from PlayStation.
+    
     Utilities::ImageFormat::ImageFormat *format_p;
-
 public:
     BMPResource();
     BMPResource( const BMPResource &obj );
@@ -50,9 +46,8 @@ public:
 
     const Utilities::ImageFormat::ImageFormat *const getImageFormat() const;
 
-    Utilities::ImageData *const getImage() const;
-    Utilities::ImageData *const getRGBImage() const;
-    Utilities::ImageData *const getTranslatedImage() const;
+    Utilities::Image2D *const getImage() const;
+    Utilities::ImagePalette2D *const getPaletteImage() const;
 
     static std::vector<BMPResource*> getVector( IFF &mission_file );
     static const std::vector<BMPResource*> getVector( const IFF &mission_file );

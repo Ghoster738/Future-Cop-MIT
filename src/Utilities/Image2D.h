@@ -49,6 +49,9 @@ public:
      * number pixels.
      */
     virtual void flipVertically() = 0;
+    
+    const grid_2d_value *const getDirectGridData() const { return const_cast<ImageBase2D *>( this )->getDirectGridData(); }
+    grid_2d_value * getDirectGridData() { return GridBase2D<grid_2d_value, placement>::getDirectGridData(); }
 };
 
 template<class placement, class grid_2d_value = uint8_t>
