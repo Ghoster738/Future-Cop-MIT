@@ -204,7 +204,7 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
         Video video( this, palette );
         unsigned video_frames = getTotalScanlines() / Video::SCAN_LINE_POSITIONS;
         // This contains a list of frames of this file format.
-        Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, palette.getColorFormat() );
+        Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, palette );
 
         for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
             if( (*arg).compare("--ANM_EXPORT_Palette") == 0 )
@@ -242,6 +242,10 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
             }
             
             Utilities::ImageData image_sheet_data( image_sheet );
+            
+            assert( Video::WIDTH == image_sheet_data.getWidth() );
+            assert( Video::HEIGHT * video_frames == image_sheet_data.getHeight() );
+            
             int state = the_choosen_r->write( image_sheet_data, buffer );
 
             buffer.write( the_choosen_r->appendExtension( file_path ) );
