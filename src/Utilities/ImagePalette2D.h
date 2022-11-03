@@ -74,9 +74,6 @@ public:
         return true;
     }
     
-    const grid_2d_value *const getDirectGridData() const { return const_cast<ImagePaletteBase2D *>( this )->getDirectGridData(); }
-    grid_2d_value * getDirectGridData() { return GridBase2D<grid_2d_value, placement>::getDirectGridData(); }
-    
     virtual Image2D toColorImage() const = 0;
     virtual ImageMorbin2D toColorMorbinImage() const = 0;
 };

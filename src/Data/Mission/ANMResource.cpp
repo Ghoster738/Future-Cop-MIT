@@ -88,12 +88,8 @@ const Utilities::ImagePalette2D* Data::Mission::ANMResource::Video::getImage() {
 const std::string Data::Mission::ANMResource::FILE_EXTENSION = "anm";
 const uint32_t Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
 
-namespace {
-const Utilities::PixelFormatColor_R5G5B5A1 COLOR_FORMAT;
-}
-
 Data::Mission::ANMResource::ANMResource() :
-    palette( COLOR_FORMAT ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
+    palette( Utilities::PixelFormatColor_R5G5B5A1() ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
 {}
 
 Data::Mission::ANMResource::ANMResource( const ANMResource &obj ) : Resource( obj ), palette( obj.palette ), total_scanlines( obj.total_scanlines ), scanline_raw_bytes_p( nullptr )
@@ -143,7 +139,7 @@ bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
             palette.setAmount( 0x100 );
             
             for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
-                palette.setIndex( i, COLOR_FORMAT.readPixel( reader, settings.endian ) );
+                palette.setIndex( i, palette.getColorFormat().readPixel( reader, settings.endian ) );
             }
 
             this->total_scanlines = FRAMES * Video::SCAN_LINE_POSITIONS;
@@ -208,7 +204,7 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
         Video video( this, palette );
         unsigned video_frames = getTotalScanlines() / Video::SCAN_LINE_POSITIONS;
         // This contains a list of frames of this file format.
-        Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, COLOR_FORMAT );
+        Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, palette.getColorFormat() );
 
         for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
             if( (*arg).compare("--ANM_EXPORT_Palette") == 0 )

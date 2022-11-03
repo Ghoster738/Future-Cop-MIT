@@ -101,7 +101,7 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
             
             EnvironmentInternalData->textures[ CBMP_ID ]->setCBMPResourceID( CBMP_ID );
             EnvironmentInternalData->textures[ CBMP_ID ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
-            EnvironmentInternalData->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getRawImageData() );
+            EnvironmentInternalData->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getDirectGridData() ); // TODO Fix this!
             
             if( CBMP_ID == 10 )
                 shine_index = i;
@@ -111,15 +111,16 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
     }
     
     if( !textures.empty() ) {
-        Utilities::ImageData environment_image;
+        Utilities::Image2D environment_image;
+        bool success;
         
         if( shine_index < 0 )
-            environment_image = textures.back()->getImage()->subImage( 0, 124, 128, 128 );
+            success = textures.back()->getImage()->subImage( 0, 124, 128, 128, environment_image );
         else
-            environment_image = textures.at( shine_index )->getImage()->subImage( 0, 124, 128, 128 );
+            success = textures.at( shine_index )->getImage()->subImage( 0, 124, 128, 128, environment_image );
 
         EnvironmentInternalData->shiney_texture.setFilters( 1, GL_NEAREST, GL_LINEAR );
-        EnvironmentInternalData->shiney_texture.setImage( 1, 0, GL_RGB, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, environment_image.getRawImageData() );
+        EnvironmentInternalData->shiney_texture.setImage( 1, 0, GL_RGB, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, environment_image.getDirectGridData() );
     }
 
     if( failed_texture_loads == 0 )

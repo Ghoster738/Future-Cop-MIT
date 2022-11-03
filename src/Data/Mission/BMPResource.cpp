@@ -17,22 +17,41 @@ const uint32_t PX16_TAG = 0x50583136; // which is { 0x50, 0x58, 0x31, 0x36 } or 
 const uint32_t PLUT_TAG = 0x504C5554; // which is { 0x50, 0x4C, 0x55, 0x54 } or { 'P', 'L', 'U', 'T' } or "PLUT"
 // This is the pixel data for the Playstation 1 version, and probably the computer versions.
 const uint32_t PDAT_TAG = 0x50444154; // which is { 0x50, 0x44, 0x41, 0x54 } or { 'P', 'D', 'A', 'T' } or "PDAT"
+
+const Utilities::PixelFormatColor_R5G5B5A1 COLOR_FORMAT;
+const Utilities::ColorPalette COLOR_PALETTE( COLOR_FORMAT );
+
 }
 
 const std::string Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
 const uint32_t Data::Mission::BMPResource::IDENTIFIER_TAG = 0x43626D70; // which is { 0x43, 0x62, 0x6D, 0x70 } or { 'C', 'b', 'm', 'p' } or "Cbmp"
 
-Data::Mission::BMPResource::BMPResource() {
-    format_p = nullptr;
+Data::Mission::BMPResource::BMPResource() : image_p( nullptr ), image_palette_p( nullptr ), isPSX(false), format_p(nullptr) {
 }
 
-Data::Mission::BMPResource::BMPResource( const BMPResource &obj ) : Resource( obj ), palette( obj.palette ), image_from_16_colors( obj.image_from_16_colors ), image_from_palette( obj.image_from_palette ), format_p( nullptr ) {
+Data::Mission::BMPResource::BMPResource( const BMPResource &obj ) : Resource( obj ), image_p( nullptr ), image_palette_p( nullptr ), isPSX(false), format_p(nullptr)
+{
+    for( size_t i = 0; i < sizeof(lookUpData) / sizeof(lookUpData[0]); i++ )
+        lookUpData[ i ] = obj.lookUpData[ i ];
+    
+    if( obj.image_p != nullptr )
+        image_p = new Utilities::Image2D( *obj.image_p );
+        
+    if( obj.image_palette_p != nullptr )
+        image_palette_p = new Utilities::ImagePalette2D( *obj.image_palette_p );
+    
     if( obj.format_p != nullptr ) {
         format_p = obj.format_p->duplicate();
     }
 }
 
 Data::Mission::BMPResource::~BMPResource() {
+    if( image_p != nullptr )
+        delete image_p;
+        
+    if( image_palette_p != nullptr )
+        delete image_palette_p;
+    
     if( format_p != nullptr ) {
         delete format_p;
     }
@@ -52,6 +71,9 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
+        size_t position = 0;
+        size_t px_size = 0;
+        Utilities::ColorPalette color_palette( COLOR_FORMAT );
 
         while( reader.getPosition() < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
@@ -119,39 +141,30 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 // I could be that this is simply a big list of 0x400 unsigned bytes and the 16-bit data is simply going to scale down.
                 for( unsigned int i = 0; i < LOOKUP_DATA_AMOUNT; i++ )
                     lookUpData[ i ] = lkup_reader.readU8();
+                
+                // Playstation is disabled.
+                isPSX = false;
             }
             else
             if( identifier == PDAT_TAG ) { // For PlayStation
-                auto px_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
-
-                // setup the image
-                image_raw.setWidth( 0x100 );
-                image_raw.setHeight( 0x100 );
-                image_raw.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
-
-                auto image_data_8_bit = image_raw.getRawImageData();
-                for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
-
-                    *reinterpret_cast<uint8_t*>(image_data_8_bit) = px_reader.readU8();
-
-                    image_data_8_bit += image_raw.getPixelSize();
-                }
+                position = reader.getPosition();
+                px_size = tag_size - sizeof( uint32_t ) * 2;
+                
+                // Playstation is enabled
+                isPSX = true;
             }
-             else
-             if( identifier == PX16_TAG ) { // For Windows
-                 auto px16_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+            else
+            if( identifier == PX16_TAG ) { // For Windows and Macintosh
+                auto px16_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
 
                 // setup the image
-                image_raw.setWidth( 0x100 );
-                image_raw.setHeight( 0x100 );
-                image_raw.setFormat( Utilities::ImageData::BLACK_WHITE, 2 );
-
-                auto image_data_16bit = image_raw.getRawImageData();
-                for( unsigned int a = 0; a < image_raw.getWidth() * image_raw.getHeight(); a++ ) {
-                    *reinterpret_cast<uint16_t*>(image_data_16bit) = px16_reader.readU16( settings.endian );
-
-                    image_data_16bit += image_raw.getPixelSize();
-                }
+                if( image_p != nullptr )
+                    delete image_p;
+                
+                this->image_p = new Utilities::Image2D( 0x100, 0x100, COLOR_FORMAT );
+                 
+                if( !this->image_p->fromReader( px16_reader, settings.endian ) )
+                    file_is_not_valid = true;
             }
             else
             if( identifier == PLUT_TAG) {
@@ -159,86 +172,45 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
                 // The color pallette is located 12 bytes away from the start of the tag.
                 plut_reader.setPosition( 0xC, Utilities::Buffer::CURRENT );
-
+                
                 // Now store the color palette.
-                palette.setWidth( 1 );
-                palette.setHeight( 0x100 );
-                palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                color_palette.setAmount( 0x100 );
 
-                auto palette_data = palette.getRawImageData();
-                uint8_t red, green, blue;
-
-                for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
-                    Utilities::ImageData::translate_16_to_24( plut_reader.readU16( settings.endian ), blue, green, red );
-
-                    palette_data[0] = red;
-                    palette_data[1] = green;
-                    palette_data[2] = blue;
-
-                    palette_data += palette.getPixelSize();
+                for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
+                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
                 }
+                
+                if( image_palette_p != nullptr )
+                    delete image_palette_p;
+                
+                this->image_palette_p = new Utilities::ImagePalette2D( 0x100, 0x100, color_palette );
             }
             else
             {
                 reader.setPosition( tag_size - sizeof( uint32_t ) * 2, Utilities::Buffer::CURRENT );
             }
         }
+        
+        if( px_size != 0 && this->image_palette_p != nullptr ) {
+            reader.setPosition( position );
 
-        if( !file_is_not_valid ) { // If file is valid.
+            auto px_reader = reader.getReader( px_size );
 
-            auto image_raw_data = image_raw.getRawImageData();
-
-            if( image_raw.getPixelSize() == 1 && palette.isValid() ) // (image_raw.getPixelSize() == 1) means that this BMP is a PlayStation image.
-            {
-                image_from_palette.setWidth(  image_raw.getWidth() );
-                image_from_palette.setHeight( image_raw.getHeight() );
-                image_from_palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-                auto image_data_24_RGB = image_from_palette.getRawImageData();
-
-                auto palette_data = palette.getRawImageData();
-
-                for( unsigned int d = 0; d < palette.getHeight(); d++ ) {
-                    std::swap( palette_data[0], palette_data[2] );
-
-                    palette_data += palette.getPixelSize();
-                }
+            if( !this->image_palette_p->fromReader( px_reader ) )
+                file_is_not_valid = true;
+            
+            if( this->image_p == nullptr ) {
+                auto image = this->image_palette_p->toColorImage();
                 
-                for( unsigned int a = 0; a < image_from_palette.getWidth() * image_from_palette.getHeight(); a++ ) {
-                    uint8_t *palette_pixel = reinterpret_cast<uint8_t*>( palette.getRawImageData() + *reinterpret_cast<uint8_t*>(&image_raw_data[0]) * 3 );
-
-                    image_data_24_RGB[0] = palette_pixel[0];
-                    image_data_24_RGB[1] = palette_pixel[1];
-                    image_data_24_RGB[2] = palette_pixel[2];
-
-                    image_data_24_RGB += image_from_palette.getPixelSize();
-                    image_raw_data += image_raw.getPixelSize();
-                }
-            }
-            else // if it is a Windows or Macintosh texture
-            {
-                image_from_16_colors.setWidth(  image_raw.getWidth() );
-                image_from_16_colors.setHeight( image_raw.getHeight() );
-                image_from_16_colors.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-                auto image_data_24_RGB = image_from_16_colors.getRawImageData();
-
-                uint8_t red, green, blue;
-
-                for( unsigned int a = 0; a < image_from_16_colors.getWidth() * image_from_16_colors.getHeight(); a++ ) {
-                    Utilities::ImageData::translate_16_to_24( Utilities::DataHandler::read_u16_little( reinterpret_cast<uint8_t*>(&image_raw_data[0]) ), blue, green, red );
-
-                    image_data_24_RGB[0] = red;
-                    image_data_24_RGB[1] = green;
-                    image_data_24_RGB[2] = blue;
-
-                    image_data_24_RGB += image_from_16_colors.getPixelSize();
-                    image_raw_data += image_raw.getPixelSize();
-                }
+                this->image_p = new Utilities::Image2D( image );
             }
         }
-
+        
         Utilities::ImageFormat::Chooser chooser;
-
-        this->format_p = chooser.getWriterCopy( *getImage() );
+        
+        Utilities::ImageData image_data( *getImage() );
+        
+        this->format_p = chooser.getWriterCopy( image_data );
         assert( this->format_p != nullptr );
 
         return !file_is_not_valid;
@@ -261,14 +233,23 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
     if( export_enable && getImage() != nullptr ) {
         if( this->format_p != nullptr ) {
             Utilities::Buffer buffer;
-
-            int state = this->format_p->write( *getImage(), buffer );
-            buffer.write( this->format_p->appendExtension( file_path ) );
+            int state;
+            
+            {
+                auto image = Utilities::ImageData( Utilities::Image2D( *this->image_p ) );
+                
+                state = this->format_p->write( image, buffer );
+                buffer.write( this->format_p->appendExtension( file_path ) );
+            }
 
             buffer.set( nullptr, 0 ); // This effectively clears the buffer.
 
-            state = this->format_p->write( palette, buffer );
-            buffer.write( this->format_p->appendExtension( std::string( file_path ) + "_paletted" ) );
+            {
+                auto palette = Utilities::ImageData( Utilities::ImagePalette2D( *this->image_palette_p->getColorPalette() ) );
+                
+                state = this->format_p->write( palette, buffer );
+                buffer.write( this->format_p->appendExtension( std::string( file_path ) + "_paletted" ) );
+            }
 
             return state;
         }
@@ -283,30 +264,12 @@ const Utilities::ImageFormat::ImageFormat *const Data::Mission::BMPResource::get
     return format_p;
 }
 
-Utilities::ImageData *const Data::Mission::BMPResource::getImage() const {
-    auto pointer = getRGBImage();
-
-    // If the pure RGB data is not available then we will use the translated pixel data instead.
-    if( pointer == nullptr )
-        pointer = getTranslatedImage();
-
-    return pointer;
+Utilities::Image2D *const Data::Mission::BMPResource::getImage() const {
+    return image_p;
 }
 
-Utilities::ImageData *const Data::Mission::BMPResource::getRGBImage() const {
-    // If the dimensions of image_from_16_colors does match image_raw's then it actually exists.
-    if( image_from_16_colors.getWidth() == image_raw.getWidth() && image_from_16_colors.getHeight() == image_raw.getHeight() )
-        return const_cast<Utilities::ImageData *const>( &image_from_16_colors);
-    else
-        return nullptr;
-}
-
-Utilities::ImageData *const Data::Mission::BMPResource::getTranslatedImage() const {
-    // If the dimensions of image_from_palette does match image_raw's then it actually exists.
-    if( image_from_palette.getWidth() == image_raw.getWidth() && image_from_palette.getHeight() == image_raw.getHeight() )
-        return const_cast<Utilities::ImageData *const>( &image_from_palette );
-    else
-        return nullptr;
+Utilities::ImagePalette2D *const Data::Mission::BMPResource::getPaletteImage() const {
+    return image_palette_p;
 }
 
 std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( Data::Mission::IFF &mission_file ) {
