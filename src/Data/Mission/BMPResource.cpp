@@ -200,7 +200,11 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( isPSX ) {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::BIG ) );
+                    auto color = COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE );
+                    
+                    std::swap( color.red, color.blue );
+                    
+                    color_palette.setIndex( d, color );
                 }
             }
             else {
