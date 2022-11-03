@@ -224,6 +224,7 @@ Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
 }
 int Data::Mission::BMPResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     bool export_enable = true;
+    auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
 
     for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
         if( (*arg).compare("--dry") == 0 )
@@ -236,7 +237,22 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
             int state;
             
             {
-                auto image = Utilities::ImageData( Utilities::Image2D( *this->image_p ) );
+                auto image_convert = Utilities::Image2D( *this->image_p, rgba_color );
+                
+                for( unsigned int x = 0; x <= image_convert.getWidth(); x++ ) {
+                    for( unsigned int y = 0; y <= image_convert.getHeight(); y++ ) {
+                        auto color = image_convert.readPixel( x, y );
+                        
+                        if( color.alpha < 0.75)
+                            color.alpha = 1;
+                        else
+                            color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
+                        
+                        image_convert.writePixel( x, y, color );
+                    }
+                }
+                
+                auto image = Utilities::ImageData( image_convert );
                 
                 state = this->format_p->write( image, buffer );
                 buffer.write( this->format_p->appendExtension( file_path ) );
@@ -245,7 +261,23 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
             buffer.set( nullptr, 0 ); // This effectively clears the buffer.
 
             {
-                auto palette = Utilities::ImageData( Utilities::ImagePalette2D( *this->image_palette_p->getColorPalette() ) );
+                // Make a color palette that holds RGBA values
+                Utilities::ColorPalette rgba_palette( rgba_color );
+                
+                rgba_palette.setAmount( 0x100 );
+                
+                for( unsigned int i = 0; i <= this->image_palette_p->getColorPalette()->getLastIndex(); i++ ) {
+                    auto color =  this->image_palette_p->getColorPalette()->getIndex( i );
+                    
+                    if( color.alpha < 0.75)
+                        color.alpha = 1;
+                    else
+                        color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
+                    
+                    rgba_palette.setIndex( i, color );
+                }
+                
+                auto palette = Utilities::ImageData( Utilities::ImagePalette2D( rgba_palette ) );
                 
                 state = this->format_p->write( palette, buffer );
                 buffer.write( this->format_p->appendExtension( std::string( file_path ) + "_paletted" ) );
