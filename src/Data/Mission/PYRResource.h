@@ -2,8 +2,8 @@
 #define MISSION_RESOURCE_PLY_HEADER
 
 #include "Resource.h"
-#include "../../Utilities/ImageData.h"
 #include "../../Utilities/DataTypes.h"
+#include "../../Utilities/ImagePalette2D.h"
 
 namespace Data {
 
@@ -13,8 +13,8 @@ class PYRResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
-    static constexpr uint32_t PS1_PALLETE_SIZE = 0x010;
-    static constexpr uint32_t PC_PALLETE_SIZE  = 0x100;
+    static constexpr uint32_t PS1_PALETTE_SIZE = 0x010;
+    static constexpr uint32_t PC_PALETTE_SIZE  = 0x100;
 
     class Particle {
     public:
@@ -22,17 +22,15 @@ public:
         private:
             glm::u16vec2 location;
             glm::u8vec2 size;
-            Utilities::ImageData palette;
+            Utilities::ColorPalette palette;
         public:
             Texture( Utilities::Buffer::Reader &reader );
 
             glm::u16vec2 getLocation() const;
             glm::u8vec2 getSize() const;
 
-            uint8_t* setupPallete( unsigned int number_of_colors );
-
-            const Utilities::ImageData* getPalette() const;
-            Utilities::ImageData* getPalette();
+            const Utilities::ColorPalette* getPalette() const;
+            Utilities::ColorPalette* getPalette();
         };
     private:
         uint16_t id;
@@ -54,7 +52,7 @@ public:
 private:
     std::vector<Particle> particles;
 
-    Utilities::ImageData image;
+    Utilities::ImagePalette2D *primary_image_p;
 public:
     PYRResource();
     PYRResource( const PYRResource &obj );

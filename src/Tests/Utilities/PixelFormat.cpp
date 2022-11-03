@@ -391,9 +391,9 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
     Utilities::ColorPalette color_palette( color, endianess );
     const auto FIRST_COLOR = Utilities::PixelFormatColor::GenericColor(1, 0, 0.5, 1);
     
-    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( &color_palette.getColorFormat() ) == nullptr )
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( color_palette.getColorFormat() ) == nullptr )
     {
-        std::cout << "The color format is all wrong! " << color_palette.getColorFormat().getName() << std::endl;
+        std::cout << "The color format is all wrong! " << color_palette.getColorFormat()->getName() << std::endl;
         return false;
     }
     if( !color_palette.empty() )

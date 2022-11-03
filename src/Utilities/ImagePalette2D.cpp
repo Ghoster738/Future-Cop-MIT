@@ -173,7 +173,7 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, u
 
 Utilities::Image2D Utilities::ImagePalette2D::toColorImage() const
 {
-    Utilities::Image2D image( getWidth(), getHeight(), getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
+    Utilities::Image2D image( getWidth(), getHeight(), *getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
     
     // TODO Find a faster algorithm for the case that the placement order is the same.
     
@@ -190,7 +190,7 @@ Utilities::Image2D Utilities::ImagePalette2D::toColorImage() const
 
 Utilities::ImageMorbin2D Utilities::ImagePalette2D::toColorMorbinImage() const
 {
-    Utilities::ImageMorbin2D image( getWidth(), getHeight(), getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
+    Utilities::ImageMorbin2D image( getWidth(), getHeight(), *getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
     
     for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
     {
@@ -353,7 +353,7 @@ bool Utilities::ImagePaletteMorbin2D::fromBitfield( const std::vector<bool>& pac
 
 Utilities::Image2D Utilities::ImagePaletteMorbin2D::toColorImage() const
 {
-    Utilities::Image2D image( getWidth(), getHeight(), getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
+    Utilities::Image2D image( getWidth(), getHeight(), *getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
     
     // TODO Find a faster algorithm for the case that the placement order is the same.
     
@@ -370,7 +370,7 @@ Utilities::Image2D Utilities::ImagePaletteMorbin2D::toColorImage() const
 
 Utilities::ImageMorbin2D Utilities::ImagePaletteMorbin2D::toColorMorbinImage() const
 {
-    Utilities::ImageMorbin2D image( getWidth(), getHeight(), getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
+    Utilities::ImageMorbin2D image( getWidth(), getHeight(), *getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
     
     for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
     {

@@ -2,6 +2,7 @@
 
 #include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
+#include "../../Utilities/ImageData.h"
 #include <string.h>
 #include <fstream>
 #include <cassert>
@@ -51,7 +52,7 @@ Data::Mission::PYRResource::Particle::Texture* Data::Mission::PYRResource::Parti
     return textures.data() + index;
 }
 
-Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reader &reader ) {
+Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reader &reader ) : location(), size(), palette( Utilities::PixelFormatColor_R5G5B5A1() ) {
     this->location.x = reader.readU8();
     this->location.y = reader.readU8();
 
@@ -84,32 +85,33 @@ glm::u8vec2 Data::Mission::PYRResource::Particle::Texture::getSize() const {
     return this->size;
 }
 
-uint8_t* Data::Mission::PYRResource::Particle::Texture::setupPallete( unsigned int number_of_colors ) {
-    this->palette.setWidth(  1 );
-    this->palette.setHeight( number_of_colors );
-    this->palette.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-
-    return this->palette.getRawImageData();
-}
-
-const Utilities::ImageData* Data::Mission::PYRResource::Particle::Texture::getPalette() const {
+const Utilities::ColorPalette* Data::Mission::PYRResource::Particle::Texture::getPalette() const {
     return &palette;
 }
 
-Utilities::ImageData* Data::Mission::PYRResource::Particle::Texture::getPalette() {
+Utilities::ColorPalette* Data::Mission::PYRResource::Particle::Texture::getPalette() {
     return &palette;
 }
 
 const std::string Data::Mission::PYRResource::FILE_EXTENSION = "pyr";
 const uint32_t Data::Mission::PYRResource::IDENTIFIER_TAG = 0x43707972; // which is { 0x43, 0x70, 0x79, 0x72 } or { 'C', 'p', 'y', 'r' } or "Cpyr"
 
-Data::Mission::PYRResource::PYRResource() {
+Data::Mission::PYRResource::PYRResource() : primary_image_p( nullptr ) {
 }
 
-Data::Mission::PYRResource::PYRResource( const PYRResource &obj ) : image( obj.image ) {
+Data::Mission::PYRResource::PYRResource( const PYRResource &obj ) : Resource( obj ), particles(), primary_image_p( nullptr ) {
+    
+    // TODO This is incomplete!
+    
+    if( obj.primary_image_p != nullptr )
+        primary_image_p = new Utilities::ImagePalette2D( *obj.primary_image_p );
 }
 
 Data::Mission::PYRResource::~PYRResource() {
+    if( primary_image_p != nullptr )
+        delete primary_image_p;
+    
+    primary_image_p = nullptr;
 }
 
 std::string Data::Mission::PYRResource::getFileExtension() const {
@@ -132,6 +134,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
         size_t PYPL_offset;
         size_t PYPL_tag_size = 0;
         bool is_PS1 = false;
+        auto color_profile_w8 = Utilities::PixelFormatColor_W8();
 
         while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
@@ -156,39 +159,39 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_PIX8 ) {
                 auto readerPIX8 = reader.getReader( tag_data_size );
-
-                // setup the image
-                image.setWidth( 0x100 );
-                image.setHeight( 0x200 );
-                image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
-
-                auto image_data = image.getRawImageData();
                 
-                for( unsigned int a = 0; a < tag_data_size; a++ ) {
-                    *image_data = readerPIX8.readU8();
-
-                    image_data += image.getPixelSize();
+                Utilities::ColorPalette color_palette( color_profile_w8 );
+                color_palette.setAmount( PC_PALETTE_SIZE );
+                
+                for( int i = 0; i < PC_PALETTE_SIZE; i++ ) {
+                    color_palette.setIndex( i, Utilities::PixelFormatColor::GenericColor( static_cast<float>(i) / static_cast<float>(PC_PALETTE_SIZE), 1.0f, 1.0f, 1.0f) );
+                }
+                
+                if( primary_image_p != nullptr )
+                    delete primary_image_p;
+                primary_image_p = new Utilities::ImagePalette2D( 0x100, 0x200, color_palette );
+                
+                if( primary_image_p != nullptr ) {
+                    primary_image_p->fromReader( readerPIX8 );
                 }
             }
             else
             if( identifier == TAG_PIX4 ) {
                 auto readerPIX4 = reader.getReader( tag_data_size );
-
-                // setup the image
-                image.setWidth( 0x100 );
-                image.setHeight( 0x200 );
-                image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
-
-                auto image_data = image.getRawImageData();
-
-                uint8_t pixel;
-
-                for( unsigned int a = 0; a < tag_data_size; a++ ) {
-                    pixel = readerPIX4.readU8();
-
-                    image_data[ 0 ] = (pixel >> 0) & 0xF;
-                    image_data[ 1 ] = (pixel >> 4) & 0xF;
-                    image_data += image.getPixelSize() * 2;
+                
+                Utilities::ColorPalette color_palette( color_profile_w8 );
+                color_palette.setAmount( PS1_PALETTE_SIZE );
+                
+                for( int i = 0; i < PS1_PALETTE_SIZE; i++ ) {
+                    color_palette.setIndex( i, Utilities::PixelFormatColor::GenericColor( static_cast<float>(i) / static_cast<float>(PS1_PALETTE_SIZE), 1.0f, 1.0f, 1.0f) );
+                }
+                
+                if( primary_image_p != nullptr )
+                    delete primary_image_p;
+                primary_image_p = new Utilities::ImagePalette2D( 0x100, 0x200, color_palette );
+                
+                if( primary_image_p != nullptr ) {
+                    primary_image_p->fromBitfield( readerPIX4.getBitfield(), 4 );
                 }
 
                 is_PS1 = true;
@@ -219,18 +222,12 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
 
                     if( id == particles.at( i ).getID() )
                     {
-                        auto palette_data = particles.at( i ).getTexture(0)->setupPallete( PC_PALLETE_SIZE );
+                        auto color_palette_r = particles.at( i ).getTexture(0)->getPalette();
+                        auto color_format_r = color_palette_r->getColorFormat();
+                        color_palette_r->setAmount( PC_PALETTE_SIZE );
 
-                        for( unsigned int d = 0; d < PC_PALLETE_SIZE; d++ ) {
-                            uint8_t red, green, blue;
-
-                            Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), blue, green, red );
-
-                            palette_data[0] = red;
-                            palette_data[1] = green;
-                            palette_data[2] = blue;
-
-                            palette_data += particles.at( i ).getTexture(0)->getPalette()->getPixelSize();
+                        for( unsigned int d = 0; d < PC_PALETTE_SIZE; d++ ) {
+                            color_palette_r->setIndex( d, color_format_r->readPixel( readerPYPL, settings.endian ) );
                         }
                     }
                     else
@@ -245,18 +242,12 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             {
                 for( unsigned int p = 0; p < amount_of_tiles; p++ ) {
                     for( unsigned int t = 0; t < particles.at( p ).getNumSprites(); t++ ) {
-                        auto palette_data = particles.at( p ).getTexture( t )->setupPallete( PS1_PALLETE_SIZE );
+                        auto color_palette_r = particles.at( p ).getTexture( t )->getPalette();
+                        auto color_format_r = color_palette_r->getColorFormat();
+                        color_palette_r->setAmount( PS1_PALETTE_SIZE );
 
-                        for( unsigned int d = 0; d < PS1_PALLETE_SIZE; d++ ) {
-                            uint8_t red, green, blue;
-
-                            Utilities::ImageData::translate_16_to_24( readerPYPL.readU16( settings.endian ), red, green, blue );
-
-                            palette_data[0] = red;
-                            palette_data[1] = green;
-                            palette_data[2] = blue;
-
-                            palette_data += particles.at( p ).getTexture( t )->getPalette()->getPixelSize();
+                        for( unsigned int d = 0; d < PS1_PALETTE_SIZE; d++ ) {
+                            color_palette_r->setIndex( d, color_format_r->readPixel( readerPYPL, settings.endian ) );
                         }
                     }
                 }
@@ -304,16 +295,18 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
 
             auto texture = (*current_particle).getTexture( index );
 
-            auto sub_image = image.subImage(
+            Utilities::ImagePalette2D sub_image( 0, 0, *texture->getPalette() );
+            
+            primary_image_p->subImage(
                 texture->getLocation().x, texture->getLocation().y,
-                texture->getSize().x,     texture->getSize().y );
+                texture->getSize().x,     texture->getSize().y, sub_image );
+            
+            auto palleted_image_data = Utilities::ImageData( sub_image );
 
-            auto palleted_image = sub_image.applyPalette( (*texture->getPalette()) );
-
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( palleted_image );
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( palleted_image_data );
 
             if( enable_export && the_choosen_r != nullptr ) {
-                the_choosen_r->write( palleted_image, buffer );
+                the_choosen_r->write( palleted_image_data, buffer );
                 buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
                 buffer.set( nullptr, 0 );
             }
@@ -322,6 +315,7 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
     }
 
     if( export_prime_bw && enable_export ) {
+        auto image = Utilities::ImageData( *primary_image_p );
         Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
 
         if( the_choosen_r != nullptr ) {

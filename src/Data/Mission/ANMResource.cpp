@@ -139,7 +139,7 @@ bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
             palette.setAmount( 0x100 );
             
             for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
-                palette.setIndex( i, palette.getColorFormat().readPixel( reader, settings.endian ) );
+                palette.setIndex( i, palette.getColorFormat()->readPixel( reader, settings.endian ) );
             }
 
             this->total_scanlines = FRAMES * Video::SCAN_LINE_POSITIONS;
