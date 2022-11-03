@@ -93,7 +93,7 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
         auto converted_texture = textures[i];
         if( converted_texture != nullptr )
         {
-            auto image_accessor = converted_texture->getImage();
+            Utilities::Image2D image_accessor( *converted_texture->getImage(), Utilities::PixelFormatColor_R8G8B8() );
             
             const auto CBMP_ID = converted_texture->getResourceID();
 
@@ -101,7 +101,7 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
             
             EnvironmentInternalData->textures[ CBMP_ID ]->setCBMPResourceID( CBMP_ID );
             EnvironmentInternalData->textures[ CBMP_ID ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
-            EnvironmentInternalData->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGB, image_accessor->getWidth(), image_accessor->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor->getDirectGridData() ); // TODO Fix this!
+            EnvironmentInternalData->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGB, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
             
             if( CBMP_ID == 10 )
                 shine_index = i;
