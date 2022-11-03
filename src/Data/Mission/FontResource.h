@@ -57,10 +57,11 @@ protected:
     
     FontGlyph *font_glyphs_r[ MAX_GLYPHS ];
 
-    Utilities::ImageData image; // The image containing all of the glyphs.
+    Utilities::Image2D *image_p; // The image containing all of the glyphs.
 public:
     FontResource();
     FontResource( const FontResource &obj );
+    virtual ~FontResource();
 
     virtual std::string getFileExtension() const;
 
@@ -77,7 +78,7 @@ public:
 
     virtual Resource * duplicate() const;
     
-    Utilities::ImageData *const getImage() const;
+    Utilities::Image2D *const getImage() const;
 
     /**
      * This writes two files one is an BMFont text file, and an image corresponding to it.

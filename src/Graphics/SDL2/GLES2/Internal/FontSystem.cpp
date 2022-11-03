@@ -263,7 +263,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         // Set the pointer to
         this->font_bank.back().font_resource_r = font_resources[i];
 
-        const Utilities::ImageData *const font_image = this->font_bank.back().font_resource_r->getImage();
+        const Utilities::Image2D *const font_image = this->font_bank.back().font_resource_r->getImage();
 
         this->font_bank.back().texture_scale.x = 1;
         this->font_bank.back().texture_scale.y = 1;
@@ -275,11 +275,12 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         while( this->font_bank.back().texture_scale.y < font_image->getHeight() ) {
             this->font_bank.back().texture_scale.y *= 2;
         }
-
-        Utilities::ImageData image(
+        
+        auto color_format = Utilities::PixelFormatColor_W8();
+        Utilities::Image2D image(
             this->font_bank.back().texture_scale.x,
             this->font_bank.back().texture_scale.y,
-            Utilities::ImageData::Type::BLACK_WHITE, 1 );
+            color_format );
 
         auto state = image.inscribeSubImage( 0, 0, *font_image );
 
@@ -294,7 +295,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
 
         assert( state == true );
         this->font_bank.back().texture.setFilters( 0, GL_NEAREST, GL_LINEAR );
-        this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getRawImageData() );
+        this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     }
 }
 

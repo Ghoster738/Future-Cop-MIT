@@ -2,6 +2,7 @@
 
 #include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
+#include "../../Utilities/ImagePalette2D.h"
 #include <string.h>
 #include <fstream>
 #include <cassert>
@@ -72,25 +73,25 @@ uint8_t Data::Mission::FontGlyph::getHeight() const {
 const std::string Data::Mission::FontResource::FILE_EXTENSION = "fnt";
 const uint32_t Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
 
-Data::Mission::FontResource::FontResource() {
+Data::Mission::FontResource::FontResource() : image_p( nullptr ) {
     for( int i = 0; i < sizeof( font_glyphs_r ) / sizeof( FontGlyph* ); i++ ) {
         font_glyphs_r[ i ] = nullptr;
     }
 }
 
-Data::Mission::FontResource::FontResource( const FontResource &obj ) : Resource(obj), image( obj.image ), glyphs( obj.glyphs ) {
+Data::Mission::FontResource::FontResource( const FontResource &obj ) : Resource(obj), image_p( nullptr ), glyphs( obj.glyphs ) {
     for( unsigned int i = 0; i < MAX_GLYPHS; i++ ) {
         font_glyphs_r[ i ] = obj.font_glyphs_r[ i ];
     }
-    /*
-    for( int i = 0; i < sizeof( font_glyphs_r ) / sizeof( FontGlyph* ); i++ ) {
-        if( obj.font_glyphs_r[ i ] != nullptr )
-            font_glyphs_r[ i ] = glyphs.data() + (obj.font_glyphs_r[ i ] - obj.glyphs.data());
-        else
-            font_glyphs_r[ i ] = nullptr;
-    }
-    std::cout << "Mission::FontResource::FontResource copied" << std::endl;
-    */
+    
+    if( obj.image_p != nullptr )
+        image_p = new Utilities::Image2D( *obj.image_p );
+}
+
+Data::Mission::FontResource::~FontResource() {
+    if( image_p != nullptr )
+        delete image_p;
+    image_p = nullptr;
 }
 
 std::string Data::Mission::FontResource::getFileExtension() const {
@@ -163,45 +164,42 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 readerImageHeader.setPosition( 0x6, Utilities::Buffer::BEGIN );
                 auto height = readerImageHeader.readU16( settings.endian );
 
-                this->image.setWidth( width ); // For some reason they had this value divided by 4.
-                this->image.setHeight( height );
-
-                // Set up the image.
-                file_is_not_valid |= !image.setFormat( Utilities::ImageData::BLACK_WHITE, 1 );
+                // The pixels seems to be compressed in a certian format.
+                // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
+                // This compression reduces the image size to a half.
+                // Playstation did not support 1 bit, so their best option is 4 bit.
+                auto color_format = Utilities::PixelFormatColor_W8();
+                Utilities::ColorPalette color_palette( color_format );
+                
+                color_palette.setAmount( 0x10 );
+                
+                for( int i = 0; i < 8; i++ ) {
+                    color_palette.setIndex( i + 0, Utilities::PixelFormatColor::GenericColor( 0, 0, 0, 0) );
+                    color_palette.setIndex( i + 8, Utilities::PixelFormatColor::GenericColor( 1, 1, 1, 1) );
+                }
+                
+                // For some reason they had the width divided by 4.
+                Utilities::ImagePalette2D image_palette( width, height, color_palette );
 
                 // Check to see if the image would go beyond the scope of the raw_data.
-                file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image.getWidth() / 2) * image.getHeight()) > reader.totalSize() );
+                file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image_palette.getWidth() / 2) * image_palette.getHeight()) > reader.totalSize() );
 
                 if( !file_is_not_valid ) {
-                    auto readerImage = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
+                    auto reader_image = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
+                    
+                    auto bits = reader_image.getBitfield();
+                    
+                    image_palette.fromBitfield( bits, 4 );
+                    
+                    if( image_p != nullptr )
+                        delete image_p;
+                    
+                    auto backup = image_palette.toColorImage();
+                    
+                    image_p = new Utilities::Image2D( backup );
 
-                    auto image_data = image.getRawImageData();
-
-                    // The pixels seems to be compressed in a certian format.
-                    // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
-                    // This compression reduces the image size to a half.
-                    // Yes, they could have used one bit per pixel, but I think it would increase the loading times.
-                    for( unsigned int x = 0; x < image.getHeight() * image.getWidth() / 2; x++ ) {
-                        auto pixel_pack = readerImage.readU8();
-
-                        if( (pixel_pack & 0xF0) != 0 ) {
-                            *image_data = 0xFF;
-                        }
-                        else {
-                            *image_data = 0x00;
-                        }
-                        image_data++;
-
-                        if( (pixel_pack & 0x0F) != 0 ) {
-                            *image_data = 0xFF;
-                        }
-                        else {
-                            *image_data = 0x00;
-                        }
-                        image_data++;
-                    }
-
-                    return true;
+                    // If the image fails to allocate then it failed.
+                    return image_p != nullptr;
                 }
                 else
                     return false;
@@ -220,8 +218,8 @@ Data::Mission::Resource * Data::Mission::FontResource::duplicate() const {
     return new Data::Mission::FontResource( *this );
 }
 
-Utilities::ImageData *const Data::Mission::FontResource::getImage() const {
-    return const_cast<Utilities::ImageData *const>(&image);
+Utilities::Image2D *const Data::Mission::FontResource::getImage() const {
+    return const_cast<Utilities::Image2D *const>(image_p);
 }
 
 int Data::Mission::FontResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
@@ -236,6 +234,8 @@ int Data::Mission::FontResource::write( const char *const file_path, const std::
 
     if( export_enable ) {
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
+        
+        Utilities::ImageData image( *image_p );
 
         if( resource.is_open() ) {
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );

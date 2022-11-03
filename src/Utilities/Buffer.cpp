@@ -487,6 +487,36 @@ int8_t Utilities::Buffer::Reader::readI8() {
     }
 }
 
+std::vector<bool> Utilities::Buffer::Reader::getBitfield( size_t byte_amount ) {
+    std::vector<bool> value;
+    
+    if( byte_amount == 0 )
+    {
+        byte_amount = this->size - this->current_index;
+        
+        // If byte amount is zero, then cancel
+        // If overflow is detected then cancel.
+        if( byte_amount == 0 || this->size < byte_amount )
+           return value;
+    }
+    
+    if( byte_amount != 0 && this->size > byte_amount && byte_amount + this->current_index < this->size ) {
+        for( int i = 0; i < byte_amount; i++ ) {
+            auto byte = readU8();
+            
+            value.push_back( byte & 0x80 );
+            value.push_back( byte & 0x40 );
+            value.push_back( byte & 0x20 );
+            value.push_back( byte & 0x10 );
+            value.push_back( byte & 0x08 );
+            value.push_back( byte & 0x04 );
+            value.push_back( byte & 0x02 );
+            value.push_back( byte & 0x01 );
+        }
+    }
+    
+    return value;
+}
 
 Utilities::Buffer::Writer::Writer( uint8_t *const buffer_r_param, size_t byte_amount ) : data_r( buffer_r_param ), size( byte_amount ), current_index( 0 )
 {
