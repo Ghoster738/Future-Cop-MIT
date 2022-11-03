@@ -203,8 +203,26 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
         // In order for an export to happen is to have a video play.
         Video video( this, palette );
         unsigned video_frames = getTotalScanlines() / Video::SCAN_LINE_POSITIONS;
+        
+        // Make a color palette that holds RGBA values
+        auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
+        Utilities::ColorPalette rgba_palette( rgba_color );
+        
+        rgba_palette.setAmount( 0x100 );
+        
+        for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
+            auto color =  palette.getIndex( i );
+            
+            if( color.alpha < 0.75)
+                color.alpha = 1;
+            else
+                color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
+            
+            rgba_palette.setIndex( i, color );
+        }
+        
         // This contains a list of frames of this file format.
-        Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, palette );
+        Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, rgba_palette );
 
         for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
             if( (*arg).compare("--ANM_EXPORT_Palette") == 0 )
