@@ -100,6 +100,8 @@ public:
 
         uint8_t readU8();
         int8_t  readI8();
+        
+        std::vector<bool> getBitfield( size_t byte_amount = 0 );
     };
     
     class Writer {
