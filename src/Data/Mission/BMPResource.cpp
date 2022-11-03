@@ -147,8 +147,13 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == PDAT_TAG ) { // For PlayStation
+                
+                // Save the position and size, because we want to process this later.
                 position = reader.getPosition();
                 px_size = tag_size - sizeof( uint32_t ) * 2;
+                
+                // Now, skip the data.
+                reader.getReader( px_size );
                 
                 // Playstation is enabled
                 isPSX = true;
