@@ -71,8 +71,10 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
-        size_t position = 0;
-        size_t px_size = 0;
+        size_t pdat_position = 0;
+        size_t pdat_size = 0;
+        size_t plut_position = 0;
+        size_t plut_size = 0;
         Utilities::ColorPalette color_palette( COLOR_FORMAT );
 
         while( reader.getPosition() < reader.totalSize() ) {
@@ -149,11 +151,11 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             if( identifier == PDAT_TAG ) { // For PlayStation
                 
                 // Save the position and size, because we want to process this later.
-                position = reader.getPosition();
-                px_size = tag_size - sizeof( uint32_t ) * 2;
+                pdat_position = reader.getPosition();
+                pdat_size = tag_size - sizeof( uint32_t ) * 2;
                 
                 // Now, skip the data.
-                reader.getReader( px_size );
+                reader.getReader( pdat_size );
                 
                 // Playstation is enabled
                 isPSX = true;
@@ -173,22 +175,12 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == PLUT_TAG) {
-                auto plut_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
-
-                // The color pallette is located 12 bytes away from the start of the tag.
-                plut_reader.setPosition( 0xC, Utilities::Buffer::CURRENT );
+                // Save the position and size, because we want to process this later.
+                plut_position = reader.getPosition();
+                plut_size = tag_size - sizeof( uint32_t ) * 2;
                 
-                // Now store the color palette.
-                color_palette.setAmount( 0x100 );
-
-                for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
-                }
-                
-                if( image_palette_p != nullptr )
-                    delete image_palette_p;
-                
-                this->image_palette_p = new Utilities::ImagePalette2D( 0x100, 0x100, color_palette );
+                // Now, skip the data.
+                reader.getReader( plut_size );
             }
             else
             {
@@ -196,10 +188,37 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             }
         }
         
-        if( px_size != 0 && this->image_palette_p != nullptr ) {
-            reader.setPosition( position );
+        if( plut_size != 0 ) {
+            reader.setPosition( plut_position );
+            auto plut_reader = reader.getReader( plut_size );
 
-            auto px_reader = reader.getReader( px_size );
+            // The color pallette is located 12 bytes away from the start of the tag.
+            plut_reader.setPosition( 0xC, Utilities::Buffer::CURRENT );
+            
+            // Now store the color palette.
+            color_palette.setAmount( 0x100 );
+
+            if( isPSX ) {
+                for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
+                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::BIG ) );
+                }
+            }
+            else {
+                for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
+                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
+                }
+            }
+            
+            if( image_palette_p != nullptr )
+                delete image_palette_p;
+            
+            this->image_palette_p = new Utilities::ImagePalette2D( 0x100, 0x100, color_palette );
+        }
+        
+        if( pdat_size != 0 && this->image_palette_p != nullptr ) {
+            reader.setPosition( pdat_position );
+
+            auto px_reader = reader.getReader( pdat_size );
 
             if( !this->image_palette_p->fromReader( px_reader ) )
                 file_is_not_valid = true;
@@ -208,11 +227,14 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 auto image = this->image_palette_p->toColorImage();
                 
                 this->image_p = new Utilities::Image2D( image );
+                
+                assert( this->image_p != nullptr );
             }
         }
         
         Utilities::ImageFormat::Chooser chooser;
         
+        assert( this->image_p != nullptr );
         Utilities::ImageData image_data( *getImage() );
         
         this->format_p = chooser.getWriterCopy( image_data );
