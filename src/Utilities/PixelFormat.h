@@ -199,7 +199,7 @@ namespace Utilities {
         
         bool empty() const;
         
-        const PixelFormatColor& getColorFormat() const { return *color_p; }
+        const PixelFormatColor* getColorFormat() const { return color_p; }
         PixelFormatColor::GenericColor getIndex( palette_index index ) const;
         uint_fast8_t getLastIndex() const;
         Buffer::Endian getEndian() const { return endianess; }

@@ -39,7 +39,7 @@ public:
      * @return the pixel format.
      */
     virtual const PixelFormatColor *const getPixelFormat() const {
-        return &color_palette_p->getColorFormat();
+        return color_palette_p->getColorFormat();
     }
     
     virtual const ColorPalette *const getColorPalette() const {
