@@ -145,7 +145,7 @@ public:
     float getRayCastDownward( float x, float z, float from_highest_point ) const;
 
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
-    Utilities::ImageData* getHeightMap( unsigned int rays_per_tile = 4 ) const;
+    Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;
     
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );
