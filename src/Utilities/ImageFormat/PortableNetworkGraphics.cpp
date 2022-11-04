@@ -32,13 +32,11 @@ Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::PortableNetworkGrap
 
 #ifndef BUILD_WITH_LIBPNG
 
-size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageData& image_data ) const {
+size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_data ) const {
     return 0; // The format is invalid for writing.
 }
 
-bool Utilities::ImageFormat::PortableNetworkGraphics::supports(
-     ImageData::Type type,
-     unsigned int bytes_per_channel ) const {
+bool Utilities::ImageFormat::PortableNetworkGraphics::supports( const PixelFormatColor& pixel_format ) const {
     return 0;
 }
 
@@ -50,7 +48,7 @@ bool Utilities::ImageFormat::PortableNetworkGraphics::canWrite() const {
     return false;
 }
 
-int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& image_data, Buffer& buffer ) {
+int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
     return -1;
 }
 
