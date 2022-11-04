@@ -3,7 +3,7 @@
 
 #include "Resource.h"
 #include "TilResource.h"
-#include "../../Utilities/ImageData.h"
+#include "../../Utilities/Image2D.h"
 
 namespace Data {
 

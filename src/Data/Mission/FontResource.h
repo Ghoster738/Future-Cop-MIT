@@ -2,7 +2,7 @@
 #define MISSION_RESOURCE_FONT_HEADER
 
 #include "Resource.h"
-#include "../../Utilities/ImageData.h"
+#include "../../Utilities/Image2D.h"
 #include "../../Utilities/DataTypes.h"
 
 namespace Data {
