@@ -3,7 +3,7 @@
 
 #include "ModelResource.h"
 #include "BMPResource.h"
-#include "../../Utilities/ImageData.h"
+#include "../../Utilities/GridBase2D.h"
 #include "../../Utilities/Collision/Ray.h"
 #include "../../Utilities/Collision/Triangle.h"
 
@@ -16,6 +16,9 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
+    struct HeightmapPixel {
+        int8_t channel[3];
+    };
     struct CullingTile {
         uint16_t primary;
 
@@ -87,7 +90,7 @@ public:
     static constexpr float MIN_HEIGHT = -MAX_HEIGHT;
     static constexpr float SAMPLE_HEIGHT = (2.0 * MAX_HEIGHT) / 256.0f; // 256 values is contained in a pixel.
 private:
-    Utilities::ImageData point_cloud_3_channel; // I liked the Point Cloud Name. These are 3 channel signed bytes.
+    Utilities::GridBase2D<HeightmapPixel> point_cloud_3_channel; // I liked the Point Cloud Name. These are 3 channel signed bytes.
 
     uint16_t culling_distance; // This affects the radius of the circle where the culling happens
     CullingTile culling_top_left;
@@ -119,7 +122,7 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    Utilities::ImageData *const getImage() const;
+    Utilities::Image2D getImage() const;
     
     void makeEmpty();
 

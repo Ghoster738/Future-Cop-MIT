@@ -47,23 +47,43 @@ uint32_t Data::Mission::TilResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-Utilities::ImageData *const Data::Mission::TilResource::getImage() const {
-    return const_cast<Utilities::ImageData *const>(&point_cloud_3_channel);
+Utilities::Image2D Data::Mission::TilResource::getImage() const {
+    Utilities::PixelFormatColor_R8G8B8 color_format;
+    Utilities::Image2D image( point_cloud_3_channel.getWidth(), point_cloud_3_channel.getHeight(), color_format );
+    Utilities::PixelFormatColor::GenericColor color(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
+        for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
+            auto height = point_cloud_3_channel.getValue( x, y );
+            
+            color.red   = static_cast<int16_t>( height.channel[0] ) + 128;
+            color.green = static_cast<int16_t>( height.channel[1] ) + 128;
+            color.blue  = static_cast<int16_t>( height.channel[2] ) + 128;
+            
+            color.red   *= 1.0 / 256.0;
+            color.green *= 1.0 / 256.0;
+            color.blue  *= 1.0 / 256.0;
+            
+            image.writePixel( x, y, color );
+        }
+    }
+    
+    return image;
 }
 
 void Data::Mission::TilResource::makeEmpty() {
-    point_cloud_3_channel.setWidth(  AMOUNT_OF_TILES + 1 );
-    point_cloud_3_channel.setHeight( AMOUNT_OF_TILES + 1 );
-    point_cloud_3_channel.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+    point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
     
-    auto image_data = point_cloud_3_channel.getRawImageData();
-    for( unsigned int a = 0; a < point_cloud_3_channel.getWidth() * point_cloud_3_channel.getHeight(); a++ ) {
-
-        image_data[0] = -128;
-        image_data[1] =  127;
-        image_data[2] = -128;
-
-        image_data += point_cloud_3_channel.getPixelSize();
+    for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
+        for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
+            HeightmapPixel height;
+            
+            height.channel[0] = -128;
+            height.channel[1] =  127;
+            height.channel[2] = -128;
+            
+            point_cloud_3_channel.setValue( x, y, height );
+        }
     }
     
     // I decided to set these anyways.
@@ -153,18 +173,18 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             }
 
             // setup the point_cloud_3_channel.
-            point_cloud_3_channel.setWidth(  AMOUNT_OF_TILES + 1 );
-            point_cloud_3_channel.setHeight( AMOUNT_OF_TILES + 1 );
-            point_cloud_3_channel.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+            point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
 
-            auto image_data = point_cloud_3_channel.getRawImageData();
-            for( unsigned int a = 0; a < point_cloud_3_channel.getWidth() * point_cloud_3_channel.getHeight(); a++ ) {
-
-                image_data[0] = readerSect.readU8();
-                image_data[1] = readerSect.readU8();
-                image_data[2] = readerSect.readU8();
-
-                image_data += point_cloud_3_channel.getPixelSize();
+            for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
+                for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
+                    HeightmapPixel height;
+                    
+                    height.channel[0] = readerSect.readI8();
+                    height.channel[1] = readerSect.readI8();
+                    height.channel[2] = readerSect.readI8();
+                    
+                    point_cloud_3_channel.setValue( x, y, height );
+                }
             }
 
             // These bytes seems to be only five zero bytes
@@ -324,14 +344,17 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
             enable_export = false;
     }
 
-    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( point_cloud_3_channel );
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( Utilities::ImageData::RED_GREEN_BLUE, 1 );
 
     if( the_choosen_r != nullptr && enable_export ) {
         if( enable_point_cloud_export ) {
             // Write the three heightmaps encoded in three color channels.
             // TODO Find out what to do if the image cannot be written.
             Utilities::Buffer buffer;
-            the_choosen_r->write( point_cloud_3_channel, buffer );
+            
+            Utilities::ImageData point_cloud_3_channel_data( getImage() );
+            
+            the_choosen_r->write( point_cloud_3_channel_data, buffer );
             buffer.write( the_choosen_r->appendExtension( file_path ) );
         }
         if( enable_height_map_export ) {
@@ -431,10 +454,10 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     const Tile current_tile = mesh_tiles.at( t + mesh_reference_grid[x][y].tiles_start );
 
                     Data::Mission::Til::Mesh::Input input;
-                    input.pixels[ FRONT_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 0, x + 0 ) );
-                    input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 1, x + 0 ) );
-                    input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 1, x + 1 ) );
-                    input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( y + 0, x + 1 ) );
+                    input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
+                    input.pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( y + 1, x + 0 );
+                    input.pixels[  BACK_RIGHT ] = point_cloud_3_channel.getRef( y + 1, x + 1 );
+                    input.pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( y + 0, x + 1 );
                     input.coord_index = current_tile.texture_cord_index;
                     input.coord_index_limit = this->texture_cords.size();
                     input.coord_data = this->texture_cords.data();
@@ -550,10 +573,10 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         Data::Mission::Til::Mesh::Input input;
         Data::Mission::Til::Mesh::VertexData vertex_data;
         
-        input.pixels[ FRONT_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 0, x + 0 ) );
-        input.pixels[  BACK_LEFT  ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 1, x + 0 ) );
-        input.pixels[  BACK_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 1, x + 1 ) );
-        input.pixels[ FRONT_RIGHT ] = reinterpret_cast<const int8_t*>( point_cloud_3_channel.getPixel( z + 0, x + 1 ) );
+        input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( z + 0, x + 0 );
+        input.pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( z + 1, x + 0 );
+        input.pixels[  BACK_RIGHT ] = point_cloud_3_channel.getRef( z + 1, x + 1 );
+        input.pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( z + 0, x + 1 );
         
         vertex_data.position = position;
         vertex_data.coords = cord;

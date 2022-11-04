@@ -42,7 +42,7 @@ namespace Mesh {
     };
 
     struct Input {
-        const int8_t *pixels[4]; // Almost treated like an RGB 8 bit per channel.
+        const TilResource::HeightmapPixel* pixels[4]; // Almost treated like an RGB 8 bit per channel.
         glm::vec3 colors[4]; // The colors for the tiles.
         unsigned int coord_index;
         unsigned int coord_index_limit;
