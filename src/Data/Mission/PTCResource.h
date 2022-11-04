@@ -74,7 +74,7 @@ public:
      * This exports all three heightmaps of all the tiles in one texture. It looks interesting in its own way.
      * @param file_path The path the file will be written.
      * @param agruments --dry for no writing operations.
-     * @return zero if it is a dry run or the return results of the ImageData write operations.
+     * @return zero if it is a dry run or the return results of the Image2D write operations.
      */
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
     
