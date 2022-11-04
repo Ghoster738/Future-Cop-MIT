@@ -72,11 +72,8 @@ bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::Til
 
 Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned int x, unsigned int y ) {
     if( x < grid.getWidth() && y < grid.getHeight() ) {
-        
-        auto number = grid.getValue( x, y );
-        
-        if( number != 0 )
-            return tile_array_r.at( (number - 1) % this->tile_array_r.size() );
+        if( grid.getValue( x, y ) != 0 )
+            return tile_array_r.at( (grid.getValue( x, y ) / 4 - 1) % this->tile_array_r.size() );
     }
 
     return nullptr;
