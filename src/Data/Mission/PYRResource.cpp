@@ -300,13 +300,11 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
             primary_image_p->subImage(
                 texture->getLocation().x, texture->getLocation().y,
                 texture->getSize().x,     texture->getSize().y, sub_image );
-            
-            auto palleted_image_data = Utilities::ImageData( sub_image );
 
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( palleted_image_data );
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( sub_image );
 
             if( enable_export && the_choosen_r != nullptr ) {
-                the_choosen_r->write( palleted_image_data, buffer );
+                the_choosen_r->write( sub_image, buffer );
                 buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
                 buffer.set( nullptr, 0 );
             }
@@ -315,11 +313,10 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
     }
 
     if( export_prime_bw && enable_export ) {
-        auto image = Utilities::ImageData( *primary_image_p );
-        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *primary_image_p );
 
         if( the_choosen_r != nullptr ) {
-            the_choosen_r->write( image, buffer );
+            the_choosen_r->write( *primary_image_p, buffer );
             buffer.write( the_choosen_r->appendExtension( file_path ) );
         }
     }

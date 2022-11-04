@@ -27,16 +27,15 @@ public:
      * @param first If true the first valid format that has no compromises in image quality or at least a writer. If this is false then it would choose the format that both has no compromises in quality and has the smallest file size.
      * @return A valid ImageFormat for success, or a nullptr if there is no format that supports the image_data.
      */
-    ImageFormat* getWriterReference( const ImageData& image_data, bool first = true );
+    ImageFormat* getWriterReference( const ImageBase2D<Grid2DPlacementNormal>& image_data, bool first = true );
     
     /**
      * This gets the writer reference for memory effiency.
      * However, thread safety for using this is unsafe!
-     * @param type This is holds the type of image data that would be encoded.
-     * @param bytes_per_channel This is holds the color depth of the data.
+     * @param pixel_format This is holds the type of image data that would be encoded.
      * @return A valid ImageFormat for success, or a nullptr if there is no format that supports the image_data.
      */
-    ImageFormat* getWriterReference( ImageData::Type type, unsigned int bytes_per_channel );
+    ImageFormat* getWriterReference( const PixelFormatColor& pixel_format );
     /**
      * This gets the reader reference for memory effiency.
      * However, thread safety for using this is unsafe!
@@ -45,8 +44,8 @@ public:
      */
     ImageFormat* getReaderReference( const Buffer& readerForImage );
     
-    ImageFormat* getWriterCopy( const ImageData& image_data, bool first = true ) const;
-    ImageFormat* getWriterCopy( ImageData::Type type, unsigned int bytes_per_channel ) const;
+    ImageFormat* getWriterCopy( const ImageBase2D<Grid2DPlacementNormal>& image_data, bool first = true ) const;
+    ImageFormat* getWriterCopy( const PixelFormatColor& pixel_format ) const;
     ImageFormat* getReaderCopy( const Buffer& readerForImage ) const;
 };
 

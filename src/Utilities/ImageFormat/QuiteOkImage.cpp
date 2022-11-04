@@ -169,15 +169,15 @@ bool Utilities::ImageFormat::QuiteOkImage::canWrite() const {
     return true; // By default this program can write qoi files.
 }
 
-size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageData& image_data ) const {
+size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_data ) const {
     const size_t INFO_STRUCT = 14;
     const size_t END_BYTES = 8;
     size_t current_size = 0;
     
-    if( supports( image_data.getType(), image_data.getBytesPerChannel() ) ) {
+    // TODO Replace this with a more effient method.
+    if( supports( *image_data.getPixelFormat() ) ) {
         QuiteOkImage qoi;
         
-        // TODO Replace this with a more effient way.
         Buffer buffer;
         qoi.write( image_data, buffer );
         
@@ -187,25 +187,32 @@ size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageData& image_da
     return current_size;
 }
 
-bool Utilities::ImageFormat::QuiteOkImage::supports( ImageData::Type type,
-                                                     unsigned int bytes_per_channel ) const {
-    return (bytes_per_channel == 1) &
-           ((type == ImageData::BLACK_WHITE) |
-            (type == ImageData::RED_GREEN_BLUE) |
-            (type == ImageData::RED_GREEN_BLUE_ALHPA));
+bool Utilities::ImageFormat::QuiteOkImage::supports( const PixelFormatColor& pixel_format ) const {
+    return true;
+    if( dynamic_cast<const Utilities::PixelFormatColor_W8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_W8A8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+        return false;
 }
 
 std::string Utilities::ImageFormat::QuiteOkImage::getExtension() const {
     return FILE_EXTENSION;
 }
 
-int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
-                                                 Utilities::Buffer& buffer ) {
-    if( supports( image_data.getType(), image_data.getBytesPerChannel() ) )
+int Utilities::ImageFormat::QuiteOkImage::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
+    if( supports( *image_data.getPixelFormat() ) )
     {
         reset();
         
-        auto image_data_buffer = image_data.getRawImageData();
         Pixel current_pixel = INITIAL_PIXEL;
         
         // Write the header
@@ -216,7 +223,15 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
         buffer.addU32( image_data.getWidth(),  Buffer::Endian::BIG );
         buffer.addU32( image_data.getHeight(), Buffer::Endian::BIG );
         
-        if( image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA )
+        bool has_alpha = false;
+        
+        if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
+            has_alpha = true;
+        else
+        if( dynamic_cast<const Utilities::PixelFormatColor_W8A8*>( image_data.getPixelFormat() ) != nullptr )
+            has_alpha = true;
+        
+        if( has_alpha )
             buffer.addU8( 4 );
         else
             buffer.addU8( 3 );
@@ -227,19 +242,14 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
         {
             for( size_t y = 0; y < image_data.getHeight(); y++ )
             {
-                if( image_data.getType() != ImageData::BLACK_WHITE ) {
-                    current_pixel.red   = image_data_buffer[0];
-                    current_pixel.green = image_data_buffer[1];
-                    current_pixel.blue  = image_data_buffer[2];
+                auto generic_color = image_data.readPixel( x, y );
+                
+                current_pixel.red   = generic_color.red   * 256.0;
+                current_pixel.green = generic_color.green * 256.0;
+                current_pixel.blue  = generic_color.blue  * 256.0;
 
-                    if( image_data.getType() == ImageData::RED_GREEN_BLUE_ALHPA )
-                        current_pixel.alpha = image_data_buffer[3];
-                }
-                else {
-                    current_pixel.red   = image_data_buffer[0];
-                    current_pixel.green = image_data_buffer[0];
-                    current_pixel.blue  = image_data_buffer[0];
-                }
+                if( has_alpha )
+                    current_pixel.alpha = generic_color.alpha * 256.0;
                 
                 if( matchColor(current_pixel, this->previous_pixel) )
                 {
@@ -282,8 +292,6 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
                 }
                 placePixelInHash( current_pixel );
                 this->previous_pixel = current_pixel;
-                
-                image_data_buffer += image_data.getPixelSize();
             }
         }
         
@@ -303,7 +311,7 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageData& image_data,
     }
 }
 
-int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData& image_data ) {
+int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNormal>& image_data ) {
     const size_t INFO_STRUCT = 14;
     const size_t END_BYTES = 8;
     bool end_found = false;
@@ -326,6 +334,10 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
             channels = reader.readU8();
             colorspace = reader.readU8();
             
+            GridDimensions2D dim2D( width, height );
+            Grid2DPlacementNormal placer( &dim2D );
+            grid_2d_unit placer_x, placer_y;
+            
             if( width != 0 && height != 0 )
             {
                 // Find the ending 8 byte 0x1.
@@ -345,25 +357,18 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                     current_pixel.alpha = 0xFF;
                     
                     // Allocate the image.
-                    image_data.setWidth( width );
-                    image_data.setHeight( height );
+                    image_data.setDimensions( width, height );
                     
-                    if( channels == 3 )
-                        image_data.setFormat( ImageData::Type::RED_GREEN_BLUE, 1 );
-                    else
-                    {
-                        image_data.setFormat( ImageData::Type::RED_GREEN_BLUE_ALHPA, 1 );
-                        channels = 4; // TODO Make channels != 4 warning
-                    }
+                    // Once, something was done with channels variable.
                     
                     // TODO Make colorspace > 1 warning Although colorspace has no effect on color space anyways.
                     
                     reader.setPosition( INFO_STRUCT, Buffer::Direction::BEGIN );
                     
                     bool no_abort = true;
-                    uint8_t *m;
+                    size_t m;
                     
-                    for( m = image_data.getRawImageData(); m != image_data.getRawImageData() + image_data.getPixelSize() * width * height && no_abort; m += image_data.getPixelSize() )
+                    for( m = 0; m < width * height && no_abort; m++ )
                     {
                         auto opcode = reader.readU8();
                         
@@ -388,14 +393,16 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                                 
                                 current_pixel = previous_pixel;
                                 
-                                for( uint8_t i = 0; i < run && m < image_data.getRawImageData() + image_data.getPixelSize() * (width * height - 1); i++, m += image_data.getPixelSize() )
+                                for( uint8_t i = 0; i < run && m < (width * height - 1); i++, m++ )
                                 {
-                                    m[0] = current_pixel.red;
-                                    m[1] = current_pixel.green;
-                                    m[2] = current_pixel.blue;
+                                    placer.getCoordinates( m, placer_x, placer_y );
+                                    PixelFormatColor::GenericColor m_color;
                                     
-                                    if( channels == 4 )
-                                        m[3] = current_pixel.alpha;
+                                    m_color.red = static_cast<float>( current_pixel.red ) / 256.0;
+                                    m_color.green = static_cast<float>( current_pixel.green ) / 256.0;
+                                    m_color.blue = static_cast<float>( current_pixel.green ) / 256.0;
+                                    m_color.alpha = static_cast<float>( current_pixel.alpha ) / 256.0;
+                                    image_data.writePixel( placer_x, placer_y, m_color );
                                 }
                             }
                             else
@@ -421,12 +428,15 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                                 current_pixel = this->pixel_hash_table[ data ];
                         }
                         
-                        m[0] = current_pixel.red;
-                        m[1] = current_pixel.green;
-                        m[2] = current_pixel.blue;
+                        placer.getCoordinates( m, placer_x, placer_y );
+                        placer.getCoordinates( m, placer_x, placer_y );
+                        PixelFormatColor::GenericColor m_color;
                         
-                        if( channels == 4 )
-                            m[3] = current_pixel.alpha;
+                        m_color.red = static_cast<float>( current_pixel.red ) / 256.0;
+                        m_color.green = static_cast<float>( current_pixel.green ) / 256.0;
+                        m_color.blue = static_cast<float>( current_pixel.green ) / 256.0;
+                        m_color.alpha = static_cast<float>( current_pixel.alpha ) / 256.0;
+                        image_data.writePixel( placer_x, placer_y, m_color );
                         
                         placePixelInHash( current_pixel );
                         
@@ -434,7 +444,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageData&
                         
                         no_abort = reader.getPosition( Buffer::END ) > 8;
                     }
-                    status.complete = (m == image_data.getRawImageData() + image_data.getPixelSize() * width * height);
+                    status.complete = (m == (width * height));
                     status.success = true;
                     
                     status.status = Status::OKAY;

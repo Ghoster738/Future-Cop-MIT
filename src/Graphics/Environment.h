@@ -119,7 +119,7 @@ public:
      * @param image this is the image. This image must at most the dimensions of the context being rendered.
      * @return true if the screenshot had been successfully placed onto the image.
      */
-    bool screenshot( Utilities::ImageData &image ) const;
+    bool screenshot( Utilities::Image2D &image ) const;
 
     /**
      * This advances time on the environment.

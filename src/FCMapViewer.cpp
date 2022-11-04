@@ -444,7 +444,7 @@ int main(int argc, char** argv)
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                Utilities::ImageData image_screenshot( width, height,  Utilities::ImageData::RED_GREEN_BLUE, 1 );
+                Utilities::Image2D image_screenshot( width, height, Utilities::PixelFormatColor_R8G8B8A8() );
                 environment->screenshot( image_screenshot );
 
                 Utilities::Buffer file;

@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 #include "../Buffer.h"
-#include "../ImageData.h"
+#include "../Image2D.h"
 
 namespace Utilities {
 
@@ -27,15 +27,15 @@ public:
     virtual bool isFormat( const Buffer& buffer ) const = 0;
     virtual bool canRead() const = 0;
     virtual bool canWrite() const = 0;
-    virtual size_t getSpace( const ImageData& image_data ) const = 0;
-    virtual bool supports( ImageData::Type type, unsigned int bytes_per_channel ) const = 0;
+    virtual size_t getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_data ) const = 0;
+    virtual bool supports( const PixelFormatColor& pixel_format ) const = 0;
     
     virtual std::string getExtension() const = 0;
     
     virtual std::string appendExtension( const std::string &name ) const;
     
-    virtual int write( const ImageData& image_data, Buffer& buffer );
-    virtual int read( const Buffer& buffer, ImageData& image_data );
+    virtual int write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer );
+    virtual int read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNormal>& image_data );
 };
 
 };

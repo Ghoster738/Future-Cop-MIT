@@ -234,17 +234,15 @@ int Data::Mission::FontResource::write( const char *const file_path, const std::
 
     if( export_enable ) {
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
-        
-        Utilities::ImageData image( *image_p );
 
         if( resource.is_open() ) {
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( image );
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *image_p );
 
             resource << "info face=\"" << getFullName( getResourceID() ) << "\" size=24 bold=0 italic=0 charset=\"ASCII\""
                      << " unicode=0 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0 outline=1"<< std::endl;
 
-            resource << "common lineHeight=24 base=19 scaleW=" << image.getWidth() << " scaleH="
-                     << image.getHeight() << " pages=1 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0"
+            resource << "common lineHeight=24 base=19 scaleW=" << image_p->getWidth() << " scaleH="
+                     << image_p->getHeight() << " pages=1 packed=0 alphaChnl=0 redChnl=0 greenChnl=0 blueChnl=0"
                      << std::endl;
 
             resource << "page id=0 file=\"" << the_choosen_r->appendExtension( getFullName( getResourceID() ) ) << "\"" << std::endl;
@@ -266,7 +264,7 @@ int Data::Mission::FontResource::write( const char *const file_path, const std::
 
             if( the_choosen_r != nullptr ) {
                 Utilities::Buffer buffer;
-                int state = the_choosen_r->write( image, buffer );
+                int state = the_choosen_r->write( *image_p, buffer );
 
                 buffer.write( the_choosen_r->appendExtension( file_path ) );
                 return state;
