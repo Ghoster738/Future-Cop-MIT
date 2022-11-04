@@ -685,7 +685,7 @@ Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_p
             
             float z_pos = static_cast<float>(z) * STEPER - HALF_LENGTH;
             
-            float distance = getRayCast2D( x_pos, z_pos );
+            float distance = getRayCast2D( z_pos, x_pos );
             
             // This means that no triangles had been hit
             if( distance < 0.0f ) {
@@ -701,7 +701,7 @@ Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_p
             }
             else { // This means that the pixel works for the image format.
                 distance = 2.0f * MAX_HEIGHT - distance;
-                distance *= 1.0f / SAMPLE_HEIGHT;
+                distance *= 1.0f / (2.0f * MAX_HEIGHT);
                 
                 color.red   = distance;
                 color.green = distance;

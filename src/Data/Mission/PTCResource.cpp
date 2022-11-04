@@ -166,7 +166,7 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
         }
         
         if( entire_height_map ) {
-            unsigned int rays_per_tile = 4;
+            unsigned int rays_per_tile = 1;
             Utilities::PixelFormatColor_R8G8B8 color_format;
             
             Utilities::Image2D ptc_height_map( grid.getWidth() * rays_per_tile * 16, grid.getHeight() * rays_per_tile * 16, color_format );
