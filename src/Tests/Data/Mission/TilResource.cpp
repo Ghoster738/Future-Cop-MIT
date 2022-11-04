@@ -334,11 +334,10 @@ int main() {
             // TODO Find a way to enable this.
             if( false ) {
                 Utilities::ImageFormat::Chooser chooser;
-                Utilities::ImageData heightmap_data( heightmap );
                 
-                Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( heightmap_data );
+                Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( heightmap );
                 Utilities::Buffer buffer;
-                the_choosen_r->write( heightmap_data, buffer );
+                the_choosen_r->write( heightmap, buffer );
                 buffer.write( the_choosen_r->appendExtension( "HeightMap" ) );
             }
             

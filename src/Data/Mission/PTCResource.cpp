@@ -149,13 +149,11 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
 
     if( enable_export ) {
         if( !entire_map ) {
-            Utilities::ImageData debug_map_display( *debug_map_display_p );
-            
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( debug_map_display );
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *debug_map_display_p );
 
             if( the_choosen_r != nullptr ) {
                 Utilities::Buffer buffer;
-                the_choosen_r->write( debug_map_display, buffer );
+                the_choosen_r->write(  *debug_map_display_p, buffer );
 
                 buffer.write( the_choosen_r->appendExtension( file_path ) );
             }
@@ -184,13 +182,11 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
                 }
             }
             
-            Utilities::ImageData ptc_height_map_data(ptc_height_map);
-            
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( ptc_height_map_data );
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( ptc_height_map );
             
             if( the_choosen_r != nullptr ) {
                 Utilities::Buffer buffer;
-                the_choosen_r->write( ptc_height_map_data, buffer );
+                the_choosen_r->write( ptc_height_map, buffer );
 
                 buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
             }

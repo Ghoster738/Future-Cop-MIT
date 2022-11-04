@@ -239,9 +239,8 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
         Utilities::ImageFormat::Chooser chooser;
         
         assert( this->image_p != nullptr );
-        Utilities::ImageData image_data( *getImage() );
         
-        this->format_p = chooser.getWriterCopy( image_data );
+        this->format_p = chooser.getWriterCopy( *getImage() );
         assert( this->format_p != nullptr );
 
         return !file_is_not_valid;
@@ -283,9 +282,7 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
                     }
                 }
                 
-                auto image = Utilities::ImageData( image_convert );
-                
-                state = this->format_p->write( image, buffer );
+                state = this->format_p->write( image_convert, buffer );
                 buffer.write( this->format_p->appendExtension( file_path ) );
             }
 
@@ -308,7 +305,7 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
                     rgba_palette.setIndex( i, color );
                 }
                 
-                auto palette = Utilities::ImageData( Utilities::ImagePalette2D( rgba_palette ) );
+                auto palette = Utilities::ImagePalette2D( rgba_palette );
                 
                 state = this->format_p->write( palette, buffer );
                 buffer.write( this->format_p->appendExtension( std::string( file_path ) + "_paletted" ) );

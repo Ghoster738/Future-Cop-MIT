@@ -232,16 +232,15 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
                 enable_export = false;
         }
 
-        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( Utilities::ImageData::RED_GREEN_BLUE_ALHPA, 1);
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( Utilities::PixelFormatColor_R8G8B8A8() );
 
         if( enable_export && the_choosen_r != nullptr ) {
             Utilities::Buffer buffer;
 
             if( enable_color_palette_export ) {
                 Utilities::ImagePalette2D palette_image( palette );
-                Utilities::ImageData image_data( palette_image );
                 
-                the_choosen_r->write( image_data, buffer );
+                the_choosen_r->write( palette_image, buffer );
                 buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + " clut" ) );
                 buffer.set( nullptr, 0 );
             }
@@ -259,12 +258,10 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
                     video.nextFrame();
             }
             
-            Utilities::ImageData image_sheet_data( image_sheet );
+            assert( Video::WIDTH == image_sheet.getWidth() );
+            assert( Video::HEIGHT * video_frames == image_sheet.getHeight() );
             
-            assert( Video::WIDTH == image_sheet_data.getWidth() );
-            assert( Video::HEIGHT * video_frames == image_sheet_data.getHeight() );
-            
-            int state = the_choosen_r->write( image_sheet_data, buffer );
+            int state = the_choosen_r->write( image_sheet, buffer );
 
             buffer.write( the_choosen_r->appendExtension( file_path ) );
             return state;

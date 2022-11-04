@@ -344,7 +344,8 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
             enable_export = false;
     }
 
-    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+    Utilities::PixelFormatColor_R8G8B8 rgb;
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( rgb );
 
     if( the_choosen_r != nullptr && enable_export ) {
         if( enable_point_cloud_export ) {
@@ -352,19 +353,15 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
             // TODO Find out what to do if the image cannot be written.
             Utilities::Buffer buffer;
             
-            Utilities::ImageData point_cloud_3_channel_data( getImage() );
-            
-            the_choosen_r->write( point_cloud_3_channel_data, buffer );
+            the_choosen_r->write( getImage(), buffer );
             buffer.write( the_choosen_r->appendExtension( file_path ) );
         }
         if( enable_height_map_export ) {
             // Write out the depth field of the Til Resource.
             Utilities::Image2D heightmap = getHeightMap( 8 );
             
-            Utilities::ImageData heightmap_data( heightmap );
-            
             Utilities::Buffer buffer;
-            the_choosen_r->write( heightmap_data, buffer );
+            the_choosen_r->write( heightmap, buffer );
             buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
         }
     }

@@ -20,9 +20,9 @@ Utilities::ImageFormat::Chooser::~Chooser() {
     }
 }
 
-Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterReference( const ImageData& image_data, bool first ) {
+Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterReference( const ImageBase2D<Grid2DPlacementNormal>& image_data, bool first ) {
     if( first )
-        return getWriterReference( image_data.getType(), image_data.getBytesPerChannel() );
+        return getWriterReference( *image_data.getPixelFormat() );
     else {
         size_t size_of_smallest_image = SIZE_MAX;
         size_t size_of_image;
@@ -31,7 +31,7 @@ Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterR
         // This operation is not fast, but it is intended to find the best format that would
         // take the least disk space.
         for( auto x : writer_references ) {
-            if( x->supports( image_data.getType(), image_data.getBytesPerChannel() ) ) {
+            if( x->supports( *image_data.getPixelFormat() ) ) {
                 size_of_image = x->getSpace( image_data );
                 
                 if( size_of_image == 0 ) {
@@ -49,9 +49,9 @@ Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterR
     }
 }
 
-Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterReference( ImageData::Type type, unsigned int bytes_per_channel ) {
+Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterReference( const PixelFormatColor& pixel_format ) {
     for( auto x : writer_references ) {
-        if( x->supports(type, bytes_per_channel) )
+        if( x->supports( pixel_format ) )
             return x;
     }
     return nullptr;
@@ -65,7 +65,7 @@ Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getReaderR
     return nullptr;
 }
 
-Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterCopy( const ImageData& image_data, bool first ) const {
+Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterCopy(  const ImageBase2D<Grid2DPlacementNormal>& image_data, bool first ) const {
     ImageFormat *ref = const_cast<Chooser*>( this )->getWriterReference( image_data, first );
     
     if( ref != nullptr )
@@ -74,8 +74,8 @@ Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterC
         return nullptr;
 }
 
-Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterCopy( ImageData::Type type, unsigned int bytes_per_channel ) const {
-    ImageFormat *ref = const_cast<Chooser*>( this )->getWriterReference( type, bytes_per_channel );
+Utilities::ImageFormat::ImageFormat* Utilities::ImageFormat::Chooser::getWriterCopy(  const PixelFormatColor& pixel_format ) const {
+    ImageFormat *ref = const_cast<Chooser*>( this )->getWriterReference( pixel_format );
     
     if( ref != nullptr )
         return ref->duplicate();

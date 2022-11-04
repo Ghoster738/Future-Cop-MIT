@@ -61,8 +61,8 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& ima
 
 namespace {
 
-png_image setupImage( const Utilities::ImageData& image_data, bool &is_valid ) {
-    // Thanks for NonStatic
+png_image setupImage( const Utilities::ImageBase2D<Utilities::Grid2DPlacementNormal>& image_data, bool &is_valid ) {
+    // Thanks NonStatic
     png_image image_write;
     memset( &image_write, 0, sizeof(image_write) );
     image_write.version = PNG_IMAGE_VERSION;
@@ -72,44 +72,24 @@ png_image setupImage( const Utilities::ImageData& image_data, bool &is_valid ) {
 
     is_valid = true;
 
-    if( image_data.getBytesPerChannel() == 1 ) {
-        switch( image_data.getType() ) {
-        case Utilities::ImageData::BLACK_WHITE:
-            image_write.format = PNG_FORMAT_GRAY;
-            break;
-        case Utilities::ImageData::BLACK_WHITE_ALHPA:
-            image_write.format = PNG_FORMAT_GA;
-            break;
-        case Utilities::ImageData::RED_GREEN_BLUE:
-            image_write.format = PNG_FORMAT_RGB;
-            break;
-        case Utilities::ImageData::RED_GREEN_BLUE_ALHPA:
-            image_write.format = PNG_FORMAT_RGBA;
-            break;
-        default:
-            is_valid = false;
-        }
-    }
-    else if( image_data.getBytesPerChannel() == 2 ) {
-        switch( image_data.getType() ) {
-        case Utilities::ImageData::BLACK_WHITE:
-            image_write.format = PNG_FORMAT_LINEAR_Y;
-            break;
-        case Utilities::ImageData::BLACK_WHITE_ALHPA:
-            image_write.format = PNG_FORMAT_LINEAR_Y_ALPHA;
-            break;
-        case Utilities::ImageData::RED_GREEN_BLUE:
-            image_write.format = PNG_FORMAT_LINEAR_RGB;
-            break;
-        case Utilities::ImageData::RED_GREEN_BLUE_ALHPA:
-            image_write.format = PNG_FORMAT_LINEAR_RGB_ALPHA;
-            break;
-        default:
-            is_valid = false;
-        }
-    }
+    if( dynamic_cast<const Utilities::PixelFormatColor_W8*>( image_data.getPixelFormat() ) != nullptr )
+        image_write.format = PNG_FORMAT_GRAY;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_W8A8*>( image_data.getPixelFormat() ) != nullptr )
+        image_write.format = PNG_FORMAT_GA;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( image_data.getPixelFormat() ) != nullptr )
+        image_write.format = PNG_FORMAT_RGB;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
+        image_write.format = PNG_FORMAT_RGBA;
     else
         is_valid = false;
+        
+    // image_write.format = PNG_FORMAT_LINEAR_Y;
+    // image_write.format = PNG_FORMAT_LINEAR_Y_ALPHA;
+    // image_write.format = PNG_FORMAT_LINEAR_RGB;
+    // image_write.format = PNG_FORMAT_LINEAR_RGB_ALPHA;
     
     return image_write;
 }
@@ -123,25 +103,23 @@ bool Utilities::ImageFormat::PortableNetworkGraphics::canWrite() const {
     return true;
 }
 
-bool Utilities::ImageFormat::PortableNetworkGraphics::supports(
-     ImageData::Type type,
-     unsigned int bytes_per_channel ) const {
-    
-    if( bytes_per_channel != 1 && bytes_per_channel != 2 )
+bool Utilities::ImageFormat::PortableNetworkGraphics::supports( const PixelFormatColor& pixel_format ) const {
+    if( dynamic_cast<const Utilities::PixelFormatColor_W8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_W8A8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+        return true;
+    else
         return false;
-    
-    switch( type ) {
-        case ImageData::Type::BLACK_WHITE:
-        case ImageData::Type::BLACK_WHITE_ALHPA:
-        case ImageData::Type::RED_GREEN_BLUE:
-        case ImageData::Type::RED_GREEN_BLUE_ALHPA:
-            return true;
-        default:
-            return false;
-    }
 }
 
-size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageData& image_data ) const {
+size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_data ) const {
     bool is_valid;
     auto image_write = setupImage( image_data, is_valid );
     
@@ -150,14 +128,14 @@ size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageDat
     else {
         png_alloc_size_t length = 0;
         
-        if( !png_image_write_to_memory(&image_write, nullptr, &length, 0, (void*)image_data.getRawImageData(), 0, nullptr) )
+        if( !png_image_write_to_memory(&image_write, nullptr, &length, 0, (void*)image_data.getDirectGridData(), 0, nullptr) )
             return 0; // Failed to obtain data needed to write the PNG.
         else
             return static_cast<size_t>( length );
     }
 }
 
-int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& image_data, Buffer& buffer ) {
+int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
     bool is_valid;
     auto image_write = setupImage( image_data, is_valid );
     
@@ -166,7 +144,7 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& ima
     else {
         png_alloc_size_t length = 0;
         
-        if( !png_image_write_to_memory(&image_write, nullptr, &length, 0, (void*)image_data.getRawImageData(), 0, nullptr) )
+        if( !png_image_write_to_memory(&image_write, nullptr, &length, 0, (void*)image_data.getDirectGridData(), 0, nullptr) )
             return -2; // Failed to obtain data needed to write the PNG.
         else if( length == 0 )
             return -3; // There is no length to allocate for the buffer.
@@ -176,7 +154,7 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageData& ima
                 return -4;
             else {
                 // The buffer is finally allocated. Now, attempt to load the PNG.
-                if( png_image_write_to_memory(&image_write, (void*)buffer.dangerousPointer(), &length, 0, (void*)image_data.getRawImageData(), 0, nullptr) )
+                if( png_image_write_to_memory(&image_write, (void*)buffer.dangerousPointer(), &length, 0, (void*)image_data.getDirectGridData(), 0, nullptr) )
                     return 1; // The buffer is successfully read.
                 else
                     return -5; // The image has failed to be written.

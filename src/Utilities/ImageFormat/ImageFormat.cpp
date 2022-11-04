@@ -19,9 +19,9 @@ std::string Utilities::ImageFormat::ImageFormat::appendExtension( const std::str
     return path;
 }
 
-int Utilities::ImageFormat::ImageFormat::write( const ImageData& image_data, Buffer& buffer ) {
+int Utilities::ImageFormat::ImageFormat::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
     return -1;
 }
-int Utilities::ImageFormat::ImageFormat::read( const Buffer& buffer, ImageData& image_data ) {
+int Utilities::ImageFormat::ImageFormat::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNormal>& image_data ) {
     return -1;
 }

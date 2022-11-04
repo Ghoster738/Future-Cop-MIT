@@ -27,6 +27,16 @@ public:
     grid_2d_unit getHeight() const { return this->size.height; }
     
     /**
+     * This sets the width and the height of the image.
+     * @warning The cell data gets cleared from this operation.
+     * @param width The width of the image.
+     * @param height The height of the image.
+     */
+    void setDimensions( grid_2d_unit width, grid_2d_unit height ) {
+        GridBase2D<grid_2d_value, placement>::updateCellBuffer();
+    }
+    
+    /**
      * @return the endianess
      */
     virtual Buffer::Endian getEndian() const = 0;
