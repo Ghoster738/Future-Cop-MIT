@@ -1,7 +1,7 @@
 #ifndef TEST_IMAGE_2D_H
 #define TEST_IMAGE_2D_H
 
-#include "../../Utilities/ImageData.h"
+#include "../../Utilities/Image2D.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 
 int testColor( int problem,

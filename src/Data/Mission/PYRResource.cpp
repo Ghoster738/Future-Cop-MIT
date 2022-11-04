@@ -2,7 +2,6 @@
 
 #include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
-#include "../../Utilities/ImageData.h"
 #include <string.h>
 #include <fstream>
 #include <cassert>
