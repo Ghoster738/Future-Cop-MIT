@@ -14,11 +14,18 @@ namespace {
 const std::string Data::Mission::PTCResource::FILE_EXTENSION = "ptc";
 const uint32_t Data::Mission::PTCResource::IDENTIFIER_TAG = 0x43707463; // which is { 0x43, 0x70, 0x74, 0x63 } or { 'C', 'p', 't', 'c' } or "Cptc"
 
-Data::Mission::PTCResource::PTCResource() {
-
+Data::Mission::PTCResource::PTCResource() : grid(), debug_map_display_p( nullptr ) {
 }
 
-Data::Mission::PTCResource::PTCResource( const PTCResource &obj ) : Resource( obj ), grid( obj.grid ) {
+Data::Mission::PTCResource::PTCResource( const PTCResource &obj ) : Resource( obj ), grid( obj.grid ), debug_map_display_p( nullptr ), tile_array_r( obj.tile_array_r ) {
+        
+    if( obj.debug_map_display_p != nullptr )
+        debug_map_display_p = new Utilities::Image2D( *obj.debug_map_display_p );
+}
+
+Data::Mission::PTCResource::~PTCResource() {
+    if( debug_map_display_p != nullptr )
+        delete debug_map_display_p;
 }
 
 std::string Data::Mission::PTCResource::getFileExtension() const {
@@ -29,21 +36,32 @@ uint32_t Data::Mission::PTCResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::TilResource*> &tile_array_r ) {
+bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::TilResource*> &tile_array_r )
+{
+    Utilities::PixelFormatColor_R8G8B8 color_format;
+    
     if( tile_array_r.size() > 0 )
     {
-        debug_map_display.setWidth(  grid.getWidth()  * 0x11 );
-        debug_map_display.setHeight( grid.getHeight() * 0x11 );
-        debug_map_display.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-
+        if( debug_map_display_p != nullptr )
+            delete debug_map_display_p;
+        
+        debug_map_display_p = new Utilities::Image2D( grid.getWidth() * 0x11,  grid.getHeight() * 0x11, color_format );
+        
         this->tile_array_r = std::vector<Data::Mission::TilResource*>( tile_array_r );
 
         for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
             for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
-                auto pixel = grid.getPixel( x, y );
+                auto tile = getTile( x, y );
 
-                if( pixel != nullptr && *reinterpret_cast<const uint8_t*>(pixel) != 0 )
-                    debug_map_display.inscribeSubImage( x * 0x11, y * 0x11, *this->tile_array_r.at( (*reinterpret_cast<const uint8_t*>( pixel ) / sizeof( uint32_t ) - 1) % this->tile_array_r.size() )->getImage() );
+                if( tile != nullptr ) {
+                    auto grid_x = x * 0x11;
+                    auto grid_y = y * 0x11;
+                    
+                    auto image = tile->getImage();
+                    
+                    debug_map_display_p->inscribeSubImage( grid_x, grid_y, image );
+                    
+                }
             }
         }
         return true;
@@ -54,9 +72,11 @@ bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::Til
 
 Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned int x, unsigned int y ) {
     if( x < grid.getWidth() && y < grid.getHeight() ) {
-        auto pixel = grid.getPixel( x, y );
-        if( *reinterpret_cast<const uint32_t*>(pixel) != 0 )
-            return tile_array_r.at( (*reinterpret_cast<const uint32_t*>( pixel ) / sizeof( uint32_t ) - 1) % this->tile_array_r.size() );
+        
+        auto number = grid.getValue( x, y );
+        
+        if( number != 0 )
+            return tile_array_r.at( (number - 1) % this->tile_array_r.size() );
     }
 
     return nullptr;
@@ -87,16 +107,12 @@ bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
                 readerGRDB.setPosition( 0x24, Utilities::Buffer::BEGIN );
 
                 // setup the grid
-                grid.setWidth(  width );
-                grid.setHeight( height );
-                grid.setFormat( Utilities::ImageData::BLACK_WHITE, 4 );
+                grid.setDimensions( width, height );
 
-                auto image_data = grid.getRawImageData();
-                for( unsigned int a = 0; a < grid.getWidth() * grid.getHeight(); a++ ) {
-
-                    *reinterpret_cast<uint32_t*>(image_data) = readerGRDB.readU32( settings.endian );
-
-                    image_data += grid.getPixelSize();
+                for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
+                    for( unsigned int x = 0; x < grid.getWidth(); x++) {
+                        grid.setValue( x, y, readerGRDB.readU32( settings.endian ) );
+                    }
                 }
             }
             else
@@ -136,6 +152,8 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
 
     if( enable_export ) {
         if( !entire_map ) {
+            Utilities::ImageData debug_map_display( *debug_map_display_p );
+            
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( debug_map_display );
 
             if( the_choosen_r != nullptr ) {
@@ -160,13 +178,11 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
 
             for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
                 for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
-                    auto pixel = grid.getPixel( x, y );
+                    auto tile_r = getTile( x, y );
 
-                    if( pixel != nullptr && *reinterpret_cast<const uint8_t*>(pixel) != 0 ) {
-                        const auto OFFSET = *reinterpret_cast<const uint8_t*>( pixel ) / sizeof( uint32_t ) - 1;
-                        const auto NORMALIZED_OFFSET = OFFSET % this->tile_array_r.size();
+                    if( tile_r != nullptr ) {
                         
-                        auto height_map_p  = this->tile_array_r[ NORMALIZED_OFFSET ]->getHeightMap( rays_per_tile );
+                        auto height_map_p  = tile_r->getHeightMap( rays_per_tile );
                         
                         if( height_map_p != nullptr ) {
                             height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, *height_map_p );

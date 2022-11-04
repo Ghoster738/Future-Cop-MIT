@@ -19,13 +19,14 @@ public:
 	static const std::string FILE_EXTENSION;
 	static const uint32_t IDENTIFIER_TAG;
 private:
-    Utilities::ImageData grid;
-    Utilities::ImageData debug_map_display;
+    Utilities::GridBase2D<uint32_t> grid;
+    Utilities::Image2D *debug_map_display_p;
 
     std::vector<TilResource*> tile_array_r;
 public:
     PTCResource();
     PTCResource( const PTCResource &obj );
+    ~PTCResource();
 
     virtual std::string getFileExtension() const;
 
