@@ -2,12 +2,12 @@
 #include <fstream>
 
 namespace {
-    inline glm::vec3 colorFloatConvert( uint16_t color ) {
-        uint8_t blue, green, red;
+    inline glm::vec3 colorFloatConvert( const uint16_t *color ) {
+        Utilities::Buffer::Reader reader( reinterpret_cast<const uint8_t*>(color), sizeof(uint16_t) );
+        
+        auto generic_color = Utilities::PixelFormatColor_R5G5B5A1().readPixel( reader );
 
-        Utilities::ImageData::translate_16_to_24( color, blue, green, red );
-
-        return glm::vec3( static_cast<double>(red) / 256.0, static_cast<double>(green) / 256.0, static_cast<double>(blue) / 256.0 );
+        return glm::vec3( generic_color.red, generic_color.green, generic_color.blue );
     }
 }
 
@@ -45,7 +45,7 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 }
                 break;
             case 0b10: // Dynamic Color
-                result[0] = colorFloatConvert( input.colors[ input.tile.shading % input.colors_amount ] );
+                result[0] = colorFloatConvert( &input.colors[ input.tile.shading % input.colors_amount ] );
                 for( unsigned int p = 1; p < 4; p++ )
                 {
                     result[p].x = 1.0 - result[0].x;
