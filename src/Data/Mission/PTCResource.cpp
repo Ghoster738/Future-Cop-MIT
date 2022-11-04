@@ -164,14 +164,12 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
             // Write the entire map.
             return writeEntireMap( std::string(file_path) );
         }
+        
         if( entire_height_map ) {
-            Utilities::ImageData height_map;
-            
             unsigned int rays_per_tile = 4;
+            Utilities::PixelFormatColor_R8G8B8 color_format;
             
-            height_map.setWidth(  grid.getWidth()  * rays_per_tile * 16 );
-            height_map.setHeight( grid.getHeight() * rays_per_tile * 16 );
-            height_map.setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
+            Utilities::Image2D ptc_height_map( grid.getWidth() * rays_per_tile * 16, grid.getHeight() * rays_per_tile * 16, color_format );
 
             for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
                 for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
@@ -179,22 +177,20 @@ int Data::Mission::PTCResource::write( const char *const file_path, const std::v
 
                     if( tile_r != nullptr ) {
                         
-                        auto height_map_p  = tile_r->getHeightMap( rays_per_tile );
+                        auto height_map = tile_r->getHeightMap( rays_per_tile );
                         
-                        if( height_map_p != nullptr ) {
-                            height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, *height_map_p );
-                        }
-                        
-                        delete height_map_p;
+                        ptc_height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, height_map );
                     }
                 }
             }
             
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( height_map );
+            Utilities::ImageData ptc_height_map_data(ptc_height_map);
+            
+            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( ptc_height_map_data );
             
             if( the_choosen_r != nullptr ) {
                 Utilities::Buffer buffer;
-                the_choosen_r->write( height_map, buffer );
+                the_choosen_r->write( ptc_height_map_data, buffer );
 
                 buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
             }

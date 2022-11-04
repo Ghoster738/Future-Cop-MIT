@@ -359,13 +359,13 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
         }
         if( enable_height_map_export ) {
             // Write out the depth field of the Til Resource.
-            Utilities::ImageData *heightmap_p = getHeightMap( 8 );
+            Utilities::Image2D heightmap = getHeightMap( 8 );
             
-            if( heightmap_p != nullptr ) {
-                Utilities::Buffer buffer;
-                the_choosen_r->write( *heightmap_p, buffer );
-                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
-            }
+            Utilities::ImageData heightmap_data( heightmap );
+            
+            Utilities::Buffer buffer;
+            the_choosen_r->write( heightmap_data, buffer );
+            buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
         }
     }
 
@@ -668,13 +668,10 @@ const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::g
     return all_triangles;
 }
 
-Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int rays_per_tile ) const {
-    auto heightmap_p = new Utilities::ImageData;
-    
-    heightmap_p->setWidth(  AMOUNT_OF_TILES * rays_per_tile );
-    heightmap_p->setHeight( AMOUNT_OF_TILES * rays_per_tile );
-    heightmap_p->setFormat( Utilities::ImageData::RED_GREEN_BLUE, 1 );
-    auto image_data = reinterpret_cast<uint8_t*>( heightmap_p->getRawImageData() );
+Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_per_tile ) const {
+    Utilities::PixelFormatColor_R8G8B8 color_format;
+    Utilities::Image2D heightmap( AMOUNT_OF_TILES * rays_per_tile, AMOUNT_OF_TILES * rays_per_tile, color_format );
+    Utilities::PixelFormatColor::GenericColor color;
     
     const float LENGTH = static_cast<float>(AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( rays_per_tile ));
     const float HALF_LENGTH = LENGTH / 2.0f;
@@ -692,30 +689,30 @@ Utilities::ImageData* Data::Mission::TilResource::getHeightMap( unsigned int ray
             
             // This means that no triangles had been hit
             if( distance < 0.0f ) {
-                image_data[0] = 255;
-                image_data[1] = 0;
-                image_data[2] = 0;
+                color.red   = 1.0f;
+                color.green = 0.0f;
+                color.blue  = 0.0f;
             }
             else // This means beyond of range.
             if( distance > 2.0f * MAX_HEIGHT ) {
-                image_data[0] = 0;
-                image_data[1] = 255;
-                image_data[2] = 255;
+                color.red   = 0.0f;
+                color.green = 1.0f;
+                color.blue  = 1.0f;
             }
             else { // This means that the pixel works for the image format.
                 distance = 2.0f * MAX_HEIGHT - distance;
                 distance *= 1.0f / SAMPLE_HEIGHT;
                 
-                image_data[0] = distance;
-                image_data[1] = distance;
-                image_data[2] = distance;
+                color.red   = distance;
+                color.green = distance;
+                color.blue  = distance;
             }
-
-            image_data += heightmap_p->getPixelSize();
+            
+            heightmap.writePixel( x, z, color );
         }
     }
     
-    return heightmap_p;
+    return heightmap;
 }
 
 std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( Data::Mission::IFF &mission_file ) {

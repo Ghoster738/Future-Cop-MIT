@@ -296,67 +296,61 @@ int main() {
         
         {
             const unsigned DEPTH = 8;
-            auto heightmap_p = til_resource.getHeightMap( DEPTH );
+            auto heightmap = til_resource.getHeightMap( DEPTH );
             
-            if( heightmap_p == nullptr ) {
-                std::cout << "The test cannot test the height map. This test either asks the tile_resource too much depth, or til_resource is refusing to allocate more data." << std::endl;
+            if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( heightmap.getPixelFormat() ) == nullptr ) {
+                std::cout << "Heightmap needs to be Utilities::PixelFormatColor_R8G8B8" << std::endl;
+                
                 is_not_success = true;
             }
-            else {
-                if( heightmap_p->getPixelSize() != 3 ) {
-                    std::cout << "Heightmap need 3 pixels." << std::endl;
-                    
-                    is_not_success = true;
-                }
+            
+            // Scan the heightmap for errors.
+            auto pixels_r = reinterpret_cast<uint8_t*>( heightmap.getDirectGridData() );
+            
+            unsigned int tested_pixels = heightmap.getWidth() * heightmap.getHeight();
+            int missing_pixels = 0;
+            int too_far_pixels = 0;
+            
+            // Cannot do a test with zero pixels to check.
+            if( tested_pixels == 0 ) {
+                std::cout << "Test invalid." << std::endl;
+                std::cout << "There is no pixels tested..." << std::endl;
+                std::cout << "The heightmap is empty." << std::endl;
                 
-                // Scan the heightmap for errors.
-                auto pixels_r = reinterpret_cast<uint8_t*>( heightmap_p->getRawImageData() );
+                is_not_success = true;
+            }
+            
+            for( unsigned int x = 0; x < tested_pixels; x++ ) {
+                // If the color does not match then there is a problem with the heightmap.
+                if( pixels_r[0] == 255 && pixels_r[1] == 0 && pixels_r[2] == 0 )
+                    missing_pixels++;
+                else
+                if( pixels_r[0] == 0 && pixels_r[1] == 255 && pixels_r[2] == 255 )
+                    too_far_pixels++;
                 
-                unsigned int tested_pixels = heightmap_p->getWidth() * heightmap_p->getHeight();
-                int missing_pixels = 0;
-                int too_far_pixels = 0;
+                pixels_r += 3;
+            }
+            
+            // TODO Find a way to enable this.
+            if( false ) {
+                Utilities::ImageFormat::Chooser chooser;
+                Utilities::ImageData heightmap_data( heightmap );
                 
-                // Cannot do a test with zero pixels to check.
-                if( tested_pixels == 0 ) {
-                    std::cout << "Test invalid." << std::endl;
-                    std::cout << "There is no pixels tested..." << std::endl;
-                    std::cout << "The heightmap is empty." << std::endl;
-                    
-                    is_not_success = true;
-                }
+                Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( heightmap_data );
+                Utilities::Buffer buffer;
+                the_choosen_r->write( heightmap_data, buffer );
+                buffer.write( the_choosen_r->appendExtension( "HeightMap" ) );
+            }
+            
+            if( ( missing_pixels + too_far_pixels ) != 0 ) {
+                std::cout << "TilResource error it is invalid!" << std::endl;
+                std::cout << "The heightmap has problems." << std::endl;
+                std::cout << "Rays per tile : " << DEPTH << std::endl;
+                std::cout << "Error rate: " << (static_cast<float>( missing_pixels + too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
+                std::cout << "missing pixels: " << (static_cast<float>( missing_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
+                std::cout << "too far pixels: " << (static_cast<float>( too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
                 
-                for( unsigned int x = 0; x < tested_pixels; x++ ) {
-                    // If the color does not match then there is a problem with the heightmap.
-                    if( pixels_r[0] == 255 && pixels_r[1] == 0 && pixels_r[2] == 0 )
-                        missing_pixels++;
-                    else
-                    if( pixels_r[0] == 0 && pixels_r[1] == 255 && pixels_r[2] == 255 )
-                        too_far_pixels++;
-                    
-                    pixels_r += heightmap_p->getPixelSize();
-                }
-                
-                // TODO Find a way to enable this.
-                if( false ) {
-                    Utilities::ImageFormat::Chooser chooser;
-                    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *heightmap_p );
-                    Utilities::Buffer buffer;
-                    the_choosen_r->write( *heightmap_p, buffer );
-                    buffer.write( the_choosen_r->appendExtension( "HeightMap" ) );
-                }
-                
-                if( ( missing_pixels + too_far_pixels ) != 0 ) {
-                    std::cout << "TilResource error it is invalid!" << std::endl;
-                    std::cout << "The heightmap has problems." << std::endl;
-                    std::cout << "Rays per tile : " << DEPTH << std::endl;
-                    std::cout << "Error rate: " << (static_cast<float>( missing_pixels + too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
-                    std::cout << "missing pixels: " << (static_cast<float>( missing_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
-                    std::cout << "too far pixels: " << (static_cast<float>( too_far_pixels ) / static_cast<float>( tested_pixels ) * 100.0f) << std::endl;
-                    
-                    is_not_success = true;
-                }
-                
-                delete heightmap_p;
+                is_not_success = true;
             }
         }
     }
