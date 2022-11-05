@@ -176,8 +176,9 @@ class Image2D : public ImageColor2D<Grid2DPlacementNormal> {
 public:
     Image2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP );
     Image2D( const ImageMorbin2D &obj );
-    Image2D( const Image2D &obj  );
-    Image2D( const Image2D &obj, const PixelFormatColor& format  );
+    Image2D( const Image2D &obj );
+    Image2D( const Image2D &obj, const PixelFormatColor& format );
+    Image2D( const ImageBase2D<Grid2DPlacementNormal>& obj, const PixelFormatColor& format );
     Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian = Buffer::Endian::NO_SWAP  );
     virtual ~Image2D();
     
