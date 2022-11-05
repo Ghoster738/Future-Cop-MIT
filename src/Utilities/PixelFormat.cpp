@@ -159,6 +159,57 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::
     return color.toGeneric( interpolation );
 }
 
+Utilities::PixelFormatColor_B5G5R5A1::Color::Color( PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate ) {
+    
+    blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
+    green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
+    red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
+    alpha = ( generic.alpha > 0.5 );
+}
+
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5A1::Color::toGeneric( ChannelInterpolation interpolate ) const {
+    GenericColor color;
+    
+    color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
+    color.green = internalToGenricColor5<uint8_t>( green, interpolate );
+    color.red   = internalToGenricColor5<uint8_t>( red,   interpolate );
+    
+    if( alpha )
+        color.alpha = 1.0;
+    else
+        color.alpha = 0.0;
+    
+    return color;
+}
+
+void Utilities::PixelFormatColor_B5G5R5A1::writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& generic_color ) const
+{
+    PixelFormatColor_B5G5R5A1::Color color( generic_color, interpolation );
+    
+    uint16_t data;
+    data  = (color.alpha << 15);
+    data |= (color.blue  << 10);
+    data |= (color.green <<  5);
+    data |= (color.red  <<  0);
+    
+    buffer.writeU16( data, endian );
+}
+
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5A1::readPixel( Buffer::Reader &buffer, Buffer::Endian endian  ) const
+{
+    PixelFormatColor_B5G5R5A1::Color color;
+    auto word = buffer.readU16( endian );
+    
+    // Thanks ktownsend of the adafruit forms.
+    // Based on the code from https://forums.adafruit.com/viewtopic.php?t=21536
+    color.red   = (word & 0x001F);
+    color.green = (word & 0x03E0) >>  5; // Right shift by  4 and left shift by 2
+    color.blue  = (word & 0x7C00) >> 10; // Right shift by 10 and left shift by 3
+    color.alpha = (word & 0x8000) != 0;
+    
+    return color.toGeneric( interpolation );
+}
+
 Utilities::PixelFormatColor_R8G8B8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     PixelFormatColor_R8G8B8A8::Color other_color( generic, interpolate );

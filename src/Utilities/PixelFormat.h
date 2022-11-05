@@ -135,6 +135,31 @@ namespace Utilities {
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 5-bit, Green 5-bit, Blue 5-bit, Alpha 1-bit"; }
     };
+    
+    class PixelFormatColor_B5G5R5A1 : public PixelFormatColor {
+    public:
+        struct Color {
+            uint16_t blue  : 5;
+            uint16_t green : 5;
+            uint16_t red   : 5;
+            uint16_t alpha : 1;
+            
+            Color() {}
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
+            
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
+        };
+        PixelFormatColor_B5G5R5A1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_B5G5R5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+        
+        virtual PixelFormat* duplicate() const {
+            return new PixelFormatColor_B5G5R5A1( interpolation );
+        }
+        virtual uint_fast8_t byteSize() const { return 2; }
+        virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
+        virtual std::string getName() const { return "Blue 5-bit, Green 5-bit, Red 5-bit, Alpha 1-bit"; }
+    };
 
     class PixelFormatColor_R8G8B8 : public PixelFormatColor {
     public:
