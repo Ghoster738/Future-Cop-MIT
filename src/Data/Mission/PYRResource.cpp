@@ -294,7 +294,7 @@ int Data::Mission::PYRResource::write( const char *const file_path, const std::v
 
             auto texture = (*current_particle).getTexture( index );
 
-            Utilities::ImagePalette2D sub_image( 0, 0, *texture->getPalette() );
+            Utilities::ImagePalette2D sub_image( texture->getSize().x, texture->getSize().y, *texture->getPalette() );
             
             primary_image_p->subImage(
                 texture->getLocation().x, texture->getLocation().y,
