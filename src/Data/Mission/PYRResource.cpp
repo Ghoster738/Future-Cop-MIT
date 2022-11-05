@@ -190,7 +190,16 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 primary_image_p = new Utilities::ImagePalette2D( 0x100, 0x200, color_palette );
                 
                 if( primary_image_p != nullptr ) {
-                    primary_image_p->fromBitfield( readerPIX4.getBitfield(), 4 );
+                    auto bitfield = readerPIX4.getBitfield();
+                    
+                    for( size_t i = 0; i < bitfield.size() / 8; i++ ) {
+                        std::swap( bitfield[ i * 8 + 0 ], bitfield[ i * 8 + 4 ] );
+                        std::swap( bitfield[ i * 8 + 1 ], bitfield[ i * 8 + 5 ] );
+                        std::swap( bitfield[ i * 8 + 2 ], bitfield[ i * 8 + 6 ] );
+                        std::swap( bitfield[ i * 8 + 3 ], bitfield[ i * 8 + 7 ] );
+                    }
+                    
+                    primary_image_p->fromBitfield( bitfield, 4 );
                 }
 
                 is_PS1 = true;
