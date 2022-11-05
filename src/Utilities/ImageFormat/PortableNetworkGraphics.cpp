@@ -79,6 +79,9 @@ png_image setupImage( const Utilities::ImageBase2D<Utilities::Grid2DPlacementNor
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( image_data.getPixelFormat() ) != nullptr )
         image_write.format = PNG_FORMAT_RGB;
     else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr )
+        image_write.format = PNG_FORMAT_RGBA;
+    else
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
         image_write.format = PNG_FORMAT_RGBA;
     else
@@ -91,6 +94,25 @@ png_image setupImage( const Utilities::ImageBase2D<Utilities::Grid2DPlacementNor
     
     return image_write;
 }
+
+bool internalMemory( png_image& info, void *buffer_r, png_alloc_size_t &length, const Utilities::ImageBase2D<Utilities::Grid2DPlacementNormal>& image_data ) {
+    const Utilities::ImageBase2D<Utilities::Grid2DPlacementNormal>* image_data_r = &image_data;
+    Utilities::Image2D* image_data_p = nullptr;
+    
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr )
+        image_data_p = new Utilities::Image2D( image_data, Utilities::PixelFormatColor_R8G8B8A8() );
+    
+    if( image_data_p != nullptr )
+        image_data_r = image_data_p;
+    
+    bool is_valid = png_image_write_to_memory( &info, buffer_r, &length, 0, (void*)image_data_r->getDirectGridData(), 0, nullptr );
+    
+    if( image_data_p != nullptr )
+        delete image_data_p;
+    
+    return is_valid;
+}
+
 }
 
 bool Utilities::ImageFormat::PortableNetworkGraphics::canRead() const {
@@ -111,6 +133,9 @@ bool Utilities::ImageFormat::PortableNetworkGraphics::supports( const PixelForma
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &pixel_format ) != nullptr )
         return true;
     else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( &pixel_format ) != nullptr )
+        return true;
+    else
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
         return true;
     else
@@ -126,7 +151,7 @@ size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageBas
     else {
         png_alloc_size_t length = 0;
         
-        if( !png_image_write_to_memory(&image_write, nullptr, &length, 0, (void*)image_data.getDirectGridData(), 0, nullptr) )
+        if( !internalMemory( image_write, nullptr, length, image_data ) )
             return 0; // Failed to obtain data needed to write the PNG.
         else
             return static_cast<size_t>( length );
@@ -152,7 +177,7 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Gr
                 return -4;
             else {
                 // The buffer is finally allocated. Now, attempt to load the PNG.
-                if( png_image_write_to_memory(&image_write, (void*)buffer.dangerousPointer(), &length, 0, (void*)image_data.getDirectGridData(), 0, nullptr) )
+                if( internalMemory( image_write, (void*)buffer.dangerousPointer(), length, image_data ) )
                     return 1; // The buffer is successfully read.
                 else
                     return -5; // The image has failed to be written.

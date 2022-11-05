@@ -183,9 +183,14 @@ Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_for
 {
 }
 
-Utilities::Image2D::Image2D( const Image2D &obj, const PixelFormatColor& format  ) : Image2D( obj.getWidth(), obj.getHeight(), format, obj.endian )
+Utilities::Image2D::Image2D( const Image2D &obj, const PixelFormatColor& format ) : Image2D( obj.getWidth(), obj.getHeight(), format, obj.endian )
 {
     fillInImage<grid_2d_unit, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
+}
+
+Utilities::Image2D::Image2D( const ImageBase2D<Grid2DPlacementNormal>& obj, const PixelFormatColor& format ) : Image2D( obj.getWidth(), obj.getHeight(), format, Buffer::NO_SWAP )
+{
+    fillInImage<grid_2d_unit, ImageBase2D<Grid2DPlacementNormal>, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
 Utilities::Image2D::Image2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param ) : ImageColor2D( width, height, format, endian_param )
