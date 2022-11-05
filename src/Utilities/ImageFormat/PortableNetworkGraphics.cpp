@@ -167,7 +167,7 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Gr
     else {
         png_alloc_size_t length = 0;
         
-        if( !png_image_write_to_memory(&image_write, nullptr, &length, 0, (void*)image_data.getDirectGridData(), 0, nullptr) )
+        if( !internalMemory( image_write, nullptr, length, image_data ) )
             return -2; // Failed to obtain data needed to write the PNG.
         else if( length == 0 )
             return -3; // There is no length to allocate for the buffer.
