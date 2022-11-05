@@ -255,7 +255,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                         color_palette_r->setAmount( PS1_PALETTE_SIZE );
 
                         for( unsigned int d = 0; d < PS1_PALETTE_SIZE; d++ ) {
-                            color_palette_r->setIndex( d, color_format_r->readPixel( readerPYPL, settings.endian ) );
+                            color_palette_r->setIndex( d, Utilities::PixelFormatColor_B5G5R5A1().readPixel( readerPYPL, settings.endian ) );
                         }
                     }
                 }
