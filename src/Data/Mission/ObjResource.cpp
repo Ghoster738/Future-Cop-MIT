@@ -980,8 +980,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = -1;
     
-    if( vertex_normals.size() != 0 )
-        normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int joints_0_component_index = -1;
@@ -1075,8 +1074,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
 
     glm::vec3 position;
     glm::vec3 new_position;
-    glm::vec3 normal;
-    glm::vec3 new_normal;
+    glm::vec3 normal( 1, 0, 0 );
+    glm::vec3 new_normal( 1, 0, 0 );
     float specular;
     glm::u8vec2 coords[3];
     glm::u8vec4 weights;
@@ -1113,8 +1112,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
-            if( vertex_normals.size() != 0 )
-                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
+            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
             
             model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[0] ) );
             if( is_specular )
@@ -1126,10 +1124,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v0 );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
-                if( vertex_normals.size() != 0 ) {
+                if( vertex_normals.size() != 0 )
                     handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n0 );
-                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-                }
+                
+                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
@@ -1156,8 +1154,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
-            if( vertex_normals.size() != 0 )
-                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
+            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
             
             model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[1] ) );
             if( is_specular )
@@ -1169,10 +1166,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v1 );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
-                if( vertex_normals.size() != 0 ) {
+                if( vertex_normals.size() != 0 )
                     handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n1 );
-                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-                }
+                
+                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
@@ -1199,8 +1196,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
-            if( vertex_normals.size() != 0 )
-                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
+            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
             
             model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[2] ) );
             if( is_specular )
@@ -1212,10 +1208,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v2 );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
-                if( vertex_normals.size() != 0 ) {
+                if( vertex_normals.size() != 0 )
                     handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n2 );
-                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-                }
+                
+                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
