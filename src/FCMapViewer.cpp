@@ -244,8 +244,9 @@ int main(int argc, char** argv)
     {
         auto font_resources = Data::Mission::FontResource::getVector( *resource_r );
 
-        if( font_resources.size() != 0 )
+        if( font_resources.size() != 0 ) {
             Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
+        }
         else
         {
             font_resources = Data::Mission::FontResource::getVector( *global_r );
@@ -326,7 +327,6 @@ int main(int argc, char** argv)
             for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
             {
                 int status = 0;
-
                 text_2d_buffer->setFont( 0 );
                 text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
                 text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
@@ -501,17 +501,20 @@ int main(int argc, char** argv)
 
         first_person->setView3D( extra_matrix_2 );
 
-        text_2d_buffer->setFont( 5 );
+        if( text_2d_buffer->setFont( 5 ) == -3 )
+            text_2d_buffer->setFont( 0 );
         text_2d_buffer->setColor( glm::vec4( 1, 0, 0, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( "Position = (" + std::to_string(position_of_camera.x) + ", " + std::to_string(position_of_camera.y) + ", " + std::to_string(position_of_camera.z) + ")" );
 
-        text_2d_buffer->setFont( 4 );
+        if( text_2d_buffer->setFont( 4 ) == -3 )
+            text_2d_buffer->setFont( 0 );
         text_2d_buffer->setColor( glm::vec4( 0, 1, 0, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
 
-        text_2d_buffer->setFont( 2 );
+        if( text_2d_buffer->setFont( 2 ) == -3 )
+            text_2d_buffer->setFont( 0 );
         text_2d_buffer->setColor( glm::vec4( 0, 1, 1, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
         text_2d_buffer->print( "TilRes = " + std::to_string(current_tile_selected) );
