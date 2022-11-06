@@ -927,11 +927,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
     std::vector< FaceTriangle > triangle_buffer;
     std::vector<unsigned int> triangle_counts;
     bool is_specular = false;
-    
-    std::cout << "Cobj " << getResourceID() << " model is being built." << std::endl;
-    std::cout << " vertex_positions.size() = " << vertex_positions.size() << std::endl;
-    std::cout << " vertex_normals.size() = " << vertex_normals.size() << std::endl;
-    std::cout << " texture_quads.size() = " << texture_quads.size() << std::endl;
 
     {
         triangle_buffer.reserve( face_trinagles.size() + face_quads.size() * 2 );
