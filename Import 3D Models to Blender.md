@@ -90,6 +90,11 @@ Now, that the mission file's path is known you can now use this command. The -i 
 ./FCMissionReader -i "/home/some_user/.conf/Future Cop LAPD/Platform/Windows/missions/M2C" -o extract -d
 ```
 
+If you want to load the the whole map data as well use this command. --PTC_ENTIRE_MAP is the command that would extract the whole map data.
+```bash
+./FCMissionReader -i "/home/some_user/.conf/Future Cop LAPD/Platform/Windows/missions/M2C" -o extract --PTC_ENTIRE_MAP -d
+```
+
 ## Making use of the decoded information.
 This FCMissionReader's output could look something like this.
 
@@ -121,7 +126,7 @@ You will see this menu. Go to where the extract folder is, and you should see so
 
 ![image](https://user-images.githubusercontent.com/101094904/200163406-2626d0ab-4b8e-4f6d-b0c6-d58d19fab4a3.png)
 
-Select every GLTF file that starts with cobj. (You would generally not want til GLTF files because you would be viewing pieces of a map.)
+Select every GLTF file that starts with cobj. Also, if you exported the whole map then also include ptc GLTF file. (You would generally not want til GLTF files because you would be viewing pieces of the map.)
 
 <img width="1202" alt="image" src="https://user-images.githubusercontent.com/101094904/200163453-90e93151-f1dd-425f-8f2a-31368c9cfe8b.png">
 
@@ -141,3 +146,8 @@ Now, manually seperate each model from the preview. (Yes, I noticed a bug where 
 
 <img width="1440" alt="image" src="https://user-images.githubusercontent.com/101094904/200163959-5661c8df-a69b-46e0-be6c-faf7b781b959.png">
 
+To work around this bug for now, load cbmp_0.png along with creating a new material and you would get this result.
+
+<img width="816" alt="image" src="https://user-images.githubusercontent.com/101094904/200164345-437604fd-bdb0-47d9-a4e6-3125d0e52d13.png">
+
+At this point, you can now have fun with Future Cop models.
