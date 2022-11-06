@@ -891,6 +891,8 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
         for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
+        
+        std::cout << "CBMP " << this->getResourceID() << "; index = " << this->getIndexNumber() << std::endl;
 
         for( size_t i = 0; i < texture_quads.size(); i++ ) {
             if( resource_id_to_reference.count( texture_quads[ i ].index ) == 0 ) {
@@ -899,6 +901,9 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
                 if( resource_id_to_bmp.count( texture_quads[ i ].index ) != 0 ) {
                     if( resource_id_to_bmp[ texture_quads[ i ].index ]->getImageFormat() != nullptr ) {
                         resource_id_to_reference[ texture_quads[ i ].index ].name = resource_id_to_bmp[ texture_quads[ i ].index ]->getImageFormat()->appendExtension( resource_id_to_bmp[ texture_quads[ i ].index ]->getFullName( texture_quads[ i ].index  ) );
+                        
+                        assert( !resource_id_to_reference[ texture_quads[ i ].index ].name.empty() );
+                        std::cout << " " << resource_id_to_reference[ texture_quads[ i ].index ].name << std::endl;
                     }
                 }
                 else
