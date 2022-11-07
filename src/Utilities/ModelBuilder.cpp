@@ -570,6 +570,8 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
             root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>((vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t ));
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>((*i).begin * sizeof( uint32_t ));
             root["bufferViews"][index]["byteStride"] = static_cast<unsigned int>((*i).stride * sizeof( uint32_t ));
+            
+            root["bufferViews"][index]["target"] = 34962; // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
 
             // TODO Set this as optional
             root["bufferViews"][index]["name"] = (*i).getName();
@@ -582,6 +584,8 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
             root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>((vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t ));
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>(((*i).begin + primary_buffer.size()) * sizeof( uint32_t ));
             root["bufferViews"][index]["byteStride"] = static_cast<unsigned int>((*i).stride * sizeof( uint32_t ));
+            
+            root["bufferViews"][index]["target"] = 34962; // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
 
             // TODO Set this as optional
             root["bufferViews"][index]["name"] = "MORPH_" + (*i).getName();
