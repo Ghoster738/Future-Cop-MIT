@@ -477,7 +477,7 @@ void Utilities::ModelBuilder::addMorphVertexData( unsigned int morph_vertex_comp
     result.data.x = data.data.x - original_value.data.x;
     result.data.y = data.data.y - original_value.data.y;
     result.data.z = data.data.z - original_value.data.z;
-
+    
     result.writeBuffer( morph_frame_buffers[morph_frame_index].data() + cur_vertex_compare->begin + cur_vertex_compare->stride * (current_vertex_index - 1) );
 }
 
@@ -571,8 +571,7 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>((*i).begin * sizeof( uint32_t ));
             root["bufferViews"][index]["byteStride"] = static_cast<unsigned int>((*i).stride * sizeof( uint32_t ));
             
-            // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
-            root["bufferViews"][index]["target"] = 34962;
+            root["bufferViews"][index]["target"] = ARRAY_BUFFER;
 
             // TODO Set this as optional
             root["bufferViews"][index]["name"] = (*i).getName();
@@ -581,17 +580,16 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
         }
 
         for( auto i = vertex_morph_components.begin(); i != vertex_morph_components.end(); i++ ) {
-            const unsigned BYTE_LENGTH = (vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t );
-            unsigned byte_stride = ((*i).begin + primary_buffer.size()) * sizeof( uint32_t );
+            const unsigned BYTE_LENGTH = (morph_frame_buffers[0].size()) * sizeof( uint32_t );
+            unsigned byte_offset = ((*i).begin + primary_buffer.size()) * sizeof( uint32_t );
             const unsigned BYTE_STRIDE = (*i).stride * sizeof( uint32_t );
             
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = BYTE_LENGTH;
-            root["bufferViews"][index]["byteOffset"] = byte_stride;
+            root["bufferViews"][index]["byteOffset"] = byte_offset;
             root["bufferViews"][index]["byteStride"] = BYTE_STRIDE;
             
-            // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
-            root["bufferViews"][index]["target"] = 34962;
+            root["bufferViews"][index]["target"] = ARRAY_BUFFER;
             
             // TODO Set this as optional
             root["bufferViews"][index]["name"] = "MORPH_" + (*i).getName();
@@ -599,15 +597,14 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
             index++;
             
             for( unsigned int a = 1; a < morph_frame_buffers.size(); a++ ) {
-                byte_stride += BYTE_LENGTH;
+                byte_offset += BYTE_LENGTH;
                 
                 root["bufferViews"][index]["buffer"] = 0;
                 root["bufferViews"][index]["byteLength"] = BYTE_LENGTH;
-                root["bufferViews"][index]["byteOffset"] = byte_stride;
+                root["bufferViews"][index]["byteOffset"] = byte_offset;
                 root["bufferViews"][index]["byteStride"] = BYTE_STRIDE;
                 
-                // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
-                root["bufferViews"][index]["target"] = 34962;
+                root["bufferViews"][index]["target"] = ARRAY_BUFFER;
                 
                 // TODO Set this as optional
                 root["bufferViews"][index]["name"] = "MORPH_" + (*i).getName();
