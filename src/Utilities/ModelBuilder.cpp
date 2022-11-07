@@ -540,7 +540,7 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
 
     std::ofstream binary;
 
-    std::string binary_location = std::string(file_path) + ".bin";
+    std::string binary_location = file_path + ".bin";
     std::string binary_name = binary_location.substr( binary_location.find_last_of("/") + 1);
     binary.open( binary_location, std::ios::binary | std::ios::out );
 
