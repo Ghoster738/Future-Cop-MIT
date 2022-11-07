@@ -889,23 +889,14 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
         std::map< uint32_t, BMPResource* > resource_id_to_bmp;
         std::map< uint32_t, TextureReference > resource_id_to_reference;
 
-        for( uint32_t i = 0; i < textures.size(); i++ ) {
+        for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
-            std::cout << "CBMP " << textures[ i ]->getResourceID() << std::endl;
-        }
-        
-        std::cout << "Cobj " << this->getResourceID() << "; index = " << this->getIndexNumber() << std::endl;
 
         for( size_t i = 0; i < texture_quads.size(); i++ ) {
-            
-            std::cout << " " << i << " quad has " << texture_quads[ i ].index << std::endl;
             
             const auto RESOURCE_ID = texture_quads[ i ].index + 1;
             
             if( resource_id_to_reference.count( RESOURCE_ID ) == 0 ) {
-                
-                std::cout << " resource_id_to_reference.count( texture_quads[ i ].index ) == 0 is true" << std::endl;
-                
                 resource_id_to_reference[ RESOURCE_ID ].resource_id = RESOURCE_ID;
 
                 if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
@@ -913,7 +904,6 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
                         resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID - 1 ) );
                         
                         assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
-                        std::cout << " " << resource_id_to_reference[ RESOURCE_ID ].name << std::endl;
                     }
                 }
                 else
