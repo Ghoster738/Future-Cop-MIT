@@ -571,7 +571,8 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>((*i).begin * sizeof( uint32_t ));
             root["bufferViews"][index]["byteStride"] = static_cast<unsigned int>((*i).stride * sizeof( uint32_t ));
             
-            root["bufferViews"][index]["target"] = 34962; // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
+            // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
+            root["bufferViews"][index]["target"] = 34962;
 
             // TODO Set this as optional
             root["bufferViews"][index]["name"] = (*i).getName();
@@ -580,17 +581,39 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
         }
 
         for( auto i = vertex_morph_components.begin(); i != vertex_morph_components.end(); i++ ) {
-            root["bufferViews"][index]["buffer"] = 0;
-            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>((vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t ));
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>(((*i).begin + primary_buffer.size()) * sizeof( uint32_t ));
-            root["bufferViews"][index]["byteStride"] = static_cast<unsigned int>((*i).stride * sizeof( uint32_t ));
+            const unsigned BYTE_LENGTH = (vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t );
+            unsigned byte_stride = ((*i).begin + primary_buffer.size()) * sizeof( uint32_t );
+            const unsigned BYTE_STRIDE = (*i).stride * sizeof( uint32_t );
             
-            root["bufferViews"][index]["target"] = 34962; // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
-
+            root["bufferViews"][index]["buffer"] = 0;
+            root["bufferViews"][index]["byteLength"] = BYTE_LENGTH;
+            root["bufferViews"][index]["byteOffset"] = byte_stride;
+            root["bufferViews"][index]["byteStride"] = BYTE_STRIDE;
+            
+            // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
+            root["bufferViews"][index]["target"] = 34962;
+            
             // TODO Set this as optional
             root["bufferViews"][index]["name"] = "MORPH_" + (*i).getName();
-
+            
             index++;
+            
+            for( unsigned int a = 1; a < morph_frame_buffers.size(); a++ ) {
+                byte_stride += BYTE_LENGTH;
+                
+                root["bufferViews"][index]["buffer"] = 0;
+                root["bufferViews"][index]["byteLength"] = BYTE_LENGTH;
+                root["bufferViews"][index]["byteOffset"] = byte_stride;
+                root["bufferViews"][index]["byteStride"] = BYTE_STRIDE;
+                
+                // This means ARRAY_BUFFER. The alturnative is 34963 meaning ELEMENT_ARRAY_BUFFER
+                root["bufferViews"][index]["target"] = 34962;
+                
+                // TODO Set this as optional
+                root["bufferViews"][index]["name"] = "MORPH_" + (*i).getName();
+                
+                index++;
+            }
         }
 
         // Then the file is now finished.
@@ -606,7 +629,7 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
     root["samplers"][0]["wrapS"] = 10497;
     root["samplers"][0]["wrapT"] = 10497;
 
-    // TODO Complete this implementation
+    // TODO Find a way to include bone animatinons.
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
         unsigned int position = i - texture_materials.begin();
         
