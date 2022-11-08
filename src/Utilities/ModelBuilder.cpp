@@ -302,7 +302,7 @@ bool Utilities::ModelBuilder::checkForInvalidComponent( int &begin, std::ostream
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC4 )
             {
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::FLOAT )
-                    correct = !vertex_components[ begin ].isNormalized();
+                    correct = !vertex_components[ begin ].isNormalized(); // floats are already normalized.
                 else
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_BYTE ||
                     vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_SHORT )
@@ -520,6 +520,154 @@ bool Utilities::ModelBuilder::finish()
     }
     else
         return false;
+}
+
+bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
+    const unsigned int UNFOUND_INDEX = 0xFFFFFFFF;
+    
+    if( !is_model_finished )
+        return false; // Transformations cannot be applied to an incomplete model.
+    else
+    if( morph_frame_buffers.size() != 0 )
+        return false; // Morph frames and bone animations for Cobj do not come together. I might add a morph frame case, and it might be simple.
+    else
+    {
+        unsigned int position_index = UNFOUND_INDEX; // Find the position index.
+        unsigned int   normal_index = UNFOUND_INDEX; // Find the normal index if available.
+        unsigned int   joints_index = UNFOUND_INDEX; // Find the joints index.
+        unsigned int  weights_index = UNFOUND_INDEX; // Find the weights index.
+        
+        for( auto i = vertex_components.begin(); i < vertex_components.end(); i++ ) {
+            const unsigned int INDEX = vertex_components.end() - vertex_components.begin();
+            
+            if( POSITION_COMPONENT_NAME.compare( (*i).getName() ) == 0 )
+                position_index = INDEX;
+            else
+            if( NORMAL_COMPONENT_NAME.compare( (*i).getName() ) == 0 )
+                normal_index = INDEX;
+            else
+            if( JOINTS_INDEX_0_COMPONENT_NAME.compare( (*i).getName() ) == 0 )
+                joints_index = INDEX;
+            else
+            if( WEIGHTS_INDEX_0_COMPONENT_NAME.compare( (*i).getName() ) == 0 )
+                weights_index = INDEX;
+        }
+        
+        // Normal index is not checked on purpose.
+        if( position_index == UNFOUND_INDEX || joints_index == UNFOUND_INDEX || weights_index == UNFOUND_INDEX ) {
+            return false; // These three things are needed for this algorithm to work.
+        }
+        
+        for( unsigned int i = 0; i < vertex_amount; i++ ) {
+            uint32_t *position_values_r = primary_buffer.data() + i * vertex_components[ position_index ].stride + vertex_components[ position_index ].begin;
+            float *positions_3_r = reinterpret_cast<float*>( position_values_r );
+            
+            uint32_t *normal_values_r = nullptr;
+            float *normals_3_r = nullptr;
+            
+            if( normal_index != UNFOUND_INDEX ) {
+                normal_values_r = primary_buffer.data() + i * vertex_components[ normal_index ].stride + vertex_components[ normal_index ].begin;
+                normals_3_r     = reinterpret_cast<float*>( normal_values_r );
+            }
+            
+            // This holds the joint indexes.
+            uint16_t joint_index[4];
+            // This is where the joints are stored.
+            uint32_t *joint_values_r = primary_buffer.data() + i * vertex_components[ joints_index ].stride + vertex_components[ joints_index ].begin;
+            
+            switch( vertex_components[ joints_index ].component_type ) {
+                case Utilities::DataTypes::UNSIGNED_BYTE:
+                    {
+                        uint8_t *joints_r = reinterpret_cast<uint8_t*>( joint_values_r );
+                        
+                        joint_index[0] = joints_r[ 0 ];
+                        joint_index[1] = joints_r[ 1 ];
+                        joint_index[2] = joints_r[ 2 ];
+                        joint_index[3] = joints_r[ 3 ];
+                    }
+                    break;
+                case Utilities::DataTypes::UNSIGNED_SHORT:
+                    {
+                        uint16_t *joints_r = reinterpret_cast<uint16_t*>( joint_values_r );
+                        
+                        joint_index[0] = joints_r[ 0 ];
+                        joint_index[1] = joints_r[ 1 ];
+                        joint_index[2] = joints_r[ 2 ];
+                        joint_index[3] = joints_r[ 3 ];
+                    }
+                    break;
+                default:
+                    return false; // Invalid Joint unit.
+            }
+            
+            // This holds the weight values.
+            float weights[4];
+            // This is where the weights are stored.
+            uint32_t *weights_values_r = primary_buffer.data() + i * vertex_components[ weights_index ].stride + vertex_components[ weights_index ].begin;
+            
+            switch( vertex_components[ weights_index ].component_type ) {
+                case Utilities::DataTypes::UNSIGNED_BYTE:
+                    {
+                        uint8_t *weights_r = reinterpret_cast<uint8_t*>( weights_values_r );
+                        
+                        weights[0] = static_cast<float>( weights_r[ 0 ] ) / 256.0;
+                        weights[1] = static_cast<float>( weights_r[ 1 ] ) / 256.0;
+                        weights[2] = static_cast<float>( weights_r[ 2 ] ) / 256.0;
+                        weights[3] = static_cast<float>( weights_r[ 3 ] ) / 256.0;
+                    }
+                    break;
+                case Utilities::DataTypes::UNSIGNED_SHORT:
+                    {
+                        uint16_t *weights_r = reinterpret_cast<uint16_t*>( weights_values_r );
+                        
+                        weights[0] = static_cast<float>( weights_r[ 0 ] ) / 65536.0;
+                        weights[1] = static_cast<float>( weights_r[ 1 ] ) / 65536.0;
+                        weights[2] = static_cast<float>( weights_r[ 2 ] ) / 65536.0;
+                        weights[3] = static_cast<float>( weights_r[ 3 ] ) / 65536.0;
+                    }
+                    break;
+                case Utilities::DataTypes::FLOAT:
+                    {
+                        float *weights_r = reinterpret_cast<float*>( weights_values_r );
+                        
+                        weights[0] = weights_r[ 0 ];
+                        weights[1] = weights_r[ 1 ];
+                        weights[2] = weights_r[ 2 ];
+                        weights[3] = weights_r[ 3 ];
+                    }
+                    break;
+                default:
+                    return false; // Invalid Weight unit.
+            }
+            
+            glm::mat4 skin_matrix = weights[ 0 ] * joint_matrix_frames[ frame_index * joint_amount + joint_index[ 0 ] ];
+            
+            // Now, for every weight value do this.
+            for( int d = 1; d < 4; d++ ) {
+                // Do not bother to do matrix multiplications on zeros.
+                if( weights[ d ] != 0.0f ) {
+                    // Matrix math with weights.
+                    skin_matrix += weights[ d ] * joint_matrix_frames[ frame_index * joint_amount + joint_index[ d ] ];
+                }
+            }
+            
+            glm::vec4 vertex_positions( positions_3_r[0], positions_3_r[1], positions_3_r[2], 1.0f );
+            vertex_positions = skin_matrix * vertex_positions;
+            positions_3_r[ 0 ] = vertex_positions.x;
+            positions_3_r[ 1 ] = vertex_positions.y;
+            positions_3_r[ 2 ] = vertex_positions.z;
+            
+            if( normals_3_r != nullptr ) {
+                glm::vec4 vertex_normals( normals_3_r[0], normals_3_r[1], normals_3_r[2], 1.0f );
+                vertex_normals = skin_matrix * vertex_normals;
+                normals_3_r[ 0 ] = vertex_positions.x;
+                normals_3_r[ 1 ] = vertex_positions.y;
+                normals_3_r[ 2 ] = vertex_positions.z;
+            }
+        }
+        
+        return true;
+    }
 }
 
 bool Utilities::ModelBuilder::write( std::string file_path ) const {
