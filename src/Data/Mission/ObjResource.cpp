@@ -866,7 +866,7 @@ int Data::Mission::ObjResource::write( const char *const file_path, const std::v
             if( !bones.empty() )
                 model_output->applyJointTransforms( 0 );
             
-            glTF_return = model_output->write( std::string( file_path ) );
+            glTF_return = model_output->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
         }
         else {
             // Make it easier on the user to identify empty Obj's

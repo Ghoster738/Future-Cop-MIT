@@ -369,7 +369,7 @@ int Data::Mission::TilResource::write( const char *const file_path, const std::v
     Utilities::ModelBuilder *model_output = createModel( &arguments );
 
     if( enable_export && model_output != nullptr )
-        glTF_return = model_output->write( file_path );
+        glTF_return = model_output->write( file_path, "til_"+ std::to_string( getResourceID() ) );
 
     delete model_output;
 
