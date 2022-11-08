@@ -132,6 +132,8 @@ private:
     // Its size indicates the number of frames avialable.
     std::vector< glm::mat4 > joint_matrix_frames;
     unsigned int joint_amount;
+    
+    unsigned int joint_inverse_frame; // This value is greater than the joint_matrix_frames size then it was not set properly.
 
     bool is_model_finished; // This tells if the ModelBuilder should edit the vertices
     bool components_are_done; // This tells if the ModelBuilder should edit the vertices
@@ -360,9 +362,12 @@ public:
     bool applyJointTransforms( unsigned int frame_index );
 
     /**
-    * This writes a glTF file.
-    */
-    bool write( std::string file_path ) const;
+     * This writes a glTF file.
+     * @param file_path this holds the path to where it is going to write to.
+     * @param title if this is not some empty string then this will give the model a name when exported.
+     * @return true if the model is successfully written to the hard drive.
+     */
+    bool write( std::string file_path, std::string title = "" ) const;
     
     /**
      * Display the number of vertices, vertex types, morph types, and what not.

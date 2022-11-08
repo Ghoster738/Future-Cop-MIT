@@ -670,7 +670,7 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
     }
 }
 
-bool Utilities::ModelBuilder::write( std::string file_path ) const {
+bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) const {
     std::ofstream resource;
 
     Json::Value root;
@@ -680,8 +680,14 @@ bool Utilities::ModelBuilder::write( std::string file_path ) const {
 
     // Only one scene needed.
     root["scenes"][0]["nodes"].append( 0 );
-
     root["nodes"][0]["mesh"] = 0;
+    
+    // If this is specified then the models gets named.
+    // This makes them easier to identify on Blender.
+    if( !title.empty() ) {
+        root["scenes"][0]["name"] = title;
+        root["nodes"][0]["name"] = title;
+    }
 
     // Buffers need to be referenced by the glTF file.
     unsigned int total_binary_buffer_size = 0;
