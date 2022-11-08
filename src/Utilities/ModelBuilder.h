@@ -343,12 +343,21 @@ public:
     void * getMorphBuffer( unsigned int morph_index, unsigned int &size );
 
     /**
-    * This sets the class to be in a finished state. Meaning that editing this class any further is forbidden.
-    * It is actually optional to call this. It is primary there for conversions.
-    * Note: If this method returns false then the class is not locked if setupVertexComponents was not called first.
-    * @return true if setupVertexComponents was called before this method or if this method was called once.
+     * This sets the class to be in a finished state. Meaning that adding more vertices or morph frames is forbidden.
+     * It is actually optional to call this. It is primary there for conversions.
+     * @note: If this method returns false then the class is not locked if setupVertexComponents was not called first.
+     * @return true if setupVertexComponents was called before this method or if this method was called once.
     */
     bool finish();
+    
+    /**
+     * This method is specialized for exporting bone animations.
+     * This method transforms the position and normal vertices by the matrix.
+     * This method also produces inverse matrices.
+     * @warning be sure that the model had been finished first before using this method.
+     * @return false if the model does not have the transformations. true if the model happens to have
+     */
+    bool applyJointTransforms( unsigned int frame_index );
 
     /**
     * This writes a glTF file.
