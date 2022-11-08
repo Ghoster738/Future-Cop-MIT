@@ -861,8 +861,12 @@ int Data::Mission::ObjResource::write( const char *const file_path, const std::v
 
     if( enable_export ) {
         // Make sure that the model has some vertex data.
-        if( model_output->getNumVertices() >= 3 )
+        if( model_output->getNumVertices() >= 3 ) {
+            
+            assert( !bones.empty() || model_output->applyJointTransforms( 0 ) );
+            
             glTF_return = model_output->write( std::string( file_path ) );
+        }
         else {
             // Make it easier on the user to identify empty Obj's
             std::ofstream resource;
@@ -1232,6 +1236,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             triangle++;
         }
     }
+    
+    model_output->finish();
+    
     return model_output;
 }
 

@@ -538,7 +538,7 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
         unsigned int  weights_index = UNFOUND_INDEX; // Find the weights index.
         
         for( auto i = vertex_components.begin(); i < vertex_components.end(); i++ ) {
-            const unsigned int INDEX = vertex_components.end() - vertex_components.begin();
+            const unsigned int INDEX = i - vertex_components.begin();
             
             if( POSITION_COMPONENT_NAME.compare( (*i).getName() ) == 0 )
                 position_index = INDEX;
