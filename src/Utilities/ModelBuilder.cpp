@@ -1066,6 +1066,15 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         for( unsigned int i = 0; i < getNumJoints(); i++ ) {
             root["skins"][0]["joints"][i] = i + 2;
         }
+        root["nodes"][0]["skin"] = 0;
+        
+        root["animations"][ 0 ]["samplers"][ 0 ]["input"] = (joint_accessor_index + 1);
+        root["animations"][ 0 ]["samplers"][ 0 ]["interpolation"] = "LINEAR";
+        root["animations"][ 0 ]["samplers"][ 0 ]["output"] = (joint_accessor_index + 2);
+        
+        root["animations"][ 0 ]["channels"][ 0 ]["sampler"] = 0;
+        root["animations"][ 0 ]["channels"][ 0 ]["target"]["node"] = 2;
+        root["animations"][ 0 ]["channels"][ 0 ]["target"]["path"] = "matrix";
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );
