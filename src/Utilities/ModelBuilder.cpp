@@ -237,6 +237,7 @@ glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsi
 bool Utilities::ModelBuilder::setJointParent( unsigned int joint_parent, unsigned joint_child ) {
     if( joint_parent != joint_child ) {
         joints.at( joint_child ).joint_r = &joints.at( joint_parent );
+        joints.at( joint_child ).joint_index = joint_parent;
         return true;
     }
     else
@@ -245,7 +246,10 @@ bool Utilities::ModelBuilder::setJointParent( unsigned int joint_parent, unsigne
 
 bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation ) {
     if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
-        auto matrix = glm::mat4(1.0f);
+        auto matrix = glm::mat4( 1.0f );
+        
+        if( joints.at( joint_index ).joint_r != nullptr )
+            matrix = getJointFrame( frame_index, joints.at( joint_index ).joint_index );
         
         glm::translate( matrix, position );
         matrix *= glm::mat4_cast( rotation );
