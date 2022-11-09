@@ -1036,6 +1036,36 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["count"] = getNumJoints() * getNumJointFrames();
         root["accessors"][accessors_amount]["type"] = "MAT4";
         accessors_amount++;
+        
+        //TODO This is an iffy implementation.
+        for( unsigned int i = 0; i < getNumJoints(); i++ )
+            root["nodes"][1]["children"][i] = i + 2;
+        
+        // TODO Find a way to comply with the validator.
+        for( unsigned int i = 0; i < getNumJoints(); i++ ) {
+            root["nodes"][i + 2]["matrix"][ 0] = 1.0f;
+            root["nodes"][i + 2]["matrix"][ 1] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 2] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 3] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 4] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 5] = 1.0f;
+            root["nodes"][i + 2]["matrix"][ 6] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 7] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 8] = 0.0f;
+            root["nodes"][i + 2]["matrix"][ 9] = 0.0f;
+            root["nodes"][i + 2]["matrix"][10] = 1.0f;
+            root["nodes"][i + 2]["matrix"][11] = 0.0f;
+            root["nodes"][i + 2]["matrix"][12] = 0.0f;
+            root["nodes"][i + 2]["matrix"][13] = 0.0f;
+            root["nodes"][i + 2]["matrix"][14] = 0.0f;
+            root["nodes"][i + 2]["matrix"][15] = 1.0f;
+        }
+        
+        root["skins"][0]["inverseBindMatrices"] = bone_buffer_view_index;
+        root["skins"][0]["skeleton"]  = 1;
+        for( unsigned int i = 0; i < getNumJoints(); i++ ) {
+            root["skins"][0]["joints"][i] = i + 2;
+        }
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );
