@@ -709,12 +709,11 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
             positions_3_r[ 2 ] = vertex_positions.z;
             
             if( normals_3_r != nullptr ) {
-                glm::vec4 vertex_normals( normals_3_r[0], normals_3_r[1], normals_3_r[2], 1.0f );
+                glm::vec4 vertex_normals( normals_3_r[0], normals_3_r[1], normals_3_r[2], 0.0f );
                 vertex_normals = skin_matrix * vertex_normals;
-                auto normal_vector = glm::normalize( glm::vec3( vertex_normals.x, vertex_normals.y, vertex_normals.z ) );
-                normals_3_r[ 0 ] = normal_vector.x;
-                normals_3_r[ 1 ] = normal_vector.y;
-                normals_3_r[ 2 ] = normal_vector.z;
+                normals_3_r[ 0 ] = vertex_normals.x;
+                normals_3_r[ 1 ] = vertex_normals.y;
+                normals_3_r[ 2 ] = vertex_normals.z;
             }
         }
         
