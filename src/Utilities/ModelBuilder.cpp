@@ -790,20 +790,20 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         
         if( !morph_frame_buffers.empty() ) {
             morph_buffer_view_index = index;
-            const unsigned int TIME_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 1);
+            const unsigned int TIME_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 2);
             
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = TIME_BYTE_LENGTH;
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
             
             float frame;
-            for( int frame_index = 0; frame_index <= morph_frame_buffers.size(); frame_index++ ) {
+            for( int frame_index = 0; frame_index < morph_frame_buffers.size() + 2; frame_index++ ) {
                 frame = frame_index;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
             
             index++;
-            const unsigned int MORPH_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 1) * morph_frame_buffers.size();
+            const unsigned int MORPH_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 2) * morph_frame_buffers.size();
             
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = MORPH_BYTE_LENGTH;
@@ -825,6 +825,12 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                     
                     binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
                 }
+            }
+            
+            // Write all zeros for the first frame.
+            frame = 0.0f;
+            for( int morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
+                binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
             
             index++;
@@ -925,8 +931,8 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     // Add morph animaitons.
     if( !this->morph_frame_buffers.empty() ) {
         unsigned int morph_accessor_index = accessors_amount;
-        const unsigned int TIME_LENGTH = (morph_frame_buffers.size() + 1);
-        const unsigned int MORPH_LENGTH = (morph_frame_buffers.size() + 1) * morph_frame_buffers.size();
+        const unsigned int TIME_LENGTH = (morph_frame_buffers.size() + 2);
+        const unsigned int MORPH_LENGTH = (morph_frame_buffers.size() + 2) * morph_frame_buffers.size();
         
         root["accessors"][accessors_amount]["bufferView"] = morph_buffer_view_index;
         root["accessors"][accessors_amount]["byteOffset"] = 0;
