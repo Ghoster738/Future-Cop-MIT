@@ -1006,12 +1006,15 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
         
         // Make joint relations.
         unsigned int childern[ max_bone_childern ];
+        std::cout << "ID " << getIndexNumber() << std::endl;
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             childern[ bones.at( bone_index ).parent_amount - 1 ] = bone_index;
+            std::cout << " bone " << static_cast<unsigned>(bones.at( bone_index ).parent_amount) << std::endl;
             
             if( bones.at( bone_index ).parent_amount > 1 )
                 model_output->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
         }
+        std::cout << std::endl;
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             auto current_bone = bones.begin() + bone_index;
@@ -1040,7 +1043,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
                 bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
                 
-                auto position  = glm::vec3( -static_cast<float>( frame_position.x ) * INTEGER_FACTOR, static_cast<float>( frame_position.y ) * INTEGER_FACTOR, static_cast<float>( frame_position.z ) * INTEGER_FACTOR);
+                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( INTEGER_FACTOR );
                 auto quaterion = glm::quat_cast( bone_matrix );
                 
                 model_output->setJointFrame( frame, bone_index, position, quaterion );
