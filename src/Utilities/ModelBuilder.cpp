@@ -609,111 +609,127 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
             return false; // These three things are needed for this algorithm to work.
         }
         
-        for( unsigned int i = 0; i < vertex_amount; i++ ) {
-            uint32_t *position_values_r = primary_buffer.data() + i * vertex_components[ position_index ].stride + vertex_components[ position_index ].begin;
-            float *positions_3_r = reinterpret_cast<float*>( position_values_r );
+        for( auto t = texture_materials.begin(); t != texture_materials.end(); t++ ) {
+            (*t).min.data.x = std::numeric_limits<float>::max();
+            (*t).min.data.y =  (*t).min.data.x;
+            (*t).min.data.z =  (*t).min.data.x;
+            (*t).max.data.x = -(*t).min.data.x;
+            (*t).max.data.y = -(*t).min.data.x;
+            (*t).max.data.z = -(*t).min.data.x;
             
-            uint32_t *normal_values_r = nullptr;
-            float *normals_3_r = nullptr;
-            
-            if( normal_index != UNFOUND_INDEX ) {
-                normal_values_r = primary_buffer.data() + i * vertex_components[ normal_index ].stride + vertex_components[ normal_index ].begin;
-                normals_3_r     = reinterpret_cast<float*>( normal_values_r );
-            }
-            
-            // This holds the joint indexes.
-            uint16_t joint_index[4];
-            // This is where the joints are stored.
-            uint32_t *joint_values_r = primary_buffer.data() + i * vertex_components[ joints_index ].stride + vertex_components[ joints_index ].begin;
-            
-            switch( vertex_components[ joints_index ].component_type ) {
-                case Utilities::DataTypes::UNSIGNED_BYTE:
-                    {
-                        uint8_t *joints_r = reinterpret_cast<uint8_t*>( joint_values_r );
-                        
-                        joint_index[0] = joints_r[ 0 ];
-                        joint_index[1] = joints_r[ 1 ];
-                        joint_index[2] = joints_r[ 2 ];
-                        joint_index[3] = joints_r[ 3 ];
-                    }
-                    break;
-                case Utilities::DataTypes::UNSIGNED_SHORT:
-                    {
-                        uint16_t *joints_r = reinterpret_cast<uint16_t*>( joint_values_r );
-                        
-                        joint_index[0] = joints_r[ 0 ];
-                        joint_index[1] = joints_r[ 1 ];
-                        joint_index[2] = joints_r[ 2 ];
-                        joint_index[3] = joints_r[ 3 ];
-                    }
-                    break;
-                default:
-                    return false; // Invalid Joint unit.
-            }
-            
-            // This holds the weight values.
-            float weights[4];
-            // This is where the weights are stored.
-            uint32_t *weights_values_r = primary_buffer.data() + i * vertex_components[ weights_index ].stride + vertex_components[ weights_index ].begin;
-            
-            switch( vertex_components[ weights_index ].component_type ) {
-                case Utilities::DataTypes::UNSIGNED_BYTE:
-                    {
-                        uint8_t *weights_r = reinterpret_cast<uint8_t*>( weights_values_r );
-                        
-                        weights[0] = static_cast<float>( weights_r[ 0 ] ) / 256.0;
-                        weights[1] = static_cast<float>( weights_r[ 1 ] ) / 256.0;
-                        weights[2] = static_cast<float>( weights_r[ 2 ] ) / 256.0;
-                        weights[3] = static_cast<float>( weights_r[ 3 ] ) / 256.0;
-                    }
-                    break;
-                case Utilities::DataTypes::UNSIGNED_SHORT:
-                    {
-                        uint16_t *weights_r = reinterpret_cast<uint16_t*>( weights_values_r );
-                        
-                        weights[0] = static_cast<float>( weights_r[ 0 ] ) / 65536.0;
-                        weights[1] = static_cast<float>( weights_r[ 1 ] ) / 65536.0;
-                        weights[2] = static_cast<float>( weights_r[ 2 ] ) / 65536.0;
-                        weights[3] = static_cast<float>( weights_r[ 3 ] ) / 65536.0;
-                    }
-                    break;
-                case Utilities::DataTypes::FLOAT:
-                    {
-                        float *weights_r = reinterpret_cast<float*>( weights_values_r );
-                        
-                        weights[0] = weights_r[ 0 ];
-                        weights[1] = weights_r[ 1 ];
-                        weights[2] = weights_r[ 2 ];
-                        weights[3] = weights_r[ 3 ];
-                    }
-                    break;
-                default:
-                    return false; // Invalid Weight unit.
-            }
-            
-            glm::mat4 skin_matrix = weights[ 0 ] * getJointFrame( frame_index, joint_index[ 0 ] );
-            
-            // Now, for every weight value do this.
-            for( int d = 1; d < 4; d++ ) {
-                // Do not bother to do matrix multiplications on zeros.
-                if( weights[ d ] != 0.0f ) {
-                    // Matrix math with weights.
-                    skin_matrix += weights[ d ] * getJointFrame( frame_index, joint_index[ 0 ] );
+            for( unsigned int i = (*t).starting_vertex_index; i < (*t).starting_vertex_index + (*t).count; i++ ) {
+                uint32_t *position_values_r = primary_buffer.data() + i * vertex_components[ position_index ].stride + vertex_components[ position_index ].begin;
+                float *positions_3_r = reinterpret_cast<float*>( position_values_r );
+                
+                uint32_t *normal_values_r = nullptr;
+                float *normals_3_r = nullptr;
+                
+                if( normal_index != UNFOUND_INDEX ) {
+                    normal_values_r = primary_buffer.data() + i * vertex_components[ normal_index ].stride + vertex_components[ normal_index ].begin;
+                    normals_3_r     = reinterpret_cast<float*>( normal_values_r );
                 }
-            }
-            
-            glm::vec4 vertex_positions( positions_3_r[0], positions_3_r[1], positions_3_r[2], 1.0f );
-            vertex_positions = skin_matrix * vertex_positions;
-            positions_3_r[ 0 ] = vertex_positions.x;
-            positions_3_r[ 1 ] = vertex_positions.y;
-            positions_3_r[ 2 ] = vertex_positions.z;
-            
-            if( normals_3_r != nullptr ) {
-                glm::vec4 vertex_normals( normals_3_r[0], normals_3_r[1], normals_3_r[2], 0.0f );
-                vertex_normals = skin_matrix * vertex_normals;
-                normals_3_r[ 0 ] = vertex_normals.x;
-                normals_3_r[ 1 ] = vertex_normals.y;
-                normals_3_r[ 2 ] = vertex_normals.z;
+                
+                // This holds the joint indexes.
+                uint16_t joint_index[4];
+                // This is where the joints are stored.
+                uint32_t *joint_values_r = primary_buffer.data() + i * vertex_components[ joints_index ].stride + vertex_components[ joints_index ].begin;
+                
+                switch( vertex_components[ joints_index ].component_type ) {
+                    case Utilities::DataTypes::UNSIGNED_BYTE:
+                        {
+                            uint8_t *joints_r = reinterpret_cast<uint8_t*>( joint_values_r );
+                            
+                            joint_index[0] = joints_r[ 0 ];
+                            joint_index[1] = joints_r[ 1 ];
+                            joint_index[2] = joints_r[ 2 ];
+                            joint_index[3] = joints_r[ 3 ];
+                        }
+                        break;
+                    case Utilities::DataTypes::UNSIGNED_SHORT:
+                        {
+                            uint16_t *joints_r = reinterpret_cast<uint16_t*>( joint_values_r );
+                            
+                            joint_index[0] = joints_r[ 0 ];
+                            joint_index[1] = joints_r[ 1 ];
+                            joint_index[2] = joints_r[ 2 ];
+                            joint_index[3] = joints_r[ 3 ];
+                        }
+                        break;
+                    default:
+                        return false; // Invalid Joint unit.
+                }
+                
+                // This holds the weight values.
+                float weights[4];
+                // This is where the weights are stored.
+                uint32_t *weights_values_r = primary_buffer.data() + i * vertex_components[ weights_index ].stride + vertex_components[ weights_index ].begin;
+                
+                switch( vertex_components[ weights_index ].component_type ) {
+                    case Utilities::DataTypes::UNSIGNED_BYTE:
+                        {
+                            uint8_t *weights_r = reinterpret_cast<uint8_t*>( weights_values_r );
+                            
+                            weights[0] = static_cast<float>( weights_r[ 0 ] ) / 256.0;
+                            weights[1] = static_cast<float>( weights_r[ 1 ] ) / 256.0;
+                            weights[2] = static_cast<float>( weights_r[ 2 ] ) / 256.0;
+                            weights[3] = static_cast<float>( weights_r[ 3 ] ) / 256.0;
+                        }
+                        break;
+                    case Utilities::DataTypes::UNSIGNED_SHORT:
+                        {
+                            uint16_t *weights_r = reinterpret_cast<uint16_t*>( weights_values_r );
+                            
+                            weights[0] = static_cast<float>( weights_r[ 0 ] ) / 65536.0;
+                            weights[1] = static_cast<float>( weights_r[ 1 ] ) / 65536.0;
+                            weights[2] = static_cast<float>( weights_r[ 2 ] ) / 65536.0;
+                            weights[3] = static_cast<float>( weights_r[ 3 ] ) / 65536.0;
+                        }
+                        break;
+                    case Utilities::DataTypes::FLOAT:
+                        {
+                            float *weights_r = reinterpret_cast<float*>( weights_values_r );
+                            
+                            weights[0] = weights_r[ 0 ];
+                            weights[1] = weights_r[ 1 ];
+                            weights[2] = weights_r[ 2 ];
+                            weights[3] = weights_r[ 3 ];
+                        }
+                        break;
+                    default:
+                        return false; // Invalid Weight unit.
+                }
+                
+                glm::mat4 skin_matrix = weights[ 0 ] * getJointFrame( frame_index, joint_index[ 0 ] );
+                
+                // Now, for every weight value do this.
+                for( int d = 1; d < 4; d++ ) {
+                    // Do not bother to do matrix multiplications on zeros.
+                    if( weights[ d ] != 0.0f ) {
+                        // Matrix math with weights.
+                        skin_matrix += weights[ d ] * getJointFrame( frame_index, joint_index[ 0 ] );
+                    }
+                }
+                
+                glm::vec4 vertex_positions( positions_3_r[0], positions_3_r[1], positions_3_r[2], 1.0f );
+                vertex_positions = skin_matrix * vertex_positions;
+                positions_3_r[ 0 ] = vertex_positions.x;
+                positions_3_r[ 1 ] = vertex_positions.y;
+                positions_3_r[ 2 ] = vertex_positions.z;
+                
+                (*t).min.data.x = std::min( vertex_positions.x, (*t).min.data.x );
+                (*t).min.data.y = std::min( vertex_positions.y, (*t).min.data.y );
+                (*t).min.data.z = std::min( vertex_positions.z, (*t).min.data.z );
+                (*t).max.data.x = std::max( vertex_positions.x, (*t).max.data.x );
+                (*t).max.data.y = std::max( vertex_positions.y, (*t).max.data.y );
+                (*t).max.data.z = std::max( vertex_positions.z, (*t).max.data.z );
+                
+                if( normals_3_r != nullptr ) {
+                    glm::vec4 vertex_normals( normals_3_r[0], normals_3_r[1], normals_3_r[2], 0.0f );
+                    vertex_normals = skin_matrix * vertex_normals;
+                    normals_3_r[ 0 ] = vertex_normals.x;
+                    normals_3_r[ 1 ] = vertex_normals.y;
+                    normals_3_r[ 2 ] = vertex_normals.z;
+                }
             }
         }
         
