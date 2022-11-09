@@ -718,6 +718,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     // Buffers need to be referenced by the glTF file.
     unsigned int total_binary_buffer_size = 0;
     unsigned int morph_buffer_view_index = 0;
+    unsigned int inverse_buffer_view_index = 0;
 
     std::ofstream binary;
 
@@ -842,14 +843,22 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         }
         // Skeletal Animation.
         if( getNumJointFrames() != 0 && this->joint_inverse_frame < getNumJointFrames() ) {
+            inverse_buffer_view_index = index;
+            
+            // This is the inverse buffer view.
+            root["bufferViews"][index]["buffer"] = 0;
+            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>(sizeof( float ) * 4 * 4 * getNumJoints());
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            
             // Write down the inverse matrices from the joints.
             for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
                 glm::mat4 matrix = getJointFrame( this->joint_inverse_frame, joint_index );
                 
                 matrix = glm::inverse( matrix );
                 
-                binary.write( reinterpret_cast<const char*>( &matrix ), sizeof( glm::mat4 ) );
+                binary.write( reinterpret_cast<const char*>( &matrix[0][0] ), sizeof( float ) * 4 * 4 );
             }
+            
         }
         
         root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
