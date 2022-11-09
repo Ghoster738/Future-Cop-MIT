@@ -249,7 +249,7 @@ bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned 
         auto matrix = glm::translate( glm::mat4(1.0f), position ) * glm::mat4_cast( rotation );
         
         if( joints.at( joint_index ).joint_r != nullptr )
-            matrix *= getJointFrame( frame_index, joints.at( joint_index ).joint_index );
+            matrix = getJointFrame( frame_index, joints.at( joint_index ).joint_index ) * matrix;
         
         joint_matrix_frames[ getNumJoints() * frame_index + joint_index ] = matrix;
         return true;
