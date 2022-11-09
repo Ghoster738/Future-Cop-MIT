@@ -115,7 +115,7 @@ Utilities::ModelBuilder::ModelBuilder( const ModelBuilder& to_copy ) :
         texture_materials( to_copy.texture_materials ),
         current_vertex_index( to_copy.current_vertex_index ),
         vertex_amount( to_copy.vertex_amount ),
-        joint_matrix_frames( to_copy.joint_matrix_frames ), joint_amount( to_copy.joint_amount ),
+        joint_amount( to_copy.joint_amount ),
         is_model_finished( to_copy.is_model_finished ),
         components_are_done( to_copy.components_are_done ),
         mesh_primative_mode( to_copy.mesh_primative_mode )
@@ -201,17 +201,21 @@ void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsign
     if( num_of_joints > 0 && num_of_frames > 0 )
     {
         // Clean up the original memory if possiable
-        joint_matrix_frames.clear();
+        joints.clear();
 
         // set the joint amount.
         this->joint_amount = num_of_joints;
         
         // set the joint matrix frames.
-        joint_matrix_frames.resize( num_of_frames * num_of_joints );
         
         joint_inverse_frame = std::numeric_limits<unsigned int>::max();
         
         joints.resize( num_of_joints );
+        
+        for( auto i = joints.begin(); i != joints.end(); i++ ) {
+            (*i).position.resize( num_of_frames );
+            (*i).rotation.resize( num_of_frames );
+        }
     }
 }
 
@@ -220,7 +224,10 @@ unsigned int Utilities::ModelBuilder::getNumJoints() const {
 }
 
 unsigned int Utilities::ModelBuilder::getNumJointFrames() const {
-    return joint_matrix_frames.size() / joint_amount;
+    if( joints.empty() )
+        return 0;
+    else
+        return joints[0].position.size();
 }
 
 Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimativeMode() const {
@@ -228,8 +235,14 @@ Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimative
 }
 
 glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsigned int joint_index ) const {
-    if( getNumJoints() > joint_index && frame_index < getNumJointFrames() )
-        return joint_matrix_frames[ getNumJoints() * frame_index + joint_index ];
+    if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
+        auto matrix = glm::translate( glm::mat4( 1.0f ), joints.at(joint_index).position.at(frame_index) ) * glm::mat4_cast( joints.at(joint_index).rotation.at(frame_index) );
+        
+        if( joints.at( joint_index ).joint_r != nullptr )
+            matrix = getJointFrame( frame_index, joints.at( joint_index ).joint_index ) * matrix;
+        
+        return matrix;
+    }
     else
         return glm::mat4();
 }
@@ -246,12 +259,8 @@ bool Utilities::ModelBuilder::setJointParent( unsigned int joint_parent, unsigne
 
 bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation ) {
     if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
-        auto matrix = glm::translate( glm::mat4(1.0f), position ) * glm::mat4_cast( rotation );
-        
-        if( joints.at( joint_index ).joint_r != nullptr )
-            matrix = getJointFrame( frame_index, joints.at( joint_index ).joint_index ) * matrix;
-        
-        joint_matrix_frames[ getNumJoints() * frame_index + joint_index ] = matrix;
+        joints.at(joint_index).position.at(frame_index) = position;
+        joints.at(joint_index).rotation.at(frame_index) = rotation;
         return true;
     }
     else

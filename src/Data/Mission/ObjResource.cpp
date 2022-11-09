@@ -1006,10 +1006,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
         
         // Make joint relations.
         unsigned int childern[ max_bone_childern ];
-        std::cout << "ID " << getIndexNumber() << std::endl;
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             childern[ bones.at( bone_index ).parent_amount - 1 ] = bone_index;
-            std::cout << " bone " << static_cast<unsigned>(bones.at( bone_index ).parent_amount) << std::endl;
             
             if( bones.at( bone_index ).parent_amount > 1 )
                 model_output->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
