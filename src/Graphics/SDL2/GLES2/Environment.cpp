@@ -118,6 +118,9 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
             success = textures.back()->getImage()->subImage( 0, 124, 128, 128, environment_image );
         else
             success = textures.at( shine_index )->getImage()->subImage( 0, 124, 128, 128, environment_image );
+        
+        assert( environment_image.getWidth() == 128 );
+        assert( environment_image.getHeight() == 128 );
 
         EnvironmentInternalData->shiney_texture.setFilters( 1, GL_NEAREST, GL_LINEAR );
         EnvironmentInternalData->shiney_texture.setImage( 1, 0, GL_RGB, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, environment_image.getDirectGridData() );
