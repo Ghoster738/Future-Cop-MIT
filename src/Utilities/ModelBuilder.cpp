@@ -171,6 +171,9 @@ unsigned int Utilities::ModelBuilder::setVertexComponentMorph( unsigned int vert
         vertex_morph_components.back().begin = total_morph_components_size;
         vertex_morph_components.back().size = Utilities::DataTypes::getDataTypeSizeInt32( vertex_components[ vertex_component_index ].type, vertex_components[ vertex_component_index ].component_type ) / 4;
         total_morph_components_size += vertex_morph_components.back().size;
+        
+        if( vertex_components[ vertex_component_index ].isPosition() )
+            vertex_morph_position_component_index = vertex_morph_components.size() - 1;
 
 		return vertex_morph_components.size() - 1;
 	}
@@ -346,6 +349,13 @@ bool Utilities::ModelBuilder::setupVertexComponents( unsigned int morph_frames )
             for( auto i = vertex_morph_components.begin(); i != vertex_morph_components.end(); i++ ) {
                 (*i).stride = total_morph_components_size;
             }
+            
+            // Allocate morph_bounds.
+            std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> min_max;
+            min_max.first =  Utilities::DataTypes::Vec3Type( glm::vec3(  std::numeric_limits<float>::max(),  std::numeric_limits<float>::max(),  std::numeric_limits<float>::max() ) );
+            min_max.second = Utilities::DataTypes::Vec3Type( glm::vec3( -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max() ) );
+            
+            morph_bounds.resize( morph_frames, min_max );
         }
 
         return true;
@@ -477,6 +487,17 @@ void Utilities::ModelBuilder::addMorphVertexData( unsigned int morph_vertex_comp
     result.data.x = data.data.x - original_value.data.x;
     result.data.y = data.data.y - original_value.data.y;
     result.data.z = data.data.z - original_value.data.z;
+    
+    if( morph_vertex_component_index == vertex_morph_position_component_index ) {
+        const auto min_max = &this->morph_bounds.at( morph_frame_index );
+        
+        min_max->first.data.x  = static_cast<float>( std::min( result.data.x, min_max->first.data.x  ) );
+        min_max->first.data.y  = static_cast<float>( std::min( result.data.y, min_max->first.data.y  ) );
+        min_max->first.data.z  = static_cast<float>( std::min( result.data.z, min_max->first.data.z  ) );
+        min_max->second.data.x = static_cast<float>( std::max( result.data.x, min_max->second.data.x ) );
+        min_max->second.data.y = static_cast<float>( std::max( result.data.y, min_max->second.data.y ) );
+        min_max->second.data.z = static_cast<float>( std::max( result.data.z, min_max->second.data.z ) );
+    }
     
     result.writeBuffer( morph_frame_buffers[morph_frame_index].data() + cur_vertex_compare->begin + cur_vertex_compare->stride * (current_vertex_index - 1) );
 }
@@ -716,7 +737,6 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
         // Write the primary buffer info to this file as well
         root["buffers"][0]["uri"] = binary_name;
-        root["buffers"][0]["byteLength"] = total_binary_buffer_size;
 
         unsigned int index = 0;
 
@@ -775,7 +795,6 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = TIME_BYTE_LENGTH;
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
-            root["bufferViews"][index]["target"] = ARRAY_BUFFER;
             
             float frame;
             for( int frame_index = 0; frame_index <= morph_frame_buffers.size(); frame_index++ ) {
@@ -789,7 +808,6 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = MORPH_BYTE_LENGTH;
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
-            root["bufferViews"][index]["target"] = ARRAY_BUFFER;
             
             // Write all zeros for the first frame.
             frame = 0.0f;
@@ -812,6 +830,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             index++;
         }
         
+        root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
 
         // Then the file is now finished.
         binary.close();
@@ -887,6 +906,11 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 root["accessors"][accessors_amount]["componentType"] = (*comp).component_type;
                 root["accessors"][accessors_amount]["count"] = (*i).count;
                 root["accessors"][accessors_amount]["type"] = typeToText((*comp).type);
+                
+                if( vertex_morph_position_component_index == b ) {
+                    morph_bounds[ a ].first.writeJSON(  root["accessors"][accessors_amount]["min"] );
+                    morph_bounds[ a ].second.writeJSON( root["accessors"][accessors_amount]["max"] );
+                }
 
                 // Write the normalize if the component type is not a floating point number.
                 if( (*comp).component_type != Utilities::DataTypes::ComponentType::FLOAT )

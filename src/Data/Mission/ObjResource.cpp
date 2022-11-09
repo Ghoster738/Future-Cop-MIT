@@ -978,9 +978,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             triangle_counts.back()++;
         }
     }
-    
-    if( texture_quads.size() != 0 )
-        assert( triangle_buffer.size() != 0 );
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = -1;
