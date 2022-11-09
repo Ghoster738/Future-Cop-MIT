@@ -73,6 +73,9 @@ public:
         unsigned int count; // The amount of vertices that the texture material covers.
         Utilities::DataTypes::Vec3Type min, max;
         
+        // This holds the span for each material.
+        std::vector< std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> > morph_bounds;
+        
         void bounds( const TextureMaterial &material );
     };
     class Joint {
@@ -124,7 +127,6 @@ private:
     std::vector<VertexComponent> vertex_morph_components;
     unsigned int total_morph_components_size; // The size in uint32_t per vertex of the morph_frame_buffers elements.
     unsigned int vertex_morph_position_component_index;
-    std::vector< std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> > morph_bounds;
 
     std::vector<TextureMaterial> texture_materials;
 

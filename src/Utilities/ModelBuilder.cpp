@@ -349,13 +349,6 @@ bool Utilities::ModelBuilder::setupVertexComponents( unsigned int morph_frames )
             for( auto i = vertex_morph_components.begin(); i != vertex_morph_components.end(); i++ ) {
                 (*i).stride = total_morph_components_size;
             }
-            
-            // Allocate morph_bounds.
-            std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> min_max;
-            min_max.first =  Utilities::DataTypes::Vec3Type( glm::vec3(  std::numeric_limits<float>::max(),  std::numeric_limits<float>::max(),  std::numeric_limits<float>::max() ) );
-            min_max.second = Utilities::DataTypes::Vec3Type( glm::vec3( -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max() ) );
-            
-            morph_bounds.resize( morph_frames, min_max );
         }
 
         return true;
@@ -390,6 +383,13 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
+        
+        // Allocate morph_bounds.
+        std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> min_max;
+        min_max.first =  Utilities::DataTypes::Vec3Type( glm::vec3(  std::numeric_limits<float>::max(),  std::numeric_limits<float>::max(),  std::numeric_limits<float>::max() ) );
+        min_max.second = Utilities::DataTypes::Vec3Type( glm::vec3( -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), -std::numeric_limits<float>::max() ) );
+        
+        texture_materials.back().morph_bounds.resize( morph_frame_buffers.size(), min_max );
 
         return true;
     }
@@ -489,7 +489,7 @@ void Utilities::ModelBuilder::addMorphVertexData( unsigned int morph_vertex_comp
     result.data.z = data.data.z - original_value.data.z;
     
     if( morph_vertex_component_index == vertex_morph_position_component_index ) {
-        const auto min_max = &this->morph_bounds.at( morph_frame_index );
+        const auto min_max = &texture_materials.back().morph_bounds.at( morph_frame_index );
         
         min_max->first.data.x  = static_cast<float>( std::min( result.data.x, min_max->first.data.x  ) );
         min_max->first.data.y  = static_cast<float>( std::min( result.data.y, min_max->first.data.y  ) );
@@ -908,8 +908,8 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 root["accessors"][accessors_amount]["type"] = typeToText((*comp).type);
                 
                 if( vertex_morph_position_component_index == b ) {
-                    morph_bounds[ a ].first.writeJSON(  root["accessors"][accessors_amount]["min"] );
-                    morph_bounds[ a ].second.writeJSON( root["accessors"][accessors_amount]["max"] );
+                    (*i).morph_bounds[ a ].first.writeJSON(  root["accessors"][accessors_amount]["min"] );
+                    (*i).morph_bounds[ a ].second.writeJSON( root["accessors"][accessors_amount]["max"] );
                 }
 
                 // Write the normalize if the component type is not a floating point number.
