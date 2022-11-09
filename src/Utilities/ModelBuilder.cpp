@@ -939,6 +939,8 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
         root["accessors"][accessors_amount]["count"] = TIME_LENGTH;
         root["accessors"][accessors_amount]["type"] = "SCALAR";
+        root["accessors"][accessors_amount]["min"][0] = 0.0;
+        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( TIME_LENGTH - 1 );
         accessors_amount++;
         
         root["accessors"][accessors_amount]["bufferView"] = (morph_buffer_view_index + 1);
