@@ -2,7 +2,7 @@
 #define MODEL_BUILDER_HEADER
 
 #include "DataTypes.h"
-// #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <ostream>
 
 namespace Utilities {
@@ -80,9 +80,10 @@ public:
     };
     class Joint {
     public:
-        std::vector<unsigned int> childern; // The node offset to the joint.
-        Utilities::DataTypes::Vec3Type position;
-        Utilities::DataTypes::Vec4Type rotation;
+        Joint() : joint_r( nullptr ), position(), rotation() {}
+        const Joint *joint_r; // The node offset to the joint.
+        glm::vec3 position;
+        glm::quat rotation;
     };
 
     /**
@@ -136,8 +137,8 @@ private:
     // This holds the bone transformations.
     // Its size indicates the number of frames avialable.
     std::vector< glm::mat4 > joint_matrix_frames;
+    std::vector<Joint> joints;
     unsigned int joint_amount;
-    
     unsigned int joint_inverse_frame; // This value is greater than the joint_matrix_frames size then it was not set properly.
 
     bool is_model_finished; // This tells if the ModelBuilder should add more vertices.
@@ -232,7 +233,9 @@ public:
      */
     glm::mat4 getJointFrame( unsigned int frame_index, unsigned int joint_index ) const;
     
-    bool setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::mat4 &matrix );
+    bool setJointParent( unsigned int joint_parent, unsigned joint_child );
+    
+    bool setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation );
 
     /**
     * This tests to see if the any of the vertex components are invalid in glTF standards.
