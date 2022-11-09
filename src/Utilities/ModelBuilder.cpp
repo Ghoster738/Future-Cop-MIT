@@ -1012,7 +1012,30 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     }
     
     if( getNumJointFrames() != 0 ) {
-        // TODO
+        unsigned int joint_accessor_index = accessors_amount;
+        
+        root["accessors"][accessors_amount]["bufferView"] = bone_buffer_view_index;
+        root["accessors"][accessors_amount]["byteOffset"] = 0;
+        root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+        root["accessors"][accessors_amount]["count"] = getNumJoints();
+        root["accessors"][accessors_amount]["type"] = "MAT4";
+        accessors_amount++;
+        
+        root["accessors"][accessors_amount]["bufferView"] = (bone_buffer_view_index + 1);
+        root["accessors"][accessors_amount]["byteOffset"] = 0;
+        root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+        root["accessors"][accessors_amount]["count"] = getNumJointFrames();
+        root["accessors"][accessors_amount]["type"] = "SCALAR";
+        root["accessors"][accessors_amount]["min"][0] = 0.0;
+        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() );
+        accessors_amount++;
+        
+        root["accessors"][accessors_amount]["bufferView"] = (bone_buffer_view_index + 2);
+        root["accessors"][accessors_amount]["byteOffset"] = 0;
+        root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+        root["accessors"][accessors_amount]["count"] = getNumJoints() * getNumJointFrames();
+        root["accessors"][accessors_amount]["type"] = "MAT4";
+        accessors_amount++;
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );
