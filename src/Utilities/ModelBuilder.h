@@ -83,8 +83,8 @@ public:
         Joint() : joint_r( nullptr ), joint_index( 0 ), position(), rotation() {}
         const Joint *joint_r; // The node offset to the joint.
         unsigned int joint_index;
-        glm::vec3 position;
-        glm::quat rotation;
+        std::vector<glm::vec3> position;
+        std::vector<glm::quat> rotation;
     };
 
     /**
@@ -137,7 +137,6 @@ private:
 
     // This holds the bone transformations.
     // Its size indicates the number of frames avialable.
-    std::vector< glm::mat4 > joint_matrix_frames;
     std::vector<Joint> joints;
     unsigned int joint_amount;
     unsigned int joint_inverse_frame; // This value is greater than the joint_matrix_frames size then it was not set properly.
