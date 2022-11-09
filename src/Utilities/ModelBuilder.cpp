@@ -711,9 +711,9 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
             if( normals_3_r != nullptr ) {
                 glm::vec4 vertex_normals( normals_3_r[0], normals_3_r[1], normals_3_r[2], 1.0f );
                 vertex_normals = skin_matrix * vertex_normals;
-                normals_3_r[ 0 ] = vertex_positions.x;
-                normals_3_r[ 1 ] = vertex_positions.y;
-                normals_3_r[ 2 ] = vertex_positions.z;
+                normals_3_r[ 0 ] = vertex_normals.x;
+                normals_3_r[ 1 ] = vertex_normals.y;
+                normals_3_r[ 2 ] = vertex_normals.z;
             }
         }
         
