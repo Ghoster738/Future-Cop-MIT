@@ -123,6 +123,8 @@ private:
     std::vector<std::vector<uint32_t>> morph_frame_buffers;
     std::vector<VertexComponent> vertex_morph_components;
     unsigned int total_morph_components_size; // The size in uint32_t per vertex of the morph_frame_buffers elements.
+    unsigned int vertex_morph_position_component_index;
+    std::vector< std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> > morph_bounds;
 
     std::vector<TextureMaterial> texture_materials;
 
@@ -172,25 +174,25 @@ public:
     unsigned int getNumVertexComponents() const;
 
     /**
-    * This method gets the vertex component. It was created, so one could use it for graphics.
-    * @param vertex_component_index The index to the vertex component in std::vector<VertexType> vertex_components
-    * @param element This gets a copy of all the parameters of the index.
-    * @return If the parameter element has been written it will return true, so if it is out of bounds then it will return false.
-    */
+     * This method gets the vertex component. It was created, so one could use it for graphics.
+     * @param vertex_component_index The index to the vertex component in std::vector<VertexType> vertex_components
+     * @param element This gets a copy of all the parameters of the index.
+     * @return If the parameter element has been written it will return true, so if it is out of bounds then it will return false.
+     */
     bool getVertexComponent( unsigned int vertex_component_index, VertexComponent &element ) const;
 
     /**
-    * This method sets the vertex component to be a morph target.
-    * @param index The index to the vertex component in std::vector<VertexType> vertex_components, or the return value of addVertexComponent.
-    * @return An index to the std::vector<VertexType> vertex_morph_components NOT to be confussed with vertex_components!
-    * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
-    */
+     * This method sets the vertex component to be a morph target.
+     * @param index The index to the vertex component in std::vector<VertexType> vertex_components, or the return value of addVertexComponent.
+     * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
+     * @return An index to the std::vector<VertexType> vertex_morph_components NOT to be confussed with vertex_components!
+     */
     unsigned int setVertexComponentMorph( unsigned int vertex_component_index );
 
     /**
-    * This gets the number of morph vertex components that had been decleared.
-    * @return the number of morph vertex components that exist in this class.
-    */
+     * This gets the number of morph vertex components that had been decleared.
+     * @return the number of morph vertex components that exist in this class.
+     */
     unsigned int getNumMorphVertexComponents() const;
 
     /**
@@ -225,7 +227,7 @@ public:
      * This gets a copy of the matrix for the joint frame.
      * @param frame_index the frame index to the matrix joints.
      * @return either a direct pointer to the joint frames, or a nullptr if the frame_index is out of bounds or there are no joints.
-    */
+     */
     glm::mat4 getJointFrame( unsigned int frame_index, unsigned int joint_index ) const;
     
     bool setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::mat4 &matrix );
