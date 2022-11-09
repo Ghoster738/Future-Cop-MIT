@@ -666,14 +666,14 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
                     return false; // Invalid Weight unit.
             }
             
-            glm::mat4 skin_matrix = weights[ 0 ] * joint_matrix_frames[ frame_index * joint_amount + joint_index[ 0 ] ];
+            glm::mat4 skin_matrix = weights[ 0 ] * getJointFrame( frame_index, joint_index[ 0 ] );
             
             // Now, for every weight value do this.
             for( int d = 1; d < 4; d++ ) {
                 // Do not bother to do matrix multiplications on zeros.
                 if( weights[ d ] != 0.0f ) {
                     // Matrix math with weights.
-                    skin_matrix += weights[ d ] * joint_matrix_frames[ frame_index * joint_amount + joint_index[ d ] ];
+                    skin_matrix += weights[ d ] * getJointFrame( frame_index, joint_index[ 0 ] );
                 }
             }
             
@@ -873,19 +873,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             }
             index++;
             
-            // This is where all the matrix animations go.
-            root["bufferViews"][index]["buffer"] = 0;
-            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>( sizeof( float ) * 4 * 4 * getNumJoints() * getNumJointFrames() );
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
-            
-            for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
-                    glm::mat4 matrix = getJointFrame( joint_frame, joint_index );
-                    binary.write( reinterpret_cast<const char*>( &matrix[0][0] ), sizeof( float ) * 4 * 4 );
-                }
-            }
-            
-            index++;
+            // From this point is where the animations start.
         }
         
         root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
@@ -1030,19 +1018,13 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() );
         accessors_amount++;
         
-        root["accessors"][accessors_amount]["bufferView"] = (bone_buffer_view_index + 2);
-        root["accessors"][accessors_amount]["byteOffset"] = 0;
-        root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
-        root["accessors"][accessors_amount]["count"] = getNumJoints() * getNumJointFrames();
-        root["accessors"][accessors_amount]["type"] = "MAT4";
-        accessors_amount++;
-        
         //TODO This is an iffy implementation.
-        for( unsigned int i = 0; i < getNumJoints(); i++ )
+        /*for( unsigned int i = 0; i < getNumJoints(); i++ )
             root["nodes"][1]["children"][i] = i + 2;
+        root["scenes"][0]["nodes"].append( 1 );*/
         
         // TODO Find a way to comply with the validator.
-        for( unsigned int i = 0; i < getNumJoints(); i++ ) {
+        /*for( unsigned int i = 0; i < getNumJoints(); i++ ) {
             root["nodes"][i + 2]["matrix"][ 0] = 1.0f;
             root["nodes"][i + 2]["matrix"][ 1] = 0.0f;
             root["nodes"][i + 2]["matrix"][ 2] = 0.0f;
@@ -1059,22 +1041,22 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["nodes"][i + 2]["matrix"][13] = 0.0f;
             root["nodes"][i + 2]["matrix"][14] = 0.0f;
             root["nodes"][i + 2]["matrix"][15] = 1.0f;
-        }
-        
+        }*/
+        /*
         root["skins"][0]["inverseBindMatrices"] = bone_buffer_view_index;
-        root["skins"][0]["skeleton"]  = 1;
-        for( unsigned int i = 0; i < getNumJoints(); i++ ) {
+        root["skins"][0]["skeleton"]  = 1;*/
+        /*for( unsigned int i = 0; i < getNumJoints(); i++ ) {
             root["skins"][0]["joints"][i] = i + 2;
-        }
+        }*//*
         root["nodes"][0]["skin"] = 0;
         
         root["animations"][ 0 ]["samplers"][ 0 ]["input"] = (joint_accessor_index + 1);
         root["animations"][ 0 ]["samplers"][ 0 ]["interpolation"] = "LINEAR";
-        root["animations"][ 0 ]["samplers"][ 0 ]["output"] = (joint_accessor_index + 2);
+        root["animations"][ 0 ]["samplers"][ 0 ]["output"] = (joint_accessor_index + 2);*/
         
-        root["animations"][ 0 ]["channels"][ 0 ]["sampler"] = 0;
-        root["animations"][ 0 ]["channels"][ 0 ]["target"]["node"] = 2;
-        root["animations"][ 0 ]["channels"][ 0 ]["target"]["path"] = "matrix";
+        // root["animations"][ 0 ]["channels"][ 0 ]["sampler"] = 0;
+        // root["animations"][ 0 ]["channels"][ 0 ]["target"]["node"] = 2;
+        // root["animations"][ 0 ]["channels"][ 0 ]["target"]["path"] = "matrix";
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );
