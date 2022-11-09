@@ -1079,7 +1079,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["count"] = getNumJointFrames();
         root["accessors"][accessors_amount]["type"] = "SCALAR";
         root["accessors"][accessors_amount]["min"][0] = 0.0;
-        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() );
+        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() - 1 );
         accessors_amount++;
         
         unsigned int joint_transform_index = accessors_amount;
