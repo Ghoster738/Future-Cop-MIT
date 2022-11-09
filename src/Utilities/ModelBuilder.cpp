@@ -210,6 +210,8 @@ void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsign
         joint_matrix_frames.resize( num_of_frames * num_of_joints );
         
         joint_inverse_frame = std::numeric_limits<unsigned int>::max();
+        
+        joints.resize( num_of_joints );
     }
 }
 
@@ -232,10 +234,23 @@ glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsi
         return glm::mat4();
 }
 
-bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::mat4 &matrix ) {
+bool Utilities::ModelBuilder::setJointParent( unsigned int joint_parent, unsigned joint_child ) {
+    if( joint_parent != joint_child ) {
+        joints.at( joint_child ).joint_r = &joints.at( joint_parent );
+        return true;
+    }
+    else
+        return false;
+}
+
+bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation ) {
     if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
-        joint_matrix_frames[ getNumJoints() * frame_index + joint_index ] = matrix;
+        auto matrix = glm::mat4(1.0f);
         
+        glm::translate( matrix, position );
+        matrix *= glm::mat4_cast( rotation );
+        
+        joint_matrix_frames[ getNumJoints() * frame_index + joint_index ] = matrix;
         return true;
     }
     else

@@ -1004,6 +1004,15 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
         unsigned int opcode_decode = 0;
         
         const float ANGLE_UNITS_TO_RADIANS = M_PI / 2048.0;
+        
+        // Make joint relations.
+        for( unsigned int bone_index = 1; bone_index < bones.size(); bone_index++ ) {
+            auto child_index  = bone_index;
+            auto parent_index = bone_index - 1;
+            
+            if( bones.at( child_index ).parent_amount != bones.at( parent_index ).parent_amount )
+                model_output->setJointParent( parent_index, child_index );
+        }
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             auto current_bone = bones.begin() + bone_index;
@@ -1032,16 +1041,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
                 bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
                 bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
                 
-                bone_matrix = glm::translate( glm::mat4(1.0f), glm::vec3(
-                                  -static_cast<float>( frame_position.x ) * INTEGER_FACTOR,
-                                   static_cast<float>( frame_position.y ) * INTEGER_FACTOR,
-                                   static_cast<float>( frame_position.z ) * INTEGER_FACTOR) ) * bone_matrix;
+                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( INTEGER_FACTOR );
+                auto quaterion = glm::quat_cast( bone_matrix );
                 
-                if( (*current_bone).parent_amount > 1 ) {
-                    bone_matrix = model_output->getJointFrame( frame, childern[ (*current_bone).parent_amount - 2 ] ) * bone_matrix;
-                }
-                
-                model_output->setJointFrame( frame, bone_index, bone_matrix );
+                model_output->setJointFrame( frame, bone_index, position, quaterion );
             }
         }
     }
