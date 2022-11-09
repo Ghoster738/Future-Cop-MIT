@@ -899,6 +899,25 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             index++;
             
             // From this point is where the animations start.
+            for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+                root["bufferViews"][index]["buffer"] = 0;
+                root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>( 3 * sizeof( float ) * this->getNumJointFrames());
+                root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+                
+                for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).position.at( joint_frame ).x ), 3 * sizeof( float ));
+                }
+                index++;
+                
+                root["bufferViews"][index]["buffer"] = 0;
+                root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>( 4 * sizeof( float ) * this->getNumJointFrames());
+                root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+                
+                for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).x ), 4 * sizeof( float ));
+                }
+                index++;
+            }
         }
         
         root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
@@ -1042,6 +1061,22 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["min"][0] = 0.0;
         root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() );
         accessors_amount++;
+        
+        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+            root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 3);
+            root["accessors"][accessors_amount]["byteOffset"] = 0;
+            root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+            root["accessors"][accessors_amount]["count"] = static_cast<unsigned int>( this->joints.at( joint_index ).position.size() );
+            root["accessors"][accessors_amount]["type"] = "VEC3";
+            accessors_amount++;
+            
+            root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 2);
+            root["accessors"][accessors_amount]["byteOffset"] = 0;
+            root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+            root["accessors"][accessors_amount]["count"] = static_cast<unsigned int>( this->joints.at( joint_index ).rotation.size() );
+            root["accessors"][accessors_amount]["type"] = "VEC4";
+            accessors_amount++;
+        }
         
         //TODO This is an iffy implementation.
         /*for( unsigned int i = 0; i < getNumJoints(); i++ )
