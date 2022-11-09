@@ -102,6 +102,7 @@ Utilities::ModelBuilder::ModelBuilder( MeshPrimativeMode mode ) {
 	is_model_finished = false;
 	components_are_done = false;
 	joint_amount = 0;
+    joint_inverse_frame = std::numeric_limits<unsigned int>::max();
     
     mesh_primative_mode = mode;
 }
@@ -117,8 +118,8 @@ Utilities::ModelBuilder::ModelBuilder( const ModelBuilder& to_copy ) :
         joint_matrix_frames( to_copy.joint_matrix_frames ), joint_amount( to_copy.joint_amount ),
         is_model_finished( to_copy.is_model_finished ),
         components_are_done( to_copy.components_are_done ),
-        mesh_primative_mode( to_copy.mesh_primative_mode ){
-    //
+        mesh_primative_mode( to_copy.mesh_primative_mode )
+{
 }
 
 Utilities::ModelBuilder::~ModelBuilder() {
@@ -207,6 +208,8 @@ void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsign
         
         // set the joint matrix frames.
         joint_matrix_frames.resize( num_of_frames * num_of_joints );
+        
+        joint_inverse_frame = std::numeric_limits<unsigned int>::max();
     }
 }
 
@@ -544,7 +547,7 @@ bool Utilities::ModelBuilder::finish()
 }
 
 bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
-    const unsigned int UNFOUND_INDEX = 0xFFFFFFFF;
+    const unsigned int UNFOUND_INDEX = std::numeric_limits<unsigned int>::max();
     
     if( !is_model_finished )
         return false; // Transformations cannot be applied to an incomplete model.
@@ -553,6 +556,8 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
         return false; // Morph frames and bone animations for Cobj do not come together. I might add a morph frame case, and it might be simple.
     else
     {
+        joint_inverse_frame = frame_index;
+        
         unsigned int position_index = UNFOUND_INDEX; // Find the position index.
         unsigned int   normal_index = UNFOUND_INDEX; // Find the normal index if available.
         unsigned int   joints_index = UNFOUND_INDEX; // Find the joints index.
@@ -834,6 +839,17 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             }
             
             index++;
+        }
+        // Skeletal Animation.
+        if( getNumJointFrames() != 0 && this->joint_inverse_frame < getNumJointFrames() ) {
+            // Write down the inverse matrices from the joints.
+            for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+                glm::mat4 matrix = getJointFrame( this->joint_inverse_frame, joint_index );
+                
+                matrix = glm::inverse( matrix );
+                
+                binary.write( reinterpret_cast<const char*>( &matrix ), sizeof( glm::mat4 ) );
+            }
         }
         
         root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
