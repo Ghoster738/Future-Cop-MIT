@@ -718,7 +718,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     // Buffers need to be referenced by the glTF file.
     unsigned int total_binary_buffer_size = 0;
     unsigned int morph_buffer_view_index = 0;
-    unsigned int inverse_buffer_view_index = 0;
+    unsigned int bone_buffer_view_index = 0;
 
     std::ofstream binary;
 
@@ -843,7 +843,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         }
         // Skeletal Animation.
         if( getNumJointFrames() != 0 && this->joint_inverse_frame < getNumJointFrames() ) {
-            inverse_buffer_view_index = index;
+            bone_buffer_view_index = index;
             
             // This is the inverse buffer view.
             root["bufferViews"][index]["buffer"] = 0;
@@ -859,6 +859,33 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 binary.write( reinterpret_cast<const char*>( &matrix[0][0] ), sizeof( float ) * 4 * 4 );
             }
             
+            // This is the time between frame buffer view.
+            root["bufferViews"][index]["buffer"] = 0;
+            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>(sizeof( float ) * getNumJointFrames());
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            
+            float frame = 0.0f;
+            
+            // Write down the time line.
+            for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+                frame = joint_frame;
+                binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ));
+            }
+            index++;
+            
+            // This is where all the matrix animations go.
+            root["bufferViews"][index]["buffer"] = 0;
+            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>( sizeof( float ) * 4 * 4 * getNumJoints() * getNumJointFrames() );
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            
+            for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+                for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+                    glm::mat4 matrix = getJointFrame( joint_frame, joint_index );
+                    binary.write( reinterpret_cast<const char*>( &matrix[0][0] ), sizeof( float ) * 4 * 4 );
+                }
+            }
+            
+            index++;
         }
         
         root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
@@ -982,6 +1009,10 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["animations"][ 0 ]["channels"][ 0 ]["sampler"] = 0;
         root["animations"][ 0 ]["channels"][ 0 ]["target"]["node"] = 0;
         root["animations"][ 0 ]["channels"][ 0 ]["target"]["path"] = "weights";
+    }
+    
+    if( getNumJointFrames() != 0 ) {
+        // TODO
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );
