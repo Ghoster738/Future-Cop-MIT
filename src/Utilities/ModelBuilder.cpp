@@ -874,6 +874,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>(sizeof( float ) * 4 * 4 * getNumJoints());
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["name"] = "inverse " + std::to_string( getNumJoints() );
             
             // Write down the inverse matrices from the joints.
             for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
@@ -883,11 +884,13 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 
                 binary.write( reinterpret_cast<const char*>( &matrix[0][0] ), sizeof( float ) * 4 * 4 );
             }
+            index++;
             
             // This is the time between frame buffer view.
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>(sizeof( float ) * getNumJointFrames());
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["name"] = "time";
             
             float frame = 0.0f;
             
@@ -1053,6 +1056,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["type"] = "MAT4";
         accessors_amount++;
         
+        unsigned int time_accessor_index = accessors_amount;
         root["accessors"][accessors_amount]["bufferView"] = (bone_buffer_view_index + 1);
         root["accessors"][accessors_amount]["byteOffset"] = 0;
         root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
@@ -1062,15 +1066,17 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() );
         accessors_amount++;
         
+        unsigned int joint_transform_index = accessors_amount;
+        
         for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
-            root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 3);
+            root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 2);
             root["accessors"][accessors_amount]["byteOffset"] = 0;
             root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
             root["accessors"][accessors_amount]["count"] = static_cast<unsigned int>( this->joints.at( joint_index ).position.size() );
             root["accessors"][accessors_amount]["type"] = "VEC3";
             accessors_amount++;
             
-            root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 2);
+            root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 3);
             root["accessors"][accessors_amount]["byteOffset"] = 0;
             root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
             root["accessors"][accessors_amount]["count"] = static_cast<unsigned int>( this->joints.at( joint_index ).rotation.size() );
@@ -1079,44 +1085,58 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         }
         
         //TODO This is an iffy implementation.
-        /*for( unsigned int i = 0; i < getNumJoints(); i++ )
-            root["nodes"][1]["children"][i] = i + 2;
-        root["scenes"][0]["nodes"].append( 1 );*/
+        root["nodes"][1]["children"][0] = 2;
         
-        // TODO Find a way to comply with the validator.
-        /*for( unsigned int i = 0; i < getNumJoints(); i++ ) {
-            root["nodes"][i + 2]["matrix"][ 0] = 1.0f;
-            root["nodes"][i + 2]["matrix"][ 1] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 2] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 3] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 4] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 5] = 1.0f;
-            root["nodes"][i + 2]["matrix"][ 6] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 7] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 8] = 0.0f;
-            root["nodes"][i + 2]["matrix"][ 9] = 0.0f;
-            root["nodes"][i + 2]["matrix"][10] = 1.0f;
-            root["nodes"][i + 2]["matrix"][11] = 0.0f;
-            root["nodes"][i + 2]["matrix"][12] = 0.0f;
-            root["nodes"][i + 2]["matrix"][13] = 0.0f;
-            root["nodes"][i + 2]["matrix"][14] = 0.0f;
-            root["nodes"][i + 2]["matrix"][15] = 1.0f;
-        }*/
-        /*
+        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+            root["nodes"][joint_index + 2]["translation"][0] = this->joints.at( joint_index ).position.at( joint_inverse_frame ).x;
+            root["nodes"][joint_index + 2]["translation"][1] = this->joints.at( joint_index ).position.at( joint_inverse_frame ).y;
+            root["nodes"][joint_index + 2]["translation"][2] = this->joints.at( joint_index ).position.at( joint_inverse_frame ).z;
+            
+            root["nodes"][joint_index + 2]["rotation"][0] = this->joints.at( joint_index ).rotation.at( joint_inverse_frame ).x;
+            root["nodes"][joint_index + 2]["rotation"][1] = this->joints.at( joint_index ).rotation.at( joint_inverse_frame ).y;
+            root["nodes"][joint_index + 2]["rotation"][2] = this->joints.at( joint_index ).rotation.at( joint_inverse_frame ).z;
+            root["nodes"][joint_index + 2]["rotation"][3] = this->joints.at( joint_index ).rotation.at( joint_inverse_frame ).w;
+        }
+        
+        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+            if( this->joints.at( joint_index ).joint_r != nullptr )
+                root["nodes"][ this->joints.at( joint_index ).joint_index + 2 ]["children"].append( joint_index + 2 );
+        }
+        
+        root["scenes"][0]["nodes"].append( 1 );
+        
         root["skins"][0]["inverseBindMatrices"] = bone_buffer_view_index;
-        root["skins"][0]["skeleton"]  = 1;*/
-        /*for( unsigned int i = 0; i < getNumJoints(); i++ ) {
+        root["skins"][0]["skeleton"]  = 1;
+        for( unsigned int i = 0; i < getNumJoints(); i++ ) {
             root["skins"][0]["joints"][i] = i + 2;
-        }*//*
+        }
         root["nodes"][0]["skin"] = 0;
         
-        root["animations"][ 0 ]["samplers"][ 0 ]["input"] = (joint_accessor_index + 1);
-        root["animations"][ 0 ]["samplers"][ 0 ]["interpolation"] = "LINEAR";
-        root["animations"][ 0 ]["samplers"][ 0 ]["output"] = (joint_accessor_index + 2);*/
+        unsigned int current_accessor_index = accessors_amount;
         
-        // root["animations"][ 0 ]["channels"][ 0 ]["sampler"] = 0;
-        // root["animations"][ 0 ]["channels"][ 0 ]["target"]["node"] = 2;
-        // root["animations"][ 0 ]["channels"][ 0 ]["target"]["path"] = "matrix";
+        unsigned int current_channels = 0;
+        
+        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+            root["animations"][ 0 ]["samplers"][ current_channels ]["input"] = (time_accessor_index);
+            root["animations"][ 0 ]["samplers"][ current_channels ]["interpolation"] = "LINEAR";
+            root["animations"][ 0 ]["samplers"][ current_channels ]["output"] = joint_transform_index;
+            
+            root["animations"][ 0 ]["channels"][ current_channels ]["sampler"] = current_channels;
+            root["animations"][ 0 ]["channels"][ current_channels ]["target"]["node"] = 2 + joint_index;
+            root["animations"][ 0 ]["channels"][ current_channels ]["target"]["path"] = "translation";
+            joint_transform_index++;
+            current_channels++;
+            
+            root["animations"][ 0 ]["samplers"][ current_channels ]["input"] = (time_accessor_index);
+            root["animations"][ 0 ]["samplers"][ current_channels ]["interpolation"] = "LINEAR";
+            root["animations"][ 0 ]["samplers"][ current_channels ]["output"] = joint_transform_index;
+            
+            root["animations"][ 0 ]["channels"][ current_channels ]["sampler"] = current_channels;
+            root["animations"][ 0 ]["channels"][ current_channels ]["target"]["node"] = 2 + joint_index;
+            root["animations"][ 0 ]["channels"][ current_channels ]["target"]["path"] = "rotation";
+            joint_transform_index++;
+            current_channels++;
+        }
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );
