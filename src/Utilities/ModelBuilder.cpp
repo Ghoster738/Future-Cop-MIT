@@ -691,6 +691,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
     // Buffers need to be referenced by the glTF file.
     unsigned int total_binary_buffer_size = 0;
+    unsigned int morph_buffer_view_index = 0;
 
     std::ofstream binary;
 
@@ -766,6 +767,51 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 index++;
             }
         }
+        
+        if( !morph_frame_buffers.empty() ) {
+            morph_buffer_view_index = index;
+            const unsigned int TIME_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 1);
+            
+            root["bufferViews"][index]["buffer"] = 0;
+            root["bufferViews"][index]["byteLength"] = TIME_BYTE_LENGTH;
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["target"] = ARRAY_BUFFER;
+            
+            float frame;
+            for( int frame_index = 0; frame_index <= morph_frame_buffers.size(); frame_index++ ) {
+                frame = frame_index;
+                binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
+            }
+            
+            index++;
+            const unsigned int MORPH_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 1) * morph_frame_buffers.size();
+            
+            root["bufferViews"][index]["buffer"] = 0;
+            root["bufferViews"][index]["byteLength"] = MORPH_BYTE_LENGTH;
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["target"] = ARRAY_BUFFER;
+            
+            // Write all zeros for the first frame.
+            frame = 0.0f;
+            for( int morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
+                binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
+            }
+            
+            for( int frame_index = 0; frame_index < morph_frame_buffers.size(); frame_index++ ) {
+                for( int morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
+                    
+                    if( frame_index == morph_index )
+                        frame = 1.0f;
+                    else
+                        frame = 0.0f;
+                    
+                    binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
+                }
+            }
+            
+            index++;
+        }
+        
 
         // Then the file is now finished.
         binary.close();
@@ -850,6 +896,35 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 vertex_component_index++;
             }
         }
+    }
+    
+    // Add morph animaitons.
+    if( !this->morph_frame_buffers.empty() ) {
+        unsigned int morph_accessor_index = accessors_amount;
+        const unsigned int TIME_LENGTH = (morph_frame_buffers.size() + 1);
+        const unsigned int MORPH_LENGTH = (morph_frame_buffers.size() + 1) * morph_frame_buffers.size();
+        
+        root["accessors"][accessors_amount]["bufferView"] = morph_buffer_view_index;
+        root["accessors"][accessors_amount]["byteOffset"] = 0;
+        root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+        root["accessors"][accessors_amount]["count"] = TIME_LENGTH;
+        root["accessors"][accessors_amount]["type"] = "SCALAR";
+        accessors_amount++;
+        
+        root["accessors"][accessors_amount]["bufferView"] = (morph_buffer_view_index + 1);
+        root["accessors"][accessors_amount]["byteOffset"] = 0;
+        root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
+        root["accessors"][accessors_amount]["count"] = MORPH_LENGTH;
+        root["accessors"][accessors_amount]["type"] = "SCALAR";
+        accessors_amount++;
+        
+        root["animations"][ 0 ]["samplers"][ 0 ]["input"] = morph_accessor_index;
+        root["animations"][ 0 ]["samplers"][ 0 ]["interpolation"] = "LINEAR";
+        root["animations"][ 0 ]["samplers"][ 0 ]["output"] = (morph_accessor_index + 1);
+        
+        root["animations"][ 0 ]["channels"][ 0 ]["sampler"] = 0;
+        root["animations"][ 0 ]["channels"][ 0 ]["target"]["node"] = 0;
+        root["animations"][ 0 ]["channels"][ 0 ]["target"]["path"] = "weights";
     }
 
     resource.open( std::string(file_path) + ".gltf", std::ios::out );

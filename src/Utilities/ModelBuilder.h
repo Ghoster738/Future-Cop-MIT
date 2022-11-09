@@ -2,6 +2,7 @@
 #define MODEL_BUILDER_HEADER
 
 #include "DataTypes.h"
+// #include <glm/gtc/quaternion.hpp>
 #include <ostream>
 
 namespace Utilities {
@@ -135,8 +136,8 @@ private:
     
     unsigned int joint_inverse_frame; // This value is greater than the joint_matrix_frames size then it was not set properly.
 
-    bool is_model_finished; // This tells if the ModelBuilder should edit the vertices
-    bool components_are_done; // This tells if the ModelBuilder should edit the vertices
+    bool is_model_finished; // This tells if the ModelBuilder should add more vertices.
+    bool components_are_done; // This tells if the ModelBuilder should add more components.
     
     MeshPrimativeMode mesh_primative_mode;
 public:
@@ -193,29 +194,29 @@ public:
     unsigned int getNumMorphVertexComponents() const;
 
     /**
-    * This method gets the morph vertex component. It was created, so one could use it for graphics.
-    * @param vertex_morph_component_index The index to the vertex component in std::vector<VertexType> vertex_morph_components.
-    * @param element This gets a copy of all the parameters of the morph component.
-    * @return If the parameter element has been written it will return true, so if it is out of bounds then it will return false.
-    */
+     * This method gets the morph vertex component. It was created, so one could use it for graphics.
+     * @param vertex_morph_component_index The index to the vertex component in std::vector<VertexType> vertex_morph_components.
+     * @param element This gets a copy of all the parameters of the morph component.
+     * @return If the parameter element has been written it will return true, so if it is out of bounds then it will return false.
+     */
     bool getMorphVertexComponent( unsigned int vertex_morph_component_index, VertexComponent &element ) const;
     
     
     /**
-    * Allocate joints and the frames.
-    * @param num_of_joints The amount of joints that this model will have.
-    * @param num_of_frames The number of frames that this model will have. More specifically the number of frames for the skeletal animation.
+     * Allocate joints and the frames.
+     * @param num_of_joints The amount of joints that this model will have.
+     * @param num_of_frames The number of frames that this model will have. More specifically the number of frames for the skeletal animation.
     */
     void allocateJoints( unsigned int num_of_joints, unsigned int num_of_frames );
     
     /**
-    * @return The number of joints that exists.
-    */
+     * @return The number of joints that exists.
+     */
     unsigned int getNumJoints() const;
     
     /**
-    * @return The number of frames for the skeletal animation that exists.
-    */
+     * @return The number of frames for the skeletal animation that exists.
+     */
     unsigned int getNumJointFrames() const;
     
     MeshPrimativeMode getPrimativeMode() const;
