@@ -80,8 +80,9 @@ public:
     };
     class Joint {
     public:
-        Joint() : joint_r( nullptr ), position(), rotation() {}
+        Joint() : joint_r( nullptr ), joint_index( 0 ), position(), rotation() {}
         const Joint *joint_r; // The node offset to the joint.
+        unsigned int joint_index;
         glm::vec3 position;
         glm::quat rotation;
     };
