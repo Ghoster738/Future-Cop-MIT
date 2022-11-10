@@ -231,7 +231,11 @@ void Graphics::Environment::drawFrame() const {
 
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
-            glDisable( GL_BLEND ); // No, blending for now.
+            
+            // This is very crude blending.
+            glEnable( GL_BLEND );
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
             // Draw the map if available.
             if( EnvironmentInternalData->world != nullptr )
