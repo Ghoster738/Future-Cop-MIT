@@ -45,7 +45,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "    const float CUTOFF = 0.015625;\n"
     "    if( frag_color.r < CUTOFF && frag_color.g < CUTOFF && frag_color.b < CUTOFF )"
     "       discard;\n"
-    "    frag_color *= vec4(vertex_colors.xyz, 0);"
+    "    if( frag_color.a > 0.0125 )\n"
+    "        frag_color.a = 0.5;\n"
+    "    else\n"
+    "        frag_color.a = 1.0;\n"
+    "    frag_color *= vec4(vertex_colors.xyz, 1);"
     "    gl_FragColor = (1.0 - _flashing) * frag_color + _flashing * (frag_inv - frag_color);\n"
     "}\n";
 
