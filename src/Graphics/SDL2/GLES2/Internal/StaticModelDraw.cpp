@@ -51,6 +51,10 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
     "  const float CUTOFF = 0.015625;\n"
     "  if( color.r < CUTOFF && color.g < CUTOFF && color.b < CUTOFF )"
     "    discard;\n"
+    "    if( color.a > 0.0125 )\n"
+    "        color.a = 0.5;\n"
+    "    else\n"
+    "        color.a = 1.0;\n"
     "  gl_FragColor = texture2D(Shine, world_reflection.xz) * specular + color;\n"
     "}\n";
 
