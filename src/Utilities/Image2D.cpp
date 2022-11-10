@@ -1,4 +1,5 @@
 #include "Image2D.h"
+#include <stdexcept>
 
 // This should only exist in this source file.
 namespace {
