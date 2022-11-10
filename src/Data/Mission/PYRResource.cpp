@@ -193,10 +193,18 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                     auto bitfield = readerPIX4.getBitfield();
                     
                     for( size_t i = 0; i < bitfield.size() / 8; i++ ) {
-                        std::swap( bitfield[ i * 8 + 0 ], bitfield[ i * 8 + 4 ] );
-                        std::swap( bitfield[ i * 8 + 1 ], bitfield[ i * 8 + 5 ] );
-                        std::swap( bitfield[ i * 8 + 2 ], bitfield[ i * 8 + 6 ] );
-                        std::swap( bitfield[ i * 8 + 3 ], bitfield[ i * 8 + 7 ] );
+                        // TODO Replace this with something more offical.
+                        bool small_bitfield[8];
+                        for( unsigned b = 0; b < 8; b++ )
+                            small_bitfield[ b ] = bitfield[ i * 8 + b ];
+
+                        std::swap( small_bitfield[ 0 ], small_bitfield[ 4 ] );
+                        std::swap( small_bitfield[ 1 ], small_bitfield[ 5 ] );
+                        std::swap( small_bitfield[ 2 ], small_bitfield[ 6 ] );
+                        std::swap( small_bitfield[ 3 ], small_bitfield[ 7 ] );
+
+                        for( unsigned b = 0; b < 8; b++ )
+                            bitfield[ i * 8 + b ] = small_bitfield[ b ];
                     }
                     
                     primary_image_p->fromBitfield( bitfield, 4 );

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <cstddef>
 
 namespace Utilities {
 

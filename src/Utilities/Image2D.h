@@ -5,6 +5,8 @@
 #include "PixelFormat.h"
 #include "Buffer.h"
 
+#include <cassert>
+
 namespace Utilities {
 
 typedef grid_2d_unit        image_unit;
