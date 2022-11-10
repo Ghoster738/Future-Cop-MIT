@@ -33,7 +33,7 @@ public:
      * @param height The height of the image.
      */
     void setDimensions( grid_2d_unit width, grid_2d_unit height ) {
-        GridBase2D<grid_2d_value, placement>::updateCellBuffer();
+        GridBase2D<grid_2d_value, placement>::setDimensions( width, height );
     }
     
     /**
