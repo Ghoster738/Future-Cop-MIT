@@ -47,7 +47,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 
     "void main()\n"
     "{\n"
-    "  gl_FragColor = texture2D(Shine, world_reflection.xz) * specular + texture2D(Texture, texture_coord_1);\n"
+    "  vec4 color = texture2D(Texture, texture_coord_1);\n"
+    "  const float CUTOFF = 0.03125;\n"
+    "  if( color.r < CUTOFF && color.g < CUTOFF && color.b < CUTOFF )"
+    "    discard;\n"
+    "  gl_FragColor = texture2D(Shine, world_reflection.xz) * specular + color;\n"
     "}\n";
 
 namespace {
