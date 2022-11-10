@@ -147,15 +147,17 @@ bool Utilities::ImagePalette2D::fromBitfield( const std::vector<bool>& packed, u
             
             uint8_t index;
             
-            for( size_t i = 0; i < TOTAL_BITS; i++ )
+            for( size_t i = 0; i < TOTAL_BITS / bit_amount; i++ )
             {
                 // Clear the index for the next write.
                 index = 0;
                 
                 // This gathers the bit data from the bitset.
-                for( size_t offset = 0; offset < bit_amount; offset++ )
+                for( unsigned offset = 0; offset < bit_amount; offset++ )
                 {
-                    index |= packed[ i * bit_amount + (bit_amount - (offset + 1)) ] << offset;
+                    size_t packed_location = i * bit_amount + (bit_amount - (offset + 1));
+                    bool current_packed = packed[ packed_location ];
+                    index |= (current_packed << offset);
                 }
                 
                 // This prevents buffer overflow with the color palettes.
@@ -327,20 +329,22 @@ bool Utilities::ImagePaletteMorbin2D::fromBitfield( const std::vector<bool>& pac
             
             uint8_t index;
             
-            for( size_t i = 0; i < TOTAL_BITS; i++ )
+            for( size_t i = 0; i < TOTAL_BITS / bit_amount; i++ )
             {
                 // Clear the index for the next write.
                 index = 0;
-                
+
                 // This gathers the bit data from the bitset.
-                for( size_t offset = 0; offset < bit_amount; offset++ )
+                for( unsigned offset = 0; offset < bit_amount; offset++ )
                 {
-                    index |= packed[ i * bit_amount + (bit_amount - (offset + 1)) ] << offset;
+                    size_t packed_location = i * bit_amount + (bit_amount - (offset + 1));
+                    bool current_packed = packed[ packed_location ];
+                    index |= (current_packed << offset);
                 }
-                
+
                 // This prevents buffer overflow with the color palettes.
                 index = std::min( index, getColorPalette()->getLastIndex() );
-                
+
                 // Finally get the bit set.
                 placement.getCoordinates( i, x, y );
                 this->setValue( x, y, index );
