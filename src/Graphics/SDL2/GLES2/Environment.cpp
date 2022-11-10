@@ -111,7 +111,7 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
     }
     
     if( !textures.empty() ) {
-        Utilities::Image2D environment_image;
+        Utilities::Image2D environment_image( 0, 0, Utilities::PixelFormatColor_R8G8B8A8() );
         bool success;
         
         if( shine_index < 0 )
