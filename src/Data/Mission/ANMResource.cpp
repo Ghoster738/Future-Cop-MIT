@@ -28,6 +28,22 @@ void Data::Mission::ANMResource::Video::readScanline( unsigned scanline_data_off
             scanline_bytes_r += sizeof( uint8_t );
         }
     }
+    
+    /*
+     uint8_t *scanline_bytes_r = resource_r->scanline_raw_bytes_p + WIDTH * SCAN_LINES_PER_FRAME * scanline_data_offset;
+
+     for( unsigned scan_line_index = 0; scan_line_index < SCAN_LINES_PER_FRAME; scan_line_index++ )
+     {
+         for( unsigned x = 0; x < image.getWidth(); x++ )
+         {
+             auto image_data = image.getRawImageData() + (image.getWidth() * (SCAN_LINE_POSITIONS * scan_line_index + scan_line_position) + x) * image.getPixelSize();
+
+             image_data[0] = scanline_bytes_r[0];
+
+             scanline_bytes_r += sizeof( uint8_t );
+         }
+     }
+     */
 }
 
 void Data::Mission::ANMResource::Video::reset() {
