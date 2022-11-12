@@ -10,6 +10,7 @@ const size_t VIDEO_PIXEL_COUNT = Data::Mission::ANMResource::Video::WIDTH * Data
 /**
  * This function produces an animation where it goes through every color per frame.
  * @warning If you have epilspsy please do not play ANM visually. It might cause a sesuire.
+ * @note I would place the output of this function to be under the commons license.
  * @param endian states what the endianess should the buffer be generated.
  * @return An ANM of an animation going through the colors of a color palette.
  */
@@ -36,7 +37,7 @@ Utilities::Buffer generateColorANM( Utilities::Buffer::Endian endian, const std:
         
         color_format.writePixel( pixel_buffer_writer, endian, color_palette.getIndex( i ) );
         
-        buffer.addU16( pixel_buffer_reader.readU16( endian ), Utilities::Buffer::BIG );
+        buffer.addU16( pixel_buffer_reader.readU16( endian ), endian );
         
         pixel_buffer_writer.setPosition( 0 );
         pixel_buffer_reader.setPosition( 0 );
@@ -144,6 +145,7 @@ int main() {
                         std::cout << "ANMResource frame for " << "little" << " endian has a bad pixel at (" << x << ", " << y << ")" << std::endl;
                         std::cout << "  actual index = " << static_cast<unsigned>( frame->getPixelIndex(x, y) ) << std::endl;
                         std::cout << "  expected index = " << i << std::endl;
+                        std::cout << "  video frame = " << video.getIndex() << std::endl;
                         is_not_success = true;
                     }
                 }
