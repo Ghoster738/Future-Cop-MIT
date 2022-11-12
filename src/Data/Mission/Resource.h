@@ -146,6 +146,8 @@ public:
      * The parse command will load it into memory, or to raw_data.
      */
     int read( const std::string &file_path );
+    
+    int read( Utilities::Buffer::Reader& reader );
 
     /**
      * This method writes the resource format in a converted format that is commonly supported like WAV, AIFF, PNG, ... etc.
