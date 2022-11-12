@@ -28,7 +28,7 @@ public:
 
         void readScanline( unsigned scanline_data_offset, unsigned scan_line_position );
     public:
-        Video( const ANMResource * resource_r, const Utilities::ColorPalette &palette );
+        Video( const ANMResource * resource_r );
         ~Video();
 
         void reset();
@@ -65,6 +65,8 @@ public:
     virtual Resource * duplicate() const;
 
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    
+    const Utilities::ColorPalette& getColorPalette() const { return palette; }
 
     static std::vector<ANMResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<ANMResource*> getVector( const Data::Mission::IFF &mission_file );
