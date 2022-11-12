@@ -8,7 +8,7 @@ const unsigned Data::Mission::ANMResource::Video::HEIGHT = 48;
 const unsigned Data::Mission::ANMResource::Video::SCAN_LINES_PER_FRAME = 4;
 const unsigned Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS = Data::Mission::ANMResource::Video::HEIGHT / Data::Mission::ANMResource::Video::SCAN_LINES_PER_FRAME;
 
-Data::Mission::ANMResource::Video::Video( const Data::Mission::ANMResource *param_resource_r, const Utilities::ColorPalette &palette ) : resource_r( param_resource_r ), frame_index( 0 ), image( WIDTH, HEIGHT, palette )
+Data::Mission::ANMResource::Video::Video( const Data::Mission::ANMResource *param_resource_r ) : resource_r( param_resource_r ), frame_index( 0 ), image( WIDTH, HEIGHT, param_resource_r->getColorPalette() )
 {
     reset();
 }
@@ -201,7 +201,7 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
     if( getTotalScanlines() != 0 )
     {
         // In order for an export to happen is to have a video play.
-        Video video( this, palette );
+        Video video( this );
         unsigned video_frames = getTotalScanlines() / Video::SCAN_LINE_POSITIONS;
         
         // Make a color palette that holds RGBA values

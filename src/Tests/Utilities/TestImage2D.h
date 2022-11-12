@@ -3,6 +3,7 @@
 
 #include "../../Utilities/Image2D.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
+#include <glm/vec2.hpp>
 
 int testColor( int problem,
                Utilities::PixelFormatColor::GenericColor source,
