@@ -17,33 +17,17 @@ Data::Mission::ANMResource::Video::~Video() {
 }
 
 void Data::Mission::ANMResource::Video::readScanline( unsigned scanline_data_offset, unsigned scan_line_position ) {
-    uint8_t *scanline_bytes_r = resource_r->scanline_raw_bytes_p + WIDTH * SCAN_LINES_PER_FRAME * scanline_data_offset;
+    uint8_t *scanline_byte_r = resource_r->scanline_raw_bytes_p + WIDTH * SCAN_LINES_PER_FRAME * scanline_data_offset;
 
     for( unsigned scan_line_index = 0; scan_line_index < SCAN_LINES_PER_FRAME; scan_line_index++ )
     {
         for( unsigned x = 0; x < image.getWidth(); x++ )
         {
-            image.writePixel( x, SCAN_LINE_POSITIONS * scan_line_index + scan_line_position, scanline_bytes_r[0] );
+            image.writePixel( x, SCAN_LINE_POSITIONS * scan_line_index + scan_line_position, scanline_byte_r[0] );
 
-            scanline_bytes_r += sizeof( uint8_t );
+            scanline_byte_r += sizeof( uint8_t );
         }
     }
-    
-    /*
-     uint8_t *scanline_bytes_r = resource_r->scanline_raw_bytes_p + WIDTH * SCAN_LINES_PER_FRAME * scanline_data_offset;
-
-     for( unsigned scan_line_index = 0; scan_line_index < SCAN_LINES_PER_FRAME; scan_line_index++ )
-     {
-         for( unsigned x = 0; x < image.getWidth(); x++ )
-         {
-             auto image_data = image.getRawImageData() + (image.getWidth() * (SCAN_LINE_POSITIONS * scan_line_index + scan_line_position) + x) * image.getPixelSize();
-
-             image_data[0] = scanline_bytes_r[0];
-
-             scanline_bytes_r += sizeof( uint8_t );
-         }
-     }
-     */
 }
 
 void Data::Mission::ANMResource::Video::reset() {
@@ -208,6 +192,76 @@ Data::Mission::Resource * Data::Mission::ANMResource::duplicate() const {
     return new ANMResource( *this );
 }
 
+glm::uvec2 Data::Mission::ANMResource::getAnimationSheetDimensions( unsigned columns ) const {
+    glm::uvec2 value( 0, 0 );
+    
+    value.x = columns + 1;
+    
+    if( value.x == 0 )
+        return glm::uvec2( 0, 0 );
+    
+    value.y = getTotalFrames() / value.x;
+    
+    
+    value.y += ((getTotalFrames() % value.x) != 0);
+    
+    value *= glm::uvec2( Video::WIDTH, Video::HEIGHT );
+    
+    return value;
+}
+
+Utilities::ImagePalette2D* Data::Mission::ANMResource::generateAnimationSheet( unsigned columns, bool rgba_palette ) const {
+    auto dimensions = getAnimationSheetDimensions( columns );
+    
+    // make sure the dimensions are valid.
+    if( dimensions.x < Video::WIDTH || dimensions.y < Video::HEIGHT )
+        return nullptr;
+    
+    Utilities::ImagePalette2D *animation_sheet_p = nullptr;
+    
+    if( rgba_palette ) {
+        auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
+        Utilities::ColorPalette rgba_palette( rgba_color );
+        
+        rgba_palette.setAmount( static_cast<uint16_t>(palette.getLastIndex()) + 1 );
+        
+        for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
+            auto color =  palette.getIndex( i );
+            
+            if( color.alpha < 0.75)
+                color.alpha = 1;
+            else
+                color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
+            
+            rgba_palette.setIndex( i, color );
+        }
+        animation_sheet_p = new Utilities::ImagePalette2D( dimensions.x, dimensions.y, rgba_palette );
+    }
+    else
+        animation_sheet_p = new Utilities::ImagePalette2D( dimensions.x, dimensions.y, palette );
+    
+    // Make sure that the sheet
+    if( animation_sheet_p == nullptr )
+        return nullptr;
+    
+    // Make a video.
+    Video video( this );
+    const auto *image_r = video.getImage();
+    
+    for( unsigned y = 0; y < dimensions.y; y += Video::HEIGHT ) {
+        for( unsigned x = 0; x < dimensions.x; x += Video::WIDTH ) {
+            // Inscribe this image to the image_sheet.
+            animation_sheet_p->inscribeSubImage( x, y, *image_r );
+            
+            // Go to next new image. Note this makes sure that the images stay nice and relatively small.
+            for( unsigned d = 0; d < Video::SCAN_LINE_POSITIONS; d++ )
+                video.nextFrame();
+        }
+    }
+    
+    return animation_sheet_p;
+}
+
 int Data::Mission::ANMResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     bool enable_color_palette_export = false;
     bool enable_export = true;
@@ -265,9 +319,6 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
             {
                 // Generate the image from the color palette.
                 const Utilities::ImagePalette2D *image_r = video.getImage();
-                
-                assert( image_r->getWidth() == Video::WIDTH );
-                assert( image_r->getHeight() == Video::HEIGHT );
 
                 // Inscribe this image to the image_sheet.
                 image_sheet.inscribeSubImage( 0, Video::HEIGHT * i, *image_r );
@@ -276,9 +327,6 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
                 for( unsigned d = 0; d < Video::SCAN_LINE_POSITIONS; d++ )
                     video.nextFrame();
             }
-            
-            assert( Video::WIDTH == image_sheet.getWidth() );
-            assert( Video::HEIGHT * video_frames == image_sheet.getHeight() );
             
             int state = the_choosen_r->write( image_sheet, buffer );
 

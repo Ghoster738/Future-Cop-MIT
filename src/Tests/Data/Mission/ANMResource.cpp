@@ -10,15 +10,15 @@ const size_t VIDEO_PIXEL_COUNT = Data::Mission::ANMResource::Video::WIDTH * Data
 /**
  * This function produces an animation where it goes through every color per frame.
  * @warning If you have epilspsy please do not play ANM visually. It might cause a sesuire.
- * @note I would place the output of this function to be under the commons license.
+ * @note I would place the output of this function to be under the creative commons license.
  * @param endian states what the endianess should the buffer be generated.
  * @return An ANM of an animation going through the colors of a color palette.
  */
-Utilities::Buffer generateColorANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors ) {
+Utilities::Buffer generateColorANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors, const std::vector<Utilities::GridBase2D<uint8_t>> last_images = {} ) {
     Utilities::Buffer buffer;
     
     // The number of frames that should be written is number of colors.
-    buffer.addU32( colors.size(), endian );
+    buffer.addU32( colors.size() + last_images.size(), endian );
     
     // Then generate the color palette.
     Utilities::PixelFormatColor_R5G5B5A1 color_format;
@@ -54,6 +54,16 @@ Utilities::Buffer generateColorANM( Utilities::Buffer::Endian endian, const std:
             buffer.addU8( color_index );
         }
     }
+    
+    // For each grid
+    /*
+    for( size_t color_index = 0; color_index < colors.size(); color_index++ ) {
+        
+        // Write a frame with the color from the palette.
+        for( size_t p = 0; p < VIDEO_PIXEL_COUNT; p++ ) {
+            buffer.addU8( color_index );
+        }
+    }*/
     
     // This should be a valid ANM Resource buffer.
     return buffer;
@@ -157,6 +167,17 @@ int main() {
             for( unsigned d = 0; d < Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS; d++ )
                 video.nextFrame();
         }
+        
+        auto sheet_p = anm.generateAnimationSheet( 0, true );
+        if( sheet_p == nullptr ) {
+            std::cout << "ANMResource little" << " sprite sheet failed to allocate" << std::endl;
+            is_not_success = true;
+        }
+        
+        exportImage( *sheet_p, "sheet" );
+        
+        if( sheet_p != nullptr )
+            delete sheet_p;
     }
     
     return is_not_success;

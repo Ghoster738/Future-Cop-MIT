@@ -3,6 +3,7 @@
 
 #include "Resource.h"
 #include "../../Utilities/ImagePalette2D.h"
+#include <glm/vec2.hpp>
 
 namespace Data {
 
@@ -55,6 +56,7 @@ public:
     virtual ~ANMResource();
 
     size_t getTotalScanlines() const { return total_scanlines; }
+    size_t getTotalFrames() const { return total_scanlines / Video::SCAN_LINE_POSITIONS; }
 
     virtual std::string getFileExtension() const;
 
@@ -63,6 +65,10 @@ public:
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual Resource * duplicate() const;
+    
+    glm::uvec2 getAnimationSheetDimensions( unsigned columns = 0 ) const;
+    
+    Utilities::ImagePalette2D* generateAnimationSheet( unsigned columns = 0, bool rgba_palette = false ) const;
 
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
     
