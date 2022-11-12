@@ -167,6 +167,31 @@ int Data::Mission::Resource::read( const char *const file_path ) {
     }
 }
 
+int Data::Mission::Resource::read( Utilities::Buffer::Reader& reader ) {
+    if( reader.empty() ) // Do nothing if the reader is empty.
+        return 0;
+    else
+    if( reader.ended() ) // Do nothing if the reader has ended.
+        return -1;
+    else {
+        // Make sure that there is a buffer to write to.
+        if( this->data_p == nullptr )
+            this->data_p = new Utilities::Buffer();
+        
+        if( this->data_p == nullptr )
+            return -2; // Ran out of memory.
+        else
+        {
+            // Add all the information that the reader has to this resource.
+            while( !reader.ended() ) {
+                this->data_p->addU8( reader.readU8() );
+            }
+            
+            return 1; // Successfully read the resource.
+        }
+    }
+}
+
 int Data::Mission::Resource::read( const std::string &file_path ) {
     return read( file_path.c_str() );
 }

@@ -48,6 +48,11 @@ add_executable(model_builder_test Utilities/ModelBuilder.cpp)
 target_link_libraries(model_builder_test PRIVATE FC_IFF_IO)
 add_test( NAME model_builder_test COMMAND $<TARGET_FILE:model_builder_test> )
 
+# Test ANMResource Code
+add_executable(anm_resource_test Data/Mission/ANMResource.cpp)
+target_link_libraries(anm_resource_test PRIVATE FC_IFF_IO)
+add_test( NAME anm_resource_test COMMAND $<TARGET_FILE:anm_resource_test> )
+
 # Test TilResource Code
 add_executable(til_resource_test Data/Mission/TilResource.cpp)
 target_link_libraries(til_resource_test PRIVATE FC_IFF_IO)

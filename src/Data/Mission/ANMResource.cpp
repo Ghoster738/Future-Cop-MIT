@@ -249,6 +249,9 @@ int Data::Mission::ANMResource::write( const char *const file_path, const std::v
             {
                 // Generate the image from the color palette.
                 const Utilities::ImagePalette2D *image_r = video.getImage();
+                
+                assert( image_r->getWidth() == Video::WIDTH );
+                assert( image_r->getHeight() == Video::HEIGHT );
 
                 // Inscribe this image to the image_sheet.
                 image_sheet.inscribeSubImage( 0, Video::HEIGHT * i, *image_r );
