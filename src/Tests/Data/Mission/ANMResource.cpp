@@ -154,7 +154,8 @@ int main() {
             is_not_success |= test_color_unsuccess;
             
             // Advance one frame.
-            video.nextFrame();
+            for( unsigned d = 0; d < Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS; d++ )
+                video.nextFrame();
         }
     }
     
