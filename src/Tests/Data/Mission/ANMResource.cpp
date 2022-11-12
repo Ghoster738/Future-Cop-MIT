@@ -78,7 +78,15 @@ int main() {
         if( !anm.parse() ) {
             std::cout << "ANMResource has failed to parse when it should" << std::endl;
             is_not_success = true;
-            
+        }
+        
+        const auto SCANLINE_AMOUNT = anm.getTotalScanlines();
+        
+        if( SCANLINE_AMOUNT != 0x100 * Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS ) {
+            std::cout << "ANMResource does not have the correct scanlines" << std::endl;
+            std::cout << "  SCANLINE_AMOUNT = " << SCANLINE_AMOUNT << std::endl;
+            std::cout << "  EXPECTED AMOUNT = " << (0x100 * Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS) << std::endl;
+            is_not_success = true;
         }
     }
     
