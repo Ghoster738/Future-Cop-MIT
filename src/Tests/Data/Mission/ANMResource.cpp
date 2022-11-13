@@ -212,11 +212,6 @@ int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::Pixe
                 }
             }
             
-            if( !is_rgba )
-                exportImage( *sheet_p, full_name );
-            else
-                exportImage( *sheet_p, full_name + " rgba" );
-            
             // sheet_p is no longer needed.
             if( sheet_p != nullptr )
                 delete sheet_p;
