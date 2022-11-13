@@ -174,7 +174,39 @@ int main() {
             is_not_success = true;
         }
         
-        exportImage( *sheet_p, "sheet" );
+        // Confirm that the color palette of the animation sheet
+        // Confirm that the sprite sheet itself is what it says it is.
+        for( uint16_t i = 0; i <= sheet_p->getColorPalette()->getLastIndex() && !is_not_success; i++ ) {
+            
+            auto palette_color = sheet_p->getColorPalette()->getIndex( i );
+            
+            if( palette_color.alpha < 0.5 )
+                palette_color.alpha = 0.75;
+            else
+                palette_color.alpha = 1;
+            
+            // Test one pixel for the current color.
+            is_not_success |= testColor( is_not_success, palette_color, colors.at( i ), "ANMResource little export ", "" );
+            
+            
+            // Test the current frame.
+            for( unsigned y = 0; y < Data::Mission::ANMResource::Video::HEIGHT; y++ ) {
+                for( unsigned x = 0; x < Data::Mission::ANMResource::Video::WIDTH; x++ ) {
+                    if( !is_not_success && sheet_p->getPixelIndex( x, y + Data::Mission::ANMResource::Video::HEIGHT * i ) != i ) {
+                        std::cout << "ANMResource export frame for " << "little" << " endian has a bad pixel at (" << x << ", " << (y + Data::Mission::ANMResource::Video::HEIGHT * i) << ")" << std::endl;
+                        std::cout << "  expected index = " << i << std::endl;
+                        std::cout << " frame = " << i << std::endl;
+                        is_not_success = true;
+                    }
+                }
+            }
+        }
+        
+        // This is where I discovered where is the wrongness.
+        // The exporter is wrong.
+        auto sheet_color = sheet_p->toColorImage();
+        
+        exportImage( sheet_color, "sheet" );
         
         if( sheet_p != nullptr )
             delete sheet_p;
