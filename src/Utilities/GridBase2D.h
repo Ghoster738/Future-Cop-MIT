@@ -27,9 +27,9 @@ struct GridDimensions2D {
 
 class Grid2DPlacement {
 protected:
-    const GridDimensions2D *const grid_size_r;
+    const GridDimensions2D * grid_size_r;
 public:
-    Grid2DPlacement( const GridDimensions2D *const dim ) : grid_size_r(dim) {}
+    Grid2DPlacement( const GridDimensions2D * dim ) : grid_size_r(dim) {}
     virtual ~Grid2DPlacement() {}
     
     virtual void updatePlacement() {}
@@ -44,7 +44,7 @@ public:
  */
 class Grid2DPlacementNormal : public Grid2DPlacement {
 public:
-    Grid2DPlacementNormal( const GridDimensions2D *const dim ) : Grid2DPlacement( dim ) {}
+    Grid2DPlacementNormal( const GridDimensions2D * dim ) : Grid2DPlacement( dim ) {}
     
     virtual void getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
         y = static_cast<size_t>( offset ) / static_cast<size_t>( grid_size_r->width );
@@ -69,7 +69,7 @@ typedef uint_fast32_t order_unit;
  */
 class Grid2DPlacementMorbin : public Grid2DPlacement {
 public:
-    Grid2DPlacementMorbin( const GridDimensions2D *const dim ) : Grid2DPlacement( dim ) {}
+    Grid2DPlacementMorbin( const GridDimensions2D * dim ) : Grid2DPlacement( dim ) {}
     
     virtual void getCoordinates( grid_2d_offset offset, grid_2d_unit &x, grid_2d_unit &y ) const {
         x = 0;
