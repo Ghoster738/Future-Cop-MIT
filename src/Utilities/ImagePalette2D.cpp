@@ -101,10 +101,21 @@ bool Utilities::ImagePalette2D::addToBuffer( Buffer &buffer ) const{
     return toWriter( writer );
 }
 
+#include <iostream>
+
 bool Utilities::ImagePalette2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ){
+    std::cout << "Utilities::ImagePalette2D::inscribeSubImage" << std::endl;
+    std::cout << "  subimage width  = " << (x + sub_image.getWidth())  << std::endl;
+    std::cout << "  subimage height = " << (y + sub_image.getHeight()) << std::endl;
+    std::cout << "  width  = " << getWidth()  << std::endl;
+    std::cout << "  height = " << getHeight() << std::endl;
+    std::cout << "  colors = " << getColorPalette() << std::endl;
+    std::cout << "  colors # = " << static_cast<uint32_t>( getColorPalette()->getLastIndex() ) << std::endl;
     if( x + sub_image.getWidth() <= getWidth() &&
         y + sub_image.getHeight() <= getHeight() )
     {
+        std::cout << "Successfull" << std::endl;
+        
         fillInImage<grid_2d_unit, ImagePaletteBase2D<Grid2DPlacementNormal>, ImagePalette2D>( sub_image, 0, 0, sub_image.getWidth(), sub_image.getHeight(), *this, x, y, sub_image.getWidth(), sub_image.getHeight() );
 
         return true;
