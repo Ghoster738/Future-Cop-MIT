@@ -56,6 +56,7 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Gr
 
 #include <libpng16/png.h>
 #include <zlib.h>
+#include "../ImagePalette2D.h"
 
 namespace {
 
@@ -79,9 +80,6 @@ png_image setupImage( const Utilities::ImageBase2D<Utilities::Grid2DPlacementNor
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( image_data.getPixelFormat() ) != nullptr )
         image_write.format = PNG_FORMAT_RGB;
     else
-    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr )
-        image_write.format = PNG_FORMAT_RGBA;
-    else
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
         image_write.format = PNG_FORMAT_RGBA;
     else
@@ -97,18 +95,8 @@ png_image setupImage( const Utilities::ImageBase2D<Utilities::Grid2DPlacementNor
 
 bool internalMemory( png_image& info, void *buffer_r, png_alloc_size_t &length, const Utilities::ImageBase2D<Utilities::Grid2DPlacementNormal>& image_data ) {
     const Utilities::ImageBase2D<Utilities::Grid2DPlacementNormal>* image_data_r = &image_data;
-    Utilities::Image2D* image_data_p = nullptr;
-    
-    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr )
-        image_data_p = new Utilities::Image2D( image_data, Utilities::PixelFormatColor_R8G8B8A8() );
-    
-    if( image_data_p != nullptr )
-        image_data_r = image_data_p;
     
     bool is_valid = png_image_write_to_memory( &info, buffer_r, &length, 0, (void*)image_data_r->getDirectGridData(), 0, nullptr );
-    
-    if( image_data_p != nullptr )
-        delete image_data_p;
     
     return is_valid;
 }
@@ -160,14 +148,37 @@ size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageBas
 
 int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
     bool is_valid;
-    auto image_write = setupImage( image_data, is_valid );
+    png_image image_write;
+    Utilities::PixelFormatColor_R8G8B8A8 rgba;
+    Utilities::Image2D image_convert( 0, 0, *image_data.getPixelFormat() );
+    Utilities::Image2D image_convert_rbga( 0, 0, rgba );
+    auto selected_image_r = &image_data;
+    
+    if( dynamic_cast<const Utilities::ImagePalette2D*>( &image_data ) != nullptr ) {
+        image_convert.setDimensions( image_data.getWidth(), image_data.getHeight() );
+        
+        image_convert.inscribeSubImage( 0, 0, image_data );
+        
+        selected_image_r = &image_convert;
+    }
+    
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( selected_image_r->getPixelFormat() ) != nullptr ) {
+        image_convert_rbga.setDimensions( selected_image_r->getWidth(), selected_image_r->getHeight() );
+        
+        
+        image_convert_rbga.inscribeSubImage( 0, 0, *selected_image_r );
+        
+        selected_image_r = &image_convert_rbga;
+    }
+    
+    image_write = setupImage( *selected_image_r, is_valid );
     
     if( !is_valid )
         return -1; // The format is invalid for writing.
     else {
         png_alloc_size_t length = 0;
         
-        if( !internalMemory( image_write, nullptr, length, image_data ) )
+        if( !internalMemory( image_write, nullptr, length, *selected_image_r ) )
             return -2; // Failed to obtain data needed to write the PNG.
         else if( length == 0 )
             return -3; // There is no length to allocate for the buffer.
@@ -176,8 +187,8 @@ int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Gr
             if( !buffer.allocate( length ) )
                 return -4;
             else {
-                // The buffer is finally allocated. Now, attempt to load the PNG.
-                if( internalMemory( image_write, (void*)buffer.dangerousPointer(), length, image_data ) )
+                // The buffer is finally allocated. Now, attempt to write the PNG to memory
+                if( internalMemory( image_write, (void*)buffer.dangerousPointer(), length, *selected_image_r ) )
                     return 1; // The buffer is successfully read.
                 else
                     return -5; // The image has failed to be written.

@@ -108,7 +108,7 @@ public:
         return pixel_format_p;
     }
     
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<placement>& ref ) = 0;
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<placement>& ref ) = 0;
 
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<placement> &sub_grid ) const = 0;
     
@@ -188,7 +188,7 @@ public:
     
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
     
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& ref );
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementNormal>& ref );
     
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementNormal>& sub_image ) const;
     
@@ -216,7 +216,7 @@ public:
 
     PixelFormatColor::GenericColor readPixel( grid_2d_unit x, grid_2d_unit y ) const;
 
-    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& ref );
+    virtual bool inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementMorbin>& ref );
 
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementMorbin>& sub_image ) const;
 

@@ -212,9 +212,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::Image2D::readPixel( grid_2d
     return internalReadPixel<grid_2d_unit, Image2D>( *this, this->size, x, y, endian );
 }
 
-bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementNormal>& sub_image )
+bool Utilities::Image2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementNormal>& sub_image )
 {
-    return internalInscribeImage<grid_2d_unit, ImageColor2D<Grid2DPlacementNormal>, Image2D>( x, y, sub_image, *this );
+    return internalInscribeImage<grid_2d_unit, ImageBase2D<Grid2DPlacementNormal>, Image2D>( x, y, sub_image, *this );
 }
 
 bool Utilities::Image2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementNormal>& sub_image ) const
@@ -297,9 +297,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::ImageMorbin2D::readPixel( g
     return internalReadPixel<grid_2d_unit, ImageMorbin2D>( *this, this->size, x, y, endian );
 }
 
-bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageColor2D<Grid2DPlacementMorbin>& sub_image )
+bool Utilities::ImageMorbin2D::inscribeSubImage( grid_2d_unit x, grid_2d_unit y, const ImageBase2D<Grid2DPlacementMorbin>& sub_image )
 {
-    return internalInscribeImage<grid_2d_unit, ImageColor2D<Grid2DPlacementMorbin>, ImageMorbin2D>( x, y, sub_image, *this );
+    return internalInscribeImage<grid_2d_unit, ImageBase2D<Grid2DPlacementMorbin>, ImageMorbin2D>( x, y, sub_image, *this );
 }
 
 bool Utilities::ImageMorbin2D::subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImageColor2D<Grid2DPlacementMorbin>& sub_image ) const
