@@ -151,29 +151,29 @@ public:
     ~ModelBuilder();
 
     /**
-    * @param name The name of the component type if this is not a *ComponentName listed in this class you should make this name begin with "_" with all caps.
-    * @param component_type The type of data the vector contains can be every value of the ComponentType.
-    * @param type The amount of elements that are contained in the mathematical vector.
-    * @param normalized If the componet type is an integer, then it repersents 1.0 - 0.0.
-    * @return The index number of the vertex component.
-    * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
-    */
+     * @param name The name of the component type if this is not a *ComponentName listed in this class you should make this name begin with "_" with all caps.
+     * @param component_type The type of data the vector contains can be every value of the ComponentType.
+     * @param type The amount of elements that are contained in the mathematical vector.
+     * @param normalized If the componet type is an integer, then it repersents 1.0 - 0.0.
+     * @return The index number of the vertex component.
+     * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
+     */
     unsigned int addVertexComponent( const std::string &name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized = false );
 
     /**
-    * @param name The name of the component type if this is not a *ComponentName listed in this class you should make this name begin with "_" with all caps.
-    * @param component_type The type of data the vector contains can be every value of the ComponentType.
-    * @param type The amount of elements that are contained in the mathematical vector.
-    * @param normalized If the componet type is an integer, then it repersents 1.0 - 0.0.
-    * @return The index number of the vertex component.
-    * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
-    */
+     * @param name The name of the component type if this is not a *ComponentName listed in this class you should make this name begin with "_" with all caps.
+     * @param component_type The type of data the vector contains can be every value of the ComponentType.
+     * @param type The amount of elements that are contained in the mathematical vector.
+     * @param normalized If the componet type is an integer, then it repersents 1.0 - 0.0.
+     * @return The index number of the vertex component.
+     * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
+     */
     unsigned int addVertexComponent( const char *const name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized = false );
 
     /**
-    * This gets the number of vertex components that had been decleared.
-    * @return the number of vertex components that exist in this class.
-    */
+     * This gets the number of vertex components that had been decleared.
+     * @return the number of vertex components that exist in this class.
+     */
     unsigned int getNumVertexComponents() const;
 
     /**
@@ -238,118 +238,127 @@ public:
     bool setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation );
 
     /**
-    * This tests to see if the any of the vertex components are invalid in glTF standards.
-    * @param The index where the search would begin.
-    * @param The stream output for warning.
-    * @return It will return true if an error is found through vertex_components[begin] through vertex_components[end].
-    */
+     * This tests to see if the any of the vertex components are invalid in glTF standards.
+     * @param The index where the search would begin.
+     * @param The stream output for warning.
+     * @return It will return true if an error is found through vertex_components[begin] through vertex_components[end].
+     */
     bool checkForInvalidComponent( int &begin, std::ostream *warning_output = nullptr ) const;
 
     /**
-    * This should be called when the programmer is done adding all the components.
-    * This sets up the VertexComponents, so they could write to the primary_buffer properly.
-    * @param morph_frames the amount of morphFrames there are.
-    * @return If there is no vertex components in this class it will return false.
-    * @throw CannotAddVertexComponentAfterSetup If this method was called twice!
-    */
+     * This should be called when the programmer is done adding all the components.
+     * This sets up the VertexComponents, so they could write to the primary_buffer properly.
+     *
+     * @param morph_frames the amount of morphFrames there are.
+     * @return If there is no vertex components in this class it will return false.
+     * @throw CannotAddVertexComponentAfterSetup If this method was called twice!
+     */
     bool setupVertexComponents( unsigned int morph_frames = 0 );
 
     /**
-    * This method simply tells the class of how many vertices it will need.
-    * It simply is there to make the mesh building process quicker.
-    * @param size The amount of vertices to preallocate.
-    * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
-    */
+     * This method simply tells the class of how many vertices it will need.
+     * It simply is there to make the mesh building process quicker.
+     * @param size The amount of vertices to preallocate.
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
     void allocateVertices( unsigned int size );
 
     /**
-    * This should be called when starting to write out the mesh or when the prievous material is done.
-    * @param texture_index This is the index of the textures of the resource relative to the first texture.
-    * @param cbmp_resource_id Set this to zero if not cbmp.
-    * @return True if the setupVertexComponents() method was called.
-    * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
-    */
+     * This should be called when starting to write out the mesh or when the prievous material is done.
+     * @param texture_index This is the index of the textures of the resource relative to the first texture.
+     * @param cbmp_resource_id Set this to zero if not cbmp.
+     * @return True if the setupVertexComponents() method was called.
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
     bool setMaterial( std::string file_name, uint32_t cbmp_resource_id = 0 );
 
     /**
-    * This gets the number of materials for this class.
-    * @return The number of materials in this class.
-    */
+     * This gets the number of materials for this class.
+     * @return The number of materials in this class.
+     */
     unsigned int getNumMaterials() const;
 
     /**
-    * This gets the material from this class.
-    * @param material_index The material index to access.
-    * @param element The element to be received.
-    * @return True if the element has successfully been written
-    */
+     * This gets the material from this class.
+     * @param material_index The material index to access.
+     * @param element The element to be received.
+     * @return True if the element has successfully been written
+     */
     bool getMaterial( unsigned int material_index, TextureMaterial &element ) const;
 
     /**
-    * When all the methods of setVertexData and addMorphVertexData is called for the current vertex it is time to call this method.
-    * This simply tells this class you are done with the current vertex.
-    * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
-    */
+     * When all the methods of setVertexData and addMorphVertexData is called for the current vertex it is time to call this method.
+     * This simply tells this class you are done with the current vertex.
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
     void startVertex();
 
     /**
-    * This method sets the index of the vertices to the vertex_index parameter.
-    * Note: The index must have the advance method called on this index.
-    * Important: the allocateVertices method has no effect for this method.
-    * @param vertex_index The index to the vertex.
-    * @return true if the index is not out of bounds. If this returns false then the index is not set.
-    * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
-    */
+     * This method sets the index of the vertices to the vertex_index parameter.
+     *
+     * Note: The index must have the advance method called on this index.
+     * Important: the allocateVertices method has no effect for this method.
+     * @param vertex_index The index to the vertex.
+     * @return true if the index is not out of bounds. If this returns false then the index is not set.
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
     bool setVertexIndex( unsigned int vertex_index );
 
     /**
-    * This adds the vertex data to the mesh.
-    * @param vertex_component_index The index to the vertex_component which should be the return output from addVertexComponent.
-    * @param data The data to be added to the vertex component.
-    * @throw InvalidVertexComponent if the vertex_component_index goes beyond vertex_components.
-    * @throw NonMatchingVertexComponentTypes If the parameter data is not the same format as vertex_components[ vertex_component_index ].
-    * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
-    */
+     * This adds the vertex data to the mesh.
+     * @param vertex_component_index The index to the vertex_component which should be the return output from addVertexComponent.
+     * @param data The data to be added to the vertex component.
+     * @throw InvalidVertexComponent if the vertex_component_index goes beyond vertex_components.
+     *
+     * @throw NonMatchingVertexComponentTypes If the parameter data is not the same format as vertex_components[ vertex_component_index ].
+     *
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
     void setVertexData( unsigned int vertex_component_index, const Utilities::DataTypes::DataType &data );
 
     /**
-    * This adds the vertex data to the mesh.
-    * TODO make this work for all of the subclasses of Utilities::DataTypes::DataType
-    * TODO consider removing the original_value parameter, and make the code process the original_value in the primary_buffer.
-    * @param morph_vertex_component_index The morph vertex component to be used.
-    * @param morph_frame_index The index of the morph_frame_buffers to modifiy the frame of the morph frame buffer.
-    * @param original_value The previous value that was set by setVertexData for the
-    * @param data
-    * @throw InvalidVertexComponent if the morph_vertex_component_index goes beyond vertex_morph_components
-    * @throw MorphFrameIndexOutOfBounds if the morph_frame_index goes beyond morph_frame_buffers
-    * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
-    */
+     * This adds the vertex data to the mesh.
+     * TODO make this work for all of the subclasses of Utilities::DataTypes::DataType
+     * TODO consider removing the original_value parameter, and make the code process the original_value in the primary_buffer.
+     *
+     * @param morph_vertex_component_index The morph vertex component to be used.
+     * @param morph_frame_index The index of the morph_frame_buffers to modifiy the frame of the morph frame buffer.
+     * @param original_value The previous value that was set by setVertexData for the
+     * @param data
+     * @throw InvalidVertexComponent if the morph_vertex_component_index goes beyond vertex_morph_components.
+     *
+     * @throw MorphFrameIndexOutOfBounds if the morph_frame_index goes beyond morph_frame_buffers
+     *
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
     void addMorphVertexData( unsigned int morph_vertex_component_index, unsigned int morph_frame_index, const DataTypes::Vec3Type &original_value, const DataTypes::Vec3Type &data );
 
     /**
-    * This gets the total amount of vertices that exist in this class.
-    * @return the number of vertices which should be the sum of the vertices of all materials.
-    */
+     * This gets the total amount of vertices that exist in this class.
+     * @return the number of vertices which should be the sum of the vertices of all materials.
+     */
     unsigned int getNumVertices() const;
 
     /**
-    * This method gets the primary_buffer.
-    * @param size the size of this buffer in bytes.
-    * @return A pointer to the primary_buffer.
-    */
+     * This method gets the primary_buffer.
+     *
+     * @param size the size of this buffer in bytes.
+     * @return A pointer to the primary_buffer.
+     */
     void * getBuffer( unsigned int &size );
     
     /**
-    * @return The number of Morph Frames of the model.
-    */
+     * @return The number of Morph Frames of the model.
+     */
     unsigned int getNumMorphFrames() const;
 
     /**
-    * This method gets the morph_frame_buffers[morph_index] to the static model.
-    * @param morph_index the index of the
-    * @param size the size of this buffer in bytes.
-    * @return A pointer to the morph_frame_buffers[morph_index] or a nullptr.
-    */
+     * This method gets the morph_frame_buffers[morph_index] to the static model.
+     *
+     * @param morph_index the index of the
+     * @param size the size of this buffer in bytes.
+     * @return A pointer to the morph_frame_buffers[morph_index] or a nullptr.
+     */
     void * getMorphBuffer( unsigned int morph_index, unsigned int &size );
 
     /**
@@ -357,7 +366,7 @@ public:
      * It is actually optional to call this. It is primary there for conversions.
      * @note: If this method returns false then the class is not locked if setupVertexComponents was not called first.
      * @return true if setupVertexComponents was called before this method or if this method was called once.
-    */
+     */
     bool finish();
     
     /**
@@ -380,7 +389,7 @@ public:
     /**
      * Display the number of vertices, vertex types, morph types, and what not.
      * @param output this is the output stream.
-    */
+     */
     void about( std::ostream &stream ) const;
     
     /**
@@ -389,6 +398,14 @@ public:
      * @return a pointer to a valid ModelBuilder, or nullptr if it has an error.
      */
     static ModelBuilder* combine( const std::vector<ModelBuilder*>& models, int & status );
+    
+    /**
+     * This method makes a bounding sphere for the entire mesh.
+     * @param position This holds the sphere's center location.
+     * @param radius This holds the rotation of the sphere.
+     * @return true if a bounding sphere is generated.
+     */
+    bool getBoundingSphere( glm::vec3 &position, float &rotation ) const;
 };
 
 }
