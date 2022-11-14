@@ -405,7 +405,7 @@ public:
      * @param radius This holds the rotation of the sphere.
      * @return true if a bounding sphere is generated.
      */
-    bool getBoundingSphere( glm::vec3 &position, float &rotation ) const;
+    bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
 };
 
 }
