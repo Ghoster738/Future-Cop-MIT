@@ -1329,3 +1329,42 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
         return new_model;
     }
 }
+
+bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &radius ) const {
+    glm::vec3 min, max;
+    glm::vec3 simplex;
+    
+    // If there are no texture materials then return false.
+    // Texture materials are what holds the min and max values.
+    if( this->texture_materials.empty() )
+        return false;
+    
+    // Find the min and max first.
+    
+    // This algorithm starts out with first getting the min and max of the first texture_materials.
+    min = this->texture_materials[0].min.data;
+    max = this->texture_materials[0].max.data;
+    
+    // Then loop through the materials until the min and the max bounds are found.
+    for( unsigned t = 1; t < this->texture_materials.size(); t++ )
+    {
+        min.x = std::min( this->texture_materials[t].min.data.x, min.x );
+        min.y = std::min( this->texture_materials[t].min.data.y, min.y );
+        min.z = std::min( this->texture_materials[t].min.data.z, min.z );
+        max.x = std::max( this->texture_materials[t].max.data.x, max.x );
+        max.y = std::max( this->texture_materials[t].max.data.y, max.y );
+        max.z = std::max( this->texture_materials[t].max.data.z, max.z );
+    }
+    
+    // The position is the center of the box.
+    position = (max + min) * 0.5f;
+    
+    // The simplex will have the three axis of the span of the 3D object.
+    simplex = max - position;
+    
+    // A radius will have the simplex's distance.
+    radius = simplex.x * simplex.x + simplex.y * simplex.y + simplex.z * simplex.z;
+    radius = sqrt( radius );
+    
+    return true;
+}
