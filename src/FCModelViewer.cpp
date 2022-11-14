@@ -347,12 +347,14 @@ int main(int argc, char** argv)
 
                 while( status < 1  && viewer_loop )
                 {
-                    text_2d_buffer->setFont( 2 );
+                    if( text_2d_buffer->setFont( 2 ) < 1 )
+                        text_2d_buffer->setFont( 0 );
                     text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
                     text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
                     text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
-
-                    text_2d_buffer->setFont( 5 );
+                    
+                    if( text_2d_buffer->setFont( 5 ) < 1 )
+                        text_2d_buffer->setFont( 0 );
                     text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
                     text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
                     text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
@@ -468,8 +470,9 @@ int main(int argc, char** argv)
             count_down = 0.5f;
             rotate = 0;
         }
-
-        text_2d_buffer->setFont( 2 );
+        
+        if( text_2d_buffer->setFont( 2 ) < 1 )
+            text_2d_buffer->setFont( 0 );
         text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( "index = " + std::to_string(cobj_index) );
