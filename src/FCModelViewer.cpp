@@ -93,9 +93,9 @@ int main(int argc, char** argv)
             else
             if( input.find( "--start" ) == 0 )
                 variable_name = "--start";
-            /*else
+            else
             if( input.find( "--model-path" ) == 0 )
-                variable_name = "--model-path";*/
+                variable_name = "--model-path";
             else
             if( input.find( "--width") == 0 )
                 variable_name = "--width";
@@ -403,17 +403,6 @@ int main(int argc, char** argv)
 
         if( player_1_controller_r->isChanged() )
         {
-            for( unsigned x = 0; player_1_controller_r->getInput( x ) != nullptr; x++ )
-            {
-                auto input_r = player_1_controller_r->getInput( x );
-
-                if( input_r->isChanged() && input_r->getState() < 0.5 )
-                {
-                    nextModel = true;
-                    x = Controls::StandardInputSet::Buttons::TOTAL_BUTTONS;
-                }
-            }
-            
             auto input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
             
             if( input_r->isChanged() && input_r->getState() < 0.5 ) {
@@ -436,6 +425,65 @@ int main(int argc, char** argv)
                 
                 obj->write( str.c_str(), std::vector<std::string>() );
             }
+            
+            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::RIGHT );
+
+            if( input_r->isChanged() && input_r->getState() < 0.5 && count_down < 0.0f )
+            {
+                environment->deleteQueue( displayed_instance );
+
+                cobj_index++;
+
+                displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+
+                // Check to see if the cobj_index is in bounds
+                if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                {
+                    // If not change cobj_index to zero.
+                    cobj_index = 0;
+
+                    // If it is still out of bounds then there is no cobj to view.
+                    if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                    {
+                        // Exit the program for there is no model to view.
+                        viewer_loop = false;
+                    }
+                }
+
+                count_down = 0.5f;
+                rotate = 0;
+            }
+            
+            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::LEFT );
+            
+            if( input_r->isChanged() && input_r->getState() < 0.5 && count_down < 0.0f )
+            {
+                environment->deleteQueue( displayed_instance );
+                
+                auto obj = Data::Mission::ObjResource::getVector( resource );
+
+                if( cobj_index != 0 )
+                    cobj_index--;
+                else
+                    cobj_index = obj.size() - 1;
+                    
+
+                displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+
+                // Check to see if the cobj_index is in bounds
+                if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                {
+                    // If it is still out of bounds then there is no cobj to view.
+                    if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                    {
+                        // Exit the program for there is no model to view.
+                        viewer_loop = false;
+                    }
+                }
+
+                count_down = 0.5f;
+                rotate = 0;
+            }
         }
 
         rotate += time_unit(delta).count();
@@ -443,33 +491,6 @@ int main(int argc, char** argv)
         displayed_instance->setRotation( glm::quat( glm::vec3( 0, rotate, 0 ) ) );
 
         count_down -= time_unit(delta).count();
-
-        if( nextModel && count_down < 0.0f )
-        {
-            environment->deleteQueue( displayed_instance );
-
-            cobj_index++;
-
-            displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
-
-            // Check to see if the cobj_index is in bounds
-            if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
-            {
-                // If not change cobj_index to zero.
-                cobj_index = 0;
-
-                // If it is still out of bounds then there is no cobj to view.
-                if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
-                {
-                    // Exit the program for there is no model to view.
-                    viewer_loop = false;
-                }
-            }
-
-            nextModel = false;
-            count_down = 0.5f;
-            rotate = 0;
-        }
         
         if( text_2d_buffer->setFont( 2 ) < 1 )
             text_2d_buffer->setFont( 0 );
