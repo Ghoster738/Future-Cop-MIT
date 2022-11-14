@@ -6,6 +6,39 @@ Open Source Game Engine Project
 
 This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right now there is no gameplay yet. However, there is a map viewer which views the contents of the mission files. There is also a model viewer which can view the models with animations if avialable. There is also a MissionReader which is a pure terminal program. Unforturnatly for now, the programs require using the terminal.
 
+## Build instructions
+
+### Linux
+
+These build instructions are for Ubuntu, might work on Ubuntu derivates.
+
+1. Install build tools and required packages:
+```
+apt install build-essential libglm-dev libsdl2-dev libjsoncpp-dev libpng-dev
+```
+* Install optional package:
+```
+apt install libglew-dev
+```
+2. Clone the source code:
+```
+git clone https://github.com/Ghoster738/Future-Cop-MIT.git
+```
+3. Prepare an [out of source build](https://cgold.readthedocs.io/en/latest/tutorials/out-of-source.html):
+```
+cd Future-Cop-MIT
+mkdir build
+cd build
+```
+4. Configure the build:
+```
+cmake .. -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
+```
+5. Build it:
+```
+make -j4
+```
+
 ## What are these tools
 
 This has a map viewer, a model viewer, and a mission file ripper. However, these tools are not capable of making new mission files! They only decode and export. If you want to make a new map use BahTwoKooj's tools, https://github.com/BahKooJ/Fcop-Parse-Lib and https://github.com/BahKooJ/FCEditor-build. However, this code can actually read from three versions of Future Cop Windows, Macintosh and Playstation. However, this can read from the Windows version of Future Cop the best.
