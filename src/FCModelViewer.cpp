@@ -435,6 +435,13 @@ int main(int argc, char** argv)
                 cobj_index++;
 
                 displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+                
+                glm::vec3 position;
+                float radius;
+                
+                std::cout << "Sphere result is "<< displayed_instance->getBoundingSphere( position, radius ) << std::endl;
+                std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+                std::cout << "Sphere result is "<< radius << std::endl;
 
                 // Check to see if the cobj_index is in bounds
                 if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
