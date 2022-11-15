@@ -57,3 +57,16 @@ glm::quat Graphics::ModelInstance::getRotation() const {
 glm::vec2 Graphics::ModelInstance::getTextureOffset() const {
     return this->texture_offset;
 }
+
+bool Graphics::ModelInstance::getBoundingSphere( glm::vec3 &position, float &radius ) const {
+    // A model instance must belong to some environment some where.
+    assert( this->ModelInternalData_data != nullptr );
+    auto internal_data = reinterpret_cast<Graphics::SDL2::GLES2::ModelInternalData*>( ModelInternalData_data );
+    assert( internal_data != nullptr );
+    assert( internal_data->array != nullptr );
+    
+    position = internal_data->array->culling_sphere_position;
+    radius   = internal_data->array->culling_sphere_radius;
+    
+    return true;
+}

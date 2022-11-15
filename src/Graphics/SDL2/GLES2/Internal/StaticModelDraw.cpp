@@ -88,6 +88,26 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GL
 
     return search_key;
 }
+
+Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( unsigned int mesh_index ) const {
+    ModelArray* search_key = nullptr;
+
+    if( !model_array.empty() )
+    {
+        ModelArray relationModelArray;
+        relationModelArray.mesh_index = mesh_index;
+
+        auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
+
+        const int index = bound - model_array.begin();
+
+        if( index < model_array.size() && model_array.at(index)->mesh_index == mesh_index )
+            search_key = *bound;
+    }
+
+    return search_key;
+}
+
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::addModelArray( unsigned int mesh_index ) {
     ModelArray *new_model_array = new ModelArray();
 
@@ -321,4 +341,16 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
             }
         }
     }
+}
+
+bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( unsigned int mesh_index, glm::vec3 &position, float &radius ) const {
+    auto model_r = this->getModelArray( mesh_index );
+    
+    if( model_r == nullptr )
+        return false;
+    
+    position = model_r->culling_sphere_position;
+    radius = model_r->culling_sphere_radius;
+    
+    return true;
 }
