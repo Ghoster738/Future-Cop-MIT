@@ -17,6 +17,7 @@ protected:
     glm::vec3 position;
     glm::quat rotation; // This value is a quaterion.
     glm::vec2 texture_offset;
+    
     float timeline;
 public:
     /**
@@ -81,6 +82,8 @@ public:
      * @return texture_offset the offset to the texture.
      */
     glm::vec2 getTextureOffset() const;
+    
+    bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
 
     float getTimeline() const { return timeline; }
 

@@ -13,6 +13,7 @@ namespace GLES2 {
 
 struct ModelInternalData {
     Internal::StaticModelDraw::ModelArray *array;
+    
     int index_position;
 };
 

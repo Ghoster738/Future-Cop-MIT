@@ -21,6 +21,11 @@ void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei cou
 
 void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     void * vertex_buffer_data = model.getBuffer( vertex_buffer_size );
+    bool bounds;
+    
+    bounds = model.getBoundingSphere( this->culling_sphere_position, this->culling_sphere_radius );
+    
+    assert( bounds );
     
     morph_buffer_size = 0;
     model.getMorphBuffer( 0, morph_buffer_size );
@@ -122,4 +127,10 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_
 
 size_t Graphics::SDL2::GLES2::Internal::Mesh::getMorphOffset( unsigned int morph_frame_index ) const {
     return vertex_buffer_size + morph_buffer_size * morph_frame_index;
+}
+
+bool Graphics::SDL2::GLES2::Internal::Mesh::getBoundingSphere( glm::vec3 &position, float &radius ) const {
+    position = this->culling_sphere_position;
+    radius   = this->culling_sphere_radius;
+    return true;
 }

@@ -19,6 +19,10 @@ public:
         unsigned int mesh_index; // The type of model the instances will represent. TODO Change this into a pointer.
         unsigned int unculled_size;
         std::vector<Graphics::ModelInstance*> instances; // The list of all instances that will be drawn.
+        
+        glm::vec3 culling_sphere_position;
+        float culling_sphere_radius;
+
     };
 protected:
 
@@ -44,6 +48,7 @@ protected:
     std::vector<ModelArray*> model_array;
 
     ModelArray* getModelArray( unsigned int mesh_index );
+    ModelArray* getModelArray( unsigned int mesh_index ) const;
     ModelArray* addModelArray( unsigned int mesh_index );
 public:
     StaticModelDraw();
@@ -150,6 +155,14 @@ public:
      * @return The OpenGL id of the matrix uniform from the static model program.
      */
     GLuint setCameraUniformID() const { return matrix_uniform_id; }
+    
+    /**
+     * This method makes a bounding sphere for the entire mesh.
+     * @param position This holds the sphere's center location.
+     * @param radius This holds the rotation of the sphere.
+     * @return true if a bounding sphere is generated.
+     */
+    bool getBoundingSphere( unsigned int mesh_index, glm::vec3 &position, float &radius ) const;
 };
 
 }

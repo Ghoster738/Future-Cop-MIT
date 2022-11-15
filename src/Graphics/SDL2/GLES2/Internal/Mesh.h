@@ -31,6 +31,9 @@ protected:
     unsigned int morph_buffer_size;
     unsigned int morph_frame_amount;
     unsigned int frame_amount;
+    
+    glm::vec3 culling_sphere_position;
+    float culling_sphere_radius;
 
     void addCommand( GLint first, GLsizei count, const Texture2D *texture_ref );
 public:
@@ -67,6 +70,14 @@ public:
      * @return offset of the morph buffer.
      */
     size_t getMorphOffset( unsigned int morph_frame_index ) const;
+    
+    /**
+     * This method makes a bounding sphere for the entire mesh.
+     * @param position This holds the sphere's center location.
+     * @param radius This holds the rotation of the sphere.
+     * @return true if a bounding sphere is generated.
+     */
+    bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
 };
 
 }
