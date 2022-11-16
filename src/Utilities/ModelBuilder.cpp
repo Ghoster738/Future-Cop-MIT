@@ -1330,6 +1330,8 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
     }
 }
 
+#include <iostream>
+
 bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &radius ) const {
     glm::vec3 min, max;
     glm::vec3 simplex;
@@ -1348,16 +1350,21 @@ bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &rad
     // Then loop through the materials until the min and the max bounds are found.
     for( unsigned t = 1; t < this->texture_materials.size(); t++ )
     {
-        min.x = std::min( this->texture_materials[t].min.data.x, min.x );
-        min.y = std::min( this->texture_materials[t].min.data.y, min.y );
-        min.z = std::min( this->texture_materials[t].min.data.z, min.z );
-        max.x = std::max( this->texture_materials[t].max.data.x, max.x );
-        max.y = std::max( this->texture_materials[t].max.data.y, max.y );
-        max.z = std::max( this->texture_materials[t].max.data.z, max.z );
+        min.x = std::max( this->texture_materials[t].min.data.x, min.x );
+        min.y = std::max( this->texture_materials[t].min.data.y, min.y );
+        min.z = std::max( this->texture_materials[t].min.data.z, min.z );
+        max.x = std::min( this->texture_materials[t].max.data.x, max.x );
+        max.y = std::min( this->texture_materials[t].max.data.y, max.y );
+        max.z = std::min( this->texture_materials[t].max.data.z, max.z );
     }
+    
+    std::cout << std::endl;
+    std::cout << "max = ( " << max.x << ", " << max.y << ", " << max.z << ")" << std::endl;
+    std::cout << "min = ( " << min.x << ", " << min.y << ", " << min.z << ")" << std::endl;
     
     // The position is the center of the box.
     position = (max + min) * 0.5f;
+    std::cout << "position = ( " << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
     
     // The simplex will have the three axis of the span of the 3D object.
     simplex = max - position;
@@ -1365,6 +1372,7 @@ bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &rad
     // A radius will have the simplex's distance.
     radius = simplex.x * simplex.x + simplex.y * simplex.y + simplex.z * simplex.z;
     radius = sqrt( radius );
+    std::cout << "radius = " << radius << std::endl;
     
     return true;
 }
