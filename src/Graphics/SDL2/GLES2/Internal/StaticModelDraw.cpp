@@ -298,6 +298,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned
         auto internal_data = reinterpret_cast<Graphics::SDL2::GLES2::ModelInternalData*>( model_instance.getInternalData() );
         internal_data->array = model_array;
         internal_data->index_position = model_array->instances.size();
+        
+        bool result = models[ index_obj ]->getBoundingSphere( internal_data->culling_sphere_position, internal_data->culling_sphere_radius );
+        assert( result );
 
         // Finally added the instance.
         model_array->instances.push_back( &model_instance );
@@ -344,13 +347,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( unsigned int mesh_index, glm::vec3 &position, float &radius ) const {
-    auto model_r = this->getModelArray( mesh_index );
+    auto model_r = this->models.at( mesh_index );
     
     if( model_r == nullptr )
         return false;
     
-    position = model_r->culling_sphere_position;
-    radius = model_r->culling_sphere_radius;
-    
-    return true;
+    return model_r->getBoundingSphere( position, radius );
 }

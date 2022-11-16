@@ -13,6 +13,8 @@ namespace GLES2 {
 
 struct ModelInternalData {
     Internal::StaticModelDraw::ModelArray *array;
+    glm::vec3 culling_sphere_position;
+    float culling_sphere_radius;
     
     int index_position;
 };
