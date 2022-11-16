@@ -63,10 +63,14 @@ bool Graphics::ModelInstance::getBoundingSphere( glm::vec3 &position, float &rad
     assert( this->ModelInternalData_data != nullptr );
     auto internal_data = reinterpret_cast<Graphics::SDL2::GLES2::ModelInternalData*>( ModelInternalData_data );
     assert( internal_data != nullptr );
-    assert( internal_data->array != nullptr );
     
-    position = internal_data->array->culling_sphere_position;
-    radius   = internal_data->array->culling_sphere_radius;
-    
-    return true;
+    if( internal_data->array == nullptr )
+        return false;
+    else
+    {
+        position = internal_data->array->culling_sphere_position;
+        radius   = internal_data->array->culling_sphere_radius;
+        
+        return true;
+    }
 }
