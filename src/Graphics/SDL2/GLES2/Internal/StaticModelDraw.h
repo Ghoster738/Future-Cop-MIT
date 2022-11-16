@@ -19,9 +19,6 @@ public:
         unsigned int mesh_index; // The type of model the instances will represent. TODO Change this into a pointer.
         unsigned int unculled_size;
         std::vector<Graphics::ModelInstance*> instances; // The list of all instances that will be drawn.
-        
-        glm::vec3 culling_sphere_position;
-        float culling_sphere_radius;
 
     };
 protected:

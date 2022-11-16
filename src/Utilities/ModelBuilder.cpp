@@ -1330,8 +1330,6 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
     }
 }
 
-#include <iostream>
-
 bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &radius ) const {
     glm::vec3 min, max;
     glm::vec3 simplex;
@@ -1358,13 +1356,8 @@ bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &rad
         max.z = std::min( this->texture_materials[t].max.data.z, max.z );
     }
     
-    std::cout << std::endl;
-    std::cout << "max = ( " << max.x << ", " << max.y << ", " << max.z << ")" << std::endl;
-    std::cout << "min = ( " << min.x << ", " << min.y << ", " << min.z << ")" << std::endl;
-    
     // The position is the center of the box.
     position = (max + min) * 0.5f;
-    std::cout << "position = ( " << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
     
     // The simplex will have the three axis of the span of the 3D object.
     simplex = max - position;
@@ -1372,7 +1365,6 @@ bool Utilities::ModelBuilder::getBoundingSphere( glm::vec3 &position, float &rad
     // A radius will have the simplex's distance.
     radius = simplex.x * simplex.x + simplex.y * simplex.y + simplex.z * simplex.z;
     radius = sqrt( radius );
-    std::cout << "radius = " << radius << std::endl;
     
     return true;
 }
