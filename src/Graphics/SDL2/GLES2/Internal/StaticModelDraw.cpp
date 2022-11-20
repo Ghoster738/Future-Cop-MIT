@@ -299,8 +299,12 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned
         internal_data->array = model_array;
         internal_data->index_position = model_array->instances.size();
         
-        bool result = models[ index_obj ]->getBoundingSphere( internal_data->culling_sphere_position, internal_data->culling_sphere_radius );
-        assert( result );
+        bool result = false;
+        
+        if( models[ index_obj ] != nullptr ) {
+            result = models[ index_obj ]->getBoundingSphere( internal_data->culling_sphere_position, internal_data->culling_sphere_radius );
+        }
+        // assert( result ); // TODO Add a return false case to getBoundingSphere.
 
         // Finally added the instance.
         model_array->instances.push_back( &model_instance );

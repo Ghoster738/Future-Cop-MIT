@@ -31,8 +31,8 @@ void helpExit( std::ostream &stream ) {
     stream << " --id VALID_ID means which mission ID to load from. Type in an invalid id to get a listing of valid IDs." << std::endl;
     stream << " --load-all If you like high loading times use this. This tells the mission manager to load every single map." << std::endl;
     stream << " --platform-all This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels." << std::endl;
-    //stream << "This is the export options." << std::endl;
-    //stream << " --model-path this is the model export path. Make sure that this points to a directory, or else it will not export at all." << std::endl;
+    stream << "This is the export options." << std::endl;
+    stream << " --model-path this is the model export path. Make sure that this points to a directory, or else it will not export at all." << std::endl;
     stream << "These are for loading more specific maps" << std::endl;
     stream << " --global is the path to the global file which every map uses." << std::endl;
     stream << " --path is the path to the mission file which contains the rest of the data like the map." << std::endl;
@@ -43,6 +43,11 @@ void listIDs( std::ostream &stream, Data::Manager &manager ) {
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
         stream << " " << *Data::Manager::map_iffs[ i ] << std::endl;
     }
+}
+
+glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {
+    glm::mat4 mat = glm::rotate( glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, -distance ) ), angle, glm::vec3( 1.0f, 0.0f, 0.0f ) );
+    return glm::translate( mat, -position );
 }
 }
 
@@ -280,8 +285,6 @@ int main(int argc, char** argv)
     first_person->setViewportDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
     window_r->attachCamera( *first_person );
     glm::mat4 extra_matrix_0;
-    glm::mat4 extra_matrix_1;
-    glm::mat4 extra_matrix_2;
 
     // Setup the font
     Graphics::Text2DBuffer *text_2d_buffer = Graphics::Text2DBuffer::alloc( *environment );
@@ -292,16 +295,6 @@ int main(int argc, char** argv)
 
     extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f );
     first_person->setProjection3D( extra_matrix_0 );
-
-    extra_matrix_0 = glm::rotate( glm::mat4(1.0f), glm::pi<float>() / 4.0f, glm::vec3( 1.0f, 0.0f, 0.0f ) );
-
-    if( type.compare( "til" ) == 0 )
-        extra_matrix_1 = glm::translate( glm::mat4(1.0f), glm::vec3( 0.0f, -18.0f, -24.0f ) );
-    else
-        extra_matrix_1 = glm::translate( glm::mat4(1.0f), glm::vec3( 0.0f, -4.0f, -5.0f ) );
-
-    extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
-    first_person->setView3D( extra_matrix_2 );
 
     // Setup the timer
     auto last_time = std::chrono::high_resolution_clock::now();
@@ -384,6 +377,13 @@ int main(int argc, char** argv)
     bool nextModel = false; // The next model
 
     Graphics::ModelInstance* displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+    
+    glm::vec3 position(0,0,0);
+    float radius = 1.0f;
+    
+    displayed_instance->getBoundingSphere( position, radius );
+    
+    first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
 
     environment->attachInstanceObj( cobj_index, *displayed_instance );
 
@@ -450,12 +450,11 @@ int main(int argc, char** argv)
                     }
                 }
                 
-                glm::vec3 position;
-                float radius;
-                
                 std::cout << "Sphere result is "<< displayed_instance->getBoundingSphere( position, radius ) << std::endl;
                 std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
                 std::cout << " radius is "<< radius << std::endl;
+                
+                first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
 
                 count_down = 0.5f;
                 rotate = 0;
