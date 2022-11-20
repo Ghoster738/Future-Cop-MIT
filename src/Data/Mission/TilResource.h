@@ -42,7 +42,7 @@ public:
         }
     };
     struct Tile {
-        uint32_t unknown_0 : 1;
+        uint32_t end_column: 1;
         uint32_t texture_cord_index : 10;
         uint32_t collision_type : 2; // 0b00 for floor; 0b01 for wall facing +x and -y; 0b10 for wall facing -x and +y; 0b11 for slopes
         uint32_t unknown_1 : 2; // Apperently this holds what this tile would do to the playable character. However, it appears that the action this tile would do to the player is stored elsewhere.
@@ -55,7 +55,7 @@ public:
         }
         
         void set( const uint32_t bitfield ) {
-            unknown_0           = (bitfield >>  0) & 1;
+            end_column          = (bitfield >>  0) & 1;
             texture_cord_index  = (bitfield >>  1) & ((1 << 10) - 1);
             collision_type      = (bitfield >> 11) & ((1 <<  2) - 1);
             unknown_1           = (bitfield >> 13) & ((1 <<  2) - 1);

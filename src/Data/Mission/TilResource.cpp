@@ -109,7 +109,7 @@ void Data::Mission::TilResource::makeEmpty() {
     // Make a generic tile
     Tile one_tile( 0 );
     
-    one_tile.unknown_0 = 0;
+    one_tile.end_column = 0;
     one_tile.texture_cord_index = 0;
     one_tile.collision_type = 0; // This means the floor
     one_tile.unknown_1 = 0;
