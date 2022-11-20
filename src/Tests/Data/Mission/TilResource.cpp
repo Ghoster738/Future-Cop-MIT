@@ -31,15 +31,15 @@ int main() {
         Data::Mission::TilResource::Tile tile;
         
         tile.set( 0b00000000000000000000000000000001 );
-        if( tile.unknown_0      != 1 || tile.texture_cord_index  != 0 ||
+        if( tile.end_column     != 1 || tile.texture_cord_index  != 0 ||
             tile.collision_type != 0 || tile.unknown_1           != 0 ||
             tile.mesh_type      != 0 || tile.graphics_type_index != 0 ) {
-            std::cout << "Error: the Tile bitfield regarding unknown_0 is flawed!" << std::endl;
+            std::cout << "Error: the Tile bitfield regarding end_column is flawed!" << std::endl;
             is_not_success = true;
         }
         
         tile.set( 0b00000000000000000000010011001000 );
-        if( tile.unknown_0      != 0 || tile.texture_cord_index  != 0b1001100100 ||
+        if( tile.end_column     != 0 || tile.texture_cord_index  != 0b1001100100 ||
             tile.collision_type != 0 || tile.unknown_1           != 0 ||
             tile.mesh_type      != 0 || tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding texture_cord_index is flawed!" << std::endl;
@@ -47,7 +47,7 @@ int main() {
         }
         
         tile.set( 0b00000000000000000001000000000000 );
-        if( tile.unknown_0      != 0    || tile.texture_cord_index  != 0 ||
+        if( tile.end_column     != 0    || tile.texture_cord_index  != 0 ||
             tile.collision_type != 0b10 || tile.unknown_1           != 0 ||
             tile.mesh_type      != 0    || tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding collision_type is flawed!" << std::endl;
@@ -55,7 +55,7 @@ int main() {
         }
         
         tile.set( 0b00000000000000000100000000000000 );
-        if( tile.unknown_0      != 0 || tile.texture_cord_index  != 0 ||
+        if( tile.end_column     != 0 || tile.texture_cord_index  != 0 ||
             tile.collision_type != 0 || tile.unknown_1           != 0b10 ||
             tile.mesh_type      != 0 || tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding unknown_1 is flawed!" << std::endl;
@@ -63,7 +63,7 @@ int main() {
         }
         
         tile.set( 0b00000000001000101000000000000000 );
-        if( tile.unknown_0      != 0         || tile.texture_cord_index  != 0 ||
+        if( tile.end_column     != 0         || tile.texture_cord_index  != 0 ||
             tile.collision_type != 0         || tile.unknown_1           != 0 ||
             tile.mesh_type      != 0b1000101 || tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding mesh_type is flawed!" << std::endl;
@@ -71,7 +71,7 @@ int main() {
         }
         
         tile.set( 0b10011001000000000000000000000000 );
-        if( tile.unknown_0      != 0 || tile.texture_cord_index  != 0 ||
+        if( tile.end_column     != 0 || tile.texture_cord_index  != 0 ||
             tile.collision_type != 0 || tile.unknown_1           != 0 ||
             tile.mesh_type      != 0 || tile.graphics_type_index != 0b1001100100) {
             std::cout << "Error: the Tile bitfield regarding graphics_type_index is flawed!" << std::endl;
@@ -115,9 +115,9 @@ int main() {
             is_not_success = true;
         }
 
-        if( floor.unknown_0 != 1 ) {
-            std::cout << "unknown_0 is wrong!" << std::endl;
-            std::cout << "should be 1 not " << floor.unknown_0 << "!" << std::endl;
+        if( floor.end_column      != 1 ) {
+            std::cout << "end_column is wrong!" << std::endl;
+            std::cout << "should be 1 not " << floor.end_column      << "!" << std::endl;
             is_not_success = true;
         }
     }
