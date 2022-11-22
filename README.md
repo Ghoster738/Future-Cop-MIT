@@ -14,7 +14,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivates.
 
 1. Install build tools and required packages:
 ```
-apt install build-essential libglm-dev libsdl2-dev libjsoncpp-dev libpng-dev
+apt install build-essential git libglm-dev libsdl2-dev libjsoncpp-dev libpng-dev
 ```
 * Install optional package:
 ```
