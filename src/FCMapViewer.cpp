@@ -4,6 +4,8 @@
 #include <chrono>
 #include <thread>
 
+#include "Config.h"
+
 #include "Data/Manager.h"
 
 #include "Data/Mission/IFF.h"
@@ -21,26 +23,42 @@
 
 namespace {
 void helpExit( std::ostream &stream ) {
-    stream << "These are the graphics settings" << std::endl;
-    stream << " --width NUMBER This is the width of the screen." << std::endl;
-    stream << " --height NUMBER This is the height of the screen." << std::endl;
-    stream << "These are the autoloader commands" << std::endl;
-    stream << " -w means load from ./Data/Platform/Windows" << std::endl;
-    stream << " -m means load from ./Data/Platform/Macintosh" << std::endl;
-    stream << " -p means load from ./Data/Platform/Playstation" << std::endl;
-    stream << " --id VALID_ID means which mission ID to load from. Type in an invalid id to get a listing of valid IDs." << std::endl;
-    stream << " --load-all If you like high loading times use this. This tells the mission manager to load every single map." << std::endl;
-    stream << " --platform-all This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels." << std::endl;
-    stream << "These are for loading more specific maps" << std::endl;
-    stream << " --global is the path to the global file which every map uses." << std::endl;
-    stream << " --path is the path to the mission file which contains the rest of the data like the map." << std::endl;
+    stream << "\n";
+    stream << "Future Cop: MIT - Map viewer (version " << FUTURE_COP_MIT_VERSION << ")\n";
+    stream << "\n";
+    stream << "Usage:" << "\n";
+    stream << "  FCMapViewer [-h|--help]" << "\n";
+    stream << "              [--width <number>] [--height <number>]" << "\n";
+    stream << "              [-w] [-m] [-p] [--id <id>] [--load-all] [--platform-all]" << "\n";
+    stream << "              [--global <path>] [--path <path>]" << "\n";
+    stream << "\n";
+    stream << "Options:" << "\n";
+    stream << "  General:" << "\n";
+    stream << "    -h --help  Display this screen and exit" << "\n";
+    stream << "  Interface:" << "\n";
+    stream << "    --width <number>   Window/screen resolution width - defaults to 640 if not specified." << "\n";
+    stream << "    --height <number>  Window/screen resolution height - defaults to 480 if not specified." << "\n";
+    stream << "  Data loading:" << "\n";
+    stream << "    -w              Load Windows game data from './Data/Platform/Windows'" << "\n";
+    stream << "    -m              Load Macintosh game data from './Data/Platform/Macintosh'" << "\n";
+    stream << "    -p              Load PlayStation game data from './Data/Platform/Playstation'" << "\n";
+    stream << "    --id <id>       Load the specified mission ID. Type in an invalid id to get a listing of valid IDs." << "\n";
+    stream << "    --load-all      Load every single map. Will take some time." << "\n";
+    stream << "    --platform-all  Attempt to load from all three platforms for the given ID." << "\n";
+    stream << "                    If --load-all is also present on the command line then the program will load all the levels." << "\n";
+    stream << "  Maps:" << "\n";
+    stream << "    --global <path>  Path to the global file which every map uses." << "\n";
+    stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
+    stream << "\n";
     exit( 0 );
 }
 void listIDs( std::ostream &stream, Data::Manager &manager ) {
-    stream << "Printing all map IDs" << std::endl;
+    stream << "Printing all map IDs\n";
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
-        stream << " " << *Data::Manager::map_iffs[ i ] << std::endl;
+        stream << " " << *Data::Manager::map_iffs[ i ] << "\n";
     }
+    
+    stream << std::endl;
 }
 }
 
@@ -153,7 +171,7 @@ int main(int argc, char** argv)
 
     window->setWindowTitle( title );
     if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center() << std::endl;
+        std::cout << "The window had failed to center! " << window->center();
     window->setDimensions( glm::u32vec2( width, height ) );
     window->setFullScreen( true );
     
@@ -203,7 +221,7 @@ int main(int argc, char** argv)
     auto number_of_iffs = manager.setLoad( load_all );
 
     if( number_of_iffs < 2 ) {
-        std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
+        std::cout << "The number IFF " << number_of_iffs << " is not enough.";
         return -3;
     }
 
@@ -211,12 +229,12 @@ int main(int argc, char** argv)
     Data::Mission::IFF   *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
 
     if( resource_r == nullptr ) {
-        std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
+        std::cout << "The mission IFF " << iff_mission_id << " did not load.";
         return -4;
     }
 
     if( global_r == nullptr ) {
-        std::cout << "The global IFF did not load." << std::endl;
+        std::cout << "The global IFF did not load.";
         return -5;
     }
 
@@ -227,7 +245,7 @@ int main(int argc, char** argv)
         int status = environment->setupTextures( cbmp_resources );
 
         if( status < 0 )
-            std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;
+            std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
     }
 
     // Load all the 3D meshes from the resource as well.
@@ -237,7 +255,7 @@ int main(int argc, char** argv)
         int status = environment->setModelTypes( cobj_resources );
 
         if( status < 0 )
-            std::cout << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size() << std::endl;
+            std::cout << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
     }
     
     // Get the font from the resource file.
@@ -252,12 +270,12 @@ int main(int argc, char** argv)
             font_resources = Data::Mission::FontResource::getVector( *global_r );
 
             for( auto i : font_resources ) {
-                std::cout << "Pointer " << i << std::endl;
+                std::cout << "Pointer " << i;
             }
             
             Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
             if( font_resources.size() == 0 )
-                std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
+                std::cout << " general fonts had failed to load out of " << font_resources.size();
         }
     }
 
@@ -309,7 +327,7 @@ int main(int argc, char** argv)
     bool isCameraMoving = false;
 
     if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center() << std::endl;
+        std::cout << "The window had failed to center! " << window->center();
 
     // Setup the controls
     auto control_system_p = Controls::System::getSingleton(); // create the new system for controls
