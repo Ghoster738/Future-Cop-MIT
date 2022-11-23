@@ -3,6 +3,8 @@
 #include <chrono>
 #include <thread>
 
+#include "Config.h"
+
 #include "Data/Manager.h"
 
 #include "Data/Mission/IFF.h"
@@ -21,28 +23,45 @@
 
 namespace {
 void helpExit( std::ostream &stream ) {
-    stream << "These are the graphics settings" << std::endl;
-    stream << " --width NUMBER This is the width of the screen." << std::endl;
-    stream << " --height NUMBER This is the height of the screen." << std::endl;
-    stream << "These are the autoloader commands" << std::endl;
-    stream << " -w means load from ./Data/Platform/Windows" << std::endl;
-    stream << " -m means load from ./Data/Platform/Macintosh" << std::endl;
-    stream << " -p means load from ./Data/Platform/Playstation" << std::endl;
-    stream << " --id VALID_ID means which mission ID to load from. Type in an invalid id to get a listing of valid IDs." << std::endl;
-    stream << " --load-all If you like high loading times use this. This tells the mission manager to load every single map." << std::endl;
-    stream << " --platform-all This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels." << std::endl;
-    stream << "This is the export options." << std::endl;
-    stream << " --model-path this is the model export path. Make sure that this points to a directory, or else it will not export at all." << std::endl;
-    stream << "These are for loading more specific maps" << std::endl;
-    stream << " --global is the path to the global file which every map uses." << std::endl;
-    stream << " --path is the path to the mission file which contains the rest of the data like the map." << std::endl;
+   
+    stream << "\n";
+    stream << "Future Cop: MIT - Model viewer/exporter (version " << FUTURE_COP_MIT_VERSION << ")\n";
+    stream << "\n";
+    stream << "Usage:" << "\n";
+    stream << "  FCModelViewer [-h|--help]" << "\n";
+    stream << "                [--width <number>] [--height <number>]" << "\n";
+    stream << "                [-w] [-m] [-p] [--id <id>]" << "\n";
+    stream << "                [--model-path <path>] [--type ??] [--start ??]" << "\n";
+    stream << "                [--global <path>] [--path <path>]" << "\n";
+    stream << "\n";
+    stream << "Options:" << "\n";
+    stream << "  General:" << "\n";
+    stream << "    -h --help  Display this screen and exit" << "\n";
+    stream << "  Interface:" << "\n";
+    stream << "    --width <number>   Window/screen resolution width - defaults to 640 if not specified." << "\n";
+    stream << "    --height <number>  Window/screen resolution height - defaults to 480 if not specified." << "\n";
+    stream << "  Data loading:" << "\n";
+    stream << "    -w              Load Windows game data from './Data/Platform/Windows'" << "\n";
+    stream << "    -m              Load Macintosh game data from './Data/Platform/Macintosh'" << "\n";
+    stream << "    -p              Load PlayStation game data from './Data/Platform/Playstation'" << "\n";
+    stream << "    --id <id>       Load the specified mission ID. Type in an invalid id to get a listing of valid IDs." << "\n";
+    stream << "  Export options:" << "\n";
+    stream << "    --model-path <path>  Where to export the models, must point to an existing directory" <<"\n";
+    stream << "    --type               ??" <<"\n";
+    stream << "    --start              ??" <<"\n";
+    stream << "  Maps:" << "\n";
+    stream << "    --global <path>  Path to the global file which every map uses." << "\n";
+    stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
+    stream << "\n";
     exit( 0 );
 }
 void listIDs( std::ostream &stream, Data::Manager &manager ) {
-    stream << "Printing all map IDs" << std::endl;
+    stream << "Printing all map IDs\n";
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
-        stream << " " << *Data::Manager::map_iffs[ i ] << std::endl;
+        stream << " " << *Data::Manager::map_iffs[ i ] << "\n";
     }
+    
+    stream << std::endl;
 }
 
 glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {

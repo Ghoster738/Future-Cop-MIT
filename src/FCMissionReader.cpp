@@ -2,29 +2,34 @@
 #include "Utilities/DataHandler.h"
 #include <iostream>
 #include <fstream>
+#include "Config.h"
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/Til/Mesh.h"
 
 namespace {
-    std::string  INPUT_OPERATION = "-i";
+    std::string INPUT_OPERATION = "-i";
     std::string OUTPUT_OPERATION = "-o";
     std::string RAW_OUTPUT_OPERATION = "-r";
     std::string DECODE_OUTPUT_OPERATION = "-d";
     std::string COMPARE_OUTPUT_OPERATION = "-c";
     std::string OUTPUT_HELP_OPERATION = "-h";
 
-    void help_output( std::ostream& out ) {
-        out << std::endl
-            << "This program was created to read and decode mission files" << std::endl
-            << "\t" << INPUT_OPERATION  << " - file_path for the input for almost one case you will need one."
-            << std::endl
-            << "\t" << OUTPUT_OPERATION << " - The path to the folder or file for the outputs." << std::endl
-            << "\t" << RAW_OUTPUT_OPERATION << " - An export command for the raws." << std::endl
-            << "\t" << DECODE_OUTPUT_OPERATION << " - An export command for the supported and decoded files."
-            << std::endl
-            << "\t" << COMPARE_OUTPUT_OPERATION << " - This tells or writes the simularities between two inputs."
-            << std::endl
-            << "\t" << OUTPUT_HELP_OPERATION << " - Displays this very list." << std::endl << std::endl;
+    void help_output( std::ostream& stream ) {
+        
+        stream << "\n";
+        stream << "Future Cop: MIT - Mission reader (version " << FUTURE_COP_MIT_VERSION << ")\n";
+        stream << "\n";
+        stream << "Usage:" << "\n";
+        stream << "  FCMissionReader [-h] [-i <path>] [-o <path>] [-r] [-d] [-c] " << "\n";
+        stream << "\n";
+        stream << "Options:" << "\n";
+        stream << "  -h         Display this help screen" << "\n";
+        stream << "  -i <path>  File path for input, up to two inputs are supported" << "\n";
+        stream << "  -o <path>  Path to the folder or file for the outputs" << "\n";
+        stream << "  -r         Export raws" << "\n";
+        stream << "  -d         Export supported and decoded files" << "\n";
+        stream << "  -c         Determine and write the similarities between two inputs" << "\n";
+
     }
 }
 
