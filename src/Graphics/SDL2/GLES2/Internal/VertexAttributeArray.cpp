@@ -101,7 +101,7 @@ int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::getAttributesFrom( Gr
         vertex_component.size   *= sizeof( uint32_t );
 
         if( size != 0) // a size of zero indicates that the DataHandler type is invalid for OpenGL attributes.
-            success_count += addAttribute( vertex_component.getName().c_str(), size, vertex_component.component_type, vertex_component.isNormalized(), vertex_component.stride, (void*)vertex_component.begin);
+            success_count += addAttribute( vertex_component.getName().c_str(), size, vertex_component.component_type, vertex_component.isNormalized(), vertex_component.stride, reinterpret_cast<void*>(vertex_component.begin));
     }
     return success_count;
 }
