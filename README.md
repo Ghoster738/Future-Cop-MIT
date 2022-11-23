@@ -14,12 +14,19 @@ These build instructions are for Ubuntu, might work on Ubuntu derivates.
 
 1. Install build tools and required packages:
 ```
-apt install build-essential git libglm-dev libsdl2-dev libjsoncpp-dev libpng-dev
+apt install build-essential git libglm-dev libsdl2-dev libjsoncpp-dev
 ```
-* Install optional package:
+
+* Optional: If you want PNG export support, get libpng-dev and it dependices.
+```
+apt install libpng-dev
+```
+
+* Optional: This package does mostly nothing for the project, but if you want to include glew use this.
 ```
 apt install libglew-dev
 ```
+
 2. Clone the source code:
 ```
 git clone https://github.com/Ghoster738/Future-Cop-MIT.git
