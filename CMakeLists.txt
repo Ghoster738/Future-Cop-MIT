@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project( "Future Cop: MIT" DESCRIPTION "Open-source remimplementation of Future Cop: L.A.P.D. game")
 
@@ -29,6 +29,7 @@ find_package(JSON_CPP REQUIRED)
 find_package(SDL2     REQUIRED)
 find_package(GLEW)
 find_package(OpenGL   REQUIRED)
+find_package(Git)
 
 option(FORCE_FULL_OPENGL_2 "This enables the full OpenGL rather than OpenGLES" ON)
 option(GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE "Disable the forcing of the use for OpenGLES 2. Use this if the graphics card has OpenGL 2.1 support, but not OpenGLES." OFF)
@@ -59,6 +60,7 @@ endif()
 
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_LIBRARIES})
+include_directories(${PROJECT_BINARY_DIR})
 
 if(ZLIB_FOUND)
   target_link_libraries (FC_IFF_IO PRIVATE ${ZLIB_LIBRARY})
@@ -72,7 +74,14 @@ target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
-configure_file(src/Config.h.in src/Config.h)
+include(${CMAKE_SOURCE_DIR}/cmake/GenerateVersionHeader.cmake)
+
+set (FUTURE_COP_MIT_VERSION "${FUTURE_COP_MIT_VERSION_FOUND}" CACHE STRING "Project version, autodetected if possible from")
+
+configure_file (
+    ${PROJECT_SOURCE_DIR}/src/Config.h.in
+    ${PROJECT_BINARY_DIR}/Config.h
+)
 
 # This where the sources are for the engine.
 
@@ -83,7 +92,7 @@ file(GLOB GRAPHICS_SOURCE_FILES src/Graphics/*.cpp )
 # SDL 2 is used for the controls.
 file(GLOB_RECURSE CONTROL_SDL2_SOURCE_FILES src/Controls/SDL2/*.cpp )
 
-# SDL 2 is also used for the Windowing library for OpenGLES 2, and possiably Vulkan.
+# SDL 2 is also used for the Windowing library for OpenGLES 2, and possibly Vulkan.
 file(GLOB GRAPHICS_SDL2_SOURCE_FILES src/Graphics/SDL2/*.cpp )
 
 # OpenGLES 2 is the one and only API supported for now, but more will come.
