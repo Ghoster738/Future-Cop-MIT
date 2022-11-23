@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-project( "Future Cop: MIT" DESCRIPTION "Open-source remimplementation of Future Cop: L.A.P.D. game")
+project( "Future Cop: MIT" DESCRIPTION "Open-source reimplementation of Future Cop: L.A.P.D. game")
 
 # Set the C++ standard to C++ 11
 set(CMAKE_CXX_STANDARD 11)
@@ -59,7 +59,7 @@ if(GLEW_FOUND)
 endif()
 
 include_directories(${SDL2_INCLUDE_DIRS})
-include_directories(${OPENGL_LIBRARIES})
+include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
 if(ZLIB_FOUND)
