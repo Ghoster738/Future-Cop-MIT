@@ -845,7 +845,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             float frame;
             for( int frame_index = 0; frame_index < morph_frame_buffers.size() + 2; frame_index++ ) {
-                frame = frame_index;
+                frame = static_cast<float>( frame_index ) / 24.0f;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
             
@@ -912,7 +912,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             // Write down the time line.
             for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                frame = joint_frame;
+                frame = static_cast<float>( joint_frame ) / 24.0f;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ));
             }
             index++;
