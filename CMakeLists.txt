@@ -32,7 +32,6 @@ find_package(OpenGL   REQUIRED)
 find_package(Git)
 
 option(FORCE_FULL_OPENGL_2 "This enables the full OpenGL rather than OpenGLES" ON)
-option(GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE "Disable the forcing of the use for OpenGLES 2. Use this if the graphics card has OpenGL 2.1 support, but not OpenGLES." OFF)
 option(SDL_USE_BUILTIN_OPENGL_DEFINITIONS "This forces SDL to use built in OpenGL definitions rather than use the regular include path." OFF)
 
 if (SDL2_FOUND)
