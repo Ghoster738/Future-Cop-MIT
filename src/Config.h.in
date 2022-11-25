@@ -3,12 +3,11 @@
 
 #define FUTURE_COP_MIT_VERSION "@FUTURE_COP_MIT_VERSION@"
 
-#cmakedefine GRAPHICS_GLES2_EXCLUDE_CONTEXT_PROFILE
 #cmakedefine FORCE_FULL_OPENGL_2
-#cmakedefine GLEW_FOUND
 #cmakedefine ZLIB_FOUND
 #cmakedefine PNG_FOUND
 
+// This is what triggers compiling with PNG.
 #ifdef ZLIB_FOUND
 #ifdef PNG_FOUND
 #define BUILD_WITH_LIBPNG
