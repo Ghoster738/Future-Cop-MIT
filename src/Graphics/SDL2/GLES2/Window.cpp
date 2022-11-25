@@ -74,6 +74,16 @@ int Graphics::SDL2::GLES2::Window::attach() {
     
     env_r->window_p = this;
     
+    #ifdef GLEW_FOUND
+    auto glew_status = glewInit();
+
+    if( glew_status != GLEW_OK )
+        std::cout << "GLEW INIT Failure: ";
+    else
+        std::cout << "GLEW INIT Success: ";
+    std::cout << glewGetErrorString( glew_status ) << std::endl;
+    #endif
+    
     if( success < 0 ) {
         major_version = 0;
         
