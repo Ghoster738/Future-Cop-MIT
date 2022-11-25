@@ -38,7 +38,7 @@ namespace {
     };
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
     // Inputs
@@ -59,7 +59,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader
     "   vertex_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
     "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_fragment_shader =
     "#version 100\n"
     "precision mediump float;\n"
 
@@ -75,6 +75,20 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shad
     "        discard;\n"
     "    gl_FragColor = vertex_color;\n"
     "}\n";
+
+const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_vertex_shader;
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultFragmentShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_fragment_shader;
+}
 
 Graphics::SDL2::GLES2::Internal::FontSystem::Text2D * Graphics::SDL2::GLES2::Internal::FontSystem::Font::allocateText2D() {
     return new Text2D( this );

@@ -5,7 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <cassert>
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
     // Inputs
@@ -32,7 +32,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   _flashing = CurrentGlow * state;\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader =
     "#version 100\n"
     "precision mediump float;\n"
     "varying vec3 vertex_colors;\n"
@@ -65,6 +65,20 @@ Graphics::SDL2::GLES2::Internal::World::~World() {
         delete (*i).mesh;
         delete [] (*i).positions;
     }
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_vertex_shader;
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_fragment_shader;
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *const shader_source ) {
