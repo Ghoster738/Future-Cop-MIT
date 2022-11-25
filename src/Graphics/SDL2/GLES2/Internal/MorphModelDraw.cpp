@@ -2,6 +2,7 @@
 #include "../../../ModelInstance.h"
 #include <cassert>
 #include <iostream>
+#include <SDL2/SDL.h>
 
 namespace {
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
@@ -10,6 +11,49 @@ namespace {
 const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
+    // Inputs
+    "attribute vec4 POSITION;\n"
+    "attribute vec3 NORMAL;\n"
+    "attribute vec2 TEXCOORD_0;\n"
+    "attribute float _Specular;\n"
+    // These inputs are for the morph attributes
+    "attribute vec4 POSITION_Next;\n"
+    "attribute vec3 NORMAL_Next;\n"
+    "attribute vec4 POSITION_Last;\n"
+    "attribute vec3 NORMAL_Last;\n"
+
+    // Vertex shader uniforms
+    "uniform mat4 ModelViewInv;\n"
+    "uniform mat4 ModelView;\n"
+    "uniform mat4 Transform;\n" // projection * view * model.
+    "uniform vec2 TextureTranslation;\n"
+    // These uniforms are for modifiying the morph attributes
+    "uniform float SampleNext;\n"
+    "uniform float SampleLast;\n"
+
+    // These are the outputs
+    "varying vec3 world_reflection;\n"
+    "varying float specular;\n"
+    "varying vec2 texture_coord_1;\n"
+
+    "void main()\n"
+    "{\n"
+    "   vec4 current_position = POSITION + POSITION_Last * vec4( SampleLast ) + POSITION_Next * vec4( SampleNext );\n"
+    "   vec3 current_normal   = NORMAL   + NORMAL_Last   * vec3( SampleLast ) + NORMAL_Next   * vec3( SampleNext );\n"
+    // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
+    "   vec3 eye_coord_position = vec3( ModelView * current_position );\n" // Model View multiplied by Model Position.
+    "   vec3 eye_coord_normal   = vec3( ModelView * vec4(current_normal, 0.0));\n"
+    "   eye_coord_normal        = normalize( eye_coord_normal );\n"
+    "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
+    // Find a way to use the spherical projection properly.
+    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
+    "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
+    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
+    "   specular = _Specular;\n"
+    "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
+    "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_shader =
+    "#version 110\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec3 NORMAL;\n"
@@ -60,10 +104,14 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::~MorphModelDraw() {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::getDefaultVertexShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_vertex_shader;
+    else
+        return default_vertex_shader;
 }
 
 int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
