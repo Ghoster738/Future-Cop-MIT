@@ -31,6 +31,8 @@ public:
     };
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
+    static const GLchar* default_es_vertex_shader;
+    static const GLchar* default_es_fragment_shader;
 protected:
     Program program;
     Shader vertex_shader;
@@ -43,11 +45,25 @@ public:
     virtual ~World();
 
     /**
+     * This method gets the default vertex shader depending on the GL version.
+     * @warning make sure the correct context is binded, or else you would get an improper shader.
+     * @return a pointer to a vertex shader.
+     */
+    static const GLchar* getDefaultVertexShader();
+
+    /**
+     * This method gets the default fragment shader depending on the GL version.
+     * @warning make sure the correct context is binded, or else you would get an improper shader.
+     * @return a pointer to a fragment shader.
+     */
+    static const GLchar* getDefaultFragmentShader();
+
+    /**
      * This sets up and compiles this shader from memory.
      * This is to be used for internal shaders.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    void setVertexShader( const GLchar *const shader_source = default_vertex_shader );
+    void setVertexShader( const GLchar *const shader_source = getDefaultVertexShader() );
 
     /**
      * This loads a shader from a text file, and compiles it.
@@ -60,7 +76,7 @@ public:
      * This is to be used for internal shaders.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    void setFragmentShader( const GLchar *const shader_source = default_fragment_shader );
+    void setFragmentShader( const GLchar *const shader_source = getDefaultFragmentShader() );
 
     /**
      * This loads a shader from a text file, and compiles it.

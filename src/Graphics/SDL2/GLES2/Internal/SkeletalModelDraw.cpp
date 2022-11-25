@@ -17,7 +17,7 @@ glm::mat4* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation
         return nullptr;
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
     // Inputs
@@ -64,6 +64,13 @@ Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
 
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::getDefaultVertexShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_vertex_shader;
 }
 
 int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {

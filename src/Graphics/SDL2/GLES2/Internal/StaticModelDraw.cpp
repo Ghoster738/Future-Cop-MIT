@@ -5,7 +5,7 @@
 #include <cmath> // fmod()
 #include <iostream> // fmod()
 
-const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
     // Inputs
@@ -39,7 +39,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   specular = _Specular\n;"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_fragment_shader =
     "#version 100\n"
     "precision mediump float;\n"
 
@@ -131,6 +131,20 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
 
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultVertexShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_vertex_shader;
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultFragmentShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_fragment_shader;
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setVertexShader( const GLchar *const shader_source ) {

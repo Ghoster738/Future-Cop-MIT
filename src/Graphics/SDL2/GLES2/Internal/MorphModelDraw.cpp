@@ -7,7 +7,7 @@ namespace {
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_shader =
+const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
     // Inputs
@@ -57,6 +57,13 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw() {
 
 Graphics::SDL2::GLES2::Internal::MorphModelDraw::~MorphModelDraw() {
 
+}
+
+const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::getDefaultVertexShader() {
+    bool is_opengl_es = true;
+
+    if( is_opengl_es )
+        return default_es_vertex_shader;
 }
 
 int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
