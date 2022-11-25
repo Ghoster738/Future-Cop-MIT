@@ -124,7 +124,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {
 
     mat4_array_uniform_id = glGetUniformLocation( program.getProgramID(), "Bone" );
 
-    assert( mat4_array_uniform_id > 0 );
+    assert( mat4_array_uniform_id >= 0 ); // If this ID is negative then it is invalid.
 
     return ret;
 }
