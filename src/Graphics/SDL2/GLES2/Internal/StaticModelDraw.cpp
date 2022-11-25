@@ -6,6 +6,8 @@
 #include <iostream> // fmod()
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
+    "#version 100\n"
+    "precision mediump float;\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec3 NORMAL;\n"
@@ -38,6 +40,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
+    "#version 100\n"
+    "precision mediump float;\n"
+
     "varying vec3 world_reflection;\n"
     "varying float specular;\n"
     "varying vec2 texture_coord_1;\n"

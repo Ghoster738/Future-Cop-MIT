@@ -39,6 +39,8 @@ namespace {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader =
+    "#version 100\n"
+    "precision mediump float;\n"
     // Inputs
     "attribute vec2 POSITION;\n"
     "attribute vec2 TEXCOORD_0;\n"
@@ -58,6 +60,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader
     "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shader =
+    "#version 100\n"
+    "precision mediump float;\n"
+
     "varying vec4 vertex_color;\n"
     "varying vec2 texture_coord;\n"
 

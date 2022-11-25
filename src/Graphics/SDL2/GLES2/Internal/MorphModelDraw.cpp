@@ -8,6 +8,8 @@ namespace {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_shader =
+    "#version 100\n"
+    "precision mediump float;\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec3 NORMAL;\n"
