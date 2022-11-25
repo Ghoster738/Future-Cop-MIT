@@ -4,10 +4,37 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <cassert>
+#include <SDL2/SDL.h>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
     "#version 100\n"
     "precision mediump float;\n"
+    // Inputs
+    "attribute vec4 POSITION;\n"
+    "attribute vec2 TEXCOORD_0;\n"
+    "attribute vec3 COLOR_0;\n"
+    "attribute float _TileType;\n"
+
+    // Vertex shader uniforms
+    "uniform mat4  Transform;\n" // projection * view * model.
+    "uniform float CurrentGlow;\n"
+    "uniform float  WhichTile;\n" // cause the tile to flash.
+
+    // These are the outputs
+    "varying vec3 vertex_colors;\n"
+    "varying vec2 texture_coord_1;\n"
+    "varying float _flashing;\n"
+
+    "void main()\n"
+    "{\n"
+    "   vertex_colors = COLOR_0;\n"
+    "   texture_coord_1 = TEXCOORD_0;\n"
+    "   float state = float(WhichTile > _TileType - 0.5 && WhichTile < _TileType + 0.5);"
+    "   _flashing = CurrentGlow * state;\n"
+    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
+    "#version 110\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec2 TEXCOORD_0;\n"
@@ -56,6 +83,30 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader
     "    frag_color *= vec4(vertex_colors.xyz, 1);"
     "    gl_FragColor = (1.0 - _flashing) * frag_color + _flashing * (frag_inv - frag_color);\n"
     "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
+    "#version 110\n"
+
+    "varying vec3 vertex_colors;\n"
+    "varying vec2 texture_coord_1;\n"
+    "varying float _flashing;\n"
+
+    "uniform sampler2D Texture;\n"
+
+    "const vec4 frag_inv = vec4(1,1,1,0);\n"
+
+    "void main()\n"
+    "{\n"
+    "    vec4 frag_color = texture2D(Texture, texture_coord_1);\n"
+    "    const float CUTOFF = 0.015625;\n"
+    "    if( frag_color.r < CUTOFF && frag_color.g < CUTOFF && frag_color.b < CUTOFF )"
+    "       discard;\n"
+    "    if( frag_color.a > 0.0125 )\n"
+    "        frag_color.a = 0.5;\n"
+    "    else\n"
+    "        frag_color.a = 1.0;\n"
+    "    frag_color *= vec4(vertex_colors.xyz, 1);"
+    "    gl_FragColor = (1.0 - _flashing) * frag_color + _flashing * (frag_inv - frag_color);\n"
+    "}\n";
 
 Graphics::SDL2::GLES2::Internal::World::World() {
 }
@@ -68,17 +119,25 @@ Graphics::SDL2::GLES2::Internal::World::~World() {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_vertex_shader;
+    else
+        return default_vertex_shader;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_fragment_shader;
+    else
+        return default_fragment_shader;
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *const shader_source ) {

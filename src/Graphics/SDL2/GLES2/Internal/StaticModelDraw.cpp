@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath> // fmod()
 #include <iostream> // fmod()
+#include <SDL2/SDL.h>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_vertex_shader =
     "#version 100\n"
@@ -39,9 +40,68 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_verte
     "   specular = _Specular\n;"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
+    "#version 110\n"
+    // Inputs
+    "attribute vec4 POSITION;\n"
+    "attribute vec3 NORMAL;\n"
+    "attribute vec2 TEXCOORD_0;\n"
+    "attribute float _Specular;\n"
+
+    // Vertex shader uniforms
+    "uniform mat4 ModelViewInv;\n"
+    "uniform mat4 ModelView;\n"
+    "uniform mat4 Transform;\n" // projection * view * model.
+    "uniform vec2 TextureTranslation;\n"
+
+    // These are the outputs
+    "varying vec3 world_reflection;\n"
+    "varying float specular;\n"
+    "varying vec2 texture_coord_1;\n"
+
+    "void main()\n"
+    "{\n"
+    // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
+    "   vec3 eye_coord_position = vec3( ModelView * POSITION );\n" // Model View multiplied by Model Position.
+    "   vec3 eye_coord_normal   = vec3( ModelView * vec4(NORMAL, 0.0));\n"
+    "   eye_coord_normal        = normalize( eye_coord_normal );\n"
+    "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
+    // Find a way to use the spherical projection properly.
+    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
+    "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
+    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
+    "   specular = _Specular\n;"
+    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_fragment_shader =
     "#version 100\n"
     "precision mediump float;\n"
+
+    "varying vec3 world_reflection;\n"
+    "varying float specular;\n"
+    "varying vec2 texture_coord_1;\n"
+
+    "uniform sampler2D Texture;\n"
+    "uniform sampler2D Shine;\n"
+
+    "void main()\n"
+    "{\n"
+    "  vec4 color = texture2D(Texture, texture_coord_1);\n"
+    "  const float CUTOFF = 0.015625;\n"
+    "  float BLENDING = color.a;\n"
+    "  if( color.r < CUTOFF && color.g < CUTOFF && color.b < CUTOFF )"
+    "    discard;\n"
+    "  if( color.a > 0.0125 )\n"
+    "    color.a = 0.5;\n"
+    "  else\n"
+    "    color.a = 1.0;\n"
+    "  if( specular > 0.5)\n"
+    "    gl_FragColor = texture2D(Shine, world_reflection.xz) * BLENDING + vec4(color.rgb, 1.0);\n"
+    "  else\n"
+    "    gl_FragColor = color;\n"
+    "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
+    "#version 110\n"
 
     "varying vec3 world_reflection;\n"
     "varying float specular;\n"
@@ -134,17 +194,25 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultVertexShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_vertex_shader;
+    else
+        return default_vertex_shader;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultFragmentShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_fragment_shader;
+    else
+        return default_fragment_shader;
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setVertexShader( const GLchar *const shader_source ) {

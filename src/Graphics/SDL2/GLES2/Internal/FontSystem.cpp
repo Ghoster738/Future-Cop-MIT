@@ -1,6 +1,7 @@
 #include "FontSystem.h"
 #include <iostream>
 #include <cassert>
+#include <SDL2/SDL.h>
 
 namespace {
     /**
@@ -59,6 +60,26 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_vertex_sha
     "   vertex_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
     "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader =
+    "#version 110\n"
+    // Inputs
+    "attribute vec2 POSITION;\n"
+    "attribute vec2 TEXCOORD_0;\n"
+    "attribute vec4 COLOR_0;\n"
+
+    // Vertex shader uniforms
+    "uniform mat4  Transform;\n" // projection * view * model.
+
+    // These are the outputs
+    "varying vec4 vertex_color;\n"
+    "varying vec2 texture_coord;\n"
+
+    "void main()\n"
+    "{\n"
+    "   texture_coord = TEXCOORD_0;\n"
+    "   vertex_color = COLOR_0;\n"
+    "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
+    "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_fragment_shader =
     "#version 100\n"
     "precision mediump float;\n"
@@ -75,19 +96,42 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_fragment_s
     "        discard;\n"
     "    gl_FragColor = vertex_color;\n"
     "}\n";
+const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shader =
+    "#version 110\n"
+
+    "varying vec4 vertex_color;\n"
+    "varying vec2 texture_coord;\n"
+
+    "uniform sampler2D Texture;\n"
+
+    "void main()\n"
+    "{\n"
+    "    float visable = texture2D(Texture, texture_coord).r;\n"
+    "    if( visable < 0.03125 )\n"
+    "        discard;\n"
+    "    gl_FragColor = vertex_color;\n"
+    "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_vertex_shader;
+    else
+        return default_vertex_shader;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultFragmentShader() {
-    bool is_opengl_es = true;
+    int opengl_profile;
+    
+    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
 
-    if( is_opengl_es )
+    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
         return default_es_fragment_shader;
+    else
+        return default_fragment_shader;
 }
 
 Graphics::SDL2::GLES2::Internal::FontSystem::Text2D * Graphics::SDL2::GLES2::Internal::FontSystem::Font::allocateText2D() {
