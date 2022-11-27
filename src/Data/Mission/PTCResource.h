@@ -21,6 +21,9 @@ public:
 private:
     Utilities::GridBase2D<uint32_t> grid;
     Utilities::Image2D *debug_map_display_p;
+    
+    // How many CTils from the map boarder should not be crossed.
+    uint32_t border_range; // Thank you BahKooJ.
 
     std::vector<TilResource*> tile_array_r;
 public:
