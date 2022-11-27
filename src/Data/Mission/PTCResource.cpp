@@ -101,6 +101,10 @@ bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
                 auto width       = readerGRDB.readU32( settings.endian );
                 auto height      = readerGRDB.readU32( settings.endian );
                 
+                // Go to offset for boarder settings.
+                readerGRDB.setPosition( 0x1C, Utilities::Buffer::BEGIN );
+                border_range = readerGRDB.readU32( settings.endian );
+                
                 readerGRDB.setPosition( 0x24, Utilities::Buffer::BEGIN );
 
                 // setup the grid
