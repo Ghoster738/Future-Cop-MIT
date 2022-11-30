@@ -46,6 +46,8 @@ public:
      * @warning Be sure that this is attached to an environement before deletion.
      */
     virtual ~ModelInstance();
+    
+    static bool doesIndexExist( Environment &env_r, int index_obj );
 
     /**
      * This sets the position of the model.

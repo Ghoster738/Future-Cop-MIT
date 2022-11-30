@@ -400,7 +400,8 @@ int main(int argc, char** argv)
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
     
-    displayed_instance->getBoundingSphere( position, radius );
+    if( displayed_instance == nullptr )
+        displayed_instance->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
 
@@ -444,68 +445,51 @@ int main(int argc, char** argv)
             }
             
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::RIGHT );
+            
+            int next = 0;
 
             if( input_r->isChanged() && input_r->getState() < 0.5 && count_down < 0.0f )
-            {
-                delete displayed_instance;
-
-                cobj_index++;
-
-                displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
-
-                // Check to see if the cobj_index is in bounds
-                if( 1 != 1 )
-                {
-                    // If not change cobj_index to zero.
-                    cobj_index = 0;
-
-                    // If it is still out of bounds then there is no cobj to view.
-                    if( 1 != 1 )
-                    {
-                        std::cout << "Obj does not exist" << std::endl;
-                        
-                        // Exit the program for there is no model to view.
-                        viewer_loop = false;
-                    }
-                }
-                
-                std::cout << "Sphere result is "<< displayed_instance->getBoundingSphere( position, radius ) << std::endl;
-                std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-                std::cout << " radius is "<< radius << std::endl;
-                
-                first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
-
-                count_down = 0.5f;
-                rotate = 0;
-            }
+                next++;
             
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::LEFT );
             
             if( input_r->isChanged() && input_r->getState() < 0.5 && count_down < 0.0f )
-            {
-                delete displayed_instance;
-                
+                next--;
+            
+            if( next != 0 ) {
                 auto obj = Data::Mission::ObjResource::getVector( resource );
-
-                if( cobj_index != 0 )
-                    cobj_index--;
-                else
-                    cobj_index = obj.size() - 1;
-                    
-
-                displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
-
-                // Check to see if the cobj_index is in bounds
-                if( 0 != 1 )
+                
+                if( next > 0 )
                 {
-                    // If it is still out of bounds then there is no cobj to view.
-                    if( 0 != 1 )
-                    {
-                        // Exit the program for there is no model to view.
-                        viewer_loop = false;
-                    }
+                    cobj_index += next;
+                    
+                    if( cobj_index >= obj.size() )
+                        cobj_index = 0;
                 }
-
+                else
+                {
+                    if( cobj_index == 0 )
+                        cobj_index = obj.size() - 1;
+                    else
+                        cobj_index += next;
+                }
+                    
+                if( displayed_instance != nullptr )
+                    delete displayed_instance;
+                
+                if( Graphics::ModelInstance::doesIndexExist( *environment, cobj_index ) ) {
+                    displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
+                    
+                    std::cout << "Sphere result is "<< displayed_instance->getBoundingSphere( position, radius ) << std::endl;
+                    std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
+                    std::cout << " radius is "<< radius << std::endl;
+                    
+                    first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
+                }
+                else
+                    displayed_instance = nullptr;
+                
+                
                 count_down = 0.5f;
                 rotate = 0;
             }
@@ -513,7 +497,8 @@ int main(int argc, char** argv)
 
         rotate += time_unit(delta).count();
 
-        displayed_instance->setRotation( glm::quat( glm::vec3( 0, rotate, 0 ) ) );
+        if( displayed_instance != nullptr )
+            displayed_instance->setRotation( glm::quat( glm::vec3( 0, rotate, 0 ) ) );
 
         count_down -= time_unit(delta).count();
         

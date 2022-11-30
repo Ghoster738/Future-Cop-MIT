@@ -51,6 +51,21 @@ Graphics::SDL2::GLES2::ModelInstance::~ModelInstance() {
     this->model_draw_r->prune();
 }
 
+bool Graphics::SDL2::GLES2::ModelInstance::doesIndexExist( Graphics::Environment &env_r, int index_obj ) {
+    auto env_data_r = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( env_r.getInternalData() );
+    
+    if( env_data_r->morph_model_draw_routine.containsModel( index_obj ) )
+        return true;
+    else
+    if( env_data_r->skeletal_model_draw_routine.containsModel( index_obj ) )
+        return true;
+    else
+    if( env_data_r->static_model_draw_routine.containsModel( index_obj ) )
+        return true;
+    else
+        return false;
+}
+
 bool Graphics::SDL2::GLES2::ModelInstance::getBoundingSphere( glm::vec3 &position, float &radius ) const {
     position = culling_sphere_position;
     radius   = culling_sphere_radius;
