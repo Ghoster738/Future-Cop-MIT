@@ -1,5 +1,5 @@
 #include "MorphModelDraw.h"
-#include "../../../ModelInstance.h"
+#include "../ModelInstance.h"
 #include <cassert>
 #include <iostream>
 #include <SDL2/SDL.h>

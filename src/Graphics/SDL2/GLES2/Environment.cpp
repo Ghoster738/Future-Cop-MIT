@@ -217,7 +217,7 @@ void Graphics::Environment::drawFrame() const {
 
     // Clear the screen to black
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     for( unsigned int i = 0; i < window_r->getCameras()->size(); i++ )
     {
@@ -300,42 +300,4 @@ void Graphics::Environment::advanceTime( float seconds_passed ) {
     // The world map also has the concept of time if it exists.
     if( EnvironmentInternalData->world != nullptr )
         EnvironmentInternalData->world->advanceTime( seconds_passed );
-}
-
-int Graphics::Environment::deleteQueue( ElementInternalData *beginning ) {
-    auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
-    Graphics::ElementInternalData *current = beginning;
-    Graphics::ElementInternalData *next = nullptr;
-    int num_deleted = 0;
-    
-    while( current != nullptr ) {
-        next = current->nextToBeDeleted();
-        delete current;
-        current = next;
-        num_deleted++;
-    }
-    
-    if( num_deleted != 0 ) {
-        EnvironmentInternalData->static_model_draw_routine.prune();
-        EnvironmentInternalData->morph_model_draw_routine.prune();
-        EnvironmentInternalData->skeletal_model_draw_routine.prune();
-    }
-    
-    return num_deleted;
-}
-
-int Graphics::Environment::attachInstanceObj( int index_obj, Graphics::ModelInstance &model_instance ) {
-    auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
-    
-    int model_state;
-    
-    if( EnvironmentInternalData->morph_model_draw_routine.containsModel( index_obj ) )
-        model_state = EnvironmentInternalData->morph_model_draw_routine.allocateObjModel( index_obj, model_instance );
-    else
-    if( EnvironmentInternalData->skeletal_model_draw_routine.containsModel( index_obj ) )
-        model_state = EnvironmentInternalData->skeletal_model_draw_routine.allocateObjModel( index_obj, model_instance );
-    else
-        model_state = EnvironmentInternalData->static_model_draw_routine.allocateObjModel( index_obj, model_instance );
-    
-    return model_state;
 }

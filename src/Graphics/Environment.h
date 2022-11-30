@@ -124,33 +124,9 @@ public:
     /**
      * This advances time on the environment.
      * @warning This method is neccesary for every animation system to work.
-     * @param seconds_passed
+     * @param seconds_passed This does not need to be too percise.
      */
     void advanceTime( float seconds_passed );
-
-    /**
-     * This method deletes cameras and models from the Environment.
-     * @return the number of items deleted.
-     */
-    int deleteQueue( ElementInternalData *beginning );
-    
-    /**
-     * Attach the instance to a fully textured 3D model.
-     * @warning The model instance should only be attached once. Any more and any less would cause allocation issues.
-     * @param index_obj The index to which model is being used.
-     * @param model_instance The instance that will be attached.
-     * @return 0 for model_instance already being used, 1 for model_instance being succesfully attached to the model.
-     */
-    int attachInstanceObj( int index_obj, Graphics::ModelInstance &model_instance );
-
-    /**
-     * Attach the instance to a fully textured 3D model.
-     * @warning The model instance should only be attached once. Any more and any less would cause allocation issues.
-     * @param index_til The index to which 16x16 til is being used.
-     * @param model_instance The instance that will be attached.
-     * @return 0 for model_instance already being used, 1 for model_instance being succesfully attached to the model.
-     */
-    int attachInstanceTil( int index_til, Graphics::ModelInstance &model_instance );
 
     /**
      * This gets the Graphics API variables for use in the internal code for the Environment.

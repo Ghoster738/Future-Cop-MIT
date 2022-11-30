@@ -394,8 +394,8 @@ int main(int argc, char** argv)
     unsigned int cobj_index = std::stoi( start_number );
 
     bool nextModel = false; // The next model
-
-    Graphics::ModelInstance* displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+    
+    Graphics::ModelInstance* displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
     
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
@@ -403,8 +403,6 @@ int main(int argc, char** argv)
     displayed_instance->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
-
-    environment->attachInstanceObj( cobj_index, *displayed_instance );
 
     while(viewer_loop)
     {
@@ -449,21 +447,23 @@ int main(int argc, char** argv)
 
             if( input_r->isChanged() && input_r->getState() < 0.5 && count_down < 0.0f )
             {
-                environment->deleteQueue( displayed_instance );
+                delete displayed_instance;
 
                 cobj_index++;
 
-                displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+                displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
 
                 // Check to see if the cobj_index is in bounds
-                if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                if( 1 != 1 )
                 {
                     // If not change cobj_index to zero.
                     cobj_index = 0;
 
                     // If it is still out of bounds then there is no cobj to view.
-                    if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                    if( 1 != 1 )
                     {
+                        std::cout << "Obj does not exist" << std::endl;
+                        
                         // Exit the program for there is no model to view.
                         viewer_loop = false;
                     }
@@ -483,7 +483,7 @@ int main(int argc, char** argv)
             
             if( input_r->isChanged() && input_r->getState() < 0.5 && count_down < 0.0f )
             {
-                environment->deleteQueue( displayed_instance );
+                delete displayed_instance;
                 
                 auto obj = Data::Mission::ObjResource::getVector( resource );
 
@@ -493,13 +493,13 @@ int main(int argc, char** argv)
                     cobj_index = obj.size() - 1;
                     
 
-                displayed_instance = new Graphics::ModelInstance( glm::vec3( 0, 0, 0 ) );
+                displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
 
                 // Check to see if the cobj_index is in bounds
-                if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                if( 0 != 1 )
                 {
                     // If it is still out of bounds then there is no cobj to view.
-                    if( environment->attachInstanceObj( cobj_index, *displayed_instance ) != 1 )
+                    if( 0 != 1 )
                     {
                         // Exit the program for there is no model to view.
                         viewer_loop = false;

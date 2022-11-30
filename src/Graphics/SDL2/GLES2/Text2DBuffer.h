@@ -1,6 +1,9 @@
 #ifndef GRAPHICS_2D_TEXT_BUFFER_INTERNAL_H
 #define GRAPHICS_2D_TEXT_BUFFER_INTERNAL_H
 
+#include "../../Text2DBuffer.h"
+
+// Implementation includes.
 #include "Internal/GLES2.h"
 #include "Internal/FontSystem.h"
 

@@ -4,11 +4,13 @@
 #include "Mesh.h"
 #include "../../../../Data/Mission/ObjResource.h"
 #include "../../../Camera.h"
-#include "../../../ModelInstance.h"
 
 namespace Graphics {
 namespace SDL2 {
 namespace GLES2 {
+
+class ModelInstance;
+
 namespace Internal {
 
 class StaticModelDraw {
@@ -20,7 +22,7 @@ public:
     struct ModelArray {
         unsigned int mesh_index; // The type of model the instances will represent. TODO Change this into a pointer.
         unsigned int unculled_size;
-        std::vector<Graphics::ModelInstance*> instances; // The list of all instances that will be drawn.
+        std::vector<GLES2::ModelInstance*> instances; // The list of all instances that will be drawn.
 
     };
 protected:
@@ -141,7 +143,7 @@ public:
      */
     int prune();
 
-    int allocateObjModel( unsigned int index_obj, Graphics::ModelInstance &model_instance );
+    int allocateObjModel( unsigned int index_obj, GLES2::ModelInstance &model_instance );
 
     /**
      * This advances the time of every instance.
