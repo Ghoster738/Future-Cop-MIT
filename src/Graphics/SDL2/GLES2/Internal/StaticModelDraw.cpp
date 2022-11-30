@@ -373,7 +373,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::prune() {
     return count_deleted;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned int index_obj, Graphics::ModelInstance &model_instance ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned int index_obj, GLES2::ModelInstance &model_instance ) {
     if( index_obj < models.size() ) // Do some bounds checking!
     {
         // This holds the model instance sheet.
@@ -382,14 +382,13 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned
         if( model_array == nullptr ) // Check if the mesh was actually loaded.
             model_array = addModelArray( index_obj );
 
-        auto internal_data = reinterpret_cast<Graphics::SDL2::GLES2::ModelInternalData*>( model_instance.getInternalData() );
-        internal_data->array = model_array;
-        internal_data->index_position = model_array->instances.size();
+        model_instance.array = model_array;
+        model_instance.index_position = model_array->instances.size();
         
         bool result = false;
         
         if( models[ index_obj ] != nullptr ) {
-            result = models[ index_obj ]->getBoundingSphere( internal_data->culling_sphere_position, internal_data->culling_sphere_radius );
+            result = models[ index_obj ]->getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius );
         }
         // assert( result ); // TODO Add a return false case to getBoundingSphere.
 

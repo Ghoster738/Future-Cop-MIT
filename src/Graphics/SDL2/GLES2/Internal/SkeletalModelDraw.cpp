@@ -1,5 +1,5 @@
 #include "SkeletalModelDraw.h"
-#include "../../../ModelInstance.h"
+#include "../ModelInstance.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <cassert>
 #include <SDL2/SDL.h>
