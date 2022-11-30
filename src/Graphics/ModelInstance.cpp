@@ -17,6 +17,14 @@ Graphics::ModelInstance* Graphics::ModelInstance::alloc(Environment &env_r,
 Graphics::ModelInstance::~ModelInstance() {
 }
 
+bool Graphics::ModelInstance::doesIndexExist( Environment &env_r, int index_obj ) {
+    if( env_r.getEnvironmentIdentifier().compare( "OpenGL ES 2" ) == 0 ) {
+        return SDL2::GLES2::ModelInstance::doesIndexExist( env_r, index_obj );
+    }
+    else
+        return false;
+}
+
 void Graphics::ModelInstance::setPosition( const glm::vec3 &position ) {
     this->position = position;
 }

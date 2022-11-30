@@ -21,8 +21,10 @@ public:
     
     int index_position;
     
-    ModelInstance(  Graphics::Environment &env_r, int cobj_index, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param );
+    ModelInstance( Graphics::Environment &env_r, int cobj_index, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param );
     virtual ~ModelInstance();
+    
+    static bool doesIndexExist( Graphics::Environment &env_r, int index_obj );
     
     virtual bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
 };
