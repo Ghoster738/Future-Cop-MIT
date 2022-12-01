@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_CAMERA_INSTANCE_H
 #define GRAPHICS_CAMERA_INSTANCE_H
 
-#include "ElementInternalData.h"
 #include "Text2DBuffer.h"
 #include "../Utilities/DataTypes.h"
 #include <glm/vec2.hpp>
