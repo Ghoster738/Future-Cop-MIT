@@ -3,16 +3,24 @@
 
 #include "Config.h"
 
-#define GL_GLEXT_PROTOTYPES 1
+#include <SDL2/SDL.h>
 
 #ifdef GLEW_FOUND
+
+// Simply include GLEW.
 #include <GL/glew.h>
-#endif
+
+#else // If GLEW is not found
+
+// This includes Core OpenGL Functionality.
+#define GL_GLEXT_PROTOTYPES
 
 #ifdef FORCE_FULL_OPENGL_2
 #include <SDL2/SDL_opengl.h>
 #else
 #include <SDL2/SDL_opengles2.h>
-#endif
+#endif // FORCE_FULL_OPENGL_2
+
+#endif // GLEW_FOUND
 
 #endif
