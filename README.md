@@ -1,258 +1,256 @@
 # Future Cop: MIT
-
 Open Source Game Engine Project
 
-# About
+* [About](#about)
+* [System Requirements](#system-requirements)
+* [Original game data](#original-game-data)
+* [Build instructions](#build-instructions)
+  + [Linux](#linux)
+  + [Windows](#windows)
+  + [Mac OS](#mac-os)
+* [Tools overview](#tools-overview)
+  + [FCMissionReader](#fcmissionreader)
+    - [Usage](#usage)
+    - [Parameters](#parameters)
+    - [Examples](#examples)
+  + [FCMapViewer](#fcmapviewer)
+    - [Usage](#usage-1)
+    - [Parameters](#parameters-1)
+    - [Examples](#examples-1)
+  + [FCModelViewer](#fcmodelviewer)
+    - [Usage](#usage-2)
+    - [Parameters](#parameters-2)
+  + [The ID system](#the-id-system)
+* [Autoloading game data](#autoloading-game-data)
+* [Resource types](#resource-types)
+  + [Internal](#internal)
+  + [Exported](#exported)
 
-This is an __incomplete__ reimplementation attempt of Future Cop: L.A.P.D. Right now there is no gameplay yet. However, there is a map viewer which views the contents of the mission files. There is also a model viewer which can view the models with animations if avialable. There is also a MissionReader which is a pure terminal program. Unforturnatly for now, the programs require using the terminal.
+## About
+This is an **_incomplete_** re-implementation attempt of the [Future Cop: LAPD][fcop-lapd-wikipedia-link] game, developed by Visceral Games (named **EA Redwod Shores** at the time) and released in 1998 for the PlayStation, Mac OS and Windows platforms.
+
+[fcop-lapd-wikipedia-link]: https://en.wikipedia.org/wiki/Future_Cop:_LAPD "Wikipiedia article about the game"
+
+Right now there is no gameplay yet. However, there is a map viewer that can display the level geometry, a model viewer that can view the models (with animations if available), and a mission reader/ripper that can extract various resources from the game files.
+
+## System Requirements
+There are no clearly defined system requirements at this time, however the project's aim is to run on very low spec computers by today standards (but not on the original computers that ran Future Cop when it was released). This should encompass most of today's devices, as the project successful compiled on a Raspberry PI 4.
+
+Although another aim is to create portable code, this code will not work on the PlayStation 1 due to its lack of C++11 support - as developing for C99 would be harder with the constant worry of memory management. However, the code might be able to run on the Raspberry PI Nano.
+
+## Original game data
+All these tools (and the actual game when ready) require the presence of the original game data in order to function.
+
+See the [autoloading](#autoloading-game-data) system for a simple way to use it, or use the parameters for the individual programs.
 
 ## Build instructions
-
 ### Linux
-
-These build instructions are for Ubuntu, might work on Ubuntu derivates.
+These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 
 1. Install build tools and required packages:
-```
-apt install build-essential git libglm-dev libsdl2-dev libjsoncpp-dev
-```
+   ```
+   apt install build-essential libglm-dev libsdl2-dev libjsoncpp-dev
+   ```
+    * Optional: install additional tools and packages:
+       * `libpng-dev` for PNG export support
+       * `git` for repository cloning and build versioning
+       * `libglew-dev` for OpenGL extensions information
+       ```
+       apt install libpng-dev git libglew-dev
+       ```
+2. Get or clone the source code:
+   * Clone: `git clone https://github.com/Ghoster738/Future-Cop-MIT.git`
+   * Download the latest [source code][source-code-link].
 
-* Optional: If you want PNG export support, get libpng-dev and it dependices.
-```
-apt install libpng-dev
-```
-
-* Optional: This package does mostly nothing for the project, but if you want to include glew use this.
-```
-apt install libglew-dev
-```
-
-2. Clone the source code:
-```
-git clone https://github.com/Ghoster738/Future-Cop-MIT.git
-```
-3. Prepare an [out of source build](https://cgold.readthedocs.io/en/latest/tutorials/out-of-source.html):
-```
-cd Future-Cop-MIT
-mkdir build
-cd build
-```
-4. Configure the build:
-```
-cmake .. -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
-```
+[source-code-link]: https://github.com/Ghoster738/Future-Cop-MIT/archive/refs/heads/main.zip "Download as zip"
+   
+3. Prepare an [out of source build][oos-build-link]:
+    ```
+    cd Future-Cop-MIT
+    mkdir build
+    cd build
+    ```
+[oos-build-link]: https://cgold.readthedocs.io/en/latest/tutorials/out-of-source.html "Out-of-source build documentation"
+    
+4. Configure the build (add your options if needed):
+    ```
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
+    ```
 5. Build it:
+    ```
+    make -j4
+    ```
+### Windows
+> :warning:  There are no build instructions for Windows at this time.
+
+
+### Mac OS
+> :warning:  There are no build instructions for Mac OS at this time.
+
+## Tools overview
+This repository contains a map viewer, a model viewer, and a mission file ripper that can read game data from all platforms Future Cop was released on, with the Windows version being the best in terms of reading and understanding game data.
+
+Note that these tools are not capable of making new mission files, they only decode and export. If you want to make a new map, use BahKooJ's [FC3DEditor][fc3deditor-link].
+
+[fc3deditor-link]: https://github.com/BahKooJ/FC3DEditor "BahKooJ's FC3DEditor repository "
+
+### FCMissionReader
+This is a pure terminal program built in order to showcase the decoding ability. It exports the game resources from the game files to a common formats (`.png` for images, `.wav` for sounds, `.json` for actors, etc)
+
+#### Usage
 ```
-make -j4
+FCMissionReader [-h] [-i <path>] [-o <path>] [-r] [-d] [-c]
 ```
 
-## What are these tools
+#### Parameters
+
+[Heads-up about the "&nbsp;" usage for the "Parameter" header:  Not my first choice, but otherwise parameters that accept arguments (contain spaces in their signature) are displayed on multiple lines without artificially increasing the length of the "Parameter" header, forcing a wider column width. Also this means that if longer parameters or arguments are added later, the number of non breaking spaces in the header will need to be manually maintained , so alternatives are welcome]::
+
+| &nbsp;&nbsp;Parameter&nbsp;&nbsp; | Description |
+|---|---|
+| `-h` | Display the help screen. |
+| `-i <path>` | Mission file to be read, up to two files are supported.|
+| `-o <path>` | Path to the folder where to write the decoded data. **Warning:** This should be an existing directory, and it should be empty. |
+| `-r` | Export the raw resources of the mission file |
+| `-d` | Export the resources of the mission file into more common data formats. |
+| `-c` | Determine and write the similarities between two inputs. |
+
+#### Examples
+```
+FCMissionReader -i path/to/mission/File1 -i path/to/mission/File2
+FCMissionReader -i path/to/mission/File -o path/to/existing/directory
+FCMissionReader -i path/to/mission/File -o path/to/existing/directory -r
+FCMissionReader -i path/to/mission/File -o path/to/existing/directory -d
+```
+
+### FCMapViewer
+A basic map viewer able to display  the in-game maps - only the geometry, not the models.
+
+#### Usage
+```
+FCMapViewer [-h|--help]  
+            [--width <number>] [--height <number>]  
+            [-w] [-m] [-p] [--id <id>] [--load-all] [--platform-all]  
+            [--global <path>] [--path <path>]
+```
+#### Parameters
+[Heads-up about the "&nbsp;" usage for the "Parameter" header:  see the comment on the FCMissionReader]::
+
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+|---|---|
+| `-h`, `--help` | Display the help screen. |
+| `-width <number>` | Window/screen resolution width - defaults to `640` if not specified. |
+| `-height <number>` | Window/screen resolution height - defaults to `480` if not specified. |
+| `-w` | Load Windows game data from `./Data/Platform/Windows` |
+| `-m` | Load Macintosh game data from `./Data/Platform/Macintosh` |
+| `-p` | Load PlayStation game data from `./Data/Platform/Playstation` |
+| `--id <id>` | Load the specified mission ID. Type in an invalid id to get a listing of valid IDs. |
+| `--load-all` | Load every single map. Will take some time. |
+| `--platform-all` | Attempt to load from all three platforms for the given ID. If `--load-all` is also present on the command line then the program will load all the levels. |
+| `--global <path>` | Path to the global file which every map uses. |
+| `--path <path>` | Path to the mission file which contains the rest of the data like the map.
+
+#### Examples
+```
+FCMapViewer --id "map_id"
+FCMapViewer --global /path/to/global_mission --path "/path/to/mission"
+```
+
+### FCModelViewer
+A basic model viewer able to display the in-game models, including the animations, where available.
+
+#### Usage
+```
+FCModelViewer [-h|--help]  
+              [--width <number>] [--height <number>]  
+              [-w] [-m] [-p] [--id <id>]  
+              [--model-path <path>] [--type ??] [--start <number>]  
+              [--global <path>] [--path <path>]
+```
+
+#### Parameters
+[Heads-up about the "&nbsp;" usage for the "Parameter" header:  see the comment on the FCMissionReader]::
+
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+|---|---|
+| `-h`, `--help` | Display the help screen. |
+| `--width <number>` | Window/screen resolution width - defaults to `640` if not specified. |
+| `--height <number>` | Window/screen resolution height - defaults to `480` if not specified. | 
+| `-w` | Load Windows game data from `./Data/Platform/Windows` |  
+| `-m` | Load Macintosh game data from `./Data/Platform/Macintosh` |
+| `-p` | Load PlayStation game data from `./Data/Platform/Playstation` |
+| `--id <id>` | Load the specified mission ID. Type in an invalid id to get a listing of valid IDs. |
+| `--model-path <path>` | Where to export the models, must point to an existing directory |
+| `--type ??` | ?? |
+| `--start` | The index of the model to display when the program starts up |
+| `--global <path>` | Path to the global file which every map uses. |
+| `--path <path>` | Path to the mission file which contains the rest of the data like the map. |
+
+### The ID system
+This is a list of level names that can be used with the `--id` parameter of the FCMapViewer/FCModelViewer programs. 
+
+These IDs can be used only if the [autoloading](#autoloading-game-data) is properly configured:
+
+| Crime War | Precinct Assault |
+|---|---|
+| `griffith_park` | `pa_urban_jungle` |
+| `zuma_beach` | `pa_venice_beach` |
+| `la_brea_tar_pits` | `pa_hollywood_keys` |
+| `venice_beach` | `pa_proving_ground` |
+| `hells_gate_prison` | `pa_bug_hunt` |
+| `studio_city` | `pa_la_centina` |
+| `lax_spaceport` |  |
+| `lax_spaceport_part_2` |  |
+| `long_beach` |  |
+
 
-This has a map viewer, a model viewer, and a mission file ripper. However, these tools are not capable of making new mission files! They only decode and export. If you want to make a new map use BahTwoKooj's tools, https://github.com/BahKooJ/Fcop-Parse-Lib and https://github.com/BahKooJ/FCEditor-build. However, this code can actually read from three versions of Future Cop Windows, Macintosh and Playstation. However, this can read from the Windows version of Future Cop the best.
-
-## Command Line Arguments for FCMissionReader
-This is a pure terminal program built in order to show the decoding abitily of this program.
-
-This command will display what the commands do.
-
-**./FCMissionReader -h**
-
-The **-i** command loads the mission file to be read.
-
-**./FCMissionReader -i path/to/mission/File**
-
-The **-o** command tells where the output directory should go. **Warning:** This should be an existing directory, and it should be empty.
-
-**./FCMissionReader -o path/to/mission/File**
-
-The **-r** command dumps the raw resources of the mission file.
-
-**./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -r**
-
-The **-d** command exports the resources of the mission file into more common data formats.
-
-**./FCMissionReader -i path/to/mission/File -o path/to/existing/directory -d**
-
-## Command Line Arguments for FCMapViewer and FCModelViewer
-The command line for the Future Cop Viewers are a bit different from the FCMissionReader.
-
-### Graphics Arguments
-These commands are as basic right now.
-
-**--width** is the width of the screen resolution.
-
-**--height** is the height of the screen resolution.
-
-### Direct Pathing Method
-This indirect pathing is created for the modder, so they would be able to view their own maps.
-
-**./FCMapViewer --global /path/to/global_mission --path "/path/to/mission"**
-
-**--global** is the path to the global file which every map uses.
-
-**--path** is the path to the mission file which contains the rest of the data like the map.
-
-### Autoloader Method
-If you want to load a specific mission file with a specific global file you could do this.
-
-**./FCMapViewer --global /path/to/global_mission --path "/path/to/mission"**
-
-**-w** means load from ./Data/Platform/Windows
-
-**-m** means load from ./Data/Platform/Macintosh
-
-**-p** means load from ./Data/Platform/Playstation
-
-**--id** means which mission id to load from. See **The ID System** for more info
-
-### Testing Arguments for the Autoloader
-This is useful for testing only. **These arguments are useless and overkill for non-developers.**
-
-**--platform-all** This tells the mission manager to attempt to load from all three platforms for the given --id. If --load-all is also present on the command line then the program will load all the levels.
-
-**--load-all** If you like high loading times use this. This tells the mission manager to load every single map.
-
-#### The ID system.
-This only works if the **Autoloading Requirements** are meet. These are the valid names of the system
-
-**The IDs for Crime War names.**
-
-griffith_park
-
-zuma_beach
-
-la_brea_tar_pits
-
-venice_beach
-
-hells_gate_prison
-
-studio_city
-
-lax_spaceport
-
-lax_spaceport_part_2
-
-long_beach
-
-**The IDs for Precinct Assault.**
-
-pa_urban_jungle
-
-pa_venice_beach
-
-pa_hollywood_keys
-
-pa_proving_ground
-
-pa_bug_hunt
-
-pa_la_centina
-
-# System Requirements
-
-I plan on making this code work on very low spec computers, but not the original computers that ran Future Cop. This should work on most computers, and in a mater of fact this code was successful compiled on the Raspberry PI 4! I plan on making this code on being very portable. The project is not planed to work on the Playstation 1, because of its lack of C++11 support. As making this project would be harder to write in C99 with the constant worry of memory management. However, the code might be able to run on Raspberry PI nano, which would be cool.
-
-# Project Requirements
-
-The files from Future Cop: LAPD. I did not provide those files because they are under copyright for Electronic Arts.
-
-## Autoloading Requirements
-This holds the file structure of the program. (Right now only mission files can be read).
-In the future, this project should store these files to different places depending on the OS.
-
-Install_Destination/Data/Platform/Windows     -- should have the installation files that contains the primary executable and the missions floder.
-
-Install_Destination/Data/Platform/Macintosh   -- should have the installation files that contains the primary executable for the Mac files.
-
-Install_Destination/Data/Platform/Playstation -- should have the installation files that contains the Playstation 1 files.
-
-# Compilation Requirements
-
-## Warning
-
-&ensp; I only compiled this for the Linux operating system using g++.
-
-&ensp; The Windows port is graphics does not work.
-
-## For the Mission Reader
-
-This source code requires C++ 11. It compiles fine using the G++ compiler. The libraries used are...
-
-&ensp; __zlib__ (Optional)
-
-&ensp; __libpng__ (Optional, but requires __zlib__)
-
-&ensp; __jsoncpp__
-
-## For the Map and Model Viewer
-
-&ensp; The requirements from the Mission Reader
-
-&ensp; __SDL2__
-
-&ensp; __OpenGL__ more specifically __OpenGLES 2__ is used.
-
-# What kind of mission resources can be read by this Project
-
-&ensp; __ACT__: I think this holds the "actors" of the game. As of now only one type of act can be read. More will come.
-
-&ensp; __ANM__: This is the animated 64x48 images. It is only used in Crime War in Future Cop for some reason.
-
-&ensp; __BMP__: This holds the textures. However, there is still things I do not understand about the Windows and Mac format.
-
-&ensp; __FNTP__: This holds the font resource.
-
-&ensp; __MSIC__: This holds the music audio data.
-
-&ensp; __NET__: This holds the Navigation Node data for mostly the ground allies and the enemies.
-
-&ensp; __Obj__: This holds the Model Information for Future Cop. I even got out the animations. However, there is some polygon it cannot read... yet.
-
-&ensp; __PTC__: This holds the map tile index information.
-
-&ensp; __PYR__: This holds billboards or the particle's textures for Future Cop.
-
-&ensp; __SNDS__: This holds the voice data of Future Cop.
-
-&ensp; __Til__: The map cluster of tiles. This format is a little weird but cleaver.
-
-&ensp; __WAV__: This holds the audio for the 3d sound effects.
-
-## What does the FCReader Decoder Export.
-
-### WAV audio for
-
-&ensp; __WAV__: Very easy to convert.
-
-&ensp; __SNDS__: PCM audio.
-
-&ensp; __MSIC__: Also PCM audio.
-
-### QOI or PNG (if compilied with libpng) images for
-
-&ensp; __ANM__: All the animation frames are stored in a single texture with the images being stored vertically.
-
-&ensp; __BMP__: A single 256x256 texture for each BMP.
-
-&ensp; __PYR__: This gets separated into textures.
-
-&ensp; __FNTP__: The font is uses raster images after all.
-
-### GLTF the model format
-
-Every one of those files does not store the textures, but uses the paths to the textures locally.
-
-&ensp; __Obj__: A single 3D model per resource is created. The bone animations gets excluded.
-
-&ensp; __Til__: A single 3D model of the tile clusters.
-
-### Font
-
-&ensp; __FNTP__: This writes two files. One is an BMFont text file, and one is an image file.
-
-### JSON is used to make the exports more readable
-
-&ensp; __ACT__: Only exports what I think are the "Prop" types from the game.
-
-&ensp; __NET__: This holds the positions and what I could gather from this format.
+## Autoloading game data
+By placing the game data in a certain directory (depending on the platform), the FCMapViewer/FCModelViewer will automatically load and parse the data, without explicitly indicating the paths to different files.
+
+Note that paths are case-sensitive (depending on the OS):
+
+| Platform | Path |
+|---|---|
+| Windows | `./Data/Platform/Windows` |
+| Macintosh | `./Data/Platform/Macintosh` |
+| PlayStation | `./Data/Platform/Playstation` |
+
+## Resource types
+### Internal
+This is a list of internal resources that can be read and understood - there are still some gaps in understanding all of them, noted with *italics*.
+
+| Type | Description |
+|--|--|
+| `ACT` | The "actors" of the game. *As of now only one type of `act` can be read*. |
+| `ANM` | Animated 64x48 images. It is only used in Crime War for some reason. |
+| `BMP` | Textures. *Incomplete understanding so far of the Windows and Mac OS format*. |
+| `FNTP` | Font resource. |
+| `MSIC` | Music resource. |
+| `NET` | Navigation node data for ground allies and enemies. |
+| `OBJ` | Model information, with animation. *Incomplete understanding of some polygon data*. |
+| `PTC` | Map tile index information. |
+| `PYR` | *Billboards or the particle textures*. |
+| `SNDS` | Voice resource. |
+| `TIL` | Map cluster of tiles. Format is a bit weird, but ingenious nevertheless. |
+| `WAV` | Sound effects resource. |
+
+### Exported
+This is list of exported resource formats and the corresponding internal format for the original game data.
+
+* **Audio resources** - exported to `WAV` audio:
+	* `WAV` : Very easy to convert
+	* `SNDS`: PCM audio
+	* `MSIC`: Also PCM audio
+*  **Image resources** - exported to `QOI` (or `PNG` if support is enabled):
+	* `ANM`: All the animation frames are exported in a single image with the individual frames being stacked vertically.
+	* `BMP`: A single 256x256 image for each resource.
+	* `PYR`: This gets separated into textures.
+	* `FNTP`: Font data exported as raster image.
+* **Model resources** - exported to `glTF` format:
+	* `OBJ`: A single 3D model per resource is created. The bone animations gets excluded.
+	* `TIL`: A single 3D model of the tile clusters.
+* **Font resources** - exported to `BMFont` format:
+  * `FNTP`: Font data exported as character descriptions.
+* **Meta resources** - exported to `JSON` format to make the exports more readable:
+  * `ACT`: Only what seems to be "prop" types from the game are exported at this time.
+  * `NET`: Only coordinates and some other properties are exported at this time.
