@@ -49,17 +49,6 @@ if( GLM_VERSION VERSION_LESS 0.9.8 )
    message( WARNING "GLM version is ${GLM_VERSION} which is not above 0.9.8. This version of GLM might produce compilation errors." )
 endif()
 
-option(USE_GLAD_2 "Use glad to use OpenGL for Windows." OFF)
-
-if (WIN32)
-  if (NOT USE_GLAD_2)
-   message( WARNING "Enable the Glad 2 Option to get OpenGL 2 / OpenGLES 2 working with this project for Windows." )
-  endif()
-endif()
-
-option(FORCE_FULL_OPENGL_2 "This enables the full OpenGL rather than OpenGLES" ON)
-option(SDL_USE_BUILTIN_OPENGL_DEFINITIONS "This forces SDL to use built in OpenGL definitions rather than use the regular include path." OFF)
-
 if (SDL2_FOUND)
     mark_as_advanced(SDL2_DIR)
 endif()

@@ -3,8 +3,6 @@
 
 #define FUTURE_COP_MIT_VERSION "@FUTURE_COP_MIT_VERSION@"
 
-#cmakedefine FORCE_FULL_OPENGL_2
-#cmakedefine USE_GLAD_2
 #cmakedefine ZLIB_FOUND
 #cmakedefine PNG_FOUND
 
@@ -14,11 +12,5 @@
 #define BUILD_WITH_LIBPNG
 #endif // PNG_FOUND
 #endif // ZLIB_FOUND
-
-// SDL_USE_BUILTIN_OPENGL_DEFINITIONS forces SDL to use its own OpenGLES definitions.
-// Use this if the compiler tells you if there is no such thing as a glProgram for example.
-#ifndef SDL_USE_BUILTIN_OPENGL_DEFINITIONS
-#cmakedefine SDL_USE_BUILTIN_OPENGL_DEFINITIONS
-#endif
 
 #endif // FUTURE_COP_MIT_CONFIG_H

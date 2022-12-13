@@ -15,7 +15,7 @@ int Graphics::SDL2::GLES2::Window::attach() {
     int major_version = 0;
     int success = -1;
     
-    const int SDL2_CONTEXTS[ 2 ] = { 0, SDL_GL_CONTEXT_PROFILE_ES };
+    const int SDL2_CONTEXTS[ 2 ] = { SDL_GL_CONTEXT_PROFILE_ES, 0 };
     
     for( int i = 0; i < 2 && major_version != 2; i++ ) {
         // Deallocate the window if there
@@ -44,7 +44,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
         if( window_p != nullptr ) {
             GL_context = SDL_GL_CreateContext( window_p );
             
-            #ifdef USE_GLAD_2
             int version = gladLoadGLES2((GLADloadfunc) SDL_GL_GetProcAddress);
 
             if( version != 0 ) {
@@ -52,8 +51,9 @@ int Graphics::SDL2::GLES2::Window::attach() {
                 // TODO Print out the problem if failure is detected.
             }
             else
-                std::cout << "GLEW INIT Success: ";
-            #endif
+                std::cout << "GLAD INIT Success: ";
+            
+            std::cout << std::endl;
         }
         else
         {
