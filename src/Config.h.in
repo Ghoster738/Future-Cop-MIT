@@ -4,7 +4,7 @@
 #define FUTURE_COP_MIT_VERSION "@FUTURE_COP_MIT_VERSION@"
 
 #cmakedefine FORCE_FULL_OPENGL_2
-#cmakedefine GLEW_FOUND
+#cmakedefine USE_GLAD_2
 #cmakedefine ZLIB_FOUND
 #cmakedefine PNG_FOUND
 

@@ -3,16 +3,18 @@
 
 #include "Config.h"
 
-#define GL_GLEXT_PROTOTYPES 1
+#ifdef USE_GLAD_2
+#include <glad/gles2.h>
+#elif
 
-#ifdef GLEW_FOUND
-#include <GL/glew.h>
-#endif
+#define GL_GLEXT_PROTOTYPES 1
 
 #ifdef FORCE_FULL_OPENGL_2
 #include <SDL2/SDL_opengl.h>
 #else
 #include <SDL2/SDL_opengles2.h>
+#endif
+
 #endif
 
 #endif
