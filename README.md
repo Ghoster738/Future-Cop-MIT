@@ -54,9 +54,8 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
     * Optional: install additional tools and packages:
        * `libpng-dev` for PNG export support
        * `git` for repository cloning and build versioning
-       * `libglew-dev` for OpenGL extensions information
        ```
-       apt install libpng-dev git libglew-dev
+       apt install libpng-dev git
        ```
 2. Get or clone the source code:
    * Clone: `git clone https://github.com/Ghoster738/Future-Cop-MIT.git`
