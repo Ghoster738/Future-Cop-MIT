@@ -70,12 +70,6 @@ std::string Graphics::Environment::getEnvironmentIdentifier() const {
 
 int Graphics::Environment::initSystem() {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) == 0 ) {
-        int status = SDL_GL_LoadLibrary( "OpenGL32.dll" );
-        
-        if( status != 0 ) {
-            std::cout << "SDL ERROR: " << SDL_GetError() << std::endl; 
-        }
-        
         return 1;
     }
     else
