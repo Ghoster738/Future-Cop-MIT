@@ -3,8 +3,8 @@
 
 #include "Mission/IFF.h"
 
-#include <thread>
-#include <mutex>
+// #include <thread>
+// #include <mutex>
 #include <string>
 #include <vector>
 #include <map>
@@ -88,7 +88,7 @@ public:
         bool unload( Platform platform );
     };
 protected:
-    std::mutex thread_lock;
+    // std::mutex thread_lock;
 
     std::map< std::string, IFFEntryStorage > entries;
 
