@@ -106,7 +106,7 @@ bool Data::Manager::IFFEntryStorage::unload( Platform platform ) {
         return true; // Already unloaded.
 }
 
-Data::Manager::Manager() : thread_lock(), entries(), currently_loaded_platforms( {false} ),
+Data::Manager::Manager() : /*thread_lock(),*/ entries(), currently_loaded_platforms( {false} ),
                            platforms_to_support( {false} ), current_importance_to_load( NEEDED ) {
 }
 
@@ -116,11 +116,11 @@ Data::Manager::~Manager() {
 bool Data::Manager::hasEntry( const std::string &name ) {
     bool is_found;
 
-    thread_lock.lock();
+    // thread_lock.lock();
 
     is_found = entries.find( name ) != entries.end();
 
-    thread_lock.unlock();
+    // thread_lock.unlock();
 
     return is_found;
 }
@@ -128,21 +128,21 @@ bool Data::Manager::hasEntry( const std::string &name ) {
 Data::Manager::IFFEntry Data::Manager::getIFFEntry( const std::string &name ) {
     IFFEntry entry;
 
-    thread_lock.lock();
+    // thread_lock.lock();
 
     entry = entries[ name ];
 
-    thread_lock.unlock();
+    // thread_lock.unlock();
 
     return entry;
 }
 
 bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry ) {
-    thread_lock.lock();
+    // thread_lock.lock();
 
     entries[ name ] = IFFEntryStorage( entry );
 
-    thread_lock.unlock();
+    // thread_lock.unlock();
 
     return true;
 }
@@ -252,7 +252,7 @@ void Data::Manager::autoSetEntries( const std::string &base_path ) {
 }
 
 void Data::Manager::togglePlatform( Platform platform, bool can_be_loaded ) {
-    thread_lock.lock();
+    // thread_lock.lock();
 
     switch( platform ) {
         case MACINTOSH:
@@ -270,14 +270,14 @@ void Data::Manager::togglePlatform( Platform platform, bool can_be_loaded ) {
             platforms_to_support.toggle[ Platform::WINDOWS ]     = can_be_loaded;
     }
 
-    thread_lock.unlock();
+    // thread_lock.unlock();
 }
 
 int Data::Manager::setLoad( Importance importance, unsigned core_amount ) {
     int number_loaded = 0;
     Platform platforms[] = { Platform::MACINTOSH, Platform::PLAYSTATION, Platform::WINDOWS };
 
-    thread_lock.lock();
+    // thread_lock.lock();
 
     for( auto &p : platforms ) {
         if( !platforms_to_support.toggle[ p ] ) {
@@ -304,7 +304,7 @@ int Data::Manager::setLoad( Importance importance, unsigned core_amount ) {
     // After loading and unloading the resources are done.
     currently_loaded_platforms = platforms_to_support;
 
-    thread_lock.unlock();
+    // thread_lock.unlock();
 
     return number_loaded;
 }
@@ -313,7 +313,7 @@ int Data::Manager::reload( unsigned core_amount ) {
     int number_reload = 0;
     Platform platforms[] = { Platform::MACINTOSH, Platform::PLAYSTATION, Platform::WINDOWS };
 
-    thread_lock.lock();
+    // thread_lock.lock();
 
     for( auto &i : entries ) {
         for( auto &d : platforms ) {
@@ -325,7 +325,7 @@ int Data::Manager::reload( unsigned core_amount ) {
         }
     }
 
-    thread_lock.unlock();
+   //  thread_lock.unlock();
 
     return number_reload;
 }

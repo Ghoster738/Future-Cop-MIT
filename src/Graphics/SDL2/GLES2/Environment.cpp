@@ -3,7 +3,6 @@
 #include "Window.h"
 #include "Text2DBuffer.h"
 #include "Internal/GLES2.h"
-#include "Internal/Extensions.h"
 #include <algorithm>
 
 // This source code is a decendent of https://gist.github.com/SuperV1234/5c5ad838fe5fe1bf54f9 or SuperV1234
@@ -70,13 +69,16 @@ std::string Graphics::Environment::getEnvironmentIdentifier() const {
 }
 
 int Graphics::Environment::initSystem() {
-    if( SDL_InitSubSystem( SDL_INIT_VIDEO ) == 0 )
+    if( SDL_InitSubSystem( SDL_INIT_VIDEO ) == 0 ) {
         return 1;
+    }
     else
         return 0;
 }
 
 int Graphics::Environment::deinitEntireSystem() {
+    SDL_GL_UnloadLibrary();    
+    
     SDL_Quit();
 
     return 1;

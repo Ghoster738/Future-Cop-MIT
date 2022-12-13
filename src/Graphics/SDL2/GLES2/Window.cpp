@@ -1,5 +1,4 @@
 #include "Window.h" // Include the internal class
-#include "Internal/Extensions.h"
 #include <iostream> // std::cout TODO Remove this.
 
 #include "../../Environment.h"
@@ -42,8 +41,20 @@ int Graphics::SDL2::GLES2::Window::attach() {
                                     getDimensions().x, getDimensions().y,
                                     flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
         
-        if( window_p != nullptr )
+        if( window_p != nullptr ) {
             GL_context = SDL_GL_CreateContext( window_p );
+            
+            int version = gladLoadGLES2((GLADloadfunc) SDL_GL_GetProcAddress);
+
+            if( version != 0 ) {
+                std::cout << "GLAD INIT Failure: ";
+                // TODO Print out the problem if failure is detected.
+            }
+            else
+                std::cout << "GLAD INIT Success: ";
+            
+            std::cout << std::endl;
+        }
         else
         {
             std::cout << "SDL Error: " << SDL_GetError() << std::endl;
@@ -51,8 +62,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
         
         if( GL_context != nullptr ) {
             int make_current_status = SDL_GL_MakeCurrent( window_p, GL_context );
-            
-            glFinish();
             
             if( make_current_status == 0 ) {
                 SDL_GL_GetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, &major_version );
@@ -74,16 +83,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
     
     env_r->window_p = this;
     
-    #ifdef GLEW_FOUND
-    auto glew_status = glewInit();
-
-    if( glew_status != GLEW_OK )
-        std::cout << "GLEW INIT Failure: ";
-    else
-        std::cout << "GLEW INIT Success: ";
-    std::cout << glewGetErrorString( glew_status ) << std::endl;
-    #endif
-    
     if( success < 0 ) {
         major_version = 0;
         
@@ -102,23 +101,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
         if( (major_version & SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) != 0 )
             std::cout << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY\n";
         std::cout << std::endl;
-    }
-    
-    if( !Graphics::SDL2::GLES2::Internal::getGlobalExtension()->hasBeenLoaded() )
-    {
-        GLenum err;
-        while((err = glGetError()) != GL_NO_ERROR) {
-            std::cout << "GL_ERROR hasBeenLoaded: 0x" << std::hex << err << std::dec << std::endl;
-        }
-        auto number = Graphics::SDL2::GLES2::Internal::getGlobalExtension()->loadAllExtensions();
-        while((err = glGetError()) != GL_NO_ERROR)  {
-            std::cout << "GL_ERROR loadAllExtensions: 0x" << std::hex << err << std::dec << std::endl;
-        }
-        std::cout << "Number of Extensions is " << number << std::endl;
-        std::cout << "The available ones are " << std::endl;
-        number = Graphics::SDL2::GLES2::Internal::Extensions::printAvailableExtensions( std::cout );
-        std::cout << std::endl << "Which is " << number << std::endl;
-        std::cout << std::hex << "Vertex binding is 0x" << Graphics::SDL2::GLES2::Internal::getGlobalExtension()->vertexArrayBindingStatus() << std::dec << std::endl;
     }
     
     return success;
