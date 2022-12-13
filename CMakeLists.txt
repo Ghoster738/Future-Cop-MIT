@@ -36,7 +36,11 @@ find_package( ZLIB )
 find_package( PNG )
 find_package( glm      REQUIRED )
 find_package( JSON_CPP REQUIRED )
-find_package( SDL2     REQUIRED components SDL2main )
+if( WIN32 )
+  find_package( SDL2   REQUIRED components SDL2main )
+else()
+  find_package( SDL2   REQUIRED )
+endif()
 find_package( OpenGL   REQUIRED)
 find_package( Git )
 
@@ -125,13 +129,17 @@ add_executable(FCModelViewer src/FCModelViewer.cpp )
 
 target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
 target_link_libraries (FCModelViewer PRIVATE FC_Engine)
-target_link_libraries (FCModelViewer PRIVATE SDL2main)
+if( WIN32 )
+  target_link_libraries (FCModelViewer PRIVATE SDL2main)
+endif()
 
 add_executable(FCMapViewer src/FCMapViewer.cpp )
 
 target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
 target_link_libraries (FCMapViewer PRIVATE FC_Engine)
-target_link_libraries (FCMapViewer PRIVATE SDL2main)
+if( WIN32 )
+  target_link_libraries (FCMapViewer PRIVATE SDL2main)
+endif()
 
 if( ENABLED_FC_TESTS )
   # This is the testing section.
