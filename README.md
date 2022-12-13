@@ -246,7 +246,7 @@ This is list of exported resource formats and the corresponding internal format 
 	* `PYR`: This gets separated into textures.
 	* `FNTP`: Font data exported as raster image.
 * **Model resources** - exported to `glTF` format:
-	* `OBJ`: A single 3D model per resource is created. The bone animations gets excluded.
+	* `OBJ`: A single 3D model per resource is created.
 	* `TIL`: A single 3D model of the tile clusters.
 * **Font resources** - exported to `BMFont` format:
   * `FNTP`: Font data exported as character descriptions.
