@@ -1,6 +1,6 @@
 #include "Window.h" // Include the internal class
 
-Graphics::SDL2::Window::Window( Environment &env ) : Graphics::Window( env ), window_p( nullptr )
+Graphics::SDL2::Window::Window( Environment &env ) : Graphics::Window( env ), window_p( nullptr ), flags( 0 ), is_centered( false )
 {
 }
 
@@ -38,11 +38,10 @@ int Graphics::SDL2::Window::center() {
     int display_index;
     SDL_Rect screen;
 
-    if( status.window_status != Status::FULL_SCREEN && window_p != nullptr )
-    {
+    if( window_p != nullptr ) {
         // First we need the display index of the window.
         display_index = SDL_GetWindowDisplayIndex( window_p );
-
+        
         // Check if the display index is valid.
         if( display_index >= 0 )
         {
@@ -50,15 +49,18 @@ int Graphics::SDL2::Window::center() {
             if( SDL_GetDisplayBounds( display_index, &screen ) == 0 )
             {
                 setPosition( glm::u32vec2( (screen.w - dimensions.x) / 2, (screen.h - dimensions.y) / 2 ) );
-
+                
                 return 1;
             }
             else
-                return -3;
+                return -2;
         }
         else
-            return -2;
+            return -1;
     }
     else
-        return -1;
+    {
+        this->is_centered = true;
+        return 1;
+    }
 }
