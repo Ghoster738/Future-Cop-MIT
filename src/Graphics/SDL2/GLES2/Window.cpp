@@ -57,7 +57,7 @@ int Graphics::SDL2::GLES2::Window::attach() {
         }
         else
         {
-            std::cout << "SDL Error: " << SDL_GetError() << std::endl;
+            std::cout << "SDL Window Error: " << SDL_GetError() << std::endl;
         }
         
         if( GL_context != nullptr ) {
