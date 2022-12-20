@@ -15,6 +15,7 @@ int Graphics::SDL2::GLES2::Window::attach() {
     int major_version = 0;
     int success = -1;
     
+    const std::string CONTEXT_NAMES[ 2 ] = { "OpenGLES", "OpenGL" };
     const int SDL2_CONTEXTS[ 2 ] = { SDL_GL_CONTEXT_PROFILE_ES, 0 };
     
     for( int i = 0; i < 2 && major_version != 2; i++ ) {
@@ -46,18 +47,18 @@ int Graphics::SDL2::GLES2::Window::attach() {
             
             int version = gladLoadGLES2((GLADloadfunc) SDL_GL_GetProcAddress);
 
-            if( version != 0 ) {
-                std::cout << "GLAD INIT Failure: ";
+            if( version == 0 ) {
+                std::cout << "GLAD INIT Failure for ";
                 // TODO Print out the problem if failure is detected.
             }
             else
-                std::cout << "GLAD INIT Success: ";
+                std::cout << "GLAD INIT Success for ";
             
-            std::cout << std::endl;
+            std::cout << CONTEXT_NAMES[ i ] << std::endl;
         }
         else
         {
-            std::cout << "SDL Window Error: " << SDL_GetError() << std::endl;
+            std::cout << "SDL Window Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
         }
         
         if( GL_context != nullptr ) {
@@ -71,13 +72,13 @@ int Graphics::SDL2::GLES2::Window::attach() {
             }
             else
             {
-                std::cout << "SDL Error: " << SDL_GetError() << std::endl;
+                std::cout << "SDL Context Status Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
             }
         }
         else
         {
             std::cout << "Context Allocation Failure!\n";
-            std::cout << "SDL Error: " << SDL_GetError() << std::endl;
+            std::cout << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
         }
     }
     
