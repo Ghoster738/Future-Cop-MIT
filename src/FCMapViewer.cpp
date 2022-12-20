@@ -171,7 +171,7 @@ int main(int argc, char** argv)
 
     window->setWindowTitle( title );
     if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center();
+        std::cout << "The window had failed to center! " << window->center() << std::endl;
     window->setDimensions( glm::u32vec2( width, height ) );
     window->setFullScreen( true );
     
@@ -221,7 +221,7 @@ int main(int argc, char** argv)
     auto number_of_iffs = manager.setLoad( load_all );
 
     if( number_of_iffs < 2 ) {
-        std::cout << "The number IFF " << number_of_iffs << " is not enough.";
+        std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
         return -3;
     }
 
@@ -229,12 +229,12 @@ int main(int argc, char** argv)
     Data::Mission::IFF   *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
 
     if( resource_r == nullptr ) {
-        std::cout << "The mission IFF " << iff_mission_id << " did not load.";
+        std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
         return -4;
     }
 
     if( global_r == nullptr ) {
-        std::cout << "The global IFF did not load.";
+        std::cout << "The global IFF did not load." << std::endl;
         return -5;
     }
 
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
         int status = environment->setupTextures( cbmp_resources );
 
         if( status < 0 )
-            std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
+            std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;
     }
 
     // Load all the 3D meshes from the resource as well.
@@ -255,7 +255,7 @@ int main(int argc, char** argv)
         int status = environment->setModelTypes( cobj_resources );
 
         if( status < 0 )
-            std::cout << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
+            std::cout << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size() << std::endl;
     }
     
     // Get the font from the resource file.
@@ -268,14 +268,10 @@ int main(int argc, char** argv)
         else
         {
             font_resources = Data::Mission::FontResource::getVector( *global_r );
-
-            for( auto i : font_resources ) {
-                std::cout << "Pointer " << i;
-            }
             
             Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
             if( font_resources.size() == 0 )
-                std::cout << " general fonts had failed to load out of " << font_resources.size();
+                std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
         }
     }
 
@@ -327,7 +323,7 @@ int main(int argc, char** argv)
     bool isCameraMoving = false;
 
     if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center();
+        std::cout << "The window had failed to center! " << window->center() << std::endl;
 
     // Setup the controls
     auto control_system_p = Controls::System::getSingleton(); // create the new system for controls
