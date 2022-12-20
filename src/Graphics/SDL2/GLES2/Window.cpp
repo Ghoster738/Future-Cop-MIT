@@ -40,7 +40,7 @@ int Graphics::SDL2::GLES2::Window::attach() {
         window_p = SDL_CreateWindow( getWindowTitle().c_str(),
                                     getPosition().x, getPosition().y,
                                     getDimensions().x, getDimensions().y,
-                                    flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
+                                    flags | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL );
         
         if( window_p != nullptr ) {
             GL_context = SDL_GL_CreateContext( window_p );
@@ -81,6 +81,9 @@ int Graphics::SDL2::GLES2::Window::attach() {
             std::cout << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
         }
     }
+    
+    if( window_p != nullptr )
+        SDL_ShowWindow( window_p );
     
     env_r->window_p = this;
     
