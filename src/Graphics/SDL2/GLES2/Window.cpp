@@ -11,7 +11,6 @@ Graphics::SDL2::GLES2::Window::~Window() {
 }
 
 int Graphics::SDL2::GLES2::Window::attach() {
-    Uint32 flags = 0;
     int major_version = 0;
     int success = -1;
     
@@ -36,6 +35,12 @@ int Graphics::SDL2::GLES2::Window::attach() {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL2_CONTEXTS[ i ] );
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+        
+        // This simple logic is there to determine if the window is centered or not.
+        auto position = getPosition();
+        
+        if( this->is_centered )
+            position = glm::u32vec2( SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
         
         window_p = SDL_CreateWindow( getWindowTitle().c_str(),
                                     getPosition().x, getPosition().y,

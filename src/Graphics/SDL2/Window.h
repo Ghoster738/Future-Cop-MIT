@@ -10,6 +10,9 @@ namespace SDL2 {
 
 class Window : public Graphics::Window {
 protected:
+    Uint32 flags;
+    bool is_centered;
+    
     Window( Environment &env_r );
 public:
     SDL_Window *window_p;
