@@ -417,9 +417,9 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::compileProgram() {
         texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
         matrix_uniform_id = glGetUniformLocation( program.getProgramID(), "Transform" );
 
-        vertex_array.addAttribute( "POSITION",   2, GL_FLOAT,         false, sizeof( TextVertex ), 0, false );
-        vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT,         false, sizeof( TextVertex ), reinterpret_cast<void*>(2 * alignof( TextVertex )), false );
-        vertex_array.addAttribute( "COLOR_0",    4, GL_UNSIGNED_BYTE, true,  sizeof( TextVertex ), reinterpret_cast<void*>(4 * alignof( TextVertex )), false );
+        vertex_array.addAttribute( "POSITION",   2, GL_FLOAT,         false, sizeof( TextVertex ), 0 );
+        vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT,         false, sizeof( TextVertex ), reinterpret_cast<void*>(2 * alignof( TextVertex )) );
+        vertex_array.addAttribute( "COLOR_0",    4, GL_UNSIGNED_BYTE, true,  sizeof( TextVertex ), reinterpret_cast<void*>(4 * alignof( TextVertex )) );
 
         vertex_array.allocate( program );
     
