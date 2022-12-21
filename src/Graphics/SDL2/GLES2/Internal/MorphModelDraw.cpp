@@ -122,7 +122,7 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
     sample_next_uniform_id = program.getUniform( "SampleNext", &std::cout, &uniform_failed );
     sample_last_uniform_id = program.getUniform( "SampleLast", &std::cout, &uniform_failed );
 
-    glUniform1f( sample_next_uniform_id, 0.0f ); // Next is unused.
+    glUniform1f( sample_next_uniform_id, 0.0f );
     glUniform1f( sample_last_uniform_id, 1.0f );
 
     morph_attribute_array_last.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );

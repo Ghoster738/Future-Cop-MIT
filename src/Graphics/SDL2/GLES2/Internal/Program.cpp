@@ -110,7 +110,8 @@ bool Graphics::SDL2::GLES2::Internal::Program::isAttribute( const std::basic_str
 {
     if( glGetAttribLocation( this->getProgramID(), name.c_str() ) == -1 )
     {
-        *output_r << "Error: " << name << " is not found." << std::endl;
+        if( output_r != nullptr )
+            *output_r << "Attribute Error: " << name << " is not found." << std::endl;
         return false;
     }
     else
@@ -124,7 +125,7 @@ GLint Graphics::SDL2::GLES2::Internal::Program::getUniform( const std::basic_str
     if( uniform_id == -1 )
     {
         if( output_r != nullptr )
-            *output_r << "Error: " << name << " is not in the program below!" << std::endl;
+            *output_r << "Uniform Error: " << name << " is not in the program below!" << std::endl;
         
         if( success_r != nullptr )
             *success_r |= (uniform_id == -1);
