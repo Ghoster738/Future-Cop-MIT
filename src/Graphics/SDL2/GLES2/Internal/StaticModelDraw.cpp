@@ -232,7 +232,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const 
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
-    bool uniform_failure = 0;
+    bool uniform_failure = false;
+    bool attribute_failed = false;
+    bool link_success = true;
     
     // The two shaders should be allocated first.
     if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
@@ -245,7 +247,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
         program.setFragmentShader( &fragment_shader );
 
         // Attempt to link the shader
-        if( program.link() )
+        if( !program.link() )
+            link_success = false;
+        else
         {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
@@ -262,36 +266,32 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
             view_inv_uniform_id = glGetUniformLocation( program.getProgramID(), "ModelViewInv" );
             uniform_failure |= view_inv_uniform_id == -1;
             
-            if( glGetAttribLocation( program.getProgramID(), "POSITION" ) == -1 )
-                std::cout << "Error StaticModelDraw: POSITION is not found." << std::endl;
-            if( glGetAttribLocation( program.getProgramID(), "NORMAL" ) == -1 )
-                std::cout << "Error StaticModelDraw: NORMAL is not found." << std::endl;
-            if( glGetAttribLocation( program.getProgramID(), "TEXCOORD_0" ) == -1 )
-                std::cout << "Error StaticModelDraw: TEXCOORD_0 is not found." << std::endl;
-            if( glGetAttribLocation( program.getProgramID(), "_Specular" ) == -1 )
-                std::cout << "Error StaticModelDraw: _Specular is not found." << std::endl;
-            
-            if( uniform_failure ) {
-                std::cout << "StaticModelDraw program has failed to compile" << std::endl;
-                std::cout << program.getInfoLog() << std::endl;
-                std::cout << "Vertex shader log" << std::endl;
-                std::cout << vertex_shader.getInfoLog() << std::endl;
-                std::cout << "Fragment shader log" << std::endl;
-                std::cout << fragment_shader.getInfoLog() << std::endl;
-            }
+            attribute_failed |= program.isAttribute( "POSITION", &std::cout );
+            attribute_failed |= program.isAttribute( "NORMAL", &std::cout );
+            attribute_failed |= program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= program.isAttribute( "_Specular", &std::cout );
 
-            return 1;
+            link_success = true;
         }
-        else
-        {
-            std::cout << "StaticModelDraw program has failed to compile" << std::endl;
-            std::cout << program.getInfoLog() << std::endl;
-            std::cout << "Vertex shader log" << std::endl;
-            std::cout << vertex_shader.getInfoLog() << std::endl;
-            std::cout << "Fragment shader log" << std::endl;
+        
+        if( !link_success || uniform_failure || attribute_failed ) {
+            std::cout << "StaticModelDraw program has failed." << std::endl;
+            
+            if( !link_success )
+                std::cout << "There is trouble with linking." << std::endl;
+            if( !uniform_failure )
+                std::cout << "There is trouble with the uniforms." << std::endl;
+            if( !attribute_failed )
+                std::cout << "There is trouble with the attributes." << std::endl;
+            
+            std::cout << program.getInfoLog();
+            std::cout << "\nVertex shader log\n";
+            std::cout << vertex_shader.getInfoLog();
+            std::cout << "\nFragment shader log\n";
             std::cout << fragment_shader.getInfoLog() << std::endl;
-            return 0;
         }
+        
+        return link_success;
     }
     else
     {

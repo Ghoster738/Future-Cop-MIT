@@ -106,6 +106,17 @@ GLuint Graphics::SDL2::GLES2::Internal::Program::getShaderID( Shader* shader_r )
         return 0;
 }
 
+bool Graphics::SDL2::GLES2::Internal::Program::isAttribute( const std::basic_string<GLchar> &name, std::ostream *output_r ) const
+{
+    if( glGetAttribLocation( this->getProgramID(), name.c_str() ) == -1 )
+    {
+        *output_r << "Error: " << name << " is not found." << std::endl;
+        return false;
+    }
+    else
+        return true;
+}
+
 GLuint Graphics::SDL2::GLES2::Internal::Program::getVertexShaderID() const {
     return getShaderID( vertex_r );
 }
