@@ -116,23 +116,36 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::getDefaultVertexS
 
 int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
     auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram();
+    bool uniform_failed = false;
+    bool attribute_failed = false;
 
-    sample_next_uniform_id = glGetUniformLocation( program.getProgramID(), "SampleNext" );
-    sample_last_uniform_id = glGetUniformLocation( program.getProgramID(), "SampleLast" );
-
-    assert( sample_next_uniform_id > 0 );
-    assert( sample_last_uniform_id > 0 );
+    sample_next_uniform_id = program.getUniform( "SampleNext", &std::cout, &uniform_failed );
+    sample_last_uniform_id = program.getUniform( "SampleLast", &std::cout, &uniform_failed );
 
     glUniform1f( sample_next_uniform_id, 0.0f ); // Next is unused.
     glUniform1f( sample_last_uniform_id, 1.0f );
 
     morph_attribute_array_last.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );
     morph_attribute_array_last.addAttribute( "NORMAL_Last",   3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, (void*)(3 * sizeof( float )) );
+    
+    attribute_failed |= !program.isAttribute( "POSITION_Last", &std::cout );
+    attribute_failed |= !program.isAttribute( "NORMAL_Last", &std::cout );
 
     morph_attribute_array_last.allocate( program );
-    morph_attribute_array_last.cullUnfound( &std::cout );
+    morph_attribute_array_last.cullUnfound();
 
-    return ret;
+    if( !uniform_failed && !attribute_failed )
+        return ret;
+    else
+    {
+        std::cout << "Morph Model Draw Error\n";
+        std::cout << program.getInfoLog();
+        std::cout << "\nVertex shader log\n";
+        std::cout << vertex_shader.getInfoLog();
+        std::cout << "\nFragment shader log\n";
+        std::cout << fragment_shader.getInfoLog() << std::endl;
+        return 0;
+    }
 }
 
 void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( const Camera &camera ) {
