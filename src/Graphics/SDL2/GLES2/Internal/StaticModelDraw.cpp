@@ -232,6 +232,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const 
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
+    bool uniform_failure = 0;
+    
     // The two shaders should be allocated first.
     if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
 
@@ -247,12 +249,36 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
         {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
+            uniform_failure |= diffusive_texture_uniform_id == -1;
             sepecular_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Shine" );
+            uniform_failure |= sepecular_texture_uniform_id == -1;
             texture_offset_uniform_id    = glGetUniformLocation( program.getProgramID(), "TextureTranslation" );
+            uniform_failure |= texture_offset_uniform_id == -1;
 
             matrix_uniform_id = glGetUniformLocation(   program.getProgramID(), "Transform" );
+            uniform_failure |= matrix_uniform_id == -1;
             view_uniform_id = glGetUniformLocation(     program.getProgramID(), "ModelView" );
+            uniform_failure |= view_uniform_id == -1;
             view_inv_uniform_id = glGetUniformLocation( program.getProgramID(), "ModelViewInv" );
+            uniform_failure |= view_inv_uniform_id == -1;
+            
+            if( glGetAttribLocation( program.getProgramID(), "POSITION" ) == -1 )
+                std::cout << "Error StaticModelDraw: POSITION is not found." << std::endl;
+            if( glGetAttribLocation( program.getProgramID(), "NORMAL" ) == -1 )
+                std::cout << "Error StaticModelDraw: NORMAL is not found." << std::endl;
+            if( glGetAttribLocation( program.getProgramID(), "TEXCOORD_0" ) == -1 )
+                std::cout << "Error StaticModelDraw: TEXCOORD_0 is not found." << std::endl;
+            if( glGetAttribLocation( program.getProgramID(), "_Specular" ) == -1 )
+                std::cout << "Error StaticModelDraw: _Specular is not found." << std::endl;
+            
+            if( uniform_failure ) {
+                std::cout << "StaticModelDraw program has failed to compile" << std::endl;
+                std::cout << program.getInfoLog() << std::endl;
+                std::cout << "Vertex shader log" << std::endl;
+                std::cout << vertex_shader.getInfoLog() << std::endl;
+                std::cout << "Fragment shader log" << std::endl;
+                std::cout << fragment_shader.getInfoLog() << std::endl;
+            }
 
             return 1;
         }
