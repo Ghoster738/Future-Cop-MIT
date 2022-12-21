@@ -9,7 +9,7 @@ Graphics::SDL2::GLES2::Internal::VertexAttributeArray::~VertexAttributeArray() {
     // There is nothing to delete.
 }
 
-bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const GLchar *name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void * pointer ) {
+bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const std::basic_string<GLchar>& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void *pointer_r, bool is_optional ) {
     bool name_is_not_found = true;
 
     for( unsigned int i = 0; i < attributes.size(); i++ )
@@ -28,7 +28,8 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         attributes.back().type = type;
         attributes.back().normalized = normalized;
         attributes.back().stride = stride;
-        attributes.back().offset = pointer;
+        attributes.back().offset_r = pointer_r;
+        attributes.back().is_optional = is_optional;
 
         return true;
     }
@@ -53,7 +54,7 @@ int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::cullUnfound( std::ost
     for( signed int d = 0; d < attributes.size(); d++ ) {
         auto i = (attributes.begin() + d);
         if( (*i).index < 0 ) {
-            if( output != nullptr ) {
+            if( output != nullptr && !(*i).is_optional ) {
                 if( amount_culled == 0 )
                     *output << "Warning: These vertex attributes had been culled for either two reasons." << std::endl << "They did not exist or they have been culled by GLSL itself." << std::endl;
                 *output << "Vertex Attribute " << (*i).name << std::endl;
@@ -110,6 +111,6 @@ void Graphics::SDL2::GLES2::Internal::VertexAttributeArray::bind( size_t buffer_
     for( auto i = attributes.begin(); i < attributes.end(); i++ )
     {
         glEnableVertexAttribArray( (*i).index );
-        glVertexAttribPointer( (*i).index, (*i).size, (*i).type, (*i).normalized, (*i).stride, reinterpret_cast<void*>( reinterpret_cast<size_t>((*i).offset) + buffer_offset ) );
+        glVertexAttribPointer( (*i).index, (*i).size, (*i).type, (*i).normalized, (*i).stride, reinterpret_cast<void*>( reinterpret_cast<size_t>( (*i).offset_r ) + buffer_offset ) );
     }
 }
