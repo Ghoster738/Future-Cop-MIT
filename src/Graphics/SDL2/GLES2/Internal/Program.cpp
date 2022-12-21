@@ -117,6 +117,22 @@ bool Graphics::SDL2::GLES2::Internal::Program::isAttribute( const std::basic_str
         return true;
 }
 
+GLint Graphics::SDL2::GLES2::Internal::Program::getUniform( const std::basic_string<GLchar> &name, std::ostream *output_r, bool *success_r ) const
+{
+    GLint uniform_id = glGetUniformLocation( this->getProgramID(), name.c_str() );
+    
+    if( uniform_id == -1 )
+    {
+        if( output_r != nullptr )
+            *output_r << "Error: " << name << " is not in the program below!" << std::endl;
+        
+        if( success_r != nullptr )
+            *success_r |= (uniform_id == -1);
+    }
+    
+    return uniform_id;
+}
+
 GLuint Graphics::SDL2::GLES2::Internal::Program::getVertexShaderID() const {
     return getShaderID( vertex_r );
 }

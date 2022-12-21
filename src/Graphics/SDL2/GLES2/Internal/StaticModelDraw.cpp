@@ -232,7 +232,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const 
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
-    bool uniform_failure = false;
+    bool uniform_failed = false;
     bool attribute_failed = false;
     bool link_success = true;
     
@@ -252,36 +252,29 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
         else
         {
             // Setup the uniforms for the map.
-            diffusive_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
-            uniform_failure |= diffusive_texture_uniform_id == -1;
-            sepecular_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Shine" );
-            uniform_failure |= sepecular_texture_uniform_id == -1;
-            texture_offset_uniform_id    = glGetUniformLocation( program.getProgramID(), "TextureTranslation" );
-            uniform_failure |= texture_offset_uniform_id == -1;
-
-            matrix_uniform_id = glGetUniformLocation(   program.getProgramID(), "Transform" );
-            uniform_failure |= matrix_uniform_id == -1;
-            view_uniform_id = glGetUniformLocation(     program.getProgramID(), "ModelView" );
-            uniform_failure |= view_uniform_id == -1;
-            view_inv_uniform_id = glGetUniformLocation( program.getProgramID(), "ModelViewInv" );
-            uniform_failure |= view_inv_uniform_id == -1;
+            diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
+            sepecular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
+            texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
+            matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
+            view_inv_uniform_id = program.getUniform( "ModelViewInv", &std::cout, &uniform_failed );
             
-            attribute_failed |= program.isAttribute( "POSITION", &std::cout );
-            attribute_failed |= program.isAttribute( "NORMAL", &std::cout );
-            attribute_failed |= program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= program.isAttribute( "_Specular", &std::cout );
+            attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
+            attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
+            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= !program.isAttribute( "_Specular", &std::cout );
 
             link_success = true;
         }
         
-        if( !link_success || uniform_failure || attribute_failed ) {
+        if( !link_success || uniform_failed || attribute_failed ) {
             std::cout << "StaticModelDraw program has failed." << std::endl;
             
             if( !link_success )
                 std::cout << "There is trouble with linking." << std::endl;
-            if( !uniform_failure )
+            if( uniform_failed )
                 std::cout << "There is trouble with the uniforms." << std::endl;
-            if( !attribute_failed )
+            if( attribute_failed )
                 std::cout << "There is trouble with the attributes." << std::endl;
             
             std::cout << program.getInfoLog();

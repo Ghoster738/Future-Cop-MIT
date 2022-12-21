@@ -111,6 +111,8 @@ public:
      * @return If the attribute exists return true.
      */
     bool isAttribute( const std::basic_string<GLchar> &name, std::ostream *output_r = nullptr ) const;
+    
+    GLint getUniform( const std::basic_string<GLchar> &name, std::ostream *output_r = nullptr, bool *success_r = nullptr ) const;
 
     /**
      * This is the method that gets the vertex shader id from this program.
