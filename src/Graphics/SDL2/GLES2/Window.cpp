@@ -11,10 +11,10 @@ Graphics::SDL2::GLES2::Window::~Window() {
 }
 
 int Graphics::SDL2::GLES2::Window::attach() {
-    Uint32 flags = 0;
     int major_version = 0;
     int success = -1;
     
+    const std::string CONTEXT_NAMES[ 2 ] = { "OpenGLES", "OpenGL" };
     const int SDL2_CONTEXTS[ 2 ] = { SDL_GL_CONTEXT_PROFILE_ES, 0 };
     
     for( int i = 0; i < 2 && major_version != 2; i++ ) {
@@ -36,28 +36,34 @@ int Graphics::SDL2::GLES2::Window::attach() {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         
+        // This simple logic is there to determine if the window is centered or not.
+        auto position = getPosition();
+        
+        if( this->is_centered )
+            position = glm::u32vec2( SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
+        
         window_p = SDL_CreateWindow( getWindowTitle().c_str(),
                                     getPosition().x, getPosition().y,
                                     getDimensions().x, getDimensions().y,
-                                    flags | SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
+                                    flags | SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL );
         
         if( window_p != nullptr ) {
             GL_context = SDL_GL_CreateContext( window_p );
             
             int version = gladLoadGLES2((GLADloadfunc) SDL_GL_GetProcAddress);
 
-            if( version != 0 ) {
-                std::cout << "GLAD INIT Failure: ";
+            if( version == 0 ) {
+                std::cout << "GLAD INIT Failure for ";
                 // TODO Print out the problem if failure is detected.
             }
             else
-                std::cout << "GLAD INIT Success: ";
+                std::cout << "GLAD INIT Success for ";
             
-            std::cout << std::endl;
+            std::cout << CONTEXT_NAMES[ i ] << std::endl;
         }
         else
         {
-            std::cout << "SDL Error: " << SDL_GetError() << std::endl;
+            std::cout << "SDL Window Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
         }
         
         if( GL_context != nullptr ) {
@@ -71,15 +77,18 @@ int Graphics::SDL2::GLES2::Window::attach() {
             }
             else
             {
-                std::cout << "SDL Error: " << SDL_GetError() << std::endl;
+                std::cout << "SDL Context Status Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
             }
         }
         else
         {
             std::cout << "Context Allocation Failure!\n";
-            std::cout << "SDL Error: " << SDL_GetError() << std::endl;
+            std::cout << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
         }
     }
+    
+    if( window_p != nullptr )
+        SDL_ShowWindow( window_p );
     
     env_r->window_p = this;
     

@@ -77,7 +77,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     
     // If there is some kind of bug where there are some attributes not recognized
     // then cull them. They will just spam Mesh with countless errors.
-    vertex_array.cullUnfound( &std::cout );
+    vertex_array.cullUnfound();
 
     Utilities::ModelBuilder::TextureMaterial material;
 

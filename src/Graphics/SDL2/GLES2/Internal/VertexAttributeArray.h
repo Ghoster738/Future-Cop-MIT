@@ -18,7 +18,7 @@ namespace Internal {
 class VertexAttributeArray {
 protected:
     struct AttributeType {
-        std::string name;
+        std::basic_string<GLchar> name;
 
         // These are the parameters for glVertexAttribPointer.
         GLint index;
@@ -26,7 +26,8 @@ protected:
         GLenum type;
         GLboolean normalized;
         GLsizei stride;
-        void *offset;
+        
+        void *offset_r;
     };
     std::vector<AttributeType> attributes;
 public:
@@ -39,13 +40,13 @@ public:
      * @note The parameters will be directly passed into an AttributeType.
      * @return If a name already exists then return false.
      */
-    bool addAttribute( const GLchar *name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void * pointer );
+    bool addAttribute( const std::basic_string<GLchar>& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void *pointer_r );
 
     /**
      * The VertexAttributeArray has to be filled in order for this method to work.
      * @return The number of successfull attributeTypeBinds.
      */
-    int allocate( Graphics::SDL2::GLES2::Internal::Program & program );
+    int allocate( Graphics::SDL2::GLES2::Internal::Program &program );
 
     /**
      * This deletes every attribute type that was not allocated.

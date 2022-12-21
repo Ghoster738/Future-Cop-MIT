@@ -1,12 +1,12 @@
 #include "Program.h"
 
-Graphics::SDL2::GLES2::Internal::Program::Program() : is_allocated( false ), vertex_ref( nullptr ), fragment_ref( nullptr ), shader_program( 0 ) {
+Graphics::SDL2::GLES2::Internal::Program::Program() : is_allocated( false ), vertex_r( nullptr ), fragment_r( nullptr ), shader_program_id( 0 ) {
 }
 
-Graphics::SDL2::GLES2::Internal::Program::Program( Shader *vertex_reference, Shader *fragment_reference ) : is_allocated( false ), vertex_ref( nullptr ), fragment_ref( nullptr ), shader_program( 0 ) {
+Graphics::SDL2::GLES2::Internal::Program::Program( Shader *vertex_r, Shader *fragment_r ) : is_allocated( false ), vertex_r( nullptr ), fragment_r( nullptr ), shader_program_id( 0 ) {
     allocate();
-    setVertexShader( vertex_reference );
-    setFragmentShader( fragment_reference );
+    setVertexShader( vertex_r );
+    setFragmentShader( fragment_r );
     link();
 }
 
@@ -19,46 +19,46 @@ void Graphics::SDL2::GLES2::Internal::Program::allocate() {
     {
         is_allocated = true;
         
-        shader_program = glCreateProgram();
+        shader_program_id = glCreateProgram();
     }
 }
 
 void Graphics::SDL2::GLES2::Internal::Program::deallocate() {
     if( is_allocated )
-        glDeleteProgram( shader_program );
+        glDeleteProgram( shader_program_id );
     
     is_allocated = false;
-    vertex_ref   = nullptr;
-    fragment_ref = nullptr;
-    shader_program = 0;
+    vertex_r   = nullptr;
+    fragment_r = nullptr;
+    shader_program_id = 0;
 }
 
-Graphics::SDL2::GLES2::Internal::Shader* Graphics::SDL2::GLES2::Internal::Program::setShader( Shader *newShader, Shader *oldShader ) {
-    if( oldShader != nullptr )
-        glDetachShader( shader_program, oldShader->getShader() );
+Graphics::SDL2::GLES2::Internal::Shader* Graphics::SDL2::GLES2::Internal::Program::setShader( Shader *new_shader_r, Shader *old_shader_r ) {
+    if( old_shader_r != nullptr )
+        glDetachShader( shader_program_id, old_shader_r->getShader() );
     
-    glAttachShader( shader_program, newShader->getShader() );
+    glAttachShader( shader_program_id, new_shader_r->getShader() );
     
-    return newShader;
+    return new_shader_r;
 }
 
-void Graphics::SDL2::GLES2::Internal::Program::setVertexShader( Graphics::SDL2::GLES2::Internal::Shader *new_vertex_reference ) {
-    vertex_ref = setShader( new_vertex_reference, vertex_ref );
+void Graphics::SDL2::GLES2::Internal::Program::setVertexShader( Graphics::SDL2::GLES2::Internal::Shader *new_vertex_r ) {
+    vertex_r = setShader( new_vertex_r, vertex_r );
 }
 
 
-void Graphics::SDL2::GLES2::Internal::Program::setFragmentShader( Graphics::SDL2::GLES2::Internal::Shader *new_fragment_reference  ) {
-    fragment_ref = setShader( new_fragment_reference, fragment_ref );
+void Graphics::SDL2::GLES2::Internal::Program::setFragmentShader( Graphics::SDL2::GLES2::Internal::Shader *new_fragment_r  ) {
+    fragment_r = setShader( new_fragment_r, fragment_r);
 }
 
 bool Graphics::SDL2::GLES2::Internal::Program::link() {
     GLint program_linked_status;
     
-    glLinkProgram( shader_program );
+    glLinkProgram( shader_program_id );
     
-    glGetProgramiv( shader_program, GL_LINK_STATUS, &program_linked_status);
+    glGetProgramiv( shader_program_id, GL_LINK_STATUS, &program_linked_status);
     
-    return program_linked_status == 1;
+    return (program_linked_status == 1);
 }
 
 std::string Graphics::SDL2::GLES2::Internal::Program::getInfoLog() const {
@@ -67,7 +67,7 @@ std::string Graphics::SDL2::GLES2::Internal::Program::getInfoLog() const {
     GLint info_length;
     GLsizei actual_info_length;
     
-    glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &info_length);
+    glGetProgramiv(shader_program_id, GL_INFO_LOG_LENGTH, &info_length);
     
     if( info_length > 0 )
     {
@@ -77,8 +77,9 @@ std::string Graphics::SDL2::GLES2::Internal::Program::getInfoLog() const {
         {
             returnry.reserve( info_length );
             
-            glGetProgramInfoLog(shader_program, info_length, &actual_info_length, temporary_string_p );
+            glGetProgramInfoLog(shader_program_id, info_length, &actual_info_length, temporary_string_p );
             
+            // TODO Remove this horiable code
             for( GLsizei a = 0; a < actual_info_length; a++ ) {
                 returnry.push_back( temporary_string_p[ a ] );
             }
@@ -95,20 +96,48 @@ std::string Graphics::SDL2::GLES2::Internal::Program::getInfoLog() const {
 }
 
 void Graphics::SDL2::GLES2::Internal::Program::use() {
-    glUseProgram( shader_program );
+    glUseProgram( shader_program_id );
 }
 
-GLuint Graphics::SDL2::GLES2::Internal::Program::getShaderID( Shader* shader_id ) const {
-    if( shader_id != nullptr )
-        return shader_id->getShader();
+GLuint Graphics::SDL2::GLES2::Internal::Program::getShaderID( Shader* shader_r ) const {
+    if( shader_r != nullptr )
+        return shader_r->getShader();
     else
         return 0;
 }
 
+bool Graphics::SDL2::GLES2::Internal::Program::isAttribute( const std::basic_string<GLchar> &name, std::ostream *output_r ) const
+{
+    if( glGetAttribLocation( this->getProgramID(), name.c_str() ) == -1 )
+    {
+        if( output_r != nullptr )
+            *output_r << "Attribute Error: " << name << " is not in the program below." << std::endl;
+        return false;
+    }
+    else
+        return true;
+}
+
+GLint Graphics::SDL2::GLES2::Internal::Program::getUniform( const std::basic_string<GLchar> &name, std::ostream *output_r, bool *success_r ) const
+{
+    GLint uniform_id = glGetUniformLocation( this->getProgramID(), name.c_str() );
+    
+    if( uniform_id == -1 )
+    {
+        if( output_r != nullptr )
+            *output_r << "Uniform Error: " << name << " is not in the program below!" << std::endl;
+        
+        if( success_r != nullptr )
+            *success_r |= (uniform_id == -1);
+    }
+    
+    return uniform_id;
+}
+
 GLuint Graphics::SDL2::GLES2::Internal::Program::getVertexShaderID() const {
-    return getShaderID( vertex_ref );
+    return getShaderID( vertex_r );
 }
 
 GLuint Graphics::SDL2::GLES2::Internal::Program::getFragmentShaderID() const {
-    return getShaderID( fragment_ref );
+    return getShaderID( fragment_r );
 }

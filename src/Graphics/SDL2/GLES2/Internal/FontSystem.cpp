@@ -400,6 +400,10 @@ size_t Graphics::SDL2::GLES2::Internal::FontSystem::getVertexSize() {
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::compileProgram() {
+    bool link_success     = true;
+    bool uniform_failed   = false;
+    bool attribute_failed = false;
+    
     // The two shaders should be allocated first.
     if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
 
@@ -409,21 +413,41 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::compileProgram() {
         // Give the program these two shaders.
         program.setVertexShader( &vertex_shader );
         program.setFragmentShader( &fragment_shader );
-
+        
         // Link the shader
-        program.link();
-
-        // Setup the uniforms for the map.
-        texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
-        matrix_uniform_id = glGetUniformLocation( program.getProgramID(), "Transform" );
-
+        if( !program.link() )
+            link_success = false;
+        else
+        {
+            // Setup the uniforms for the map.
+            texture_uniform_id = program.getUniform( "Texture",   &std::cout, &uniform_failed );
+            matrix_uniform_id  = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            
+            attribute_failed |= !program.isAttribute(   "POSITION", &std::cout );
+            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= !program.isAttribute(    "COLOR_0", &std::cout );
+        }
+        
         vertex_array.addAttribute( "POSITION",   2, GL_FLOAT,         false, sizeof( TextVertex ), 0 );
         vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT,         false, sizeof( TextVertex ), reinterpret_cast<void*>(2 * alignof( TextVertex )) );
         vertex_array.addAttribute( "COLOR_0",    4, GL_UNSIGNED_BYTE, true,  sizeof( TextVertex ), reinterpret_cast<void*>(4 * alignof( TextVertex )) );
 
         vertex_array.allocate( program );
-    
-        vertex_array.cullUnfound( &std::cout );
+        vertex_array.cullUnfound();
+        
+        if( !link_success || uniform_failed || attribute_failed )
+        {
+            std::cout << "Font System Error\n";
+            std::cout << program.getInfoLog();
+            std::cout << "\nVertex shader log\n";
+            std::cout << vertex_shader.getInfoLog();
+            std::cout << "\nFragment shader log\n";
+            std::cout << fragment_shader.getInfoLog() << std::endl;
+            
+            return 1;
+        }
+        else
+            return -1;
 
         return 1;
     }

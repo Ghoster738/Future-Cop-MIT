@@ -232,6 +232,10 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const 
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
+    bool uniform_failed = false;
+    bool attribute_failed = false;
+    bool link_success = true;
+    
     // The two shaders should be allocated first.
     if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
 
@@ -243,29 +247,44 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
         program.setFragmentShader( &fragment_shader );
 
         // Attempt to link the shader
-        if( program.link() )
-        {
-            // Setup the uniforms for the map.
-            diffusive_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
-            sepecular_texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Shine" );
-            texture_offset_uniform_id    = glGetUniformLocation( program.getProgramID(), "TextureTranslation" );
-
-            matrix_uniform_id = glGetUniformLocation(   program.getProgramID(), "Transform" );
-            view_uniform_id = glGetUniformLocation(     program.getProgramID(), "ModelView" );
-            view_inv_uniform_id = glGetUniformLocation( program.getProgramID(), "ModelViewInv" );
-
-            return 1;
-        }
+        if( !program.link() )
+            link_success = false;
         else
         {
-            std::cout << "StaticModelDraw program has failed to compile" << std::endl;
-            std::cout << program.getInfoLog() << std::endl;
-            std::cout << "Vertex shader log" << std::endl;
-            std::cout << vertex_shader.getInfoLog() << std::endl;
-            std::cout << "Fragment shader log" << std::endl;
-            std::cout << fragment_shader.getInfoLog() << std::endl;
-            return 0;
+            // Setup the uniforms for the map.
+            diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
+            sepecular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
+            texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
+            matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
+            view_inv_uniform_id = program.getUniform( "ModelViewInv", &std::cout, &uniform_failed );
+            
+            attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
+            attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
+            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= !program.isAttribute( "_Specular", &std::cout );
+
+            link_success = true;
         }
+        
+        if( !link_success || uniform_failed || attribute_failed ) {
+            std::cout << "StaticModelDraw program has failed." << std::endl;
+            
+            if( !link_success )
+                std::cout << "There is trouble with linking." << std::endl;
+            if( uniform_failed )
+                std::cout << "There is trouble with the uniforms." << std::endl;
+            if( attribute_failed )
+                std::cout << "There is trouble with the attributes." << std::endl;
+            
+            std::cout << program.getInfoLog();
+            std::cout << "\nVertex shader log\n";
+            std::cout << vertex_shader.getInfoLog();
+            std::cout << "\nFragment shader log\n";
+            std::cout << fragment_shader.getInfoLog() << std::endl;
+        }
+        
+        return link_success;
     }
     else
     {
