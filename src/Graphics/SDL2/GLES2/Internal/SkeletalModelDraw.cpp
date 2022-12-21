@@ -142,8 +142,6 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {
         std::cout << fragment_shader.getInfoLog() << std::endl;
         return 0;
     }
-    
-    return ret;
 }
 
 void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::setNumModelTypes( size_t model_amount ) {
