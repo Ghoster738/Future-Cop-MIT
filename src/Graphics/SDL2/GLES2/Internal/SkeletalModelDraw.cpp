@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <cassert>
 #include <SDL2/SDL.h>
+#include <iostream>
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames ) {
     this->num_bones = num_bones;
@@ -121,11 +122,27 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::getDefaultVert
 
 int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {
     auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram();
+    bool uniform_failed = false;
+    bool attribute_failed = false;
 
-    mat4_array_uniform_id = glGetUniformLocation( program.getProgramID(), "Bone" );
-
-    assert( mat4_array_uniform_id >= 0 ); // If this ID is negative then it is invalid.
-
+    mat4_array_uniform_id = program.getUniform( "Bone", &std::cout, &uniform_failed );
+    
+    attribute_failed |= !program.isAttribute( "JOINTS_0", &std::cout );
+    // attribute_failed |= !program.isAttribute( "WEIGHTS_0", &std::cout ); // WEIGHTS_0 is not a requirement.
+    
+    if( !uniform_failed && !attribute_failed )
+        return ret;
+    else
+    {
+        std::cout << "Skeletal Model Draw Error\n";
+        std::cout << program.getInfoLog();
+        std::cout << "\nVertex shader log\n";
+        std::cout << vertex_shader.getInfoLog();
+        std::cout << "\nFragment shader log\n";
+        std::cout << fragment_shader.getInfoLog() << std::endl;
+        return 0;
+    }
+    
     return ret;
 }
 
