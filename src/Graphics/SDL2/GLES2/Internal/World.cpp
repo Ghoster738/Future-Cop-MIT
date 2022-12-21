@@ -3,8 +3,8 @@
 #include "GLES2.h"
 
 #include <glm/ext/matrix_transform.hpp>
-#include <cassert>
 #include <SDL2/SDL.h>
+#include <iostream>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
     "#version 100\n"
@@ -157,6 +157,10 @@ int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *cons
 }
 
 int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
+    bool link_success     = true;
+    bool uniform_failed   = false;
+    bool attribute_failed = false;
+    
     // The two shaders should be allocated first.
     if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
         // Allocate the opengl program for the map.
@@ -167,13 +171,33 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
         program.setFragmentShader( &fragment_shader );
 
         // Link the shader
-        program.link();
-
-        // Setup the uniforms for the map.
-        texture_uniform_id = glGetUniformLocation( program.getProgramID(), "Texture" );
-        matrix_uniform_id = glGetUniformLocation( program.getProgramID(), "Transform" );
-
-        return 1;
+        if( !program.link() )
+            link_success = false;
+        else
+        {
+            // Setup the uniforms for the map.
+            texture_uniform_id = program.getUniform( "Texture",   &std::cout, &uniform_failed );
+            matrix_uniform_id  = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            
+            attribute_failed |= !program.isAttribute(   "POSITION", &std::cout );
+            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= !program.isAttribute(    "COLOR_0", &std::cout );
+            attribute_failed |= !program.isAttribute(  "_TileType", &std::cout );
+        }
+        
+        if( !link_success || uniform_failed || attribute_failed )
+        {
+            std::cout << "World Draw Error\n";
+            std::cout << program.getInfoLog();
+            std::cout << "\nVertex shader log\n";
+            std::cout << vertex_shader.getInfoLog();
+            std::cout << "\nFragment shader log\n";
+            std::cout << fragment_shader.getInfoLog() << std::endl;
+            
+            return 1;
+        }
+        else
+            return -1;
     }
     else
     {

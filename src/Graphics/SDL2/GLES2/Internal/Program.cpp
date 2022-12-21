@@ -111,7 +111,7 @@ bool Graphics::SDL2::GLES2::Internal::Program::isAttribute( const std::basic_str
     if( glGetAttribLocation( this->getProgramID(), name.c_str() ) == -1 )
     {
         if( output_r != nullptr )
-            *output_r << "Attribute Error: " << name << " is not found." << std::endl;
+            *output_r << "Attribute Error: " << name << " is not in the program below." << std::endl;
         return false;
     }
     else
