@@ -27,8 +27,6 @@ protected:
         GLboolean normalized;
         GLsizei stride;
         
-        bool is_optional;
-        
         void *offset_r;
     };
     std::vector<AttributeType> attributes;
@@ -42,7 +40,7 @@ public:
      * @note The parameters will be directly passed into an AttributeType.
      * @return If a name already exists then return false.
      */
-    bool addAttribute( const std::basic_string<GLchar>& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void *pointer_r, bool is_optional = false );
+    bool addAttribute( const std::basic_string<GLchar>& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void *pointer_r );
 
     /**
      * The VertexAttributeArray has to be filled in order for this method to work.

@@ -26,8 +26,6 @@ protected:
     Shader *vertex_r;
     Shader *fragment_r;
     GLuint shader_program_id;
-    
-    std::vector<std::basic_string<GLchar>> required_vertex_attributes;
 
     /**
      * This is a helper method used to set the shader to a new shader.
@@ -61,17 +59,6 @@ public:
      * This calls deallocate to handle the deletion of this program.
      */
     virtual ~Program();
-    
-    /**
-     * The program should complain to the console if it did not see anything.
-     * @param attribute The OpenGL attribute name.
-     */
-    void addRequiredAttribute( std::basic_string<GLchar> attribute );
-    
-    /**
-     * @return the number of attributes that are actually required.
-     */
-    std::vector<std::basic_string<GLchar>> getRequiredAttributes() const;
 
     /**
      * Allocate this program in OpenGL memory.
