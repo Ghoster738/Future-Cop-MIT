@@ -25,7 +25,6 @@ namespace Mesh {
     struct Point {
         unsigned int facing_direction;
         unsigned int heightmap_channel; // 0 red, 1 green, 2 blue, 3 abort.
-        unsigned int texture_coordinate_index;
     };
 
     struct Polygon {

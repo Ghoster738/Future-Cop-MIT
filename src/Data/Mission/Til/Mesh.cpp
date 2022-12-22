@@ -87,21 +87,22 @@ unsigned int Data::Mission::Til::Mesh::loadMeshScript( const char *const filepat
 
                                 // Ignore data that is not compatible only flare can be excluded.
                                 if( position.isString() && heightmapChannel.isInt() && textureCoordinateIndex.isInt() ) {
+                                    auto index = textureCoordinateIndex.asUInt() % amount;
+                                    
                                     std::string position_string = position.asString();
                                     if( position_string.compare("FRONT_LEFT") == 0 )
-                                        poly.points[ i ].facing_direction = FRONT_LEFT;
+                                        poly.points[ index ].facing_direction = FRONT_LEFT;
                                     else
                                     if( position_string.compare("FRONT_RIGHT") == 0 )
-                                        poly.points[ i ].facing_direction = FRONT_RIGHT;
+                                        poly.points[ index ].facing_direction = FRONT_RIGHT;
                                     else
                                     if( position_string.compare("BACK_LEFT") == 0 )
-                                        poly.points[ i ].facing_direction = BACK_LEFT;
+                                        poly.points[ index ].facing_direction = BACK_LEFT;
                                     else
                                     if( position_string.compare("BACK_RIGHT") == 0 )
-                                        poly.points[ i ].facing_direction = BACK_RIGHT;
+                                        poly.points[ index ].facing_direction = BACK_RIGHT;
 
-                                    poly.points[ i ].heightmap_channel = heightmapChannel.asUInt();
-                                    poly.points[ i ].texture_coordinate_index = textureCoordinateIndex.asUInt();
+                                    poly.points[ index ].heightmap_channel = heightmapChannel.asUInt();
                                 }
                             }
 
@@ -155,8 +156,8 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
             result.position[ result.element_start ].y = static_cast<float>(input.pixels[ triangle.points[ i ].facing_direction ]->channel[ triangle.points[ i ].heightmap_channel ]) * TilResource::SAMPLE_HEIGHT;
             result.position[ result.element_start ].z = TILE_CORNER_POSITION_Z[ triangle.points[ i ].facing_direction ];
 
-            result.coords[ result.element_start ].x = input.coord_data[ triangle.points[ i ].texture_coordinate_index ].x;
-            result.coords[ result.element_start ].y = input.coord_data[ triangle.points[ i ].texture_coordinate_index ].y;
+            result.coords[ result.element_start ].x = input.coord_data[ i ].x; // input.coord_data[ triangle.points[ i ].texture_coordinate_index ].x;
+            result.coords[ result.element_start ].y = input.coord_data[ i ].y; // input.coord_data[ triangle.points[ i ].texture_coordinate_index ].y;
 
             result.element_start++;
         }
@@ -189,6 +190,7 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
 
     tile_polygon = default_mesh[ tileType ];
 
+    /*
     tile_polygon.points[0].texture_coordinate_index += input.coord_index;
     tile_polygon.points[0].texture_coordinate_index %= input.coord_index_limit;
     tile_polygon.points[1].texture_coordinate_index += input.coord_index;
@@ -196,7 +198,7 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
     tile_polygon.points[2].texture_coordinate_index += input.coord_index;
     tile_polygon.points[2].texture_coordinate_index %= input.coord_index_limit;
     tile_polygon.points[3].texture_coordinate_index += input.coord_index;
-    tile_polygon.points[3].texture_coordinate_index %= input.coord_index_limit;
+    tile_polygon.points[3].texture_coordinate_index %= input.coord_index_limit;*/
 
     if( tile_polygon.points[0].heightmap_channel != NO_ELEMENT )
     {
