@@ -65,7 +65,7 @@ namespace Mesh {
      */
     unsigned int loadMeshScript( const char *const filepath, std::ostream *error_output );
 
-    unsigned int BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result );
+    unsigned int BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped = false );
     unsigned int BuildQuad( const Input &input, const Polygon &quad, VertexData &result );
 
     unsigned int createTile( const Input &input, VertexData &result, unsigned int tileType );

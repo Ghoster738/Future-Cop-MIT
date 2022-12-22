@@ -146,18 +146,22 @@ unsigned int Data::Mission::Til::Mesh::loadMeshScript( const char *const filepat
     return result;
 }
 
-unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result ) {
+unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped ) {
     const unsigned int ELEMENT_AMOUNT = 3;
 
+    static const unsigned TABLE[2][3] = { { 0, 1, 2 }, { 2, 3, 0 } };
+    
     if( result.element_amount >= ELEMENT_AMOUNT + result.element_start )
     {
         for( unsigned int i = 0; i < ELEMENT_AMOUNT; i++ ) {
+            unsigned int index =  (input.coord_index + TABLE[ flipped ][ i ] ) % input.coord_index_limit;
+            
             result.position[ result.element_start ].x = TILE_CORNER_POSITION_X[ triangle.points[ i ].facing_direction ];
             result.position[ result.element_start ].y = static_cast<float>(input.pixels[ triangle.points[ i ].facing_direction ]->channel[ triangle.points[ i ].heightmap_channel ]) * TilResource::SAMPLE_HEIGHT;
             result.position[ result.element_start ].z = TILE_CORNER_POSITION_Z[ triangle.points[ i ].facing_direction ];
 
-            result.coords[ result.element_start ].x = input.coord_data[ i ].x; // input.coord_data[ triangle.points[ i ].texture_coordinate_index ].x;
-            result.coords[ result.element_start ].y = input.coord_data[ i ].y; // input.coord_data[ triangle.points[ i ].texture_coordinate_index ].y;
+            result.coords[ result.element_start ].x = input.coord_data[ index ].x;
+            result.coords[ result.element_start ].y = input.coord_data[ index ].y;
 
             result.element_start++;
         }
@@ -178,7 +182,7 @@ unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Poly
     other_triangle.points[1] = quad.points[3];
     other_triangle.points[2] = quad.points[0];
 
-    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result );
+    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result, true );
 
     return number_of_written_vertices;
 }
@@ -189,16 +193,6 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
     Polygon tile_polygon;
 
     tile_polygon = default_mesh[ tileType ];
-
-    /*
-    tile_polygon.points[0].texture_coordinate_index += input.coord_index;
-    tile_polygon.points[0].texture_coordinate_index %= input.coord_index_limit;
-    tile_polygon.points[1].texture_coordinate_index += input.coord_index;
-    tile_polygon.points[1].texture_coordinate_index %= input.coord_index_limit;
-    tile_polygon.points[2].texture_coordinate_index += input.coord_index;
-    tile_polygon.points[2].texture_coordinate_index %= input.coord_index_limit;
-    tile_polygon.points[3].texture_coordinate_index += input.coord_index;
-    tile_polygon.points[3].texture_coordinate_index %= input.coord_index_limit;*/
 
     if( tile_polygon.points[0].heightmap_channel != NO_ELEMENT )
     {
