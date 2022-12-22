@@ -1,6 +1,6 @@
 // This was directly generated version from tile_set.json from a Python Script
 
-// This table takes inspiration from BahKooJ's Ctil work.
+// This table was modified in inspiration from BahKooJ's Ctil simplification.
 
 const unsigned POLYGON_COUNT = 128;
 Data::Mission::Til::Mesh::Polygon default_mesh[POLYGON_COUNT] = {
