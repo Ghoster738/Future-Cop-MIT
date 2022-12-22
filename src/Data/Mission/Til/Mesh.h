@@ -29,7 +29,6 @@ namespace Mesh {
     };
 
     struct Polygon {
-        bool flip; // Should the software flip the triangle?
         Point points[4];
     };
 

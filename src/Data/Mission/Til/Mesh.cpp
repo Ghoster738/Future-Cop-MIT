@@ -67,19 +67,13 @@ unsigned int Data::Mission::Til::Mesh::loadMeshScript( const char *const filepat
 
                     for( auto current_tile = tiles.begin(); current_tile != tiles.end(); current_tile++ ) {
                         Json::Value id = (*current_tile)["id"];
-                        Json::Value flip = (*current_tile)["flip"];
                         Json::Value polygon = (*current_tile)["polygon"];
 
                         if( id.isInt() && polygon.isArray() && polygon.size() >= 3 ) {
                             Polygon poly;
 
                             // This is the defaults of the polygon
-                            poly.flip = false;
                             poly.points[3].heightmap_channel = NO_ELEMENT; // This means that this polygon is a triangle by default.
-
-                            // This field is optional!
-                            if( flip.isInt() )
-                                poly.flip = (flip.asInt() == 1);
 
                             // Do not go beyond four points unless you want a buffer overflow.
                             unsigned int amount = polygon.size();
@@ -167,11 +161,6 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
             result.element_start++;
         }
 
-        if( triangle.flip ) {
-            std::swap( result.position[ result.element_start - 2 ], result.position[ result.element_start - 3 ] );
-            std::swap( result.coords[ result.element_start - 2 ], result.coords[ result.element_start - 3 ] );
-        }
-
         return ELEMENT_AMOUNT;
     }
     else
@@ -184,7 +173,6 @@ unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Poly
     number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, quad, result );
 
     Polygon other_triangle;
-    other_triangle.flip = quad.flip;
     other_triangle.points[0] = quad.points[2];
     other_triangle.points[1] = quad.points[3];
     other_triangle.points[2] = quad.points[0];
