@@ -149,19 +149,19 @@ unsigned int Data::Mission::Til::Mesh::loadMeshScript( const char *const filepat
 unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped ) {
     const unsigned int ELEMENT_AMOUNT = 3;
 
-    static const unsigned TABLE[2][3] = { { 0, 1, 2 }, { 2, 3, 0 } };
+    static const unsigned INDEX_TABLE[2][3] = { { 0, 1, 2 }, { 2, 3, 0 } };
     
     if( result.element_amount >= ELEMENT_AMOUNT + result.element_start )
     {
         for( unsigned int i = 0; i < ELEMENT_AMOUNT; i++ ) {
-            unsigned int index =  (input.coord_index + TABLE[ flipped ][ i ] ) % input.coord_index_limit;
             
             result.position[ result.element_start ].x = TILE_CORNER_POSITION_X[ triangle.points[ i ].facing_direction ];
             result.position[ result.element_start ].y = static_cast<float>(input.pixels[ triangle.points[ i ].facing_direction ]->channel[ triangle.points[ i ].heightmap_channel ]) * TilResource::SAMPLE_HEIGHT;
             result.position[ result.element_start ].z = TILE_CORNER_POSITION_Z[ triangle.points[ i ].facing_direction ];
-
-            result.coords[ result.element_start ].x = input.coord_data[ index ].x;
-            result.coords[ result.element_start ].y = input.coord_data[ index ].y;
+            
+            const unsigned int INDEX = (input.coord_index + TABLE[ flipped ][ i ] ) % input.coord_index_limit;
+            result.coords[ result.element_start ].x = input.coord_data[ INDEX ].x;
+            result.coords[ result.element_start ].y = input.coord_data[ INDEX ].y;
 
             result.element_start++;
         }
