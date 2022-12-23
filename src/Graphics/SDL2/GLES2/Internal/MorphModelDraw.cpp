@@ -115,15 +115,41 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::getDefaultVertexS
 }
 
 int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
+    auto err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram()  is not broken! " << err << std::endl;
+
     auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram();
     bool uniform_failed = false;
     bool attribute_failed = false;
 
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram()  compile failed! " << err << std::endl;
+
     sample_next_uniform_id = program.getUniform( "SampleNext", &std::cout, &uniform_failed );
     sample_last_uniform_id = program.getUniform( "SampleLast", &std::cout, &uniform_failed );
 
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram()  uniform check failed " << err << std::endl;
+
     glUniform1f( sample_next_uniform_id, 0.0f );
+
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() setting  sample_next_uniform_id check failed " << err << std::endl;
+
     glUniform1f( sample_last_uniform_id, 1.0f );
+
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() setting  sample_last_uniform_id check failed " << err << std::endl;
 
     morph_attribute_array_last.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );
     morph_attribute_array_last.addAttribute( "NORMAL_Last",   3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, (void*)(3 * sizeof( float )) );
