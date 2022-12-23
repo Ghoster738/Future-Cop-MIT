@@ -171,39 +171,17 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
         std::cout << "Static Model shader is broken!: " << err << std::endl;
     
     EnvironmentInternalData->morph_model_draw_routine.setVertexShader();
-
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Morph Model vertex shader is broken!: " << err << std::endl;
-
     EnvironmentInternalData->morph_model_draw_routine.setFragmentShader();
-
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Morph Model fragement is broken!: " << err << std::endl;
-
     EnvironmentInternalData->morph_model_draw_routine.compilieProgram();
 
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Morph Model program is broken!: " << err << std::endl;
-    
     EnvironmentInternalData->morph_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
-
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Morph Model set textures method is broken!: " << err << std::endl;
     
     EnvironmentInternalData->morph_model_draw_routine.setNumModelTypes( model_types.size() );
     
     err = glGetError();
 
     if( err != GL_NO_ERROR )
-        std::cout << "Morph types broke it!: " << err << std::endl;
+        std::cout << "Morph Model shader is broken!: " << err << std::endl;
 
     EnvironmentInternalData->skeletal_model_draw_routine.setVertexShader();
     EnvironmentInternalData->skeletal_model_draw_routine.setFragmentShader();
