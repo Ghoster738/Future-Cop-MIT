@@ -164,6 +164,11 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     EnvironmentInternalData->static_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
     EnvironmentInternalData->static_model_draw_routine.setNumModelTypes( model_types.size() );
+
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Static Model shader is broken!: " << err << std::endl;
     
     EnvironmentInternalData->morph_model_draw_routine.setVertexShader();
     EnvironmentInternalData->morph_model_draw_routine.setFragmentShader();
@@ -173,6 +178,11 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     
     EnvironmentInternalData->morph_model_draw_routine.setNumModelTypes( model_types.size() );
     
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Morph Model shader is broken!: " << err << std::endl;
+
     EnvironmentInternalData->skeletal_model_draw_routine.setVertexShader();
     EnvironmentInternalData->skeletal_model_draw_routine.setFragmentShader();
     EnvironmentInternalData->skeletal_model_draw_routine.compilieProgram();
@@ -180,6 +190,11 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     EnvironmentInternalData->skeletal_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
     EnvironmentInternalData->skeletal_model_draw_routine.setNumModelTypes( model_types.size() );
+
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Skeletal Model shader is broken!: " << err << std::endl;
     
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )
