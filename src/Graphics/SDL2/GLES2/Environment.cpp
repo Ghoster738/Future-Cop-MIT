@@ -147,6 +147,11 @@ void Graphics::Environment::setMap( const Data::Mission::PTCResource &ptc, const
 }
 
 int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
+    auto err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::Environment::setModelTypes is not broken! " << err << std::endl;
+
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder* model;
@@ -194,6 +199,11 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
         }
     }
     
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << std::endl;
+
     return number_of_failures;
 }
 
