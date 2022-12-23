@@ -102,10 +102,20 @@ void Graphics::SDL2::GLES2::Internal::Mesh::draw( GLuint active_switch_texture, 
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
+    auto err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "bindArray() ist not the culprit " << err << std::endl;
+
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+
+    err = glGetError();
+    if( err != GL_NO_ERROR )
+        std::cout << "BindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object); " << err << std::endl;
+
     vertex_array.bind();
 
-    auto err = glGetError();
+    err = glGetError();
 
     if( err != GL_NO_ERROR )
         std::cout << "This vertex_array has a problem " << err << std::endl;
