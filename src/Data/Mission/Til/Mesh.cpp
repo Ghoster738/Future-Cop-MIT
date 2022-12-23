@@ -159,7 +159,7 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
             result.position[ result.element_start ].y = static_cast<float>(input.pixels[ triangle.points[ i ].facing_direction ]->channel[ triangle.points[ i ].heightmap_channel ]) * TilResource::SAMPLE_HEIGHT;
             result.position[ result.element_start ].z = TILE_CORNER_POSITION_Z[ triangle.points[ i ].facing_direction ];
             
-            const unsigned int INDEX = (input.coord_index + TABLE[ flipped ][ i ] ) % input.coord_index_limit;
+            const unsigned int INDEX = (input.coord_index + INDEX_TABLE[ flipped ][ i ] ) % input.coord_index_limit;
             result.coords[ result.element_start ].x = input.coord_data[ INDEX ].x;
             result.coords[ result.element_start ].y = input.coord_data[ INDEX ].y;
 
