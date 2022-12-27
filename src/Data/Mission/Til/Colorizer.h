@@ -13,7 +13,7 @@ namespace Colorizer {
 
     struct Input {
         Data::Mission::TilResource::TileGraphics tile;
-        const uint16_t *colors;
+        const Utilities::PixelFormatColor::GenericColor *colors_r;
         size_t colors_amount;
         int unk;
     };
@@ -24,7 +24,7 @@ namespace Colorizer {
      * @param result This is where the colors will be placed to. ALWAYS make sure that result refers to 4 vectors.
      * @return 1 for success, or 0 for failure, or -1 for nullptr
      */
-    unsigned int setSquareColors( const Input &input, glm::vec3 *result );
+    unsigned int setSquareColors( const Input &input, glm::vec3 *result_r );
 }
 
 }

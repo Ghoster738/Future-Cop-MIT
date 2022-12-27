@@ -269,10 +269,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             // TODO Find out what this shader data does or if it is even shading data.
             colors.reserve( color_amount );
 
-            uint16_t colorful[] = { 0x7c00, 0x03e0, 0x001f, 0x7c1f };
-
             for( size_t i = 0; i < color_amount; i++ )
-                colors.push_back( readerSect.readU16( settings.endian ) );
+                colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( readerSect, settings.endian ) );
 
             // Read the texture_references, and shading info.
             while( readerSect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
@@ -468,8 +466,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                     Data::Mission::Til::Colorizer::Input input_color;
                     input_color.tile = this->tile_texture_type.at( current_tile.graphics_type_index );
-                    input_color.colors = colors.data();
-                    input_color.colors_amount = colors.size();
+                    input_color.colors_r = this->colors.data();
+                    input_color.colors_amount = this->colors.size();
                     input_color.unk = 0;
 
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );

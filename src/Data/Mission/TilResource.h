@@ -105,7 +105,7 @@ private:
     std::vector<Tile> mesh_tiles; // These are descriptions of tiles that are used to make up the map format. The 32 bit numbers are packed with information
 
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
-    std::vector<uint16_t> colors;
+    std::vector<Utilities::PixelFormatColor::GenericColor> colors;
     std::vector<TileGraphics> tile_texture_type;
     
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
