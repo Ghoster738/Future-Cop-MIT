@@ -28,6 +28,36 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 }
 }
 
+Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_OF_TILES * 3, Utilities::PixelFormatColor_R5G5B5A1() )
+{
+}
+
+Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position ) const
+{
+    return map.readPixel( position.x, position.y + position.z * AMOUNT_OF_TILES );
+}
+
+void Data::Mission::TilResource::ColorMap::setColor( glm::u8vec3 position, Utilities::PixelFormatColor::GenericColor color )
+{
+    map.writePixel( position.x, position.y + position.z * AMOUNT_OF_TILES, color );
+}
+
+void Data::Mission::TilResource::ColorMap::gatherColors(
+    const std::vector<TileGraphics>& tile_graphics,
+    const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
+    const Tile *const tiles_r )
+{
+    auto tile_iterator_r = tiles_r;
+    
+    // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
+    
+    while( !tile_iterator_r->end_column ) {
+        
+        
+        // Always increment this!
+        tile_iterator_r++;
+    }
+}
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"

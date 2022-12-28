@@ -83,6 +83,19 @@ public:
             type           = (bitfield >> 14) & ((1 << 2) - 1);
         }
     };
+    class ColorMap {
+    private:
+        Utilities::Image2D map;
+    public:
+        ColorMap();
+        
+        Utilities::PixelFormatColor::GenericColor getColor( glm::u8vec3 position ) const;
+        void setColor( glm::u8vec3 position, Utilities::PixelFormatColor::GenericColor color );
+        void gatherColors(
+            const std::vector<TileGraphics>& tile_graphics,
+            const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
+            const Tile *const tiles_r );
+    };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
     static constexpr float  SPAN_OF_TIL = AMOUNT_OF_TILES / 2;
@@ -111,7 +124,6 @@ private:
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
-    // std::pair<size_t,size_t>[16][16] triangle_map;
 public:
     static constexpr size_t TEXTURE_NAMES_AMOUNT = sizeof( texture_names ) / sizeof( texture_names[0] );
     

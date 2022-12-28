@@ -407,7 +407,7 @@ int main(int argc, char** argv)
                 else
                     movement_of_camera.z = 0;
             }
-
+            
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::DOWN );
             if( input_r->isChanged() )
             {
@@ -458,7 +458,7 @@ int main(int argc, char** argv)
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                Utilities::Image2D image_screenshot( width, height, Utilities::PixelFormatColor_R8G8B8A8() );
+                Utilities::Image2D image_screenshot( width, height, Utilities::PixelFormatColor_R8G8B8() );
                 environment->screenshot( image_screenshot );
 
                 Utilities::Buffer file;
@@ -469,6 +469,16 @@ int main(int argc, char** argv)
                     file.write( the_choosen_r->appendExtension( "dialog" ) );
                 }
             }
+            
+            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
+            if( input_r->isChanged() )
+            {
+                if( input_r->getState() > 0.5 )
+                    isCameraMoving = true;
+                else
+                    isCameraMoving = false;
+            }
+
         }
 
         if( control_cursor_r != nullptr && control_cursor_r->isChanged() )
@@ -485,10 +495,10 @@ int main(int argc, char** argv)
             if( isCameraMoving )
             {
                 input_r = control_cursor_r->getInput( Controls::CursorInputSet::Inputs::MOTION_X );
-                rotation.x += delta_f * static_cast<double>( input_r->getState() ) * (1.0 / 3.14);
+                rotation.x += delta_f * static_cast<double>( input_r->getState() ) * (16.0 / 3.14);
 
                 input_r = control_cursor_r->getInput( Controls::CursorInputSet::Inputs::MOTION_Y );
-                rotation.y += delta_f * static_cast<double>( input_r->getState() ) * (1.0 / 3.14);
+                rotation.y += delta_f * static_cast<double>( input_r->getState() ) * (16.0 / 3.14);
             }
 
             input_r = control_cursor_r->getInput( Controls::CursorInputSet::Inputs::WHEEL_Y );
