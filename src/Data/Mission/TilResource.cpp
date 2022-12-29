@@ -45,14 +45,26 @@ void Data::Mission::TilResource::ColorMap::setColor( glm::u8vec3 position, Utili
 void Data::Mission::TilResource::ColorMap::gatherColors(
     const std::vector<TileGraphics>& tile_graphics,
     const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
-    const Tile *const tiles_r )
+    const Tile *const tiles_r, unsigned number, glm::u8vec2 position )
 {
     auto tile_iterator_r = tiles_r;
+    glm::vec3 color_select[4];
+    Til::Colorizer::Input input;
     
     // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
     
-    while( !tile_iterator_r->end_column ) {
+    for( unsigned i = 0; i < number; i++ ) {
+        glm::u8vec3 one_channel( position.x, position.y, 0 );
         
+        input.tile = tile_graphics.at( tile_iterator_r->graphics_type_index );
+        input.colors_r = colors.data();
+        input.colors_amount = colors.size();
+        
+        Til::Colorizer::setSquareColors( input, color_select );
+        
+        Utilities::PixelFormatColor::GenericColor color( color_select[ 0 ].x, color_select[ 0 ].y, color_select[ 0 ].z, 1 );
+        
+        setColor( one_channel, color );
         
         // Always increment this!
         tile_iterator_r++;
@@ -141,7 +153,8 @@ void Data::Mission::TilResource::makeEmpty() {
     
     one_tile.end_column = 0;
     one_tile.texture_cord_index = 0;
-    one_tile.collision_type = 0; // This means the floor
+    one_tile.front = 0;
+    one_tile.back = 0;
     one_tile.unknown_1 = 0;
     one_tile.mesh_type = 60; // This should make an interesting pattern.
     one_tile.graphics_type_index = 0;
@@ -304,9 +317,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
             // Read the texture_references, and shading info.
             while( readerSect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                // TileGraphics grp;
-                // grp.tile_graphics = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-
                 tile_texture_type.push_back( { readerSect.readU16( settings.endian ) } );
             }
             
@@ -314,6 +324,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
                 for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
                     createPhysicsCell( x, z );
+                    this->color_map.gatherColors( tile_texture_type, colors, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
                 }
             }
         }

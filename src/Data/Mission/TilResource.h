@@ -44,7 +44,8 @@ public:
     struct Tile {
         uint32_t end_column: 1;
         uint32_t texture_cord_index : 10;
-        uint32_t collision_type : 2; // 0b00 for floor; 0b01 for wall facing +x and -y; 0b10 for wall facing -x and +y; 0b11 for slopes
+        uint32_t front : 1;
+        uint32_t back  : 1;
         uint32_t unknown_1 : 2; // Apperently this holds what this tile would do to the playable character. However, it appears that the action this tile would do to the player is stored elsewhere.
         uint32_t mesh_type : 7;
         uint32_t graphics_type_index : 10;
@@ -57,7 +58,8 @@ public:
         void set( const uint32_t bitfield ) {
             end_column          = (bitfield >>  0) & 1;
             texture_cord_index  = (bitfield >>  1) & ((1 << 10) - 1);
-            collision_type      = (bitfield >> 11) & ((1 <<  2) - 1);
+            front               = (bitfield >> 11) & 1;
+            back                = (bitfield >> 12) & 1;
             unknown_1           = (bitfield >> 13) & ((1 <<  2) - 1);
             mesh_type           = (bitfield >> 15) & ((1 <<  7) - 1);
             graphics_type_index = (bitfield >> 22) & ((1 << 10) - 1);
@@ -94,7 +96,8 @@ public:
         void gatherColors(
             const std::vector<TileGraphics>& tile_graphics,
             const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
-            const Tile *const tiles_r );
+            const Tile *const tiles_r, unsigned number,
+            glm::u8vec2 position );
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
@@ -120,6 +123,7 @@ private:
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<Utilities::PixelFormatColor::GenericColor> colors;
     std::vector<TileGraphics> tile_texture_type;
+    ColorMap color_map;
     
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
     
