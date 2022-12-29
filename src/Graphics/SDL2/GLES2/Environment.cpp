@@ -312,7 +312,7 @@ bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
     
     // This is a quick and easy way to fix the flipped image.
     // However, the price is that I replaced it with an O squared operation.
-    image.flipHorizontally();
+    image.flipVertically();
 
     return true;
 }
