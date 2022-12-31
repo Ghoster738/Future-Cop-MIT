@@ -31,7 +31,7 @@ endif()
 # TODO Add option to make SDL2 optional to simply compile 
 if( FCOption_SDL2_VENDORED )
   add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
-elif( WIN32 )
+elseif( WIN32 )
   # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
   find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
 else()
