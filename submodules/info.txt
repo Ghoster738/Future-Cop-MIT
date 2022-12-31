@@ -1,6 +1,6 @@
-These files are completely optional.
+These submodules are completely optional.
 
-They are there to potentially make the building process much easier.
+If there is no such thing as FindSDL2 in the compiling environment then the SDL2 folder should be given a SDL2 source. Be sure to set FCOption_SDL2_VENDORED to ON and to make sure that the SDL2 folder has the SDL2 sources inside.
 
 Call this command bellow at the root of this project if you want to complie some of these libraries.
 git submodule update --init
