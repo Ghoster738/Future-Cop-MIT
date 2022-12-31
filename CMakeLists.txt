@@ -6,22 +6,8 @@ project( "Future Cop: MIT" DESCRIPTION "Open-source reimplementation of Future C
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# This makes SDL2 work. It has something to do with how windows and mingw handles the main function.
-if (WIN32)
-  if( MINGW )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lmingw32")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lmingw32")
-  else()
-    message(WARNING "MinGW is not being used for this Windows build. This CMakeLists file does not account for this compiler.")
-  endif()
-endif()
-
-option(ENABLED_FC_TESTS "Run tests to the project to see any potential problems." OFF)
-option(USE_INTERNAL_SDL2 "Use the internal SDL 2 CMake files stored in this project." OFF)
-
-if( USE_INTERNAL_SDL2 )
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/SDL2")
-endif()
+option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
+option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -41,6 +27,19 @@ if( WIN32 )
 else()
   find_package( SDL2   REQUIRED )
 endif()
+
+# TODO Add option to make SDL2 optional to simply compile 
+if( FCOption_SDL2_VENDORED )
+  add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
+elif( WIN32 )
+  # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
+  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
+else()
+  # 1. Look for a SDL2 package, 2. look for the SDL2 component and 3. fail if none can be found
+  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
+  find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
+endif()
+
 find_package( OpenGL   REQUIRED)
 find_package( Git )
 
@@ -66,7 +65,6 @@ endif()
 
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${JSON_CPP_INCLUDE_DIR})
-include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
@@ -79,8 +77,8 @@ endif()
 
 target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
 
-# add_executable( FCMissionReader src/FCMissionReader.cpp )
-# target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
+add_executable( FCMissionReader src/FCMissionReader.cpp )
+target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
 include(${CMAKE_SOURCE_DIR}/cmake/GenerateVersionHeader.cmake)
 
@@ -110,27 +108,34 @@ file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
 
 target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
-
-target_link_libraries (FC_Engine PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
 target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
 
-add_executable(FCModelViewer src/FCModelViewer.cpp )
+if( WIN32 )
+  add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
+else()
+  add_executable(FCModelViewer src/FCModelViewer.cpp )
+endif()
 
 target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCModelViewer PRIVATE FC_Engine)
-if( WIN32 )
-  target_link_libraries (FCModelViewer PRIVATE SDL2main)
+if( TARGET SDL2::SDL2main )
+  target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2main)
 endif()
+target_link_libraries (FCModelViewer PRIVATE FC_Engine)
 
-add_executable(FCMapViewer src/FCMapViewer.cpp )
+if( WIN32 )
+  add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
+else()
+  add_executable(FCMapViewer src/FCMapViewer.cpp )
+endif()
 
 target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCMapViewer PRIVATE FC_Engine)
-if( WIN32 )
-  target_link_libraries (FCMapViewer PRIVATE SDL2main)
+if( TARGET SDL2::SDL2main )
+  target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2main)
 endif()
+target_link_libraries (FCMapViewer PRIVATE FC_Engine)
 
-if( ENABLED_FC_TESTS )
+if( FCOption_TESTS )
   # This is the testing section.
   add_subdirectory( src/Tests )
 endif()
