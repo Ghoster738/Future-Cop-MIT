@@ -27,12 +27,14 @@ if( GLM_VERSION VERSION_LESS 0.9.8 )
    message( WARNING "GLM version is ${GLM_VERSION} which is not above 0.9.8. This version of GLM might produce compilation errors." )
 endif()
 
-
 find_package( JSON_CPP REQUIRED )
 
 # TODO Add option to make SDL2 optional to simply compile 
 if( FCOption_SDL2_VENDORED )
   add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
+
+  # This is a workaround made to make this project compile. There might be a better way.
+  include_directories(${PROJECT_BINARY_DIR}/submodules/SDL2/include-config-/) # TODO Make sure this works.
 elseif( WIN32 )
   # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
   find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
