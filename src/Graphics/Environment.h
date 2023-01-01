@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "ModelInstance.h"
 #include <vector>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include "../Data/Mission/BMPResource.h"
 #include "../Data/Mission/PTCResource.h"
 #include "../Data/Mission/TilResource.h"

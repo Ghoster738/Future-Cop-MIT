@@ -21,12 +21,14 @@ target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
 find_package( ZLIB )
 find_package( PNG )
 find_package( glm      REQUIRED )
-find_package( JSON_CPP REQUIRED )
-if( WIN32 )
-  find_package( SDL2   REQUIRED components SDL2main )
-else()
-  find_package( SDL2   REQUIRED )
+
+# Warn the user of the potential compilation error.
+if( GLM_VERSION VERSION_LESS 0.9.8 )
+   message( WARNING "GLM version is ${GLM_VERSION} which is not above 0.9.8. This version of GLM might produce compilation errors." )
 endif()
+
+
+find_package( JSON_CPP REQUIRED )
 
 # TODO Add option to make SDL2 optional to simply compile 
 if( FCOption_SDL2_VENDORED )
@@ -42,11 +44,6 @@ endif()
 
 find_package( OpenGL   REQUIRED)
 find_package( Git )
-
-# Warn the user of the potential compilation error.
-if( GLM_VERSION VERSION_LESS 0.9.8 )
-   message( WARNING "GLM version is ${GLM_VERSION} which is not above 0.9.8. This version of GLM might produce compilation errors." )
-endif()
 
 if (SDL2_FOUND)
     mark_as_advanced(SDL2_DIR)
@@ -65,6 +62,7 @@ endif()
 
 include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${JSON_CPP_INCLUDE_DIR})
+include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 

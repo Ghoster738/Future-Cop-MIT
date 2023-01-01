@@ -1,7 +1,7 @@
 #ifndef CONTROLS_INPUT_INTERNALS_H
 #define CONTROLS_INPUT_INTERNALS_H
 
-#include <SDL2/SDL_events.h>
+#include "SDL_events.h"
 
 namespace Controls {
 

@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cmath> // fmod()
 #include <iostream> // fmod()
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_vertex_shader =
     "#version 100\n"

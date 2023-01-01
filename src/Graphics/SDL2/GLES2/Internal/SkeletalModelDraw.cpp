@@ -2,7 +2,7 @@
 #include "../ModelInstance.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <cassert>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <iostream>
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames ) {

@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_WINDOW_INSTANCE_INTERNAL_DATA_H
 #define GRAPHICS_WINDOW_INSTANCE_INTERNAL_DATA_H
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include "GLES2/Internal/GLES2.h"
 #include "../Window.h"
 

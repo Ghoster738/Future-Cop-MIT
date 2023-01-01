@@ -3,7 +3,7 @@
 #include "GLES2.h"
 
 #include <glm/ext/matrix_transform.hpp>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <iostream>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =

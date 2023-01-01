@@ -2,7 +2,7 @@
 #include "../ModelInstance.h"
 #include <cassert>
 #include <iostream>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 namespace {
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );

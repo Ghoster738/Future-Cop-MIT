@@ -1,7 +1,7 @@
 #include "FontSystem.h"
 #include <iostream>
 #include <cassert>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 namespace {
     /**
