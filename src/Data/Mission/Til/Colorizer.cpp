@@ -29,9 +29,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 }
                 break;
             case 0b10: // Dynamic Color
-                result_r[0].x = input.colors_r[ input.tile.shading % input.colors_amount ].red;
-                result_r[0].y = input.colors_r[ input.tile.shading % input.colors_amount ].green;
-                result_r[0].z = input.colors_r[ input.tile.shading % input.colors_amount ].blue;
+                result_r[0].x = input.colors[ input.tile.shading % input.colors.size() ].red;
+                result_r[0].y = input.colors[ input.tile.shading % input.colors.size() ].green;
+                result_r[0].z = input.colors[ input.tile.shading % input.colors.size() ].blue;
                 for( unsigned int p = 1; p < 4; p++ )
                 {
                     result_r[p].x = 1.000;

@@ -12,9 +12,8 @@ namespace Til {
 namespace Colorizer {
 
     struct Input {
+        const std::vector<Utilities::PixelFormatColor::GenericColor> &colors;
         Data::Mission::TilResource::TileGraphics tile;
-        const Utilities::PixelFormatColor::GenericColor *colors_r;
-        size_t colors_amount;
         int unk;
     };
 
