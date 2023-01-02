@@ -307,6 +307,13 @@ void Graphics::Environment::drawFrame() const {
 }
 
 bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
+    auto gl_error = glGetError();
+
+    if( gl_error != GL_NO_ERROR ) {
+        std::cout << "There is an OpenGL error before screenshot(...)\n";
+        std::cout << " This error is " << gl_error << std::endl;
+    }
+
     // if( image.isValid() && getHeight() < window TODO Work on type protection later.
     glReadPixels( 0, 0, image.getWidth(), image.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     
@@ -314,7 +321,15 @@ bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
     // However, the price is that I replaced it with an O squared operation.
     image.flipVertically();
 
-    return true;
+    gl_error = glGetError();
+
+    if( gl_error != GL_NO_ERROR ) {
+        std::cout << "There is an OpenGL error in glReadPixels\n";
+        std::cout << " This error is " << gl_error << std::endl;
+        return false;
+    }
+    else
+        return true;
 }
 
 void Graphics::Environment::advanceTime( float seconds_passed ) {
