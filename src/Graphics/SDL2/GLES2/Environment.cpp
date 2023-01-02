@@ -315,7 +315,7 @@ bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
     }
 
     // if( image.isValid() && getHeight() < window TODO Work on type protection later.
-    glReadPixels( 0, 0, image.getWidth(), image.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image.getDirectGridData() );
+    glReadPixels( 0, 0, image.getWidth(), image.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     
     // This is a quick and easy way to fix the flipped image.
     // However, the price is that I replaced it with an O squared operation.

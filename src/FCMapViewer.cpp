@@ -458,15 +458,16 @@ int main(int argc, char** argv)
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                Utilities::Image2D image_screenshot( width, height, Utilities::PixelFormatColor_R8G8B8() );
-                environment->screenshot( image_screenshot );
+                Utilities::Image2D image_screenshot( width, height, Utilities::PixelFormatColor_R8G8B8A8() );
 
-                Utilities::Buffer file;
-                Utilities::ImageFormat::Chooser chooser;
-                auto the_choosen_r = chooser.getWriterReference( image_screenshot );
-                if( the_choosen_r != nullptr ) {
-                    the_choosen_r->write( image_screenshot, file);
-                    file.write( the_choosen_r->appendExtension( "dialog" ) );
+                if( environment->screenshot( image_screenshot ) ) {
+                    Utilities::Buffer file;
+                    Utilities::ImageFormat::Chooser chooser;
+                    auto the_choosen_r = chooser.getWriterReference( image_screenshot );
+                    if( the_choosen_r != nullptr ) {
+                        the_choosen_r->write( image_screenshot, file);
+                        file.write( the_choosen_r->appendExtension( "dialog" ) );
+                    }
                 }
             }
             
