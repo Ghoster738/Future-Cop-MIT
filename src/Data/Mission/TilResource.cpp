@@ -500,8 +500,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map };
                     input_color.tile = this->tile_texture_type.at( current_tile.graphics_type_index );
                     input_color.unk = 0;
-                    input_color.position.x = y;
-                    input_color.position.y = x;
+                    input_color.position.x = x;
+                    input_color.position.y = y;
                     input_color.position.z = 0;
 
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );

@@ -118,21 +118,10 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 }
                 break;
         }
-        result_r[0].x = 1.00;
-        result_r[0].y = 1.00;
-        result_r[0].z = 1.00;
-        
-        result_r[1].x = 1.00;
-        result_r[1].y = 0.00;
-        result_r[1].z = 0.00;
-        
-        result_r[2].x = 1.00;
-        result_r[2].y = 1.00;
-        result_r[2].z = 0.00;
-        
-        result_r[3].x = 0.00;
-        result_r[3].y = 1.00;
-        result_r[3].z = 0.00;
+        for( unsigned int p = 0; p < 4; p++ )
+        {
+            result_r[ p ] = static_cast<glm::vec3>( input.position ) / static_cast<float>(Data::Mission::TilResource::AMOUNT_OF_TILES);
+        }
 
         return 1;
     }

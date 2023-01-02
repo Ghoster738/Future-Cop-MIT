@@ -72,7 +72,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader
 
     "void main()\n"
     "{\n"
-    "    vec4 frag_color = vec4( 1, 1, 1, 1);\n"
+    "    vec4 frag_color = vec4( 1, 1, 1, 0);\n"
     "    const float CUTOFF = 0.015625;\n"
     "    if( frag_color.r < CUTOFF && frag_color.g < CUTOFF && frag_color.b < CUTOFF )"
     "       discard;\n"
@@ -96,7 +96,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
     "void main()\n"
     "{\n"
-    "    vec4 frag_color = vec4( 1, 1, 1, 1);\n"
+    "    vec4 frag_color = vec4( 1, 1, 1, 0);\n"
     "    const float CUTOFF = 0.015625;\n"
     "    if( frag_color.r < CUTOFF && frag_color.g < CUTOFF && frag_color.b < CUTOFF )"
     "       discard;\n"
