@@ -16,6 +16,7 @@ namespace Colorizer {
         const TilResource::ColorMap &color_map;
         Data::Mission::TilResource::TileGraphics tile;
         int unk;
+        glm::u8vec3 position;
     };
 
     Utilities::PixelFormatColor::GenericColor getColor( Data::Mission::TilResource::TileGraphics tile, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors );

@@ -43,10 +43,49 @@ glm::vec3 Data::Mission::Til::Colorizer::getColorVec3(
     return vertex_value;
 }
 
-unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r ) {
+namespace {
+
+glm::vec3 colorToVec3( Utilities::PixelFormatColor::GenericColor color )
+{
+    glm::vec3 vertex_value;
+    
+    vertex_value.x = color.red;
+    vertex_value.y = color.green;
+    vertex_value.z = color.blue;
+    
+    return vertex_value;
+}
+
+unsigned inverse( unsigned number ) {
+    const unsigned LENGTH = Data::Mission::TilResource::AMOUNT_OF_TILES - 1;
+    
+    return LENGTH - number;
+}
+
+void inverseSet( glm::u8vec3 seed, glm::u8vec3 *values_r ) {
+    values_r[ 0 ].x = inverse( seed.x );
+    values_r[ 0 ].y = seed.y;
+    values_r[ 0 ].z = 0;
+    
+    values_r[ 1 ].x = seed.x;
+    values_r[ 1 ].y = inverse( seed.y );
+    values_r[ 1 ].z = 0;
+    
+    values_r[ 2 ].x = inverse( seed.x );
+    values_r[ 2 ].y = inverse( seed.y );
+    values_r[ 2 ].z = 0;
+}
+
+}
+
+unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
+{
     if( result_r != nullptr )
     {
         result_r[0] = getColorVec3( input.tile, input.colors );
+        
+        glm::u8vec3 values[3];
+        inverseSet( input.position, values );
         
         // Generate the color
         switch( input.tile.type ) {
@@ -59,19 +98,15 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 }
                 break;
             case 0b01: // Dynamic Monochrome
-                for( unsigned int p = 1; p < 4; p++ )
+                for( unsigned int p = 0; p < 3; p++ )
                 {
-                    result_r[p].x = 0.125;
-                    result_r[p].y = 0.250;
-                    result_r[p].z = 1.0;
+                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( values[ p ] ) );
                 }
                 break;
             case 0b10: // Dynamic Color
-                for( unsigned int p = 1; p < 4; p++ )
+                for( unsigned int p = 0; p < 3; p++ )
                 {
-                    result_r[p].x = 1.000;
-                    result_r[p].y = 0.250;
-                    result_r[p].z = 0.125;
+                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( values[ p ] ) );
                 }
                 break;
             case 0b11: // Lava Animation
