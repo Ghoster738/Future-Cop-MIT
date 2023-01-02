@@ -17,6 +17,10 @@ namespace Colorizer {
         int unk;
     };
 
+    Utilities::PixelFormatColor::GenericColor getColor( Data::Mission::TilResource::TileGraphics tile, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors );
+
+    glm::vec3 getColorVec3( Data::Mission::TilResource::TileGraphics tile, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors );
+
     /**
      * Set the colors for the square.
      * @param input This is where the inputs go.
