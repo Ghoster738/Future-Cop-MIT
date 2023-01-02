@@ -80,6 +80,11 @@ void inverseSet( glm::u8vec3 seed, glm::u8vec3 *values_r ) {
 
 unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
 {
+    const unsigned DIRECT = 0;
+    const unsigned OP_Y_AXIS = 1;
+    const unsigned OP_X_Y_AXIS = 2;
+    const unsigned OP_X_AXIS = 3;
+    
     if( result_r != nullptr )
     {
         result_r[0] = getColorVec3( input.tile, input.colors );
@@ -119,21 +124,21 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
         }
         
-        result_r[0].x = 0.00;
-        result_r[0].y = 0.00;
-        result_r[0].z = 0.00;
+        result_r[ DIRECT ].x = 0.00;
+        result_r[ DIRECT ].y = 0.00;
+        result_r[ DIRECT ].z = 0.00;
         
-        result_r[1].x = 0.00;
-        result_r[1].y = 1.00;
-        result_r[1].z = 0.00;
+        result_r[ OP_Y_AXIS ].x = 0.00;
+        result_r[ OP_Y_AXIS ].y = 1.00;
+        result_r[ OP_Y_AXIS ].z = 0.00;
         
-        result_r[2].x = 1.00;
-        result_r[2].y = 1.00;
-        result_r[2].z = 0.00;
+        result_r[ OP_X_Y_AXIS ].x = 1.00;
+        result_r[ OP_X_Y_AXIS ].y = 1.00;
+        result_r[ OP_X_Y_AXIS ].z = 0.00;
         
-        result_r[3].x = 1.00;
-        result_r[3].y = 0.00;
-        result_r[3].z = 0.00;
+        result_r[ OP_X_AXIS ].x = 1.00;
+        result_r[ OP_X_AXIS ].y = 0.00;
+        result_r[ OP_X_AXIS ].z = 0.00;
 
         return 1;
     }
