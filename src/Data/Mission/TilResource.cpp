@@ -48,19 +48,13 @@ void Data::Mission::TilResource::ColorMap::gatherColors(
     const Tile *const tiles_r, unsigned number, glm::u8vec2 position )
 {
     auto tile_iterator_r = tiles_r;
-    glm::vec3 color_select[4];
-    Til::Colorizer::Input input = { colors };
     
     // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
     
     for( unsigned i = 0; i < number; i++ ) {
         glm::u8vec3 one_channel( position.x, position.y, 0 );
         
-        input.tile = tile_graphics.at( tile_iterator_r->graphics_type_index );
-        
-        Til::Colorizer::setSquareColors( input, color_select );
-        
-        Utilities::PixelFormatColor::GenericColor color( color_select[ 0 ].x, color_select[ 0 ].y, color_select[ 0 ].z, 1 );
+        auto color = Til::Colorizer::getColor( tile_graphics.at( tile_iterator_r->graphics_type_index ), colors );
         
         setColor( one_channel, color );
         
@@ -503,7 +497,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     vertex_data.element_amount = 6;
                     vertex_data.element_start = 0;
 
-                    Data::Mission::Til::Colorizer::Input input_color = { this->colors };
+                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map };
                     input_color.tile = this->tile_texture_type.at( current_tile.graphics_type_index );
                     input_color.unk = 0;
 
