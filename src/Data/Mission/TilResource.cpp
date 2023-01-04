@@ -51,7 +51,7 @@ void Data::Mission::TilResource::ColorMap::gatherColors(
     
     // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
     
-    for( unsigned i = 0; i < number; i++ ) {
+    for( unsigned i = 0; i < 1; i++ ) {
         glm::u8vec3 one_channel( position.x, position.y, 0 );
         
         auto color = Til::Colorizer::getColor( tile_graphics.at( tile_iterator_r->graphics_type_index ), colors );
