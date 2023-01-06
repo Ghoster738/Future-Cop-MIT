@@ -40,17 +40,34 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
             auto size      = reader.readU32( settings.endian );
 
             if( header == TAG_tFUN ) {
-                std::cout << "Successfuly parased tFUN!" << std::endl;
                 auto reader_tfun = reader.getReader( size - TAG_HEADER_SIZE );
+                
+                fun_id = reader_tfun.readU32( settings.endian );
+                assert( fun_id == 1 );
                 
                 while( !reader_tfun.ended() ) {
                     fun_numbers.push_back( reader_tfun.readI32( settings.endian ) );
                 }
                 
                 assert( fun_numbers.size() != 0 );
-                assert( fun_numbers[ 0 ] == 1 );
                 
-                return true;
+                auto header    = reader.readU32( settings.endian );
+                auto size      = reader.readU32( settings.endian );
+                
+                if( header == TAG_tEXT ) {
+                    auto reader_ext = reader.getReader( size - TAG_HEADER_SIZE );
+                    
+                    ext_id = reader_ext.readU32( settings.endian );
+                    assert( ext_id == 1 );
+                    
+                    ext_bytes = reader_ext.getBytes();
+                    
+                    assert( ext_bytes.size() != 0 );
+                    
+                    return true;
+                }
+                else
+                    return false;
             }
             else {
                 std::cout << "Failed parased Cfun! " << std::hex << header << std::endl;

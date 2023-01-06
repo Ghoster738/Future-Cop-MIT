@@ -13,6 +13,7 @@ public:
     static const uint32_t IDENTIFIER_TAG;
     
 private:
+    uint32_t fun_id;
     std::vector<int32_t> fun_numbers;
     
     uint32_t ext_id;
