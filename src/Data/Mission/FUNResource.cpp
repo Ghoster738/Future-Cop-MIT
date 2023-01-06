@@ -35,13 +35,21 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     {
         auto reader = this->data_p->getReader();
 
-        if( reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + ENTRY_SIZE ) {
+        if( reader.totalSize() >= TAG_HEADER_SIZE ) {
             auto header    = reader.readU32( settings.endian );
             auto size      = reader.readU32( settings.endian );
-            auto num_entry = reader.readU32( settings.endian );
 
             if( header == TAG_tFUN ) {
                 std::cout << "Successfuly parased tFUN!" << std::endl;
+                auto reader_tfun = reader.getReader( size - TAG_HEADER_SIZE );
+                
+                while( !reader_tfun.ended() ) {
+                    fun_numbers.push_back( reader_tfun.readI32( settings.endian ) );
+                }
+                
+                assert( fun_numbers.size() != 0 );
+                assert( fun_numbers[ 0 ] == 1 );
+                
                 return true;
             }
             else {
