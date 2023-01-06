@@ -4,8 +4,11 @@
 #include <iostream>
 
 const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
-const uint32_t    Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
+const uint32_t    Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
+
+int32_t Data::Mission::FUNResource::min = std::numeric_limits<int32_t>::max();
+int32_t Data::Mission::FUNResource::max = std::numeric_limits<int32_t>::min();
 
 Data::Mission::FUNResource::FUNResource() {
 }
@@ -47,6 +50,9 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 
                 while( !reader_tfun.ended() ) {
                     fun_numbers.push_back( reader_tfun.readI32( settings.endian ) );
+                    
+                    min = std::min( min, fun_numbers.back() );
+                    max = std::max( max, fun_numbers.back() );
                 }
                 
                 assert( fun_numbers.size() != 0 );
@@ -62,23 +68,19 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     
                     ext_bytes = reader_ext.getBytes();
                     
+                    std::cout << "ext_bytes = " << std::dec << ext_bytes.size() << std::endl;
+                    
                     assert( ext_bytes.size() != 0 );
+                    assert( reader.ended() );
                     
                     return true;
                 }
-                else
-                    return false;
-            }
-            else {
-                std::cout << "Failed parased Cfun! " << std::hex << header << std::endl;
-                return false;
             }
         }
-        else
-            return false;
     }
-    else
-        return false;
+    
+    assert( 0 );
+    return false;
 }
 
 Data::Mission::Resource * Data::Mission::FUNResource::duplicate() const {

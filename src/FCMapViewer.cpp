@@ -11,6 +11,7 @@
 #include "Data/Mission/IFF.h"
 #include "Data/Mission/ObjResource.h"
 #include "Data/Mission/BMPResource.h"
+#include "Data/Mission/FUNResource.h"
 
 #include "Data/Mission/Til/Mesh.h"
 #include "Data/Mission/Til/Colorizer.h"
@@ -560,6 +561,9 @@ int main(int argc, char** argv)
 
     // Clean up
     Graphics::Environment::deinitEntireSystem();
+    
+    std::cout << "FUNResource.max = " << Data::Mission::FUNResource::max << std::endl;
+    std::cout << "FUNResource.min = " << Data::Mission::FUNResource::min << std::endl;
 
     return 0;
 }

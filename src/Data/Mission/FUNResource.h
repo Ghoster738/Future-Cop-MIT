@@ -12,6 +12,9 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     
+    static int32_t min;
+    static int32_t max;
+    
 private:
     uint32_t fun_id;
     std::vector<int32_t> fun_numbers;
