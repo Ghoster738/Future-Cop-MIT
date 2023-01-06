@@ -70,11 +70,15 @@ namespace {
         // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
         { 0x43746F73, new Data::Mission::UnkResource( 0x43746F73, "tos" ) },  // time of sounds?
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
+        // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
+        { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "Caif" ) },
         // which is { 0x52, 0x50, 0x4E, 0x53 } or { 'R', 'P', 'N', 'S' } or "RPNS"
         { 0x52504E53, new Data::Mission::UnkResource( 0x52504E53, "rpns" ) },
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
         // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
-        { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) }
+        { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
+        // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
+        { 0x4366756e, new Data::Mission::UnkResource( 0x4366756e, "fun" ) }
     };
     class AutoDelete {
     public:
