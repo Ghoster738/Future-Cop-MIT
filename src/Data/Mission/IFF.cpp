@@ -5,6 +5,7 @@
 #include "BMPResource.h"
 #include "DCSResource.h"
 #include "FontResource.h"
+#include "FUNResource.h"
 #include "MSICResource.h"
 #include "NetResource.h"
 #include "PTCResource.h"
@@ -77,8 +78,7 @@ namespace {
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
         // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
         { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
-        // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
-        { 0x4366756e, new Data::Mission::UnkResource( 0x4366756e, "fun" ) }
+        { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() }
     };
     class AutoDelete {
     public:
