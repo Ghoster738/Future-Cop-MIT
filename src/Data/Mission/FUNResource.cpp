@@ -1,4 +1,5 @@
 #include "FUNResource.h"
+#include <limits>
 #include <cassert>
 
 #include <iostream>
