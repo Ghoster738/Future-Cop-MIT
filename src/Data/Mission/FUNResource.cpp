@@ -49,6 +49,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 assert( data_id == 1 );
                 
                 auto unk = std::numeric_limits<int32_t>::min();
+                int last = -1;
                 
                 while( !reader_tfun.ended() ) {
                     fun_struct.type  = reader_tfun.readI32( settings.endian );
@@ -59,9 +60,12 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     
                     unk = std::max( unk, fun_struct.unk_1 );
                     
-                    assert( ( fun_struct.type == 1 ) | ( fun_struct.type == -1 ) | (fun_struct.type == 0 ) | ( fun_struct.type == 25 ) | ( fun_struct.type == 9999 ) );
+                    assert( last < fun_struct.pos_x );
+                    last = fun_struct.pos_x;
                     
+                    assert( ( fun_struct.type == 1 ) | ( fun_struct.type == -1 ) | (fun_struct.type == 0 ) | ( fun_struct.type == 25 ) | ( fun_struct.type == 9999 ) );
                     assert( fun_struct.zero == 0 );
+                    assert( fun_struct.pos_x < fun_struct.pos_y );
                     
                     functions.push_back( fun_struct );
                 }
@@ -80,8 +84,11 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     ext_bytes = reader_ext.getBytes();
                     
                     assert( ext_bytes.size() != 0 );
-                    // assert( ext_bytes.size() > unk ); // This will produce crashes thus it is disproven that unk is an offset to ext_bytes.
+                    assert( ext_bytes.size() > functions.back().pos_y );
                     assert( reader.ended() );
+                    
+                    std::cout << "ext_bytes.size() = " << ext_bytes.size() << std::endl;
+                    std::cout << "functions.size() = " << functions.size() << std::endl;
                     
                     return true;
                 }
