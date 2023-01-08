@@ -14,6 +14,9 @@ const std::string Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
 const uint32_t Data::Mission::ACTResource::SAC_IDENTI_TAG = 0x43736163; // which is { 0x43, 0x73, 0x61, 0x63 } or { 'C', s, 'a', 'c' } or "Csac"
 
+// TODO This needs to be more precise.
+const double Data::Mission::ACTResource::SECONDS_PER_GAME_TICK = 0.016444444444444;
+
 const uint32_t Data::Mission::ACTResource::ACT_CHUNK_ID = 0x74414354; // which is { 0x74, 0x41, 0x43, 0x54 } or { 't', 'A', 'C', 'T' } or "tACT"
 const uint32_t Data::Mission::ACTResource::RSL_CHUNK_ID = 0x6152534c; // which is { 0x61, 0x52, 0x53, 0x4c } or { 'a', 'R', 'S', 'L' } or "aRSL"
 const uint32_t Data::Mission::ACTResource::SAC_CHUNK_ID = 0x74534143; // which is { 0x74, 0x53, 0x41, 0x43 } or { 't', 'S', 'A', 'C' } or "tSAC"
@@ -69,8 +72,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     root["resource"]["id"] = static_cast<unsigned int>( this->matching_number );
 
     if( tSAC.exists ) {
-        root["SAC"]["unk_0"] = tSAC.unk_0;
-        root["SAC"]["unk_1"] = tSAC.unk_1;
+        root["SAC"]["game_ticks"]  = tSAC.game_ticks;
+        root["SAC"]["spawn_limit"] = tSAC.spawn_limit;
         root["SAC"]["unk_2"] = tSAC.unk_2;
         root["SAC"]["unk_3"] = tSAC.unk_3;
     }
@@ -169,8 +172,8 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         {
             tSAC.exists = true;
 
-            tSAC.unk_0 = sac_reader.readU16( endian );
-            tSAC.unk_1 = sac_reader.readU16( endian );
+            tSAC.game_ticks  = sac_reader.readI16( endian );
+            tSAC.spawn_limit = sac_reader.readU16( endian );
             tSAC.unk_2 = sac_reader.readU16( endian );
             tSAC.unk_3 = sac_reader.readU16( endian );
         }

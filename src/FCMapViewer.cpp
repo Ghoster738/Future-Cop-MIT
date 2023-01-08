@@ -11,7 +11,6 @@
 #include "Data/Mission/IFF.h"
 #include "Data/Mission/ObjResource.h"
 #include "Data/Mission/BMPResource.h"
-#include "Data/Mission/FUNResource.h"
 
 #include "Data/Mission/Til/Mesh.h"
 #include "Data/Mission/Til/Colorizer.h"

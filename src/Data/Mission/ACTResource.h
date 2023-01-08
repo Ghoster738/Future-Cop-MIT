@@ -23,6 +23,8 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static const uint32_t SAC_IDENTI_TAG;
+    
+    static const double SECONDS_PER_GAME_TICK;
 
 protected:
     static const uint32_t ACT_CHUNK_ID;
@@ -36,8 +38,8 @@ protected:
 
     struct tSAC_chunk {
         bool exists; // This tells if the struct is found.
-        uint16_t unk_0;
-        uint16_t unk_1;
+        int16_t   game_ticks;
+        uint16_t spawn_limit;
         uint16_t unk_2;
         uint16_t unk_3;
     };
@@ -90,6 +92,7 @@ public:
     virtual Resource* genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const;
 
     uint_fast32_t getID() { return matching_number; }
+    int_fast16_t getGameTicks() { return tSAC.game_ticks; }
     virtual uint_fast8_t getTypeID() const = 0;
     virtual size_t getSize() const = 0;
 

@@ -6,10 +6,7 @@
 
 const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
-const uint32_t    Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
-
-int32_t Data::Mission::FUNResource::min = std::numeric_limits<int32_t>::max();
-int32_t Data::Mission::FUNResource::max = std::numeric_limits<int32_t>::min();
+const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
 Data::Mission::FUNResource::FUNResource() {
 }
@@ -29,11 +26,13 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     const size_t  TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
     const size_t NUM_ENTRIES_SIZE = sizeof(uint32_t);
     const size_t       ENTRY_SIZE = 8 * sizeof(uint8_t);
-    
     const uint32_t TAG_tFUN = 0x7446554e;
     // which is { 0x74, 0x46, 0x55, 0x4e } or { 't', 'F', 'U', 'N' } or "tFUN"
     const uint32_t TAG_tEXT = 0x74455854;
     // which is { 0x74, 0x45, 0x58, 0x54 } or { 't', 'E', 'X', 'T' } or "tEXT"
+    
+    uint32_t data_id;
+    Function fun_struct;
     
     if( this->data_p != nullptr )
     {
@@ -46,17 +45,28 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
             if( header == TAG_tFUN ) {
                 auto reader_tfun = reader.getReader( size - TAG_HEADER_SIZE );
                 
-                fun_id = reader_tfun.readU32( settings.endian );
-                assert( fun_id == 1 );
+                data_id = reader_tfun.readU32( settings.endian );
+                assert( data_id == 1 );
+                
+                auto unk = std::numeric_limits<int32_t>::min();
                 
                 while( !reader_tfun.ended() ) {
-                    fun_numbers.push_back( reader_tfun.readI32( settings.endian ) );
+                    fun_struct.type  = reader_tfun.readI32( settings.endian );
+                    fun_struct.unk_1 = reader_tfun.readI32( settings.endian );
+                    fun_struct.zero  = reader_tfun.readI32( settings.endian );
+                    fun_struct.pos_x = reader_tfun.readI32( settings.endian );
+                    fun_struct.pos_y = reader_tfun.readI32( settings.endian );
                     
-                    min = std::min( min, fun_numbers.back() );
-                    max = std::max( max, fun_numbers.back() );
+                    unk = std::max( unk, fun_struct.unk_1 );
+                    
+                    assert( ( fun_struct.type == 1 ) | ( fun_struct.type == -1 ) | (fun_struct.type == 0 ) | ( fun_struct.type == 25 ) | ( fun_struct.type == 9999 ) );
+                    
+                    assert( fun_struct.zero == 0 );
+                    
+                    functions.push_back( fun_struct );
                 }
                 
-                assert( fun_numbers.size() != 0 );
+                assert( functions.size() != 0 );
                 
                 auto header    = reader.readU32( settings.endian );
                 auto size      = reader.readU32( settings.endian );
@@ -64,14 +74,13 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 if( header == TAG_tEXT ) {
                     auto reader_ext = reader.getReader( size - TAG_HEADER_SIZE );
                     
-                    ext_id = reader_ext.readU32( settings.endian );
-                    assert( ext_id == 1 );
+                    data_id = reader_ext.readU32( settings.endian );
+                    assert( data_id == 1 );
                     
                     ext_bytes = reader_ext.getBytes();
                     
-                    std::cout << "ext_bytes = " << std::dec << ext_bytes.size() << std::endl;
-                    
                     assert( ext_bytes.size() != 0 );
+                    // assert( ext_bytes.size() > unk ); // This will produce crashes thus it is disproven that unk is an offset to ext_bytes.
                     assert( reader.ended() );
                     
                     return true;

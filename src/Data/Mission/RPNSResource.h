@@ -1,5 +1,5 @@
-#ifndef MISSION_RESOURCE_FUN_HEADER
-#define MISSION_RESOURCE_FUN_HEADER
+#ifndef MISSION_RESOURCE_RPNS_HEADER
+#define MISSION_RESOURCE_RPNS_HEADER
 
 #include "Resource.h"
 
@@ -7,26 +7,22 @@ namespace Data {
 
 namespace Mission {
 
-class FUNResource : public Resource {
+class RPNSResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     
-    struct Function {
-        int32_t type;
-        int32_t unk_1;
-        int32_t zero;
-        int32_t pos_x;
-        int32_t pos_y;
+    struct Bitfield {
+        uint8_t a : 2;
+        uint8_t b : 6;
     };
     
 private:
-    std::vector<Function> functions;
-    std::vector<uint8_t> ext_bytes;
+    std::vector<Bitfield> bitfields;
 
 public:
-    FUNResource();
-    FUNResource( const FUNResource &obj );
+    RPNSResource();
+    RPNSResource( const RPNSResource &obj );
 
     virtual std::string getFileExtension() const;
 
@@ -44,4 +40,4 @@ public:
 
 }
 
-#endif // MISSION_RESOURCE_UNKNOWN_HEADER
+#endif // MISSION_RESOURCE_RPNS_HEADER
