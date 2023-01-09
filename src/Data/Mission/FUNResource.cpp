@@ -93,12 +93,23 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
+                        for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
+                            assert( (*f) != 0 );
+                        }
                         std::cout << std::endl;
                         std::cout << std::hex << "Code = ";
                         for( auto f = code.begin(); f < code.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                        }
+                        }/*
+                        for( auto f = code.begin(); f < code.end() - 1; f++ ) {
+                            assert( (*f) != 0 );
+                        }*/
                         std::cout << std::dec << "\n" << std::endl;
+                        
+                        assert( parameters.size() > 1 );
+                        assert( code.size() > 1 );
+                        assert( parameters.back() == 0 );
+                        assert( code.back() == 0 );
                     }
                     std::cout << std::hex << "Last tEXT = ";
                     for( auto f = last_ext.begin(); f < last_ext.end(); f++ ){
