@@ -13,11 +13,11 @@ public:
     static const uint32_t IDENTIFIER_TAG;
     
     struct Function {
-        int32_t type;
-        int32_t unk_1;
-        int32_t zero;
-        int32_t pos_x;
-        int32_t pos_y;
+        int32_t faction; //    Wild Guess
+        int32_t identifier; // Wild Guess
+        int32_t zero; // Always zero.
+        uint32_t start_parameter_offset; // Wild Guess
+        uint32_t start_code_offset;      // Wild Guess
     };
     
 private:
@@ -38,6 +38,9 @@ public:
     virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
 
     virtual Resource * duplicate() const;
+    
+    std::vector<uint8_t> getFunctionParameters( unsigned index ) const;
+    std::vector<uint8_t> getFunctionCode( unsigned index ) const;
 };
 
 }

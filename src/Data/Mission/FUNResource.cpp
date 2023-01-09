@@ -48,24 +48,16 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 data_id = reader_tfun.readU32( settings.endian );
                 assert( data_id == 1 );
                 
-                auto unk = std::numeric_limits<int32_t>::min();
-                int last = -1;
-                
                 while( !reader_tfun.ended() ) {
-                    fun_struct.type  = reader_tfun.readI32( settings.endian );
-                    fun_struct.unk_1 = reader_tfun.readI32( settings.endian );
-                    fun_struct.zero  = reader_tfun.readI32( settings.endian );
-                    fun_struct.pos_x = reader_tfun.readI32( settings.endian );
-                    fun_struct.pos_y = reader_tfun.readI32( settings.endian );
+                    fun_struct.faction    = reader_tfun.readI32( settings.endian );
+                    fun_struct.identifier = reader_tfun.readI32( settings.endian );
+                    fun_struct.zero       = reader_tfun.readI32( settings.endian );
+                    fun_struct.start_parameter_offset = reader_tfun.readU32( settings.endian );
+                    fun_struct.start_code_offset      = reader_tfun.readU32( settings.endian );
                     
-                    unk = std::max( unk, fun_struct.unk_1 );
-                    
-                    assert( last < fun_struct.pos_x );
-                    last = fun_struct.pos_x;
-                    
-                    assert( ( fun_struct.type == 1 ) | ( fun_struct.type == -1 ) | (fun_struct.type == 0 ) | ( fun_struct.type == 25 ) | ( fun_struct.type == 9999 ) );
+                    assert( ( fun_struct.faction == 1 ) | ( fun_struct.faction == -1 ) | (fun_struct.faction == 0 ) | ( fun_struct.faction == 25 ) | ( fun_struct.faction == 9999 ) );
                     assert( fun_struct.zero == 0 );
-                    assert( fun_struct.pos_x < fun_struct.pos_y );
+                    assert( fun_struct.start_parameter_offset < fun_struct.start_code_offset );
                     
                     functions.push_back( fun_struct );
                 }
@@ -84,10 +76,25 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     ext_bytes = reader_ext.getBytes();
                     
                     assert( ext_bytes.size() != 0 );
-                    assert( ext_bytes.size() > functions.back().pos_y );
+                    assert( ext_bytes.size() > functions.back().start_code_offset );
                     assert( reader.ended() );
                     
-                    std::cout << "ext_bytes.size() = " << ext_bytes.size() << std::endl;
+                    for( size_t i = 0; i < functions.size(); i++ ) {
+                        auto parameters = getFunctionParameters( i );
+                        auto code = getFunctionCode( i );
+                        
+                        std::cout << std::hex << "Parameters = ";
+                        for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
+                            std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                        }
+                        std::cout << std::endl;
+                        std::cout << std::hex << "Code = ";
+                        for( auto f = code.begin(); f < code.end(); f++ ) {
+                            std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                        }
+                        std::cout << std::dec << "\n" << std::endl;
+                    }
+                    
                     std::cout << "functions.size() = " << functions.size() << std::endl;
                     
                     return true;
@@ -106,4 +113,39 @@ Data::Mission::Resource * Data::Mission::FUNResource::duplicate() const {
 
 int Data::Mission::FUNResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
     return 0;
+}
+
+std::vector<uint8_t> Data::Mission::FUNResource::getFunctionParameters( unsigned index ) const {
+    const auto THE_FUNCTION = functions.at( index );
+    const size_t PARAMETER_SIZE = THE_FUNCTION.start_code_offset - THE_FUNCTION.start_parameter_offset;
+    
+    std::vector<uint8_t> parameters;
+    
+    parameters.reserve( PARAMETER_SIZE );
+    
+    for( size_t i = THE_FUNCTION.start_parameter_offset; i < THE_FUNCTION.start_code_offset; i++ ) {
+        parameters.push_back( ext_bytes.at( i ) );
+    }
+    
+    return parameters;
+}
+std::vector<uint8_t> Data::Mission::FUNResource::getFunctionCode( unsigned index ) const {
+    const auto THE_FUNCTION = functions.at( index );
+    
+    size_t code_size;
+    
+    if( functions.size() == ( index + 1 ) )
+        code_size = ext_bytes.size() - THE_FUNCTION.start_code_offset;
+    else
+        code_size = functions.at( index + 1 ).start_parameter_offset - THE_FUNCTION.start_code_offset;
+    
+    std::vector<uint8_t> code;
+    
+    code.reserve( code_size );
+    
+    for( size_t i = THE_FUNCTION.start_code_offset; i < THE_FUNCTION.start_code_offset + code_size; i++ ) {
+        code.push_back( ext_bytes.at( i ) );
+    }
+    
+    return code;
 }
