@@ -79,10 +79,16 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     assert( ext_bytes.size() > functions.back().start_code_offset );
                     assert( reader.ended() );
                     
+                    while( ext_bytes.back() != 0 ){
+                        last_ext.insert( last_ext.begin(), ext_bytes.back() );
+                        ext_bytes.pop_back(  );
+                    }
+                    
                     for( size_t i = 0; i < functions.size(); i++ ) {
                         auto parameters = getFunctionParameters( i );
                         auto code = getFunctionCode( i );
                         
+                        std::cout << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
                         std::cout << std::hex << "Parameters = ";
                         for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
@@ -94,8 +100,11 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         }
                         std::cout << std::dec << "\n" << std::endl;
                     }
-                    
-                    std::cout << "functions.size() = " << functions.size() << std::endl;
+                    std::cout << std::hex << "Last tEXT = ";
+                    for( auto f = last_ext.begin(); f < last_ext.end(); f++ ){
+                        std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                    }
+                    std::cout << std::dec << "\n" << std::endl;
                     
                     return true;
                 }
