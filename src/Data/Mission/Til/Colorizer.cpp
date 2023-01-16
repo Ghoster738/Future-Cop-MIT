@@ -88,8 +88,8 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
     {
         result_r[0] = getColorVec3( input.tile, input.colors );
         
-        glm::u8vec3 values[3];
-        inverseSet( input.position, values );
+        glm::u8vec3 inverse_positions[3];
+        inverseSet( input.position, inverse_positions );
         
         // Generate the color
         switch( input.tile.type ) {
@@ -104,13 +104,13 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
             case 0b01: // Dynamic Monochrome
                 for( unsigned int p = 0; p < 3; p++ )
                 {
-                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( values[ p ] ) );
+                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( inverse_positions[ p ] ) );
                 }
                 break;
             case 0b10: // Dynamic Color
                 for( unsigned int p = 0; p < 3; p++ )
                 {
-                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( values[ p ] ) );
+                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( inverse_positions[ p ] ) );
                 }
                 break;
             case 0b11: // Lava Animation
