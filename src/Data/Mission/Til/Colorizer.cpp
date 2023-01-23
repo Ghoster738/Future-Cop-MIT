@@ -62,17 +62,17 @@ unsigned inverse( unsigned number ) {
     return LENGTH - number;
 }
 
-void inverseSet( glm::u8vec3 seed, glm::u8vec3 *values_r ) {
-    const unsigned OP_Y_AXIS = 0;
-    const unsigned OP_X_Y_AXIS = 1;
-    const unsigned OP_X_AXIS = 2;
+void inverseSet( const glm::u8vec3 seed, glm::u8vec3 *values_r ) {
+    const unsigned OP_Y_AXIS = 1;
+    const unsigned OP_X_Y_AXIS = 2;
+    const unsigned OP_X_AXIS = 0;
     
-    values_r[ OP_X_AXIS ].x = inverse( seed.x );
-    values_r[ OP_X_AXIS ].y = seed.y;
+    values_r[ OP_X_AXIS ].x = seed.x;
+    values_r[ OP_X_AXIS ].y = inverse( seed.y );
     values_r[ OP_X_AXIS ].z = 0;
     
-    values_r[ OP_Y_AXIS ].x = seed.x;
-    values_r[ OP_Y_AXIS ].y = inverse( seed.y );
+    values_r[ OP_Y_AXIS ].x = inverse( seed.x );
+    values_r[ OP_Y_AXIS ].y = seed.y;
     values_r[ OP_Y_AXIS ].z = 0;
     
     values_r[ OP_X_Y_AXIS ].x = inverse( seed.x );
@@ -86,42 +86,74 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
 {
     if( result_r != nullptr )
     {
-        result_r[0] = getColorVec3( input.tile, input.colors );
-        
         glm::u8vec3 inverse_positions[3];
         inverseSet( input.position, inverse_positions );
         
-        // Generate the color
-        switch( input.tile.type ) {
-            case 0b00: // Solid Monochrome
-                for( unsigned int p = 1; p < 4; p++ )
-                {
-                    result_r[p].x = result_r[0].x;
-                    result_r[p].y = result_r[0].x;
-                    result_r[p].z = result_r[0].x;
-                }
-                break;
-            case 0b01: // Dynamic Monochrome
-                for( unsigned int p = 0; p < 3; p++ )
-                {
-                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( inverse_positions[ p ] ) );
-                }
-                break;
-            case 0b10: // Dynamic Color
-                for( unsigned int p = 0; p < 3; p++ )
-                {
-                    result_r[ p + 1 ] = colorToVec3( input.color_map.getColor( inverse_positions[ p ] ) );
-                }
-                break;
-            case 0b11: // Lava Animation
-                for( unsigned int p = 1; p < 4; p++ )
-                {
-                    result_r[p].x = 0.50;
-                    result_r[p].y = 0.50;
-                    result_r[p].z = 0.50;
-                }
-                break;
+        const unsigned numb_x = 5;
+        const unsigned numb_y = 5;
+        
+        // if( input.position.x == numb_x && input.position.y == numb_y ) {
+            result_r[0] = getColorVec3( input.tile, input.colors );
+            
+            result_r[1].x = 1.0;
+            result_r[1].y = 0.0;
+            result_r[1].z = 0.0;
+            result_r[1] = colorToVec3( input.color_map.getColor( inverse_positions[ 0 ] ) );
+            
+            result_r[2].x = 1.0;
+            result_r[2].y = 1.0;
+            result_r[2].z = 0.0;
+            result_r[2] = colorToVec3( input.color_map.getColor( inverse_positions[ 1 ] ) );
+            
+            result_r[3].x = 0.0;
+            result_r[3].y = 1.0;
+            result_r[3].z = 0.0;
+            result_r[3] = colorToVec3( input.color_map.getColor( inverse_positions[ 2 ] ) );
+            
+            result_r[1] = colorToVec3( input.color_map.getColor( input.position ) );
+            result_r[2] = colorToVec3( input.color_map.getColor( input.position ) );
+            result_r[3] = colorToVec3( input.color_map.getColor( input.position ) );
+            
+            
+        /*}
+        else
+        if( input.position.x == numb_x && inverse( input.position.y ) == numb_y ) {
+            for( unsigned int p = 0; p < 4; p++ )
+            {
+                result_r[p].x = 1.0;
+                result_r[p].y = 0.0;
+                result_r[p].z = 0.0;
+            }
         }
+        else
+        if( inverse( input.position.x ) == numb_x && input.position.y == numb_y ) {
+            for( unsigned int p = 0; p < 4; p++ )
+            {
+                result_r[p].x = 0.0;
+                result_r[p].y = 1.0;
+                result_r[p].z = 0.0;
+            }
+        }
+        else
+        if( inverse( input.position.x ) == numb_x && inverse( input.position.y ) == numb_y ) {
+            for( unsigned int p = 0; p < 4; p++ )
+            {
+                result_r[p].x = 1.0;
+                result_r[p].y = 1.0;
+                result_r[p].z = 0.0;
+            }
+        }
+        else
+        {
+            result_r[0] = getColorVec3( input.tile, input.colors );
+            
+            for( unsigned int p = 1; p < 4; p++ )
+            {
+                result_r[p].x = result_r[0].x;
+                result_r[p].y = result_r[0].x;
+                result_r[p].z = result_r[0].x;
+            }
+        }*/
 
         return 1;
     }

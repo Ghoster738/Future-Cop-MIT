@@ -14,8 +14,7 @@ const std::string Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
 const uint32_t Data::Mission::ACTResource::SAC_IDENTI_TAG = 0x43736163; // which is { 0x43, 0x73, 0x61, 0x63 } or { 'C', s, 'a', 'c' } or "Csac"
 
-// TODO This needs to be more precise.
-const double Data::Mission::ACTResource::SECONDS_PER_GAME_TICK = 0.016444444444444;
+const double Data::Mission::ACTResource::SECONDS_PER_GAME_TICK = 1.0 / 60.0;
 
 const uint32_t Data::Mission::ACTResource::ACT_CHUNK_ID = 0x74414354; // which is { 0x74, 0x41, 0x43, 0x54 } or { 't', 'A', 'C', 'T' } or "tACT"
 const uint32_t Data::Mission::ACTResource::RSL_CHUNK_ID = 0x6152534c; // which is { 0x61, 0x52, 0x53, 0x4c } or { 'a', 'R', 'S', 'L' } or "aRSL"

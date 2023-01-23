@@ -34,6 +34,7 @@ Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_
 
 Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position ) const
 {
+    assert( map.getRef( position.x, position.y + position.z * AMOUNT_OF_TILES ) != nullptr );
     return map.readPixel( position.x, position.y + position.z * AMOUNT_OF_TILES );
 }
 
@@ -60,6 +61,22 @@ void Data::Mission::TilResource::ColorMap::gatherColors(
         
         // Always increment this!
         tile_iterator_r++;
+    }
+}
+
+void Data::Mission::TilResource::ColorMap::exportMap() const{
+    int state = 0;
+    
+    Utilities::ImageFormat::Chooser chooser;
+    
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( map );
+    
+    if( the_choosen_r != nullptr ) {
+        Utilities::Buffer buffer;
+        
+        state = the_choosen_r->write( map, buffer );
+
+        buffer.write( the_choosen_r->appendExtension( "map" ) );
     }
 }
 
@@ -318,6 +335,10 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     createPhysicsCell( x, z );
                     this->color_map.gatherColors( tile_texture_type, colors, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
                 }
+            }
+            
+            if( getIndexNumber() == 18 ) {
+                this->color_map.exportMap();
             }
         }
         else

@@ -98,6 +98,7 @@ public:
             const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
             const Tile *const tiles_r, unsigned number,
             glm::u8vec2 position );
+        void exportMap() const;
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;

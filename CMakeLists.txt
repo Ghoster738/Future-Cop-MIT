@@ -29,7 +29,7 @@ endif()
 
 find_package( JSON_CPP REQUIRED )
 
-# TODO Add option to make SDL2 optional to simply compile 
+# Use the vendor version if the SDL2 find files could not be found.
 if( FCOption_SDL2_VENDORED )
   add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
 

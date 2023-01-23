@@ -34,6 +34,8 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     uint32_t data_id;
     Function fun_struct;
     
+    // std::cout << "FUNResource 0x" << std::hex << getOffset() << std::endl;
+    
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -88,7 +90,12 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto parameters = getFunctionParameters( i );
                         auto code = getFunctionCode( i );
                         
-                        std::cout << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
+                        // std::cout << "i = " << std::dec << i << std::endl;
+                        // std::cout << "faction = " << std::dec << functions.at( i ).faction << std::endl;
+                        // std::cout << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
+                        // std::cout << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                        
+                        /*
                         std::cout << std::hex << "Parameters = ";
                         for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
@@ -100,22 +107,24 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         std::cout << std::hex << "Code = ";
                         for( auto f = code.begin(); f < code.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                        }/*
-                        for( auto f = code.begin(); f < code.end() - 1; f++ ) {
-                            assert( (*f) != 0 );
+                        }
+                        std::cout << std::dec << "\n" << std::endl;*/
+                        /*if( i != functions.size() - 1 ) {
+                            for( auto f = code.begin(); f < code.end() - 1; f++ ) {
+                                assert( (*f) != 0 );
+                            }
                         }*/
-                        std::cout << std::dec << "\n" << std::endl;
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );
                         assert( parameters.back() == 0 );
                         assert( code.back() == 0 );
                     }
-                    std::cout << std::hex << "Last tEXT = ";
+                    /* std::cout << std::hex << "Last tEXT = ";
                     for( auto f = last_ext.begin(); f < last_ext.end(); f++ ){
                         std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                     }
-                    std::cout << std::dec << "\n" << std::endl;
+                    std::cout << std::dec << "\n" << std::endl; */
                     
                     return true;
                 }
