@@ -63,16 +63,16 @@ unsigned inverse( unsigned number ) {
 }
 
 void inverseSet( const glm::u8vec3 seed, glm::u8vec3 *values_r ) {
-    const unsigned OP_Y_AXIS = 1;
-    const unsigned OP_X_Y_AXIS = 2;
-    const unsigned OP_X_AXIS = 0;
+    const unsigned OP_Y_AXIS = 0;
+    const unsigned OP_X_Y_AXIS = 1;
+    const unsigned OP_X_AXIS = 2;
     
-    values_r[ OP_X_AXIS ].x = seed.x;
-    values_r[ OP_X_AXIS ].y = inverse( seed.y );
+    values_r[ OP_X_AXIS ].x = inverse( seed.x );
+    values_r[ OP_X_AXIS ].y = seed.y;
     values_r[ OP_X_AXIS ].z = 0;
     
-    values_r[ OP_Y_AXIS ].x = inverse( seed.x );
-    values_r[ OP_Y_AXIS ].y = seed.y;
+    values_r[ OP_Y_AXIS ].x = seed.x;
+    values_r[ OP_Y_AXIS ].y = inverse( seed.y );
     values_r[ OP_Y_AXIS ].z = 0;
     
     values_r[ OP_X_Y_AXIS ].x = inverse( seed.x );
