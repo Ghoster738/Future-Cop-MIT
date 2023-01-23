@@ -87,18 +87,15 @@ public:
     };
     class ColorMap {
     private:
-        Utilities::Image2D map;
+        Utilities::GridBase2D<TileGraphics> map;
     public:
         ColorMap();
         
-        Utilities::PixelFormatColor::GenericColor getColor( glm::u8vec3 position ) const;
-        void setColor( glm::u8vec3 position, Utilities::PixelFormatColor::GenericColor color );
+        Utilities::PixelFormatColor::GenericColor getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const;
         void gatherColors(
             const std::vector<TileGraphics>& tile_graphics,
-            const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
             const Tile *const tiles_r, unsigned number,
             glm::u8vec2 position );
-        void exportMap() const;
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;

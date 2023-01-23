@@ -28,24 +28,18 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 }
 }
 
-Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_OF_TILES * 3, Utilities::PixelFormatColor_R5G5B5A1() )
+Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_OF_TILES * 3 )
 {
 }
 
-Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position ) const
+Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const
 {
     assert( map.getRef( position.x, position.y + position.z * AMOUNT_OF_TILES ) != nullptr );
-    return map.readPixel( position.x, position.y + position.z * AMOUNT_OF_TILES );
-}
-
-void Data::Mission::TilResource::ColorMap::setColor( glm::u8vec3 position, Utilities::PixelFormatColor::GenericColor color )
-{
-    map.writePixel( position.x, position.y + position.z * AMOUNT_OF_TILES, color );
+    return Til::Colorizer::getColor( map.getValue( position.x, position.y + position.z * AMOUNT_OF_TILES ), colors );
 }
 
 void Data::Mission::TilResource::ColorMap::gatherColors(
     const std::vector<TileGraphics>& tile_graphics,
-    const std::vector<Utilities::PixelFormatColor::GenericColor>& colors,
     const Tile *const tiles_r, unsigned number, glm::u8vec2 position )
 {
     auto tile_iterator_r = tiles_r;
@@ -53,30 +47,10 @@ void Data::Mission::TilResource::ColorMap::gatherColors(
     // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
     
     for( unsigned i = 0; i < 1; i++ ) {
-        glm::u8vec3 one_channel( position.x, position.y, 0 );
-        
-        auto color = Til::Colorizer::getColor( tile_graphics.at( tile_iterator_r->graphics_type_index ), colors );
-        
-        setColor( one_channel, color );
+        map.setValue( position.x, position.y, tile_graphics.at( tile_iterator_r->graphics_type_index ) );
         
         // Always increment this!
         tile_iterator_r++;
-    }
-}
-
-void Data::Mission::TilResource::ColorMap::exportMap() const{
-    int state = 0;
-    
-    Utilities::ImageFormat::Chooser chooser;
-    
-    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( map );
-    
-    if( the_choosen_r != nullptr ) {
-        Utilities::Buffer buffer;
-        
-        state = the_choosen_r->write( map, buffer );
-
-        buffer.write( the_choosen_r->appendExtension( "map" ) );
     }
 }
 
@@ -333,12 +307,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
                 for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
                     createPhysicsCell( x, z );
-                    this->color_map.gatherColors( tile_texture_type, colors, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
+                    this->color_map.gatherColors( tile_texture_type, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
                 }
-            }
-            
-            if( getIndexNumber() == 18 ) {
-                this->color_map.exportMap();
             }
         }
         else
