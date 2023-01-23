@@ -98,21 +98,17 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
             result_r[1].x = 1.0;
             result_r[1].y = 0.0;
             result_r[1].z = 0.0;
-            // result_r[1] = colorToVec3( input.color_map.getColor( inverse_positions[ 0 ] ) );
+            result_r[1] = colorToVec3( input.color_map.getColor( inverse_positions[ 0 ], input.colors ) );
             
             result_r[2].x = 1.0;
             result_r[2].y = 1.0;
             result_r[2].z = 0.0;
-            // result_r[2] = colorToVec3( input.color_map.getColor( inverse_positions[ 1 ] ) );
+            result_r[2] = colorToVec3( input.color_map.getColor( inverse_positions[ 1 ], input.colors ) );
             
             result_r[3].x = 0.0;
             result_r[3].y = 1.0;
             result_r[3].z = 0.0;
-            // result_r[3] = colorToVec3( input.color_map.getColor( inverse_positions[ 2 ] ) );
-            
-            result_r[1] = colorToVec3( input.color_map.getColor( input.position, input.colors ) );
-            result_r[2] = colorToVec3( input.color_map.getColor( input.position, input.colors ) );
-            result_r[3] = colorToVec3( input.color_map.getColor( input.position, input.colors ) );
+            result_r[3] = colorToVec3( input.color_map.getColor( inverse_positions[ 2 ], input.colors ) );
             
             
         /*}
