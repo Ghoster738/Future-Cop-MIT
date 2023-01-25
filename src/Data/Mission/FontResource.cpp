@@ -222,7 +222,7 @@ Utilities::Image2D *const Data::Mission::FontResource::getImage() const {
     return const_cast<Utilities::Image2D *const>(image_p);
 }
 
-int Data::Mission::FontResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::FontResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
     bool export_enable = true;
     Utilities::ImageFormat::Chooser chooser;

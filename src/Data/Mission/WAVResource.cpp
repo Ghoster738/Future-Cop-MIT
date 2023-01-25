@@ -165,7 +165,7 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
     audio_stream_length = audio_stream.size();
 }
 
-int Data::Mission::WAVResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::WAVResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
     Utilities::Buffer header;
     bool enable_export = true;

@@ -146,7 +146,7 @@ public:
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
     

@@ -118,7 +118,7 @@ Data::Mission::Resource * Data::Mission::NetResource::duplicate() const {
     return new Data::Mission::NetResource( *this );
 }
 
-int Data::Mission::NetResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::NetResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
     int state = -2;
     bool enable_obj = false;

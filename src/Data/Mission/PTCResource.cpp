@@ -132,7 +132,7 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
     return new PTCResource( *this );
 }
 
-int Data::Mission::PTCResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::PTCResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
     bool entire_map = false;
     bool entire_height_map = false;

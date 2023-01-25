@@ -69,6 +69,6 @@ Data::Mission::Resource * Data::Mission::DCSResource::duplicate() const {
     return new DCSResource( *this );
 }
 
-int Data::Mission::DCSResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::DCSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     return 0;
 }

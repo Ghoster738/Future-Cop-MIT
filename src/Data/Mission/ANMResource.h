@@ -70,7 +70,7 @@ public:
     
     Utilities::ImagePalette2D* generateAnimationSheet( unsigned columns = 0, bool rgba_palette = false ) const;
 
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
     
     const Utilities::ColorPalette& getColorPalette() const { return palette; }
 

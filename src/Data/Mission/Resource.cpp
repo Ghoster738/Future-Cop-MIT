@@ -196,14 +196,14 @@ int Data::Mission::Resource::read( const std::string &file_path ) {
     return read( file_path.c_str() );
 }
 
-int Data::Mission::Resource::write( const char *const file_path, const std::vector<std::string> & arguments  ) const {
+int Data::Mission::Resource::write( const std::string& file_path, const std::vector<std::string> & arguments  ) const {
     return -1;
 }
 
-int Data::Mission::Resource::writeRaw( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::Resource::writeRaw( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
 
-    resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::binary | std::ios::out );
+    resource.open( file_path + "." + getFileExtension(), std::ios::binary | std::ios::out );
 
     if( resource.is_open() && data_p != nullptr )
     {

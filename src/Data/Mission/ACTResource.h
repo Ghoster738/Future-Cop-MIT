@@ -87,7 +87,7 @@ public:
      * @param arguments The two commands are --dry for no exporting.
      * @return If there was an error while writing it will return false.
      */
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string>& arguments ) const;
 
     virtual Resource* genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const;
 

@@ -348,7 +348,7 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-int Data::Mission::TilResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::TilResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_point_cloud_export = false;
     bool enable_height_map_export = false;
     bool enable_export = true;

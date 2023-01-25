@@ -66,7 +66,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     static std::vector<PYRResource*> getVector( IFF &mission_file );
     static const std::vector<PYRResource*> getVector( const IFF &mission_file );

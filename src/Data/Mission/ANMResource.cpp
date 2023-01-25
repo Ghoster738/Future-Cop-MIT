@@ -262,7 +262,7 @@ Utilities::ImagePalette2D* Data::Mission::ANMResource::generateAnimationSheet( u
     return animation_sheet_p;
 }
 
-int Data::Mission::ANMResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::ANMResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_color_palette_export = false;
     bool enable_export = true;
     Utilities::ImageFormat::Chooser chooser;

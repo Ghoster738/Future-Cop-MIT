@@ -61,7 +61,7 @@ public:
      * @param arguments The two commands are --dry for no exporting, and --NET_EXPORT_OBJ for exporting obj instead of json.
      * @return If there was an error while writing it will return false.
      */
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     static std::vector<NetResource*> getVector( IFF &mission_file );
     static const std::vector<NetResource*> getVector( const IFF &mission_file );

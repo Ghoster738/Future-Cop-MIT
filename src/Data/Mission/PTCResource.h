@@ -79,7 +79,7 @@ public:
      * @param agruments --dry for no writing operations.
      * @return zero if it is a dry run or the return results of the Image2D write operations.
      */
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
     
     int writeEntireMap( std::string file_path ) const;
 

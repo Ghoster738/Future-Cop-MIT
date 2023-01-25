@@ -220,7 +220,7 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::ACTResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::ACTResource::write(  const std::string& file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
     bool enable_export = true;
 
@@ -231,7 +231,7 @@ int Data::Mission::ACTResource::write( const char *const file_path, const std::v
 
     if( enable_export )
     {
-        resource.open( std::string(file_path) + ".json", std::ios::out );
+        resource.open( file_path + ".json", std::ios::out );
 
         if( resource.is_open() )
         {

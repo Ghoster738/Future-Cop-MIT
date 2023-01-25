@@ -42,7 +42,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     const Utilities::ImageFormat::ImageFormat *const getImageFormat() const;
 

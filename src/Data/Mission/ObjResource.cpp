@@ -848,7 +848,7 @@ Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
     return new ObjResource( *this );
 }
 
-int Data::Mission::ObjResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::ObjResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
     int glTF_return = 0;
 
