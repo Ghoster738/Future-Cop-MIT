@@ -190,7 +190,12 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
-
+    // Delete the models first.
+    for( auto i = models_p.begin(); i != models_p.end(); i++ )
+    {
+        delete (*i).second; // First delete the pointer.
+        (*i).second = nullptr; // Then set the pointer to null.
+    }
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultVertexShader() {
