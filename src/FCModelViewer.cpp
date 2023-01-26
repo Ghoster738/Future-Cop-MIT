@@ -79,7 +79,7 @@ int main(int argc, char** argv)
     std::string type = Data::Mission::ObjResource::FILE_EXTENSION;
     std::string iff_mission_id = "pa_urban_jungle";
     std::string global_id      = "global";
-    std::string start_number   = "0";
+    std::string model_id       = "0";
     Data::Manager::Platform platform = Data::Manager::Platform::WINDOWS;
     std::string global_path = "";
     std::string mission_path = "";
@@ -115,11 +115,11 @@ int main(int argc, char** argv)
             if( input.find( "--type") == 0 )
                 variable_name = "--type";
             else
-            if( input.find( "--start" ) == 0 )
-                variable_name = "--start";
+            if( input.find( "--model-id" ) == 0 )
+                variable_name = "--model-id";
             else
-            if( input.find( "--model-path" ) == 0 )
-                variable_name = "--model-path";
+            if( input.find( "--model-export-path" ) == 0 )
+                variable_name = "--model-export-path";
             else
             if( input.find( "--width") == 0 )
                 variable_name = "--width";
@@ -142,10 +142,10 @@ int main(int argc, char** argv)
             if( variable_name.find( "--type") == 0 )
                 type = input;
             else
-            if( variable_name.find( "--start" ) == 0 )
-                start_number = input;
+            if( variable_name.find( "--model-id" ) == 0 )
+                model_id = input;
             else
-            if( variable_name.find( "--model-path" ) == 0 ) {
+            if( variable_name.find( "--model-export-path" ) == 0 ) {
                 resource_export_path = input;
                 if( *resource_export_path.end() != '/')
                     resource_export_path += "/";
@@ -388,10 +388,20 @@ int main(int argc, char** argv)
         
         control_system_p->write( "controls" );
     }
+    
+    auto obj_vector = Data::Mission::ObjResource::getVector( resource );
 
     float rotate = 0.0;
     float count_down = 0.0;
-    unsigned int cobj_index = std::stoi( start_number );
+    unsigned int cobj_index = std::stoi( model_id );
+    
+    // Convert the id into an index.
+    for( auto i = obj_vector.begin(); i != obj_vector.end(); i++ ) {
+        if( (*i)->getResourceID() == cobj_index ) {
+            cobj_index = (*i)->getIndexNumber();
+            i = obj_vector.end() - 1;
+        }
+    }
     
     Graphics::ModelInstance* displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
     
@@ -402,8 +412,6 @@ int main(int argc, char** argv)
         displayed_instance->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
-    
-    auto obj_vector = Data::Mission::ObjResource::getVector( resource );
 
     while(viewer_loop)
     {
