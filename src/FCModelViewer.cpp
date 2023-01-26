@@ -392,8 +392,6 @@ int main(int argc, char** argv)
     float rotate = 0.0;
     float count_down = 0.0;
     unsigned int cobj_index = std::stoi( start_number );
-
-    bool nextModel = false; // The next model
     
     Graphics::ModelInstance* displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
     
@@ -404,6 +402,8 @@ int main(int argc, char** argv)
         displayed_instance->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
+    
+    auto obj_vector = Data::Mission::ObjResource::getVector( resource );
 
     while(viewer_loop)
     {
@@ -457,19 +457,17 @@ int main(int argc, char** argv)
                 next--;
             
             if( next != 0 ) {
-                auto obj = Data::Mission::ObjResource::getVector( resource );
-                
                 if( next > 0 )
                 {
                     cobj_index += next;
                     
-                    if( cobj_index >= obj.size() )
+                    if( cobj_index >= obj_vector.size() )
                         cobj_index = 0;
                 }
                 else
                 {
                     if( cobj_index == 0 )
-                        cobj_index = obj.size() - 1;
+                        cobj_index = obj_vector.size() - 1;
                     else
                         cobj_index += next;
                 }
@@ -506,7 +504,7 @@ int main(int argc, char** argv)
             text_2d_buffer->setFont( 0 );
         text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-        text_2d_buffer->print( "index = " + std::to_string(cobj_index) );
+        text_2d_buffer->print( "Resource ID = " + std::to_string(obj_vector.at(cobj_index)->getResourceID()) );
         
         if( !resource_export_path.empty() ) {
             text_2d_buffer->setColor( glm::vec4( 1, 0, 1, 1 ) );
