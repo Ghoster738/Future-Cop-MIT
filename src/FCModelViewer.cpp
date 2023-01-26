@@ -423,7 +423,7 @@ int main(int argc, char** argv)
         {
             auto input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
             
-            if( input_r->isChanged() && input_r->getState() < 0.5 ) {
+            if( input_r->isChanged() && input_r->getState() < 0.5 && !resource_export_path.empty() ) {
                 // Export the textures from the mission file.
                 if(!exported_textures) {
                     auto bmps = Data::Mission::BMPResource::getVector( resource );
