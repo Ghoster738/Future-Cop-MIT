@@ -159,7 +159,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     // Setup the vertex and fragment shaders
     EnvironmentInternalData->static_model_draw_routine.setVertexShader();
     EnvironmentInternalData->static_model_draw_routine.setFragmentShader();
-    EnvironmentInternalData->static_model_draw_routine.compilieProgram();
+    EnvironmentInternalData->static_model_draw_routine.compileProgram();
     
     EnvironmentInternalData->static_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
 
@@ -170,7 +170,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     
     EnvironmentInternalData->morph_model_draw_routine.setVertexShader();
     EnvironmentInternalData->morph_model_draw_routine.setFragmentShader();
-    EnvironmentInternalData->morph_model_draw_routine.compilieProgram();
+    EnvironmentInternalData->morph_model_draw_routine.compileProgram();
 
     EnvironmentInternalData->morph_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
@@ -181,7 +181,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
 
     EnvironmentInternalData->skeletal_model_draw_routine.setVertexShader();
     EnvironmentInternalData->skeletal_model_draw_routine.setFragmentShader();
-    EnvironmentInternalData->skeletal_model_draw_routine.compilieProgram();
+    EnvironmentInternalData->skeletal_model_draw_routine.compileProgram();
     
     EnvironmentInternalData->skeletal_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
@@ -304,7 +304,7 @@ bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
     auto gl_error = glGetError();
 
     if( gl_error != GL_NO_ERROR ) {
-        std::cout << "There is an OpenGL error before screenshot(...)\n";
+        std::cout << "There is an OpenGL error before Graphics::Environment::screenshot(...)\n";
         std::cout << " This error is " << gl_error << std::endl;
     }
 

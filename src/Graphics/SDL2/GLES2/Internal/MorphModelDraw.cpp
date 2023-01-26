@@ -114,8 +114,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::getDefaultVertexS
         return default_vertex_shader;
 }
 
-int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram();
+int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram();
     bool uniform_failed = false;
     bool attribute_failed = false;
 
@@ -161,8 +161,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( const Camera &camera
     program.use();
 
     // Check if there is even a shiney texture.
-    if( shiney_texture_ref != nullptr )
-        shiney_texture_ref->bind( 1, sepecular_texture_uniform_id );
+    if( shiney_texture_r != nullptr )
+        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
     // Traverse the models.
     for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.

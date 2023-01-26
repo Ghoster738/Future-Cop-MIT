@@ -26,7 +26,6 @@ public:
 
     };
 protected:
-
     Program program;
     Shader vertex_shader;
     Shader fragment_shader;
@@ -43,7 +42,7 @@ protected:
     std::map<uint32_t, Mesh*> models;
 
     // The textures will also need to be accessed.
-    Texture2D *shiney_texture_ref; // This holds the environment map.
+    Texture2D *shiney_texture_r; // This holds the environment map.
 
     // This stores the actual data.
     std::vector<ModelArray*> model_array;
@@ -100,7 +99,7 @@ public:
      * Link every shader to the program.
      * @return false if one of the shaders are not loaded.
      */
-    int compilieProgram();
+    int compileProgram();
 
     /**
      * This sets the textures.
@@ -132,7 +131,7 @@ public:
     void draw( const Camera &camera );
 
     /**
-     * This prunes the object models in the model_array. It is an O( number_of_models_loaded ) operation.
+     * This prunes the object models in the model\_array. It is an O( number\_of\_models\_loaded ) operation.
      */
     int prune();
 

@@ -136,53 +136,53 @@ bool sortModelArray(const Graphics::SDL2::GLES2::Internal::StaticModelDraw::Mode
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( uint32_t obj_identifier ) {
-    ModelArray* search_key = nullptr;
+    ModelArray* search_key_r = nullptr;
 
     if( !model_array.empty() )
     {
-        ModelArray relationModelArray;
-        relationModelArray.obj_identifier = obj_identifier;
+        ModelArray relation_model_array;
+        relation_model_array.obj_identifier = obj_identifier;
 
-        auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
+        auto bound_r = lower_bound( model_array.begin(), model_array.end(), &relation_model_array, sortModelArray );
 
-        const int index = bound - model_array.begin();
+        const int index = bound_r - model_array.begin();
 
-        if( index < model_array.size() && model_array.at(index)->obj_identifier == obj_identifier )
-            search_key = *bound;
+        if( index < model_array.size() && model_array.at( index )->obj_identifier == obj_identifier )
+            search_key_r = *bound_r;
     }
 
-    return search_key;
+    return search_key_r;
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( uint32_t obj_identifier ) const {
-    ModelArray* search_key = nullptr;
+    ModelArray* search_key_r = nullptr;
 
     if( !model_array.empty() )
     {
-        ModelArray relationModelArray;
-        relationModelArray.obj_identifier = obj_identifier;
+        ModelArray relation_model_array;
+        relation_model_array.obj_identifier = obj_identifier;
 
-        auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
+        auto bound_r = lower_bound( model_array.begin(), model_array.end(), &relation_model_array, sortModelArray );
 
-        const int index = bound - model_array.begin();
+        const int index = bound_r - model_array.begin();
 
         if( index < model_array.size() && model_array.at(index)->obj_identifier == obj_identifier )
-            search_key = *bound;
+            search_key_r = *bound_r;
     }
 
-    return search_key;
+    return search_key_r;
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::addModelArray( uint32_t obj_identifier ) {
-    ModelArray *new_model_array = new ModelArray();
+    ModelArray *new_model_array_r = new ModelArray();
 
-    new_model_array->obj_identifier = obj_identifier;
-    new_model_array->unculled_size = 0;
+    new_model_array_r->obj_identifier = obj_identifier;
+    new_model_array_r->unculled_size = 0;
 
-    model_array.push_back( new_model_array );
+    model_array.push_back( new_model_array_r );
     sort( model_array.begin(), model_array.end(), sortModelArray );
 
-    return new_model_array;
+    return new_model_array_r;
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
@@ -231,7 +231,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const 
     return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
     bool uniform_failed = false;
     bool attribute_failed = false;
     bool link_success = true;
@@ -293,7 +293,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *shiney_texture_r ) {
-    this->shiney_texture_ref = shiney_texture_r;
+    this->shiney_texture_r = shiney_texture_r;
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
@@ -334,8 +334,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     program.use();
 
     // Check if there is even a shiney texture.
-    if( shiney_texture_ref != nullptr )
-        shiney_texture_ref->bind( 1, sepecular_texture_uniform_id );
+    if( shiney_texture_r != nullptr )
+        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
     // Traverse the models.
     for( auto d = model_array.begin(); d != model_array.end(); d++ ) // Go through every model that has an instance.
@@ -428,11 +428,11 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
         if( models.find( (*model_type)->obj_identifier ) != models.end() )
         {
             // Get the mesh.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models[ (*model_type)->obj_identifier ];
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models[ (*model_type)->obj_identifier ];
             
-            if( mesh->getMorphFrameAmount() > 0 )
+            if( mesh_r->getMorphFrameAmount() > 0 )
             {
-                auto morph_frame_amount = mesh->getMorphFrameAmount();
+                auto morph_frame_amount = mesh_r->getMorphFrameAmount();
                 auto total_frame_amount = morph_frame_amount + 1;
 
                 // Go through every instance of the model.
@@ -441,9 +441,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
                 }
             }
             else
-            if( mesh->getFrameAmount() > 0 ) {
+            if( mesh_r->getFrameAmount() > 0 ) {
                 for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
-                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + time_seconds * FRAME_SPEED, mesh->getFrameAmount() ) );
+                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + time_seconds * FRAME_SPEED, mesh_r->getFrameAmount() ) );
                 }
             }
         }
