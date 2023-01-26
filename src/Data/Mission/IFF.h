@@ -84,18 +84,6 @@ public:
     int exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
 
     /**
-     * This export a single resource from this mission file.
-     * @note not every format is supported as of now, so raw\_file\_mode being false would only output the raw file.
-     * @param type This the type of file to export.
-     * @param index This the index of the type to export.
-     * @param folder_path This is where the file will be exported.
-     * @param raw_file_mode set this to true if you do not to write the decoded output.
-     * @param arguments The arguments to be passed into the file.
-     * @return TODO define it.
-     */
-    int exportSingleResource( uint32_t type, unsigned int index, const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
-
-    /**
      * This compares this mission file to another IFF.
      * It will contain a list of every resources that match each other.
      * @param operand This is the other file to compare to.

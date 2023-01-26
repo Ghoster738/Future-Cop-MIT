@@ -480,7 +480,7 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
         {
             for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
             {
-                std::string full_path = path + (*it)->getFullName( (*it)->getIndexNumber() );
+                std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
 
                 if( raw_file_mode )
                     (*it)->write( full_path, arguments );
@@ -492,27 +492,6 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
     }
     else
         return false;
-}
-
-int Data::Mission::IFF::exportSingleResource( uint32_t type, unsigned int index,  const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const {
-    const Resource *resource_r = getResource( type, index );
-
-    if( resource_r != nullptr )
-    {
-        std::string path = folder_path;
-
-        if( path.back() != '/' )
-            path += '/';
-
-        path += resource_r->getFullName( index );
-
-        if( raw_file_mode )
-            return resource_r->write( path, arguments );
-        else
-            return resource_r->writeRaw( path, arguments );
-    }
-    else
-        return -5; // Tell the user that there is either an invalid type or the index is out of bounds.
 }
 
 int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {

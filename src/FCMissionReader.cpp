@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ) {
                     mission_file[ number_of_inputs++ ].open( argv[++i] );
                 else
                 {
-                    std::cout << "Input Error: you exceed the limit of two input Mission files." << std::endl;
+                    std::cout << "Input Error: you exceeded the limit of two input Mission files." << std::endl;
                     i = argc;
                 }
             else
@@ -71,7 +71,7 @@ int main( int argc, char *argv[] ) {
             else
             if( input.find(RAW_OUTPUT_OPERATION) == 0 ) {
                 if( input.length() == 2 )
-                    mission_file[0].exportAllResources( output_folder_path.c_str(), false, extra_commands );
+                    mission_file[0].exportAllResources( output_folder_path, false, extra_commands );
                 else
                 {
                     // int resource_index = std::stoi( input.substr( 3, input.length() - 3 ) );
@@ -82,7 +82,7 @@ int main( int argc, char *argv[] ) {
             else
             if( input.find(DECODE_OUTPUT_OPERATION) == 0 ) {
                 if( input.length() == 2 )
-                    mission_file[0].exportAllResources( output_folder_path.c_str(), true, extra_commands );
+                    mission_file[0].exportAllResources( output_folder_path, true, extra_commands );
                 else
                 {
                     // int resource_index = std::stoi( input.substr( 3, input.length() - 3 ) );
