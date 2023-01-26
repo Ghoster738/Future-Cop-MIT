@@ -403,7 +403,7 @@ int main(int argc, char** argv)
         }
     }
     
-    Graphics::ModelInstance* displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
+    Graphics::ModelInstance* displayed_instance = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
     
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
@@ -483,8 +483,8 @@ int main(int argc, char** argv)
                 if( displayed_instance != nullptr )
                     delete displayed_instance;
                 
-                if( Graphics::ModelInstance::doesIndexExist( *environment, cobj_index ) ) {
-                    displayed_instance = Graphics::ModelInstance::alloc( *environment, cobj_index, glm::vec3(0,0,0) );
+                if( Graphics::ModelInstance::exists( *environment, obj_vector.at(cobj_index)->getResourceID() ) ) {
+                    displayed_instance = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
                     
                     std::cout << "Sphere result is "<< displayed_instance->getBoundingSphere( position, radius ) << std::endl;
                     std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;

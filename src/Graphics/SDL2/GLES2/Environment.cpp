@@ -150,7 +150,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
-        std::cout << "Graphics::Environment::setModelTypes is not broken! " << err << std::endl;
+        std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     int number_of_failures = 0; // TODO make sure that this gets set.
@@ -203,13 +203,13 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
 
             if( model != nullptr )
             {
-            if( model->getNumJoints() > 0 )
-                EnvironmentInternalData->skeletal_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
-            else
-            if( model->getNumMorphFrames() > 0)
-                EnvironmentInternalData->morph_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
-            else
-                EnvironmentInternalData->static_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
+                if( model->getNumJoints() > 0 )
+                    EnvironmentInternalData->skeletal_model_draw_routine.inputModel( model, model_types[ i ]->getResourceID(), EnvironmentInternalData->textures );
+                else
+                if( model->getNumMorphFrames() > 0)
+                    EnvironmentInternalData->morph_model_draw_routine.inputModel( model, model_types[ i ]->getResourceID(), EnvironmentInternalData->textures );
+                else
+                    EnvironmentInternalData->static_model_draw_routine.inputModel( model, model_types[ i ]->getResourceID(), EnvironmentInternalData->textures );
             }
         }
     }

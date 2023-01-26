@@ -40,7 +40,7 @@ protected:
     GLuint view_inv_uniform_id;
 
     // The models need to be accessed.
-    std::vector<Mesh*> models;
+    std::map<uint32_t, Mesh*> models;
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_ref; // This holds the environment map.
@@ -121,7 +121,7 @@ public:
      * @note This is meant to tell Environment whether or not the model is contained within a *ModelDraw class.
      * @return True if the model exists in the class.
      */
-    bool containsModel( size_t model_index ) const;
+    bool containsModel( uint32_t obj_identifier ) const;
 
     /**
      * This handles the loading of the models.
@@ -129,7 +129,7 @@ public:
      * @param This is the amount of models to load.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * This draws all of the models.
@@ -143,7 +143,7 @@ public:
      */
     int prune();
 
-    int allocateObjModel( unsigned int index_obj, GLES2::ModelInstance &model_instance );
+    int allocateObjModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
 
     /**
      * This advances the time of every instance.
@@ -177,7 +177,7 @@ public:
      * @param radius This holds the rotation of the sphere.
      * @return true if a bounding sphere is generated.
      */
-    bool getBoundingSphere( unsigned int mesh_index, glm::vec3 &position, float &radius ) const;
+    bool getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const;
 };
 
 }

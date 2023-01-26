@@ -30,14 +30,14 @@ public:
     /**
      * This method is to be called only in Environment, because this class is responsiable for handling the position and rotation of the model.
      * @param env_r this is the environment that will be attached to this model instance.
-     * @param index_obj this is the index to the object.
+     * @param obj_identifier this is the index to the object.
      * @param position the 3D position of the model.
      * @param rotation the rotation of the model. Warning, this is a quaterion, and it should be manually normalized.
      * @param texture_offset This is the texture offset. It is used to change the "color" of the models.
      * @return a valid pointer to model instance.
      */
     static Graphics::ModelInstance* alloc( Environment &env_r,
-                                           int index_obj,
+                                           uint32_t obj_identifier,
                                            const glm::vec3 &position,
                                            const glm::quat &rotation = glm::quat(),
                                            const glm::vec2 &texture_offset = glm::vec2( 0, 0 ) );
@@ -47,7 +47,7 @@ public:
      */
     virtual ~ModelInstance();
     
-    static bool doesIndexExist( Environment &env_r, int index_obj );
+    static bool exists( Graphics::Environment &env_r, uint32_t obj_identifier );
 
     /**
      * This sets the position of the model.
