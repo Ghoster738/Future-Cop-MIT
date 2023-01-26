@@ -20,7 +20,7 @@ public:
     static const GLchar* default_es_vertex_shader;
     static const GLchar* default_es_fragment_shader;
     struct ModelArray {
-        unsigned int mesh_index; // The type of model the instances will represent. TODO Change this into a pointer.
+        uint32_t obj_identifier; // The type of model the instances will represent.
         unsigned int unculled_size;
         std::vector<GLES2::ModelInstance*> instances; // The list of all instances that will be drawn.
 
@@ -48,9 +48,9 @@ protected:
     // This stores the actual data.
     std::vector<ModelArray*> model_array;
 
-    ModelArray* getModelArray( unsigned int mesh_index );
-    ModelArray* getModelArray( unsigned int mesh_index ) const;
-    ModelArray* addModelArray( unsigned int mesh_index );
+    ModelArray* getModelArray( uint32_t obj_identifier );
+    ModelArray* getModelArray( uint32_t obj_identifier ) const;
+    ModelArray* addModelArray( uint32_t obj_identifier );
 public:
     StaticModelDraw();
     virtual ~StaticModelDraw();

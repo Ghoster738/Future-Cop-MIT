@@ -196,8 +196,13 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
     for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = models.at( model_array.at( d )->mesh_index );
-        SkeletalAnimation *animate = model_animation.at( model_array.at( d )->mesh_index );
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh = nullptr;
+        SkeletalAnimation *animate = nullptr;
+        
+        if(  models.find( model_array.at( d )->obj_identifier ) != models.end()  ) {
+            mesh = models.at( model_array.at( d )->obj_identifier );
+            animate = model_animation.at( model_array.at( d )->obj_identifier );
+        }
 
         // Check if the mesh is a valid pointer.
         if( mesh != nullptr && animate != nullptr )

@@ -130,53 +130,53 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 namespace {
 
 bool sortModelArray(const Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray *i, const Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray *j) {
-    return (i->mesh_index < j->mesh_index);
+    return (i->obj_identifier < j->obj_identifier);
 }
 
 }
 
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( unsigned int mesh_index ) {
+Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( uint32_t obj_identifier ) {
     ModelArray* search_key = nullptr;
 
     if( !model_array.empty() )
     {
         ModelArray relationModelArray;
-        relationModelArray.mesh_index = mesh_index;
+        relationModelArray.obj_identifier = obj_identifier;
 
         auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
 
         const int index = bound - model_array.begin();
 
-        if( index < model_array.size() && model_array.at(index)->mesh_index == mesh_index )
+        if( index < model_array.size() && model_array.at(index)->obj_identifier == obj_identifier )
             search_key = *bound;
     }
 
     return search_key;
 }
 
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( unsigned int mesh_index ) const {
+Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( uint32_t obj_identifier ) const {
     ModelArray* search_key = nullptr;
 
     if( !model_array.empty() )
     {
         ModelArray relationModelArray;
-        relationModelArray.mesh_index = mesh_index;
+        relationModelArray.obj_identifier = obj_identifier;
 
         auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
 
         const int index = bound - model_array.begin();
 
-        if( index < model_array.size() && model_array.at(index)->mesh_index == mesh_index )
+        if( index < model_array.size() && model_array.at(index)->obj_identifier == obj_identifier )
             search_key = *bound;
     }
 
     return search_key;
 }
 
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::addModelArray( unsigned int mesh_index ) {
+Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::addModelArray( uint32_t obj_identifier ) {
     ModelArray *new_model_array = new ModelArray();
 
-    new_model_array->mesh_index = mesh_index;
+    new_model_array->obj_identifier = obj_identifier;
     new_model_array->unculled_size = 0;
 
     model_array.push_back( new_model_array );
@@ -344,12 +344,12 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     // Traverse the models.
     for( auto d = model_array.begin(); d != model_array.end(); d++ ) // Go through every model that has an instance.
     {
-        // Get the mesh information.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = models[ (*d)->mesh_index ];
-
         // Check if the mesh is a valid pointer.
-        if( mesh != nullptr )
+        if( models.find( (*d)->obj_identifier ) != models.end() )
         {
+            // Get the mesh information.
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models[ (*d)->obj_identifier ];
+            
             // Go through every instance that refers to this mesh.
             for( auto instance = (*d)->instances.begin(); instance != (*d)->instances.end(); instance++ )
             {
@@ -429,10 +429,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
     // Go through every model array.
     for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
         // Test to see if the mesh has an animation to it.
-        if( models.find( (*model_type)->mesh_index ) != models.end() )
+        if( models.find( (*model_type)->obj_identifier ) != models.end() )
         {
             // Get the mesh.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models[ (*model_type)->mesh_index ];
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models[ (*model_type)->obj_identifier ];
             
             if( mesh->getMorphFrameAmount() > 0 )
             {
