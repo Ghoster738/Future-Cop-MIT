@@ -425,34 +425,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_seconds ) {
-    const float FRAME_SPEED = 10.0;
-
-    // Go through every model array.
-    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
-        // Test to see if the mesh has an animation to it.
-        if( models_p.find( (*model_type)->obj_identifier ) != models_p.end() )
-        {
-            // Get the mesh.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models_p[ (*model_type)->obj_identifier ];
-            
-            if( mesh_r->getMorphFrameAmount() > 0 )
-            {
-                auto morph_frame_amount = mesh_r->getMorphFrameAmount();
-                auto total_frame_amount = morph_frame_amount + 1;
-
-                // Go through every instance of the model.
-                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
-                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + time_seconds * FRAME_SPEED, total_frame_amount ) );
-                }
-            }
-            else
-            if( mesh_r->getFrameAmount() > 0 ) {
-                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
-                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + time_seconds * FRAME_SPEED, mesh_r->getFrameAmount() ) );
-                }
-            }
-        }
-    }
+    // No operation. Static Meshes do not have the concept of time.
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const {

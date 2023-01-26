@@ -50,6 +50,7 @@ protected:
     ModelArray* getModelArray( uint32_t obj_identifier );
     ModelArray* getModelArray( uint32_t obj_identifier ) const;
     ModelArray* addModelArray( uint32_t obj_identifier );
+    bool removeModelArray( uint32_t obj_identifier );
 public:
     StaticModelDraw();
     virtual ~StaticModelDraw();
@@ -124,7 +125,7 @@ public:
     int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
-     * This draws all of the models.
+     * This draws all the models that are opeqe.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
      * @param This is the camera data to be passed into world.
      */
@@ -139,9 +140,10 @@ public:
 
     /**
      * This advances the time of every instance.
-     * @param seconds_passed This is the time in seconds that were passed.
+     * @note Timing is less important for animation data.
+     * @param seconds_passed This is the time in seconds that were passed since the last frame.
      */
-    void advanceTime( float seconds_passed );
+    virtual void advanceTime( float seconds_passed );
 
     /**
      * @return the program that this World uses.

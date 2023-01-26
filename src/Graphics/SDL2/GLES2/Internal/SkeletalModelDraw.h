@@ -75,6 +75,8 @@ public:
      * @param This is the camera data to be passed into world.
      */
     void draw( const Camera &camera );
+    
+    virtual void advanceTime( float seconds_passed );
 };
 
 }

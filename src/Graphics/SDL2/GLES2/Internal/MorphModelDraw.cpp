@@ -214,3 +214,29 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( const Camera &camera
         }
     }
 }
+
+void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds_passed )
+{
+    const float FRAME_SPEED = 10.0;
+
+    // Go through every model array.
+    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
+        // Test to see if the mesh has an animation to it.
+        if( models_p.find( (*model_type)->obj_identifier ) != models_p.end() )
+        {
+            // Get the mesh.
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models_p[ (*model_type)->obj_identifier ];
+            
+            if( mesh_r->getMorphFrameAmount() > 0 )
+            {
+                auto morph_frame_amount = mesh_r->getMorphFrameAmount();
+                auto total_frame_amount = morph_frame_amount + 1;
+
+                // Go through every instance of the model.
+                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
+                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
+                }
+            }
+        }
+    }
+}

@@ -235,3 +235,24 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
         }
     }
 }
+
+void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seconds_passed )
+{
+    const float FRAME_SPEED = 10.0;
+
+    // Go through every model array.
+    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
+        // Test to see if the mesh has an animation to it.
+        if( models_p.find( (*model_type)->obj_identifier ) != models_p.end() )
+        {
+            // Get the mesh.
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models_p[ (*model_type)->obj_identifier ];
+            
+            if( mesh_r->getFrameAmount() > 0 ) {
+                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
+                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
+                }
+            }
+        }
+    }
+}
