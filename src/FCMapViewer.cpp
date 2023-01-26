@@ -274,10 +274,9 @@ int main(int argc, char** argv)
                 std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
         }
     }
-
+    
+    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
     {
-        auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
-
         environment->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
@@ -538,11 +537,13 @@ int main(int argc, char** argv)
         text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
 
-        if( text_2d_buffer->setFont( 2 ) == -3 )
-            text_2d_buffer->setFont( 0 );
-        text_2d_buffer->setColor( glm::vec4( 0, 1, 1, 1 ) );
-        text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
-        text_2d_buffer->print( "TilRes = " + std::to_string(current_tile_selected) );
+        if( current_tile_selected >= 0 ) {
+            if( text_2d_buffer->setFont( 2 ) == -3 )
+                text_2d_buffer->setFont( 0 );
+            text_2d_buffer->setColor( glm::vec4( 0, 1, 1, 1 ) );
+            text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
+            text_2d_buffer->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+        }
 
         environment->drawFrame();
         environment->advanceTime( delta_f );
