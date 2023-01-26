@@ -39,7 +39,7 @@ Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::Environment &env_
 
 Graphics::SDL2::GLES2::ModelInstance::~ModelInstance() {
     // Simply remove this entry from the model instances.
-    this->array_r->instances.erase( this );
+    this->array_r->instances_r.erase( this );
 }
 
 bool Graphics::SDL2::GLES2::ModelInstance::exists( Graphics::Environment &env_r, uint32_t obj_identifier ) {

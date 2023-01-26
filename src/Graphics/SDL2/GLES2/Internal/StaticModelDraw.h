@@ -21,7 +21,10 @@ public:
     static const GLchar* default_es_vertex_shader;
     static const GLchar* default_es_fragment_shader;
     struct ModelArray {
-        std::set<GLES2::ModelInstance*> instances; // The list of all instances that will be drawn.
+        ModelArray( Program *program ) : mesh( program ) {}
+        
+        Mesh mesh;
+        std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
 
     };
 protected:
@@ -38,13 +41,10 @@ protected:
     GLuint view_inv_uniform_id;
 
     // The models need to be accessed.
-    std::map<uint32_t, Mesh*> models_p;
+    std::map<uint32_t, ModelArray*> models_p;
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
-
-    // This stores the actual data.
-    std::map<uint32_t, ModelArray*> model_array;
     
 public:
     StaticModelDraw();
