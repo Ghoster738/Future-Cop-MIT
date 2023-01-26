@@ -99,16 +99,10 @@ Data::Mission::IFF::IFF() {
     resource_amount = 0;
 }
 
-Data::Mission::IFF::IFF( const char *const  file_path ) {
-    type = UNKNOWN;
-    resource_amount = 0;
-    open( file_path );
-}
-
 Data::Mission::IFF::IFF( const std::string &file_path ) {
     type = UNKNOWN;
     resource_amount = 0;
-    open( file_path.c_str() );
+    open( file_path );
 }
 
 
@@ -120,7 +114,7 @@ Data::Mission::IFF::~IFF() {
     }
 }
 
-void Data::Mission::IFF::setName( std::string name ) {
+void Data::Mission::IFF::setName( const std::string &name ) {
     this->name = name;
 }
 
@@ -148,7 +142,7 @@ namespace {
     }
 }
 
-int Data::Mission::IFF::open( const char *const file_path ) {
+int Data::Mission::IFF::open( const std::string &file_path ) {
     std::fstream file;
 
     this->setName( file_path );
@@ -472,7 +466,7 @@ const std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources(
     return const_cast<Data::Mission::IFF*>( this )->getAllResources();
 }
 
-int Data::Mission::IFF::exportAllResources( const char *const folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
+int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
     // This algorithm is an O(n) algorithm and it is as good as it is going to get in terms of data complexity. :)
     if( resource_amount != 0 )
     {
@@ -489,9 +483,9 @@ int Data::Mission::IFF::exportAllResources( const char *const folder_path, bool 
                 std::string full_path = path + (*it)->getFullName( (*it)->getIndexNumber() );
 
                 if( raw_file_mode )
-                    (*it)->write( full_path.c_str(), arguments );
+                    (*it)->write( full_path, arguments );
                 else
-                    (*it)->writeRaw( full_path.c_str(), arguments );
+                    (*it)->writeRaw( full_path, arguments );
             }
         }
         return true;
@@ -500,7 +494,7 @@ int Data::Mission::IFF::exportAllResources( const char *const folder_path, bool 
         return false;
 }
 
-int Data::Mission::IFF::exportSingleResource( uint32_t type, unsigned int index, const char *const folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const {
+int Data::Mission::IFF::exportSingleResource( uint32_t type, unsigned int index,  const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const {
     const Resource *resource_r = getResource( type, index );
 
     if( resource_r != nullptr )
@@ -513,9 +507,9 @@ int Data::Mission::IFF::exportSingleResource( uint32_t type, unsigned int index,
         path += resource_r->getFullName( index );
 
         if( raw_file_mode )
-            return resource_r->write( path.c_str(), arguments );
+            return resource_r->write( path, arguments );
         else
-            return resource_r->writeRaw( path.c_str(), arguments );
+            return resource_r->writeRaw( path, arguments );
     }
     else
         return -5; // Tell the user that there is either an invalid type or the index is out of bounds.

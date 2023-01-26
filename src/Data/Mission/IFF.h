@@ -32,14 +32,13 @@ private:
 public:
 
     IFF();
-    IFF( const char *const  file_path );
     IFF( const std::string &file_path );
     virtual ~IFF();
 
     /**
      * If you want to give a name to this file you can. It is useful for debugging outputs.
      */
-    void setName( std::string name );
+    void setName( const std::string &name );
 
     /**
      * Get the name of this IFF. It is not this useful.
@@ -72,21 +71,21 @@ public:
      * This opens the mission file and reads every resource in that file.
      * @return TODO add some returns
      */
-    int open( const char *const file_path );
+    int open( const std::string &file_path );
 
     /**
      * This exports all the resources from this mission file.
-     * @note not every format is supported as of now, so raw_file_mode being false would only output the raw file.
+     * @note not every format is supported as of now, so raw\_file\_mode being false would only output the raw file.
      * @param folder_path This is where all the files will be exported. Be very careful as it will make a mess of your file system if placed in the wrong place.
      * @param raw_file_mode set this to true if you do not to write the decoded output. Note not every format is supported as of now.
      * @param arguments The arguments to be passed into every file in this resource.
      * @return 1 for a successfull, 0 for no export. TODO add yet more return values
      */
-    int exportAllResources( const char *const folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
+    int exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
 
     /**
      * This export a single resource from this mission file.
-     * @note not every format is supported as of now, so raw_file_mode being false would only output the raw file.
+     * @note not every format is supported as of now, so raw\_file\_mode being false would only output the raw file.
      * @param type This the type of file to export.
      * @param index This the index of the type to export.
      * @param folder_path This is where the file will be exported.
@@ -94,7 +93,7 @@ public:
      * @param arguments The arguments to be passed into the file.
      * @return TODO define it.
      */
-    int exportSingleResource( uint32_t type, unsigned int index, const char *const folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
+    int exportSingleResource( uint32_t type, unsigned int index, const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
 
     /**
      * This compares this mission file to another IFF.
