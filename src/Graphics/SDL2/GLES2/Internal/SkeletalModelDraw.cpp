@@ -106,7 +106,12 @@ Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
 }
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
-
+    // Delete the models first.
+    for( auto i = model_animation_p.begin(); i != model_animation_p.end(); i++ )
+    {
+        delete (*i).second; // First delete the pointer.
+        (*i).second = nullptr; // Then set the pointer to null.
+    }
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::getDefaultVertexShader() {
@@ -149,14 +154,14 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
     
     if( ret >= 0 )
     {
-        if( model_animation[ obj_identifier ] != nullptr )
-            delete model_animation[ obj_identifier ];
+        if( model_animation_p[ obj_identifier ] != nullptr )
+            delete model_animation_p[ obj_identifier ];
         
-        model_animation[ obj_identifier ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
+        model_animation_p[ obj_identifier ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
 
         for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
         {
-            glm::mat4* frame_r = model_animation[ obj_identifier ]->getFrames( frame_index, 0 );
+            glm::mat4* frame_r = model_animation_p[ obj_identifier ]->getFrames( frame_index, 0 );
 
             for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
             {
@@ -198,7 +203,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
         
         if( models_p.find( model_array.at( d )->obj_identifier ) != models_p.end()  ) {
             mesh_r = models_p.at( model_array.at( d )->obj_identifier );
-            animate_r = model_animation.at( model_array.at( d )->obj_identifier );
+            animate_r = model_animation_p.at( model_array.at( d )->obj_identifier );
         }
 
         // Check if the mesh is a valid pointer.

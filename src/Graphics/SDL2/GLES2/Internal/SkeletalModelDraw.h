@@ -29,7 +29,7 @@ protected:
         unsigned int getNumBones() const { return num_bones; }
     };
 
-    std::map<uint32_t, SkeletalAnimation*> model_animation;
+    std::map<uint32_t, SkeletalAnimation*> model_animation_p;
 public:
     SkeletalModelDraw();
     virtual ~SkeletalModelDraw();
