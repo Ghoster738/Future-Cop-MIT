@@ -110,13 +110,6 @@ public:
     void setTextures( Texture2D *shiney_texture_ref );
 
     /**
-     * This sets the capacity of the model types contained within this class.
-     * @param model_amount The amount of models to draw.
-     * @return
-     */
-    void setNumModelTypes( size_t model_amount );
-
-    /**
      * This checks for the existence of the model inside the Draw routine.
      * @note This is meant to tell Environment whether or not the model is contained within a *ModelDraw class.
      * @return True if the model exists in the class.

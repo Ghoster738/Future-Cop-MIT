@@ -296,10 +296,6 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *s
     this->shiney_texture_ref = shiney_texture_r;
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setNumModelTypes( size_t model_amount ) {
-    // models.resize( model_amount, nullptr );
-}
-
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
     if( models.find( obj_identifier ) != models.end() )
         return ( models.at( obj_identifier ) != nullptr );

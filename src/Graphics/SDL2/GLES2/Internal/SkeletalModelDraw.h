@@ -29,7 +29,7 @@ protected:
         unsigned int getNumBones() const { return num_bones; }
     };
 
-    std::vector<SkeletalAnimation*> model_animation;
+    std::map<uint32_t, SkeletalAnimation*> model_animation;
 public:
     SkeletalModelDraw();
     virtual ~SkeletalModelDraw();
@@ -62,19 +62,12 @@ public:
     int compilieProgram();
 
     /**
-     * This sets the capacity of the model types contained within this class.
-     * @param model_amount The amount of models to draw.
-     * @return
-     */
-    void setNumModelTypes( size_t model_amount );
-
-    /**
      * This handles the loading of the models.
      * @param These are the models to load.
      * @param This is the amount of models to load.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * This draws all of the models with the morph attribute.

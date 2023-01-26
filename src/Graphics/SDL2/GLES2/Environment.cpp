@@ -162,8 +162,6 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     EnvironmentInternalData->static_model_draw_routine.compilieProgram();
     
     EnvironmentInternalData->static_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
-    
-    EnvironmentInternalData->static_model_draw_routine.setNumModelTypes( model_types.size() );
 
     err = glGetError();
 
@@ -176,8 +174,6 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
 
     EnvironmentInternalData->morph_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
-    EnvironmentInternalData->morph_model_draw_routine.setNumModelTypes( model_types.size() );
-    
     err = glGetError();
 
     if( err != GL_NO_ERROR )
@@ -189,8 +185,6 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     
     EnvironmentInternalData->skeletal_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
-    EnvironmentInternalData->skeletal_model_draw_routine.setNumModelTypes( model_types.size() );
-
     err = glGetError();
 
     if( err != GL_NO_ERROR )

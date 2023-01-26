@@ -144,22 +144,19 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::setNumModelTypes( size_t model_amount ) {
-    Graphics::SDL2::GLES2::Internal::StaticModelDraw::setNumModelTypes( model_amount );
-    
-    model_animation.resize( model_amount, nullptr );
-}
-
-int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type, index, textures );
+int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type, obj_identifier, textures );
     
     if( ret >= 0 )
     {
-        model_animation[ index ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
+        if( model_animation[ obj_identifier ] != nullptr )
+            delete model_animation[ obj_identifier ];
+        
+        model_animation[ obj_identifier ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
 
         for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
         {
-            glm::mat4* frame_r = model_animation[ index ]->getFrames( frame_index, 0 );
+            glm::mat4* frame_r = model_animation[ obj_identifier ]->getFrames( frame_index, 0 );
 
             for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
             {
@@ -167,7 +164,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
             }
         }
 
-        models.at( index )->setFrameAmount( model_type->getNumJointFrames() );
+        models.at( obj_identifier )->setFrameAmount( model_type->getNumJointFrames() );
     }
     
     return ret;
