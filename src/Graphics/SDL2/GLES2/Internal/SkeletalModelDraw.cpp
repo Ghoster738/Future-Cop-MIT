@@ -193,16 +193,16 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
     for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = nullptr;
-        SkeletalAnimation *animate = nullptr;
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = nullptr;
+        SkeletalAnimation *animate_r = nullptr;
         
         if( models_p.find( model_array.at( d )->obj_identifier ) != models_p.end()  ) {
-            mesh = models_p.at( model_array.at( d )->obj_identifier );
-            animate = model_animation.at( model_array.at( d )->obj_identifier );
+            mesh_r = models_p.at( model_array.at( d )->obj_identifier );
+            animate_r = model_animation.at( model_array.at( d )->obj_identifier );
         }
 
         // Check if the mesh is a valid pointer.
-        if( mesh != nullptr && animate != nullptr )
+        if( mesh_r != nullptr && animate_r != nullptr )
         {
             // Go through every instance that refers to this mesh.
             for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
@@ -225,12 +225,12 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
 
                 int current_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
 
-                assert( animate->getFrames( current_frame, 0 ) != nullptr );
-                assert( animate->getFrames( current_frame, animate->getNumBones() - 1 ) != nullptr );
+                assert( animate_r->getFrames( current_frame, 0 ) != nullptr );
+                assert( animate_r->getFrames( current_frame, animate_r->getNumBones() - 1 ) != nullptr );
 
-                glUniformMatrix4fv( mat4_array_uniform_id, animate->getNumBones(), GL_FALSE, glm::value_ptr( *animate->getFrames( current_frame, 0 ) ) );
+                glUniformMatrix4fv( mat4_array_uniform_id, animate_r->getNumBones(), GL_FALSE, glm::value_ptr( *animate_r->getFrames( current_frame, 0 ) ) );
 
-                mesh->draw( 0, diffusive_texture_uniform_id );
+                mesh_r->draw( 0, diffusive_texture_uniform_id );
             }
         }
     }
