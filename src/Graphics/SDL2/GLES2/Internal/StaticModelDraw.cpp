@@ -127,64 +127,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
     "    gl_FragColor = color;\n"
     "}\n";
 
-namespace {
-
-bool sortModelArray(const Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray *i, const Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray *j) {
-    return (i->obj_identifier < j->obj_identifier);
-}
-
-}
-
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( uint32_t obj_identifier ) {
-    ModelArray* search_key_r = nullptr;
-
-    if( !model_array.empty() )
-    {
-        ModelArray relation_model_array;
-        relation_model_array.obj_identifier = obj_identifier;
-
-        auto bound_r = lower_bound( model_array.begin(), model_array.end(), &relation_model_array, sortModelArray );
-
-        const int index = bound_r - model_array.begin();
-
-        if( index < model_array.size() && model_array.at( index )->obj_identifier == obj_identifier )
-            search_key_r = *bound_r;
-    }
-
-    return search_key_r;
-}
-
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( uint32_t obj_identifier ) const {
-    ModelArray* search_key_r = nullptr;
-
-    if( !model_array.empty() )
-    {
-        ModelArray relation_model_array;
-        relation_model_array.obj_identifier = obj_identifier;
-
-        auto bound_r = lower_bound( model_array.begin(), model_array.end(), &relation_model_array, sortModelArray );
-
-        const int index = bound_r - model_array.begin();
-
-        if( index < model_array.size() && model_array.at(index)->obj_identifier == obj_identifier )
-            search_key_r = *bound_r;
-    }
-
-    return search_key_r;
-}
-
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::addModelArray( uint32_t obj_identifier ) {
-    ModelArray *new_model_array_r = new ModelArray();
-
-    new_model_array_r->obj_identifier = obj_identifier;
-    new_model_array_r->unculled_size = 0;
-
-    model_array.push_back( new_model_array_r );
-    sort( model_array.begin(), model_array.end(), sortModelArray );
-
-    return new_model_array_r;
-}
-
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 
 }
@@ -346,13 +288,13 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     for( auto d = model_array.begin(); d != model_array.end(); d++ ) // Go through every model that has an instance.
     {
         // Check if the mesh is a valid pointer.
-        if( models_p.find( (*d)->obj_identifier ) != models_p.end() )
+        if( models_p.find( (*d).first ) != models_p.end() )
         {
             // Get the mesh information.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models_p[ (*d)->obj_identifier ];
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models_p[ (*d).first ];
             
             // Go through every instance that refers to this mesh.
-            for( auto instance = (*d)->instances.begin(); instance != (*d)->instances.end(); instance++ )
+            for( auto instance = (*d).second->instances.begin(); instance != (*d).second->instances.end(); instance++ )
             {
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
@@ -376,34 +318,17 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::prune() {
-    int count_deleted = 0;
-
-    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
-        if( (*model_type)->instances.size() != (*model_type)->unculled_size )
-        {
-            count_deleted += ((*model_type)->instances.size() - (*model_type)->unculled_size);
-            (*model_type)->instances.resize( (*model_type)->unculled_size );
-
-            // There should not be a negative count.
-            assert( ((*model_type)->instances.size() - (*model_type)->unculled_size) <= 0 );
-        }
-    }
-
-    return count_deleted;
-}
-
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t obj_identifier, GLES2::ModelInstance &model_instance ) {
     if( models_p.find( obj_identifier ) != models_p.end() ) // Do some bounds checking!
     {
+        // Allocate the model array if it does not exist.
+        if( model_array.find( obj_identifier ) == model_array.end() )
+            model_array[ obj_identifier ] = new ModelArray;
+        
         // This holds the model instance sheet.
-        ModelArray *model_array = getModelArray( obj_identifier );
+        ModelArray *model_array_r = model_array[ obj_identifier ];
 
-        if( model_array == nullptr ) // Check if the mesh was actually loaded.
-            model_array = addModelArray( obj_identifier );
-
-        model_instance.array = model_array;
-        model_instance.index_position = model_array->instances.size();
+        model_instance.array_r = model_array_r;
         
         bool result = false;
         
@@ -413,10 +338,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
         // assert( result ); // TODO Add a return false case to getBoundingSphere.
 
         // Finally added the instance.
-        model_array->instances.push_back( &model_instance );
-
-        // Model Array should have the new size.
-        model_array->unculled_size++;
+        model_array_r->instances.insert( &model_instance );
 
         return 1; // The instance is successfully allocated.
     }

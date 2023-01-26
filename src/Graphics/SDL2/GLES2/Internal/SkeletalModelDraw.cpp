@@ -195,22 +195,22 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
     // Traverse the models.
-    for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
+    for( auto d = model_array.begin(); d != model_array.end(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
         Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = nullptr;
         SkeletalAnimation *animate_r = nullptr;
         
-        if( models_p.find( model_array.at( d )->obj_identifier ) != models_p.end()  ) {
-            mesh_r = models_p.at( model_array.at( d )->obj_identifier );
-            animate_r = model_animation_p.at( model_array.at( d )->obj_identifier );
+        if( models_p.find( ( *d ).first ) != models_p.end()  ) {
+            mesh_r = models_p.at( ( *d ).first );
+            animate_r = model_animation_p.at( ( *d ).first );
         }
 
         // Check if the mesh is a valid pointer.
         if( mesh_r != nullptr && animate_r != nullptr )
         {
             // Go through every instance that refers to this mesh.
-            for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
+            for( auto instance = ( *d ).second->instances.begin(); instance != ( *d ).second->instances.end(); instance++ )
             {
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
@@ -246,15 +246,15 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seco
     const float FRAME_SPEED = 10.0;
 
     // Go through every model array.
-    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
+    for( auto model_type = model_array.begin(); model_type != model_array.end(); model_type++ ) {
         // Test to see if the mesh has an animation to it.
-        if( models_p.find( (*model_type)->obj_identifier ) != models_p.end() )
+        if( models_p.find( (*model_type).first ) != models_p.end() )
         {
             // Get the mesh.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models_p[ (*model_type)->obj_identifier ];
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models_p[ (*model_type).first ];
             
             if( mesh_r->getFrameAmount() > 0 ) {
-                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
+                for( auto instance = (*model_type).second->instances.begin(); instance != (*model_type).second->instances.end(); instance++ ) {
                     (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
                 }
             }

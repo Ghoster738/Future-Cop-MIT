@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "../../../../Data/Mission/ObjResource.h"
 #include "../../../Camera.h"
+#include <set>
 
 namespace Graphics {
 namespace SDL2 {
@@ -20,9 +21,7 @@ public:
     static const GLchar* default_es_vertex_shader;
     static const GLchar* default_es_fragment_shader;
     struct ModelArray {
-        uint32_t obj_identifier; // The type of model the instances will represent.
-        unsigned int unculled_size;
-        std::vector<GLES2::ModelInstance*> instances; // The list of all instances that will be drawn.
+        std::set<GLES2::ModelInstance*> instances; // The list of all instances that will be drawn.
 
     };
 protected:
@@ -45,12 +44,8 @@ protected:
     Texture2D *shiney_texture_r; // This holds the environment map.
 
     // This stores the actual data.
-    std::vector<ModelArray*> model_array;
-
-    ModelArray* getModelArray( uint32_t obj_identifier );
-    ModelArray* getModelArray( uint32_t obj_identifier ) const;
-    ModelArray* addModelArray( uint32_t obj_identifier );
-    bool removeModelArray( uint32_t obj_identifier );
+    std::map<uint32_t, ModelArray*> model_array;
+    
 public:
     StaticModelDraw();
     virtual ~StaticModelDraw();
@@ -130,11 +125,6 @@ public:
      * @param This is the camera data to be passed into world.
      */
     void draw( const Camera &camera );
-
-    /**
-     * This prunes the object models in the model\_array. It is an O( number\_of\_models\_loaded ) operation.
-     */
-    int prune();
 
     int allocateObjModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
 
