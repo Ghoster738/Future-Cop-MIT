@@ -297,8 +297,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *s
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
-    if( models.find( obj_identifier ) != models.end() )
-        return ( models.at( obj_identifier ) != nullptr );
+    if( models_p.find( obj_identifier ) != models_p.end() )
+        return ( models_p.at( obj_identifier ) != nullptr );
     else
         return false;
 }
@@ -308,8 +308,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
     if( model_type->getNumVertices() > 0 )
     {
-        models[ obj_identifier ] = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
-        models[ obj_identifier ]->setup( *model_type, textures );
+        models_p[ obj_identifier ] = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
+        models_p[ obj_identifier ]->setup( *model_type, textures );
         state =  1;
     }
     else
@@ -341,10 +341,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     for( auto d = model_array.begin(); d != model_array.end(); d++ ) // Go through every model that has an instance.
     {
         // Check if the mesh is a valid pointer.
-        if( models.find( (*d)->obj_identifier ) != models.end() )
+        if( models_p.find( (*d)->obj_identifier ) != models_p.end() )
         {
             // Get the mesh information.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models[ (*d)->obj_identifier ];
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models_p[ (*d)->obj_identifier ];
             
             // Go through every instance that refers to this mesh.
             for( auto instance = (*d)->instances.begin(); instance != (*d)->instances.end(); instance++ )
@@ -389,7 +389,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::prune() {
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t obj_identifier, GLES2::ModelInstance &model_instance ) {
-    if( models.find( obj_identifier ) != models.end() ) // Do some bounds checking!
+    if( models_p.find( obj_identifier ) != models_p.end() ) // Do some bounds checking!
     {
         // This holds the model instance sheet.
         ModelArray *model_array = getModelArray( obj_identifier );
@@ -402,8 +402,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
         
         bool result = false;
         
-        if( models[ obj_identifier ] != nullptr ) {
-            result = models[ obj_identifier ]->getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius );
+        if( models_p[ obj_identifier ] != nullptr ) {
+            result = models_p[ obj_identifier ]->getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius );
         }
         // assert( result ); // TODO Add a return false case to getBoundingSphere.
 
@@ -425,10 +425,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
     // Go through every model array.
     for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
         // Test to see if the mesh has an animation to it.
-        if( models.find( (*model_type)->obj_identifier ) != models.end() )
+        if( models_p.find( (*model_type)->obj_identifier ) != models_p.end() )
         {
             // Get the mesh.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models[ (*model_type)->obj_identifier ];
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = models_p[ (*model_type)->obj_identifier ];
             
             if( mesh_r->getMorphFrameAmount() > 0 )
             {
@@ -451,7 +451,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_s
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const {
-    if( models.find( obj_identifier ) != models.end() )
+    if( models_p.find( obj_identifier ) != models_p.end() )
         return false;
-    return models.at( obj_identifier )->getBoundingSphere( position, radius );
+    return models_p.at( obj_identifier )->getBoundingSphere( position, radius );
 }

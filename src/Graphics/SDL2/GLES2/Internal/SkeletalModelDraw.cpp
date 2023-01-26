@@ -164,7 +164,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
             }
         }
 
-        models.at( obj_identifier )->setFrameAmount( model_type->getNumJointFrames() );
+        models_p.at( obj_identifier )->setFrameAmount( model_type->getNumJointFrames() );
     }
     
     return ret;
@@ -196,8 +196,8 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
         Graphics::SDL2::GLES2::Internal::Mesh *mesh = nullptr;
         SkeletalAnimation *animate = nullptr;
         
-        if(  models.find( model_array.at( d )->obj_identifier ) != models.end()  ) {
-            mesh = models.at( model_array.at( d )->obj_identifier );
+        if( models_p.find( model_array.at( d )->obj_identifier ) != models_p.end()  ) {
+            mesh = models_p.at( model_array.at( d )->obj_identifier );
             animate = model_animation.at( model_array.at( d )->obj_identifier );
         }
 

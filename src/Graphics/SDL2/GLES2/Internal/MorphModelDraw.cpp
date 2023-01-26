@@ -168,10 +168,10 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( const Camera &camera
     for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
     {
         // Check if the mesh is a valid pointer.
-        if( models.find( model_array.at( d )->obj_identifier ) != models.end() )
+        if( models_p.find( model_array.at( d )->obj_identifier ) != models_p.end() )
         {
             // Get the mesh information.
-            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models.at( model_array.at( d )->obj_identifier );
+            Graphics::SDL2::GLES2::Internal::Mesh *mesh = models_p.at( model_array.at( d )->obj_identifier );
             
             // Go through every instance that refers to this mesh.
             for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )

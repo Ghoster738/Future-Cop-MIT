@@ -39,7 +39,7 @@ protected:
     GLuint view_inv_uniform_id;
 
     // The models need to be accessed.
-    std::map<uint32_t, Mesh*> models;
+    std::map<uint32_t, Mesh*> models_p;
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
