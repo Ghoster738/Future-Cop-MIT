@@ -340,12 +340,12 @@ int main(int argc, char** argv)
             for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
             {
                 int status = 0;
-                text_2d_buffer->setFont( 0 );
+                text_2d_buffer->setFont( 1 );
                 text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
                 text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
                 text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
-                text_2d_buffer->setFont( 0 );
+                text_2d_buffer->setFont( 1 );
                 text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
                 text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
                 text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
@@ -525,21 +525,21 @@ int main(int argc, char** argv)
 
         first_person->setView3D( extra_matrix_2 );
 
-        if( text_2d_buffer->setFont( 5 ) == -3 )
-            text_2d_buffer->setFont( 0 );
+        if( text_2d_buffer->setFont( 6 ) == -3 )
+            text_2d_buffer->setFont( 1 );
         text_2d_buffer->setColor( glm::vec4( 1, 0, 0, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( "Position = (" + std::to_string(position_of_camera.x) + ", " + std::to_string(position_of_camera.y) + ", " + std::to_string(position_of_camera.z) + ")" );
 
-        if( text_2d_buffer->setFont( 4 ) == -3 )
-            text_2d_buffer->setFont( 0 );
+        if( text_2d_buffer->setFont( 5 ) == -3 )
+            text_2d_buffer->setFont( 1 );
         text_2d_buffer->setColor( glm::vec4( 0, 1, 0, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
 
         if( current_tile_selected >= 0 ) {
-            if( text_2d_buffer->setFont( 2 ) == -3 )
-                text_2d_buffer->setFont( 0 );
+            if( text_2d_buffer->setFont( 3 ) == -3 )
+                text_2d_buffer->setFont( 1 );
             text_2d_buffer->setColor( glm::vec4( 0, 1, 1, 1 ) );
             text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
             text_2d_buffer->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );

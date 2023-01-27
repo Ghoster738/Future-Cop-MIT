@@ -331,7 +331,7 @@ int main(int argc, char** argv)
     // If there is an error detected it is time to show it.
     while( is_error )
     {
-        text_2d_buffer->setFont( 0 );
+        text_2d_buffer->setFont( 1 );
         text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( error_message );
@@ -359,14 +359,14 @@ int main(int argc, char** argv)
 
                 while( status < 1  && viewer_loop )
                 {
-                    if( text_2d_buffer->setFont( 2 ) < 1 )
-                        text_2d_buffer->setFont( 0 );
+                    if( text_2d_buffer->setFont( 3 ) < 1 )
+                        text_2d_buffer->setFont( 1 );
                     text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
                     text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
                     text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
                     
-                    if( text_2d_buffer->setFont( 5 ) < 1 )
-                        text_2d_buffer->setFont( 0 );
+                    if( text_2d_buffer->setFont( 6 ) < 1 )
+                        text_2d_buffer->setFont( 1 );
                     text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
                     text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
                     text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
@@ -508,8 +508,8 @@ int main(int argc, char** argv)
 
         count_down -= time_unit(delta).count();
         
-        if( text_2d_buffer->setFont( 2 ) < 1 )
-            text_2d_buffer->setFont( 0 );
+        if( text_2d_buffer->setFont( 3 ) < 1 )
+            text_2d_buffer->setFont( 1 );
         text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer->print( "Resource ID = " + std::to_string(obj_vector.at(cobj_index)->getResourceID()) );

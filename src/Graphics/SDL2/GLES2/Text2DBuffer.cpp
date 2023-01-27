@@ -20,12 +20,12 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     if( text_2D_expand_factor < 0x100 )
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
-    loadFontLibrary();
+    text_data_p = env.text_draw_routine_p->getText2D();
 }
 
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
-    for( auto i = text_data.begin(); i != text_data.end(); i++ )
-        delete (*i);
+    for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
+        delete (*i).second;
 }
 
 
@@ -47,57 +47,26 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &environment, co
         return 0;
 }
 
-bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary()
-{
-    // Make sure there is text.
-    if( env_r->text_draw_routine_p != nullptr )
-    {
-        auto font_system_r = env_r->text_draw_routine_p;
-
-        if( font_system_r->getNumFonts() > 0 )
-        {
-            text_data.reserve( font_system_r->getNumFonts() );
-
-            for( int i = 0; i < font_system_r->getNumFonts(); i++ )
-            {
-                auto font_r = font_system_r->accessFont( i );
-
-                assert( font_r != nullptr );
-
-                text_data.push_back( font_r->allocateText2D() );
-
-                assert( font_r == text_data[i]->getFont() );
-            }
-
-            return true;
-        }
-        else
-            return false;
-    }
-    else
-        return false;
-}
-
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
     auto font_system_r = env_r->text_draw_routine_p;
     
     assert( font_system_r != nullptr );
-    assert( text_data.size() != 0 );
+    assert( text_data_p.size() != 0 );
 
-    font_system_r->draw( projection, text_data );
+    font_system_r->draw( projection, text_data_p );
 }
 
-int Graphics::SDL2::GLES2::Text2DBuffer::setFont( unsigned index ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::setFont( uint32_t resource_id ) {
     auto font_system_r = env_r->text_draw_routine_p;
     
     auto last_text_2D_r = current_text_2D_r;
 
     if( font_system_r != nullptr )
     {
-        if( text_data.size() > index )
+        if( text_data_p.find( resource_id ) != text_data_p.end() )
         {
             // Set the current text.
-            current_text_2D_r = text_data[ index ];
+            current_text_2D_r = text_data_p[ resource_id ];
 
             // Steal the pen position and color from the last pen if available.
             current_text_2D_r->stealPen( last_text_2D_r );
@@ -224,11 +193,11 @@ int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
 
     if( font_system_r != nullptr )
     {
-        if( text_data.size() != 0 )
+        if( text_data_p.size() != 0 )
         {
-            for( auto i = text_data.begin(); i != text_data.end(); i++ )
+            for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
             {
-                if( (*i)->clearText( (*i)->getFont() ) != 1 )
+                if( (*i).second->clearText( (*i).second->getFont() ) != 1 )
                     problematic_font++;
             }
 

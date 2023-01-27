@@ -16,6 +16,7 @@ class FontSystem {
 public:
     class Text2D;
     struct Font {
+        uint32_t resource_id;
         const Data::Mission::FontResource *font_resource_r;
         Texture2D texture;
         glm::u32vec2 texture_scale;
@@ -132,9 +133,11 @@ public:
      * Delete everything.
      */
     ~FontSystem();
+    
+    std::map<uint32_t, Text2D*> getText2D();
 
     const VertexAttributeArray *const getVertexAttributeArray() const { return &vertex_array; };
-
+    
     /**
      * @return the number of fonts in the class.
      */
@@ -144,7 +147,7 @@ public:
      * This gets a font from the class.
      */
     Font* accessFont( unsigned int index );
-
+    
     /**
      * @return vertex buffer size in bytes.
      */
@@ -196,7 +199,7 @@ public:
      */
     int compileProgram();
 
-    void draw( const glm::mat4 &projection, const std::vector<Text2D*> &text_2d_array );
+    void draw( const glm::mat4 &projection, const std::map<uint32_t, Text2D*> &text_2d_array );
 };
 
 }
