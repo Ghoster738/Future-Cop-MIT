@@ -27,6 +27,14 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
         auto reader = this->data_p->getReader();
         
         bool file_is_not_valid = false;
+        
+        // For some reason the resource ID for the SNDS resource is always one.
+        assert( getResourceID() == 1 );
+        
+        // This is the easy workaround to this issue.
+        setResourceID( 1 + getIndexNumber() );
+        
+        // TODO Look into the actual ID system that the SNDS resources use.
 
         sound.setChannelNumber( 1 );
         sound.setSampleRate( 22050 ); // Assummed rate
