@@ -27,6 +27,7 @@
 #include <cstring> // std::strerror
 #include <cassert> // std::strerror
 #include <iostream>
+#include <unordered_set>
 
 namespace {
     // These are the first things that appears in the header.
@@ -78,7 +79,14 @@ namespace {
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
         // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
         { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
-        { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() }
+        { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
+        { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
+        { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
+        { 0x43747273, new Data::Mission::UnkResource( 0x43747273, "trs" ) }, // PS1 Global.
+        { 0x436d6463, new Data::Mission::UnkResource( 0x436d6463, "mdc" ) },
+        { 0x4374696e, new Data::Mission::UnkResource( 0x4374696e, "tin" ) },
+        { 0x43746474, new Data::Mission::UnkResource( 0x43746474, "tdt" ) },
+        { 0x436d6963, new Data::Mission::UnkResource( 0x436d6963, "mic" ) }
     };
     class AutoDelete {
     public:
@@ -329,6 +337,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( !is_confirmend_iff_file ) {
             std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
         }
+        
+        std::unordered_set<std::string> conflict_detector;
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
@@ -351,6 +361,33 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             new_resource_p->setMemory( i.header_p, i.data_p );
             new_resource_p->processHeader( default_settings );
             new_resource_p->parse( default_settings );
+            
+            std::string name = new_resource_p->getFullName( i.resource_id );
+            
+            if( new_resource_p->getResourceTagID() != Data::Mission::SNDSResource::IDENTIFIER_TAG &&
+                new_resource_p->getResourceTagID() != Data::Mission::ANMResource::IDENTIFIER_TAG &&
+                new_resource_p->getResourceTagID() != 0x43736678 && // "sfx"
+                new_resource_p->getResourceTagID() != 0x43736864 //"shd"
+               )
+            {
+                // std::cout << "new_resource_p->getResourceTagID() = 0x" << std::hex;
+                // std::cout << new_resource_p->getResourceTagID() << std::dec << std::endl;
+                // std::cout << "new_resource_p->getFullName( i.resource_id ) = ";
+                // std::cout << new_resource_p->getFullName( i.resource_id ) << std::endl;
+                // assert( conflict_detector.find( name ) == conflict_detector.end() );
+            }
+            else
+            {
+                std::cout << "new_resource_p->getResourceTagID() = 0x" << std::hex;
+                std::cout << new_resource_p->getResourceTagID() << std::dec << std::endl;
+                std::cout << " new_resource_p->getResourceID() = ";
+                std::cout << new_resource_p->getResourceID() << std::endl;
+                std::cout << " new_resource_p->getFullName( i.resource_id ) = ";
+                std::cout << new_resource_p->getFullName( i.resource_id ) << std::endl;
+                assert( new_resource_p->getResourceID() == 1 );
+            }
+            
+            conflict_detector.insert( name );
             
             // TODO Add option to discard memory once loaded.
             // new_resource_p->setMemory( nullptr, nullptr );

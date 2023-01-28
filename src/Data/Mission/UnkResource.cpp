@@ -11,6 +11,7 @@ Data::Mission::UnkResource::UnkResource( uint32_t identifierTag, const char *con
 }
 
 Data::Mission::UnkResource::UnkResource( const Data::Mission::UnkResource &obj ) {
+    setResourceTagID( obj.identifierTag );
 	setFileExtension( obj.fileExtension );
 }
 

@@ -33,7 +33,7 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
         assert( getResourceID() == 1 );
         
         // This is the easy workaround to this issue.
-        setResourceID( 1 + getIndexNumber() );
+        // setResourceID( 1 + getIndexNumber() );
         
         // TODO Look into the actual ID system that the SNDS resources use.
 
