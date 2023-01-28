@@ -906,7 +906,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
                 if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
-                        resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID - 1 ) );
+                        resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID ) );
                         
                         assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
                     }
