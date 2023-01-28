@@ -2,7 +2,6 @@
 
 #include "../../Utilities/DataHandler.h"
 #include <iostream>
-#include <cassert>
 
 const std::string Data::Mission::SNDSResource::FILE_EXTENSION = "snds";
 const uint32_t Data::Mission::SNDSResource::IDENTIFIER_TAG = 0x736E6473; // which is { 0x73, 0x6E, 0x64, 0x73 } or { 's', 'n', 'd', 's' } or "snds"
@@ -28,12 +27,6 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
         auto reader = this->data_p->getReader();
         
         bool file_is_not_valid = false;
-        
-        // For some reason the resource ID for the SNDS resource is always one.
-        assert( getResourceID() == 1 );
-        
-        // This is the easy workaround to this issue.
-        // setResourceID( 1 + getIndexNumber() );
         
         // TODO Look into the actual ID system that the SNDS resources use.
 

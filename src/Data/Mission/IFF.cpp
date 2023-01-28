@@ -54,7 +54,7 @@ namespace {
 
     const std::map<uint32_t, Data::Mission::Resource*> file_type_list {
         { Data::Mission::ACTResource::IDENTIFIER_TAG, new Data::Mission::ACT::Unknown() },
-        { Data::Mission::ANMResource::IDENTIFIER_TAG, new Data::Mission::ANMResource() },
+        { Data::Mission::ANMResource::IDENTIFIER_TAG, new Data::Mission::ANMResource() }, // Resource ID missing
         { Data::Mission::BMPResource::IDENTIFIER_TAG, new Data::Mission::BMPResource() },
         // which is { 0x43, 0x63, 0x74, 0x72 } or { 'C', 'c', 't', 'r' } or "Cctr"
         { 0x43637472, new Data::Mission::UnkResource( 0x43637472, "ctr" ) },
@@ -66,9 +66,9 @@ namespace {
         { Data::Mission::PYRResource::IDENTIFIER_TAG,  new Data::Mission::PYRResource() },
         { Data::Mission::ACTResource::SAC_IDENTI_TAG,  new Data::Mission::ACT::Unknown() },
         // which is { 0x43, 0x73, 0x66, 0x78 } or { 'C', 's', 'f', 'x' } or "Csfx"
-        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx" ) },
+        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx" ) },  // Resource ID missing
         // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
-        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd" ) }, // Holds programmer settings?
+        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd" ) }, // Holds programmer settings?  // Resource ID missing
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
         { 0x43746F73, new Data::Mission::UnkResource( 0x43746F73, "tos" ) },  // time of sounds?
@@ -76,7 +76,7 @@ namespace {
         // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
         { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
         { Data::Mission::RPNSResource::IDENTIFIER_TAG, new Data::Mission::RPNSResource() },
-        { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
+        { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() }, // Resource ID missing
         // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
         { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
@@ -337,8 +337,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( !is_confirmend_iff_file ) {
             std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
         }
-        
-        std::unordered_set<std::string> conflict_detector;
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
@@ -361,33 +359,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             new_resource_p->setMemory( i.header_p, i.data_p );
             new_resource_p->processHeader( default_settings );
             new_resource_p->parse( default_settings );
-            
-            std::string name = new_resource_p->getFullName( i.resource_id );
-            
-            if( new_resource_p->getResourceTagID() != Data::Mission::SNDSResource::IDENTIFIER_TAG &&
-                new_resource_p->getResourceTagID() != Data::Mission::ANMResource::IDENTIFIER_TAG &&
-                new_resource_p->getResourceTagID() != 0x43736678 && // "sfx"
-                new_resource_p->getResourceTagID() != 0x43736864 //"shd"
-               )
-            {
-                // std::cout << "new_resource_p->getResourceTagID() = 0x" << std::hex;
-                // std::cout << new_resource_p->getResourceTagID() << std::dec << std::endl;
-                // std::cout << "new_resource_p->getFullName( i.resource_id ) = ";
-                // std::cout << new_resource_p->getFullName( i.resource_id ) << std::endl;
-                // assert( conflict_detector.find( name ) == conflict_detector.end() );
-            }
-            else
-            {
-                std::cout << "new_resource_p->getResourceTagID() = 0x" << std::hex;
-                std::cout << new_resource_p->getResourceTagID() << std::dec << std::endl;
-                std::cout << " new_resource_p->getResourceID() = ";
-                std::cout << new_resource_p->getResourceID() << std::endl;
-                std::cout << " new_resource_p->getFullName( i.resource_id ) = ";
-                std::cout << new_resource_p->getFullName( i.resource_id ) << std::endl;
-                assert( new_resource_p->getResourceID() == 1 );
-            }
-            
-            conflict_detector.insert( name );
             
             // TODO Add option to discard memory once loaded.
             // new_resource_p->setMemory( nullptr, nullptr );
