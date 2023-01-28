@@ -262,7 +262,6 @@ void Graphics::Environment::drawFrame() const {
             if( EnvironmentInternalData->world != nullptr )
             {
                 // Enable culling on the world map.
-                // I do not know if Future Cop uses back face culling.
                 // glEnable( GL_CULL_FACE );
                 // glCullFace( GL_FRONT ); // The floor seems to be in reverse order! I have got to fix the floor and the slopes.
                 

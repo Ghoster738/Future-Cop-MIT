@@ -29,22 +29,30 @@ Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
 }
 
 
-int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data ) {
     
-    if( environment.text_draw_routine_p != nullptr )
-        delete environment.text_draw_routine_p;
-
-    if( fonts.size() != 0 )
-    {
-        environment.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts );
-        environment.text_draw_routine_p->setVertexShader();
-        environment.text_draw_routine_p->setFragmentShader();
-        environment.text_draw_routine_p->compileProgram();
-
-        return fonts.size();
+    if( env_r.text_draw_routine_p != nullptr )
+        delete env_r.text_draw_routine_p;
+    
+    std::vector<Data::Mission::FontResource*> fonts_r;
+    
+    for( auto i = data.begin(); i != data.end(); i++ ) {
+        auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
+        
+        for( auto f = font_resources.begin(); f != font_resources.end(); f++ ) {
+            fonts_r.push_back( (*f) );
+        }
     }
-    else
-        return 0;
+
+    if( fonts_r.size() != 0 )
+    {
+        env_r.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
+        env_r.text_draw_routine_p->setVertexShader();
+        env_r.text_draw_routine_p->setFragmentShader();
+        env_r.text_draw_routine_p->compileProgram();
+    }
+    
+    return fonts_r.size();
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {

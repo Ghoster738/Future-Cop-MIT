@@ -207,9 +207,13 @@ int main(int argc, char** argv)
 
     if( manager.setLoad( Data::Manager::Importance::NEEDED ) < 2 )
         return -3;
-
+    
     Data::Mission::IFF &resource = *manager.getIFFEntry( iff_mission_id ).getIFF( platform );
     Data::Mission::IFF &global = *manager.getIFFEntry( global_id ).getIFF( platform );
+    
+    std::vector<Data::Mission::IFF*> loaded_IFFs;
+    loaded_IFFs.push_back( &global );
+    loaded_IFFs.push_back( &resource );
 
     Graphics::Environment::initSystem();
     std::cout << "Graphics::Environment::initSystem() loaded!" << std::endl;
@@ -282,18 +286,9 @@ int main(int argc, char** argv)
     }
 
     // Get the font from the resource file.
+    if( Graphics::Text2DBuffer::loadFonts( *environment, loaded_IFFs ) == 0 )
     {
-        auto font_resources = Data::Mission::FontResource::getVector( resource );
-
-        if( font_resources.size() != 0 )
-            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
-        else
-        {
-            font_resources = Data::Mission::FontResource::getVector( global );
-            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
-            if( font_resources.size() == 0 )
-                std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
-        }
+        std::cout << "Fonts missing!" << std::endl;
     }
 
     int times = 0;
@@ -359,13 +354,13 @@ int main(int argc, char** argv)
 
                 while( status < 1  && viewer_loop )
                 {
-                    if( text_2d_buffer->setFont( 3 ) < 1 )
+                    if( text_2d_buffer->setFont( 3 ) == -3 )
                         text_2d_buffer->setFont( 1 );
                     text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
                     text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
                     text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
                     
-                    if( text_2d_buffer->setFont( 6 ) < 1 )
+                    if( text_2d_buffer->setFont( 6 ) == -3 )
                         text_2d_buffer->setFont( 1 );
                     text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
                     text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
@@ -508,7 +503,7 @@ int main(int argc, char** argv)
 
         count_down -= time_unit(delta).count();
         
-        if( text_2d_buffer->setFont( 3 ) < 1 )
+        if( text_2d_buffer->setFont( 3 ) == -3 )
             text_2d_buffer->setFont( 1 );
         text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
         text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );

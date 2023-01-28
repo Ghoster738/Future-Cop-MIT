@@ -20,7 +20,7 @@ public:
     
     virtual ~Text2DBuffer();
     
-    static int loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts );
+    static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
 
     virtual int setFont( uint32_t resource_id ) = 0;
     virtual int setPosition( const glm::vec2 &position ) = 0;

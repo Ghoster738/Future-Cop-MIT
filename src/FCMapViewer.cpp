@@ -227,6 +227,11 @@ int main(int argc, char** argv)
 
     Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
     Data::Mission::IFF   *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
+    
+    
+    std::vector<Data::Mission::IFF*> loaded_IFFs;
+    loaded_IFFs.push_back( global_r );
+    loaded_IFFs.push_back( resource_r );
 
     if( resource_r == nullptr ) {
         std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
@@ -259,20 +264,9 @@ int main(int argc, char** argv)
     }
     
     // Get the font from the resource file.
+    if( Graphics::Text2DBuffer::loadFonts( *environment, loaded_IFFs ) == 0 )
     {
-        auto font_resources = Data::Mission::FontResource::getVector( *resource_r );
-
-        if( font_resources.size() != 0 ) {
-            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
-        }
-        else
-        {
-            font_resources = Data::Mission::FontResource::getVector( *global_r );
-            
-            Graphics::Text2DBuffer::loadFonts( *environment, font_resources );
-            if( font_resources.size() == 0 )
-                std::cout << " general fonts had failed to load out of " << font_resources.size() << std::endl;
-        }
+        std::cout << "Fonts missing!" << std::endl;
     }
     
     auto til_resources = Data::Mission::TilResource::getVector( *resource_r );

@@ -27,7 +27,7 @@ public:
      * @param fonts All the fonts of that exist.
      * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
      */
-    static int loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts );
+    static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
     
     void draw( const glm::mat4 &projection ) const;
     
