@@ -20,6 +20,8 @@ public:
     virtual std::string getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
+    
+    virtual bool noResourceID() const;
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 

@@ -120,6 +120,10 @@ uint32_t Data::Mission::ANMResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+bool Data::Mission::ANMResource::noResourceID() const {
+    return true;
+}
+
 bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr )
     {
