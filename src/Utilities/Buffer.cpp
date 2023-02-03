@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <cassert>
 
 Utilities::Buffer::Buffer() {}
 
@@ -729,6 +730,24 @@ void Utilities::Buffer::Writer::writeI8(  int8_t content )
         reinterpret_cast<int8_t*>( data_r + current_index )[ 0 ] = content;
         current_index = new_offset;
     }
+}
+
+size_t Utilities::Buffer::Writer::write( std::istream &buffer, size_t byte_amount )
+{
+    size_t new_index = current_index + byte_amount;
+
+    if( size < new_index ) {
+        byte_amount -= new_index - size;
+        new_index = size;
+
+        assert( new_index == current_index + byte_amount );
+    }
+
+    const size_t written_bytes = buffer.readsome( reinterpret_cast<char*>( data_r + current_index ), byte_amount );
+
+    current_index = new_index;
+
+    return written_bytes;
 }
 
 void Utilities::Buffer::Writer::addToBuffer( Buffer& buffer ) const
