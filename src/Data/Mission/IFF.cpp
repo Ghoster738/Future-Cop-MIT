@@ -181,8 +181,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer *msic_data_p;
 
         {
-            file_offset = file.tellg();
-
             file.read( type_buffer, sizeof( type_buffer ) );
 
             const uint32_t TYPE_ID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
