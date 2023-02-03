@@ -170,10 +170,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         // since this is a do while loop the loop would only run once if it did not find the header.
         bool error_in_read = true;
 
-        uint32_t typeID;
-        int32_t chunk_size; // Yes, it is a signed integer.
-        int32_t data_size; // This is the chunk size only 8 bytes less.
-
         // There are two loading buffers for the loader
         char  type_buffer[ sizeof( uint32_t ) + sizeof( int32_t ) ];
         int   data_buffer_size = 0x6000; // This is a little higher than the biggest chunk of ConFt.
@@ -189,12 +185,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             file.read( type_buffer, sizeof( type_buffer ) );
 
-            typeID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
-            chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
-            data_size = chunkToDataSize( chunk_size );
+            const uint32_t TYPE_ID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
 
             // First Read the header.
-            if( typeID == IN_ENDIAN_CTRL_TAG || typeID == OP_ENDIAN_CTRL_TAG ) {
+            if( TYPE_ID == IN_ENDIAN_CTRL_TAG || TYPE_ID == OP_ENDIAN_CTRL_TAG ) {
                 error_in_read = false;
 
                 // This determines if the file is big endian or little endian.
@@ -216,11 +210,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 else
                     this->type = UNKNOWN;
 
-                // Skip the data chunk
-                chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
-
-                data_size = chunkToDataSize( chunk_size );
-                file.seekg( data_size, std::ios_base::cur );
+                const int32_t CHUNK_SIZE = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( TYPE_ID )), default_settings.is_opposite_endian );
+                file.seekg( chunkToDataSize( CHUNK_SIZE ), std::ios_base::cur );
 
                 // TODO Add playstation detection
             }
@@ -231,46 +222,46 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             file.read( type_buffer, sizeof( type_buffer ) );
 
-            typeID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
-            chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
-            data_size = chunkToDataSize( chunk_size );
+            const uint32_t TYPE_ID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
+            const int32_t CHUNK_SIZE = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( TYPE_ID )), default_settings.is_opposite_endian );
+            const int32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
-            if( typeID == FILL_TAG ) {
-                //std::cout << "typeID: " << "FILL" << " chunk_size: " << chunk_size << std::endl;
+            if( TYPE_ID == FILL_TAG ) {
+                //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
 
                 // This tag does not have any useable information. This might have been used to demiout certain files.
 
-                if( static_cast<uint32_t>(chunk_size) == SHOC_TAG )
-                    file.seekg( file_offset + sizeof( typeID ), std::ios_base::beg ); // Only skip the typeID.
+                if( static_cast<uint32_t>(CHUNK_SIZE) == SHOC_TAG )
+                    file.seekg( file_offset + sizeof( TYPE_ID ), std::ios_base::beg ); // Only skip the TYPE_ID.
                 else
-                    file.seekg( data_size, std::ios_base::cur ); // Skip the FILL buffer.
+                    file.seekg( DATA_SIZE, std::ios_base::cur ); // Skip the FILL buffer.
             }
             else
-            if( data_size + file.tellg() < iff_file_size )
+            if( DATA_SIZE + file.tellg() < iff_file_size )
             {
                 // Extend the data buffer if it is too small.
-                if( data_size > data_buffer_size ) {
+                if( DATA_SIZE > data_buffer_size ) {
                     delete [] data_buffer;
-                    data_buffer_size = data_size;
+                    data_buffer_size = DATA_SIZE;
                     data_buffer = new char [data_buffer_size];
                     // std::cout << "data_buffer resized to " << data_buffer_size << std::endl;
                 }
 
                 // Finally read the buffer.
-                file.read( data_buffer, data_size );
+                file.read( data_buffer, DATA_SIZE );
 
-                if( typeID == SHOC_TAG ) {
+                if( TYPE_ID == SHOC_TAG ) {
                     // this checks if the chunk holds a file header!
                     if( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SHDR_TAG ) {
-                        if( data_size >= 20 ) {
+                        if( DATA_SIZE >= 20 ) {
                             resource_pool.push_back( ResourceType() );
                             
                             // These are the tag sizes to be expected.
                             // Subtract them by 20 and we would get the header size.
-                            // The smallest data_size is 52, and the biggest data size is 120.
-                            assert( (data_size == 52) || (data_size ==  56) || (data_size ==  60) || (data_size ==  64) ||
-                                    (data_size == 72) || (data_size ==  76) || (data_size ==  80) || (data_size ==  84) ||
-                                    (data_size == 96) || (data_size == 100) || (data_size == 116) || (data_size == 120) );
+                            // The smallest DATA_SIZE is 52, and the biggest data size is 120.
+                            assert( (DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
+                                    (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
+                                    (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120) );
 
                             resource_pool.back().type_enum = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 16), default_settings.is_opposite_endian );
                             resource_pool.back().offset    = file_offset;
@@ -282,23 +273,23 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 resource_pool.back().data_p->reserve( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 24),
                                                                       default_settings.is_opposite_endian ) );
 
-                            resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 28), data_size - 28 );
+                            resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 28), DATA_SIZE - 28 );
                         }
                         else
                             assert( 0 );
                     }
                     else
-                    if( data_size >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
-                        resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer + 12), data_size - 12 );
+                    if( DATA_SIZE >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
+                        resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer + 12), DATA_SIZE - 12 );
                     }
                     else
                         std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
 
-                    // std::cout << "typeID: " << "SHOC" << " chunk_size: " << chunk_size << std::endl;
+                    // std::cout << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                 }
                 else
-                if( typeID == MSIC_TAG ) {
-                    //std::cout << "typeID: " << "MISC" << " chunk_size: " << chunk_size << std::endl;
+                if( TYPE_ID == MSIC_TAG ) {
+                    //std::cout << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                     if( msic_p == nullptr ) {
                         msic_p = new MSICResource();
                         msic_p->setIndexNumber( 0 );
@@ -308,14 +299,14 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     }
 
                     if( msic_p != nullptr )
-                        msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer), data_size );
+                        msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer), DATA_SIZE );
                 }
                 else
-                if( typeID == SWVR_TAG ) {
-                    //std::cout << "typeID: " << "SWVR" << " chunk_size: " << chunk_size << std::endl;
+                if( TYPE_ID == SWVR_TAG ) {
+                    //std::cout << "TYPE_ID: " << "SWVR" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                 }
                 else
-                    std::cout << "typeID: 0x" << std::hex << typeID << std::dec << " chunk_size: " << chunk_size << std::endl;
+                    std::cout << "TYPE_ID: 0x" << std::hex << TYPE_ID << std::dec << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
             }
             else
                 error_in_read = true;
