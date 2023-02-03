@@ -169,14 +169,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         // it is set like this in default because it has not found the header yet.
         // since this is a do while loop the loop would only run once if it did not find the header.
         bool error_in_read = true;
-        bool is_confirmend_iff_file = false;
 
         uint32_t typeID;
         int32_t chunk_size; // Yes, it is a signed integer.
         int32_t data_size; // This is the chunk size only 8 bytes less.
 
         // There are two loading buffers for the loader
-        char  type_buffer[ sizeof( typeID ) + sizeof( chunk_size ) ];
+        char  type_buffer[ sizeof( uint32_t ) + sizeof( int32_t ) ];
         int   data_buffer_size = 0x6000; // This is a little higher than the biggest chunk of ConFt.
         char *data_buffer = new char [data_buffer_size];
 
@@ -185,51 +184,57 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
 
-        do
         {
             file_offset = file.tellg();
 
             file.read( type_buffer, sizeof( type_buffer ) );
+
             typeID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
             chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
-
             data_size = chunkToDataSize( chunk_size );
 
-            if( !is_confirmend_iff_file ) {
-                if( typeID == IN_ENDIAN_CTRL_TAG || typeID == OP_ENDIAN_CTRL_TAG )
-                {
-                    error_in_read = false;
-                    is_confirmend_iff_file = true;
+            // First Read the header.
+            if( typeID == IN_ENDIAN_CTRL_TAG || typeID == OP_ENDIAN_CTRL_TAG ) {
+                error_in_read = false;
 
-                    // This determines if the file is big endian or little endian.
-                    if( WIN_CTRL_TAG[ 0 ] == type_buffer[ 0 ] ) {
-                        this->type = FILE_IS_LITTLE_ENDIAN;
-                        std::cout << "\"" << file_path << "\" is a valid little endian mission file" << std::endl;
-                        default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
-                        default_settings.is_opposite_endian = !Utilities::DataHandler::is_little_endian(); // TODO Remove this
-                        default_settings.endian = Utilities::Buffer::Endian::LITTLE;
-                    }
-                    else
-                    if( MAC_CTRL_TAG[ 0 ] == type_buffer[ 0 ] ) {
-                        this->type = FILE_IS_BIG_ENDIAN;
-                        std::cout << "\"" << file_path << "\" is a valid big endian mission file" << std::endl;
-                        default_settings.type = Resource::ParseSettings::Macintosh;
-                        default_settings.is_opposite_endian = Utilities::DataHandler::is_little_endian();
-                        default_settings.endian = Utilities::Buffer::Endian::BIG;
-                    }
-                    else
-                        this->type = UNKNOWN;
-
-                    // Skip the data chunk
-                    chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
-
-                    data_size = chunkToDataSize( chunk_size );
-                    file.seekg( data_size, std::ios_base::cur );
-
-                    // TODO Add playstation detection
+                // This determines if the file is big endian or little endian.
+                if( WIN_CTRL_TAG[ 0 ] == type_buffer[ 0 ] ) {
+                    this->type = FILE_IS_LITTLE_ENDIAN;
+                    std::cout << "\"" << file_path << "\" is a valid little endian mission file" << std::endl;
+                    default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
+                    default_settings.is_opposite_endian = !Utilities::DataHandler::is_little_endian(); // TODO Remove this
+                    default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
+                else
+                if( MAC_CTRL_TAG[ 0 ] == type_buffer[ 0 ] ) {
+                    this->type = FILE_IS_BIG_ENDIAN;
+                    std::cout << "\"" << file_path << "\" is a valid big endian mission file" << std::endl;
+                    default_settings.type = Resource::ParseSettings::Macintosh;
+                    default_settings.is_opposite_endian = Utilities::DataHandler::is_little_endian();
+                    default_settings.endian = Utilities::Buffer::Endian::BIG;
+                }
+                else
+                    this->type = UNKNOWN;
+
+                // Skip the data chunk
+                chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
+
+                data_size = chunkToDataSize( chunk_size );
+                file.seekg( data_size, std::ios_base::cur );
+
+                // TODO Add playstation detection
             }
-            else
+        }
+
+        while( file && !error_in_read ) {
+            file_offset = file.tellg();
+
+            file.read( type_buffer, sizeof( type_buffer ) );
+
+            typeID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
+            chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
+            data_size = chunkToDataSize( chunk_size );
+
             if( typeID == FILL_TAG ) {
                 //std::cout << "typeID: " << "FILL" << " chunk_size: " << chunk_size << std::endl;
 
@@ -315,7 +320,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             else
                 error_in_read = true;
         }
-        while( file && !error_in_read );
 
         // Find a potential error.
         auto readstate = file.rdstate();
@@ -334,9 +338,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         // We are done reading the IFF file.
         file.close();
 
-        if( !is_confirmend_iff_file ) {
-            std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
-        }
+        //if( !is_confirmend_iff_file ) {
+        //    std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
+        //}
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
