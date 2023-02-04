@@ -85,7 +85,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
 
     // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
 
-    if( ACT_CHUNK_ID == data_reader.readU32( endian ) )
+    if( !data_reader.empty() && ACT_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
 
@@ -196,14 +196,9 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
     {
         auto data_reader = this->data_p->getReader();
 
-        Utilities::Buffer::Endian endian = Utilities::Buffer::NO_SWAP;
-
-        if( settings.is_opposite_endian )
-            endian = Utilities::Buffer::SWAP;
-
-        if( readACTChunk( data_reader, endian ) ) {
-            if( readRSLChunk( data_reader, endian ) ) {
-                if( readSACChunk( data_reader, endian ) ) {
+        if( readACTChunk( data_reader, settings.endian ) ) {
+            if( readRSLChunk( data_reader, settings.endian ) ) {
+                if( readSACChunk( data_reader, settings.endian ) ) {
                     assert( checkRSL() );
                     return true;
                 }
