@@ -225,7 +225,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
             Utilities::Buffer::Reader type_reader = type_buffer.getReader();
 
-            if( type_writer.write( file, type_reader.totalSize() ) == 8 ) {
+            if( type_writer.write( file, type_reader.totalSize() ) == type_reader.totalSize() ) {
 
                 const uint32_t TYPE_ID = type_reader.readU32( default_settings.endian );
                 const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );

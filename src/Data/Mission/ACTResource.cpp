@@ -196,6 +196,8 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
     {
         auto data_reader = this->data_p->getReader();
 
+        assert( data_reader.totalSize() != 0 );
+
         if( readACTChunk( data_reader, settings.endian ) ) {
             if( readRSLChunk( data_reader, settings.endian ) ) {
                 if( readSACChunk( data_reader, settings.endian ) ) {
