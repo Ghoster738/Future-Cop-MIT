@@ -743,9 +743,23 @@ size_t Utilities::Buffer::Writer::write( std::istream &buffer, size_t byte_amoun
         assert( new_index == current_index + byte_amount );
     }
 
-    const size_t written_bytes = buffer.readsome( reinterpret_cast<char*>( data_r + current_index ), byte_amount );
+    size_t written_bytes = 0;
 
-    current_index = new_index;
+    while( written_bytes != byte_amount && buffer.good() ) {
+        written_bytes += buffer.readsome( reinterpret_cast<char*>( data_r + current_index + written_bytes), byte_amount - written_bytes );
+
+        if( written_bytes != byte_amount && buffer.good() ) {
+            const int some_byte = buffer.get();
+
+            if( some_byte != EOF )
+            {
+                data_r[ current_index + written_bytes ] = some_byte;
+                written_bytes++;
+            }
+        }
+    }
+
+    current_index = current_index + written_bytes;
 
     return written_bytes;
 }
