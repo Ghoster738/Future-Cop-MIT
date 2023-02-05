@@ -228,7 +228,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             const auto READ_AMOUNT = type_writer.write( file, type_reader.totalSize() );
 
             if( READ_AMOUNT != type_reader.totalSize() ) {
-                std::cout << "Size of READ_AMOUNT is " << READ_AMOUNT << std::endl;
                 error_in_read = true;
             }
             else {
@@ -237,10 +236,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
                 const int32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
-                std::cout << std::hex << "file_offset: 0x" << file_offset  << ", TYPE_ID: 0x" << TYPE_ID  << std::dec << ", CHUNK_SIZE: " << CHUNK_SIZE  << ", DATA_SIZE: " << DATA_SIZE << std::endl;
+                std::cout << "file_offset: " << file_offset  << ", TYPE_ID: " << TYPE_ID << ", CHUNK_SIZE: " << CHUNK_SIZE  << ", DATA_SIZE: " << DATA_SIZE << std::endl;
 
                 if( TYPE_ID == FILL_TAG ) {
-                    std::cout << "  TYPE_ID: is FILL" << std::endl;
                     //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
 
                     // This tag does not have any useable information. This might have been used to demiout certain files.
@@ -265,11 +263,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     file.read( data_buffer, DATA_SIZE );
 
                     if( TYPE_ID == SHOC_TAG ) {
-                        std::cout << "  TYPE_ID: is SHOC" << std::endl;
-
                         // this checks if the chunk holds a file header!
                         if( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SHDR_TAG ) {
-                            std::cout << "  Also SHDR" << std::endl;
 
                             if( DATA_SIZE >= 20 ) {
                                 resource_pool.push_back( ResourceType() );
@@ -298,7 +293,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
                         else
                         if( DATA_SIZE >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
-                            std::cout << "  SDAT" << std::endl;
                             resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer + 12), DATA_SIZE - 12 );
                         }
                         else
