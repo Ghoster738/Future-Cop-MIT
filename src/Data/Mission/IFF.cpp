@@ -173,6 +173,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         // There are two loading buffers for the loader
         Utilities::Buffer type_buffer;
         type_buffer.allocate( sizeof( uint32_t ) + sizeof( int32_t ) );
+        Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
+        Utilities::Buffer::Reader type_reader = type_buffer.getReader();
+
         int   data_buffer_size = 0x6000; // This is a little higher than the biggest chunk of ConFt.
         char *data_buffer = new char [data_buffer_size];
 
@@ -182,9 +185,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer *msic_data_p;
 
         {
-            Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
-            Utilities::Buffer::Reader type_reader = type_buffer.getReader();
-
             type_writer.write( file, type_reader.totalSize() );
 
             const uint32_t TYPE_ID = type_reader.readU32( Utilities::Buffer::Endian::NO_SWAP );
@@ -222,8 +222,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         while( file && !error_in_read ) {
             file_offset = file.tellg();
 
-            Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
-            Utilities::Buffer::Reader type_reader = type_buffer.getReader();
+            type_writer.setPosition(0);
+            type_reader.setPosition(0);
 
             const auto READ_AMOUNT = type_writer.write( file, type_reader.totalSize() );
 
