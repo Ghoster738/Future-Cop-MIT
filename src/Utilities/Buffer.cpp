@@ -756,6 +756,9 @@ size_t Utilities::Buffer::Writer::write( std::istream &buffer, size_t byte_amoun
                 data_r[ current_index + written_bytes ] = some_byte;
                 written_bytes++;
             }
+            else {
+                buffer.clear(std::ios_base::eofbit); // Clear the failbit.
+            }
         }
     }
 

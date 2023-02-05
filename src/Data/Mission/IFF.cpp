@@ -236,8 +236,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
                 const int32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
-                std::cout << "file_offset: " << file_offset  << ", TYPE_ID: " << TYPE_ID << ", CHUNK_SIZE: " << CHUNK_SIZE  << ", DATA_SIZE: " << DATA_SIZE << std::endl;
-
                 if( TYPE_ID == FILL_TAG ) {
                     //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
 
