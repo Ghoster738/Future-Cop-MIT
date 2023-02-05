@@ -176,10 +176,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
         Utilities::Buffer::Reader type_reader = type_buffer.getReader();
 
-        int   data_buffer_size = 0x6000; // This is a little higher than the biggest chunk of ConFt.
-        char *data_buffer = new char [data_buffer_size];
+        Utilities::Buffer data_buffer;
+        data_buffer.allocate( 0x6000 ); // This is a little higher than the biggest chunk of ConFt.
+        Utilities::Buffer::Writer data_writer = data_buffer.getWriter();
+        Utilities::Buffer::Reader data_reader = data_buffer.getReader();
 
-        int file_offset = 0;
         std::vector<ResourceType> resource_pool;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
@@ -219,6 +220,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             }
         }
 
+        int file_offset = 0;
+        std::string name_swvr = "";
+
         while( file && !error_in_read ) {
             file_offset = file.tellg();
 
@@ -249,20 +253,27 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 else
                 if( DATA_SIZE + file.tellg() < iff_file_size )
                 {
-                    // Extend the data buffer if it is too small.
-                    if( DATA_SIZE > data_buffer_size ) {
-                        delete [] data_buffer;
-                        data_buffer_size = DATA_SIZE;
-                        data_buffer = new char [data_buffer_size];
-                        // std::cout << "data_buffer resized to " << data_buffer_size << std::endl;
+                    // Check if the buffer is too high.
+                    if( DATA_SIZE > data_reader.totalSize() ) {
+                        // data_buffer.allocate( DATA_SIZE - data_reader.totalSize() );
+                        std::cout << std::hex << " Error: The limit of 0x" << data_reader.totalSize() << std::dec  << " for this reader has been reached" << std::endl;
+                        error_in_read = true;
                     }
 
+                    data_writer.setPosition(0);
+                    data_reader.setPosition(0);
+
                     // Finally read the buffer.
-                    file.read( data_buffer, DATA_SIZE );
+                    auto amount_written = data_writer.write( file, DATA_SIZE );
+                    assert( amount_written == DATA_SIZE );
+
+                    data_reader.setPosition( 8 );
+
+                    const auto CURRENT_TAG = data_reader.readU32( default_settings.endian );
 
                     if( TYPE_ID == SHOC_TAG ) {
                         // this checks if the chunk holds a file header!
-                        if( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SHDR_TAG ) {
+                        if( CURRENT_TAG == SHDR_TAG ) {
 
                             if( DATA_SIZE >= 20 ) {
                                 resource_pool.push_back( ResourceType() );
@@ -274,24 +285,25 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                         (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
                                         (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120) );
 
-                                resource_pool.back().type_enum = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 16), default_settings.is_opposite_endian );
+                                data_reader.setPosition( 16 );
+
+                                resource_pool.back().type_enum = data_reader.readU32( default_settings.endian );
                                 resource_pool.back().offset    = file_offset;
                                 resource_pool.back().iff_index = resource_pool.size() - 1;
-                                resource_pool.back().resource_id = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 20), default_settings.is_opposite_endian );
+                                resource_pool.back().resource_id = data_reader.readU32( default_settings.endian );
 
                                 resource_pool.back().data_p = new Utilities::Buffer();
                                 if( resource_pool.back().data_p != nullptr )
-                                    resource_pool.back().data_p->reserve( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 24),
-                                                                        default_settings.is_opposite_endian ) );
+                                    resource_pool.back().data_p->reserve( data_reader.readU32( default_settings.endian ) );
 
-                                resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 28), DATA_SIZE - 28 );
+                                resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 28), DATA_SIZE - 28 );
                             }
                             else
-                                assert( 0 );
+                                error_in_read = true;
                         }
                         else
-                        if( DATA_SIZE >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
-                            resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer + 12), DATA_SIZE - 12 );
+                        if( DATA_SIZE >= 12 && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
+                            resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 12), DATA_SIZE - 12 );
                         }
                         else
                             std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
@@ -310,11 +322,32 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
 
                         if( msic_p != nullptr )
-                            msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer), DATA_SIZE );
+                            msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer()), DATA_SIZE );
                     }
                     else
                     if( TYPE_ID == SWVR_TAG ) {
-                        //std::cout << "TYPE_ID: " << "SWVR" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        // The data size is always 28.
+                        assert( DATA_SIZE == 28 );
+                        assert( DATA_SIZE < data_reader.totalSize() );
+                        assert( amount_written == DATA_SIZE );
+
+                        name_swvr = "";
+
+                        data_reader.setPosition( 8 );
+                        assert( data_reader.readU32( default_settings.endian ) == 0x46494c45 );
+                        data_reader.setPosition( 12 );
+
+                        std::cout << std::hex << "[";
+
+                        int8_t some_char = '1';
+
+                        for( uint32_t i = 0; i < DATA_SIZE - 12 && some_char != '\0'; i++ )
+                        {
+                            some_char = data_reader.readI8();
+                            name_swvr += some_char;
+                            std::cout << some_char << ":0x" << (static_cast<uint32_t>( some_char ) & 0xFF) << " ";
+                        }
+                        std::cout<< std::dec  << "] = " << name_swvr << std::endl;
                     }
                     else
                         std::cout << "TYPE_ID: 0x" << std::hex << TYPE_ID << std::dec << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
