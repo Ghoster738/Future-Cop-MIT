@@ -37,6 +37,8 @@ private:
     
     // This data is contained within the tag.
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
+
+    std::string swvr_name; // This is the SWVR name of the resource.
 public:
     Resource();
     Resource( const Resource &obj );
@@ -53,6 +55,16 @@ public:
      * @note the behavior can be overriden by successors of this class.
      */
     virtual uint32_t getResourceTagID() const = 0;
+
+    /**
+     * Sets the SWVR string. To be used by loaders only.
+     */
+    void setSWVRName( std::string name );
+
+    /**
+     * This gets the SWVR name.
+     */
+    std::string getSWVRName() const;
 
     /**
      * Sets the index number of the file. To be used by loaders only.
@@ -122,7 +134,7 @@ public:
      * This is to be used when the file is finished loading everything into raw_data.
      * Be very sure that everything has been loaded before calling this, otherwise there could be errors.
      * However, if you are only using this base class, then it will do nothing and return false!
-     * @param settings_ref This holds all the settings.
+     * @param settings This holds all the settings.
      * @return Always false since the base class does not have the implementation.
      */
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS ) = 0;

@@ -337,17 +337,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         assert( data_reader.readU32( default_settings.endian ) == 0x46494c45 );
                         data_reader.setPosition( 12 );
 
-                        std::cout << std::hex << "[";
-
                         int8_t some_char = '1';
 
                         for( uint32_t i = 0; i < DATA_SIZE - 12 && some_char != '\0'; i++ )
                         {
                             some_char = data_reader.readI8();
                             name_swvr += some_char;
-                            std::cout << some_char << ":0x" << (static_cast<uint32_t>( some_char ) & 0xFF) << " ";
                         }
-                        std::cout<< std::dec  << "] = " << name_swvr << std::endl;
                     }
                     else
                         std::cout << "TYPE_ID: 0x" << std::hex << TYPE_ID << std::dec << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;

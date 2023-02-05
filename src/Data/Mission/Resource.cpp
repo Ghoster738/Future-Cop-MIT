@@ -41,6 +41,14 @@ int Data::Mission::Resource::getIndexNumber() const {
     return index_number;
 }
 
+void Data::Mission::Resource::setSWVRName( std::string name ) {
+    swvr_name = name;
+}
+
+std::string Data::Mission::Resource::getSWVRName() const {
+    return swvr_name;
+}
+
 void Data::Mission::Resource::setMisIndexNumber( int mis_index_number ) {
     this->mis_index_number = mis_index_number;
 }
@@ -78,10 +86,20 @@ bool Data::Mission::Resource::noResourceID() const {
 std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
     std::string full_name;
 
-    // full_name = "dat_60"
-    full_name  = getFileExtension();
-    full_name += "_";
-    full_name += std::to_string( index );
+    if( swvr_name.empty() ) {
+        // full_name = "dat_60"
+        full_name  = getFileExtension();
+        full_name += "_";
+        full_name += std::to_string( index );
+    }
+    else {
+        full_name = swvr_name;
+        full_name += "_";
+        full_name += getFileExtension();
+
+        if( !noResourceID() )
+            full_name += "_" + std::to_string( index );
+    }
 
     return full_name;
 }
