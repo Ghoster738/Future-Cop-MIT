@@ -136,6 +136,7 @@ namespace {
         uint32_t offset;
         uint32_t iff_index;
         uint32_t resource_id;
+        std::string name_swvr;
         Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
     };
@@ -291,6 +292,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 resource_pool.back().offset    = file_offset;
                                 resource_pool.back().iff_index = resource_pool.size() - 1;
                                 resource_pool.back().resource_id = data_reader.readU32( default_settings.endian );
+                                resource_pool.back().name_swvr = name_swvr;
 
                                 resource_pool.back().data_p = new Utilities::Buffer();
                                 if( resource_pool.back().data_p != nullptr )
@@ -316,6 +318,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         if( msic_p == nullptr ) {
                             msic_p = new MSICResource();
                             msic_p->setIndexNumber( 0 );
+                            msic_p->setResourceID( 1 );
+                            msic_p->setSWVRName( name_swvr );
                             msic_p->setOffset( file_offset );
 
                             msic_data_p = new Utilities::Buffer();
@@ -342,7 +346,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         for( uint32_t i = 0; i < DATA_SIZE - 12 && some_char != '\0'; i++ )
                         {
                             some_char = data_reader.readI8();
-                            name_swvr += some_char;
+
+                            if(some_char != '\0')
+                                name_swvr += some_char;
                         }
                     }
                     else
@@ -391,6 +397,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
+            new_resource_p->setSWVRName( i.name_swvr );
 
             new_resource_p->setMemory( i.header_p, i.data_p );
             new_resource_p->processHeader( default_settings );

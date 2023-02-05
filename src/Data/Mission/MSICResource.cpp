@@ -29,6 +29,10 @@ uint32_t Data::Mission::MSICResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+bool Data::Mission::MSICResource::noResourceID() const {
+    return true;
+}
+
 bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
     bool file_is_not_valid = false;
 

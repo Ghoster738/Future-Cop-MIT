@@ -96,9 +96,6 @@ std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
         full_name = swvr_name;
         full_name += "_";
         full_name += getFileExtension();
-
-        if( !noResourceID() )
-            full_name += "_" + std::to_string( index );
     }
 
     return full_name;
