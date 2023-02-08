@@ -92,6 +92,8 @@ public:
 
     static std::vector<FontResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<FontResource*> getVector( const Data::Mission::IFF &mission_file );
+
+    static Utilities::Buffer::Reader getWBuiltIn();
 };
 
 }

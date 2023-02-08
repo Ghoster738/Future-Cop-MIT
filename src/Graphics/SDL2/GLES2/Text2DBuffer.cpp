@@ -2,6 +2,11 @@
 #include "../../Environment.h" // Include the interface Environment class
 #include "Environment.h" // Include the internal Environment class
 #include "cassert"
+#include <iostream>
+
+namespace {
+    Data::Mission::FontResource font;
+};
 
 Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     Graphics::Text2DBuffer( env )
@@ -35,22 +40,38 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &env_r, const st
         delete env_r.text_draw_routine_p;
     
     std::vector<Data::Mission::FontResource*> fonts_r;
-    
+    /*
     for( auto i = data.begin(); i != data.end(); i++ ) {
         auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
         
         for( auto f = font_resources.begin(); f != font_resources.end(); f++ ) {
             fonts_r.push_back( (*f) );
         }
+    } */
+
+    if( fonts_r.size() == 0 ) {
+        font.setIndexNumber( 0 );
+        font.setMisIndexNumber( 0 );
+        font.setResourceID( 1 );
+        auto builtin = Data::Mission::FontResource::getWBuiltIn();
+        font.read( builtin );
+
+        Data::Mission::Resource::ParseSettings parse_settings;
+        parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
+        parse_settings.endian = Utilities::Buffer::LITTLE;
+        parse_settings.output_level = 3;
+        parse_settings.output_ref = &std::cout;
+
+        if( !font.parse( parse_settings ) )
+            return 0;
+
+        fonts_r.push_back( &font );
     }
 
-    if( fonts_r.size() != 0 )
-    {
-        env_r.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
-        env_r.text_draw_routine_p->setVertexShader();
-        env_r.text_draw_routine_p->setFragmentShader();
-        env_r.text_draw_routine_p->compileProgram();
-    }
+    env_r.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
+    env_r.text_draw_routine_p->setVertexShader();
+    env_r.text_draw_routine_p->setFragmentShader();
+    env_r.text_draw_routine_p->compileProgram();
     
     return fonts_r.size();
 }

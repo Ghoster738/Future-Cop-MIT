@@ -6,7 +6,6 @@
 #include <string.h>
 #include <fstream>
 #include <cassert>
-#include <iostream>
 
 namespace {
     const size_t HEADER_SIZE = 0x20;
@@ -18,7 +17,8 @@ namespace {
 
     const size_t IMAGE_HEADER_SIZE = 0x10;
 
-    // The image data starts after the end of the image header.
+// PFNT is the first embeded file in this project.
+#include "Embeded/PFNT.h"
 }
 
 Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader ) {
@@ -115,6 +115,10 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
         if( reader.totalSize() > HEADER_SIZE )
         {
+
+            if( settings.output_level >= 1 ) {
+                *settings.output_ref << "Loading FNT " << getResourceID() << "!" << std::endl;
+            }
             // Get the data first
             auto header   = reader.readU32( settings.endian );
             auto tag_size = reader.readU32( settings.endian );
@@ -129,6 +133,17 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
             auto u32_0 = reader.readU32( settings.endian );
             auto offset_to_image_header = reader.readU32( settings.endian );
 
+            if( settings.output_level >= 2 ) {
+                *settings.output_ref << "  Header = 0x" << std::hex << header << std::dec << "\n";
+                *settings.output_ref << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n";
+                *settings.output_ref << "  u16_100 = " << u16_100 << "\n";
+                *settings.output_ref << "  number_of_glyphs = " << number_of_glyphs << "\n";
+                *settings.output_ref << "  platform = " << platform << "\n";
+                *settings.output_ref << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n";
+                *settings.output_ref << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n";
+                *settings.output_ref << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n" << std::endl;
+            }
+
             // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
             // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
 
@@ -140,6 +155,9 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
             if( !file_is_not_valid )
             {
+                if( settings.output_level >= 2 ) {
+                    *settings.output_ref << "  FNT Header is valid!" << std::endl;
+                }
                 reader.setPosition( offset_to_glyphs, Utilities::Buffer::BEGIN );
 
                 auto readerGlyphs = reader.getReader( number_of_glyphs * GLYPH_SIZE );
@@ -153,8 +171,12 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 }
 
                 // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
-                for( unsigned int i = 0; i != this->glyphs.size(); i++ )
+                for( unsigned int i = 0; i != this->glyphs.size(); i++ ) {
+                    if( settings.output_level >= 3 ) {
+                        *settings.output_ref << "  glyphs[" << i << "] = " << static_cast<uint32_t>( glyphs[i].getGlyph() % MAX_GLYPHS ) << std::endl;
+                    }
                     font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
+                }
 
                 reader.setPosition( offset_to_image_header, Utilities::Buffer::BEGIN );
 
@@ -164,9 +186,12 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 readerImageHeader.setPosition( 0x6, Utilities::Buffer::BEGIN );
                 auto height = readerImageHeader.readU16( settings.endian );
 
-                // The pixels seems to be compressed in a certian format.
-                // These combinations are 0xFF, 0xF0, 0x0F, 0x00.
-                // This compression reduces the image size to a half.
+                if( settings.output_level >= 2 ) {
+                    *settings.output_ref << "  width = " << width << "\n";
+                    *settings.output_ref << "  height = " << height << "\n" << std::endl;
+                }
+
+                // The pixels are compressed with 4 bit color palettes.
                 // Playstation did not support 1 bit, so their best option is 4 bit.
                 auto color_format = Utilities::PixelFormatColor_W8();
                 Utilities::ColorPalette color_palette( color_format );
@@ -185,6 +210,10 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image_palette.getWidth() / 2) * image_palette.getHeight()) > reader.totalSize() );
 
                 if( !file_is_not_valid ) {
+                    if( settings.output_level >= 1 ) {
+                        *settings.output_ref << "  FNT image is valid\n" << std::endl;
+                    }
+
                     auto reader_image = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
                     
                     auto bits = reader_image.getBitfield();
@@ -198,11 +227,21 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                     
                     image_p = new Utilities::Image2D( backup );
 
+                    if( image_p == nullptr && settings.output_level >= 1 ) {
+                        *settings.output_ref << "  FNT image failed\n" << std::endl;
+                    }
+
+
                     // If the image fails to allocate then it failed.
                     return image_p != nullptr;
                 }
                 else
+                {
+                    if( settings.output_level >= 1 ) {
+                        *settings.output_ref << "  FNT image is invalid\n" << std::endl;
+                    }
                     return false;
+                }
             }
             else
                 return false;
@@ -294,4 +333,8 @@ std::vector<Data::Mission::FontResource*> Data::Mission::FontResource::getVector
 
 const std::vector<Data::Mission::FontResource*> Data::Mission::FontResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::FontResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
+}
+
+Utilities::Buffer::Reader Data::Mission::FontResource::getWBuiltIn() {
+    return Utilities::Buffer::Reader( minimal_fnt, minimal_fnt_len );
 }
