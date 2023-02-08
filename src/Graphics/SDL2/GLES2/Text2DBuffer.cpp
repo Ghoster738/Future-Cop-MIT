@@ -40,15 +40,16 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &env_r, const st
         delete env_r.text_draw_routine_p;
     
     std::vector<Data::Mission::FontResource*> fonts_r;
-    /*
+
     for( auto i = data.begin(); i != data.end(); i++ ) {
         auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
         
         for( auto f = font_resources.begin(); f != font_resources.end(); f++ ) {
             fonts_r.push_back( (*f) );
         }
-    } */
+    }
 
+    // If no fonts are found then add one.
     if( fonts_r.size() == 0 ) {
         font.setIndexNumber( 0 );
         font.setMisIndexNumber( 0 );
@@ -59,7 +60,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &env_r, const st
         Data::Mission::Resource::ParseSettings parse_settings;
         parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
         parse_settings.endian = Utilities::Buffer::LITTLE;
-        parse_settings.output_level = 3;
+        parse_settings.output_level = 2;
         parse_settings.output_ref = &std::cout;
 
         if( !font.parse( parse_settings ) )
