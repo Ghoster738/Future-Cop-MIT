@@ -8,6 +8,24 @@ const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
+namespace {
+bool convert( const uint8_t *const number_r, size_t number_limit, uint64_t &big_number, size_t &size_read ) {
+    const uint8_t * number_head_r = number_r;
+    
+    big_number |= (*number_head_r & 0x7F);
+    
+    while( (*number_head_r & 0x80) == 0 && number_limit > 0) {
+        big_number = big_number << 7;
+        big_number |= (*number_head_r & 0x7F);
+        number_head_r++;
+        number_limit--;
+        size_read++;
+    }
+    
+    return true;
+}
+}
+
 Data::Mission::FUNResource::FUNResource() {
 }
 
@@ -90,12 +108,11 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto parameters = getFunctionParameters( i );
                         auto code = getFunctionCode( i );
                         
-                        // std::cout << "i = " << std::dec << i << std::endl;
-                        // std::cout << "faction = " << std::dec << functions.at( i ).faction << std::endl;
-                        // std::cout << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
-                        // std::cout << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                        std::cout << "i = " << std::dec << i << std::endl;
+                        std::cout << "faction = " << std::dec << functions.at( i ).faction << std::endl;
+                        std::cout << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
+                        std::cout << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
                         
-                        /*
                         std::cout << std::hex << "Parameters = ";
                         for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
@@ -108,12 +125,12 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         for( auto f = code.begin(); f < code.end(); f++ ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
-                        std::cout << std::dec << "\n" << std::endl;*/
-                        /*if( i != functions.size() - 1 ) {
+                        std::cout << std::dec << "\n" << std::endl;
+                        if( i != functions.size() - 1 ) {
                             for( auto f = code.begin(); f < code.end() - 1; f++ ) {
                                 assert( (*f) != 0 );
                             }
-                        }*/
+                        }
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );

@@ -15,6 +15,7 @@ private:
 
     void setupTable() {
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
+        // table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
     }
 public:
     Declaration() {
@@ -42,7 +43,7 @@ public:
 };
 
 Data::Mission::ACTResource* Data::Mission::ACT::Hash::generateAct( const ACTResource *const obj_r, uint_fast8_t Type_ID ) {
-    return new Prop( obj_r );
+    return hash.getHash( Type_ID )->duplicate( *obj_r );
 }
 
 bool Data::Mission::ACT::Hash::isActValid( uint_fast8_t Type_ID ) {

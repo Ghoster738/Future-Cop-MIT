@@ -35,6 +35,8 @@ public:
     virtual bool checkRSL() const;
 
     virtual Resource* duplicate() const;
+    
+    virtual ACTResource* duplicate( const ACTResource &original ) const;
 };
 
 }

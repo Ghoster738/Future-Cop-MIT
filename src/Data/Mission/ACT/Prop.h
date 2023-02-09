@@ -43,7 +43,7 @@ protected:
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 public:
     Prop();
-    Prop( const ACTResource *const obj );
+    Prop( const ACTResource& obj );
     Prop( const Prop& obj );
 
     virtual uint_fast8_t getTypeID() const;
@@ -52,7 +52,9 @@ public:
 
     virtual bool checkRSL() const;
 
-    virtual Resource* duplicate() const; // TODO think of a better way.
+    virtual Resource* duplicate() const;
+    
+    virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
 

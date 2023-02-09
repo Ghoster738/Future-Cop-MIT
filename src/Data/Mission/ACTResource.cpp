@@ -97,9 +97,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
 
         const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 4;
         const uint_fast8_t act_type = data_reader.readU8();
-
-        // std::cout << "ACT_SIZE = " << ACT_SIZE << std::endl;
-        // std::cout << "act_type = " << act_type << std::endl;
+        
         // std::cout << std::dec;
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
@@ -108,9 +106,8 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         data_reader.readU8();
 
         auto reader_act = data_reader.getReader( ACT_SIZE );
-
         bool processed = readACTType( act_type, reader_act, endian );
-
+        
         return chunk_size;
     }
     else
@@ -135,14 +132,9 @@ uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &da
         for( uint32_t i = 0; i < rsl_entry_amount; i++ )
         {
             uint32_t type  = data_reader.readU32( endian );
-            uint32_t index = data_reader.readU32( endian );
+            uint32_t resource_id = data_reader.readU32( endian );
 
-            // Windows ConFt test 12 is the lowest value for some reason.
-            // For mac and win on M1A1 this is not true.
-            // if( type == Cobj_INT )
-            //    assert( index >= 12 );
-
-            rsl_data.push_back( { type, index } );
+            rsl_data.push_back( { type, resource_id } );
         }
 
         return chunk_size;

@@ -5,6 +5,7 @@
 #include "../../../Utilities/DataHandler.h"
 
 #include <cassert>
+#include <iostream>
 
 uint_fast8_t Data::Mission::ACT::Prop::TYPE_ID = 96;
 
@@ -27,6 +28,7 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
 }
 
 bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+    std::cout << "ACT Type Prop, Resource ID = " << getResourceID() << std::endl;
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
 
@@ -56,9 +58,10 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     return true;
 }
 
-Data::Mission::ACT::Prop::Prop() {}
+Data::Mission::ACT::Prop::Prop() {
+}
 
-Data::Mission::ACT::Prop::Prop( const ACTResource *const obj ) : ACTResource( obj ) {
+Data::Mission::ACT::Prop::Prop( const ACTResource& obj ) : ACTResource( obj ) {
 }
 
 Data::Mission::ACT::Prop::Prop( const Prop& obj ) : ACTResource( obj ), internal( obj.internal ) {}
@@ -77,6 +80,10 @@ bool Data::Mission::ACT::Prop::checkRSL() const {
 
 Data::Mission::Resource* Data::Mission::ACT::Prop::duplicate() const {
     return new Data::Mission::ACT::Prop( *this );
+}
+
+Data::Mission::ACTResource* Data::Mission::ACT::Prop::duplicate( const ACTResource &original ) const {
+    return new Data::Mission::ACT::Prop( original );
 }
 
 Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const {

@@ -50,3 +50,7 @@ bool Data::Mission::ACT::Unknown::checkRSL() const {
 Data::Mission::Resource* Data::Mission::ACT::Unknown::duplicate() const {
     return new Unknown( *this );
 }
+
+Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTResource &original ) const {
+    return new Unknown( original );
+}

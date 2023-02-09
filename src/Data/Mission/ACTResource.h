@@ -90,6 +90,8 @@ public:
     virtual int write( const std::string& file_path, const std::vector<std::string>& arguments ) const;
 
     virtual Resource* genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const;
+    
+    virtual ACTResource* duplicate( const ACTResource &original ) const = 0;
 
     uint_fast32_t getID() { return matching_number; }
     int_fast16_t getGameTicks() { return tSAC.game_ticks; }
