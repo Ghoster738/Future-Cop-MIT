@@ -126,11 +126,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                             std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
                         std::cout << std::dec << "\n" << std::endl;
-                        if( i != functions.size() - 1 ) {
-                            for( auto f = code.begin(); f < code.end() - 1; f++ ) {
-                                assert( (*f) != 0 );
-                            }
-                        }
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );
