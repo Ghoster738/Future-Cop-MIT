@@ -22,9 +22,6 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t  pos_x; // position x: It is a fixed point number treated like 13 decimal places.
-        // 4 zero bytes?
-        uint32_t  pos_y; // position y: It is a fixed point number treated like 13 decimal places.
         uint16_t  uint16_0; // Unknown
         uint16_t  uint16_1; // Unknown
         uint16_t  uint16_2; // Unknown

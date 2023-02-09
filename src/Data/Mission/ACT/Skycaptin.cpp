@@ -12,8 +12,6 @@ Json::Value Data::Mission::ACT::Skycaptin::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["position"]["x"] = internal.pos_x;
-    root["ACT"][NAME]["position"]["y"] = internal.pos_y;
     root["ACT"][NAME]["uint32_0"]      = internal.uint32_0;
     root["ACT"][NAME]["uint16_0"]      = internal.uint16_0;
     root["ACT"][NAME]["bytes_0"][0]    = internal.bytes_0[0];
@@ -69,12 +67,6 @@ Json::Value Data::Mission::ACT::Skycaptin::makeJson() const {
 bool Data::Mission::ACT::Skycaptin::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
-
-    internal.pos_x = data_reader.readU32( endian );
-
-    data_reader.readU32( endian ); // Skip zeros.
-
-    internal.pos_y = data_reader.readU32( endian );
     
     internal.uint32_0 = data_reader.readU32( endian );
     internal.uint16_0 = data_reader.readU16( endian );
@@ -151,7 +143,7 @@ std::string Data::Mission::ACT::Skycaptin::getTypeIDName() const {
 }
 
 size_t Data::Mission::ACT::Skycaptin::getSize() const {
-    return 112; // bytes
+    return 100; // bytes
 }
 
 bool Data::Mission::ACT::Skycaptin::checkRSL() const {

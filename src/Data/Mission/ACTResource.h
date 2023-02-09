@@ -30,6 +30,9 @@ protected:
     static const uint32_t ACT_CHUNK_ID;
     static const uint32_t RSL_CHUNK_ID;
     static const uint32_t SAC_CHUNK_ID;
+    int32_t position_y;
+    int32_t position_height; // This is likely just zero.
+    int32_t position_x;
 
     struct RSLEntry {
         uint32_t type;

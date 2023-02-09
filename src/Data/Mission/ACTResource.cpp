@@ -95,7 +95,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
 
         // std::cout << "matching_number = " << matching_number << std::endl;
 
-        const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 4;
+        const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
         const uint_fast8_t act_type = data_reader.readU8();
         
         // std::cout << std::dec;
@@ -104,6 +104,17 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         data_reader.readU8();
         data_reader.readU8();
         data_reader.readU8();
+        
+        // position_x and position_y is though to fixed point numbers.
+        // The fixed point numbers are basically divided by 2^13 or 8192.
+        // Since a Ctil is 131072x131072 and it has 16x16 tiles,
+        // we can divide 131072/16 which gives 8192.
+        // Since 8192 is equal to 2^13. We can treat these numbers as
+        // fixed points. My engine for now will simply use floating
+        // points, but position_y and position_x will be treated like this.
+        position_y      = data_reader.readI32();
+        position_height = data_reader.readI32();
+        position_x      = data_reader.readI32();
 
         auto reader_act = data_reader.getReader( ACT_SIZE );
         bool processed = readACTType( act_type, reader_act, endian );
