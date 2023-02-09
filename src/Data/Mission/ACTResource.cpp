@@ -108,6 +108,8 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         auto reader_act = data_reader.getReader( ACT_SIZE );
         bool processed = readACTType( act_type, reader_act, endian );
         
+        std::cout << this->getTypeIDName() << " RID: " << getResourceID() << std::endl;
+        
         return chunk_size;
     }
     else

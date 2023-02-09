@@ -47,6 +47,7 @@ public:
     Prop( const Prop& obj );
 
     virtual uint_fast8_t getTypeID() const;
+    virtual std::string getTypeIDName() const;
 
     virtual size_t getSize() const;
 

@@ -39,6 +39,10 @@ uint_fast8_t Data::Mission::ACT::Unknown::getTypeID() const {
     return this->act_type;
 };
 
+std::string Data::Mission::ACT::Unknown::getTypeIDName() const {
+    return "Unknown: {T:" + std::to_string( getTypeID() ) + ",S:" + std::to_string( getSize() ) + "}";
+};
+
 size_t Data::Mission::ACT::Unknown::getSize() const {
     return this->act_size;
 }

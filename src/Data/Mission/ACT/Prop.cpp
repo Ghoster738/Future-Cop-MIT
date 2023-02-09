@@ -5,7 +5,6 @@
 #include "../../../Utilities/DataHandler.h"
 
 #include <cassert>
-#include <iostream>
 
 uint_fast8_t Data::Mission::ACT::Prop::TYPE_ID = 96;
 
@@ -28,7 +27,6 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
 }
 
 bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
-    std::cout << "ACT Type Prop, Resource ID = " << getResourceID() << std::endl;
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
 
@@ -68,6 +66,10 @@ Data::Mission::ACT::Prop::Prop( const Prop& obj ) : ACTResource( obj ), internal
 
 uint_fast8_t Data::Mission::ACT::Prop::getTypeID() const {
     return TYPE_ID;
+}
+
+std::string Data::Mission::ACT::Prop::getTypeIDName() const {
+    return "Prop";
 }
 
 size_t Data::Mission::ACT::Prop::getSize() const {

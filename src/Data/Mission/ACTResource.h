@@ -75,6 +75,8 @@ public:
      * @return The full name of the file.
      */
     virtual std::string getFullName( unsigned int index ) const;
+    
+    virtual std::string getTypeIDName() const = 0;
 
     /**
      * This loads up the nodes.
