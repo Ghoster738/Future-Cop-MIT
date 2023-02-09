@@ -11,6 +11,12 @@ namespace Data {
 
 namespace Mission {
 
+/**
+ * Til Resource Reader.
+ *
+ * This is the Til resource it holds the resource responsible for holding a chunk of a map.
+ * In Future Cop, this resource has 16x16 tiles in it. Its size is 131072x131072.
+ */
 class TilResource : public ModelResource {
 public:
     static const std::string FILE_EXTENSION;
