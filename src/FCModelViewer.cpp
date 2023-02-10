@@ -432,7 +432,7 @@ int main(int argc, char** argv)
                     auto bmps = Data::Mission::BMPResource::getVector( resource );
                     
                     for( auto it : bmps ) {
-                        auto str = resource_export_path + (*it).getFullName( (*it).getIndexNumber() );
+                        auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
                         
                         (*it).write( str.c_str(), std::vector<std::string>() );
                     }
@@ -442,7 +442,7 @@ int main(int argc, char** argv)
                 
                 auto obj = Data::Mission::ObjResource::getVector( resource )[ cobj_index ];
                 
-                auto str = resource_export_path + obj->getFullName( obj->getIndexNumber() );
+                auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
                 
                 obj->write( str.c_str(), std::vector<std::string>() );
             }
