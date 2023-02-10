@@ -398,13 +398,13 @@ int main(int argc, char** argv)
         }
     }
     
-    Graphics::ModelInstance* displayed_instance = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
+    Graphics::ModelInstance* displayed_instance_p = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
     
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
     
-    if( displayed_instance == nullptr )
-        displayed_instance->getBoundingSphere( position, radius );
+    if( displayed_instance_p == nullptr )
+        displayed_instance_p->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
 
@@ -475,20 +475,20 @@ int main(int argc, char** argv)
                         cobj_index += next;
                 }
                     
-                if( displayed_instance != nullptr )
-                    delete displayed_instance;
+                if( displayed_instance_p != nullptr )
+                    delete displayed_instance_p;
                 
                 if( Graphics::ModelInstance::exists( *environment, obj_vector.at(cobj_index)->getResourceID() ) ) {
-                    displayed_instance = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
+                    displayed_instance_p = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
                     
-                    std::cout << "Sphere result is "<< displayed_instance->getBoundingSphere( position, radius ) << std::endl;
+                    std::cout << "Sphere result is "<< displayed_instance_p->getBoundingSphere( position, radius ) << std::endl;
                     std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
                     std::cout << " radius is "<< radius << std::endl;
                     
                     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
                 }
                 else
-                    displayed_instance = nullptr;
+                    displayed_instance_p = nullptr;
                 
                 
                 count_down = 0.5f;
@@ -498,8 +498,8 @@ int main(int argc, char** argv)
 
         rotate += time_unit(delta).count();
 
-        if( displayed_instance != nullptr )
-            displayed_instance->setRotation( glm::quat( glm::vec3( 0, rotate, 0 ) ) );
+        if( displayed_instance_p != nullptr )
+            displayed_instance_p->setRotation( glm::quat( glm::vec3( 0, rotate, 0 ) ) );
 
         count_down -= time_unit(delta).count();
         

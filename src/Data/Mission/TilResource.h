@@ -161,8 +161,8 @@ public:
     void createPhysicsCell( unsigned int x, unsigned int z );
     
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
-    float getRayCast2D( float x, float z ) const;
-    float getRayCastDownward( float x, float z, float from_highest_point ) const;
+    float getRayCast2D( float x, float y ) const;
+    float getRayCastDownward( float x, float y, float from_highest_point ) const;
 
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;

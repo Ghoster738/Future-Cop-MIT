@@ -35,7 +35,7 @@ public:
 
     virtual uint32_t getResourceTagID() const;
     /**
-     * This method organizes the added tiles, and makes the debug_map_display.
+     * This method organizes the added tiles, and makes the debug\_map\_display.
      */
     bool makeTiles( const std::vector<TilResource*> &tile_array_r );
 

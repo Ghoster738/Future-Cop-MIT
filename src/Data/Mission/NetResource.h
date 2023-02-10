@@ -24,7 +24,7 @@ public:
     private:
         uint32_t data; // This contains which node it goes to.
         int16_t pad;
-        glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for size if BahKooj is correct.
+        glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for the unit for the ACT resource if BahKooJ is correct.
         int16_t spawn; // Could be a special node sepecifier.
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );

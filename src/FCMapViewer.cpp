@@ -308,12 +308,15 @@ int main(int argc, char** argv)
 	//glUniform1f( WhichTileLoc, current_tile_selected );
 	bool entering_number = false;
 
-    glm::vec3 position_of_camera = glm::vec3( 16, 0, 16 );
+    glm::vec3 position_of_camera = glm::vec3( 0, 0, 0 );
     glm::vec4 direction_keyboard = glm::vec4( 0, 0, 0, 0 );
     glm::vec4 movement_of_camera = glm::vec4( 0, 0, 0, 0 );
     glm::vec2 rotation = glm::vec2( 0, glm::pi<float>() / 4.0f );
     double distance_away = -10;
     bool isCameraMoving = false;
+    
+    // Resource ID 20 is the base turret head.
+    auto displayed_instance_p = Graphics::ModelInstance::alloc( *environment, 20, glm::vec3(0,0,0) );
 
     if( window->center() != 1 )
         std::cout << "The window had failed to center! " << window->center() << std::endl;
@@ -396,7 +399,7 @@ int main(int argc, char** argv)
             if( input_r->isChanged() )
             {
                 if( input_r->getState() > 0.5 )
-                    movement_of_camera.z = 16;
+                    movement_of_camera.z = -16;
                 else
                     movement_of_camera.z = 0;
             }
@@ -405,7 +408,7 @@ int main(int argc, char** argv)
             if( input_r->isChanged() )
             {
                 if( input_r->getState() > 0.5 )
-                    movement_of_camera.z = -16;
+                    movement_of_camera.z = 16;
                 else
                     movement_of_camera.z = 0;
             }
@@ -414,7 +417,7 @@ int main(int argc, char** argv)
             if( input_r->isChanged() )
             {
                 if( input_r->getState() > 0.5 )
-                    movement_of_camera.x = 16;
+                    movement_of_camera.x = -16;
                 else
                     movement_of_camera.x = 0;
             }
@@ -423,7 +426,7 @@ int main(int argc, char** argv)
             if( input_r->isChanged() )
             {
                 if( input_r->getState() > 0.5 )
-                    movement_of_camera.x = -16;
+                    movement_of_camera.x = 16;
                 else
                     movement_of_camera.x = 0;
             }
@@ -514,7 +517,7 @@ int main(int argc, char** argv)
         extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
         extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
         extra_matrix_0 = extra_matrix_2 * extra_matrix_1;
-        extra_matrix_1 = glm::translate( glm::mat4(1.0f), position_of_camera );
+        extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
         extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
         first_person->setView3D( extra_matrix_2 );
@@ -550,6 +553,7 @@ int main(int argc, char** argv)
         last_time = this_time;
     }
 
+    delete displayed_instance_p;
     delete control_system_p;
     delete environment;
 
