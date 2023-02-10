@@ -259,6 +259,25 @@ int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
         return 0; // Combine model has failed to write.
 }
 
+float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
+    if( x < 0.0 || y < 0.0 )
+        return 10.0f;
+    
+    const unsigned int x_til = x / 16.0;
+    const unsigned int y_til = y / 16.0;
+    
+    // There is some kind of blank boarder.
+    auto tile_r = getTile( x_til + 1, y_til + 1 );
+    
+    if( tile_r == nullptr )
+        return 10.0f;
+    
+    const unsigned int x_til_offset = fmod( x, 16.0 );
+    const unsigned int y_til_offset = fmod( y, 16.0 );
+    
+    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - 8.0, y_til_offset - 8.0 );
+}
+
 std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( Data::Mission::IFF &mission_file ) {
     std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::PTCResource::IDENTIFIER_TAG );
 

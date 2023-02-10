@@ -11,6 +11,7 @@
 #include "Data/Mission/IFF.h"
 #include "Data/Mission/ObjResource.h"
 #include "Data/Mission/BMPResource.h"
+#include "Data/Mission/PTCResource.h"
 
 #include "Data/Mission/Til/Mesh.h"
 #include "Data/Mission/Til/Colorizer.h"
@@ -316,7 +317,23 @@ int main(int argc, char** argv)
     bool isCameraMoving = false;
     
     // Resource ID 20 is the base turret head.
-    auto displayed_instance_p = Graphics::ModelInstance::alloc( *environment, 20, glm::vec3(0,0,0) );
+    std::vector<Graphics::ModelInstance*> displayed_instance_p;
+    
+    {
+        auto ptc_resources = Data::Mission::PTCResource::getVector( *resource_r );
+        auto ptc_resource = ptc_resources.at( 0 );
+        
+        for( int x = 0; x < 32; x++ ) {
+            for( int y = 0; y < 32; y++ ) {
+                auto position = glm::vec3( 16.0 * static_cast<double>(x) / 32, 0, 16.0 * static_cast<double>(y) / 32);
+                position += glm::vec3( 64, 0, 48 );
+                
+                position.y = ptc_resource->getRayCast2D( position.x, position.z );
+                
+                displayed_instance_p.push_back( Graphics::ModelInstance::alloc( *environment, 38, position ) );
+            }
+        }
+    }
 
     if( window->center() != 1 )
         std::cout << "The window had failed to center! " << window->center() << std::endl;
@@ -553,7 +570,9 @@ int main(int argc, char** argv)
         last_time = this_time;
     }
 
-    delete displayed_instance_p;
+    for( auto x = displayed_instance_p.begin(); x != displayed_instance_p.end(); x++ ) {
+        delete (*x);
+    }
     delete control_system_p;
     delete environment;
 

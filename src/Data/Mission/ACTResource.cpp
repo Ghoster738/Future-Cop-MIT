@@ -121,6 +121,11 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         
         std::cout << this->getTypeIDName() << " RID: " << getResourceID() << std::endl;
         
+        if( this->getTypeID() == 1 ) {
+            std::cout << "position_x = " << static_cast<float>( position_x ) / 8192.0f << std::endl;
+            std::cout << "position_y = " << static_cast<float>( position_y ) / 8192.0f << std::endl;
+        }
+        
         return chunk_size;
     }
     else
