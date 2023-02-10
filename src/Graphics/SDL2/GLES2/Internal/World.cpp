@@ -248,13 +248,13 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     {
         for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
         {
-            auto pointer = pointer_tile_cluster.getTile( pointer_tile_cluster.getWidth() - x - 1, y );
+            auto pointer = pointer_tile_cluster.getTile( x, y );
             if( pointer != nullptr )
             {
                 unsigned int index = pointer->getIndexNumber();
-
+                
+                tiles.at(index).positions[ tiles.at(index).positions_amount ].x = x - 1;
                 tiles.at(index).positions[ tiles.at(index).positions_amount ].y = y;
-                tiles.at(index).positions[ tiles.at(index).positions_amount ].x = x;
 
                 tiles.at(index).positions_amount++;
             }
@@ -274,7 +274,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).positions_amount; d++ ) {
-            final_position = glm::translate( projection_view, glm::vec3( ((*i).positions[d].x * 16 + 8.5), 0, ((*i).positions[d].y * 16  + 7.5) ) );
+            final_position = glm::translate( projection_view, glm::vec3( ((*i).positions[d].x * 16 + 8.5), 0, ((*i).positions[d].y * 16  + 8.5) ) );
 
             // We can now send the matrix to the program.
             glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );

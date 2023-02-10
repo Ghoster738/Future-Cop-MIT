@@ -518,8 +518,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             position[ i ].x += position_displacement.x;
                             position[ i ].z += position_displacement.z;
 
-                            // Flip the x-axis.
+                            std::swap( position[ i ].x, position[ i ].z );
                             position[ i ].x = -position[ i ].x;
+                            position[ i ].z = -position[ i ].z;
                         }
                     }
 
