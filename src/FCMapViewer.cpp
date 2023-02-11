@@ -154,29 +154,29 @@ int main(int argc, char** argv)
     if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
         return -38;
     
-    Graphics::Environment *environment = Graphics::Environment::alloc( graphics_identifiers[0] );
-    if( environment == nullptr )
+    Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
+    if( environment_p == nullptr )
         return -39;
     
     
     // Declare a pointer
-    Graphics::Window *window = nullptr;
+    Graphics::Window *window_p = nullptr;
     
     {
-        window = Graphics::Window::alloc( *environment );
+        window_p = Graphics::Window::alloc( *environment_p );
         
-        if( window == nullptr )
+        if( window_p == nullptr )
             return -40;
     }
     std::string title = "Future Cop Map Viewer";
 
-    window->setWindowTitle( title );
-    if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center() << std::endl;
-    window->setDimensions( glm::u32vec2( width, height ) );
-    window->setFullScreen( true );
+    window_p->setWindowTitle( title );
+    if( window_p->center() != 1 )
+        std::cout << "The window had failed to center! " << window_p->center() << std::endl;
+    window_p->setDimensions( glm::u32vec2( width, height ) );
+    window_p->setFullScreen( true );
     
-    if( window->attach() != 1 )
+    if( window_p->attach() != 1 )
         return -40;
 
     Data::Manager manager;
@@ -248,7 +248,7 @@ int main(int argc, char** argv)
     {
         auto cbmp_resources = Data::Mission::BMPResource::getVector( *resource_r );
 
-        int status = environment->setupTextures( cbmp_resources );
+        int status = environment_p->setupTextures( cbmp_resources );
 
         if( status < 0 )
             std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;
@@ -258,44 +258,44 @@ int main(int argc, char** argv)
     {
         auto cobj_resources = Data::Mission::ObjResource::getVector( *resource_r );
 
-        int status = environment->setModelTypes( cobj_resources );
+        int status = environment_p->setModelTypes( cobj_resources );
 
         if( status < 0 )
             std::cout << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size() << std::endl;
     }
     
     // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *environment, loaded_IFFs ) == 0 )
+    if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 )
     {
         std::cout << "Fonts missing!" << std::endl;
     }
     
     auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
     {
-        environment->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
+        environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
 	bool viewer_loop = true;
 
-    Graphics::Text2DBuffer *text_2d_buffer = Graphics::Text2DBuffer::alloc( *environment );
+    Graphics::Text2DBuffer *text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *environment_p );
 
     // Setup the camera
-    Graphics::Camera *first_person = new Graphics::Camera();
-    first_person->attachText2DBuffer( *text_2d_buffer );
-    window->attachCamera( *first_person );
-    first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
-    first_person->setViewportDimensions( glm::u32vec2( width, height ) );
+    Graphics::Camera *first_person_r = new Graphics::Camera();
+    first_person_r->attachText2DBuffer( *text_2d_buffer_r );
+    window_p->attachCamera( *first_person_r );
+    first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
+    first_person_r->setViewportDimensions( glm::u32vec2( width, height ) );
     glm::mat4 extra_matrix_0;
     glm::mat4 extra_matrix_1;
     glm::mat4 extra_matrix_2;
     
     extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(width), -static_cast<float>(height), 0.0f, -1.0f, 1.0f );
     
-    first_person->setProjection2D( extra_matrix_0 );
+    first_person_r->setProjection2D( extra_matrix_0 );
 
     extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f );
 
-    first_person->setProjection3D( extra_matrix_0 );
+    first_person_r->setProjection3D( extra_matrix_0 );
 
     // Setup the timer
     auto last_time = std::chrono::high_resolution_clock::now();
@@ -314,29 +314,10 @@ int main(int argc, char** argv)
     glm::vec4 movement_of_camera = glm::vec4( 0, 0, 0, 0 );
     glm::vec2 rotation = glm::vec2( 0, glm::pi<float>() / 4.0f );
     double distance_away = -10;
-    bool isCameraMoving = false;
-    
-    // Resource ID 20 is the base turret head.
-    std::vector<Graphics::ModelInstance*> displayed_instance_p;
-    
-    {
-        auto ptc_resources = Data::Mission::PTCResource::getVector( *resource_r );
-        auto ptc_resource = ptc_resources.at( 0 );
-        
-        for( int x = 0; x < 32; x++ ) {
-            for( int y = 0; y < 32; y++ ) {
-                auto position = glm::vec3( 16.0 * static_cast<double>(x) / 32.0, 0, 16.0 * static_cast<double>(y) / 32.0);
-                position += glm::vec3( 176, 0, 112 );
-                
-                position.y = ptc_resource->getRayCast2D( position.x, position.z );
-                
-                displayed_instance_p.push_back( Graphics::ModelInstance::alloc( *environment, 13, position ) );
-            }
-        }
-    }
+    bool is_camera_moving = false;
 
-    if( window->center() != 1 )
-        std::cout << "The window had failed to center! " << window->center() << std::endl;
+    if( window_p->center() != 1 )
+        std::cout << "The window had failed to center! " << window_p->center() << std::endl;
 
     // Setup the controls
     auto control_system_p = Controls::System::getSingleton(); // create the new system for controls
@@ -354,22 +335,22 @@ int main(int argc, char** argv)
             for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
             {
                 int status = 0;
-                text_2d_buffer->setFont( 1 );
-                text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
-                text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-                text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
+                text_2d_buffer_r->setFont( 1 );
+                text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+                text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
+                text_2d_buffer_r->print( "Input Set: \"" + input_set_r->getName() +"\"" );
 
-                text_2d_buffer->setFont( 1 );
-                text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
-                text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
-                text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
+                text_2d_buffer_r->setFont( 1 );
+                text_2d_buffer_r->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
+                text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
+                text_2d_buffer_r->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
 
-                text_2d_buffer->setColor( glm::vec4( 1, 1, 0, 1 ) );
-                text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
+                text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
+                text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
                 if( control_cursor_r == nullptr )
-                    text_2d_buffer->print( "There is no cursor!" );
+                    text_2d_buffer_r->print( "There is no cursor!" );
                 else
-                    text_2d_buffer->print( "One cursor is being used!" );
+                    text_2d_buffer_r->print( "One cursor is being used!" );
 
                 while( status < 1  && viewer_loop )
                 {
@@ -378,13 +359,13 @@ int main(int argc, char** argv)
                     if( control_system_p->isOrderedToExit() )
                         viewer_loop = false;
 
-                    environment->drawFrame();
-                    environment->advanceTime( 0 );
+                    environment_p->drawFrame();
+                    environment_p->advanceTime( 0 );
 
                     std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
                 }
 
-                text_2d_buffer->reset();
+                text_2d_buffer_r->reset();
             }
         }
         
@@ -452,20 +433,20 @@ int main(int argc, char** argv)
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
                 // Stop the blinking on the previous current_tile_selected
-                environment->setTilBlink( current_tile_selected, -1.0 );
+                environment_p->setTilBlink( current_tile_selected, -1.0 );
 
                 // Set the next current_tile_selected to flash
-                current_tile_selected = environment->setTilBlink( current_tile_selected - 1, 1.0 );
+                current_tile_selected = environment_p->setTilBlink( current_tile_selected - 1, 1.0 );
             }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ROTATE_RIGHT );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
                 // Stop the blinking on the previous current_tile_selected
-                environment->setTilBlink( current_tile_selected, -1.0 );
+                environment_p->setTilBlink( current_tile_selected, -1.0 );
 
                 // Set the next current_tile_selected to flash
-                current_tile_selected = environment->setTilBlink( current_tile_selected + 1, 1.0 );
+                current_tile_selected = environment_p->setTilBlink( current_tile_selected + 1, 1.0 );
             }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
@@ -473,7 +454,7 @@ int main(int argc, char** argv)
             {
                 Utilities::Image2D image_screenshot( width, height, Utilities::PixelFormatColor_R8G8B8A8() );
 
-                if( environment->screenshot( image_screenshot ) ) {
+                if( environment_p->screenshot( image_screenshot ) ) {
                     Utilities::Buffer file;
                     Utilities::ImageFormat::Chooser chooser;
                     auto the_choosen_r = chooser.getWriterReference( image_screenshot );
@@ -488,9 +469,9 @@ int main(int argc, char** argv)
             if( input_r->isChanged() )
             {
                 if( input_r->getState() > 0.5 )
-                    isCameraMoving = true;
+                    is_camera_moving = true;
                 else
-                    isCameraMoving = false;
+                    is_camera_moving = false;
             }
 
         }
@@ -501,12 +482,12 @@ int main(int argc, char** argv)
             if( input_r->isChanged() )
             {
                 if( input_r->getState() > 0.5 )
-                    isCameraMoving = true;
+                    is_camera_moving = true;
                 else
-                    isCameraMoving = false;
+                    is_camera_moving = false;
             }
 
-            if( isCameraMoving )
+            if( is_camera_moving )
             {
                 input_r = control_cursor_r->getInput( Controls::CursorInputSet::Inputs::MOTION_X );
                 rotation.x += delta_f * static_cast<double>( input_r->getState() ) * (16.0 / 3.14);
@@ -537,32 +518,32 @@ int main(int argc, char** argv)
         extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
         extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
-        first_person->setView3D( extra_matrix_2 );
+        first_person_r->setView3D( extra_matrix_2 );
 
-        if( text_2d_buffer->setFont( 6 ) == -3 )
-            text_2d_buffer->setFont( 1 );
-        text_2d_buffer->setColor( glm::vec4( 1, 0, 0, 1 ) );
-        text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-        text_2d_buffer->print( "Position = (" + std::to_string(position_of_camera.x) + ", " + std::to_string(position_of_camera.y) + ", " + std::to_string(position_of_camera.z) + ")" );
+        if( text_2d_buffer_r->setFont( 6 ) == -3 )
+            text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
+        text_2d_buffer_r->print( "Position = (" + std::to_string(position_of_camera.x) + ", " + std::to_string(position_of_camera.y) + ", " + std::to_string(position_of_camera.z) + ")" );
 
-        if( text_2d_buffer->setFont( 5 ) == -3 )
-            text_2d_buffer->setFont( 1 );
-        text_2d_buffer->setColor( glm::vec4( 0, 1, 0, 1 ) );
-        text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
-        text_2d_buffer->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
+        if( text_2d_buffer_r->setFont( 5 ) == -3 )
+            text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
+        text_2d_buffer_r->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
 
         if( current_tile_selected >= 0 ) {
-            if( text_2d_buffer->setFont( 3 ) == -3 )
-                text_2d_buffer->setFont( 1 );
-            text_2d_buffer->setColor( glm::vec4( 0, 1, 1, 1 ) );
-            text_2d_buffer->setPosition( glm::vec2( 0, 40 ) );
-            text_2d_buffer->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+            if( text_2d_buffer_r->setFont( 3 ) == -3 )
+                text_2d_buffer_r->setFont( 1 );
+            text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+            text_2d_buffer_r->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
         }
 
-        environment->drawFrame();
-        environment->advanceTime( delta_f );
+        environment_p->drawFrame();
+        environment_p->advanceTime( delta_f );
 
-        text_2d_buffer->reset();
+        text_2d_buffer_r->reset();
 
         if( delta < std::chrono::microseconds(17) )
             std::this_thread::sleep_for( std::chrono::microseconds(17) - delta );
@@ -570,11 +551,8 @@ int main(int argc, char** argv)
         last_time = this_time;
     }
 
-    for( auto x = displayed_instance_p.begin(); x != displayed_instance_p.end(); x++ ) {
-        delete (*x);
-    }
     delete control_system_p;
-    delete environment;
+    delete environment_p;
 
     // Clean up
     Graphics::Environment::deinitEntireSystem();
