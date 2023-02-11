@@ -309,7 +309,7 @@ int main(int argc, char** argv)
 	//glUniform1f( WhichTileLoc, current_tile_selected );
 	bool entering_number = false;
 
-    glm::vec3 position_of_camera = glm::vec3( 0, 0, 0 );
+    glm::vec3 position_of_camera = glm::vec3( 192, 0, 112 );
     glm::vec4 direction_keyboard = glm::vec4( 0, 0, 0, 0 );
     glm::vec4 movement_of_camera = glm::vec4( 0, 0, 0, 0 );
     glm::vec2 rotation = glm::vec2( 0, glm::pi<float>() / 4.0f );
@@ -325,12 +325,14 @@ int main(int argc, char** argv)
         
         for( int x = 0; x < 32; x++ ) {
             for( int y = 0; y < 32; y++ ) {
-                auto position = glm::vec3( 16.0 * static_cast<double>(x) / 32, 0, 16.0 * static_cast<double>(y) / 32);
-                position += glm::vec3( 64, 0, 48 );
+                auto position = glm::vec3( 16.0 * static_cast<double>(x) / 32.0, 0, 16.0 * static_cast<double>(y) / 32.0);
+                position += glm::vec3( 176, 0, 112 );
+
+                std::cout << "p = (" << position.x << ", " << position.z << ")" << std::endl;
                 
                 position.y = ptc_resource->getRayCast2D( position.x, position.z );
                 
-                displayed_instance_p.push_back( Graphics::ModelInstance::alloc( *environment, 38, position ) );
+                displayed_instance_p.push_back( Graphics::ModelInstance::alloc( *environment, 13, position ) );
             }
         }
     }
