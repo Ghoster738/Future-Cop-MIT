@@ -263,8 +263,8 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     if( x < 0.0 || y < 0.0 )
         return 10.0f;
     
-    const unsigned int x_til = x / 16.0;
-    const unsigned int y_til = y / 16.0;
+    const unsigned int x_til = x / static_cast<float>( TilResource::AMOUNT_OF_TILES );
+    const unsigned int y_til = y / static_cast<float>( TilResource::AMOUNT_OF_TILES );
     
     // There is some kind of blank boarder.
     auto tile_r = getTile( y_til + 1, x_til + 1 );
@@ -272,10 +272,10 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     if( tile_r == nullptr )
         return 10.0f;
     
-    const unsigned int x_til_offset = fmod( x, 16.0 );
-    const unsigned int y_til_offset = fmod( y, 16.0 );
+    const float x_til_offset = fmod( x, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
+    const float y_til_offset = fmod( y, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
     
-    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - 8.0, y_til_offset - 8.0 );
+    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
 }
 
 std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( Data::Mission::IFF &mission_file ) {

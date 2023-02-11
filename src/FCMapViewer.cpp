@@ -327,8 +327,6 @@ int main(int argc, char** argv)
             for( int y = 0; y < 32; y++ ) {
                 auto position = glm::vec3( 16.0 * static_cast<double>(x) / 32.0, 0, 16.0 * static_cast<double>(y) / 32.0);
                 position += glm::vec3( 176, 0, 112 );
-
-                std::cout << "p = (" << position.x << ", " << position.z << ")" << std::endl;
                 
                 position.y = ptc_resource->getRayCast2D( position.x, position.z );
                 
