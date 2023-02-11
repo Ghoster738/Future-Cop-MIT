@@ -267,7 +267,7 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     const unsigned int y_til = y / static_cast<float>( TilResource::AMOUNT_OF_TILES );
     
     // There is some kind of blank boarder.
-    auto tile_r = getTile( y_til + 1, x_til + 1 );
+    auto tile_r = getTile( y_til + 1, x_til );
     
     if( tile_r == nullptr )
         return 10.0f;
