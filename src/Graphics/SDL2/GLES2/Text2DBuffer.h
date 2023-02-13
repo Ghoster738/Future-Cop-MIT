@@ -23,8 +23,8 @@ public:
     
     /**
      * This is used to setup the fonts. It does not account for the playstation layouts.
-     * @param environment The environment that stores the data types.
-     * @param fonts All the fonts of that exist.
+     * @param env_r The environment that stores the data types.
+     * @param data These are the IFF files that hold resources.
      * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
      */
     static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );

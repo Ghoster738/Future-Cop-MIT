@@ -521,13 +521,13 @@ int main(int argc, char** argv)
         first_person_r->setView3D( extra_matrix_2 );
 
         if( text_2d_buffer_r->setFont( 6 ) == -3 )
-            text_2d_buffer_r->setFont( 1 );
+            text_2d_buffer_r->setFont( 2 );
         text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
         text_2d_buffer_r->print( "Position = (" + std::to_string(position_of_camera.x) + ", " + std::to_string(position_of_camera.y) + ", " + std::to_string(position_of_camera.z) + ")" );
 
         if( text_2d_buffer_r->setFont( 5 ) == -3 )
-            text_2d_buffer_r->setFont( 1 );
+            text_2d_buffer_r->setFont( 2 );
         text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer_r->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );

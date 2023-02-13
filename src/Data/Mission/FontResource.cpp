@@ -6,6 +6,7 @@
 #include <string.h>
 #include <fstream>
 #include <cassert>
+#include <stdexcept>
 
 namespace {
     const size_t HEADER_SIZE = 0x20;
@@ -17,7 +18,6 @@ namespace {
 
     const size_t IMAGE_HEADER_SIZE = 0x10;
 
-// PFNT is the first embeded file in this project.
 #include "Embeded/PFNT.h"
 }
 
@@ -31,8 +31,8 @@ Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader ) {
     this->top       = reader.readU8();
     this->unk_2     = reader.readU8(); // Skip a byte
     this->x_advance = reader.readU8();
-    this->offset.x  = reader.readU8();
-    this->offset.y  = reader.readU8();
+    this->offset.x  = reader.readI8();
+    this->offset.y  = reader.readI8();
 }
 
 uint8_t Data::Mission::FontGlyph::getGlyph() const {
@@ -55,7 +55,7 @@ uint8_t Data::Mission::FontGlyph::getBottom() const {
     return this->top + this->height;
 }
 
-glm::i16vec2 Data::Mission::FontGlyph::getOffset() const {
+glm::i8vec2 Data::Mission::FontGlyph::getOffset() const {
     return this->offset;
 }
 
@@ -106,6 +106,51 @@ const Data::Mission::FontGlyph *const Data::Mission::FontResource::getGlyph( uin
     return font_glyphs_r[ which ];
 }
 
+Data::Mission::FontResource::FilterStatus Data::Mission::FontResource::filterText( const std::string& unfiltered_text, std::string *filtered_text_r ) const {
+    const uint8_t MISSING_SYMBOL = 0x7F;
+    FilterStatus filter_status = FilterStatus::PERFECT;
+    char space_char;
+
+    // Before doing anything serious check if the missing symbol is present.
+    if( getGlyph( MISSING_SYMBOL ) == nullptr ) {
+        return FilterStatus::INVALID;
+    }
+
+    // Clear the filtered text.
+    if( filtered_text_r != nullptr ) {
+        *filtered_text_r = "";
+    }
+
+    // This sets the space character.
+    if( getGlyph( ' ' ) != nullptr )
+        space_char = ' ';
+    else
+        space_char = MISSING_SYMBOL;
+
+    for( auto i = unfiltered_text.begin(); i != unfiltered_text.end(); i++ ) {
+
+        if( (*i) == MISSING_SYMBOL ) {
+            filter_status = FilterStatus::CULLED;
+
+            if( filtered_text_r != nullptr )
+                filtered_text_r->push_back( space_char ); // Push back a humble space character.
+        }
+        else
+        if( getGlyph( (*i) ) == nullptr ) {
+            filter_status = FilterStatus::CULLED;
+
+            if( filtered_text_r != nullptr )
+                filtered_text_r->push_back( MISSING_SYMBOL ); // This character does not exist.
+        }
+        else
+        if( filtered_text_r != nullptr ) {
+            filtered_text_r->push_back( (*i) ); // The character is valid.
+        }
+    }
+
+    return filter_status;
+}
+
 bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr )
     {
@@ -115,6 +160,8 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
         if( reader.totalSize() > HEADER_SIZE )
         {
+            if( getResourceID() == 0 )
+                throw std::runtime_error( "Error: Resource ID of zero for FontResource is reserved only for use inside this program. Never in the IFF files." );
 
             if( settings.output_level >= 1 ) {
                 *settings.output_ref << "Loading FNT " << getResourceID() << "!" << std::endl;
@@ -335,6 +382,56 @@ const std::vector<Data::Mission::FontResource*> Data::Mission::FontResource::get
     return Data::Mission::FontResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
 }
 
-Utilities::Buffer::Reader Data::Mission::FontResource::getWBuiltIn() {
-    return Utilities::Buffer::Reader( minimal_fnt, minimal_fnt_len );
+Data::Mission::FontResource* Data::Mission::FontResource::getWindows( std::ostream *stream, int output_level ) {
+    Data::Mission::FontResource* windows_font_p = new Data::Mission::FontResource;
+
+    windows_font_p->setIndexNumber( 0 );
+    windows_font_p->setMisIndexNumber( 0 );
+    windows_font_p->setResourceID( 2 );
+
+    auto loading = Utilities::Buffer::Reader( windows_fnt, windows_fnt_len );
+
+    windows_font_p->read( loading );
+
+    Data::Mission::Resource::ParseSettings parse_settings;
+    parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
+    parse_settings.endian = Utilities::Buffer::LITTLE;
+    parse_settings.output_level = output_level;
+    parse_settings.output_ref = stream;
+
+    if( !windows_font_p->parse( parse_settings ) )
+        throw std::logic_error( "Internal Error: The internal Windows font has failed to parse!");
+
+    // DEL symbol required for internal fonts!
+    if( windows_font_p->getGlyph( 0x7F ) == nullptr )
+        throw std::logic_error( "Internal Error: The internal Windows font does not have the DEL key symbol!");
+
+    return windows_font_p;
+}
+
+Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( std::ostream *stream, int output_level ) {
+    Data::Mission::FontResource* playstation_font_p = new Data::Mission::FontResource;
+
+    playstation_font_p->setIndexNumber( 0 );
+    playstation_font_p->setMisIndexNumber( 0 );
+    playstation_font_p->setResourceID( 1 );
+
+    auto loading = Utilities::Buffer::Reader( playstation_fnt, playstation_fnt_len );
+
+    playstation_font_p->read( loading );
+
+    Data::Mission::Resource::ParseSettings parse_settings;
+    parse_settings.type = Data::Mission::Resource::ParseSettings::Playstation;
+    parse_settings.endian = Utilities::Buffer::LITTLE;
+    parse_settings.output_level = output_level;
+    parse_settings.output_ref = stream;
+
+    if( !playstation_font_p->parse( parse_settings ) )
+        throw std::logic_error( "Internal Error: The internal Playstation font has failed to parse!");
+
+    // DEL symbol required for internal fonts!
+    if( playstation_font_p->getGlyph( 0x7F ) == nullptr )
+        throw std::logic_error( "Internal Error: The internal Playstation font does not have the DEL key symbol!");
+
+    return playstation_font_p;
 }

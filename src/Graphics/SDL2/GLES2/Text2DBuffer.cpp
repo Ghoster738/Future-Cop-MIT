@@ -4,10 +4,6 @@
 #include "cassert"
 #include <iostream>
 
-namespace {
-    Data::Mission::FontResource font;
-};
-
 Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     Graphics::Text2DBuffer( env )
 {
@@ -40,34 +36,44 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &env_r, const st
         delete env_r.text_draw_routine_p;
     
     std::vector<Data::Mission::FontResource*> fonts_r;
+    bool has_resource_id_1 = false;
+    bool has_resource_id_2 = false;
+    bool has_del_symbol = false;
 
     for( auto i = data.begin(); i != data.end(); i++ ) {
         auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
         
         for( auto f = font_resources.begin(); f != font_resources.end(); f++ ) {
             fonts_r.push_back( (*f) );
+
+            if( (*f)->getResourceID() == 1 )
+                has_resource_id_1 = true;
+            else
+            if( (*f)->getResourceID() == 2 )
+                has_resource_id_2 = true;
+
+            if( (*f)->getGlyph( 0x7F ) != nullptr )
+                has_del_symbol = true;
         }
     }
 
     // If no fonts are found then add one.
-    if( fonts_r.size() == 0 ) {
-        font.setIndexNumber( 0 );
-        font.setMisIndexNumber( 0 );
-        font.setResourceID( 1 );
-        auto builtin = Data::Mission::FontResource::getWBuiltIn();
-        font.read( builtin );
-
-        Data::Mission::Resource::ParseSettings parse_settings;
-        parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
-        parse_settings.endian = Utilities::Buffer::LITTLE;
-        parse_settings.output_level = 2;
-        parse_settings.output_ref = &std::cout;
-
-        if( !font.parse( parse_settings ) )
-            return 0;
-
-        fonts_r.push_back( &font );
+    if( !has_resource_id_1 ) {
+        fonts_r.push_back( Data::Mission::FontResource::getPlaystation( &std::cout, 2 ) );
+        has_del_symbol = true;
     }
+    if( !has_resource_id_2 ) {
+        fonts_r.push_back( Data::Mission::FontResource::getWindows( &std::cout, 2 ) );
+        has_del_symbol = true;
+    }
+    if( !has_del_symbol ) {
+        auto font_p = Data::Mission::FontResource::getWindows( &std::cout, 2 );
+        font_p->setResourceID( 0 );
+        fonts_r.push_back( font_p );
+        has_del_symbol = true;
+    }
+
+    assert( has_del_symbol );
 
     env_r.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
     env_r.text_draw_routine_p->setVertexShader();
@@ -166,33 +172,42 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     {
         if( current_text_2D_r != nullptr )
         {
-            // Try to add the text.
-            add_text_state = current_text_2D_r->addText( text );
+            auto switch_text_2D_r = this->current_text_2D_r;
+            std::string filtered_text;
+
+            // Switch to a font with a DEL symbol if the current font lacks one.
+            if( switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text ) == Data::Mission::FontResource::FilterStatus::INVALID ) {
+                switch_text_2D_r = text_data_p[ font_system_r->getInvalidBackupFontID() ];
+                switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
+            }
+
+            // Try to add the filtered_text.
+            add_text_state = switch_text_2D_r->addText( filtered_text );
 
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )
             {
-                // This is a formula used to dynamically expand the text.
-                expand_amount = (text.size() / text_2D_expand_factor);
+                // This is a formula used to dynamically expand the filtered_text.
+                expand_amount = (filtered_text.size() / text_2D_expand_factor);
 
                 // If there is a remained then expand this number further by one.
-                if((text.size() % text_2D_expand_factor) > 0)
+                if((filtered_text.size() % text_2D_expand_factor) > 0)
                     expand_amount++;
 
                 // Convert to character amount.
                 expand_amount *= text_2D_expand_factor;
 
                 // we get the expand sum.
-                expand_sum = current_text_2D_r->getCharAmount() + expand_amount;
+                expand_sum = switch_text_2D_r->getCharAmount() + expand_amount;
 
-                // The text must be expanded
-                add_text_state = current_text_2D_r->setTextMax( expand_sum );
+                // The filtered_text must be expanded
+                add_text_state = switch_text_2D_r->setTextMax( expand_sum );
 
                 // Check to see if there was an expansion.
                 if( add_text_state > 0 )
                 {
-                    // Attempt to add the text again.
-                    add_text_state = current_text_2D_r->addText( text );
+                    // Attempt to add the filtered_text again.
+                    add_text_state = switch_text_2D_r->addText( filtered_text );
 
                     if( add_text_state >= 0 )
                         return add_text_state;

@@ -317,6 +317,8 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
 Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
+    bool has_backup = false;
+
     for( int i = 0; i < font_resources.size(); i++ )
     {
         this->font_bank.push_back( Font() );
@@ -324,6 +326,11 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         assert( font_resources[i] != nullptr );
         
         this->font_bank.back().resource_id = font_resources[i]->getResourceID();
+
+        if( !has_backup && font_resources[i]->getGlyph( 0x7F ) != nullptr ) {
+            this->invalid_text_resource_id = this->font_bank.back().resource_id;
+            has_backup = true;
+        }
 
         // Set the pointer to
         this->font_bank.back().font_resource_r = font_resources[i];
@@ -362,6 +369,8 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         this->font_bank.back().texture.setFilters( 0, GL_NEAREST, GL_LINEAR );
         this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     }
+
+    assert( has_backup == true );
 }
 
 Graphics::SDL2::GLES2::Internal::FontSystem::~FontSystem() {

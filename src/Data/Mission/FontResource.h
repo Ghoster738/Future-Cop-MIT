@@ -23,7 +23,7 @@ private:
 
     // This is the spacing of the characters.
     uint8_t x_advance;
-    glm::i16vec2 offset;
+    glm::i8vec2 offset;
 public:
     FontGlyph( Utilities::Buffer::Reader& reader );
     uint8_t getGlyph() const;
@@ -43,7 +43,7 @@ public:
     uint8_t getHeight() const;
 
     uint8_t getXAdvance() const;
-    glm::i16vec2 getOffset() const;
+    glm::i8vec2 getOffset() const;
 };
 
 class FontResource : public Resource {
@@ -51,6 +51,12 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static constexpr uint32_t MAX_GLYPHS = 0x100;
+
+    enum FilterStatus {
+        PERFECT, // Every single character except the null terminator did not get replaced.
+        CULLED,  // Some characters had to be changed. The DEL symbol of the unfiltered text got replaced with space. Any character not avaiable in the font got replaced with DEL.
+        INVALID  // There is no DEL symbol in the Font Resource, so another font has to be used.
+    };
 
 protected:
     std::vector<FontGlyph> glyphs;
@@ -67,7 +73,19 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
+    /**
+     * @param character_id This is an ISO-8859-1 code value.
+     * @return If the glyph exists then it would return a valid FontGlyph, or it would simply return nullptr.
+     */
     const FontGlyph *const getGlyph( uint8_t character_id ) const;
+
+    /**
+     * This function is used to filter the text, so it would create more valid text.
+     * @param unfiltered_text This an ISO-8859-1 encoded text that came from the user and needs to be filtered.
+     * @param filtered_text_r This is an ISO-8859-1 encoded text that has modifications in order for this text to work. This value can be null for sanity checks.
+     * @return See FilterStatus for notes, generally only check for INVALID.
+     */
+    FilterStatus filterText( const std::string& unfiltered_text, std::string *filtered_text_r = nullptr ) const;
 
     /**
      * This is to be used when the file is finished loading everything into raw_data.
@@ -93,7 +111,8 @@ public:
     static std::vector<FontResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<FontResource*> getVector( const Data::Mission::IFF &mission_file );
 
-    static Utilities::Buffer::Reader getWBuiltIn();
+    static FontResource* getWindows( std::ostream *stream = nullptr, int output_level = 0 );
+    static FontResource* getPlaystation( std::ostream *stream = nullptr, int output_level = 0 );
 };
 
 }
