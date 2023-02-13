@@ -253,7 +253,6 @@ const uint8_t playstation_fnt[] = {
 };
 const size_t playstation_fnt_len = 2848;
 Data::Mission::FontResource playstation_font;
-bool has_playstation_loaded = false;
 
 // This file might work on the Windows version of Future Cop.
 // However, it is untested. This font is more complex compared to the
@@ -632,4 +631,3 @@ const uint8_t windows_fnt[] = {
 };
 size_t windows_fnt_len = 4384;
 Data::Mission::FontResource windows_font;
-bool has_windows_loaded = false;
