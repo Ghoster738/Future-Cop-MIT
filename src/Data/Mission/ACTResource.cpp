@@ -115,16 +115,17 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         position_y      = data_reader.readI32();
         position_height = data_reader.readI32();
         position_x      = data_reader.readI32();
-
+        
+        if( getTypeID() == 8 )
+            std::cout << getTypeIDName() << " Resource ID: " << getResourceID() << std::endl;
+        
         auto reader_act = data_reader.getReader( ACT_SIZE );
         bool processed = readACTType( act_type, reader_act, endian );
         
-        std::cout << this->getTypeIDName() << " RID: " << getResourceID() << std::endl;
-        
-        if( this->getTypeID() == 1 ) {
+        /*if( this->getTypeID() == 1 ) {
             std::cout << "position_x = " << static_cast<float>( position_x ) / 8192.0f << std::endl;
             std::cout << "position_y = " << static_cast<float>( position_y ) / 8192.0f << std::endl;
-        }
+        }*/
         
         return chunk_size;
     }
