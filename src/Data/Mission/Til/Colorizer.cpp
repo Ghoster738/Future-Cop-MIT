@@ -16,7 +16,8 @@ Utilities::PixelFormatColor::GenericColor Data::Mission::Til::Colorizer::getColo
             break;
         case 0b10: // Dynamic Color
             {
-                color = colors[ tile.shading % colors.size() ];
+                if( !colors.empty() )
+                    color = colors.at( tile.shading % colors.size() );
             }
             break;
         case 0b11: // Lava Animation
@@ -86,9 +87,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
 {
     if( result_r != nullptr )
     {
-        result_r[0] = getColorVec3( input.tile, input.colors );
+        result_r[0] = getColorVec3( input.til_graphics[ input.tile_index ], input.colors );
         
-        switch( input.tile.type ) {
+        switch( input.til_graphics[ input.tile_index ].type ) {
             case 0b00: // Solid Monochrome
                 {
                     result_r[1] = result_r[0];
@@ -98,12 +99,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    glm::u8vec3 inverse_positions[3];
-                    inverseSet( input.position, inverse_positions );
-                    
-                    result_r[1] = colorToVec3( input.color_map.getColor( inverse_positions[ 0 ], input.colors ) );
-                    result_r[2] = colorToVec3( input.color_map.getColor( inverse_positions[ 1 ], input.colors ) );
-                    result_r[3] = colorToVec3( input.color_map.getColor( inverse_positions[ 2 ], input.colors ) );
+                    result_r[1] = getColorVec3( input.til_graphics.at( (input.tile_index - 1) % input.til_graphics.size() ), input.colors );
+                    result_r[2] = getColorVec3( input.til_graphics.at( (input.tile_index - 1) % input.til_graphics.size() ), input.colors );
+                    result_r[3] = getColorVec3( input.til_graphics.at( (input.tile_index - 1) % input.til_graphics.size() ), input.colors );
                 }
                 break;
             case 0b10: // Dynamic Color

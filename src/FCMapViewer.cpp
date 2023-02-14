@@ -309,7 +309,7 @@ int main(int argc, char** argv)
 	//glUniform1f( WhichTileLoc, current_tile_selected );
 	bool entering_number = false;
 
-    glm::vec3 position_of_camera = glm::vec3( 192, 0, 112 );
+    glm::vec3 position_of_camera = glm::vec3( 103, 0, 122 );
     glm::vec4 direction_keyboard = glm::vec4( 0, 0, 0, 0 );
     glm::vec4 movement_of_camera = glm::vec4( 0, 0, 0, 0 );
     glm::vec2 rotation = glm::vec2( 0, glm::pi<float>() / 4.0f );

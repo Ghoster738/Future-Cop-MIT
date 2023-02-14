@@ -14,7 +14,8 @@ namespace Colorizer {
     struct Input {
         const std::vector<Utilities::PixelFormatColor::GenericColor> &colors;
         const TilResource::ColorMap &color_map;
-        Data::Mission::TilResource::TileGraphics tile;
+        const std::vector<TilResource::TileGraphics> &til_graphics;
+        unsigned tile_index;
         int unk;
         glm::u8vec3 position;
     };

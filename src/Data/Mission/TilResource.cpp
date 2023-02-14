@@ -488,8 +488,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     vertex_data.element_amount = 6;
                     vertex_data.element_start = 0;
 
-                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map };
-                    input_color.tile = this->tile_texture_type.at( current_tile.graphics_type_index );
+                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map, this->tile_texture_type };
+                    input_color.tile_index = current_tile.graphics_type_index;
                     input_color.unk = 0;
                     input_color.position.x = x;
                     input_color.position.y = y;
@@ -497,7 +497,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                    if( input_color.tile.texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
+                    if( this->tile_texture_type.at( input_color.tile_index ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
                         current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                         if( current_tile_polygon_amount == 0 && display_unread ) {
