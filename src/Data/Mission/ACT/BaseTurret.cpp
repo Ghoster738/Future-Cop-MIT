@@ -12,32 +12,77 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    /*root["ACT"][NAME]["rotation_value"] = internal.rotation_value;
+    root["ACT"][NAME]["rotation"] = internal.rotation;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
-    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
     root["ACT"][NAME]["byte_0"] = internal.byte_0;
     root["ACT"][NAME]["byte_1"] = internal.byte_1;
     root["ACT"][NAME]["byte_2"] = internal.byte_2;
+    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
+    root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
     root["ACT"][NAME]["byte_3"] = internal.byte_3;
     root["ACT"][NAME]["byte_4"] = internal.byte_4;
+    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
+    root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
     root["ACT"][NAME]["byte_5"] = internal.byte_5;
-    root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["byte_6"] = internal.byte_6;*/
+    root["ACT"][NAME]["uint16_5"] = internal.uint16_5;
+    root["ACT"][NAME]["uint16_6"] = internal.uint16_6;
+    root["ACT"][NAME]["uint16_7"] = internal.uint16_7;
+    root["ACT"][NAME]["uint16_8"] = internal.uint16_8;
+    root["ACT"][NAME]["byte_6"] = internal.byte_6;
+    root["ACT"][NAME]["uint16_9"] = internal.uint16_9;
 
     return root;
 }
 
-#include <iostream>
-
 bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
-    // assert(data_reader.totalSize() == this->getSize());
+    assert(data_reader.totalSize() == this->getSize());
     
-    while( !data_reader.ended() ) {
-        auto byte = data_reader.readU8();
-        std::cout << std::hex << ((byte >> 8) & 0xF) << (byte & 0xF) << std::dec << " ";
-    }
-    std::cout << std::endl;
+    internal.rotation = data_reader.readU32( endian );
+    internal.uint16_0 = data_reader.readU16( endian );
+    
+    data_reader.readU16( endian );
+    
+    internal.byte_0 = data_reader.readU8();
+    
+    data_reader.readU8();
+    
+    internal.byte_1 = data_reader.readU8();
+    
+    data_reader.readU8();
+    
+    internal.byte_2 = data_reader.readU8();
+    
+    data_reader.readU8();
+    data_reader.readU16( endian );
+    
+    internal.uint16_1 = data_reader.readU16( endian );
+    internal.uint16_2 = data_reader.readU16( endian );
+    internal.byte_3 = data_reader.readU8();
+    internal.byte_4 = data_reader.readU8();
+    internal.uint16_3 = data_reader.readU16( endian );
+    
+    data_reader.readU32( endian );
+    
+    internal.uint16_4 = data_reader.readU16( endian );
+    
+    data_reader.readU16( endian );
+    data_reader.readU8();
+    
+    internal.byte_5 = data_reader.readU8();
+    internal.uint16_5 = data_reader.readU16( endian );
+    internal.uint16_6 = data_reader.readU16( endian );
+    
+    data_reader.readU16( endian );
+    
+    internal.uint16_7 = data_reader.readU16( endian );
+    internal.uint16_8 = data_reader.readU16( endian );
+    internal.byte_6 = data_reader.readU8();
+    
+    data_reader.readU8();
+    data_reader.readU32( endian );
+    
+    internal.uint16_9 = data_reader.readU16( endian );
 
     return true;
 }
@@ -59,7 +104,7 @@ std::string Data::Mission::ACT::BaseTurret::getTypeIDName() const {
 }
 
 size_t Data::Mission::ACT::BaseTurret::getSize() const {
-    return 20; // bytes
+    return 52; // bytes
 }
 
 bool Data::Mission::ACT::BaseTurret::checkRSL() const {

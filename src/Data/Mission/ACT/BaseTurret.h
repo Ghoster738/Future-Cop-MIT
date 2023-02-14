@@ -20,20 +20,33 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t  rotation_value; // Guessed
+        uint32_t  rotation; // Guessed
         uint16_t  uint16_0;
-        uint16_t  uint16_1;
+        // 2 zero bytes
         uint8_t   byte_0;
+        // zero byte
         uint8_t   byte_1;
+        // zero byte
         uint8_t   byte_2;
+        // 3 zero bytes
+        uint16_t  uint16_1;
+        uint16_t  uint16_2;
         uint8_t   byte_3;
         uint8_t   byte_4;
-        // Zero Byte
+        uint16_t  uint16_3;
+        // 4 zero bytes
+        uint16_t  uint16_4;
+        // 3 zero bytes
         uint8_t   byte_5;
-        // Zero Byte
-        uint16_t  uint16_2;
-        // Zero Byte
+        uint16_t  uint16_5;
+        uint16_t  uint16_6;
+        // 2 zero bytes
+        uint16_t  uint16_7;
+        uint16_t  uint16_8;
         uint8_t   byte_6;
+        // 5 zero bytes
+        uint16_t  uint16_9;
+        
     } internal;
 
 protected:

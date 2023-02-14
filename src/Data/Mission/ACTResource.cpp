@@ -116,10 +116,11 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         position_height = data_reader.readI32();
         position_x      = data_reader.readI32();
         
-        if( getTypeID() == 8 )
-            std::cout << getTypeIDName() << " Resource ID: " << getResourceID() << std::endl;
-        
         auto reader_act = data_reader.getReader( ACT_SIZE );
+        
+        if( getTypeID() == 8 )
+            std::cout << getTypeIDName() << "; Resource ID: " << getResourceID() << "; size: " << ACT_SIZE << std::endl;
+        
         bool processed = readACTType( act_type, reader_act, endian );
         
         /*if( this->getTypeID() == 1 ) {
