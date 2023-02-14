@@ -1,5 +1,6 @@
 #include "Hash.h"
 
+#include "../X1AUnit.h"
 #include "../Skycaptin.h"
 #include "../Prop.h"
 
@@ -14,8 +15,9 @@ private:
     Data::Mission::ACTResource* table_p[ TABLE_SIZE ];
 
     void setupTable() {
-        table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
+        table_p[ Data::Mission::ACT::X1AUnit::TYPE_ID ] = new Data::Mission::ACT::X1AUnit();
         table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
+        table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
     }
 public:
     Declaration() {

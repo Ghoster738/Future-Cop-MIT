@@ -99,9 +99,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    result_r[1] = getColorVec3( input.til_graphics.at( (input.tile_index - 1) % input.til_graphics.size() ), input.colors );
-                    result_r[2] = getColorVec3( input.til_graphics.at( (input.tile_index - 1) % input.til_graphics.size() ), input.colors );
-                    result_r[3] = getColorVec3( input.til_graphics.at( (input.tile_index - 1) % input.til_graphics.size() ), input.colors );
+                    result_r[1] = getColorVec3( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ), input.colors );
+                    result_r[2] = getColorVec3( input.til_graphics.at( (input.tile_index + 2) % input.til_graphics.size() ), input.colors );
+                    result_r[3] = getColorVec3( input.til_graphics.at( (input.tile_index + 3) % input.til_graphics.size() ), input.colors );
                 }
                 break;
             case 0b10: // Dynamic Color

@@ -155,7 +155,12 @@ Data::Mission::Resource* Data::Mission::ACT::Skycaptin::duplicate() const {
 }
 
 Data::Mission::ACTResource* Data::Mission::ACT::Skycaptin::duplicate( const ACTResource &original ) const {
-    return new Data::Mission::ACT::Skycaptin( original );
+    auto copy_r = dynamic_cast<const Skycaptin*>( &original );
+    
+    if( copy_r != nullptr)
+        return new Data::Mission::ACT::Skycaptin( *copy_r );
+    else
+        return new Data::Mission::ACT::Skycaptin( original );
 }
 
 Data::Mission::ACT::Skycaptin::Internal Data::Mission::ACT::Skycaptin::getInternal() const {

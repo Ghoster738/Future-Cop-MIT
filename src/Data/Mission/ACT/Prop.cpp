@@ -78,7 +78,12 @@ Data::Mission::Resource* Data::Mission::ACT::Prop::duplicate() const {
 }
 
 Data::Mission::ACTResource* Data::Mission::ACT::Prop::duplicate( const ACTResource &original ) const {
-    return new Data::Mission::ACT::Prop( original );
+    auto copy_r = dynamic_cast<const Prop*>( &original );
+    
+    if( copy_r != nullptr)
+        return new Data::Mission::ACT::Prop( *copy_r );
+    else
+        return new Data::Mission::ACT::Prop( original );
 }
 
 Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const {
