@@ -19,22 +19,23 @@ class BaseTurret : public ACTResource {
 public:
     static uint_fast8_t TYPE_ID;
 
+    // Ghoster738 - I could be reading BahKooj's notes wrong.
     struct Internal {
-        uint32_t  rotation; // Guessed
-        uint16_t  uint16_0;
-        // 2 zero bytes
-        uint8_t   byte_0;
-        // zero byte
-        uint8_t   byte_1;
-        // zero byte
-        uint8_t   byte_2;
-        // 3 zero bytes
-        uint16_t  uint16_1;
-        uint16_t  uint16_2;
-        uint8_t   byte_3;
-        uint8_t   byte_4;
-        uint16_t  uint16_3;
-        // 4 zero bytes
+        uint32_t  rotation; // 28
+        uint16_t  uint16_0; // 32
+        // 2 zero bytes // 34
+        uint8_t   byte_0; // hostile_to_it 36
+        // zero byte //37
+        uint8_t   byte_1; // minimap_color 38
+        // zero byte // 39
+        uint8_t   byte_2; // 40
+        // 3 zero bytes // 41 Note: 43 - texture offsets
+        uint16_t  uint16_1; // 43
+        uint16_t  uint16_2; // 45
+        uint8_t   byte_3; // 46
+        uint8_t   byte_4; // 47
+        uint16_t  uint16_3; // 48
+        // 4 zero bytes // 50 is where the team turret is hostile toward
         uint16_t  uint16_4;
         // 3 zero bytes
         uint8_t   byte_5;

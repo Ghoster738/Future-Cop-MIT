@@ -119,14 +119,9 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
         if( getTypeID() == 8 )
-            std::cout << getTypeIDName() << "; Resource ID: " << getResourceID() << "; size: " << ACT_SIZE << std::endl;
+            std::cout << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
         
         bool processed = readACTType( act_type, reader_act, endian );
-        
-        /*if( this->getTypeID() == 1 ) {
-            std::cout << "position_x = " << static_cast<float>( position_x ) / 8192.0f << std::endl;
-            std::cout << "position_y = " << static_cast<float>( position_y ) / 8192.0f << std::endl;
-        }*/
         
         return chunk_size;
     }
