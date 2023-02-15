@@ -2,6 +2,7 @@
 
 #include "../X1AUnit.h"
 #include "../BaseTurret.h"
+#include "../JetCopter.h"
 #include "../Skycaptin.h"
 #include "../Prop.h"
 
@@ -18,6 +19,7 @@ private:
     void setupTable() {
         table_p[ Data::Mission::ACT::X1AUnit::TYPE_ID ] = new Data::Mission::ACT::X1AUnit();
         table_p[ Data::Mission::ACT::BaseTurret::TYPE_ID ] = new Data::Mission::ACT::BaseTurret();
+        table_p[ Data::Mission::ACT::JetCopter::TYPE_ID ] = new Data::Mission::ACT::JetCopter();
         table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
     }

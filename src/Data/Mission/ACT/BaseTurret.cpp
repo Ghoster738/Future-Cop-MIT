@@ -41,20 +41,20 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.rotation = data_reader.readU32( endian );
     internal.uint16_0 = data_reader.readU16( endian );
     
-    data_reader.readU16( endian );
+    data_reader.readU16( endian ); // not zero!
     
     internal.byte_0 = data_reader.readU8();
     
-    data_reader.readU8();
+    data_reader.readU8(); // not zero!
     
     internal.byte_1 = data_reader.readU8();
     
-    data_reader.readU8();
+    data_reader.readU8(); // not zero!
     
     internal.byte_2 = data_reader.readU8();
     
-    data_reader.readU8();
-    data_reader.readU16( endian );
+    data_reader.readU8(); // not zero!
+    data_reader.readU16( endian ); // not zero!
     
     internal.uint16_1 = data_reader.readU16( endian );
     internal.uint16_2 = data_reader.readU16( endian );
@@ -62,25 +62,25 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.byte_4 = data_reader.readU8();
     internal.uint16_3 = data_reader.readU16( endian );
     
-    data_reader.readU32( endian );
+    data_reader.readU32( endian ); // not zero
     
     internal.uint16_4 = data_reader.readU16( endian );
     
-    data_reader.readU16( endian );
-    data_reader.readU8();
+    data_reader.readU16( endian ); // not zero
+    data_reader.readU8(); // not zero
     
     internal.byte_5 = data_reader.readU8();
     internal.uint16_5 = data_reader.readU16( endian );
     internal.uint16_6 = data_reader.readU16( endian );
     
-    data_reader.readU16( endian );
+    data_reader.readU16( endian ); // not zero
     
     internal.uint16_7 = data_reader.readU16( endian );
     internal.uint16_8 = data_reader.readU16( endian );
     internal.byte_6 = data_reader.readU8();
     
-    data_reader.readU8();
-    data_reader.readU32( endian );
+    data_reader.readU8(); // this is in fact a zero byte
+    data_reader.readU32( endian ); // not zero
     
     internal.uint16_9 = data_reader.readU16( endian );
 
