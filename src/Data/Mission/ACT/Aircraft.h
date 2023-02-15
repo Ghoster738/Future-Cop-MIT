@@ -1,5 +1,5 @@
-#ifndef MISSION_ACT_TYPE_JET_COPTER_HEADER
-#define MISSION_ACT_TYPE_JET_COPTER_HEADER
+#ifndef MISSION_ACT_TYPE_AIRCRAFT_HEADER
+#define MISSION_ACT_TYPE_AIRCRAFT_HEADER
 
 #include "../ACTManager.h"
 #include <json/json.h>
@@ -16,7 +16,7 @@ namespace ACT {
  * Jet Copters, and Flying Fortresses have this ACT type.
  * Also, crime war also uses this type. For example drones are found to use this type as well.
  */
-class JetCopter : public ACTResource {
+class Aircraft : public ACTResource {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -66,9 +66,9 @@ protected:
 
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 public:
-    JetCopter();
-    JetCopter( const ACTResource& obj );
-    JetCopter( const JetCopter& obj );
+    Aircraft();
+    Aircraft( const ACTResource& obj );
+    Aircraft( const Aircraft& obj );
 
     virtual uint_fast8_t getTypeID() const;
     virtual std::string getTypeIDName() const;
@@ -83,8 +83,8 @@ public:
 
     Internal getInternal() const;
 
-    static std::vector<JetCopter*> getVector( Data::Mission::ACTManager& act_manager );
-    static const std::vector<JetCopter*> getVector( const Data::Mission::ACTManager& act_manager );
+    static std::vector<Aircraft*> getVector( Data::Mission::ACTManager& act_manager );
+    static const std::vector<Aircraft*> getVector( const Data::Mission::ACTManager& act_manager );
 };
 
 }
@@ -93,4 +93,4 @@ public:
 
 }
 
-#endif // MISSION_ACT_TYPE_X1A_UNIT_HEADER
+#endif // MISSION_ACT_TYPE_AIRCRAFT_HEADER

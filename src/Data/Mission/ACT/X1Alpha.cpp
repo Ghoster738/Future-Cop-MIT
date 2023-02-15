@@ -6,9 +6,9 @@
 
 #include <cassert>
 
-uint_fast8_t Data::Mission::ACT::X1AUnit::TYPE_ID = 1;
+uint_fast8_t Data::Mission::ACT::X1Alpha::TYPE_ID = 1;
 
-Json::Value Data::Mission::ACT::X1AUnit::makeJson() const {
+Json::Value Data::Mission::ACT::X1Alpha::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
@@ -27,7 +27,7 @@ Json::Value Data::Mission::ACT::X1AUnit::makeJson() const {
     return root;
 }
 
-bool Data::Mission::ACT::X1AUnit::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool Data::Mission::ACT::X1Alpha::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
     
@@ -49,27 +49,27 @@ bool Data::Mission::ACT::X1AUnit::readACTType( uint_fast8_t act_type, Utilities:
     return true;
 }
 
-Data::Mission::ACT::X1AUnit::X1AUnit() {
+Data::Mission::ACT::X1Alpha::X1Alpha() {
 }
 
-Data::Mission::ACT::X1AUnit::X1AUnit( const ACTResource& obj ) : ACTResource( obj ) {
+Data::Mission::ACT::X1Alpha::X1Alpha( const ACTResource& obj ) : ACTResource( obj ) {
 }
 
-Data::Mission::ACT::X1AUnit::X1AUnit( const X1AUnit& obj ) : ACTResource( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::X1Alpha::X1Alpha( const X1Alpha& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
-uint_fast8_t Data::Mission::ACT::X1AUnit::getTypeID() const {
+uint_fast8_t Data::Mission::ACT::X1Alpha::getTypeID() const {
     return TYPE_ID;
 }
 
-std::string Data::Mission::ACT::X1AUnit::getTypeIDName() const {
-    return "X1AUnit";
+std::string Data::Mission::ACT::X1Alpha::getTypeIDName() const {
+    return "X1Alpha";
 }
 
-size_t Data::Mission::ACT::X1AUnit::getSize() const {
+size_t Data::Mission::ACT::X1Alpha::getSize() const {
     return 20; // bytes
 }
 
-bool Data::Mission::ACT::X1AUnit::checkRSL() const {
+bool Data::Mission::ACT::X1Alpha::checkRSL() const {
     // rsl_data[0] is legs
     // rsl_data[1] have might be something to do with death? However, it is not used.
     // rsl_data[2] is cockpit
@@ -79,36 +79,36 @@ bool Data::Mission::ACT::X1AUnit::checkRSL() const {
     return rsl_data.size() == 6 && rsl_data[0].type == ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG && rsl_data[2].type == ObjResource::IDENTIFIER_TAG && rsl_data[3].type == ObjResource::IDENTIFIER_TAG && rsl_data[4].type == ObjResource::IDENTIFIER_TAG && rsl_data[5].type == ObjResource::IDENTIFIER_TAG;
 }
 
-Data::Mission::Resource* Data::Mission::ACT::X1AUnit::duplicate() const {
-    return new Data::Mission::ACT::X1AUnit( *this );
+Data::Mission::Resource* Data::Mission::ACT::X1Alpha::duplicate() const {
+    return new Data::Mission::ACT::X1Alpha( *this );
 }
 
-Data::Mission::ACTResource* Data::Mission::ACT::X1AUnit::duplicate( const ACTResource &original ) const {
-    auto copy_r = dynamic_cast<const X1AUnit*>( &original );
+Data::Mission::ACTResource* Data::Mission::ACT::X1Alpha::duplicate( const ACTResource &original ) const {
+    auto copy_r = dynamic_cast<const X1Alpha*>( &original );
     
     if( copy_r != nullptr)
-        return new Data::Mission::ACT::X1AUnit( *copy_r );
+        return new Data::Mission::ACT::X1Alpha( *copy_r );
     else
-        return new Data::Mission::ACT::X1AUnit( original );
+        return new Data::Mission::ACT::X1Alpha( original );
 }
 
-Data::Mission::ACT::X1AUnit::Internal Data::Mission::ACT::X1AUnit::getInternal() const {
+Data::Mission::ACT::X1Alpha::Internal Data::Mission::ACT::X1Alpha::getInternal() const {
     return internal;
 }
 
-std::vector<Data::Mission::ACT::X1AUnit*> Data::Mission::ACT::X1AUnit::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::X1AUnit::TYPE_ID );
+std::vector<Data::Mission::ACT::X1Alpha*> Data::Mission::ACT::X1Alpha::getVector( Data::Mission::ACTManager& act_manager ) {
+    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::X1Alpha::TYPE_ID );
 
-    std::vector<X1AUnit*> copy;
+    std::vector<X1Alpha*> copy;
 
     copy.reserve( to_copy.size() );
 
     for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<X1AUnit*>( (*it) ) );
+        copy.push_back( dynamic_cast<X1Alpha*>( (*it) ) );
 
     return copy;
 }
 
-const std::vector<Data::Mission::ACT::X1AUnit*> Data::Mission::ACT::X1AUnit::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::X1AUnit::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
+const std::vector<Data::Mission::ACT::X1Alpha*> Data::Mission::ACT::X1Alpha::getVector( const Data::Mission::ACTManager& act_manager ) {
+    return Data::Mission::ACT::X1Alpha::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
 }

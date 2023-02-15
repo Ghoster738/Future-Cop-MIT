@@ -6,9 +6,9 @@
 
 #include <cassert>
 
-uint_fast8_t Data::Mission::ACT::JetCopter::TYPE_ID = 9;
+uint_fast8_t Data::Mission::ACT::Aircraft::TYPE_ID = 9;
 
-Json::Value Data::Mission::ACT::JetCopter::makeJson() const {
+Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
@@ -54,7 +54,7 @@ Json::Value Data::Mission::ACT::JetCopter::makeJson() const {
     return root;
 }
 
-bool Data::Mission::ACT::JetCopter::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool Data::Mission::ACT::Aircraft::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
     
@@ -101,63 +101,63 @@ bool Data::Mission::ACT::JetCopter::readACTType( uint_fast8_t act_type, Utilitie
     return true;
 }
 
-Data::Mission::ACT::JetCopter::JetCopter() {
+Data::Mission::ACT::Aircraft::Aircraft() {
 }
 
-Data::Mission::ACT::JetCopter::JetCopter( const ACTResource& obj ) : ACTResource( obj ) {
+Data::Mission::ACT::Aircraft::Aircraft( const ACTResource& obj ) : ACTResource( obj ) {
 }
 
-Data::Mission::ACT::JetCopter::JetCopter( const JetCopter& obj ) : ACTResource( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::Aircraft::Aircraft( const Aircraft& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
-uint_fast8_t Data::Mission::ACT::JetCopter::getTypeID() const {
+uint_fast8_t Data::Mission::ACT::Aircraft::getTypeID() const {
     return TYPE_ID;
 }
 
-std::string Data::Mission::ACT::JetCopter::getTypeIDName() const {
-    return "JetCopter";
+std::string Data::Mission::ACT::Aircraft::getTypeIDName() const {
+    return "Aircraft";
 }
 
-size_t Data::Mission::ACT::JetCopter::getSize() const {
+size_t Data::Mission::ACT::Aircraft::getSize() const {
     return 64; // bytes
 }
 
-bool Data::Mission::ACT::JetCopter::checkRSL() const {
+bool Data::Mission::ACT::Aircraft::checkRSL() const {
     // rsl_data[0] is model
     // rsl_data[1] is probably destroyed model?
     return rsl_data.size() == 2 && rsl_data[0].type == ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG;
 }
 
-Data::Mission::Resource* Data::Mission::ACT::JetCopter::duplicate() const {
-    return new Data::Mission::ACT::JetCopter( *this );
+Data::Mission::Resource* Data::Mission::ACT::Aircraft::duplicate() const {
+    return new Data::Mission::ACT::Aircraft( *this );
 }
 
-Data::Mission::ACTResource* Data::Mission::ACT::JetCopter::duplicate( const ACTResource &original ) const {
-    return new Data::Mission::ACT::JetCopter( original );
-    auto copy_r = dynamic_cast<const JetCopter*>( &original );
+Data::Mission::ACTResource* Data::Mission::ACT::Aircraft::duplicate( const ACTResource &original ) const {
+    return new Data::Mission::ACT::Aircraft( original );
+    auto copy_r = dynamic_cast<const Aircraft*>( &original );
     
     if( copy_r != nullptr)
-        return new Data::Mission::ACT::JetCopter( *copy_r );
+        return new Data::Mission::ACT::Aircraft( *copy_r );
     else
-        return new Data::Mission::ACT::JetCopter( original );
+        return new Data::Mission::ACT::Aircraft( original );
 }
 
-Data::Mission::ACT::JetCopter::Internal Data::Mission::ACT::JetCopter::getInternal() const {
+Data::Mission::ACT::Aircraft::Internal Data::Mission::ACT::Aircraft::getInternal() const {
     return internal;
 }
 
-std::vector<Data::Mission::ACT::JetCopter*> Data::Mission::ACT::JetCopter::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::JetCopter::TYPE_ID );
+std::vector<Data::Mission::ACT::Aircraft*> Data::Mission::ACT::Aircraft::getVector( Data::Mission::ACTManager& act_manager ) {
+    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::Aircraft::TYPE_ID );
 
-    std::vector<JetCopter*> copy;
+    std::vector<Aircraft*> copy;
 
     copy.reserve( to_copy.size() );
 
     for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<JetCopter*>( (*it) ) );
+        copy.push_back( dynamic_cast<Aircraft*>( (*it) ) );
 
     return copy;
 }
 
-const std::vector<Data::Mission::ACT::JetCopter*> Data::Mission::ACT::JetCopter::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::JetCopter::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
+const std::vector<Data::Mission::ACT::Aircraft*> Data::Mission::ACT::Aircraft::getVector( const Data::Mission::ACTManager& act_manager ) {
+    return Data::Mission::ACT::Aircraft::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
 }

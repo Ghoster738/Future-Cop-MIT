@@ -15,7 +15,7 @@ namespace ACT {
  *
  * This is the vechilce that you pilot in the game.
  */
-class X1AUnit : public ACTResource {
+class X1Alpha : public ACTResource {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -41,9 +41,9 @@ protected:
 
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 public:
-    X1AUnit();
-    X1AUnit( const ACTResource& obj );
-    X1AUnit( const X1AUnit& obj );
+    X1Alpha();
+    X1Alpha( const ACTResource& obj );
+    X1Alpha( const X1Alpha& obj );
 
     virtual uint_fast8_t getTypeID() const;
     virtual std::string getTypeIDName() const;
@@ -58,8 +58,8 @@ public:
 
     Internal getInternal() const;
 
-    static std::vector<X1AUnit*> getVector( Data::Mission::ACTManager& act_manager );
-    static const std::vector<X1AUnit*> getVector( const Data::Mission::ACTManager& act_manager );
+    static std::vector<X1Alpha*> getVector( Data::Mission::ACTManager& act_manager );
+    static const std::vector<X1Alpha*> getVector( const Data::Mission::ACTManager& act_manager );
 };
 
 }
