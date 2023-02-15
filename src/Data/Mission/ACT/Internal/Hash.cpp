@@ -1,8 +1,8 @@
 #include "Hash.h"
 
-#include "../X1AUnit.h"
+#include "../X1Alpha.h"
 #include "../BaseTurret.h"
-#include "../JetCopter.h"
+#include "../Aircraft.h"
 #include "../Skycaptin.h"
 #include "../Prop.h"
 

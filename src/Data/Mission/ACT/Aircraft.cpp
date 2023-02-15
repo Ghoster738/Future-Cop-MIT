@@ -1,4 +1,4 @@
-#include "JetCopter.h"
+#include "Aircraft.h"
 
 #include "../ObjResource.h"
 
