@@ -70,7 +70,13 @@ size_t Data::Mission::ACT::X1AUnit::getSize() const {
 }
 
 bool Data::Mission::ACT::X1AUnit::checkRSL() const {
-    return rsl_data.size() == 1 && rsl_data[0].type == Data::Mission::ObjResource::IDENTIFIER_TAG;
+    // rsl_data[0] is legs
+    // rsl_data[1] have might be something to do with death? However, it is not used.
+    // rsl_data[2] is cockpit
+    // rsl_data[3] is gun
+    // rsl_data[4] is lights
+    // rsl_data[5] is the pilot of X1A only seen when X1A is destoryed
+    return rsl_data.size() == 6 && rsl_data[0].type == ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG && rsl_data[2].type == ObjResource::IDENTIFIER_TAG && rsl_data[3].type == ObjResource::IDENTIFIER_TAG && rsl_data[4].type == ObjResource::IDENTIFIER_TAG && rsl_data[5].type == ObjResource::IDENTIFIER_TAG;
 }
 
 Data::Mission::Resource* Data::Mission::ACT::X1AUnit::duplicate() const {
@@ -78,7 +84,6 @@ Data::Mission::Resource* Data::Mission::ACT::X1AUnit::duplicate() const {
 }
 
 Data::Mission::ACTResource* Data::Mission::ACT::X1AUnit::duplicate( const ACTResource &original ) const {
-    return new Data::Mission::ACT::X1AUnit( original );
     auto copy_r = dynamic_cast<const X1AUnit*>( &original );
     
     if( copy_r != nullptr)

@@ -107,11 +107,12 @@ size_t Data::Mission::ACT::BaseTurret::getSize() const {
     return 52; // bytes
 }
 
-#include <iostream>
-
 bool Data::Mission::ACT::BaseTurret::checkRSL() const {
-    std::cout << displayRSL() << std::endl;
-    return rsl_data.size() == 4 && rsl_data[0].type == Data::Mission::ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG && rsl_data[2].type == Data::Mission::ObjResource::IDENTIFIER_TAG && rsl_data[3].type == RSL_NULL_TAG;
+    // rsl_data[0] has alive gun.
+    // rsl_data[1] has destroyed gun?
+    // rsl_data[2] has alive base.
+    // rsl_data[3] has destroyed base.
+    return rsl_data.size() == 4 && rsl_data[0].type == ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG && rsl_data[2].type == ObjResource::IDENTIFIER_TAG && (rsl_data[3].type == RSL_NULL_TAG || rsl_data[3].type == ObjResource::IDENTIFIER_TAG);
 }
 
 Data::Mission::Resource* Data::Mission::ACT::BaseTurret::duplicate() const {

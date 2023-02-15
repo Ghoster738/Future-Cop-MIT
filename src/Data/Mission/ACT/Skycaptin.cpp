@@ -147,7 +147,7 @@ size_t Data::Mission::ACT::Skycaptin::getSize() const {
 }
 
 bool Data::Mission::ACT::Skycaptin::checkRSL() const {
-    return rsl_data.size() == 1 && rsl_data[0].type == Data::Mission::ObjResource::IDENTIFIER_TAG;
+    return rsl_data.size() == 2 && rsl_data[0].type == Data::Mission::ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG;
 }
 
 Data::Mission::Resource* Data::Mission::ACT::Skycaptin::duplicate() const {
