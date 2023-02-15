@@ -11,9 +11,10 @@ namespace Mission {
 namespace ACT {
 
 /**
- * This holds the base turret.
+ * This seems to hold flying units.
  *
- * This is the turret that always has the same side.
+ * Jet Copters, and Flying Fortresses have this ACT type.
+ * Also, crime war also uses this type. For example drones are found to use this type as well.
  */
 class JetCopter : public ACTResource {
 public:
