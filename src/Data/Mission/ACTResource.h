@@ -25,6 +25,9 @@ public:
     static const uint32_t SAC_IDENTI_TAG;
     
     static const double SECONDS_PER_GAME_TICK;
+    
+    
+    static constexpr uint32_t RSL_NULL_TAG = 0x4E554C4C;
 
 protected:
     static const uint32_t ACT_CHUNK_ID;
@@ -103,6 +106,7 @@ public:
     virtual uint_fast8_t getTypeID() const = 0;
     virtual size_t getSize() const = 0;
 
+    std::string displayRSL() const;
     virtual bool checkRSL() const = 0;
 
     static std::vector<ACTResource*> getVector( IFF &mission_file );

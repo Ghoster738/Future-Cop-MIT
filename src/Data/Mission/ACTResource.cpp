@@ -266,6 +266,25 @@ Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Ut
     return new Data::Mission::ACT::Unknown( *this );
 }
 
+std::string Data::Mission::ACTResource::displayRSL() const {
+    std::string rsl_text = "";
+    
+    for( auto i = rsl_data.begin(); i != rsl_data.end(); i++ ) {
+        rsl_text += "RSL[" + std::to_string( i - rsl_data.begin() ) + "] = {Type:";
+        
+        rsl_text += static_cast<char>( ((*i).type >> 24) & 0xFF );
+        rsl_text += static_cast<char>( ((*i).type >> 16) & 0xFF );
+        rsl_text += static_cast<char>( ((*i).type >>  8) & 0xFF );
+        rsl_text += static_cast<char>( ((*i).type >>  0) & 0xFF );
+        
+        rsl_text += ", Resource ID: " + std::to_string((*i).index);
+        
+        rsl_text += "};\n";
+    }
+    
+    return rsl_text;
+}
+
 std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( Data::Mission::IFF &mission_file ) {
     std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::ACTResource::IDENTIFIER_TAG );
 
