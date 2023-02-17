@@ -1,5 +1,6 @@
 #include "../../../Utilities/Image2D.h"
 #include "../../../Utilities/ImageFormat/QuiteOkImage.h"
+#include "../../../Utilities/ImageFormat/PortableNetworkGraphics.h"
 
 #include <glm/vec2.hpp>
 #include <iostream>
@@ -36,16 +37,22 @@ int main() {
         auto original = generateFractalImage( WIDTH, HEIGHT );
         
         Utilities::Buffer buffer;
-        Utilities::ImageFormat::QuiteOkImage qoi_reader;
+        Utilities::ImageFormat::QuiteOkImage qoi_format;
         
-        if( qoi_reader.write( original, buffer ) != 1 ) {
+        {
+            Utilities::Buffer buffer_2;
+            qoi_format.write( original, buffer_2 );
+            buffer_2.write( "original.qoi" );
+        }
+        
+        if( qoi_format.write( original, buffer ) != 1 ) {
             std::cout << name << ": has failed to write image to buffer" << std::endl;
             error_state = -1;
         }
         
         Utilities::Image2D read_image( 0, 0, *original.getPixelFormat() );
         
-        if( qoi_reader.read( buffer, read_image ) != 1 ) {
+        if( qoi_format.read( buffer, read_image ) != 1 ) {
             std::cout << name << ": has failed to read image from buffer" << std::endl;
             error_state = -1;
         }

@@ -238,18 +238,18 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageBase2D<Grid2DPlaceme
         
         buffer.addU8( 1 ); // Linear color space.
         
-        for( size_t x = 0; x < image_data.getWidth(); x++ )
+        for( size_t y = 0; y < image_data.getHeight(); y++ )
         {
-            for( size_t y = 0; y < image_data.getHeight(); y++ )
+            for( size_t x = 0; x < image_data.getWidth(); x++ )
             {
                 auto generic_color = image_data.readPixel( x, y );
                 
-                current_pixel.red   = generic_color.red   * 256.0;
-                current_pixel.green = generic_color.green * 256.0;
-                current_pixel.blue  = generic_color.blue  * 256.0;
+                current_pixel.red   = std::min( generic_color.red * 256.0, 255.);
+                current_pixel.green = std::min( generic_color.green * 256.0, 255.);
+                current_pixel.blue  = std::min( generic_color.blue * 256.0, 255.);
 
                 if( has_alpha )
-                    current_pixel.alpha = generic_color.alpha * 256.0;
+                    current_pixel.alpha = std::min( generic_color.alpha * 256.0, 255. );
                 
                 if( matchColor(current_pixel, this->previous_pixel) )
                 {
