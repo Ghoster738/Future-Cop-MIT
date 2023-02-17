@@ -43,6 +43,11 @@ add_executable(image_palette_2D_test Utilities/ImagePalette2D.cpp)
 target_link_libraries(image_palette_2D_test PRIVATE FC_IFF_IO)
 add_test( NAME image_palette_2D_test COMMAND $<TARGET_FILE:image_palette_2D_test> )
 
+# Test Quite Okay Image Code
+add_executable(qui_image_format_test Utilities/ImageFormat/QuiteOkayImage.cpp)
+target_link_libraries(qui_image_format_test PRIVATE FC_IFF_IO)
+add_test( NAME qui_image_format_test COMMAND $<TARGET_FILE:qui_image_format_test> )
+
 # Test Model Builder Code
 add_executable(model_builder_test Utilities/ModelBuilder.cpp)
 target_link_libraries(model_builder_test PRIVATE FC_IFF_IO)
