@@ -400,7 +400,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
                                     
                                     m_color.red = static_cast<float>( current_pixel.red ) / 256.0;
                                     m_color.green = static_cast<float>( current_pixel.green ) / 256.0;
-                                    m_color.blue = static_cast<float>( current_pixel.green ) / 256.0;
+                                    m_color.blue = static_cast<float>( current_pixel.blue ) / 256.0;
                                     m_color.alpha = static_cast<float>( current_pixel.alpha ) / 256.0;
                                     image_data.writePixel( placer_x, placer_y, m_color );
                                 }
@@ -434,7 +434,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
                         
                         m_color.red = static_cast<float>( current_pixel.red ) / 256.0;
                         m_color.green = static_cast<float>( current_pixel.green ) / 256.0;
-                        m_color.blue = static_cast<float>( current_pixel.green ) / 256.0;
+                        m_color.blue = static_cast<float>( current_pixel.blue ) / 256.0;
                         m_color.alpha = static_cast<float>( current_pixel.alpha ) / 256.0;
                         image_data.writePixel( placer_x, placer_y, m_color );
                         

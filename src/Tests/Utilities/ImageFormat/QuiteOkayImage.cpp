@@ -39,12 +39,6 @@ int main() {
         Utilities::Buffer buffer;
         Utilities::ImageFormat::QuiteOkImage qoi_format;
         
-        {
-            Utilities::Buffer buffer_2;
-            qoi_format.write( original, buffer_2 );
-            buffer_2.write( "original.qoi" );
-        }
-        
         if( qoi_format.write( original, buffer ) != 1 ) {
             std::cout << name << ": has failed to write image to buffer" << std::endl;
             error_state = -1;
@@ -55,6 +49,12 @@ int main() {
         if( qoi_format.read( buffer, read_image ) != 1 ) {
             std::cout << name << ": has failed to read image from buffer" << std::endl;
             error_state = -1;
+        }
+        
+        {
+            Utilities::Buffer buffer_2;
+            qoi_format.write( read_image, buffer_2 );
+            buffer_2.write( "read_image.qoi" );
         }
         
         if( testCopyOperator( original, read_image, WIDTH, HEIGHT, name ) ) {
@@ -68,16 +68,16 @@ int main() {
         auto original = generateFractalImage( WIDTH, HEIGHT );
         
         Utilities::Buffer buffer;
-        Utilities::ImageFormat::QuiteOkImage qoi_reader;
+        Utilities::ImageFormat::QuiteOkImage qoi_format;
         
-        if( qoi_reader.write( original, buffer ) != 1 ) {
+        if( qoi_format.write( original, buffer ) != 1 ) {
             std::cout << name << ": has failed to write image to buffer" << std::endl;
             error_state = -1;
         }
         
         Utilities::Image2D read_image( 0, 0, *original.getPixelFormat() );
         
-        if( qoi_reader.read( buffer, read_image ) != 1 ) {
+        if( qoi_format.read( buffer, read_image ) != 1 ) {
             std::cout << name << ": has failed to read image from buffer" << std::endl;
             error_state = -1;
         }
