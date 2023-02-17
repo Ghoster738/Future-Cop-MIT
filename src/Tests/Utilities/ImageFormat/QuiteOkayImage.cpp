@@ -51,12 +51,6 @@ int main() {
             error_state = -1;
         }
         
-        {
-            Utilities::Buffer buffer_2;
-            qoi_format.write( read_image, buffer_2 );
-            buffer_2.write( "read_image.qoi" );
-        }
-        
         if( testCopyOperator( original, read_image, WIDTH, HEIGHT, name ) ) {
             error_state = -1;
         }
