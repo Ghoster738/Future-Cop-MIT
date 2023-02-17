@@ -1,5 +1,12 @@
 #include "Colorizer.h"
+
+#include "Config.h"
+
 #include <fstream>
+
+namespace {
+const double SHADING_VALUE = 0.0078125;
+}
 
 Utilities::PixelFormatColor::GenericColor Data::Mission::Til::Colorizer::getColor(
     Data::Mission::TilResource::TileGraphics tile,
@@ -11,7 +18,7 @@ Utilities::PixelFormatColor::GenericColor Data::Mission::Til::Colorizer::getColo
         case 0b00: // Solid Monochrome
         case 0b01: // Dynamic Monochrome
             {
-                color.setValue( static_cast<double>( tile.shading ) * 0.0078125 );
+                color.setValue( static_cast<double>( tile.shading ) * SHADING_VALUE );
             }
             break;
         case 0b10: // Dynamic Color
@@ -22,7 +29,7 @@ Utilities::PixelFormatColor::GenericColor Data::Mission::Til::Colorizer::getColo
             break;
         case 0b11: // Lava Animation
             {
-                color.setValue( static_cast<double>( tile.shading ) * 0.0078125 );
+                color.setValue( static_cast<double>( tile.shading ) * SHADING_VALUE );
             }
             break;
     }
@@ -83,6 +90,8 @@ void inverseSet( const glm::u8vec3 seed, glm::u8vec3 *values_r ) {
 
 }
 
+#ifdef FC_OPTION_EXPERIMENTAL_BLEND_COLORS
+
 unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
 {
     if( result_r != nullptr )
@@ -99,9 +108,13 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    result_r[1] = getColorVec3( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ), input.colors );
-                    result_r[2] = getColorVec3( input.til_graphics.at( (input.tile_index + 2) % input.til_graphics.size() ), input.colors );
-                    result_r[3] = getColorVec3( input.til_graphics.at( (input.tile_index + 3) % input.til_graphics.size() ), input.colors );
+                    result_r[1].x = static_cast<double>( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ).shading ) * SHADING_VALUE;
+                    result_r[1].y = result_r[1].x;
+                    result_r[1].z = result_r[1].x;
+                    result_r[2].x = static_cast<double>( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ).getOtherShading() ) * SHADING_VALUE;
+                    result_r[2].y = result_r[2].x;
+                    result_r[2].z = result_r[2].x;
+                    result_r[3] = result_r[0];
                 }
                 break;
             case 0b10: // Dynamic Color
@@ -128,3 +141,22 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
     else
         return -1;
 }
+
+#else
+
+unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
+{
+    if( result_r != nullptr )
+    {
+        result_r[0] = getColorVec3( input.til_graphics[ input.tile_index ], input.colors );
+        result_r[1] = result_r[0];
+        result_r[2] = result_r[0];
+        result_r[3] = result_r[0];
+        
+        return 1;
+    }
+    else
+        return -1;
+}
+
+#endif

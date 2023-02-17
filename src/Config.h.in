@@ -13,4 +13,9 @@
 #endif // PNG_FOUND
 #endif // ZLIB_FOUND
 
+// This is a temporary value to enable when the
+// blended color algorithm gets found and is not
+//  ugly.
+#cmakedefine FC_OPTION_EXPERIMENTAL_BLEND_COLORS
+
 #endif // FUTURE_COP_MIT_CONFIG_H

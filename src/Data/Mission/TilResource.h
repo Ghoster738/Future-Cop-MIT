@@ -90,6 +90,10 @@ public:
             rectangle      = (bitfield >> 13) & ((1 << 1) - 1);
             type           = (bitfield >> 14) & ((1 << 2) - 1);
         }
+        
+        uint8_t getOtherShading() const {
+            return (texture_index) | (unknown_0 << 3) | (rectangle << 5) | (type << 6);
+        }
     };
     class ColorMap {
     private:
