@@ -90,49 +90,49 @@ int testColorSpace( const Utilities::PixelFormatColor &color_r, const Utilities:
     int error_state = 0;
     auto equal = generateFractalImage( 64, 64, color_r );
     auto non_equal = generateFractalImage( 24, 64, color_r );
-    error_state |= checkQOI( color_r.getName() + " (HEIGHT == WIDTH case)", equal, equal_status );
-    error_state |= checkQOI( color_r.getName() + " (HEIGHT != WIDTH case)", non_equal, nonequal_status );
+    error_state |= checkQOI( color_r.getName() + " (HEIGHT equal to WIDTH case)", equal, equal_status );
+    error_state |= checkQOI( color_r.getName() + " (HEIGHT NOT equal to WIDTH case)", non_equal, nonequal_status );
     return error_state;
 }
 
 int main() {
     int error_state = 0;
-    Utilities::ImageFormat::QuiteOkImage::QOIStatus status;
-    Utilities::ImageFormat::QuiteOkImage::QOIStatus last;
+    Utilities::ImageFormat::QuiteOkImage::QOIStatus equal_status;
+    Utilities::ImageFormat::QuiteOkImage::QOIStatus unequal_status;
     
     // Completely opaque test
-    status.used_RGBA  = false;
-    status.used_RGB   = true;
-    status.used_index = true;
-    status.used_diff  = true;
-    status.used_luma  = true;
-    status.used_run   = true;
-    last = status;
-    error_state |= testColorSpace( Utilities::PixelFormatColor_W8(), status, last );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8(), status, last );
+    equal_status.used_RGBA  = false;
+    equal_status.used_RGB   = true;
+    equal_status.used_index = true;
+    equal_status.used_diff  = true;
+    equal_status.used_luma  = true;
+    equal_status.used_run   = true;
+    unequal_status = equal_status;
+    error_state |= testColorSpace( Utilities::PixelFormatColor_W8(), equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8(), equal_status, unequal_status );
     
     // Full Transparencey test.
-    status.used_RGBA  = true;
-    status.used_RGB   = false;
-    status.used_index = true;
-    status.used_diff  = false;
-    status.used_luma  = false;
-    status.used_run   = true;
-    last = status;
-    error_state |= testColorSpace( Utilities::PixelFormatColor_W8A8(), status, last );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8(), status, last );
+    equal_status.used_RGBA  = true;
+    equal_status.used_RGB   = false;
+    equal_status.used_index = true;
+    equal_status.used_diff  = false;
+    equal_status.used_luma  = false;
+    equal_status.used_run   = true;
+    unequal_status = equal_status;
+    error_state |= testColorSpace( Utilities::PixelFormatColor_W8A8(), equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8(), equal_status, unequal_status );
     
     // Strange PS1 color format that Future Cop uses test.
-    status.used_RGBA  = true;
-    status.used_RGB   = true;
-    status.used_index = true;
-    status.used_diff  = false;
-    status.used_luma  = true;
-    status.used_run   = true;
-    last = status;
-    last.used_luma  = false;
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R5G5B5A1(), status, last );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_B5G5R5A1(), status, last );
+    equal_status.used_RGBA  = true;
+    equal_status.used_RGB   = true;
+    equal_status.used_index = true;
+    equal_status.used_diff  = false;
+    equal_status.used_luma  = true;
+    equal_status.used_run   = true;
+    unequal_status = equal_status;
+    unequal_status.used_luma  = false;
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R5G5B5A1(), equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_B5G5R5A1(), equal_status, unequal_status );
     
     return error_state;
 }
