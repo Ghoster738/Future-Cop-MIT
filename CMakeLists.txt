@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
+option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
 option( FC_OPTION_EXPERIMENTAL_BLEND_COLORS "Enable experimental blend colors on Ctils which makes maps." OFF )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
@@ -21,11 +22,20 @@ target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
 
 find_package( ZLIB )
 find_package( PNG )
-find_package( glm      REQUIRED )
 
-# Warn the user of the potential compilation error.
-if( GLM_VERSION VERSION_LESS 0.9.8 )
-   message( WARNING "GLM version is ${GLM_VERSION} which is not above 0.9.8. This version of GLM might produce compilation errors." )
+if( FCOption_GLM_VENDORED )
+  add_subdirectory(submodules/glm)
+else()
+  find_package( glm REQUIRED )
+  
+  # Warn the user of the potential compilation error.
+  if( GLM_VERSION VERSION_LESS 0.9.9.8 )
+    if( GLM_VERSION VERSION_LESS 0.9.9 )
+      message( ERROR "GLM version is ${GLM_VERSION} which is below 0.9.9. It will cause GLM to crash. To fix this error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
+    else() #Failed to release that GLM often lacks full version numbers leading to this complexity
+      message( WARNING "GLM version is ${GLM_VERSION} which is might be bellow 0.9.9.8. It might cause a compilation issue. To fix this potential compilation error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
+    endif()
+  endif()
 endif()
 
 find_package( JSON_CPP REQUIRED )
@@ -45,7 +55,7 @@ else()
   find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
 endif()
 
-find_package( OpenGL   REQUIRED)
+find_package( OpenGL REQUIRED)
 find_package( Git )
 
 if (SDL2_FOUND)
@@ -63,20 +73,20 @@ if(ZLIB_FOUND)
   endif()
 endif()
 
-include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${JSON_CPP_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
 if(ZLIB_FOUND)
-  target_link_libraries (FC_IFF_IO PRIVATE ${ZLIB_LIBRARY})
+  target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
   if(PNG_FOUND)
-    target_link_libraries (FC_IFF_IO PRIVATE ${PNG_LIBRARIES})
+    target_link_libraries (FC_IFF_IO PNG::PNG)
   endif()
 endif()
 
-target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
+target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
+target_link_libraries( FC_IFF_IO glm::glm )
 
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
