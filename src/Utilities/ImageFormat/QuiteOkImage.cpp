@@ -230,6 +230,12 @@ int Utilities::ImageFormat::QuiteOkImage::write( const ImageBase2D<Grid2DPlaceme
         else
         if( dynamic_cast<const Utilities::PixelFormatColor_W8A8*>( image_data.getPixelFormat() ) != nullptr )
             has_alpha = true;
+        else
+        if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr )
+            has_alpha = true;
+        else
+        if( dynamic_cast<const Utilities::PixelFormatColor_B5G5R5A1*>( image_data.getPixelFormat() ) != nullptr )
+            has_alpha = true;
         
         if( has_alpha )
             buffer.addU8( 4 );
@@ -378,8 +384,12 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
                             current_pixel.green = reader.readU8();
                             current_pixel.blue  = reader.readU8();
                             
-                            if( opcode == QOI_OP_RGBA )
+                            if( opcode == QOI_OP_RGBA ) {
                                 current_pixel.alpha = reader.readU8();
+                                status.used_RGBA = true;
+                            }
+                            else
+                                status.used_RGB = true;
                         }
                         else
                         {
@@ -404,6 +414,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
                                     m_color.alpha = static_cast<float>( current_pixel.alpha ) / 256.0;
                                     image_data.writePixel( placer_x, placer_y, m_color );
                                 }
+                                status.used_run = true;
                             }
                             else
                             if( opcode == QOI_OP_LUMA )
@@ -415,6 +426,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
                                 current_pixel.green = previous_pixel.green + diff_green;
                                 current_pixel.red   = previous_pixel.red  + ((0b11110000 & data_2) >> 4) + (diff_green - BIG_BIAS);
                                 current_pixel.blue  = previous_pixel.blue + ((0b00001111 & data_2) >> 0) + (diff_green - BIG_BIAS);
+                                status.used_luma  = true;
                             }
                             else
                             if( opcode == QOI_OP_DIFF )
@@ -422,10 +434,13 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
                                 current_pixel.red   = previous_pixel.red   + ((0b110000 & data) >> 4) - BIAS;
                                 current_pixel.green = previous_pixel.green + ((0b001100 & data) >> 2) - BIAS;
                                 current_pixel.blue  = previous_pixel.blue  + ((0b000011 & data) >> 0) - BIAS;
+                                status.used_diff = true;
                             }
                             else
-                            if( opcode == QOI_OP_INDEX )
+                            if( opcode == QOI_OP_INDEX ) {
                                 current_pixel = this->pixel_hash_table[ data ];
+                                status.used_index = true;
+                            }
                         }
                         
                         placer.getCoordinates( m, placer_x, placer_y );
