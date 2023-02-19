@@ -1012,7 +1012,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             if( bones.at( bone_index ).parent_amount > 1 )
                 model_output->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
         }
-        std::cout << std::endl;
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             auto current_bone = bones.begin() + bone_index;
