@@ -2,8 +2,6 @@
 #include <limits>
 #include <cassert>
 
-#include <iostream>
-
 const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
@@ -108,24 +106,26 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto parameters = getFunctionParameters( i );
                         auto code = getFunctionCode( i );
                         
-                        std::cout << "i = " << std::dec << i << std::endl;
-                        std::cout << "faction = " << std::dec << functions.at( i ).faction << std::endl;
-                        std::cout << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
-                        std::cout << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
-                        
-                        std::cout << std::hex << "Parameters = ";
-                        for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
-                            std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                        if( settings.output_level >= 3 ) {
+                            *settings.output_ref << "i = " << std::dec << i << std::endl;
+                            *settings.output_ref << "faction = " << std::dec << functions.at( i ).faction << std::endl;
+                            *settings.output_ref << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
+                            *settings.output_ref << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                            
+                            *settings.output_ref << std::hex << "Parameters = ";
+                            for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
+                                *settings.output_ref << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                            }
+                            for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
+                                assert( (*f) != 0 );
+                            }
+                            *settings.output_ref << std::endl;
+                            *settings.output_ref << std::hex << "Code = ";
+                            for( auto f = code.begin(); f < code.end(); f++ ) {
+                                *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                            }
+                            *settings.output_ref << std::dec << "\n" << std::endl;
                         }
-                        for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
-                            assert( (*f) != 0 );
-                        }
-                        std::cout << std::endl;
-                        std::cout << std::hex << "Code = ";
-                        for( auto f = code.begin(); f < code.end(); f++ ) {
-                            std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                        }
-                        std::cout << std::dec << "\n" << std::endl;
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );

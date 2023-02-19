@@ -118,13 +118,15 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
-        if( dynamic_cast<ACT::Unknown*>(this) == nullptr )
-            std::cout << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
+            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        }
         
         bool processed = readACTType( act_type, reader_act, endian );
         
-        if( dynamic_cast<ACT::Unknown*>(this) != nullptr )
-            std::cout << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
+            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        }
         
         return chunk_size;
     }
