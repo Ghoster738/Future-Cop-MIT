@@ -25,6 +25,7 @@ find_package( PNG )
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
+  target_link_libraries( FC_IFF_IO glm::glm )
 else()
   find_package( glm REQUIRED )
   
@@ -36,31 +37,14 @@ else()
       message( WARNING "GLM version is ${GLM_VERSION} which is might be bellow 0.9.9.8. It might cause a compilation issue. To fix this potential compilation error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
     endif()
   endif()
+
+  include_directories(${GLM_INCLUDE_DIRS})
 endif()
 
 find_package( JSON_CPP REQUIRED )
 
-# Use the vendor version if the SDL2 find files could not be found.
-if( FCOption_SDL2_VENDORED )
-  add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
-
-  # This is a workaround made to make this project compile. There might be a better way.
-  include_directories(${PROJECT_BINARY_DIR}/submodules/SDL2/include-config-/) # TODO Make sure this works.
-elseif( WIN32 )
-  # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
-  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
-else()
-  # 1. Look for a SDL2 package, 2. look for the SDL2 component and 3. fail if none can be found
-  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
-  find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
-endif()
-
 find_package( OpenGL REQUIRED)
 find_package( Git )
-
-if (SDL2_FOUND)
-    mark_as_advanced(SDL2_DIR)
-endif()
 
 # Seems to work only with "LEGACY" at this time
 set (OpenGL_GL_PREFERENCE "LEGACY" CACHE STRING "Set the OPENGL affinity, if multiple libraries are available")
@@ -74,7 +58,6 @@ if(ZLIB_FOUND)
 endif()
 
 include_directories(${JSON_CPP_INCLUDE_DIR})
-include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
@@ -86,7 +69,6 @@ if(ZLIB_FOUND)
 endif()
 
 target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
-target_link_libraries( FC_IFF_IO glm::glm )
 
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
@@ -117,34 +99,44 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
+add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
+add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
 
-target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
-target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
-target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
-
-if( WIN32 )
-  add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
+# Use the vendor version if the SDL2 find files could not be found.
+if( FCOption_SDL2_VENDORED )
+  add_subdirectory(submodules/SDL EXCLUDE_FROM_ALL)
 else()
-  add_executable(FCModelViewer src/FCModelViewer.cpp )
+  if( WIN32 )
+    # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
+    find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
+  else()
+    # 1. Look for a SDL2 package, 2. look for the SDL2 component and 3. fail if none can be found
+    find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
+    find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
+  endif()
+
+  include_directories(${SDL2_INCLUDE_DIRS})
 endif()
 
-target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
 if( TARGET SDL2::SDL2main )
   target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2main)
-endif()
-target_link_libraries (FCModelViewer PRIVATE FC_Engine)
-
-if( WIN32 )
-  add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
-else()
-  add_executable(FCMapViewer src/FCMapViewer.cpp )
-endif()
-
-target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
-if( TARGET SDL2::SDL2main )
   target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2main)
 endif()
+
+target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2)
+target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2)
+
+target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
+target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
+target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
+target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
+
+target_link_libraries (FCModelViewer PRIVATE FC_Engine)
 target_link_libraries (FCMapViewer PRIVATE FC_Engine)
+
+if (SDL2_FOUND)
+    mark_as_advanced(SDL2_DIR)
+endif()
 
 if( FCOption_TESTS )
   # This is the testing section.
