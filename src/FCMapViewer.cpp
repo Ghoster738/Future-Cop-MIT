@@ -460,7 +460,7 @@ int main(int argc, char** argv)
                     auto the_choosen_r = chooser.getWriterReference( image_screenshot );
                     if( the_choosen_r != nullptr ) {
                         the_choosen_r->write( image_screenshot, file);
-                        file.write( the_choosen_r->appendExtension( "dialog" ) );
+                        file.write( the_choosen_r->appendExtension( "screenshot" ) );
                     }
                 }
             }

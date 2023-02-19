@@ -216,7 +216,6 @@ int main(int argc, char** argv)
     loaded_IFFs.push_back( &resource );
 
     Graphics::Environment::initSystem();
-    std::cout << "Graphics::Environment::initSystem() loaded!" << std::endl;
 
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
