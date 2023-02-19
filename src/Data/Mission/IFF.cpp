@@ -51,6 +51,12 @@ namespace {
     const uint32_t MSIC_TAG = 0x4D534943; // Dynamic size
     // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
     const uint32_t SWVR_TAG = 0x53575652; // +32 bytes
+    // which is { 0x43, 0x41, 0x4E, 0x4D } or { 'C', 'A', 'N', 'M' } or "CANM"
+    const uint32_t PS1_CANM_TAG = 0x43414E4D; // Dynamic size
+    // which is { 0x56, 0x41, 0x47, 0x42 } or { 'V', 'A', 'G', 'B' } or "VAGB"
+    const uint32_t PS1_VAGB_TAG = 0x56414742; // Dynamic size
+    // which is { 0x56, 0x41, 0x47, 0x4D } or { 'V', 'A', 'G', 'M' } or "VAGM"
+    const uint32_t PS1_VAGM_TAG = 0x5641474D; // Dynamic size
 
     const std::map<uint32_t, Data::Mission::Resource*> file_type_list {
         { Data::Mission::ACTResource::IDENTIFIER_TAG, new Data::Mission::ACT::Unknown() },
@@ -352,7 +358,19 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
                     }
                     else
-                        std::cout << "TYPE_ID: 0x" << std::hex << TYPE_ID << std::dec << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                    if( TYPE_ID == PS1_CANM_TAG ) {
+                        // TODO Read in this case.
+                    }
+                    else
+                    if( TYPE_ID == PS1_VAGB_TAG ) {
+                        // TODO Read in this case.
+                    }
+                    else
+                    if( TYPE_ID == PS1_VAGM_TAG ) {
+                        // TODO Read in this case.
+                    }
+                    else
+                        std::cout << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                 }
                 else
                     error_in_read = true;
