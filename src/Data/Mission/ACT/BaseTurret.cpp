@@ -14,21 +14,33 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
 
     root["ACT"][NAME]["rotation"] = internal.rotation;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
+    root["ACT"][NAME]["uint16_0b"] = internal.uint16_0b;
     root["ACT"][NAME]["byte_0"] = internal.byte_0;
+    root["ACT"][NAME]["byte_0b"] = internal.byte_0b;
     root["ACT"][NAME]["byte_1"] = internal.byte_1;
+    root["ACT"][NAME]["byte_1b"] = internal.byte_1b;
     root["ACT"][NAME]["byte_2"] = internal.byte_2;
+    root["ACT"][NAME]["byte_2b"] = internal.byte_2b;
+    root["ACT"][NAME]["byte_3b"] = internal.byte_3b;
+    root["ACT"][NAME]["byte_4b"] = internal.byte_4b;
     root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
     root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
     root["ACT"][NAME]["byte_3"] = internal.byte_3;
     root["ACT"][NAME]["byte_4"] = internal.byte_4;
     root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
+    root["ACT"][NAME]["uint16_1b"] = internal.uint16_1b;
+    root["ACT"][NAME]["uint16_2b"] = internal.uint16_2b;
     root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
+    root["ACT"][NAME]["uint16_3b"] = internal.uint16_3b;
     root["ACT"][NAME]["byte_5"] = internal.byte_5;
+    root["ACT"][NAME]["byte_5b"] = internal.byte_5b;
     root["ACT"][NAME]["uint16_5"] = internal.uint16_5;
     root["ACT"][NAME]["uint16_6"] = internal.uint16_6;
+    root["ACT"][NAME]["uint16_4b"] = internal.uint16_4b;
     root["ACT"][NAME]["uint16_7"] = internal.uint16_7;
     root["ACT"][NAME]["uint16_8"] = internal.uint16_8;
     root["ACT"][NAME]["byte_6"] = internal.byte_6;
+    root["ACT"][NAME]["byte_6b"] = internal.byte_6b;
     root["ACT"][NAME]["uint16_9"] = internal.uint16_9;
 
     return root;
@@ -40,47 +52,39 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     
     internal.rotation = data_reader.readU32( endian );
     internal.uint16_0 = data_reader.readU16( endian );
-    
-    data_reader.readU16( endian ); // not zero!
-    
+    internal.uint16_0b = data_reader.readU16( endian );
     internal.byte_0 = data_reader.readU8();
-    
-    data_reader.readU8(); // not zero!
-    
+    internal.byte_0b = data_reader.readU8();
     internal.byte_1 = data_reader.readU8();
-    
-    data_reader.readU8(); // not zero!
-    
+    internal.byte_1b = data_reader.readU8();
     internal.byte_2 = data_reader.readU8();
-    
-    data_reader.readU8(); // not zero!
-    data_reader.readU16( endian ); // not zero!
-    
+    internal.byte_2b = data_reader.readU8();
+    internal.byte_3b = data_reader.readU8(); // JOKE 100 or 50. The rest 0.
+    internal.byte_4b = data_reader.readU8(); // Precint Assualt maps seems to be 24, Crime War 0
     internal.uint16_1 = data_reader.readU16( endian );
     internal.uint16_2 = data_reader.readU16( endian );
     internal.byte_3 = data_reader.readU8();
     internal.byte_4 = data_reader.readU8();
     internal.uint16_3 = data_reader.readU16( endian );
-    
-    data_reader.readU32( endian ); // not zero
-    
+    internal.uint16_1b = data_reader.readU16( endian ); // uint16_1b == uint16_2b Maybe current/default health? Never Zero.
+    internal.uint16_2b = data_reader.readU16( endian ); // Maybe current/default health?
     internal.uint16_4 = data_reader.readU16( endian );
-    
-    data_reader.readU16( endian ); // not zero
-    data_reader.readU8(); // not zero
-    
+    internal.uint16_3b = data_reader.readU16( endian );
+    internal.byte_5b = data_reader.readU8(); // not zero sometimes. 1 sometimes in Crime War. Always seems to be zero in Precint Assult maps.
     internal.byte_5 = data_reader.readU8();
     internal.uint16_5 = data_reader.readU16( endian );
     internal.uint16_6 = data_reader.readU16( endian );
-    
-    data_reader.readU16( endian ); // not zero
-    
+    internal.uint16_4b = data_reader.readU16( endian ); // Numbers found, 0, 0x28, 0x147, 0x1eb, 0x199, 0x214, 0x785, 0x851
     internal.uint16_7 = data_reader.readU16( endian );
     internal.uint16_8 = data_reader.readU16( endian );
     internal.byte_6 = data_reader.readU8();
     
-    data_reader.readU8(); // this is in fact a zero byte
-    data_reader.readU32( endian ); // not zero
+    data_reader.readU8();
+    data_reader.readU16( endian ); // 3 zero bytes
+    
+    internal.byte_6b = data_reader.readU8(); // Either 0 or 1.
+    
+    data_reader.readU8(); // Zero byte
     
     internal.uint16_9 = data_reader.readU16( endian );
 

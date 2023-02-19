@@ -63,9 +63,9 @@ protected:
 
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) = 0;
 
-    uint32_t readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
-    uint32_t readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
-    uint32_t readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
+    uint32_t readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
+    uint32_t readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
+    uint32_t readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
 public:
     ACTResource();
     ACTResource( const ACTResource *const obj );

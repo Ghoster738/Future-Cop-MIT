@@ -19,33 +19,38 @@ class BaseTurret : public ACTResource {
 public:
     static uint_fast8_t TYPE_ID;
 
-    // Ghoster738 - I could be reading BahKooj's notes wrong.
     struct Internal {
-        uint32_t  rotation; // 28
-        uint16_t  uint16_0; // 32
-        // 2 zero bytes // 34
-        uint8_t   byte_0; // hostile_to_it 36
-        // zero byte //37
-        uint8_t   byte_1; // minimap_color 38
-        // zero byte // 39
-        uint8_t   byte_2; // 40
-        // 3 zero bytes // 41 Note: 43 - texture offsets
-        uint16_t  uint16_1; // 43
-        uint16_t  uint16_2; // 45
-        uint8_t   byte_3; // 46
-        uint8_t   byte_4; // 47
-        uint16_t  uint16_3; // 48
-        // 4 zero bytes // 50 is where the team turret is hostile toward
-        uint16_t  uint16_4;
-        // 3 zero bytes
-        uint8_t   byte_5;
-        uint16_t  uint16_5;
-        uint16_t  uint16_6;
-        // 2 zero bytes
+        uint32_t  rotation; // 24
+        uint16_t  uint16_0; // 28
+        uint16_t  uint16_0b; // 30
+        uint8_t   byte_0; // 32
+        uint8_t   byte_0b; // 33
+        uint8_t   byte_1; // 34
+        uint8_t   byte_1b; // 35
+        uint8_t   byte_2; // 36
+        uint8_t   byte_2b; // 37
+        uint8_t   byte_3b; // 38
+        uint8_t   byte_4b; // 39
+        uint16_t  uint16_1; // 40
+        uint16_t  uint16_2; // 42
+        uint8_t   byte_3; // 44
+        uint8_t   byte_4; // 45
+        uint16_t  uint16_3; // 46
+        uint16_t  uint16_1b; // 48
+        uint16_t  uint16_2b; // 50
+        uint16_t  uint16_4; // 52
+        uint16_t  uint16_3b; // 54
+        uint8_t   byte_5b; // 56
+        uint8_t   byte_5; // 57
+        uint16_t  uint16_5; // 58
+        uint16_t  uint16_6; // 60
+        uint16_t  uint16_4b; // 62
         uint16_t  uint16_7;
         uint16_t  uint16_8;
         uint8_t   byte_6;
-        // 5 zero bytes
+        // 3 zero bytes
+        uint8_t   byte_6b;
+        // 1 zero byte
         uint16_t  uint16_9;
         
     } internal;

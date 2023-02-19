@@ -198,7 +198,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     this->type = FILE_IS_LITTLE_ENDIAN;
-                    std::cout << "\"" << file_path << "\" is a valid little endian mission file" << std::endl;
+                    std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
                     default_settings.is_opposite_endian = !Utilities::DataHandler::is_little_endian(); // TODO Remove this
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
@@ -206,7 +206,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 else
                 if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     this->type = FILE_IS_BIG_ENDIAN;
-                    std::cout << "\"" << file_path << "\" is a valid big endian mission file" << std::endl;
+                    std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Macintosh;
                     default_settings.is_opposite_endian = Utilities::DataHandler::is_little_endian();
                     default_settings.endian = Utilities::Buffer::Endian::BIG;

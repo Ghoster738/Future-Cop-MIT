@@ -80,30 +80,30 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     return root;
 }
 
-uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     // std::cout << std::hex;
 
     // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
 
-    if( !data_reader.empty() && ACT_CHUNK_ID == data_reader.readU32( endian ) )
+    if( !data_reader.empty() && ACT_CHUNK_ID == data_reader.readU32( endian ) ) // 0
     {
-        uint32_t chunk_size = data_reader.readU32( endian );
+        uint32_t chunk_size = data_reader.readU32( endian ); // 4
 
         // std::cout << "chunk_size = " << chunk_size << std::endl;
 
-        this->matching_number = data_reader.readU32( endian );
+        this->matching_number = data_reader.readU32( endian );  // 8
 
         // std::cout << "matching_number = " << matching_number << std::endl;
 
         const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
-        const uint_fast8_t act_type = data_reader.readU8();
+        const uint_fast8_t act_type = data_reader.readU8(); // 12
         
         // std::cout << std::dec;
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
-        data_reader.readU8();
-        data_reader.readU8();
-        data_reader.readU8();
+        data_reader.readU8(); // 13
+        data_reader.readU8(); // 14
+        data_reader.readU8(); // 15
         
         // position_x and position_y is though to fixed point numbers.
         // The fixed point numbers are basically divided by 2^13 or 8192.
@@ -112,9 +112,10 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         // Since 8192 is equal to 2^13. We can treat these numbers as
         // fixed points. My engine for now will simply use floating
         // points, but position_y and position_x will be treated like this.
-        position_y      = data_reader.readI32();
-        position_height = data_reader.readI32();
-        position_x      = data_reader.readI32();
+        position_y      = data_reader.readI32(); // 16
+        position_height = data_reader.readI32(); // 20
+        position_x      = data_reader.readI32(); // 24
+        // 28
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
@@ -133,7 +134,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
     else
         return 0;
 }
-uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     // const uint32_t Cobj_INT = 0x436F626A; // This spells out Cobj.
 
     if( RSL_CHUNK_ID == data_reader.readU32( endian ) )
@@ -163,7 +164,7 @@ uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
-uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     if( !data_reader.ended() && SAC_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
@@ -210,10 +211,10 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
 
         assert( data_reader.totalSize() != 0 );
 
-        if( readACTChunk( data_reader, settings.endian ) ) {
-            if( readRSLChunk( data_reader, settings.endian ) ) {
+        if( readACTChunk( data_reader, settings.endian, settings ) ) {
+            if( readRSLChunk( data_reader, settings.endian, settings ) ) {
                 assert( checkRSL() );
-                if( readSACChunk( data_reader, settings.endian ) ) {
+                if( readSACChunk( data_reader, settings.endian, settings ) ) {
                     return true;
                 }
                 else
