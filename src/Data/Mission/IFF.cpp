@@ -352,8 +352,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         int8_t some_char = '1';
                         
                         size_t dot_position = DATA_SIZE;
+                        const size_t STRING_LIMIT = DATA_SIZE - 12;
 
-                        for( uint32_t i = 0; i < DATA_SIZE - 12 && some_char != '\0'; i++ )
+                        for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
                         {
                             some_char = data_reader.readI8();
 
@@ -375,16 +376,20 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             const std::string expecting = std::string(".stream").substr( 0, ending.length() );
                             
                             if( ending.compare(expecting) != 0 ) {
-                                std::cout << "Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop." << std::endl;
+                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
+                                std::cout << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n";
+                                std::cout << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop." << std::endl;
                             }
                             else {
-                                std::cout << "It was \"" << name_swvr << "\", but now it is now this \"";
                                 name_swvr = name_swvr.substr( 0, dot_position );
-                                std::cout << name_swvr << "\"" << std::endl;
                             }
                         }
                         else
                         {
+                            if( name_swvr.length() != STRING_LIMIT - 1 ) {
+                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
+                                std::cout << "  SWVR name \"" << name_swvr << "\" probably invalid." << std::endl;
+                            }
                         }
                     }
                     else
