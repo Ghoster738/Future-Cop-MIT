@@ -364,17 +364,27 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 name_swvr += some_char;
                         }
                         
+                        // Now, the swvr name must be cleaned up.
+                        
+                        // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
                         if( name_swvr.length() > dot_position )
                         {
+                            // Get the ".stream" ending cut out of the swvr name.
+                            
                             const std::string ending = name_swvr.substr( dot_position );
                             const std::string expecting = std::string(".stream").substr( 0, ending.length() );
                             
                             if( ending.compare(expecting) != 0 ) {
-                                std::cout << "invalid line ending!" << std::endl;
+                                std::cout << "Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop." << std::endl;
+                            }
+                            else {
+                                std::cout << "It was \"" << name_swvr << "\", but now it is now this \"";
+                                name_swvr = name_swvr.substr( 0, dot_position );
+                                std::cout << name_swvr << "\"" << std::endl;
                             }
                         }
-                        else {
-                            std::cout << "There is no stream to cut on \"" << name_swvr << "\"" << std::endl;
+                        else
+                        {
                         }
                     }
                     else
