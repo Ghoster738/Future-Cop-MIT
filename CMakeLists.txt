@@ -105,6 +105,10 @@ add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
 # Use the vendor version if the SDL2 find files could not be found.
 if( FCOption_SDL2_VENDORED )
   add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
+
+   # This might fix anoying SDL2 but on whatever end caused it.
+  include_directories( ${PROJECT_BINARY_DIR}/submodules/SDL2/include )
+  configure_file(${PROJECT_BINARY_DIR}/submodules/SDL2/SDL_config.h.intermediate ${PROJECT_BINARY_DIR}/SDL_config.h COPYONLY)
 else()
   if( WIN32 )
     # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
