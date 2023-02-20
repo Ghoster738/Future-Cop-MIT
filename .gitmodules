@@ -7,6 +7,9 @@
 [submodule "submodules/jsoncpp"]
 	path = submodules/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
-[submodule "submodules/SDL2"]
+[submodule "submodules/glm"]
+	path = submodules/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "submodules/SDL"]
 	path = submodules/SDL2
 	url = https://github.com/libsdl-org/SDL.git

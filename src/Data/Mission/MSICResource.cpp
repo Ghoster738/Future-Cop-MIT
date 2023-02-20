@@ -29,6 +29,10 @@ uint32_t Data::Mission::MSICResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+bool Data::Mission::MSICResource::noResourceID() const {
+    return true;
+}
+
 bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
     bool file_is_not_valid = false;
 
@@ -77,7 +81,7 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::MSICResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::MSICResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     return sound.write( file_path, arguments );
 }
 

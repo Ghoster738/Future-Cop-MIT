@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <istream>
 
 namespace Utilities {
 
@@ -134,6 +135,8 @@ public:
 
         void writeU8( uint8_t content );
         void writeI8(  int8_t content );
+
+        size_t write( std::istream &buffer, size_t byte_amount );
         
         void addToBuffer( Buffer& buffer ) const;
     };

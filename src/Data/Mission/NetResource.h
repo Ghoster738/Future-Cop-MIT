@@ -24,7 +24,7 @@ public:
     private:
         uint32_t data; // This contains which node it goes to.
         int16_t pad;
-        glm::i16vec2 position;
+        glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for the unit for the ACT resource if BahKooJ is correct.
         int16_t spawn; // Could be a special node sepecifier.
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
@@ -61,7 +61,7 @@ public:
      * @param arguments The two commands are --dry for no exporting, and --NET_EXPORT_OBJ for exporting obj instead of json.
      * @return If there was an error while writing it will return false.
      */
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     static std::vector<NetResource*> getVector( IFF &mission_file );
     static const std::vector<NetResource*> getVector( const IFF &mission_file );

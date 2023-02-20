@@ -14,6 +14,8 @@ const std::string Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
 const uint32_t Data::Mission::ACTResource::SAC_IDENTI_TAG = 0x43736163; // which is { 0x43, 0x73, 0x61, 0x63 } or { 'C', s, 'a', 'c' } or "Csac"
 
+const double Data::Mission::ACTResource::SECONDS_PER_GAME_TICK = 1.0 / 60.0;
+
 const uint32_t Data::Mission::ACTResource::ACT_CHUNK_ID = 0x74414354; // which is { 0x74, 0x41, 0x43, 0x54 } or { 't', 'A', 'C', 'T' } or "tACT"
 const uint32_t Data::Mission::ACTResource::RSL_CHUNK_ID = 0x6152534c; // which is { 0x61, 0x52, 0x53, 0x4c } or { 'a', 'R', 'S', 'L' } or "aRSL"
 const uint32_t Data::Mission::ACTResource::SAC_CHUNK_ID = 0x74534143; // which is { 0x74, 0x53, 0x41, 0x43 } or { 't', 'S', 'A', 'C' } or "tSAC"
@@ -69,8 +71,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     root["resource"]["id"] = static_cast<unsigned int>( this->matching_number );
 
     if( tSAC.exists ) {
-        root["SAC"]["unk_0"] = tSAC.unk_0;
-        root["SAC"]["unk_1"] = tSAC.unk_1;
+        root["SAC"]["game_ticks"]  = tSAC.game_ticks;
+        root["SAC"]["spawn_limit"] = tSAC.spawn_limit;
         root["SAC"]["unk_2"] = tSAC.unk_2;
         root["SAC"]["unk_3"] = tSAC.unk_3;
     }
@@ -78,43 +80,61 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     return root;
 }
 
-uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     // std::cout << std::hex;
 
     // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
 
-    if( ACT_CHUNK_ID == data_reader.readU32( endian ) )
+    if( !data_reader.empty() && ACT_CHUNK_ID == data_reader.readU32( endian ) ) // 0
     {
-        uint32_t chunk_size = data_reader.readU32( endian );
+        uint32_t chunk_size = data_reader.readU32( endian ); // 4
 
         // std::cout << "chunk_size = " << chunk_size << std::endl;
 
-        this->matching_number = data_reader.readU32( endian );
+        this->matching_number = data_reader.readU32( endian );  // 8
 
         // std::cout << "matching_number = " << matching_number << std::endl;
 
-        const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 4;
-        const uint_fast8_t act_type = data_reader.readU8();
-
-        // std::cout << "ACT_SIZE = " << ACT_SIZE << std::endl;
-        // std::cout << "act_type = " << act_type << std::endl;
+        const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
+        const uint_fast8_t act_type = data_reader.readU8(); // 12
+        
         // std::cout << std::dec;
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
-        data_reader.readU8();
-        data_reader.readU8();
-        data_reader.readU8();
-
+        data_reader.readU8(); // 13
+        data_reader.readU8(); // 14
+        data_reader.readU8(); // 15
+        
+        // position_x and position_y is though to fixed point numbers.
+        // The fixed point numbers are basically divided by 2^13 or 8192.
+        // Since a Ctil is 131072x131072 and it has 16x16 tiles,
+        // we can divide 131072/16 which gives 8192.
+        // Since 8192 is equal to 2^13. We can treat these numbers as
+        // fixed points. My engine for now will simply use floating
+        // points, but position_y and position_x will be treated like this.
+        position_y      = data_reader.readI32(); // 16
+        position_height = data_reader.readI32(); // 20
+        position_x      = data_reader.readI32(); // 24
+        // 28
+        
         auto reader_act = data_reader.getReader( ACT_SIZE );
-
+        
+        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
+            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        }
+        
         bool processed = readACTType( act_type, reader_act, endian );
-
+        
+        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
+            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        }
+        
         return chunk_size;
     }
     else
         return 0;
 }
-uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     // const uint32_t Cobj_INT = 0x436F626A; // This spells out Cobj.
 
     if( RSL_CHUNK_ID == data_reader.readU32( endian ) )
@@ -133,14 +153,9 @@ uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &da
         for( uint32_t i = 0; i < rsl_entry_amount; i++ )
         {
             uint32_t type  = data_reader.readU32( endian );
-            uint32_t index = data_reader.readU32( endian );
+            uint32_t resource_id = data_reader.readU32( endian );
 
-            // Windows ConFt test 12 is the lowest value for some reason.
-            // For mac and win on M1A1 this is not true.
-            // if( type == Cobj_INT )
-            //    assert( index >= 12 );
-
-            rsl_data.push_back( { type, index } );
+            rsl_data.push_back( { type, resource_id } );
         }
 
         return chunk_size;
@@ -149,7 +164,7 @@ uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
-uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     if( !data_reader.ended() && SAC_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
@@ -169,8 +184,8 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         {
             tSAC.exists = true;
 
-            tSAC.unk_0 = sac_reader.readU16( endian );
-            tSAC.unk_1 = sac_reader.readU16( endian );
+            tSAC.game_ticks  = sac_reader.readI16( endian );
+            tSAC.spawn_limit = sac_reader.readU16( endian );
             tSAC.unk_2 = sac_reader.readU16( endian );
             tSAC.unk_3 = sac_reader.readU16( endian );
         }
@@ -194,15 +209,12 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
     {
         auto data_reader = this->data_p->getReader();
 
-        Utilities::Buffer::Endian endian = Utilities::Buffer::NO_SWAP;
+        assert( data_reader.totalSize() != 0 );
 
-        if( settings.is_opposite_endian )
-            endian = Utilities::Buffer::SWAP;
-
-        if( readACTChunk( data_reader, endian ) ) {
-            if( readRSLChunk( data_reader, endian ) ) {
-                if( readSACChunk( data_reader, endian ) ) {
-                    assert( checkRSL() );
+        if( readACTChunk( data_reader, settings.endian, settings ) ) {
+            if( readRSLChunk( data_reader, settings.endian, settings ) ) {
+                assert( checkRSL() );
+                if( readSACChunk( data_reader, settings.endian, settings ) ) {
                     return true;
                 }
                 else
@@ -218,7 +230,7 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::ACTResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::ACTResource::write(  const std::string& file_path, const std::vector<std::string> & arguments ) const {
     std::ofstream resource;
     bool enable_export = true;
 
@@ -229,7 +241,7 @@ int Data::Mission::ACTResource::write( const char *const file_path, const std::v
 
     if( enable_export )
     {
-        resource.open( std::string(file_path) + ".json", std::ios::out );
+        resource.open( file_path + ".json", std::ios::out );
 
         if( resource.is_open() )
         {
@@ -258,6 +270,25 @@ Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Ut
             return Data::Mission::ACT::Hash::generateAct( this, type_id );
     }
     return new Data::Mission::ACT::Unknown( *this );
+}
+
+std::string Data::Mission::ACTResource::displayRSL() const {
+    std::string rsl_text = "";
+    
+    for( auto i = rsl_data.begin(); i != rsl_data.end(); i++ ) {
+        rsl_text += "RSL[" + std::to_string( i - rsl_data.begin() ) + "] = {Type:";
+        
+        rsl_text += static_cast<char>( ((*i).type >> 24) & 0xFF );
+        rsl_text += static_cast<char>( ((*i).type >> 16) & 0xFF );
+        rsl_text += static_cast<char>( ((*i).type >>  8) & 0xFF );
+        rsl_text += static_cast<char>( ((*i).type >>  0) & 0xFF );
+        
+        rsl_text += ", Resource ID: " + std::to_string((*i).index);
+        
+        rsl_text += "};\n";
+    }
+    
+    return rsl_text;
 }
 
 std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( Data::Mission::IFF &mission_file ) {

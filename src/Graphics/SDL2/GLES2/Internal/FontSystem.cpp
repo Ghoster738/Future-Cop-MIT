@@ -1,7 +1,7 @@
 #include "FontSystem.h"
 #include <iostream>
 #include <cassert>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 namespace {
     /**
@@ -317,11 +317,20 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
 Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
+    bool has_backup = false;
+
     for( int i = 0; i < font_resources.size(); i++ )
     {
         this->font_bank.push_back( Font() );
 
         assert( font_resources[i] != nullptr );
+        
+        this->font_bank.back().resource_id = font_resources[i]->getResourceID();
+
+        if( !has_backup && font_resources[i]->getGlyph( 0x7F ) != nullptr ) {
+            this->invalid_text_resource_id = this->font_bank.back().resource_id;
+            has_backup = true;
+        }
 
         // Set the pointer to
         this->font_bank.back().font_resource_r = font_resources[i];
@@ -360,12 +369,24 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         this->font_bank.back().texture.setFilters( 0, GL_NEAREST, GL_LINEAR );
         this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     }
+
+    assert( has_backup == true );
 }
 
 Graphics::SDL2::GLES2::Internal::FontSystem::~FontSystem() {
     for( size_t i = 0; i < font_bank.size(); i++ ) {
         font_bank[i].font_resource_r = nullptr;
     }
+}
+
+std::map<uint32_t, Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> Graphics::SDL2::GLES2::Internal::FontSystem::getText2D() {
+    std::map<uint32_t, Text2D*> font_map;
+    
+    for( auto a = font_bank.begin(); a != font_bank.end(); a++ ) {
+        font_map[ (*a).resource_id ] = (*a).allocateText2D();
+    }
+    
+    return font_map;
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::getNumFonts() const {
@@ -457,7 +478,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &projection, const std::vector<Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array ) {
+void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &projection, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array ) {
     // Use the text shader.
     program.use();
 
@@ -466,7 +487,7 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &project
 
     for( auto i = text_2d_array.begin(); i != text_2d_array.end(); i++ )
     {
-        (*i)->getFont()->texture.bind( 0, texture_uniform_id );
-        (*i)->draw( vertex_array );
+        (*i).second->getFont()->texture.bind( 0, texture_uniform_id );
+        (*i).second->draw( vertex_array );
     }
 }

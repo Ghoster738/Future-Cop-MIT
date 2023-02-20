@@ -39,6 +39,10 @@ uint_fast8_t Data::Mission::ACT::Unknown::getTypeID() const {
     return this->act_type;
 };
 
+std::string Data::Mission::ACT::Unknown::getTypeIDName() const {
+    return "Unknown: {T:" + std::to_string( getTypeID() ) + ",S:" + std::to_string( getSize() ) + "}";
+};
+
 size_t Data::Mission::ACT::Unknown::getSize() const {
     return this->act_size;
 }
@@ -49,4 +53,8 @@ bool Data::Mission::ACT::Unknown::checkRSL() const {
 
 Data::Mission::Resource* Data::Mission::ACT::Unknown::duplicate() const {
     return new Unknown( *this );
+}
+
+Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTResource &original ) const {
+    return new Unknown( original );
 }

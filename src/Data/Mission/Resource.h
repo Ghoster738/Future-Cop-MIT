@@ -37,6 +37,8 @@ private:
     
     // This data is contained within the tag.
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
+
+    std::string swvr_name; // This is the SWVR name of the resource.
 public:
     Resource();
     Resource( const Resource &obj );
@@ -53,6 +55,16 @@ public:
      * @note the behavior can be overriden by successors of this class.
      */
     virtual uint32_t getResourceTagID() const = 0;
+
+    /**
+     * Sets the SWVR string. To be used by loaders only.
+     */
+    void setSWVRName( std::string name );
+
+    /**
+     * This gets the SWVR name.
+     */
+    std::string getSWVRName() const;
 
     /**
      * Sets the index number of the file. To be used by loaders only.
@@ -83,7 +95,13 @@ public:
     /**
      * @return The resource id for this resource.
      */
-    uint32_t getResourceID() const;
+    virtual uint32_t getResourceID() const;
+    
+    /**
+     * @note If this value is true then the method getResourceID() would use getIndexNumber() added by one to get a resource id.
+     * @return true if the resource ID is either not read properely or does not exist.
+     */
+    virtual bool noResourceID() const;
 
     /**
      * Sets the offset in which this file starts. To be used by loaders only.
@@ -116,7 +134,7 @@ public:
      * This is to be used when the file is finished loading everything into raw_data.
      * Be very sure that everything has been loaded before calling this, otherwise there could be errors.
      * However, if you are only using this base class, then it will do nothing and return false!
-     * @param settings_ref This holds all the settings.
+     * @param settings This holds all the settings.
      * @return Always false since the base class does not have the implementation.
      */
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS ) = 0;
@@ -156,15 +174,15 @@ public:
      * @param arguments These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     /**
-     * This method writes the resource's raw_data, as it was in the file format. Byte to byte.
+     * This method writes the resource's raw\_data, as it was in the file format. Byte to byte.
      * @param file_path This is the file path to the file to write to.
      * @param arguments These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    int writeRaw( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    int writeRaw( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     friend bool operator == ( const Resource& l_operand, const Resource& r_operand );
     friend bool operator != ( const Resource& l_operand, const Resource& r_operand );

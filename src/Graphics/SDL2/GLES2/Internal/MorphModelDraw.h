@@ -49,7 +49,7 @@ public:
      * Link every shader to the program.
      * @return false if one of the shaders are not loaded.
      */
-    int compilieProgram();
+    int compileProgram();
 
     /**
      * This draws all of the models with the morph attribute.
@@ -57,6 +57,8 @@ public:
      * @param This is the camera data to be passed into world.
      */
     void draw( const Camera &camera );
+    
+    virtual void advanceTime( float seconds_passed );
 };
 
 }

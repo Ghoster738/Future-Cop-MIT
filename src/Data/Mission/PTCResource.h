@@ -35,7 +35,7 @@ public:
 
     virtual uint32_t getResourceTagID() const;
     /**
-     * This method organizes the added tiles, and makes the debug_map_display.
+     * This method organizes the added tiles, and makes the debug\_map\_display.
      */
     bool makeTiles( const std::vector<TilResource*> &tile_array_r );
 
@@ -79,9 +79,13 @@ public:
      * @param agruments --dry for no writing operations.
      * @return zero if it is a dry run or the return results of the Image2D write operations.
      */
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
     
     int writeEntireMap( std::string file_path ) const;
+    
+    float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
+    float getRayCast2D( float x, float y ) const;
+    float getRayCastDownward( float x, float y, float from_highest_point ) const;
 
     static std::vector<PTCResource*> getVector( IFF &mission_file );
     static const std::vector<PTCResource*> getVector( const IFF &mission_file );

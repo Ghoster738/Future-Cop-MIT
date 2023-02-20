@@ -70,9 +70,9 @@ float juliaFractal( glm::vec2 uv )
     int iteration = 0;
     float tempx;
     
-    while( z.x*z.x + z.y*z.y < escape_radius*escape_radius && iteration < max_iterations )
+    while( z.x * z.x + z.y * z.y < escape_radius * escape_radius && iteration < max_iterations )
     {
-        tempx = z.x*z.x - z.y*z.y;
+        tempx = z.x * z.x - z.y * z.y;
         z.y = 2.0 * z.x * z.y + c.y;
         z.x = tempx + c.x;
         

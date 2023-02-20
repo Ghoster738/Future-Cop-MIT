@@ -22,9 +22,6 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t  pos_x; // position x
-        // 4 zero bytes?
-        uint32_t  pos_y; // position y
         uint16_t  uint16_0; // Unknown
         uint16_t  uint16_1; // Unknown
         uint16_t  uint16_2; // Unknown
@@ -43,16 +40,19 @@ protected:
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 public:
     Prop();
-    Prop( const ACTResource *const obj );
+    Prop( const ACTResource& obj );
     Prop( const Prop& obj );
 
     virtual uint_fast8_t getTypeID() const;
+    virtual std::string getTypeIDName() const;
 
     virtual size_t getSize() const;
 
     virtual bool checkRSL() const;
 
-    virtual Resource* duplicate() const; // TODO think of a better way.
+    virtual Resource* duplicate() const;
+    
+    virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
 

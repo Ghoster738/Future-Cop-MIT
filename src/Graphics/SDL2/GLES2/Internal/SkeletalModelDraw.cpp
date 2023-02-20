@@ -2,7 +2,7 @@
 #include "../ModelInstance.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <cassert>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <iostream>
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames ) {
@@ -106,7 +106,12 @@ Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
 }
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
-
+    // Delete the models first.
+    for( auto i = model_animation_p.begin(); i != model_animation_p.end(); i++ )
+    {
+        delete (*i).second; // First delete the pointer.
+        (*i).second = nullptr; // Then set the pointer to null.
+    }
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::getDefaultVertexShader() {
@@ -120,8 +125,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::getDefaultVert
         return default_vertex_shader;
 }
 
-int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram();
+int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compileProgram() {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram();
     bool uniform_failed = false;
     bool attribute_failed = false;
 
@@ -144,22 +149,19 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compilieProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::setNumModelTypes( size_t model_amount ) {
-    Graphics::SDL2::GLES2::Internal::StaticModelDraw::setNumModelTypes( model_amount );
-    
-    model_animation.resize( model_amount, nullptr );
-}
-
-int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type, index, textures );
+int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type, obj_identifier, textures );
     
     if( ret >= 0 )
     {
-        model_animation[ index ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
+        if( model_animation_p[ obj_identifier ] != nullptr )
+            delete model_animation_p[ obj_identifier ];
+        
+        model_animation_p[ obj_identifier ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
 
         for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
         {
-            glm::mat4* frame_r = model_animation[ index ]->getFrames( frame_index, 0 );
+            glm::mat4* frame_r = model_animation_p[ obj_identifier ]->getFrames( frame_index, 0 );
 
             for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
             {
@@ -167,7 +169,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
             }
         }
 
-        models.at( index )->setFrameAmount( model_type->getNumJointFrames() );
+        models_p.at( obj_identifier )->mesh.setFrameAmount( model_type->getNumJointFrames() );
     }
     
     return ret;
@@ -189,21 +191,26 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
     program.use();
 
     // Check if there is even a shiney texture.
-    if( shiney_texture_ref != nullptr )
-        shiney_texture_ref->bind( 1, sepecular_texture_uniform_id );
+    if( shiney_texture_r != nullptr )
+        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
     // Traverse the models.
-    for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
+    for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = models.at( model_array.at( d )->mesh_index );
-        SkeletalAnimation *animate = model_animation.at( model_array.at( d )->mesh_index );
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = nullptr;
+        SkeletalAnimation *animate_r = nullptr;
+        
+        if( models_p.find( ( *d ).first ) != models_p.end()  ) {
+            mesh_r = &( *d ).second->mesh;
+            animate_r = model_animation_p.at( ( *d ).first );
+        }
 
         // Check if the mesh is a valid pointer.
-        if( mesh != nullptr && animate != nullptr )
+        if( mesh_r != nullptr && animate_r != nullptr )
         {
             // Go through every instance that refers to this mesh.
-            for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
+            for( auto instance = ( *d ).second->instances_r.begin(); instance != ( *d ).second->instances_r.end(); instance++ )
             {
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
@@ -223,12 +230,29 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &cam
 
                 int current_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
 
-                assert( animate->getFrames( current_frame, 0 ) != nullptr );
-                assert( animate->getFrames( current_frame, animate->getNumBones() - 1 ) != nullptr );
+                assert( animate_r->getFrames( current_frame, 0 ) != nullptr );
+                assert( animate_r->getFrames( current_frame, animate_r->getNumBones() - 1 ) != nullptr );
 
-                glUniformMatrix4fv( mat4_array_uniform_id, animate->getNumBones(), GL_FALSE, glm::value_ptr( *animate->getFrames( current_frame, 0 ) ) );
+                glUniformMatrix4fv( mat4_array_uniform_id, animate_r->getNumBones(), GL_FALSE, glm::value_ptr( *animate_r->getFrames( current_frame, 0 ) ) );
 
-                mesh->draw( 0, diffusive_texture_uniform_id );
+                mesh_r->draw( 0, diffusive_texture_uniform_id );
+            }
+        }
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seconds_passed )
+{
+    const float FRAME_SPEED = 10.0;
+
+    // Go through every model array.
+    for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
+        // Get the mesh.
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
+        
+        if( mesh_r->getFrameAmount() > 0 ) {
+            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+                (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
             }
         }
     }

@@ -10,18 +10,17 @@ uint_fast8_t Data::Mission::ACT::Prop::TYPE_ID = 96;
 
 Json::Value Data::Mission::ACT::Prop::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
+    const std::string NAME = getTypeIDName();
 
-    root["ACT"]["Prop"]["position"]["x"] = internal.pos_x;
-    root["ACT"]["Prop"]["position"]["y"] = internal.pos_y;
-    root["ACT"]["Prop"]["int16_0"]       = internal.uint16_0;
-    root["ACT"]["Prop"]["int16_1"]       = internal.uint16_1;
-    root["ACT"]["Prop"]["int16_2"]       = internal.uint16_2;
-    root["ACT"]["Prop"]["angle?"]        = internal.uint16_3;
-    root["ACT"]["Prop"]["byte 0"]        = internal.byte_0;
-    root["ACT"]["Prop"]["layer?"]        = internal.byte_1;
-    root["ACT"]["Prop"]["byte 2"]        = internal.byte_2;
-    root["ACT"]["Prop"]["spin?"]         = internal.spin;
-    root["ACT"]["Prop"]["byte 3"]        = internal.byte_3;
+    root["ACT"][NAME]["int16_0"] = internal.uint16_0;
+    root["ACT"][NAME]["int16_1"] = internal.uint16_1;
+    root["ACT"][NAME]["int16_2"] = internal.uint16_2;
+    root["ACT"][NAME]["angle?"]  = internal.uint16_3;
+    root["ACT"][NAME]["byte 0"]  = internal.byte_0;
+    root["ACT"][NAME]["layer?"]  = internal.byte_1;
+    root["ACT"][NAME]["byte 2"]  = internal.byte_2;
+    root["ACT"][NAME]["spin?"]   = internal.spin;
+    root["ACT"][NAME]["byte 3"]  = internal.byte_3;
 
     return root;
 }
@@ -29,12 +28,6 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
 bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
     assert(data_reader.totalSize() == this->getSize());
-
-    internal.pos_x = data_reader.readU32( endian );
-
-    data_reader.readU32( endian ); // Skip zeros.
-
-    internal.pos_y = data_reader.readU32( endian );
 
     internal.uint16_0 = data_reader.readU16( endian );
     internal.uint16_1 = data_reader.readU16( endian );
@@ -56,9 +49,10 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     return true;
 }
 
-Data::Mission::ACT::Prop::Prop() {}
+Data::Mission::ACT::Prop::Prop() {
+}
 
-Data::Mission::ACT::Prop::Prop( const ACTResource *const obj ) : ACTResource( obj ) {
+Data::Mission::ACT::Prop::Prop( const ACTResource& obj ) : ACTResource( obj ) {
 }
 
 Data::Mission::ACT::Prop::Prop( const Prop& obj ) : ACTResource( obj ), internal( obj.internal ) {}
@@ -67,8 +61,12 @@ uint_fast8_t Data::Mission::ACT::Prop::getTypeID() const {
     return TYPE_ID;
 }
 
+std::string Data::Mission::ACT::Prop::getTypeIDName() const {
+    return "Prop";
+}
+
 size_t Data::Mission::ACT::Prop::getSize() const {
-    return 28; // bytes
+    return 16; // bytes
 }
 
 bool Data::Mission::ACT::Prop::checkRSL() const {
@@ -77,6 +75,15 @@ bool Data::Mission::ACT::Prop::checkRSL() const {
 
 Data::Mission::Resource* Data::Mission::ACT::Prop::duplicate() const {
     return new Data::Mission::ACT::Prop( *this );
+}
+
+Data::Mission::ACTResource* Data::Mission::ACT::Prop::duplicate( const ACTResource &original ) const {
+    auto copy_r = dynamic_cast<const Prop*>( &original );
+    
+    if( copy_r != nullptr)
+        return new Data::Mission::ACT::Prop( *copy_r );
+    else
+        return new Data::Mission::ACT::Prop( original );
 }
 
 Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const {

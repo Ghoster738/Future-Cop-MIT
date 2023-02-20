@@ -280,7 +280,7 @@ Data::Mission::Resource * Data::Mission::PYRResource::duplicate() const {
     return new Data::Mission::PYRResource( *this );
 }
 
-int Data::Mission::PYRResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::PYRResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool export_prime_bw = false;
     bool enable_export = true;
     int return_value = 0;

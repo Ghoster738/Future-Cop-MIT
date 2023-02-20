@@ -2,6 +2,7 @@
 #include "../../Environment.h" // Include the interface Environment class
 #include "Environment.h" // Include the internal Environment class
 #include "cassert"
+#include <iostream>
 
 Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     Graphics::Text2DBuffer( env )
@@ -20,84 +21,88 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Environment &env ) :
     if( text_2D_expand_factor < 0x100 )
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
-    loadFontLibrary();
+    text_data_p = env.text_draw_routine_p->getText2D();
 }
 
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
-    for( auto i = text_data.begin(); i != text_data.end(); i++ )
-        delete (*i);
+    for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
+        delete (*i).second;
 }
 
 
-int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &environment, const std::vector<Data::Mission::FontResource*> &fonts ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data ) {
     
-    if( environment.text_draw_routine_p != nullptr )
-        delete environment.text_draw_routine_p;
+    if( env_r.text_draw_routine_p != nullptr )
+        delete env_r.text_draw_routine_p;
+    
+    std::vector<Data::Mission::FontResource*> fonts_r;
+    bool has_resource_id_1 = false;
+    bool has_resource_id_2 = false;
+    bool has_del_symbol = false;
 
-    if( fonts.size() != 0 )
-    {
-        environment.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts );
-        environment.text_draw_routine_p->setVertexShader();
-        environment.text_draw_routine_p->setFragmentShader();
-        environment.text_draw_routine_p->compileProgram();
+    for( auto i = data.begin(); i != data.end(); i++ ) {
+        auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
+        
+        for( auto f = font_resources.begin(); f != font_resources.end(); f++ ) {
+            fonts_r.push_back( (*f) );
 
-        return fonts.size();
-    }
-    else
-        return 0;
-}
+            if( (*f)->getResourceID() == 1 )
+                has_resource_id_1 = true;
+            else
+            if( (*f)->getResourceID() == 2 )
+                has_resource_id_2 = true;
 
-bool Graphics::SDL2::GLES2::Text2DBuffer::loadFontLibrary()
-{
-    // Make sure there is text.
-    if( env_r->text_draw_routine_p != nullptr )
-    {
-        auto font_system_r = env_r->text_draw_routine_p;
-
-        if( font_system_r->getNumFonts() > 0 )
-        {
-            text_data.reserve( font_system_r->getNumFonts() );
-
-            for( int i = 0; i < font_system_r->getNumFonts(); i++ )
-            {
-                auto font_r = font_system_r->accessFont( i );
-
-                assert( font_r != nullptr );
-
-                text_data.push_back( font_r->allocateText2D() );
-
-                assert( font_r == text_data[i]->getFont() );
-            }
-
-            return true;
+            if( (*f)->getGlyph( 0x7F ) != nullptr )
+                has_del_symbol = true;
         }
-        else
-            return false;
     }
-    else
-        return false;
+
+    // If no fonts are found then add one.
+    if( !has_resource_id_1 ) {
+        fonts_r.push_back( Data::Mission::FontResource::getPlaystation( &std::cout, 2 ) );
+        has_del_symbol = true;
+    }
+    if( !has_resource_id_2 ) {
+        fonts_r.push_back( Data::Mission::FontResource::getWindows( &std::cout, 2 ) );
+        has_del_symbol = true;
+    }
+    if( !has_del_symbol ) {
+        auto font_p = Data::Mission::FontResource::getWindows( &std::cout, 2 );
+        font_p->setResourceID( 0 );
+        fonts_r.push_back( font_p );
+        has_del_symbol = true;
+    }
+
+    assert( has_del_symbol );
+
+    env_r.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
+    env_r.text_draw_routine_p->setVertexShader();
+    env_r.text_draw_routine_p->setFragmentShader();
+    env_r.text_draw_routine_p->compileProgram();
+    
+    return fonts_r.size();
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
     auto font_system_r = env_r->text_draw_routine_p;
     
     assert( font_system_r != nullptr );
-    assert( text_data.size() != 0 );
+    assert( text_data_p.size() != 0 );
 
-    font_system_r->draw( projection, text_data );
+    font_system_r->draw( projection, text_data_p );
 }
 
-int Graphics::SDL2::GLES2::Text2DBuffer::setFont( unsigned index ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::setFont( uint32_t resource_id ) {
     auto font_system_r = env_r->text_draw_routine_p;
     
     auto last_text_2D_r = current_text_2D_r;
 
     if( font_system_r != nullptr )
     {
-        if( text_data.size() > index )
+        if( text_data_p.find( resource_id ) != text_data_p.end() )
         {
             // Set the current text.
-            current_text_2D_r = text_data[ index ];
+            current_text_2D_r = text_data_p[ resource_id ];
 
             // Steal the pen position and color from the last pen if available.
             current_text_2D_r->stealPen( last_text_2D_r );
@@ -167,33 +172,42 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     {
         if( current_text_2D_r != nullptr )
         {
-            // Try to add the text.
-            add_text_state = current_text_2D_r->addText( text );
+            auto switch_text_2D_r = this->current_text_2D_r;
+            std::string filtered_text;
+
+            // Switch to a font with a DEL symbol if the current font lacks one.
+            if( switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text ) == Data::Mission::FontResource::FilterStatus::INVALID ) {
+                switch_text_2D_r = text_data_p[ font_system_r->getInvalidBackupFontID() ];
+                switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
+            }
+
+            // Try to add the filtered_text.
+            add_text_state = switch_text_2D_r->addText( filtered_text );
 
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )
             {
-                // This is a formula used to dynamically expand the text.
-                expand_amount = (text.size() / text_2D_expand_factor);
+                // This is a formula used to dynamically expand the filtered_text.
+                expand_amount = (filtered_text.size() / text_2D_expand_factor);
 
                 // If there is a remained then expand this number further by one.
-                if((text.size() % text_2D_expand_factor) > 0)
+                if((filtered_text.size() % text_2D_expand_factor) > 0)
                     expand_amount++;
 
                 // Convert to character amount.
                 expand_amount *= text_2D_expand_factor;
 
                 // we get the expand sum.
-                expand_sum = current_text_2D_r->getCharAmount() + expand_amount;
+                expand_sum = switch_text_2D_r->getCharAmount() + expand_amount;
 
-                // The text must be expanded
-                add_text_state = current_text_2D_r->setTextMax( expand_sum );
+                // The filtered_text must be expanded
+                add_text_state = switch_text_2D_r->setTextMax( expand_sum );
 
                 // Check to see if there was an expansion.
                 if( add_text_state > 0 )
                 {
-                    // Attempt to add the text again.
-                    add_text_state = current_text_2D_r->addText( text );
+                    // Attempt to add the filtered_text again.
+                    add_text_state = switch_text_2D_r->addText( filtered_text );
 
                     if( add_text_state >= 0 )
                         return add_text_state;
@@ -224,11 +238,11 @@ int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
 
     if( font_system_r != nullptr )
     {
-        if( text_data.size() != 0 )
+        if( text_data_p.size() != 0 )
         {
-            for( auto i = text_data.begin(); i != text_data.end(); i++ )
+            for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
             {
-                if( (*i)->clearText( (*i)->getFont() ) != 1 )
+                if( (*i).second->clearText( (*i).second->getFont() ) != 1 )
                     problematic_font++;
             }
 

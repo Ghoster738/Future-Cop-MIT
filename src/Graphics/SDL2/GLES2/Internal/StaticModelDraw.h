@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "../../../../Data/Mission/ObjResource.h"
 #include "../../../Camera.h"
+#include <set>
 
 namespace Graphics {
 namespace SDL2 {
@@ -20,13 +21,13 @@ public:
     static const GLchar* default_es_vertex_shader;
     static const GLchar* default_es_fragment_shader;
     struct ModelArray {
-        unsigned int mesh_index; // The type of model the instances will represent. TODO Change this into a pointer.
-        unsigned int unculled_size;
-        std::vector<GLES2::ModelInstance*> instances; // The list of all instances that will be drawn.
+        ModelArray( Program *program ) : mesh( program ) {}
+        
+        Mesh mesh;
+        std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
 
     };
 protected:
-
     Program program;
     Shader vertex_shader;
     Shader fragment_shader;
@@ -40,17 +41,11 @@ protected:
     GLuint view_inv_uniform_id;
 
     // The models need to be accessed.
-    std::vector<Mesh*> models;
+    std::map<uint32_t, ModelArray*> models_p;
 
     // The textures will also need to be accessed.
-    Texture2D *shiney_texture_ref; // This holds the environment map.
-
-    // This stores the actual data.
-    std::vector<ModelArray*> model_array;
-
-    ModelArray* getModelArray( unsigned int mesh_index );
-    ModelArray* getModelArray( unsigned int mesh_index ) const;
-    ModelArray* addModelArray( unsigned int mesh_index );
+    Texture2D *shiney_texture_r; // This holds the environment map.
+    
 public:
     StaticModelDraw();
     virtual ~StaticModelDraw();
@@ -100,7 +95,7 @@ public:
      * Link every shader to the program.
      * @return false if one of the shaders are not loaded.
      */
-    int compilieProgram();
+    int compileProgram();
 
     /**
      * This sets the textures.
@@ -110,18 +105,11 @@ public:
     void setTextures( Texture2D *shiney_texture_ref );
 
     /**
-     * This sets the capacity of the model types contained within this class.
-     * @param model_amount The amount of models to draw.
-     * @return
-     */
-    void setNumModelTypes( size_t model_amount );
-
-    /**
      * This checks for the existence of the model inside the Draw routine.
      * @note This is meant to tell Environment whether or not the model is contained within a *ModelDraw class.
      * @return True if the model exists in the class.
      */
-    bool containsModel( size_t model_index ) const;
+    bool containsModel( uint32_t obj_identifier ) const;
 
     /**
      * This handles the loading of the models.
@@ -129,27 +117,23 @@ public:
      * @param This is the amount of models to load.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
-     * This draws all of the models.
+     * This draws all the models that are opeqe.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
      * @param This is the camera data to be passed into world.
      */
     void draw( const Camera &camera );
 
-    /**
-     * This prunes the object models in the model_array. It is an O( number_of_models_loaded ) operation.
-     */
-    int prune();
-
-    int allocateObjModel( unsigned int index_obj, GLES2::ModelInstance &model_instance );
+    int allocateObjModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
 
     /**
      * This advances the time of every instance.
-     * @param seconds_passed This is the time in seconds that were passed.
+     * @note Timing is less important for animation data.
+     * @param seconds_passed This is the time in seconds that were passed since the last frame.
      */
-    void advanceTime( float seconds_passed );
+    virtual void advanceTime( float seconds_passed );
 
     /**
      * @return the program that this World uses.
@@ -177,7 +161,7 @@ public:
      * @param radius This holds the rotation of the sphere.
      * @return true if a bounding sphere is generated.
      */
-    bool getBoundingSphere( unsigned int mesh_index, glm::vec3 &position, float &radius ) const;
+    bool getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const;
 };
 
 }

@@ -1,5 +1,8 @@
 #include "Hash.h"
 
+#include "../X1Alpha.h"
+#include "../BaseTurret.h"
+#include "../Aircraft.h"
 #include "../Skycaptin.h"
 #include "../Prop.h"
 
@@ -14,6 +17,10 @@ private:
     Data::Mission::ACTResource* table_p[ TABLE_SIZE ];
 
     void setupTable() {
+        table_p[ Data::Mission::ACT::X1Alpha::TYPE_ID ] = new Data::Mission::ACT::X1Alpha();
+        table_p[ Data::Mission::ACT::BaseTurret::TYPE_ID ] = new Data::Mission::ACT::BaseTurret();
+        table_p[ Data::Mission::ACT::Aircraft::TYPE_ID ] = new Data::Mission::ACT::Aircraft();
+        table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
     }
 public:
@@ -42,7 +49,7 @@ public:
 };
 
 Data::Mission::ACTResource* Data::Mission::ACT::Hash::generateAct( const ACTResource *const obj_r, uint_fast8_t Type_ID ) {
-    return new Prop( obj_r );
+    return hash.getHash( Type_ID )->duplicate( *obj_r );
 }
 
 bool Data::Mission::ACT::Hash::isActValid( uint_fast8_t Type_ID ) {

@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cmath> // fmod()
 #include <iostream> // fmod()
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_vertex_shader =
     "#version 100\n"
@@ -127,70 +127,17 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
     "    gl_FragColor = color;\n"
     "}\n";
 
-namespace {
-
-bool sortModelArray(const Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray *i, const Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray *j) {
-    return (i->mesh_index < j->mesh_index);
-}
-
-}
-
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( unsigned int mesh_index ) {
-    ModelArray* search_key = nullptr;
-
-    if( !model_array.empty() )
-    {
-        ModelArray relationModelArray;
-        relationModelArray.mesh_index = mesh_index;
-
-        auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
-
-        const int index = bound - model_array.begin();
-
-        if( index < model_array.size() && model_array.at(index)->mesh_index == mesh_index )
-            search_key = *bound;
-    }
-
-    return search_key;
-}
-
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getModelArray( unsigned int mesh_index ) const {
-    ModelArray* search_key = nullptr;
-
-    if( !model_array.empty() )
-    {
-        ModelArray relationModelArray;
-        relationModelArray.mesh_index = mesh_index;
-
-        auto bound = lower_bound( model_array.begin(), model_array.end(), &relationModelArray, sortModelArray );
-
-        const int index = bound - model_array.begin();
-
-        if( index < model_array.size() && model_array.at(index)->mesh_index == mesh_index )
-            search_key = *bound;
-    }
-
-    return search_key;
-}
-
-Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray* Graphics::SDL2::GLES2::Internal::StaticModelDraw::addModelArray( unsigned int mesh_index ) {
-    ModelArray *new_model_array = new ModelArray();
-
-    new_model_array->mesh_index = mesh_index;
-    new_model_array->unculled_size = 0;
-
-    model_array.push_back( new_model_array );
-    sort( model_array.begin(), model_array.end(), sortModelArray );
-
-    return new_model_array;
-}
-
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
-
+    // Delete the models first.
+    for( auto i = models_p.begin(); i != models_p.end(); i++ )
+    {
+        delete (*i).second; // First delete the pointer.
+        (*i).second = nullptr; // Then set the pointer to null.
+    }
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultVertexShader() {
@@ -231,7 +178,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const 
     return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
     bool uniform_failed = false;
     bool attribute_failed = false;
     bool link_success = true;
@@ -293,27 +240,23 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram() {
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *shiney_texture_r ) {
-    this->shiney_texture_ref = shiney_texture_r;
+    this->shiney_texture_r = shiney_texture_r;
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setNumModelTypes( size_t model_amount ) {
-    models.resize( model_amount, nullptr );
-}
-
-bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( size_t model_index ) const {
-    if( model_index < models.size() )
-        return (models[model_index] != nullptr);
+bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
+    if( models_p.find( obj_identifier ) != models_p.end() )
+        return ( models_p.at( obj_identifier ) != nullptr );
     else
         return false;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type, int index, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     int state = 0;
 
-    if( model_type->getNumVertices() > 0 )
+    if( model_type_r->getNumVertices() > 0 )
     {
-        models.at( index ) = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
-        models[ index ]->setup( *model_type, textures );
+        models_p[ obj_identifier ] = new ModelArray( &program );
+        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures );
         state =  1;
     }
     else
@@ -338,84 +281,55 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     program.use();
 
     // Check if there is even a shiney texture.
-    if( shiney_texture_ref != nullptr )
-        shiney_texture_ref->bind( 1, sepecular_texture_uniform_id );
+    if( shiney_texture_r != nullptr )
+        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
     // Traverse the models.
-    for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
+    for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = models.at( model_array.at( d )->mesh_index );
-
-        // Check if the mesh is a valid pointer.
-        if( mesh != nullptr )
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*d).second->mesh;
+        
+        // Go through every instance that refers to this mesh.
+        for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
-            // Go through every instance that refers to this mesh.
-            for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
-            {
-                // Get the position and rotation of the model.
-                // Multiply them into one matrix which will hold the entire model transformation.
-                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
+            // Get the position and rotation of the model.
+            // Multiply them into one matrix which will hold the entire model transformation.
+            camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
 
-                // Then multiply it to the projection, and view to get projection, view, and model matrix.
-                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
+            // Then multiply it to the projection, and view to get projection, view, and model matrix.
+            camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
 
-                // We can now send the matrix to the program.
-                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
+            // We can now send the matrix to the program.
+            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
 
-                model_view = view * camera_3D_model_transform;
-                model_view_inv = glm::inverse( model_view );
-                glUniformMatrix4fv(     view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
-                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
+            model_view = view * camera_3D_model_transform;
+            model_view_inv = glm::inverse( model_view );
+            glUniformMatrix4fv( view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+            glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
 
-                // Finally we can draw the mesh!
-                mesh->draw( 0, diffusive_texture_uniform_id );
-            }
+            // Finally we can draw the mesh!
+            mesh_r->draw( 0, diffusive_texture_uniform_id );
         }
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::prune() {
-    int count_deleted = 0;
-
-    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
-        if( (*model_type)->instances.size() != (*model_type)->unculled_size )
-        {
-            count_deleted += ((*model_type)->instances.size() - (*model_type)->unculled_size);
-            (*model_type)->instances.resize( (*model_type)->unculled_size );
-
-            // There should not be a negative count.
-            assert( ((*model_type)->instances.size() - (*model_type)->unculled_size) <= 0 );
-        }
-    }
-
-    return count_deleted;
-}
-
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned int index_obj, GLES2::ModelInstance &model_instance ) {
-    if( index_obj < models.size() ) // Do some bounds checking!
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t obj_identifier, GLES2::ModelInstance &model_instance ) {
+    if( models_p.find( obj_identifier ) != models_p.end() ) // Do some bounds checking!
     {
         // This holds the model instance sheet.
-        ModelArray *model_array = getModelArray( index_obj );
+        ModelArray *model_array_r = models_p[ obj_identifier ];
 
-        if( model_array == nullptr ) // Check if the mesh was actually loaded.
-            model_array = addModelArray( index_obj );
-
-        model_instance.array = model_array;
-        model_instance.index_position = model_array->instances.size();
+        model_instance.array_r = model_array_r;
         
-        bool result = false;
-        
-        if( models[ index_obj ] != nullptr ) {
-            result = models[ index_obj ]->getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius );
+        if( !models_p[ obj_identifier ]->mesh.getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius ) )
+        {
+            model_instance.culling_sphere_position = glm::vec3( 0, 0, 0 );
+            model_instance.culling_sphere_radius = 1.0f;
         }
-        // assert( result ); // TODO Add a return false case to getBoundingSphere.
 
         // Finally added the instance.
-        model_array->instances.push_back( &model_instance );
-
-        // Model Array should have the new size.
-        model_array->unculled_size++;
+        model_array_r->instances_r.insert( &model_instance );
 
         return 1; // The instance is successfully allocated.
     }
@@ -424,42 +338,11 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( unsigned
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_seconds ) {
-    const float FRAME_SPEED = 10.0;
-
-    // Go through every model array.
-    for( auto model_type = model_array.begin(); model_type < model_array.end(); model_type++ ) {
-
-        // Get the mesh.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = models.at( (*model_type)->mesh_index  );
-
-        // Test to see if the mesh has an animation to it.
-        if( mesh != nullptr )
-        {
-            if( mesh->getMorphFrameAmount() > 0 )
-            {
-                auto morph_frame_amount = mesh->getMorphFrameAmount();
-                auto total_frame_amount = morph_frame_amount + 1;
-
-                // Go through every instance of the model.
-                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
-                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + time_seconds * FRAME_SPEED, total_frame_amount ) );
-                }
-            }
-            else
-            if( mesh->getFrameAmount() > 0 ) {
-                for( auto instance = (*model_type)->instances.begin(); instance != (*model_type)->instances.end(); instance++ ) {
-                    (*instance)->setTimeline( fmod( (*instance)->getTimeline() + time_seconds * FRAME_SPEED, mesh->getFrameAmount() ) );
-                }
-            }
-        }
-    }
+    // No operation. Static Meshes do not have the concept of time.
 }
 
-bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( unsigned int mesh_index, glm::vec3 &position, float &radius ) const {
-    auto model_r = this->models.at( mesh_index );
-    
-    if( model_r == nullptr )
+bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const {
+    if( models_p.find( obj_identifier ) != models_p.end() )
         return false;
-    
-    return model_r->getBoundingSphere( position, radius );
+    return models_p.at( obj_identifier )->mesh.getBoundingSphere( position, radius );
 }

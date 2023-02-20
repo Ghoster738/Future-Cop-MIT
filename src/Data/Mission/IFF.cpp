@@ -5,6 +5,7 @@
 #include "BMPResource.h"
 #include "DCSResource.h"
 #include "FontResource.h"
+#include "FUNResource.h"
 #include "MSICResource.h"
 #include "NetResource.h"
 #include "PTCResource.h"
@@ -14,6 +15,7 @@
 #include "WAVResource.h"
 #include "ObjResource.h"
 #include "UnkResource.h"
+#include "RPNSResource.h"
 
 #include "ACT/Unknown.h"
 
@@ -25,6 +27,7 @@
 #include <cstring> // std::strerror
 #include <cassert> // std::strerror
 #include <iostream>
+#include <unordered_set>
 
 namespace {
     // These are the first things that appears in the header.
@@ -48,10 +51,16 @@ namespace {
     const uint32_t MSIC_TAG = 0x4D534943; // Dynamic size
     // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
     const uint32_t SWVR_TAG = 0x53575652; // +32 bytes
+    // which is { 0x43, 0x41, 0x4E, 0x4D } or { 'C', 'A', 'N', 'M' } or "CANM"
+    const uint32_t PS1_CANM_TAG = 0x43414E4D; // Dynamic size
+    // which is { 0x56, 0x41, 0x47, 0x42 } or { 'V', 'A', 'G', 'B' } or "VAGB"
+    const uint32_t PS1_VAGB_TAG = 0x56414742; // Dynamic size
+    // which is { 0x56, 0x41, 0x47, 0x4D } or { 'V', 'A', 'G', 'M' } or "VAGM"
+    const uint32_t PS1_VAGM_TAG = 0x5641474D; // Dynamic size
 
     const std::map<uint32_t, Data::Mission::Resource*> file_type_list {
         { Data::Mission::ACTResource::IDENTIFIER_TAG, new Data::Mission::ACT::Unknown() },
-        { Data::Mission::ANMResource::IDENTIFIER_TAG, new Data::Mission::ANMResource() },
+        { Data::Mission::ANMResource::IDENTIFIER_TAG, new Data::Mission::ANMResource() }, // Resource ID missing
         { Data::Mission::BMPResource::IDENTIFIER_TAG, new Data::Mission::BMPResource() },
         // which is { 0x43, 0x63, 0x74, 0x72 } or { 'C', 'c', 't', 'r' } or "Cctr"
         { 0x43637472, new Data::Mission::UnkResource( 0x43637472, "ctr" ) },
@@ -63,18 +72,27 @@ namespace {
         { Data::Mission::PYRResource::IDENTIFIER_TAG,  new Data::Mission::PYRResource() },
         { Data::Mission::ACTResource::SAC_IDENTI_TAG,  new Data::Mission::ACT::Unknown() },
         // which is { 0x43, 0x73, 0x66, 0x78 } or { 'C', 's', 'f', 'x' } or "Csfx"
-        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx" ) },
+        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true ) },  // Resource ID missing
         // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
-        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd" ) }, // Holds programmer settings?
+        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // Holds programmer settings?  // Resource ID missing
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
         { 0x43746F73, new Data::Mission::UnkResource( 0x43746F73, "tos" ) },  // time of sounds?
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
-        // which is { 0x52, 0x50, 0x4E, 0x53 } or { 'R', 'P', 'N', 'S' } or "RPNS"
-        { 0x52504E53, new Data::Mission::UnkResource( 0x52504E53, "rpns" ) },
-        { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
+        // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
+        { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
+        { Data::Mission::RPNSResource::IDENTIFIER_TAG, new Data::Mission::RPNSResource() },
+        { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() }, // Resource ID missing
         // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
-        { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) }
+        { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
+        { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
+        { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
+        { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
+        { 0x43747273, new Data::Mission::UnkResource( 0x43747273, "trs" ) }, // PS1 Global.
+        { 0x436d6463, new Data::Mission::UnkResource( 0x436d6463, "mdc" ) },
+        { 0x4374696e, new Data::Mission::UnkResource( 0x4374696e, "tin" ) },
+        { 0x43746474, new Data::Mission::UnkResource( 0x43746474, "tdt" ) },
+        { 0x436d6963, new Data::Mission::UnkResource( 0x436d6963, "mic" ) }
     };
     class AutoDelete {
     public:
@@ -95,16 +113,10 @@ Data::Mission::IFF::IFF() {
     resource_amount = 0;
 }
 
-Data::Mission::IFF::IFF( const char *const  file_path ) {
-    type = UNKNOWN;
-    resource_amount = 0;
-    open( file_path );
-}
-
 Data::Mission::IFF::IFF( const std::string &file_path ) {
     type = UNKNOWN;
     resource_amount = 0;
-    open( file_path.c_str() );
+    open( file_path );
 }
 
 
@@ -116,7 +128,7 @@ Data::Mission::IFF::~IFF() {
     }
 }
 
-void Data::Mission::IFF::setName( std::string name ) {
+void Data::Mission::IFF::setName( const std::string &name ) {
     this->name = name;
 }
 
@@ -130,6 +142,7 @@ namespace {
         uint32_t offset;
         uint32_t iff_index;
         uint32_t resource_id;
+        std::string name_swvr;
         Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
     };
@@ -144,7 +157,7 @@ namespace {
     }
 }
 
-int Data::Mission::IFF::open( const char *const file_path ) {
+int Data::Mission::IFF::open( const std::string &file_path ) {
     std::fstream file;
 
     this->setName( file_path );
@@ -163,153 +176,206 @@ int Data::Mission::IFF::open( const char *const file_path ) {
         // it is set like this in default because it has not found the header yet.
         // since this is a do while loop the loop would only run once if it did not find the header.
         bool error_in_read = true;
-        bool is_confirmend_iff_file = false;
-
-        uint32_t typeID;
-        int32_t chunk_size; // Yes, it is a signed integer.
-        int32_t data_size; // This is the chunk size only 8 bytes less.
 
         // There are two loading buffers for the loader
-        char  type_buffer[ sizeof( typeID ) + sizeof( chunk_size ) ];
-        int   data_buffer_size = 0x6000; // This is a little higher than the biggest chunk of ConFt.
-        char *data_buffer = new char [data_buffer_size];
+        Utilities::Buffer type_buffer;
+        type_buffer.allocate( sizeof( uint32_t ) + sizeof( int32_t ) );
+        Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
+        Utilities::Buffer::Reader type_reader = type_buffer.getReader();
 
-        int file_offset = 0;
+        Utilities::Buffer data_buffer;
+        data_buffer.allocate( 0x6000 ); // This is a little higher than the biggest chunk of ConFt.
+        Utilities::Buffer::Writer data_writer = data_buffer.getWriter();
+        Utilities::Buffer::Reader data_reader = data_buffer.getReader();
+
         std::vector<ResourceType> resource_pool;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
 
-        do
         {
+            type_writer.write( file, type_reader.totalSize() );
+
+            const uint32_t TYPE_ID = type_reader.readU32( Utilities::Buffer::Endian::NO_SWAP );
+
+            // First Read the header.
+            if( TYPE_ID == IN_ENDIAN_CTRL_TAG || TYPE_ID == OP_ENDIAN_CTRL_TAG ) {
+                error_in_read = false;
+
+                // This determines if the file is big endian or little endian.
+                if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
+                    this->type = FILE_IS_LITTLE_ENDIAN;
+                    std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
+                    default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
+                    default_settings.is_opposite_endian = !Utilities::DataHandler::is_little_endian(); // TODO Remove this
+                    default_settings.endian = Utilities::Buffer::Endian::LITTLE;
+                }
+                else
+                if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
+                    this->type = FILE_IS_BIG_ENDIAN;
+                    std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
+                    default_settings.type = Resource::ParseSettings::Macintosh;
+                    default_settings.is_opposite_endian = Utilities::DataHandler::is_little_endian();
+                    default_settings.endian = Utilities::Buffer::Endian::BIG;
+                }
+                else
+                    this->type = UNKNOWN;
+
+                const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
+                file.seekg( chunkToDataSize( CHUNK_SIZE ), std::ios_base::cur );
+
+                // TODO Add playstation detection
+            }
+        }
+
+        int file_offset = 0;
+        std::string name_swvr = "";
+
+        while( file && !error_in_read ) {
             file_offset = file.tellg();
 
-            file.read( type_buffer, sizeof( type_buffer ) );
-            typeID = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(type_buffer), default_settings.is_opposite_endian );
-            chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
+            type_writer.setPosition(0);
+            type_reader.setPosition(0);
 
-            data_size = chunkToDataSize( chunk_size );
+            const auto READ_AMOUNT = type_writer.write( file, type_reader.totalSize() );
 
-            if( !is_confirmend_iff_file ) {
-                if( typeID == IN_ENDIAN_CTRL_TAG || typeID == OP_ENDIAN_CTRL_TAG )
-                {
-                    error_in_read = false;
-                    is_confirmend_iff_file = true;
-
-                    // This determines if the file is big endian or little endian.
-                    if( WIN_CTRL_TAG[ 0 ] == type_buffer[ 0 ] ) {
-                        this->type = FILE_IS_LITTLE_ENDIAN;
-                        std::cout << "\"" << file_path << "\" is a valid little endian mission file" << std::endl;
-                        default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
-                        default_settings.is_opposite_endian = !Utilities::DataHandler::is_little_endian(); // TODO Remove this
-                        default_settings.endian = Utilities::Buffer::Endian::LITTLE;
-                    }
-                    else
-                    if( MAC_CTRL_TAG[ 0 ] == type_buffer[ 0 ] ) {
-                        this->type = FILE_IS_BIG_ENDIAN;
-                        std::cout << "\"" << file_path << "\" is a valid big endian mission file" << std::endl;
-                        default_settings.type = Resource::ParseSettings::Macintosh;
-                        default_settings.is_opposite_endian = Utilities::DataHandler::is_little_endian();
-                        default_settings.endian = Utilities::Buffer::Endian::BIG;
-                    }
-                    else
-                        this->type = UNKNOWN;
-
-                    // Skip the data chunk
-                    chunk_size = Utilities::DataHandler::read_32( reinterpret_cast<uint8_t*>(type_buffer + sizeof( typeID )), default_settings.is_opposite_endian );
-
-                    data_size = chunkToDataSize( chunk_size );
-                    file.seekg( data_size, std::ios_base::cur );
-
-                    // TODO Add playstation detection
-                }
+            if( READ_AMOUNT != type_reader.totalSize() ) {
+                error_in_read = true;
             }
-            else
-            if( typeID == FILL_TAG ) {
-                //std::cout << "typeID: " << "FILL" << " chunk_size: " << chunk_size << std::endl;
+            else {
 
-                // This tag does not have any useable information. This might have been used to demiout certain files.
+                const uint32_t TYPE_ID = type_reader.readU32( default_settings.endian );
+                const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
+                const int32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
-                if( static_cast<uint32_t>(chunk_size) == SHOC_TAG )
-                    file.seekg( file_offset + sizeof( typeID ), std::ios_base::beg ); // Only skip the typeID.
+                if( TYPE_ID == FILL_TAG ) {
+                    //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+
+                    // This tag does not have any useable information. This might have been used to demiout certain files.
+
+                    if( static_cast<uint32_t>(CHUNK_SIZE) == SHOC_TAG )
+                        file.seekg( file_offset + sizeof( TYPE_ID ), std::ios_base::beg ); // Only skip the TYPE_ID.
+                    else
+                        file.seekg( DATA_SIZE, std::ios_base::cur ); // Skip the FILL buffer.
+                }
                 else
-                    file.seekg( data_size, std::ios_base::cur ); // Skip the FILL buffer.
-            }
-            else
-            if( data_size + file.tellg() < iff_file_size )
-            {
-                // Extend the data buffer if it is too small.
-                if( data_size > data_buffer_size ) {
-                    delete [] data_buffer;
-                    data_buffer_size = data_size;
-                    data_buffer = new char [data_buffer_size];
-                    // std::cout << "data_buffer resized to " << data_buffer_size << std::endl;
-                }
+                if( DATA_SIZE + file.tellg() < iff_file_size )
+                {
+                    // Check if the buffer is too high.
+                    if( DATA_SIZE > data_reader.totalSize() ) {
+                        // data_buffer.allocate( DATA_SIZE - data_reader.totalSize() );
+                        std::cout << std::hex << " Error: The limit of 0x" << data_reader.totalSize() << std::dec  << " for this reader has been reached" << std::endl;
+                        error_in_read = true;
+                    }
 
-                // Finally read the buffer.
-                file.read( data_buffer, data_size );
+                    data_writer.setPosition(0);
+                    data_reader.setPosition(0);
 
-                if( typeID == SHOC_TAG ) {
-                    // this checks if the chunk holds a file header!
-                    if( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SHDR_TAG ) {
-                        if( data_size >= 20 ) {
-                            resource_pool.push_back( ResourceType() );
-                            
-                            // These are the tag sizes to be expected.
-                            // Subtract them by 20 and we would get the header size.
-                            // The smallest data_size is 52, and the biggest data size is 120.
-                            assert( (data_size == 52) || (data_size ==  56) || (data_size ==  60) || (data_size ==  64) ||
-                                    (data_size == 72) || (data_size ==  76) || (data_size ==  80) || (data_size ==  84) ||
-                                    (data_size == 96) || (data_size == 100) || (data_size == 116) || (data_size == 120) );
+                    // Finally read the buffer.
+                    auto amount_written = data_writer.write( file, DATA_SIZE );
+                    assert( amount_written == DATA_SIZE );
 
-                            resource_pool.back().type_enum = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 16), default_settings.is_opposite_endian );
-                            resource_pool.back().offset    = file_offset;
-                            resource_pool.back().iff_index = resource_pool.size() - 1;
-                            resource_pool.back().resource_id = Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 20), default_settings.is_opposite_endian );
-                            
-                            resource_pool.back().data_p = new Utilities::Buffer();
-                            if( resource_pool.back().data_p != nullptr )
-                                resource_pool.back().data_p->reserve( Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 24),
-                                                                      default_settings.is_opposite_endian ) );
+                    data_reader.setPosition( 8 );
 
-                            resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer + 28), data_size - 28 );
+                    const auto CURRENT_TAG = data_reader.readU32( default_settings.endian );
+
+                    if( TYPE_ID == SHOC_TAG ) {
+                        // this checks if the chunk holds a file header!
+                        if( CURRENT_TAG == SHDR_TAG ) {
+
+                            if( DATA_SIZE >= 20 ) {
+                                resource_pool.push_back( ResourceType() );
+
+                                // These are the tag sizes to be expected.
+                                // Subtract them by 20 and we would get the header size.
+                                // The smallest DATA_SIZE is 52, and the biggest data size is 120.
+                                assert( (DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
+                                        (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
+                                        (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120) );
+
+                                data_reader.setPosition( 16 );
+
+                                resource_pool.back().type_enum = data_reader.readU32( default_settings.endian );
+                                resource_pool.back().offset    = file_offset;
+                                resource_pool.back().iff_index = resource_pool.size() - 1;
+                                resource_pool.back().resource_id = data_reader.readU32( default_settings.endian );
+                                resource_pool.back().name_swvr = name_swvr;
+
+                                resource_pool.back().data_p = new Utilities::Buffer();
+                                if( resource_pool.back().data_p != nullptr )
+                                    resource_pool.back().data_p->reserve( data_reader.readU32( default_settings.endian ) );
+
+                                resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 28), DATA_SIZE - 28 );
+                            }
+                            else
+                                error_in_read = true;
                         }
                         else
-                            assert( 0 );
+                        if( DATA_SIZE >= 12 && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
+                            resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 12), DATA_SIZE - 12 );
+                        }
+                        else
+                            std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
+
+                        // std::cout << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                     }
                     else
-                    if( data_size >= 12 && !resource_pool.empty() && Utilities::DataHandler::read_u32( reinterpret_cast<uint8_t*>(data_buffer + 8), default_settings.is_opposite_endian ) == SDAT_TAG ) {
-                        resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer + 12), data_size - 12 );
+                    if( TYPE_ID == MSIC_TAG ) {
+                        //std::cout << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        if( msic_p == nullptr ) {
+                            msic_p = new MSICResource();
+                            msic_p->setIndexNumber( 0 );
+                            msic_p->setResourceID( 1 );
+                            msic_p->setSWVRName( name_swvr );
+                            msic_p->setOffset( file_offset );
+
+                            msic_data_p = new Utilities::Buffer();
+                        }
+
+                        if( msic_p != nullptr )
+                            msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer()), DATA_SIZE );
                     }
                     else
-                        std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
+                    if( TYPE_ID == SWVR_TAG ) {
+                        // The data size is always 28.
+                        assert( DATA_SIZE == 28 );
+                        assert( DATA_SIZE < data_reader.totalSize() );
+                        assert( amount_written == DATA_SIZE );
 
-                    // std::cout << "typeID: " << "SHOC" << " chunk_size: " << chunk_size << std::endl;
-                }
-                else
-                if( typeID == MSIC_TAG ) {
-                    //std::cout << "typeID: " << "MISC" << " chunk_size: " << chunk_size << std::endl;
-                    if( msic_p == nullptr ) {
-                        msic_p = new MSICResource();
-                        msic_p->setIndexNumber( 0 );
-                        msic_p->setOffset( file_offset );
-                        
-                        msic_data_p = new Utilities::Buffer();
+                        name_swvr = "";
+
+                        data_reader.setPosition( 8 );
+                        assert( data_reader.readU32( default_settings.endian ) == 0x46494c45 );
+                        data_reader.setPosition( 12 );
+
+                        int8_t some_char = '1';
+
+                        for( uint32_t i = 0; i < DATA_SIZE - 12 && some_char != '\0'; i++ )
+                        {
+                            some_char = data_reader.readI8();
+
+                            if(some_char != '\0')
+                                name_swvr += some_char;
+                        }
                     }
-
-                    if( msic_p != nullptr )
-                        msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer), data_size );
+                    else
+                    if( TYPE_ID == PS1_CANM_TAG ) {
+                        // TODO Read in this case.
+                    }
+                    else
+                    if( TYPE_ID == PS1_VAGB_TAG ) {
+                        // TODO Read in this case.
+                    }
+                    else
+                    if( TYPE_ID == PS1_VAGM_TAG ) {
+                        // TODO Read in this case.
+                    }
+                    else
+                        std::cout << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                 }
                 else
-                if( typeID == SWVR_TAG ) {
-                    //std::cout << "typeID: " << "SWVR" << " chunk_size: " << chunk_size << std::endl;
-                }
-                else
-                    std::cout << "typeID: 0x" << std::hex << typeID << std::dec << " chunk_size: " << chunk_size << std::endl;
+                    error_in_read = true;
             }
-            else
-                error_in_read = true;
         }
-        while( file && !error_in_read );
 
         // Find a potential error.
         auto readstate = file.rdstate();
@@ -328,9 +394,9 @@ int Data::Mission::IFF::open( const char *const file_path ) {
         // We are done reading the IFF file.
         file.close();
 
-        if( !is_confirmend_iff_file ) {
-            std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
-        }
+        //if( !is_confirmend_iff_file ) {
+        //    std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
+        //}
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
@@ -349,6 +415,7 @@ int Data::Mission::IFF::open( const char *const file_path ) {
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
+            new_resource_p->setSWVRName( i.name_swvr );
 
             new_resource_p->setMemory( i.header_p, i.data_p );
             new_resource_p->processHeader( default_settings );
@@ -468,7 +535,7 @@ const std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources(
     return const_cast<Data::Mission::IFF*>( this )->getAllResources();
 }
 
-int Data::Mission::IFF::exportAllResources( const char *const folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
+int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
     // This algorithm is an O(n) algorithm and it is as good as it is going to get in terms of data complexity. :)
     if( resource_amount != 0 )
     {
@@ -482,39 +549,18 @@ int Data::Mission::IFF::exportAllResources( const char *const folder_path, bool 
         {
             for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
             {
-                std::string full_path = path + (*it)->getFullName( (*it)->getIndexNumber() );
+                std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
 
                 if( raw_file_mode )
-                    (*it)->write( full_path.c_str(), arguments );
+                    (*it)->write( full_path, arguments );
                 else
-                    (*it)->writeRaw( full_path.c_str(), arguments );
+                    (*it)->writeRaw( full_path, arguments );
             }
         }
         return true;
     }
     else
         return false;
-}
-
-int Data::Mission::IFF::exportSingleResource( uint32_t type, unsigned int index, const char *const folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const {
-    const Resource *resource_r = getResource( type, index );
-
-    if( resource_r != nullptr )
-    {
-        std::string path = folder_path;
-
-        if( path.back() != '/' )
-            path += '/';
-
-        path += resource_r->getFullName( index );
-
-        if( raw_file_mode )
-            return resource_r->write( path.c_str(), arguments );
-        else
-            return resource_r->writeRaw( path.c_str(), arguments );
-    }
-    else
-        return -5; // Tell the user that there is either an invalid type or the index is out of bounds.
 }
 
 int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {

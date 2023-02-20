@@ -848,7 +848,7 @@ Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
     return new ObjResource( *this );
 }
 
-int Data::Mission::ObjResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::ObjResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
     int glTF_return = 0;
 
@@ -906,7 +906,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
                 if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
-                        resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID - 1 ) );
+                        resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID ) );
                         
                         assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
                     }
@@ -1012,7 +1012,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
             if( bones.at( bone_index ).parent_amount > 1 )
                 model_output->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
         }
-        std::cout << std::endl;
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             auto current_bone = bones.begin() + bone_index;

@@ -61,6 +61,8 @@ public:
     virtual std::string getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
+    
+    virtual bool noResourceID() const;
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
@@ -70,7 +72,7 @@ public:
     
     Utilities::ImagePalette2D* generateAnimationSheet( unsigned columns = 0, bool rgba_palette = false ) const;
 
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
     
     const Utilities::ColorPalette& getColorPalette() const { return palette; }
 

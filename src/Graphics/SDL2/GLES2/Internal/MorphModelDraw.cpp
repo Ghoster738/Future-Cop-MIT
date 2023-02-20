@@ -2,7 +2,7 @@
 #include "../ModelInstance.h"
 #include <cassert>
 #include <iostream>
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 namespace {
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
@@ -114,8 +114,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::getDefaultVertexS
         return default_vertex_shader;
 }
 
-int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compilieProgram() {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compilieProgram();
+int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram();
     bool uniform_failed = false;
     bool attribute_failed = false;
 
@@ -161,55 +161,73 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( const Camera &camera
     program.use();
 
     // Check if there is even a shiney texture.
-    if( shiney_texture_ref != nullptr )
-        shiney_texture_ref->bind( 1, sepecular_texture_uniform_id );
+    if( shiney_texture_r != nullptr )
+        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
     // Traverse the models.
-    for( unsigned int d = 0; d < model_array.size(); d++ ) // Go through every model that has an instance.
+    for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh = models.at( model_array.at( d )->mesh_index );
-
-        // Check if the mesh is a valid pointer.
-        if( mesh != nullptr )
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &( *d ).second->mesh;
+        
+        // Go through every instance that refers to this mesh.
+        for( auto instance = ( *d ).second->instances_r.begin(); instance != ( *d ).second->instances_r.end(); instance++ )
         {
-            // Go through every instance that refers to this mesh.
-            for( auto instance = model_array[ d ]->instances.begin(); instance != model_array[ d ]->instances.end(); instance++ )
+            // Get the position and rotation of the model.
+            // Multiply them into one matrix which will hold the entire model transformation.
+            camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
+
+            // Then multiply it to the projection, and view to get projection, view, and model matrix.
+            camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
+
+            // We can now send the matrix to the program.
+            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
+
+            // TODO Find a cleaner way.
+            model_view = view * camera_3D_model_transform;
+            model_view_inv = glm::inverse( model_view );
+            glUniformMatrix4fv(     view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+            glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
+
+            // We now draw the the mesh!
+            mesh_r->bindArray();
+
+            int current_last_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) ) - 1;
+
+            if( current_last_frame < 0 )
             {
-                // Get the position and rotation of the model.
-                // Multiply them into one matrix which will hold the entire model transformation.
-                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
+                current_last_frame = 0; // Next is unused.
+                glUniform1f( sample_last_uniform_id, 0.0f );
+            }
+            else
+                glUniform1f( sample_last_uniform_id, 1.0f );
 
-                // Then multiply it to the projection, and view to get projection, view, and model matrix.
-                camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
+            // std::cout << "getTimeline = " << (*instance)->getTimeline() << ", " << current_last_frame << ", offset = " << mesh->getMorphOffset( current_last_frame ) << std::endl;
 
-                // We can now send the matrix to the program.
-                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
+            morph_attribute_array_last.bind( mesh_r->getMorphOffset( current_last_frame ) );
 
-                // TODO Find a cleaner way.
-                model_view = view * camera_3D_model_transform;
-                model_view_inv = glm::inverse( model_view );
-                glUniformMatrix4fv(     view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
-                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
+            mesh_r->noPreBindDraw( 0, diffusive_texture_uniform_id );
+        }
+    }
+}
 
-                // We now draw the the mesh!
-                mesh->bindArray();
+void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds_passed )
+{
+    const float FRAME_SPEED = 10.0;
 
-                int current_last_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) ) - 1;
+    // Go through every model array.
+    for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
+        // Get the mesh.
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
+        
+        if( mesh_r->getMorphFrameAmount() > 0 )
+        {
+            auto morph_frame_amount = mesh_r->getMorphFrameAmount();
+            auto total_frame_amount = morph_frame_amount + 1;
 
-                if( current_last_frame < 0 )
-                {
-                    current_last_frame = 0; // Next is unused.
-                    glUniform1f( sample_last_uniform_id, 0.0f );
-                }
-                else
-                    glUniform1f( sample_last_uniform_id, 1.0f );
-
-                // std::cout << "getTimeline = " << (*instance)->getTimeline() << ", " << current_last_frame << ", offset = " << mesh->getMorphOffset( current_last_frame ) << std::endl;
-
-                morph_attribute_array_last.bind( mesh->getMorphOffset( current_last_frame ) );
-
-                mesh->noPreBindDraw( 0, diffusive_texture_uniform_id );
+            // Go through every instance of the model.
+            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+                (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
             }
         }
     }

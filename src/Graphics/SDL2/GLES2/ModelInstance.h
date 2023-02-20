@@ -14,17 +14,14 @@ namespace GLES2 {
 
 class ModelInstance : public Graphics::ModelInstance {
 public:
-    Internal::StaticModelDraw::ModelArray *array;
-    Internal::StaticModelDraw *model_draw_r;
+    Internal::StaticModelDraw::ModelArray *array_r;
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
     
-    int index_position;
-    
-    ModelInstance( Graphics::Environment &env_r, int cobj_index, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param );
+    ModelInstance( Graphics::Environment &env_r, uint32_t obj_identifier, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param );
     virtual ~ModelInstance();
     
-    static bool doesIndexExist( Graphics::Environment &env_r, int index_obj );
+    static bool exists( Graphics::Environment &env_r, uint32_t obj_identifier );
     
     virtual bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
 };

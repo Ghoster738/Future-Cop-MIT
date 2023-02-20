@@ -150,7 +150,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
-        std::cout << "Graphics::Environment::setModelTypes is not broken! " << err << std::endl;
+        std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     int number_of_failures = 0; // TODO make sure that this gets set.
@@ -159,11 +159,9 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     // Setup the vertex and fragment shaders
     EnvironmentInternalData->static_model_draw_routine.setVertexShader();
     EnvironmentInternalData->static_model_draw_routine.setFragmentShader();
-    EnvironmentInternalData->static_model_draw_routine.compilieProgram();
+    EnvironmentInternalData->static_model_draw_routine.compileProgram();
     
     EnvironmentInternalData->static_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
-    
-    EnvironmentInternalData->static_model_draw_routine.setNumModelTypes( model_types.size() );
 
     err = glGetError();
 
@@ -172,11 +170,9 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     
     EnvironmentInternalData->morph_model_draw_routine.setVertexShader();
     EnvironmentInternalData->morph_model_draw_routine.setFragmentShader();
-    EnvironmentInternalData->morph_model_draw_routine.compilieProgram();
+    EnvironmentInternalData->morph_model_draw_routine.compileProgram();
 
     EnvironmentInternalData->morph_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
-    
-    EnvironmentInternalData->morph_model_draw_routine.setNumModelTypes( model_types.size() );
     
     err = glGetError();
 
@@ -185,12 +181,10 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
 
     EnvironmentInternalData->skeletal_model_draw_routine.setVertexShader();
     EnvironmentInternalData->skeletal_model_draw_routine.setFragmentShader();
-    EnvironmentInternalData->skeletal_model_draw_routine.compilieProgram();
+    EnvironmentInternalData->skeletal_model_draw_routine.compileProgram();
     
     EnvironmentInternalData->skeletal_model_draw_routine.setTextures( &EnvironmentInternalData->shiney_texture );
     
-    EnvironmentInternalData->skeletal_model_draw_routine.setNumModelTypes( model_types.size() );
-
     err = glGetError();
 
     if( err != GL_NO_ERROR )
@@ -203,13 +197,13 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
 
             if( model != nullptr )
             {
-            if( model->getNumJoints() > 0 )
-                EnvironmentInternalData->skeletal_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
-            else
-            if( model->getNumMorphFrames() > 0)
-                EnvironmentInternalData->morph_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
-            else
-                EnvironmentInternalData->static_model_draw_routine.inputModel( model, i, EnvironmentInternalData->textures );
+                if( model->getNumJoints() > 0 )
+                    EnvironmentInternalData->skeletal_model_draw_routine.inputModel( model, model_types[ i ]->getResourceID(), EnvironmentInternalData->textures );
+                else
+                if( model->getNumMorphFrames() > 0)
+                    EnvironmentInternalData->morph_model_draw_routine.inputModel( model, model_types[ i ]->getResourceID(), EnvironmentInternalData->textures );
+                else
+                    EnvironmentInternalData->static_model_draw_routine.inputModel( model, model_types[ i ]->getResourceID(), EnvironmentInternalData->textures );
             }
         }
     }
@@ -268,7 +262,6 @@ void Graphics::Environment::drawFrame() const {
             if( EnvironmentInternalData->world != nullptr )
             {
                 // Enable culling on the world map.
-                // I do not know if Future Cop uses back face culling.
                 // glEnable( GL_CULL_FACE );
                 // glCullFace( GL_FRONT ); // The floor seems to be in reverse order! I have got to fix the floor and the slopes.
                 
@@ -307,14 +300,29 @@ void Graphics::Environment::drawFrame() const {
 }
 
 bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
+    auto gl_error = glGetError();
+
+    if( gl_error != GL_NO_ERROR ) {
+        std::cout << "There is an OpenGL error before Graphics::Environment::screenshot(...)\n";
+        std::cout << " This error is " << gl_error << std::endl;
+    }
+
     // if( image.isValid() && getHeight() < window TODO Work on type protection later.
-    glReadPixels( 0, 0, image.getWidth(), image.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image.getDirectGridData() );
+    glReadPixels( 0, 0, image.getWidth(), image.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     
     // This is a quick and easy way to fix the flipped image.
     // However, the price is that I replaced it with an O squared operation.
-    image.flipHorizontally();
+    image.flipVertically();
 
-    return true;
+    gl_error = glGetError();
+
+    if( gl_error != GL_NO_ERROR ) {
+        std::cout << "There is an OpenGL error in glReadPixels\n";
+        std::cout << " This error is " << gl_error << std::endl;
+        return false;
+    }
+    else
+        return true;
 }
 
 void Graphics::Environment::advanceTime( float seconds_passed ) {

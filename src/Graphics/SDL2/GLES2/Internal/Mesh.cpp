@@ -2,8 +2,8 @@
 #include <cassert>
 #include <iostream>
 
-Graphics::SDL2::GLES2::Internal::Mesh::Mesh( Program *program ) {
-    this->programR = program;
+Graphics::SDL2::GLES2::Internal::Mesh::Mesh( Program *program_r ) {
+    this->program_r = program_r;
     draw_command_array_mode = GL_TRIANGLES;
     morph_frame_amount = 0;
 }
@@ -12,11 +12,11 @@ Graphics::SDL2::GLES2::Internal::Mesh::~Mesh() {
     glDeleteBuffers( 1, &vertex_buffer_object );
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei count, const Texture2D *texture_ref ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei count, const Texture2D *texture_r ) {
     draw_command.push_back( DrawCommand() );
     draw_command.back().first = first;
     draw_command.back().count = count;
-    draw_command.back().texture_ref = texture_ref;
+    draw_command.back().texture_r = texture_r;
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
@@ -71,9 +71,9 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         delete [] buffer;
     }
 
-    vertex_array.getAttributesFrom( *programR, model );
+    vertex_array.getAttributesFrom( *program_r, model );
     
-    vertex_array.allocate( *programR );
+    vertex_array.allocate( *program_r );
     
     // If there is some kind of bug where there are some attributes not recognized
     // then cull them. They will just spam Mesh with countless errors.
@@ -114,8 +114,8 @@ void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
     for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
     {
-        if( (*i).texture_ref != nullptr )
-            (*i).texture_ref->bind( active_switch_texture, texture_switch_uniform );
+        if( (*i).texture_r != nullptr )
+            (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
         glDrawArrays( draw_command_array_mode, (*i).first, (*i).count );
         auto err = glGetError();

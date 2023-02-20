@@ -11,6 +11,12 @@ namespace Data {
 
 namespace Mission {
 
+/**
+ * Til Resource Reader.
+ *
+ * This is the Til resource it holds the resource responsible for holding a chunk of a map.
+ * In Future Cop, this resource has 16x16 tiles in it. Its size is 131072x131072.
+ */
 class TilResource : public ModelResource {
 public:
     static const std::string FILE_EXTENSION;
@@ -44,7 +50,8 @@ public:
     struct Tile {
         uint32_t end_column: 1;
         uint32_t texture_cord_index : 10;
-        uint32_t collision_type : 2; // 0b00 for floor; 0b01 for wall facing +x and -y; 0b10 for wall facing -x and +y; 0b11 for slopes
+        uint32_t front : 1;
+        uint32_t back  : 1;
         uint32_t unknown_1 : 2; // Apperently this holds what this tile would do to the playable character. However, it appears that the action this tile would do to the player is stored elsewhere.
         uint32_t mesh_type : 7;
         uint32_t graphics_type_index : 10;
@@ -57,7 +64,8 @@ public:
         void set( const uint32_t bitfield ) {
             end_column          = (bitfield >>  0) & 1;
             texture_cord_index  = (bitfield >>  1) & ((1 << 10) - 1);
-            collision_type      = (bitfield >> 11) & ((1 <<  2) - 1);
+            front               = (bitfield >> 11) & 1;
+            back                = (bitfield >> 12) & 1;
             unknown_1           = (bitfield >> 13) & ((1 <<  2) - 1);
             mesh_type           = (bitfield >> 15) & ((1 <<  7) - 1);
             graphics_type_index = (bitfield >> 22) & ((1 << 10) - 1);
@@ -82,6 +90,22 @@ public:
             rectangle      = (bitfield >> 13) & ((1 << 1) - 1);
             type           = (bitfield >> 14) & ((1 << 2) - 1);
         }
+        
+        uint8_t getOtherShading() const {
+            return (texture_index) | (unknown_0 << 3) | (rectangle << 5) | (type << 6);
+        }
+    };
+    class ColorMap {
+    private:
+        Utilities::GridBase2D<TileGraphics> map;
+    public:
+        ColorMap();
+        
+        Utilities::PixelFormatColor::GenericColor getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const;
+        void gatherColors(
+            const std::vector<TileGraphics>& tile_graphics,
+            const Tile *const tiles_r, unsigned number,
+            glm::u8vec2 position );
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
@@ -105,13 +129,13 @@ private:
     std::vector<Tile> mesh_tiles; // These are descriptions of tiles that are used to make up the map format. The 32 bit numbers are packed with information
 
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
-    std::vector<uint16_t> colors;
+    std::vector<Utilities::PixelFormatColor::GenericColor> colors;
     std::vector<TileGraphics> tile_texture_type;
+    ColorMap color_map;
     
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
-    // std::pair<size_t,size_t>[16][16] triangle_map;
 public:
     static constexpr size_t TEXTURE_NAMES_AMOUNT = sizeof( texture_names ) / sizeof( texture_names[0] );
     
@@ -132,7 +156,7 @@ public:
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
-    virtual int write( const char *const file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
 
     virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
     
@@ -141,8 +165,8 @@ public:
     void createPhysicsCell( unsigned int x, unsigned int z );
     
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
-    float getRayCast2D( float x, float z ) const;
-    float getRayCastDownward( float x, float z, float from_highest_point ) const;
+    float getRayCast2D( float x, float y ) const;
+    float getRayCastDownward( float x, float y, float from_highest_point ) const;
 
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;

@@ -252,7 +252,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
-int Data::Mission::BMPResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::BMPResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool export_enable = true;
     auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
 
@@ -308,7 +308,7 @@ int Data::Mission::BMPResource::write( const char *const file_path, const std::v
                 auto palette = Utilities::ImagePalette2D( rgba_palette );
                 
                 state = this->format_p->write( palette, buffer );
-                buffer.write( this->format_p->appendExtension( std::string( file_path ) + "_paletted" ) );
+                buffer.write( this->format_p->appendExtension( file_path + "_paletted" ) );
             }
 
             return state;

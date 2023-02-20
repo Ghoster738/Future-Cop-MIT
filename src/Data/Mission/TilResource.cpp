@@ -28,6 +28,31 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 }
 }
 
+Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_OF_TILES * 3 )
+{
+}
+
+Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const
+{
+    assert( map.getRef( position.x, position.y + position.z * AMOUNT_OF_TILES ) != nullptr );
+    return Til::Colorizer::getColor( map.getValue( position.x, position.y + position.z * AMOUNT_OF_TILES ), colors );
+}
+
+void Data::Mission::TilResource::ColorMap::gatherColors(
+    const std::vector<TileGraphics>& tile_graphics,
+    const Tile *const tiles_r, unsigned number, glm::u8vec2 position )
+{
+    auto tile_iterator_r = tiles_r;
+    
+    // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
+    
+    for( unsigned i = 0; i < 1; i++ ) {
+        map.setValue( position.x, position.y, tile_graphics.at( tile_iterator_r->graphics_type_index ) );
+        
+        // Always increment this!
+        tile_iterator_r++;
+    }
+}
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
@@ -111,7 +136,8 @@ void Data::Mission::TilResource::makeEmpty() {
     
     one_tile.end_column = 0;
     one_tile.texture_cord_index = 0;
-    one_tile.collision_type = 0; // This means the floor
+    one_tile.front = 0;
+    one_tile.back = 0;
     one_tile.unknown_1 = 0;
     one_tile.mesh_type = 60; // This should make an interesting pattern.
     one_tile.graphics_type_index = 0;
@@ -269,16 +295,11 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             // TODO Find out what this shader data does or if it is even shading data.
             colors.reserve( color_amount );
 
-            uint16_t colorful[] = { 0x7c00, 0x03e0, 0x001f, 0x7c1f };
-
             for( size_t i = 0; i < color_amount; i++ )
-                colors.push_back( readerSect.readU16( settings.endian ) );
+                colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( readerSect, settings.endian ) );
 
             // Read the texture_references, and shading info.
             while( readerSect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                // TileGraphics grp;
-                // grp.tile_graphics = Utilities::DataHandler::read_u16( image_read_head, settings.is_opposite_endian );
-
                 tile_texture_type.push_back( { readerSect.readU16( settings.endian ) } );
             }
             
@@ -286,6 +307,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
                 for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
                     createPhysicsCell( x, z );
+                    this->color_map.gatherColors( tile_texture_type, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
                 }
             }
         }
@@ -326,7 +348,7 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-int Data::Mission::TilResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::TilResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_point_cloud_export = false;
     bool enable_height_map_export = false;
     bool enable_export = true;
@@ -466,15 +488,16 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     vertex_data.element_amount = 6;
                     vertex_data.element_start = 0;
 
-                    Data::Mission::Til::Colorizer::Input input_color;
-                    input_color.tile = this->tile_texture_type.at( current_tile.graphics_type_index );
-                    input_color.colors = colors.data();
-                    input_color.colors_amount = colors.size();
+                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map, this->tile_texture_type };
+                    input_color.tile_index = current_tile.graphics_type_index;
                     input_color.unk = 0;
+                    input_color.position.x = x;
+                    input_color.position.y = y;
+                    input_color.position.z = 0;
 
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                    if( input_color.tile.texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
+                    if( this->tile_texture_type.at( input_color.tile_index ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
                         current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                         if( current_tile_polygon_amount == 0 && display_unread ) {
@@ -495,8 +518,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             position[ i ].x += position_displacement.x;
                             position[ i ].z += position_displacement.z;
 
-                            // Flip the x-axis.
+                            std::swap( position[ i ].x, position[ i ].z );
                             position[ i ].x = -position[ i ].x;
+                            position[ i ].z = -position[ i ].z;
                         }
                     }
 

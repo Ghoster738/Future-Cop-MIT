@@ -741,6 +741,8 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     std::ofstream resource;
 
     Json::Value root;
+    
+    const float TIME_SPEED = 1.f / 24.f;
 
     // Write the header of the json file
     root["asset"]["version"] = "2.0";
@@ -845,7 +847,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             float frame;
             for( int frame_index = 0; frame_index < morph_frame_buffers.size() + 2; frame_index++ ) {
-                frame = static_cast<float>( frame_index ) / 24.0f;
+                frame = static_cast<float>( frame_index ) * TIME_SPEED;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
             
@@ -912,7 +914,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             // Write down the time line.
             for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                frame = static_cast<float>( joint_frame ) / 24.0f;
+                frame = static_cast<float>( joint_frame ) * TIME_SPEED;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ));
             }
             index++;
@@ -1043,7 +1045,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["count"] = TIME_LENGTH;
         root["accessors"][accessors_amount]["type"] = "SCALAR";
         root["accessors"][accessors_amount]["min"][0] = 0.0;
-        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( TIME_LENGTH - 1 );
+        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( TIME_LENGTH - 1 ) * TIME_SPEED;
         accessors_amount++;
         
         root["accessors"][accessors_amount]["bufferView"] = (morph_buffer_view_index + 1);
@@ -1079,7 +1081,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["count"] = getNumJointFrames();
         root["accessors"][accessors_amount]["type"] = "SCALAR";
         root["accessors"][accessors_amount]["min"][0] = 0.0;
-        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() - 1 );
+        root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() - 1 ) * TIME_SPEED;
         accessors_amount++;
         
         unsigned int joint_transform_index = accessors_amount;

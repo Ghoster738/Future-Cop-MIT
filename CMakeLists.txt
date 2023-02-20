@@ -6,22 +6,10 @@ project( "Future Cop: MIT" DESCRIPTION "Open-source reimplementation of Future C
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# This makes SDL2 work. It has something to do with how windows and mingw handles the main function.
-if (WIN32)
-  if( MINGW )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lmingw32")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lmingw32")
-  else()
-    message(WARNING "MinGW is not being used for this Windows build. This CMakeLists file does not account for this compiler.")
-  endif()
-endif()
-
-option(ENABLED_FC_TESTS "Run tests to the project to see any potential problems." OFF)
-option(USE_INTERNAL_SDL2 "Use the internal SDL 2 CMake files stored in this project." OFF)
-
-if( USE_INTERNAL_SDL2 )
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/SDL2")
-endif()
+option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
+option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
+option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
+option( FC_OPTION_EXPERIMENTAL_BLEND_COLORS "Enable experimental blend colors on Ctils which makes maps." OFF )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -34,24 +22,29 @@ target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
 
 find_package( ZLIB )
 find_package( PNG )
-find_package( glm      REQUIRED )
-find_package( JSON_CPP REQUIRED )
-if( WIN32 )
-  find_package( SDL2   REQUIRED components SDL2main )
+
+if( FCOption_GLM_VENDORED )
+  add_subdirectory(submodules/glm)
+  target_link_libraries( FC_IFF_IO glm::glm )
 else()
-  find_package( SDL2   REQUIRED )
+  find_package( glm REQUIRED )
+  
+  # Warn the user of the potential compilation error.
+  if( GLM_VERSION VERSION_LESS 0.9.9.8 )
+    if( GLM_VERSION VERSION_LESS 0.9.9 )
+      message( ERROR "GLM version is ${GLM_VERSION} which is below 0.9.9. It will cause GLM to crash. To fix this error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
+    else() #Failed to release that GLM often lacks full version numbers leading to this complexity
+      message( WARNING "GLM version is ${GLM_VERSION} which is might be bellow 0.9.9.8. It might cause a compilation issue. To fix this potential compilation error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
+    endif()
+  endif()
+
+  include_directories(${GLM_INCLUDE_DIRS})
 endif()
-find_package( OpenGL   REQUIRED)
+
+find_package( JSON_CPP REQUIRED )
+
+find_package( OpenGL REQUIRED)
 find_package( Git )
-
-# Warn the user of the potential compilation error.
-if( GLM_VERSION VERSION_LESS 0.9.8 )
-   message( WARNING "GLM version is ${GLM_VERSION} which is not above 0.9.8. This version of GLM might produce compilation errors." )
-endif()
-
-if (SDL2_FOUND)
-    mark_as_advanced(SDL2_DIR)
-endif()
 
 # Seems to work only with "LEGACY" at this time
 set (OpenGL_GL_PREFERENCE "LEGACY" CACHE STRING "Set the OPENGL affinity, if multiple libraries are available")
@@ -64,23 +57,21 @@ if(ZLIB_FOUND)
   endif()
 endif()
 
-include_directories(${GLM_INCLUDE_DIRS})
 include_directories(${JSON_CPP_INCLUDE_DIR})
-include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
 if(ZLIB_FOUND)
-  target_link_libraries (FC_IFF_IO PRIVATE ${ZLIB_LIBRARY})
+  target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
   if(PNG_FOUND)
-    target_link_libraries (FC_IFF_IO PRIVATE ${PNG_LIBRARIES})
+    target_link_libraries (FC_IFF_IO PNG::PNG)
   endif()
 endif()
 
-target_link_libraries (FC_IFF_IO PRIVATE ${JSON_CPP_LIBRARY})
+target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
 
-# add_executable( FCMissionReader src/FCMissionReader.cpp )
-# target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
+add_executable( FCMissionReader src/FCMissionReader.cpp )
+target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
 include(${CMAKE_SOURCE_DIR}/cmake/GenerateVersionHeader.cmake)
 
@@ -108,29 +99,50 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
+add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
+add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
+
+# Use the vendor version if the SDL2 find files could not be found.
+if( FCOption_SDL2_VENDORED )
+  add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
+
+   # This might fix anoying SDL2 but on whatever end caused it.
+  include_directories( ${PROJECT_BINARY_DIR}/submodules/SDL2/include )
+  configure_file(${PROJECT_BINARY_DIR}/submodules/SDL2/SDL_config.h.intermediate ${PROJECT_BINARY_DIR}/SDL_config.h COPYONLY)
+else()
+  if( WIN32 )
+    # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
+    find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
+  else()
+    # 1. Look for a SDL2 package, 2. look for the SDL2 component and 3. fail if none can be found
+    find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
+    find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
+  endif()
+
+  include_directories(${SDL2_INCLUDE_DIRS})
+endif()
+
+if( TARGET SDL2::SDL2main )
+  target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2main)
+  target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2main)
+endif()
+
+target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2)
+target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2)
 
 target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
-
-target_link_libraries (FC_Engine PRIVATE ${SDL2_LIBRARIES})
 target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
-
-add_executable(FCModelViewer src/FCModelViewer.cpp )
-
 target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCModelViewer PRIVATE FC_Engine)
-if( WIN32 )
-  target_link_libraries (FCModelViewer PRIVATE SDL2main)
-endif()
-
-add_executable(FCMapViewer src/FCMapViewer.cpp )
-
 target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
+
+target_link_libraries (FCModelViewer PRIVATE FC_Engine)
 target_link_libraries (FCMapViewer PRIVATE FC_Engine)
-if( WIN32 )
-  target_link_libraries (FCMapViewer PRIVATE SDL2main)
+
+if (SDL2_FOUND)
+    mark_as_advanced(SDL2_DIR)
 endif()
 
-if( ENABLED_FC_TESTS )
+if( FCOption_TESTS )
   # This is the testing section.
   add_subdirectory( src/Tests )
 endif()

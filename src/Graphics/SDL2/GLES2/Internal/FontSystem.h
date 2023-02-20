@@ -16,6 +16,7 @@ class FontSystem {
 public:
     class Text2D;
     struct Font {
+        uint32_t resource_id;
         const Data::Mission::FontResource *font_resource_r;
         Texture2D texture;
         glm::u32vec2 texture_scale;
@@ -43,6 +44,7 @@ public:
 
         /**
          * Get the font that is attached to this.
+         * @return Always a valid pointer to font
          */
         Font* getFont() const { return font_r; }
 
@@ -122,6 +124,8 @@ protected:
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
 
+    uint32_t invalid_text_resource_id; // This is a font with a DEL key symbol.
+
     std::vector<Font> font_bank;
 public:
     /**
@@ -132,19 +136,26 @@ public:
      * Delete everything.
      */
     ~FontSystem();
+    
+    std::map<uint32_t, Text2D*> getText2D();
 
     const VertexAttributeArray *const getVertexAttributeArray() const { return &vertex_array; };
-
+    
     /**
      * @return the number of fonts in the class.
      */
     int getNumFonts() const;
 
     /**
+     * @return A valid resource id for the font with DEL key.
+     */
+    uint32_t getInvalidBackupFontID() const { return invalid_text_resource_id; }
+
+    /**
      * This gets a font from the class.
      */
     Font* accessFont( unsigned int index );
-
+    
     /**
      * @return vertex buffer size in bytes.
      */
@@ -196,7 +207,7 @@ public:
      */
     int compileProgram();
 
-    void draw( const glm::mat4 &projection, const std::vector<Text2D*> &text_2d_array );
+    void draw( const glm::mat4 &projection, const std::map<uint32_t, Text2D*> &text_2d_array );
 };
 
 }

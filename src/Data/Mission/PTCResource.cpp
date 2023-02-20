@@ -132,7 +132,7 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
     return new PTCResource( *this );
 }
 
-int Data::Mission::PTCResource::write( const char *const file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::PTCResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
     bool entire_map = false;
     bool entire_height_map = false;
@@ -257,6 +257,25 @@ int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
         return 1; // The whole map had been written to the "disk"
     else
         return 0; // Combine model has failed to write.
+}
+
+float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
+    if( x < 0.0 || y < 0.0 )
+        return 10.0f;
+    
+    const unsigned int x_til = x / static_cast<float>( TilResource::AMOUNT_OF_TILES );
+    const unsigned int y_til = y / static_cast<float>( TilResource::AMOUNT_OF_TILES );
+    
+    // There is some kind of blank boarder.
+    auto tile_r = getTile( y_til + 1, x_til );
+    
+    if( tile_r == nullptr )
+        return 10.0f;
+    
+    const float x_til_offset = fmod( x, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
+    const float y_til_offset = fmod( y, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
+    
+    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
 }
 
 std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( Data::Mission::IFF &mission_file ) {

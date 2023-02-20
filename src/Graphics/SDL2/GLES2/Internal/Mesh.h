@@ -17,10 +17,10 @@ public:
     struct DrawCommand {
         GLint first;
         GLsizei count;
-        const Texture2D *texture_ref;
+        const Texture2D *texture_r;
     };
 protected:
-    Program *programR;
+    Program *program_r;
     GLuint vertex_buffer_object;
     VertexAttributeArray vertex_array;
 
@@ -37,7 +37,7 @@ protected:
 
     void addCommand( GLint first, GLsizei count, const Texture2D *texture_ref );
 public:
-    Mesh( Program *program );
+    Mesh( Program *program_r );
     virtual ~Mesh();
 
     void setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures );
@@ -50,7 +50,7 @@ public:
 
     void draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
 
-    Program *getProgram() const { return programR; }
+    Program *getProgram() const { return program_r; }
 
     /**
      * This gets where the morph frames of the mesh.

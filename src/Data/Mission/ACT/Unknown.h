@@ -29,12 +29,15 @@ public:
     Unknown( const Unknown& obj );
 
     virtual uint_fast8_t getTypeID() const;
+    virtual std::string getTypeIDName() const;
 
     virtual size_t getSize() const;
 
     virtual bool checkRSL() const;
 
     virtual Resource* duplicate() const;
+    
+    virtual ACTResource* duplicate( const ACTResource &original ) const;
 };
 
 }
