@@ -158,6 +158,8 @@ namespace {
 }
 
 int Data::Mission::IFF::open( const std::string &file_path ) {
+    std::unordered_set<std::string> filenames; // Check for potential conflicts.
+    
     std::fstream file;
 
     this->setName( file_path );
@@ -348,13 +350,46 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         data_reader.setPosition( 12 );
 
                         int8_t some_char = '1';
+                        
+                        size_t dot_position = DATA_SIZE;
+                        const size_t STRING_LIMIT = DATA_SIZE - 12;
 
-                        for( uint32_t i = 0; i < DATA_SIZE - 12 && some_char != '\0'; i++ )
+                        for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
                         {
                             some_char = data_reader.readI8();
 
+                            if(some_char == '.')
+                                dot_position = i;
+                            
                             if(some_char != '\0')
                                 name_swvr += some_char;
+                        }
+                        
+                        // Now, the swvr name must be cleaned up.
+                        
+                        // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
+                        if( name_swvr.length() > dot_position )
+                        {
+                            // Get the ".stream" ending cut out of the swvr name.
+                            
+                            const std::string ending = name_swvr.substr( dot_position );
+                            const std::string expecting = std::string(".stream").substr( 0, ending.length() );
+                            
+                            if( ending.compare(expecting) != 0 ) {
+                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
+                                std::cout << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n";
+                                std::cout << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop." << std::endl;
+                            }
+                            else {
+                                name_swvr = name_swvr.substr( 0, dot_position );
+                            }
+                        }
+                        else
+                        {
+                            if( name_swvr.length() != STRING_LIMIT - 1 ) {
+                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
+                                std::cout << "  SWVR name \"" << name_swvr << "\" probably invalid." << std::endl;
+                            }
                         }
                     }
                     else
@@ -426,6 +461,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             
             i.header_p = nullptr;
             i.data_p   = nullptr;
+            
+            // Check for naming conflicts
+            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
+            
+            // std::cout << "Resource Name = " << file_name << std::endl;
+            assert( filenames.find( file_name ) == filenames.end() );
+            filenames.emplace( file_name );
 
             addResource( new_resource_p );
         }
