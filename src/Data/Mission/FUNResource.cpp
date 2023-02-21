@@ -1,27 +1,15 @@
 #include "FUNResource.h"
 #include <limits>
 #include <cassert>
+#include <iostream>
 
 const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
 namespace {
-bool convert( const uint8_t *const number_r, size_t number_limit, uint64_t &big_number, size_t &size_read ) {
-    const uint8_t * number_head_r = number_r;
-    
-    big_number |= (*number_head_r & 0x7F);
-    
-    while( (*number_head_r & 0x80) == 0 && number_limit > 0) {
-        big_number = big_number << 7;
-        big_number |= (*number_head_r & 0x7F);
-        number_head_r++;
-        number_limit--;
-        size_read++;
-    }
-    
-    return true;
-}
+const uint8_t FORCE_ACTOR_SPAWN[] = { 0xC7, 0x80, 0x3C };
+const uint8_t NEUTRAL_TURRET_INIT[] = { 0xC7, 0x80, 0x3D }; // Always has 0xB2 or 178. Which might mean a value of 50 if converted.
 }
 
 Data::Mission::FUNResource::FUNResource() {
@@ -125,6 +113,38 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                                 *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
                             }
                             *settings.output_ref << std::dec << "\n" << std::endl;
+                        }
+                        
+                        bool found_item = false;
+                        
+                        if( code.size() >= 5) {
+                            const size_t ELEMENT = code.at( (code.end() - code.begin()) - 2 );
+                            
+                            if( ELEMENT == NEUTRAL_TURRET_INIT[2] ) {
+                                if( code.at( (code.end() - code.begin()) - 3 ) == NEUTRAL_TURRET_INIT[1] && code.at( (code.end() - code.begin()) - 4 ) == NEUTRAL_TURRET_INIT[0] ) {
+                                    std::cout << "Found Neutral Turret!" << std::endl;
+                                    found_item = true;
+                                }
+                            }
+                            else
+                            if( ELEMENT == FORCE_ACTOR_SPAWN[2] ) {
+                                if( code.at( (code.end() - code.begin()) - 3 ) == FORCE_ACTOR_SPAWN[1] && code.at( (code.end() - code.begin()) - 4 ) == FORCE_ACTOR_SPAWN[0] ) {
+                                    std::cout << "Found Base Turret!" << std::endl;
+                                    found_item = true;
+                                }
+                            }
+                        }
+                        
+                        if( found_item ) {
+                            *settings.output_ref << "i = " << std::dec << i << std::endl;
+                            *settings.output_ref << "faction = " << std::dec << functions.at( i ).faction << std::endl;
+                            *settings.output_ref << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
+                            *settings.output_ref << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                            *settings.output_ref << std::hex << "Code = ";
+                            for( auto f = code.begin(); f < code.end(); f++ ) {
+                                *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                            }
+                            std::cout << std::endl;
                         }
                         
                         assert( parameters.size() > 1 );
