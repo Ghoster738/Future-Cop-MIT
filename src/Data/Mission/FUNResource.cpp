@@ -117,6 +117,10 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         
                         bool found_item = false;
                         
+                        // faction = 1, identifier = 5 Probably means initialization!
+                        // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
+                        // NEUTRAL_TURRET_INIT = NUMBER, { 0xC7, 0x80, 0x3D }
+                        
                         if( code.size() >= 5) {
                             const size_t ELEMENT = code.at( (code.end() - code.begin()) - 2 );
                             
@@ -136,10 +140,10 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         }
                         
                         if( found_item ) {
-                            *settings.output_ref << "i = " << std::dec << i << std::endl;
-                            *settings.output_ref << "faction = " << std::dec << functions.at( i ).faction << std::endl;
-                            *settings.output_ref << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
-                            *settings.output_ref << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                            *settings.output_ref << "i[" << std::dec << i  << "], ";
+                            *settings.output_ref << "f[" << functions.at( i ).faction << "], ";
+                            *settings.output_ref << "id[" << functions.at( i ).identifier << "], ";
+                            *settings.output_ref << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
                             *settings.output_ref << std::hex << "Code = ";
                             for( auto f = code.begin(); f < code.end(); f++ ) {
                                 *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
