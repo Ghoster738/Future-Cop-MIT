@@ -84,19 +84,15 @@ bool Data::Mission::Resource::noResourceID() const {
 }
 
 std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
-    std::string full_name;
-
-    if( swvr_name.empty() ) {
-        // full_name = "dat_60"
-        full_name  = getFileExtension();
-        full_name += "_";
+    std::string full_name = getFileExtension();
+    full_name += "_";
+    
+    if( swvr_name.empty() )
         full_name += std::to_string( index );
-    }
-    else {
-        full_name = swvr_name;
-        full_name += "_";
-        full_name += getFileExtension();
-    }
+    else
+        full_name += swvr_name;
+    
+    // full_name = "dat_60"
 
     return full_name;
 }

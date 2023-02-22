@@ -1,16 +1,10 @@
 #include "FUNResource.h"
 #include <limits>
 #include <cassert>
-#include <iostream>
 
 const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
-
-namespace {
-const uint8_t FORCE_ACTOR_SPAWN[] = { 0xC7, 0x80, 0x3C };
-const uint8_t NEUTRAL_TURRET_INIT[] = { 0xC7, 0x80, 0x3D }; // Always has 0xB2 or 178. Which might mean a value of 50 if converted.
-}
 
 Data::Mission::FUNResource::FUNResource() {
 }
@@ -123,16 +117,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         
                         // JOKE/SLIM has faction 1 and identifier 5, and it appears to be something else. I can deduce no pattern in this sequence.
                         // However, I have enough knowedge to write an inaccurate parser.
-                        
-                        if( functions.at( i ).faction == 1 && functions.at( i ).identifier == 5 ) {
-                            std::cout << "Init code here! " << i << std::endl;
-                            *settings.output_ref << std::hex << "Code = ";
-                            for( auto f = code.begin(); f < code.end(); f++ ) {
-                                *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                            }
-                            *settings.output_ref << std::dec << "\n" << std::endl;
-                        }
-                        
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );
