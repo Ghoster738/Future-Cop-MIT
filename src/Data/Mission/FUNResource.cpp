@@ -95,10 +95,10 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto code = getFunctionCode( i );
                         
                         if( settings.output_level >= 3 ) {
-                            *settings.output_ref << "i = " << std::dec << i << std::endl;
-                            *settings.output_ref << "faction = " << std::dec << functions.at( i ).faction << std::endl;
-                            *settings.output_ref << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
-                            *settings.output_ref << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                            *settings.output_ref << "i[" << std::dec << i  << "], ";
+                            *settings.output_ref << "f[" << functions.at( i ).faction << "], ";
+                            *settings.output_ref << "id[" << functions.at( i ).identifier << "], ";
+                            *settings.output_ref << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
                             
                             *settings.output_ref << std::hex << "Parameters = ";
                             for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
@@ -121,35 +121,18 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
                         // NEUTRAL_TURRET_INIT = NUMBER, { 0xC7, 0x80, 0x3D }
                         
-                        if( code.size() >= 5) {
-                            const size_t ELEMENT = code.at( (code.end() - code.begin()) - 2 );
-                            
-                            if( ELEMENT == NEUTRAL_TURRET_INIT[2] ) {
-                                if( code.at( (code.end() - code.begin()) - 3 ) == NEUTRAL_TURRET_INIT[1] && code.at( (code.end() - code.begin()) - 4 ) == NEUTRAL_TURRET_INIT[0] ) {
-                                    std::cout << "Found Neutral Turret!" << std::endl;
-                                    found_item = true;
-                                }
-                            }
-                            else
-                            if( ELEMENT == FORCE_ACTOR_SPAWN[2] ) {
-                                if( code.at( (code.end() - code.begin()) - 3 ) == FORCE_ACTOR_SPAWN[1] && code.at( (code.end() - code.begin()) - 4 ) == FORCE_ACTOR_SPAWN[0] ) {
-                                    std::cout << "Found Base Turret!" << std::endl;
-                                    found_item = true;
-                                }
-                            }
-                        }
+                        // JOKE/SLIM has faction 1 and identifier 5, and it appears to be something else. I can deduce no pattern in this sequence.
+                        // However, I have enough knowedge to write an inaccurate parser.
                         
-                        if( found_item ) {
-                            *settings.output_ref << "i[" << std::dec << i  << "], ";
-                            *settings.output_ref << "f[" << functions.at( i ).faction << "], ";
-                            *settings.output_ref << "id[" << functions.at( i ).identifier << "], ";
-                            *settings.output_ref << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                        if( functions.at( i ).faction == 1 && functions.at( i ).identifier == 5 ) {
+                            std::cout << "Init code here! " << i << std::endl;
                             *settings.output_ref << std::hex << "Code = ";
                             for( auto f = code.begin(); f < code.end(); f++ ) {
                                 *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
                             }
-                            std::cout << std::endl;
+                            *settings.output_ref << std::dec << "\n" << std::endl;
                         }
+                        
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );
