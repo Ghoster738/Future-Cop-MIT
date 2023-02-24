@@ -87,13 +87,23 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    result_r[1].x = static_cast<double>( TilResource::TileGraphics( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ) ).shading ) * SHADING_VALUE;
+                    const auto primary = TilResource::TileGraphics( input.til_graphics[ input.tile_index ] );
+                    
+                    result_r[0].x = static_cast<double>(primary.shading & 0xFC) * SHADING_VALUE;
+                    result_r[0].y = result_r[0].x;
+                    result_r[0].z = result_r[0].x;
+                    
+                    uint8_t second = ((primary.shading & 0x03) << 4) | TilResource::DynamicMonoGraphics( input.til_graphics[ input.tile_index + 1] ).second_lower;
+                    result_r[1].x = static_cast<double>( second << 2 ) * SHADING_VALUE;
                     result_r[1].y = result_r[1].x;
                     result_r[1].z = result_r[1].x;
-                    result_r[2].x = static_cast<double>( TilResource::TileGraphics( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ) ).getOtherShading() ) * SHADING_VALUE;
+                    
+                    result_r[2].x = static_cast<double>( TilResource::DynamicMonoGraphics( input.til_graphics[ input.tile_index + 1] ).third << 2 ) * SHADING_VALUE;
                     result_r[2].y = result_r[2].x;
                     result_r[2].z = result_r[2].x;
-                    result_r[3] = result_r[0];
+                    result_r[3].x = static_cast<double>( TilResource::DynamicMonoGraphics( input.til_graphics[ input.tile_index + 1] ).forth << 2 ) * SHADING_VALUE;
+                    result_r[3].y = result_r[3].x;
+                    result_r[3].z = result_r[3].x;
                 }
                 break;
             case 0b10: // Dynamic Color
@@ -101,7 +111,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                     result_r[0] = accessColor( TilResource::TileGraphics( input.til_graphics.at( input.tile_index ) ).shading, input.colors );
                     result_r[1] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 1 ) ).second, input.colors );
                     result_r[2] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 1 ) ).third, input.colors );
-                    result_r[3] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 2 ) ).second, input.colors );
+                    
+                    // This shows that vertex colors are in fact optional.
+                    result_r[3] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( (input.tile_index + 2) % input.til_graphics.size() ) ).second, input.colors );
                 }
                 break;
             case 0b11: // Lava Animation
