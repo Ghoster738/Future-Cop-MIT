@@ -71,6 +71,36 @@ public:
             graphics_type_index = (bitfield >> 22) & ((1 << 10) - 1);
         }
     };
+    struct DynamicMonoGraphics {
+        uint16_t forth : 6;
+        uint16_t third : 6;
+        uint16_t second_lower : 4;
+        
+        DynamicMonoGraphics() {}
+        DynamicMonoGraphics( const uint16_t bitfield ) {
+            set( bitfield );
+        }
+        
+        void set( const uint16_t bitfield ) {
+            forth        = (bitfield >>  0) & ((1 << 6) - 1);
+            third        = (bitfield >>  6) & ((1 << 6) - 1);
+            second_lower = (bitfield >> 12) & ((1 << 4) - 1);
+        }
+    };
+    struct DynamicColorGraphics {
+        uint16_t third  : 8;
+        uint16_t second : 8;
+        
+        DynamicColorGraphics() {}
+        DynamicColorGraphics( const uint16_t bitfield ) {
+            set( bitfield );
+        }
+        
+        void set( const uint16_t bitfield ) {
+            third  = (bitfield >>  0) & ((1 << 8) - 1);
+            second = (bitfield >>  8) & ((1 << 8) - 1);
+        }
+    };
     struct TileGraphics {
         uint16_t shading : 8; // Lighting information, but they do change meaning depending type bitfield
         uint16_t texture_index : 3; // Holds the index of the texture the tile references.
@@ -91,21 +121,17 @@ public:
             type           = (bitfield >> 14) & ((1 << 2) - 1);
         }
         
+        uint16_t get() const {
+            return ((uint16_t)shading << 0) |
+                ((uint16_t)texture_index << 8) |
+                ((uint16_t)unknown_0 << 11) |
+                ((uint16_t)rectangle << 13) |
+                ((uint16_t)type << 14);
+        }
+        
         uint8_t getOtherShading() const {
             return (texture_index) | (unknown_0 << 3) | (rectangle << 5) | (type << 6);
         }
-    };
-    class ColorMap {
-    private:
-        Utilities::GridBase2D<TileGraphics> map;
-    public:
-        ColorMap();
-        
-        Utilities::PixelFormatColor::GenericColor getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const;
-        void gatherColors(
-            const std::vector<TileGraphics>& tile_graphics,
-            const Tile *const tiles_r, unsigned number,
-            glm::u8vec2 position );
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
@@ -130,8 +156,7 @@ private:
 
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<Utilities::PixelFormatColor::GenericColor> colors;
-    std::vector<TileGraphics> tile_texture_type;
-    ColorMap color_map;
+    std::vector<uint16_t> tile_graphics_bitfield;
     
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
     

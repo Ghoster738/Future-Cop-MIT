@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <cassert>
+#include <set>
 
 namespace {
 uint32_t LITTLE_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect";
@@ -26,32 +27,6 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
     tile.bottom_right = reader.readU16( endian );
     reader.readU16(); // Skip Unknown data.
 }
-}
-
-Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_OF_TILES * 3 )
-{
-}
-
-Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const
-{
-    assert( map.getRef( position.x, position.y + position.z * AMOUNT_OF_TILES ) != nullptr );
-    return Til::Colorizer::getColor( map.getValue( position.x, position.y + position.z * AMOUNT_OF_TILES ), colors );
-}
-
-void Data::Mission::TilResource::ColorMap::gatherColors(
-    const std::vector<TileGraphics>& tile_graphics,
-    const Tile *const tiles_r, unsigned number, glm::u8vec2 position )
-{
-    auto tile_iterator_r = tiles_r;
-    
-    // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
-    
-    for( unsigned i = 0; i < 1; i++ ) {
-        map.setValue( position.x, position.y, tile_graphics.at( tile_iterator_r->graphics_type_index ) );
-        
-        // Always increment this!
-        tile_iterator_r++;
-    }
 }
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
@@ -153,7 +128,7 @@ void Data::Mission::TilResource::makeEmpty() {
     
     this->colors.clear();
     
-    this->tile_texture_type.clear();
+    this->tile_graphics_bitfield.clear();
     
     TileGraphics flat;
     
@@ -163,7 +138,7 @@ void Data::Mission::TilResource::makeEmpty() {
     flat.rectangle = 1; // This is a rectangle.
     flat.type = 0; // Make a pure flat
     
-    this->tile_texture_type.push_back( flat );
+    this->tile_graphics_bitfield.push_back( flat.get() );
     
     this->all_triangles.clear();
     
@@ -260,9 +235,13 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
 
             mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
+            
+            std::set<uint16_t> seen_graphics_tiles;
 
-            for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ )
+            for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ ) {
                 mesh_tiles.push_back( { readerSect.readU32( settings.endian ) } );
+                seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
+            }
             
             bool skipped_space = false;
 
@@ -292,22 +271,42 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 texture_cords.back().y = readerSect.readU8();
             }
 
-            // TODO Find out what this shader data does or if it is even shading data.
             colors.reserve( color_amount );
-
             for( size_t i = 0; i < color_amount; i++ )
                 colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( readerSect, settings.endian ) );
-
+            
+            if( getResourceID() == 18)
+                std::cout << "TIL " << getResourceID() << " offset 0x" << std::hex << getOffset() << std::dec << " not referenced graphics tiles\n";
+            
             // Read the texture_references, and shading info.
             while( readerSect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                tile_texture_type.push_back( { readerSect.readU16( settings.endian ) } );
+                const auto data = readerSect.readU16( settings.endian );
+                
+                tile_graphics_bitfield.push_back( { data } );
+                
+                if( getResourceID() == 18 ) {
+                    std::cout << "[" << ( tile_graphics_bitfield.size() - 1 ) << "] = ";
+                
+                    if( seen_graphics_tiles.find( tile_graphics_bitfield.size() - 1 ) != seen_graphics_tiles.end() ) {
+                        const auto tile_graphics = TileGraphics( data );
+                        
+                        std::cout << "T: " << (unsigned)tile_graphics.type << " R: " << (unsigned)tile_graphics.rectangle << " ?: "
+                        << (unsigned)tile_graphics.unknown_0 << " U: " << (unsigned)tile_graphics.texture_index << " S: "
+                        << (unsigned)tile_graphics.shading << " => ";
+                    }
+                    
+                    // Presreve the direct graphics tiles
+                    std::cout << "0x" << std::hex << ((data >> 12) & 0xF) << ((data >> 8) & 0xF) << ((data >> 4) & 0xF) << (data & 0xF) << std::dec << "\n";
+                }
             }
+            
+            if( getResourceID() == 18 )
+                std::cout << "\n" << seen_graphics_tiles.size() << " out of " << tile_graphics_bitfield.size() << " are used. So, effective reading is about " << ((double)seen_graphics_tiles.size() / (double)tile_graphics_bitfield.size() * 100.0) << "%" << std::endl;
             
             // Create the physics cells for this Til.
             for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
                 for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
                     createPhysicsCell( x, z );
-                    this->color_map.gatherColors( tile_texture_type, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
                 }
             }
         }
@@ -488,7 +487,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     vertex_data.element_amount = 6;
                     vertex_data.element_start = 0;
 
-                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map, this->tile_texture_type };
+                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->tile_graphics_bitfield };
                     input_color.tile_index = current_tile.graphics_type_index;
                     input_color.unk = 0;
                     input_color.position.x = x;
@@ -497,7 +496,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                    if( this->tile_texture_type.at( input_color.tile_index ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
+                    if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
                         current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                         if( current_tile_polygon_amount == 0 && display_unread ) {
