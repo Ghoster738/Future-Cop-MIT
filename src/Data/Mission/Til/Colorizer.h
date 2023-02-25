@@ -13,16 +13,11 @@ namespace Colorizer {
 
     struct Input {
         const std::vector<Utilities::PixelFormatColor::GenericColor> &colors;
-        const TilResource::ColorMap &color_map;
-        const std::vector<TilResource::TileGraphics> &til_graphics;
+        const std::vector<uint16_t> &til_graphics;
         unsigned tile_index;
         int unk;
         glm::u8vec3 position;
     };
-
-    Utilities::PixelFormatColor::GenericColor getColor( Data::Mission::TilResource::TileGraphics tile, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors );
-
-    glm::vec3 getColorVec3( Data::Mission::TilResource::TileGraphics tile, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors );
 
     /**
      * Set the colors for the square.

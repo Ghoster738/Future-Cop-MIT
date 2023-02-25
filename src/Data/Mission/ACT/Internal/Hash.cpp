@@ -15,6 +15,9 @@ private:
     const static size_t TABLE_SIZE = 0x100;
 
     Data::Mission::ACTResource* table_p[ TABLE_SIZE ];
+    
+    // Type ID 16 - 36 Unknown bytes - Precinct Assault Powerups.
+    // Type ID 32 - 32 Unknown bytes - Police Locker Unit Contianing Powerups.
 
     void setupTable() {
         table_p[ Data::Mission::ACT::X1Alpha::TYPE_ID ] = new Data::Mission::ACT::X1Alpha();

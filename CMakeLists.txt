@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
 option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
-option( FC_OPTION_EXPERIMENTAL_BLEND_COLORS "Enable experimental blend colors on Ctils which makes maps." OFF )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -39,6 +38,21 @@ else()
   endif()
 
   include_directories(${GLM_INCLUDE_DIRS})
+endif()
+
+# Use the vendor version if the SDL2 find files could not be found.
+if( FCOption_SDL2_VENDORED )
+  add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
+
+  # This is a workaround made to make this project compile. There might be a better way.
+  include_directories(${PROJECT_BINARY_DIR}/submodules/SDL2/include-config-/) # TODO Make sure this works.
+elseif( WIN32 )
+  # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
+  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
+else()
+  # 1. Look for a SDL2 package, 2. look for the SDL2 component and 3. fail if none can be found
+  find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
+  find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
 endif()
 
 find_package( JSON_CPP REQUIRED )
@@ -99,27 +113,18 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} )
-add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
-add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
+target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
 
-# Use the vendor version if the SDL2 find files could not be found.
-if( FCOption_SDL2_VENDORED )
-  add_subdirectory(submodules/SDL2 EXCLUDE_FROM_ALL)
-
-   # This might fix anoying SDL2 but on whatever end caused it.
-  include_directories( ${PROJECT_BINARY_DIR}/submodules/SDL2/include )
-  configure_file(${PROJECT_BINARY_DIR}/submodules/SDL2/SDL_config.h.intermediate ${PROJECT_BINARY_DIR}/SDL_config.h COPYONLY)
+if( WIN32 )
+  add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
 else()
-  if( WIN32 )
-    # If SDL2 is not there or SDL2 or SDL2main are missing then Windows will not work with this build.
-    find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2 SDL2main)
-  else()
-    # 1. Look for a SDL2 package, 2. look for the SDL2 component and 3. fail if none can be found
-    find_package(SDL2 REQUIRED CONFIG REQUIRED COMPONENTS SDL2)
-    find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
-  endif()
+  add_executable(FCModelViewer src/FCModelViewer.cpp )
+endif()
 
-  include_directories(${SDL2_INCLUDE_DIRS})
+if( WIN32 )
+  add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
+else()
+  add_executable(FCMapViewer src/FCMapViewer.cpp )
 endif()
 
 if( TARGET SDL2::SDL2main )

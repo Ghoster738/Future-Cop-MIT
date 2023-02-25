@@ -5,7 +5,6 @@
 #include "ACT/Unknown.h"
 
 #include <fstream>
-#include <iostream>
 #include <cassert>
 
 #include <json/json.h>
@@ -135,7 +134,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
-    // const uint32_t Cobj_INT = 0x436F626A; // This spells out Cobj.
+    const uint32_t Cobj_INT = 0x436F626A; // This spells out Cobj.
 
     if( RSL_CHUNK_ID == data_reader.readU32( endian ) )
     {

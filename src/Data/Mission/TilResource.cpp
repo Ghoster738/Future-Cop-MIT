@@ -10,9 +10,13 @@
 #include <fstream>
 #include <iostream>
 #include <cassert>
+#include <set>
 
 namespace {
-uint32_t LITTLE_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect";
+uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect";
+uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX";
+uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Unknown, but it is significantly bigger than SLFX
+
 void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
     tile.top_left = reader.readU16( endian );
     reader.readU16(); // Skip Unknown data.
@@ -26,32 +30,6 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
     tile.bottom_right = reader.readU16( endian );
     reader.readU16(); // Skip Unknown data.
 }
-}
-
-Data::Mission::TilResource::ColorMap::ColorMap() : map( AMOUNT_OF_TILES, AMOUNT_OF_TILES * 3 )
-{
-}
-
-Utilities::PixelFormatColor::GenericColor Data::Mission::TilResource::ColorMap::getColor( glm::u8vec3 position, const std::vector<Utilities::PixelFormatColor::GenericColor>& colors ) const
-{
-    assert( map.getRef( position.x, position.y + position.z * AMOUNT_OF_TILES ) != nullptr );
-    return Til::Colorizer::getColor( map.getValue( position.x, position.y + position.z * AMOUNT_OF_TILES ), colors );
-}
-
-void Data::Mission::TilResource::ColorMap::gatherColors(
-    const std::vector<TileGraphics>& tile_graphics,
-    const Tile *const tiles_r, unsigned number, glm::u8vec2 position )
-{
-    auto tile_iterator_r = tiles_r;
-    
-    // TODO Write this with a for loop acounting for the tiles array length to avoid memory access errors.
-    
-    for( unsigned i = 0; i < 1; i++ ) {
-        map.setValue( position.x, position.y, tile_graphics.at( tile_iterator_r->graphics_type_index ) );
-        
-        // Always increment this!
-        tile_iterator_r++;
-    }
 }
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
@@ -153,7 +131,7 @@ void Data::Mission::TilResource::makeEmpty() {
     
     this->colors.clear();
     
-    this->tile_texture_type.clear();
+    this->tile_graphics_bitfield.clear();
     
     TileGraphics flat;
     
@@ -163,7 +141,7 @@ void Data::Mission::TilResource::makeEmpty() {
     flat.rectangle = 1; // This is a rectangle.
     flat.type = 0; // Make a pure flat
     
-    this->tile_texture_type.push_back( flat );
+    this->tile_graphics_bitfield.push_back( flat.get() );
     
     this->all_triangles.clear();
     
@@ -178,141 +156,188 @@ void Data::Mission::TilResource::makeEmpty() {
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
-
+        
         bool file_is_not_valid = false;
-
-        auto identifier = reader.readU32( settings.endian );
-        auto tag_size   = reader.readU32( settings.endian );
-
-        if( identifier == LITTLE_SECT ) {
-            auto readerSect = reader.getReader( tag_size - 2 * sizeof( tag_size ) );
+        
+        while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
+            const auto identifier = reader.readU32( settings.endian );
+            const auto tag_size   = reader.readU32( settings.endian );
+            auto data_size        = 0;
             
-            auto color_amount = readerSect.readU16( settings.endian );
-            auto texture_cordinates_amount = readerSect.readU16( settings.endian );
+            if( tag_size > 2 * sizeof( tag_size ) )
+                data_size = tag_size - 2 * sizeof( tag_size );
             
-            if( settings.output_level >= 3 )
-            {
-                *settings.output_ref << "Mission::TilResource::load() id = " << getIndexNumber() << std::endl;
-                *settings.output_ref << "Mission::TilResource::load() loc = 0x" << std::hex << getOffset() << std::dec << std::endl;
-                *settings.output_ref << "Color amount = " << color_amount << std::endl;
-                *settings.output_ref << "texture_cordinates_amount = " << texture_cordinates_amount << std::endl;
-            }
-
-            // setup the point_cloud_3_channel.
-            point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
-
-            for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
-                for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
-                    HeightmapPixel height;
+            if( identifier == TAG_SECT ) {
+                auto reader_sect = reader.getReader( data_size );
+                
+                auto color_amount = reader_sect.readU16( settings.endian );
+                auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
+                
+                if( settings.output_level >= 1 )
+                {
+                    *settings.output_ref << "Mission::TilResource::load() id = " << getIndexNumber() << std::endl;
+                    *settings.output_ref << "Mission::TilResource::load() loc = 0x" << std::hex << getOffset() << std::dec << std::endl;
+                    *settings.output_ref << "Color amount = " << color_amount << std::endl;
+                    *settings.output_ref << "texture_cordinates_amount = " << texture_cordinates_amount << std::endl;
+                }
+                
+                // setup the point_cloud_3_channel.
+                point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
+                
+                for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
+                    for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
+                        HeightmapPixel height;
+                        
+                        height.channel[0] = reader_sect.readI8();
+                        height.channel[1] = reader_sect.readI8();
+                        height.channel[2] = reader_sect.readI8();
+                        
+                        point_cloud_3_channel.setValue( x, y, height );
+                    }
+                }
+                
+                // These bytes seems to be only five zero bytes
+                reader_sect.readU32(); // Skip 4 bytes
+                reader_sect.readU8();  // Skip 1 byte
+                
+                this->culling_distance = reader_sect.readU16( settings.endian );
+                // Padding?
+                reader_sect.readU16(); // Skip 2 bytes
+                this->culling_top_left.primary = reader_sect.readU16( settings.endian );
+                // Padding?
+                reader_sect.readU16(); // Skip 2 bytes
+                this->culling_top_right.primary = reader_sect.readU16( settings.endian );
+                // Padding?
+                reader_sect.readU16(); // Skip 2 bytes
+                this->culling_bottom_left.primary = reader_sect.readU16( settings.endian );
+                // Padding?
+                reader_sect.readU16(); // Skip 2 bytes
+                this->culling_bottom_right.primary = reader_sect.readU16( settings.endian );
+                // Padding?
+                reader_sect.readU16(); // Skip 2 bytes
+                
+                readCullingTile( culling_top_left,     reader_sect, settings.endian );
+                readCullingTile( culling_top_right,    reader_sect, settings.endian );
+                readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
+                readCullingTile( culling_bottom_right, reader_sect, settings.endian );
+                
+                auto what1 = reader_sect.readU16( settings.endian ) & 0xFF;
+                
+                // Modifiying this to be other than what it is will cause an error?
+                if( what1 != 0 && settings.output_level >= 1 )
+                    *settings.output_ref << "Error expected zero in the Til resource." << std::endl;
+                
+                this->texture_reference = reader_sect.readU16( settings.endian );
+                
+                for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                    for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
+                        mesh_reference_grid[x][y].set( reader_sect.readU16( settings.endian ) );
+                    }
+                }
+                
+                this->mesh_library_size = reader_sect.readU16( settings.endian );
+                
+                // Skip 2 bytes
+                reader_sect.readU16( settings.endian );
+                
+                const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
+                
+                mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
+                
+                std::set<uint16_t> seen_graphics_tiles;
+                
+                for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ ) {
+                    mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
+                    seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
+                }
+                
+                bool skipped_space = false;
+                
+                // There are dead uvs that are not being used!
+                while( reader_sect.readU32( settings.endian ) == 0 )
+                    skipped_space = true;
+                
+                // Undo the read after the bytes are skipped.
+                reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
+                
+                if( skipped_space && settings.output_level >= 3 )
+                {
+                    *settings.output_ref << std::endl
+                    << "The resource number " << this->getIndexNumber() << " has " << skipped_space << " skipped." << std::endl
+                    << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
+                    << " or 0x" << (this->mesh_library_size >> 4)
+                    << " or " << std::dec << ACTUAL_MESH_LIBRARY_SIZE << std::endl;
+                }
+                
+                // Read the UV's
+                texture_cords.reserve( texture_cordinates_amount );
+                
+                for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
+                    texture_cords.push_back( glm::u8vec2() );
                     
-                    height.channel[0] = readerSect.readI8();
-                    height.channel[1] = readerSect.readI8();
-                    height.channel[2] = readerSect.readI8();
+                    texture_cords.back().x = reader_sect.readU8();
+                    texture_cords.back().y = reader_sect.readU8();
+                }
+                
+                colors.reserve( color_amount );
+                for( size_t i = 0; i < color_amount; i++ )
+                    colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( reader_sect, settings.endian ) );
+                
+                // Read the texture_references, and shading info.
+                while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
+                    const auto data = reader_sect.readU16( settings.endian );
                     
-                    point_cloud_3_channel.setValue( x, y, height );
+                    tile_graphics_bitfield.push_back( { data } );
+                    
+                    const auto tile_graphics = TileGraphics( data );
+                    
+                    if( tile_graphics.type == 3 ) {
+                        if( seen_graphics_tiles.find( tile_graphics_bitfield.size() - 1 ) != seen_graphics_tiles.end() ) {
+                            assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
+                        }
+                    }
+                }
+                
+                // Create the physics cells for this Til.
+                for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                    for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
+                        createPhysicsCell( x, z );
+                    }
                 }
             }
-
-            // These bytes seems to be only five zero bytes
-            readerSect.readU32(); // Skip 4 bytes
-            readerSect.readU8();  // Skip 1 byte
-
-            this->culling_distance = readerSect.readU16( settings.endian );
-            // Padding?
-            readerSect.readU16(); // Skip 2 bytes
-            this->culling_top_left.primary = readerSect.readU16( settings.endian );
-            // Padding?
-            readerSect.readU16(); // Skip 2 bytes
-            this->culling_top_right.primary = readerSect.readU16( settings.endian );
-            // Padding?
-            readerSect.readU16(); // Skip 2 bytes
-            this->culling_bottom_left.primary = readerSect.readU16( settings.endian );
-            // Padding?
-            readerSect.readU16(); // Skip 2 bytes
-            this->culling_bottom_right.primary = readerSect.readU16( settings.endian );
-            // Padding?
-            readerSect.readU16(); // Skip 2 bytes
-
-            readCullingTile( culling_top_left,     readerSect, settings.endian );
-            readCullingTile( culling_top_right,    readerSect, settings.endian );
-            readCullingTile( culling_bottom_left,  readerSect, settings.endian );
-            readCullingTile( culling_bottom_right, readerSect, settings.endian );
-
-            auto what1 = readerSect.readU16( settings.endian ) & 0xFF;
-
-            // Modifiying this to be other than what it is will cause an error?
-            if( what1 != 0 && settings.output_level >= 1 )
-                *settings.output_ref << "Error expected zero in the Til resource." << std::endl;
-
-            this->texture_reference = readerSect.readU16( settings.endian );
-
-            for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-                for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
-                    mesh_reference_grid[x][y].set( readerSect.readU16( settings.endian ) );
-                }
+            else
+            if( identifier == TAG_SLFX ) {
+                auto reader_slfx = reader.getReader( data_size );
+                
+                // Read this bitfield!
+                this->slfx_bitfield = reader_slfx.readU32( settings.endian );
             }
-
-            this->mesh_library_size = readerSect.readU16( settings.endian );
-            
-            // Skip 2 bytes
-            readerSect.readU16( settings.endian );
-
-            const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
-
-            mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
-
-            for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ )
-                mesh_tiles.push_back( { readerSect.readU32( settings.endian ) } );
-            
-            bool skipped_space = false;
-
-            // There are dead uvs that are not being used!
-            while( readerSect.readU32( settings.endian ) == 0 )
-                skipped_space = true;
-            
-            // Undo the read after the bytes are skipped.
-            readerSect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
-
-            if( skipped_space && settings.output_level >= 3 )
+            else
+            if( identifier == TAG_ScTA ) {
+                auto reader_scta = reader.getReader( data_size );
+                
+                // TODO Find out what this does later. Known sizes 36, 44, 84, 100, 132, 164, and 204
+            }
+            else
             {
-                *settings.output_ref << std::endl
-                                     << "The resource number " << this->getIndexNumber() << " has " << skipped_space << " skipped." << std::endl
-                                     << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
-                                     << " or 0x" << (this->mesh_library_size >> 4)
-                                     << " or " << std::dec << ACTUAL_MESH_LIBRARY_SIZE << std::endl;
-            }
+                char identifier_word[5] = {'\0'};
+                const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
 
-            // Read the UV's
-            texture_cords.reserve( texture_cordinates_amount );
-            
-            for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
-                texture_cords.push_back( glm::u8vec2() );
-
-                texture_cords.back().x = readerSect.readU8();
-                texture_cords.back().y = readerSect.readU8();
-            }
-
-            // TODO Find out what this shader data does or if it is even shading data.
-            colors.reserve( color_amount );
-
-            for( size_t i = 0; i < color_amount; i++ )
-                colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( readerSect, settings.endian ) );
-
-            // Read the texture_references, and shading info.
-            while( readerSect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                tile_texture_type.push_back( { readerSect.readU16( settings.endian ) } );
-            }
-            
-            // Create the physics cells for this Til.
-            for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-                for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
-                    createPhysicsCell( x, z );
-                    this->color_map.gatherColors( tile_texture_type, mesh_tiles.data() + mesh_reference_grid[x][z].tiles_start, mesh_reference_grid[x][z].tile_amount, glm::u8vec2( x, z ) );
+                for( unsigned int i = 0; i < IDENTIFIER_SIZE; i++ ) {
+                    identifier_word[ i ] = reinterpret_cast<const char*>( &identifier )[ i ];
                 }
+                Utilities::DataHandler::swapBytes( reinterpret_cast< uint8_t* >( identifier_word ), 4 );
+
+                if( settings.output_level >= 0 ) {
+                    *settings.output_ref << "Mission::TilResource::load() " << identifier_word << " not recognized" << std::endl;
+                }
+                
+                reader.setPosition( data_size, Utilities::Buffer::CURRENT );
+                
+                assert( false );
             }
         }
-        else
-            reader.setPosition( tag_size - 2 * sizeof( uint32_t ), Utilities::Buffer::CURRENT );
+        
 
         return !file_is_not_valid;
     }
@@ -488,7 +513,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     vertex_data.element_amount = 6;
                     vertex_data.element_start = 0;
 
-                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->color_map, this->tile_texture_type };
+                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->tile_graphics_bitfield };
                     input_color.tile_index = current_tile.graphics_type_index;
                     input_color.unk = 0;
                     input_color.position.x = x;
@@ -497,7 +522,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                     Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                    if( this->tile_texture_type.at( input_color.tile_index ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
+                    if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
                         current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                         if( current_tile_polygon_amount == 0 && display_unread ) {

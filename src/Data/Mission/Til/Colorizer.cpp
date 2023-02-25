@@ -5,53 +5,8 @@
 #include <fstream>
 
 namespace {
+
 const double SHADING_VALUE = 0.0078125;
-}
-
-Utilities::PixelFormatColor::GenericColor Data::Mission::Til::Colorizer::getColor(
-    Data::Mission::TilResource::TileGraphics tile,
-    const std::vector<Utilities::PixelFormatColor::GenericColor> &colors )
-{
-    Utilities::PixelFormatColor::GenericColor color = { 0, 0, 0, 1 };
-    
-    switch( tile.type ) {
-        case 0b00: // Solid Monochrome
-        case 0b01: // Dynamic Monochrome
-            {
-                color.setValue( static_cast<double>( tile.shading ) * SHADING_VALUE );
-            }
-            break;
-        case 0b10: // Dynamic Color
-            {
-                if( !colors.empty() )
-                    color = colors.at( tile.shading % colors.size() );
-            }
-            break;
-        case 0b11: // Lava Animation
-            {
-                color.setValue( static_cast<double>( tile.shading ) * SHADING_VALUE );
-            }
-            break;
-    }
-    
-    return color;
-}
-
-glm::vec3 Data::Mission::Til::Colorizer::getColorVec3(
-    Data::Mission::TilResource::TileGraphics tile,
-    const std::vector<Utilities::PixelFormatColor::GenericColor> &colors )
-{
-    Utilities::PixelFormatColor::GenericColor color = getColor( tile, colors );
-    glm::vec3 vertex_value;
-    
-    vertex_value.x = color.red;
-    vertex_value.y = color.green;
-    vertex_value.z = color.blue;
-    
-    return vertex_value;
-}
-
-namespace {
 
 glm::vec3 colorToVec3( Utilities::PixelFormatColor::GenericColor color )
 {
@@ -64,43 +19,29 @@ glm::vec3 colorToVec3( Utilities::PixelFormatColor::GenericColor color )
     return vertex_value;
 }
 
-unsigned inverse( unsigned number ) {
-    const unsigned LENGTH = Data::Mission::TilResource::AMOUNT_OF_TILES - 1;
+glm::vec3 accessColor( uint8_t index, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors ) {
+    Utilities::PixelFormatColor::GenericColor color = { 0, 0, 0, 1 };
     
-    return LENGTH - number;
-}
-
-void inverseSet( const glm::u8vec3 seed, glm::u8vec3 *values_r ) {
-    const unsigned OP_Y_AXIS = 0;
-    const unsigned OP_X_Y_AXIS = 1;
-    const unsigned OP_X_AXIS = 2;
+    if( !colors.empty() )
+        color = colors.at( index % colors.size() );
     
-    values_r[ OP_X_AXIS ].x = inverse( seed.x );
-    values_r[ OP_X_AXIS ].y = seed.y;
-    values_r[ OP_X_AXIS ].z = 0;
-    
-    values_r[ OP_Y_AXIS ].x = seed.x;
-    values_r[ OP_Y_AXIS ].y = inverse( seed.y );
-    values_r[ OP_Y_AXIS ].z = 0;
-    
-    values_r[ OP_X_Y_AXIS ].x = inverse( seed.x );
-    values_r[ OP_X_Y_AXIS ].y = inverse( seed.y );
-    values_r[ OP_X_Y_AXIS ].z = 0;
+    return colorToVec3( color );
 }
 
 }
-
-#ifdef FC_OPTION_EXPERIMENTAL_BLEND_COLORS
 
 unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
 {
     if( result_r != nullptr )
     {
-        result_r[0] = getColorVec3( input.til_graphics[ input.tile_index ], input.colors );
+        const auto primary = TilResource::TileGraphics( input.til_graphics.at( input.tile_index ) );
         
-        switch( input.til_graphics[ input.tile_index ].type ) {
+        switch( primary.type ) {
             case 0b00: // Solid Monochrome
                 {
+                    result_r[0].x = static_cast<double>(primary.shading) * SHADING_VALUE;
+                    result_r[0].y = result_r[0].x;
+                    result_r[0].z = result_r[0].x;
                     result_r[1] = result_r[0];
                     result_r[2] = result_r[0];
                     result_r[3] = result_r[0];
@@ -108,27 +49,44 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    result_r[1].x = static_cast<double>( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ).shading ) * SHADING_VALUE;
+                    result_r[0].x = static_cast<double>(primary.shading & 0xFC) * SHADING_VALUE;
+                    result_r[0].y = result_r[0].x;
+                    result_r[0].z = result_r[0].x;
+                    
+                    const auto dynamic_monochrome = TilResource::DynamicMonoGraphics( input.til_graphics.at( input.tile_index + 1 ) );
+                    
+                    uint8_t second = ((primary.shading & 0x03) << 4) | dynamic_monochrome.second_lower;
+                    result_r[1].x = static_cast<double>( second << 2 ) * SHADING_VALUE;
                     result_r[1].y = result_r[1].x;
                     result_r[1].z = result_r[1].x;
-                    result_r[2].x = static_cast<double>( input.til_graphics.at( (input.tile_index + 1) % input.til_graphics.size() ).getOtherShading() ) * SHADING_VALUE;
+                    
+                    result_r[2].x = static_cast<double>( dynamic_monochrome.third << 2 ) * SHADING_VALUE;
                     result_r[2].y = result_r[2].x;
                     result_r[2].z = result_r[2].x;
-                    result_r[3] = result_r[0];
+                    result_r[3].x = static_cast<double>( dynamic_monochrome.forth << 2 ) * SHADING_VALUE;
+                    result_r[3].y = result_r[3].x;
+                    result_r[3].z = result_r[3].x;
                 }
                 break;
             case 0b10: // Dynamic Color
                 {
-                    glm::u8vec3 inverse_positions[3];
-                    inverseSet( input.position, inverse_positions );
+                    result_r[0] = accessColor( primary.shading, input.colors );
                     
-                    result_r[1] = colorToVec3( input.color_map.getColor( inverse_positions[ 0 ], input.colors ) );
-                    result_r[2] = colorToVec3( input.color_map.getColor( inverse_positions[ 1 ], input.colors ) );
-                    result_r[3] = colorToVec3( input.color_map.getColor( inverse_positions[ 2 ], input.colors ) );
+                    const auto dynamic_color = TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 1 ) );
+                    
+                    result_r[1] = accessColor( dynamic_color.second, input.colors );
+                    result_r[2] = accessColor( dynamic_color.third,  input.colors );
+                    
+                    // This shows that vertex colors are in fact optional.
+                    if( primary.rectangle )
+                        result_r[3] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( (input.tile_index + 2) ) ).second, input.colors );
                 }
                 break;
             case 0b11: // Lava Animation
                 {
+                    result_r[0].x = static_cast<double>(primary.shading) * SHADING_VALUE;
+                    result_r[0].y = result_r[0].x;
+                    result_r[0].z = result_r[0].x;
                     result_r[1] = glm::vec3(1.0, 1.0, 1.0) - result_r[0];
                     result_r[2] = result_r[1];
                     result_r[3] = result_r[1];
@@ -141,22 +99,3 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
     else
         return -1;
 }
-
-#else
-
-unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
-{
-    if( result_r != nullptr )
-    {
-        result_r[0] = getColorVec3( input.til_graphics[ input.tile_index ], input.colors );
-        result_r[1] = result_r[0];
-        result_r[2] = result_r[0];
-        result_r[3] = result_r[0];
-        
-        return 1;
-    }
-    else
-        return -1;
-}
-
-#endif

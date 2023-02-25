@@ -6,24 +6,6 @@ const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
-namespace {
-bool convert( const uint8_t *const number_r, size_t number_limit, uint64_t &big_number, size_t &size_read ) {
-    const uint8_t * number_head_r = number_r;
-    
-    big_number |= (*number_head_r & 0x7F);
-    
-    while( (*number_head_r & 0x80) == 0 && number_limit > 0) {
-        big_number = big_number << 7;
-        big_number |= (*number_head_r & 0x7F);
-        number_head_r++;
-        number_limit--;
-        size_read++;
-    }
-    
-    return true;
-}
-}
-
 Data::Mission::FUNResource::FUNResource() {
 }
 
@@ -107,10 +89,10 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto code = getFunctionCode( i );
                         
                         if( settings.output_level >= 3 ) {
-                            *settings.output_ref << "i = " << std::dec << i << std::endl;
-                            *settings.output_ref << "faction = " << std::dec << functions.at( i ).faction << std::endl;
-                            *settings.output_ref << "identifier = " << std::dec << functions.at( i ).identifier << std::endl;
-                            *settings.output_ref << "start = " << std::dec << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                            *settings.output_ref << "i[" << std::dec << i  << "], ";
+                            *settings.output_ref << "f[" << functions.at( i ).faction << "], ";
+                            *settings.output_ref << "id[" << functions.at( i ).identifier << "], ";
+                            *settings.output_ref << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
                             
                             *settings.output_ref << std::hex << "Parameters = ";
                             for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
@@ -126,6 +108,15 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                             }
                             *settings.output_ref << std::dec << "\n" << std::endl;
                         }
+                        
+                        bool found_item = false;
+                        
+                        // faction = 1, identifier = 5 Probably means initialization!
+                        // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
+                        // NEUTRAL_TURRET_INIT = NUMBER, { 0xC7, 0x80, 0x3D }
+                        
+                        // JOKE/SLIM has faction 1 and identifier 5, and it appears to be something else. I can deduce no pattern in this sequence.
+                        // However, I have enough knowedge to write an inaccurate parser.
                         
                         assert( parameters.size() > 1 );
                         assert( code.size() > 1 );
