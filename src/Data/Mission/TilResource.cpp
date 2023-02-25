@@ -15,7 +15,7 @@
 namespace {
 uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect";
 uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX";
-uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Animated UV's?
+uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Unknown, but it is significantly bigger than SLFX
 
 void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
     tile.top_left = reader.readU16( endian );
@@ -283,8 +283,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 for( size_t i = 0; i < color_amount; i++ )
                     colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( reader_sect, settings.endian ) );
                 
-                std::cout << "TIL " << getResourceID() << " offset 0x" << std::hex << getOffset() << std::dec << "\n";
-                
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
                     const auto data = reader_sect.readU16( settings.endian );
@@ -295,16 +293,10 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     
                     if( tile_graphics.type == 3 ) {
                         if( seen_graphics_tiles.find( tile_graphics_bitfield.size() - 1 ) != seen_graphics_tiles.end() ) {
-                            std::cout << "[" << ( tile_graphics_bitfield.size() - 1 ) << "] = ";
-                            std::cout << "T: " << (unsigned)tile_graphics.type << " R: " << (unsigned)tile_graphics.rectangle << " ?: "
-                            << (unsigned)tile_graphics.unknown_0 << " U: " << (unsigned)tile_graphics.texture_index << " S: "
-                            << (unsigned)tile_graphics.shading << " => 0x" << std::hex << ((data >> 12) & 0xF) << ((data >> 8) & 0xF) << ((data >> 4) & 0xF) << (data & 0xF) << std::dec
-                            << "\n";
+                            assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
                         }
                     }
                 }
-                
-                std::cout << "\n" << seen_graphics_tiles.size() << " out of " << tile_graphics_bitfield.size() << " are used. So, effective reading is about " << ((double)seen_graphics_tiles.size() / (double)tile_graphics_bitfield.size() * 100.0) << "%" << std::endl;
                 
                 // Create the physics cells for this Til.
                 for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
@@ -317,13 +309,14 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_SLFX ) {
                 auto reader_slfx = reader.getReader( data_size );
                 
-                assert( reader_slfx.totalSize() == 4 );
+                // Read this bitfield!
+                this->slfx_bitfield = reader_slfx.readU32( settings.endian );
             }
             else
             if( identifier == TAG_ScTA ) {
                 auto reader_scta = reader.getReader( data_size );
                 
-                // TODO Find out what this does later. Known sizes 188 and 164
+                // TODO Find out what this does later. Known sizes 36, 44, 84, 100, 132, 164, and 204
             }
             else
             {
@@ -337,7 +330,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 if( settings.output_level >= 0 ) {
                     *settings.output_ref << "Mission::TilResource::load() " << identifier_word << " not recognized" << std::endl;
-                    *settings.output_ref << "Mission::TilResource::load() 0x" << std::hex << identifier << std::dec << " not recognized" << std::endl;
                 }
                 
                 reader.setPosition( data_size, Utilities::Buffer::CURRENT );

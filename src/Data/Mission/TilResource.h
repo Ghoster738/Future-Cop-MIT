@@ -154,6 +154,8 @@ private:
     std::vector<Utilities::PixelFormatColor::GenericColor> colors;
     std::vector<uint16_t> tile_graphics_bitfield;
     
+    uint32_t slfx_bitfield;
+    
     std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
