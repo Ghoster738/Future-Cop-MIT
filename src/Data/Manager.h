@@ -131,6 +131,8 @@ public:
      * @return The number of resources reloaded.
      */
     int reload( unsigned core_amount = 1 );
+    
+    static void listIDs( std::ostream &stream );
 };
 
 } // Data

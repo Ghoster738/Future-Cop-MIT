@@ -329,3 +329,11 @@ int Data::Manager::reload( unsigned core_amount ) {
 
     return number_reload;
 }
+
+void Data::Manager::listIDs( std::ostream &stream ) {
+    stream << "Printing all map IDs\n";
+    for( size_t i = 0; i < AMOUNT_OF_IFF_IDS; i++ ) {
+        stream << " " << *map_iffs[ i ] << "\n";
+    }
+    stream << std::endl;
+}

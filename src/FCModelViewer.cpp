@@ -21,6 +21,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include "ConfigureInput.h"
+
 namespace {
 void helpExit( std::ostream &stream ) {
    
@@ -54,14 +56,6 @@ void helpExit( std::ostream &stream ) {
     stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
     stream << "\n";
     exit( 0 );
-}
-void listIDs( std::ostream &stream, Data::Manager &manager ) {
-    stream << "Printing all map IDs\n";
-    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
-        stream << " " << *Data::Manager::map_iffs[ i ] << "\n";
-    }
-    
-    stream << std::endl;
 }
 
 glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {
@@ -192,7 +186,7 @@ int main(int argc, char** argv)
     }
 
     if( !manager.hasEntry( iff_mission_id ) ) {
-        listIDs( std::cout, manager );
+        Data::Manager::listIDs( std::cout );
         return -1;
     }
 
@@ -342,46 +336,7 @@ int main(int argc, char** argv)
         std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
     }
 
-    if( control_system_p->read("controls") <= 0 ) {
-        for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
-        {
-            auto input_set_r = control_system_p->getInputSet( x );
-
-            for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
-            {
-                int status = 0;
-
-                while( status < 1  && viewer_loop )
-                {
-                    if( text_2d_buffer->setFont( 3 ) == -3 )
-                        text_2d_buffer->setFont( 1 );
-                    text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
-                    text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-                    text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
-                    
-                    if( text_2d_buffer->setFont( 6 ) == -3 )
-                        text_2d_buffer->setFont( 1 );
-                    text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
-                    text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
-                    text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
-
-                    status = control_system_p->pollEventForInputSet( x, y );
-
-                    if( control_system_p->isOrderedToExit() )
-                        viewer_loop = false;
-
-                    environment->drawFrame();
-                    environment->advanceTime( 0 );
-
-                    text_2d_buffer->reset();
-
-                    std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
-                }
-            }
-        }
-        
-        control_system_p->write( "controls" );
-    }
+    viewer_loop = configure_input( control_system_p, environment, text_2d_buffer, "controls");
     
     auto obj_vector = Data::Mission::ObjResource::getVector( resource );
 

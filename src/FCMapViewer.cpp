@@ -12,15 +12,17 @@
 #include "Data/Mission/ObjResource.h"
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/PTCResource.h"
-
 #include "Data/Mission/Til/Mesh.h"
 #include "Data/Mission/Til/Colorizer.h"
 
 #include "Graphics/Environment.h"
+
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
+
+#include "ConfigureInput.h"
 
 namespace {
 void helpExit( std::ostream &stream ) {
@@ -52,14 +54,6 @@ void helpExit( std::ostream &stream ) {
     stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
     stream << "\n";
     exit( 0 );
-}
-void listIDs( std::ostream &stream, Data::Manager &manager ) {
-    stream << "Printing all map IDs\n";
-    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
-        stream << " " << *Data::Manager::map_iffs[ i ] << "\n";
-    }
-    
-    stream << std::endl;
 }
 }
 
@@ -204,7 +198,7 @@ int main(int argc, char** argv)
     }
 
     if( !manager.hasEntry( iff_mission_id ) ){
-        listIDs( std::cout, manager );
+        Data::Manager::listIDs( std::cout );
         return -1;
     }
 
@@ -327,51 +321,8 @@ int main(int argc, char** argv)
     control_system_p->allocateCursor();
     auto control_cursor_r = control_system_p->getCursor();
 
-    if( control_system_p->read("controls") <= 0 ) {
-        for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
-        {
-            auto input_set_r = control_system_p->getInputSet( x );
-
-            for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
-            {
-                int status = 0;
-                text_2d_buffer_r->setFont( 1 );
-                text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
-                text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
-                text_2d_buffer_r->print( "Input Set: \"" + input_set_r->getName() +"\"" );
-
-                text_2d_buffer_r->setFont( 1 );
-                text_2d_buffer_r->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
-                text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
-                text_2d_buffer_r->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
-
-                text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
-                text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
-                if( control_cursor_r == nullptr )
-                    text_2d_buffer_r->print( "There is no cursor!" );
-                else
-                    text_2d_buffer_r->print( "One cursor is being used!" );
-
-                while( status < 1  && viewer_loop )
-                {
-                    status = control_system_p->pollEventForInputSet( x, y );
-
-                    if( control_system_p->isOrderedToExit() )
-                        viewer_loop = false;
-
-                    environment_p->drawFrame();
-                    environment_p->advanceTime( 0 );
-
-                    std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
-                }
-
-                text_2d_buffer_r->reset();
-            }
-        }
-        
-        control_system_p->write( "controls" );
-    }
-
+    viewer_loop = configure_input( control_system_p, environment_p, text_2d_buffer_r, "controls");
+    
     while(viewer_loop)
     {
         // Get the time
