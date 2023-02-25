@@ -5,6 +5,7 @@
 #include <fstream>
 
 namespace {
+
 const double SHADING_VALUE = 0.0078125;
 
 glm::vec3 colorToVec3( Utilities::PixelFormatColor::GenericColor color )
@@ -33,10 +34,12 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
 {
     if( result_r != nullptr )
     {
-        switch( TilResource::TileGraphics( input.til_graphics[ input.tile_index ] ).type ) {
+        const auto primary = TilResource::TileGraphics( input.til_graphics.at( input.tile_index ) );
+        
+        switch( primary.type ) {
             case 0b00: // Solid Monochrome
                 {
-                    result_r[0].x = static_cast<double>(TilResource::TileGraphics( input.til_graphics[ input.tile_index ] ).shading) * SHADING_VALUE;
+                    result_r[0].x = static_cast<double>(primary.shading) * SHADING_VALUE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
                     result_r[1] = result_r[0];
@@ -46,37 +49,44 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    const auto primary = TilResource::TileGraphics( input.til_graphics[ input.tile_index ] );
-                    
                     result_r[0].x = static_cast<double>(primary.shading & 0xFC) * SHADING_VALUE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
                     
-                    uint8_t second = ((primary.shading & 0x03) << 4) | TilResource::DynamicMonoGraphics( input.til_graphics[ input.tile_index + 1] ).second_lower;
+                    const auto dynamic_monochrome = TilResource::DynamicMonoGraphics( input.til_graphics.at( input.tile_index + 1 ) );
+                    
+                    uint8_t second = ((primary.shading & 0x03) << 4) | dynamic_monochrome.second_lower;
                     result_r[1].x = static_cast<double>( second << 2 ) * SHADING_VALUE;
                     result_r[1].y = result_r[1].x;
                     result_r[1].z = result_r[1].x;
                     
-                    result_r[2].x = static_cast<double>( TilResource::DynamicMonoGraphics( input.til_graphics[ input.tile_index + 1] ).third << 2 ) * SHADING_VALUE;
+                    result_r[2].x = static_cast<double>( dynamic_monochrome.third << 2 ) * SHADING_VALUE;
                     result_r[2].y = result_r[2].x;
                     result_r[2].z = result_r[2].x;
-                    result_r[3].x = static_cast<double>( TilResource::DynamicMonoGraphics( input.til_graphics[ input.tile_index + 1] ).forth << 2 ) * SHADING_VALUE;
+                    result_r[3].x = static_cast<double>( dynamic_monochrome.forth << 2 ) * SHADING_VALUE;
                     result_r[3].y = result_r[3].x;
                     result_r[3].z = result_r[3].x;
                 }
                 break;
             case 0b10: // Dynamic Color
                 {
-                    result_r[0] = accessColor( TilResource::TileGraphics( input.til_graphics.at( input.tile_index ) ).shading, input.colors );
-                    result_r[1] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 1 ) ).second, input.colors );
-                    result_r[2] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 1 ) ).third, input.colors );
+                    result_r[0] = accessColor( primary.shading, input.colors );
+                    
+                    const auto dynamic_color = TilResource::DynamicColorGraphics( input.til_graphics.at( input.tile_index + 1 ) );
+                    
+                    result_r[1] = accessColor( dynamic_color.second, input.colors );
+                    result_r[2] = accessColor( dynamic_color.third,  input.colors );
                     
                     // This shows that vertex colors are in fact optional.
-                    result_r[3] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( (input.tile_index + 2) % input.til_graphics.size() ) ).second, input.colors );
+                    if( primary.rectangle )
+                        result_r[3] = accessColor( TilResource::DynamicColorGraphics( input.til_graphics.at( (input.tile_index + 2) ) ).second, input.colors );
                 }
                 break;
             case 0b11: // Lava Animation
                 {
+                    result_r[0].x = static_cast<double>(primary.shading) * SHADING_VALUE;
+                    result_r[0].y = result_r[0].x;
+                    result_r[0].z = result_r[0].x;
                     result_r[1] = glm::vec3(1.0, 1.0, 1.0) - result_r[0];
                     result_r[2] = result_r[1];
                     result_r[3] = result_r[1];

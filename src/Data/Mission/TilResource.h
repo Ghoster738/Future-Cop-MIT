@@ -128,10 +128,6 @@ public:
                 ((uint16_t)rectangle << 13) |
                 ((uint16_t)type << 14);
         }
-        
-        uint8_t getOtherShading() const {
-            return (texture_index) | (unknown_0 << 3) | (rectangle << 5) | (type << 6);
-        }
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
