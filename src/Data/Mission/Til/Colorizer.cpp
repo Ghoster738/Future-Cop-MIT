@@ -70,8 +70,6 @@ glm::vec3 getColorVec3(
 
 }
 
-#ifdef FC_OPTION_EXPERIMENTAL_BLEND_COLORS
-
 unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
 {
     if( result_r != nullptr )
@@ -130,22 +128,3 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
     else
         return -1;
 }
-
-#else
-
-unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
-{
-    if( result_r != nullptr )
-    {
-        result_r[0] = getColorVec3( input.til_graphics[ input.tile_index ], input.colors );
-        result_r[1] = result_r[0];
-        result_r[2] = result_r[0];
-        result_r[3] = result_r[0];
-        
-        return 1;
-    }
-    else
-        return -1;
-}
-
-#endif
