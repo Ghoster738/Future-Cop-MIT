@@ -30,6 +30,15 @@ glm::vec3 accessColor( uint8_t index, const std::vector<Utilities::PixelFormatCo
 
 }
 
+void Data::Mission::Til::Colorizer::setColors( std::vector<Utilities::PixelFormatColor::GenericColor> &colors, uint16_t color_amount, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
+    colors.reserve( color_amount );
+    for( size_t i = 0; i < color_amount; i++ ) {
+        auto value = Utilities::PixelFormatColor_R5G5B5A1().readPixel( reader, endian );
+        
+        colors.push_back( value );
+    }
+}
+
 unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input, glm::vec3 *result_r )
 {
     if( result_r != nullptr )

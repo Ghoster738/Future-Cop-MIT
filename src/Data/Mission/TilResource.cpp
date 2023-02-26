@@ -279,9 +279,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     texture_cords.back().y = reader_sect.readU8();
                 }
                 
-                colors.reserve( color_amount );
-                for( size_t i = 0; i < color_amount; i++ )
-                    colors.push_back( Utilities::PixelFormatColor_R5G5B5A1().readPixel( reader_sect, settings.endian ) );
+                Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );
                 
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {

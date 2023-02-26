@@ -18,6 +18,8 @@ namespace Colorizer {
         int unk;
         glm::u8vec3 position;
     };
+    
+    void setColors( std::vector<Utilities::PixelFormatColor::GenericColor> &colors, uint16_t color_amount, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian );
 
     /**
      * Set the colors for the square.
