@@ -33,7 +33,17 @@ glm::vec3 accessColor( uint8_t index, const std::vector<Utilities::PixelFormatCo
 void Data::Mission::Til::Colorizer::setColors( std::vector<Utilities::PixelFormatColor::GenericColor> &colors, uint16_t color_amount, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
     colors.reserve( color_amount );
     for( size_t i = 0; i < color_amount; i++ ) {
-        auto value = Utilities::PixelFormatColor_R5G5B5A1().readPixel( reader, endian );
+        auto word = reader.readU16( endian );
+        
+        auto blue  = ((word & 0x001F) >>  0) << 2;
+        auto green = ((word & 0x03E0) >>  5) << 2;
+        auto red   = ((word & 0x7C00) >> 10) << 2;
+        
+        Utilities::PixelFormatColor::GenericColor value = { 0.0, 0.0, 0.0, 1.0 };
+        
+        value.blue  = static_cast<double>(blue)  * SHADING_VALUE;
+        value.green = static_cast<double>(green) * SHADING_VALUE;
+        value.red   = static_cast<double>(red)   * SHADING_VALUE;
         
         colors.push_back( value );
     }

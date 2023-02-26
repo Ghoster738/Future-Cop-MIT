@@ -113,24 +113,15 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/ConfigureInput.cpp src/SplashScreens.cpp )
-target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
 
-if( WIN32 )
-  add_executable(FCModelViewer WIN32 src/FCModelViewer.cpp )
-else()
-  add_executable(FCModelViewer src/FCModelViewer.cpp )
-endif()
-
-if( WIN32 )
-  add_executable(FCMapViewer WIN32 src/FCMapViewer.cpp )
-else()
-  add_executable(FCMapViewer src/FCMapViewer.cpp )
-endif()
+add_executable( FCModelViewer WIN32 src/FCModelViewer.cpp )
+add_executable( FCMapViewer   WIN32 src/FCMapViewer.cpp   )
 
 if( TARGET SDL2::SDL2main )
   target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2main)
   target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2main)
 endif()
+target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
 
 target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2)
 target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2)
