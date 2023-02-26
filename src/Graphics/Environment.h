@@ -100,13 +100,22 @@ public:
      * @return It will return 1 for success or a negative number stating how many textures failed to load.
      */
     int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types );
+    
     /**
      * This sets the blink rate to an entire tile set for the use of selection.
      * @param til_index The index to the til_index
      * @param frequency The blink state in seconds. Basically it is how many seconds before a change in state.
-     * @return the til_index for success or 0 if the til_index is out of bounds or -1 if the world is not allocated.
+     * @return the til\_index for success or 0 if the til\_index is out of bounds or -1 if the world is not allocated.
      */
     int setTilBlink( int til_index, float seconds );
+    
+    /**
+     * This sets the blinking for the polygon tiles.
+     * @param polygon_type The type of polygon to highlight.
+     * @param scale This scales the blinking factor of world.
+     * @return -1 if there is no functionality to set the polygon type. 0 if the end of the types has been reached. Otherwise just 1.
+     */
+    int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
 
     /**
      * Draw a single frame onto the main context.

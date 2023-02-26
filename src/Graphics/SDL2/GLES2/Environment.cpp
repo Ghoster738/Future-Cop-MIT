@@ -227,6 +227,17 @@ int Graphics::Environment::setTilBlink( int til_index, float seconds ) {
         return -1; // The world needs allocating first!
 }
 
+int Graphics::Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
+    auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
+
+    if( EnvironmentInternalData->world != nullptr )
+    {
+        return EnvironmentInternalData->world->setPolygonTypeBlink( polygon_type, rate );
+    }
+    else
+        return -1; // The world needs allocating first!
+}
+
 void Graphics::Environment::drawFrame() const {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     

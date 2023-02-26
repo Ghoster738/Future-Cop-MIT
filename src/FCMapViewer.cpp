@@ -292,11 +292,9 @@ int main(int argc, char** argv)
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
-	//GLint GlowCurrentLoc = glGetUniformLocation( default_graphics_program.getProgram(), "CurrentGlow" );
 	float glow_amount = 0.0f;
-	//GLint WhichTileLoc = glGetUniformLocation( default_graphics_program.getProgram(), "WhichTile" );
 	int current_tile_selected = -1;
-	//glUniform1f( WhichTileLoc, current_tile_selected );
+    unsigned til_polygon_type_selected = 0;
 	bool entering_number = false;
 
     glm::vec3 position_of_camera = glm::vec3( 103, 0, 122 );
@@ -382,25 +380,54 @@ int main(int argc, char** argv)
                 else
                     movement_of_camera.x = 0;
             }
+            
+            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
+            if( input_r->isChanged() )
+            {
+                if( input_r->getState() > 0.5 )
+                    is_camera_moving = true;
+                else
+                    is_camera_moving = false;
+            }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ROTATE_LEFT );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                // Stop the blinking on the previous current_tile_selected
-                environment_p->setTilBlink( current_tile_selected, -1.0 );
-
-                // Set the next current_tile_selected to flash
-                current_tile_selected = environment_p->setTilBlink( current_tile_selected - 1, 1.0 );
+                if( !is_camera_moving )
+                {
+                    // Stop the blinking on the previous current_tile_selected
+                    environment_p->setTilBlink( current_tile_selected, -1.0 );
+                    
+                    // Set the next current_tile_selected to flash
+                    current_tile_selected = environment_p->setTilBlink( current_tile_selected - 1, 1.0 );
+                }
+                else
+                {
+                    til_polygon_type_selected--;
+                    
+                    if( !environment_p->setTilPolygonBlink( til_polygon_type_selected ) )
+                        til_polygon_type_selected = 127;
+                }
             }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ROTATE_RIGHT );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                // Stop the blinking on the previous current_tile_selected
-                environment_p->setTilBlink( current_tile_selected, -1.0 );
-
-                // Set the next current_tile_selected to flash
-                current_tile_selected = environment_p->setTilBlink( current_tile_selected + 1, 1.0 );
+                if( !is_camera_moving )
+                {
+                    // Stop the blinking on the previous current_tile_selected
+                    environment_p->setTilBlink( current_tile_selected, -1.0 );
+                    
+                    // Set the next current_tile_selected to flash
+                    current_tile_selected = environment_p->setTilBlink( current_tile_selected + 1, 1.0 );
+                }
+                else
+                {
+                    til_polygon_type_selected++;
+                    
+                    if( !environment_p->setTilPolygonBlink( til_polygon_type_selected ) )
+                        til_polygon_type_selected = 0;
+                }
             }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
@@ -418,16 +445,6 @@ int main(int argc, char** argv)
                     }
                 }
             }
-            
-            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
-            if( input_r->isChanged() )
-            {
-                if( input_r->getState() > 0.5 )
-                    is_camera_moving = true;
-                else
-                    is_camera_moving = false;
-            }
-
         }
 
         if( control_cursor_r != nullptr && control_cursor_r->isChanged() )
@@ -485,12 +502,18 @@ int main(int argc, char** argv)
         text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer_r->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
+        
+        if( text_2d_buffer_r->setFont( 3 ) == -3 )
+            text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+        text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
 
         if( current_tile_selected >= 0 ) {
             if( text_2d_buffer_r->setFont( 3 ) == -3 )
                 text_2d_buffer_r->setFont( 1 );
             text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
-            text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 60 ) );
             text_2d_buffer_r->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
         }
 

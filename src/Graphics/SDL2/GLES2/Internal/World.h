@@ -43,7 +43,10 @@ protected:
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
     
-    float glow_time;
+    GLfloat selected_tile;
+    GLfloat current_selected_tile;
+    GLfloat scale;
+    GLfloat glow_time;
 public:
     World();
     virtual ~World();
@@ -135,9 +138,17 @@ public:
      * This sets the blink rate to an entire tile set for the use of selection.
      * @param til_index The index to the til_index
      * @param frequency The blink state in seconds. Basically it is how many seconds before a change in state.
-     * @return the til_index for success or 0 if the til_index is out of bounds.
+     * @return the til\_index for success or 0 if the til\_index is out of bounds.
      */
     int setTilBlink( int til_index, float frequency );
+    
+    /**
+     * This sets the blinking for the polygon tiles.
+     * @param polygon_type The type of polygon to highlight.
+     * @param scale This scales the blinking factor of world.
+     * @return -1 if there is no functionality to set the polygon type. 0 if the end of the types has been reached. Otherwise just 1.
+     */
+    int setPolygonTypeBlink( unsigned polygon_type, GLfloat scale = 1.0f );
 };
 
 }

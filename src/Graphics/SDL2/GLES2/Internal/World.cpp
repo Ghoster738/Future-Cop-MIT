@@ -275,12 +275,15 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
 
     camera.getProjectionView3D( projection_view );
     
-    if( glow_time > 1.0f )
-        glUniform1f( glow_time_uniform_id, 2.0f - glow_time );
+    if( this->glow_time > 1.0f )
+        glUniform1f( glow_time_uniform_id, 2.0f - this->glow_time );
     else
-        glUniform1f( glow_time_uniform_id, glow_time );
+        glUniform1f( glow_time_uniform_id, this->glow_time );
     
-    glUniform1f( selected_tile_uniform_id, 69 );
+    if( this->selected_tile != this->current_selected_tile ) {
+        this->current_selected_tile = this->selected_tile;
+        glUniform1f( selected_tile_uniform_id, this->selected_tile );
+    }
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
@@ -306,10 +309,11 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
         }
     }
     
-    glow_time += seconds_passed;
+    // Update glow time.
+    this->glow_time += seconds_passed * this->scale;
     
-    if( glow_time > 2.0f )
-        glow_time = 0.0f;
+    if( this->glow_time > 2.0f )
+        this->glow_time = 0.0f;
 }
 
 
@@ -323,6 +327,16 @@ int Graphics::SDL2::GLES2::Internal::World::setTilBlink( int til_index, float fr
         tiles[ til_index ].change_rate = frequency;
 
         return til_index;
+    }
+    else
+        return 0;
+}
+
+int Graphics::SDL2::GLES2::Internal::World::setPolygonTypeBlink( unsigned polygon_type, GLfloat scale ) {
+    if( polygon_type < 128 ) {
+        this->scale = scale;
+        this->selected_tile = polygon_type;
+        return 1;
     }
     else
         return 0;
