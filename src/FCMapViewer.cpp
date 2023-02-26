@@ -23,6 +23,7 @@
 #include "Utilities/ImageFormat/Chooser.h"
 
 #include "ConfigureInput.h"
+#include "SplashScreens.h"
 
 namespace {
 void helpExit( std::ostream &stream ) {
@@ -219,27 +220,23 @@ int main(int argc, char** argv)
         std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
         return -3;
     }
-
-    Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
-    Data::Mission::IFF   *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
-    
     
     std::vector<Data::Mission::IFF*> loaded_IFFs;
-    loaded_IFFs.push_back( global_r );
-    loaded_IFFs.push_back( resource_r );
+    
+    Data::Mission::IFF *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
+    if( global_r != nullptr )
+        loaded_IFFs.push_back( global_r );
+    else
+        std::cout << "The global IFF " << global_id << " did not load." << std::endl;
 
-    if( resource_r == nullptr ) {
+    Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
+    if( resource_r != nullptr )
+        loaded_IFFs.push_back( resource_r );
+    else
         std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
-        return -4;
-    }
-
-    if( global_r == nullptr ) {
-        std::cout << "The global IFF did not load." << std::endl;
-        return -5;
-    }
 
     // First get the model textures from the resource file.
-    {
+    if( resource_r != nullptr ) {
         auto cbmp_resources = Data::Mission::BMPResource::getVector( *resource_r );
 
         int status = environment_p->setupTextures( cbmp_resources );
@@ -249,7 +246,7 @@ int main(int argc, char** argv)
     }
 
     // Load all the 3D meshes from the resource as well.
-    {
+    if( resource_r != nullptr ) {
         auto cobj_resources = Data::Mission::ObjResource::getVector( *resource_r );
 
         int status = environment_p->setModelTypes( cobj_resources );
@@ -259,13 +256,12 @@ int main(int argc, char** argv)
     }
     
     // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 )
-    {
+    if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
         std::cout << "Fonts missing!" << std::endl;
     }
     
-    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
-    {
+    if( resource_r != nullptr ) {
+        auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
         environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
@@ -322,6 +318,13 @@ int main(int argc, char** argv)
     auto control_cursor_r = control_system_p->getCursor();
 
     viewer_loop = configure_input( control_system_p, environment_p, text_2d_buffer_r, "controls");
+    
+    if( resource_r == nullptr ) {
+        display_game_files_missing( control_system_p, environment_p, text_2d_buffer_r, &manager, iff_mission_id, platform );
+        return -4;
+    }
+    
+    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
     
     while(viewer_loop)
     {

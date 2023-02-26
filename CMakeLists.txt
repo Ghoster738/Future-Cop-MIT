@@ -112,7 +112,7 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 # OpenGLES 2 is the one and only API supported for now, but more will come.
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
-add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/ConfigureInput.cpp )
+add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/ConfigureInput.cpp src/SplashScreens.cpp )
 target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
 
 if( WIN32 )

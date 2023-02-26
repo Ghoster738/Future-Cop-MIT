@@ -64,6 +64,8 @@ public:
         ~IFFEntry(); // DO NOT SET THIS TO VIRTUAL.
 
         void setPath( Platform platform, const std::string &path );
+        
+        std::string getPath( Platform platform ) const { return paths[ platform ]; }
 
         /**
          * Note: Do not delete the returned pointer!
