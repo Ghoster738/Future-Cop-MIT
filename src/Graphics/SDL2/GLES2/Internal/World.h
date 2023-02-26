@@ -39,7 +39,11 @@ protected:
     Shader fragment_shader;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
+    GLuint glow_time_uniform_id;
+    GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
+    
+    float glow_time;
 public:
     World();
     virtual ~World();
