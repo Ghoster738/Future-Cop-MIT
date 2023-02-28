@@ -294,7 +294,7 @@ int main(int argc, char** argv)
 
 	float glow_amount = 0.0f;
 	int current_tile_selected = -1;
-    unsigned til_polygon_type_selected = 0;
+    unsigned til_polygon_type_selected = 111;
 	bool entering_number = false;
 
     glm::vec3 position_of_camera = glm::vec3( 103, 0, 122 );
@@ -405,8 +405,10 @@ int main(int argc, char** argv)
                 {
                     til_polygon_type_selected--;
                     
-                    if( !environment_p->setTilPolygonBlink( til_polygon_type_selected ) )
-                        til_polygon_type_selected = 127;
+                    if( environment_p->setTilPolygonBlink( til_polygon_type_selected ) <= 0 ) {
+                        til_polygon_type_selected = 111;
+                        environment_p->setTilPolygonBlink( til_polygon_type_selected );
+                    }
                 }
             }
 
@@ -425,8 +427,10 @@ int main(int argc, char** argv)
                 {
                     til_polygon_type_selected++;
                     
-                    if( !environment_p->setTilPolygonBlink( til_polygon_type_selected ) )
+                    if( environment_p->setTilPolygonBlink( til_polygon_type_selected ) <= 0 ) {
                         til_polygon_type_selected = 0;
+                        environment_p->setTilPolygonBlink( til_polygon_type_selected );
+                    }
                 }
             }
 
@@ -503,11 +507,13 @@ int main(int argc, char** argv)
         text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer_r->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
         
-        if( text_2d_buffer_r->setFont( 3 ) == -3 )
-            text_2d_buffer_r->setFont( 1 );
-        text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
-        text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
+        if( til_polygon_type_selected != 111 ) {
+            if( text_2d_buffer_r->setFont( 3 ) == -3 )
+                text_2d_buffer_r->setFont( 1 );
+            text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+            text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
+        }
 
         if( current_tile_selected >= 0 ) {
             if( text_2d_buffer_r->setFont( 3 ) == -3 )

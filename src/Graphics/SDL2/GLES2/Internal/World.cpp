@@ -333,7 +333,7 @@ int Graphics::SDL2::GLES2::Internal::World::setTilBlink( int til_index, float fr
 }
 
 int Graphics::SDL2::GLES2::Internal::World::setPolygonTypeBlink( unsigned polygon_type, GLfloat scale ) {
-    if( polygon_type < 128 ) {
+    if( polygon_type < 112 ) {
         this->scale = scale;
         this->selected_tile = polygon_type;
         return 1;
