@@ -133,6 +133,8 @@ public:
      * @param seconds_passed This is the time in seconds that were passed.
      */
     void advanceTime( float seconds_passed );
+    
+    size_t getTilAmount() const;
 
     /**
      * This sets the blink rate to an entire tile set for the use of selection.
@@ -140,7 +142,7 @@ public:
      * @param frequency The blink state in seconds. Basically it is how many seconds before a change in state.
      * @return the til\_index for success or 0 if the til\_index is out of bounds.
      */
-    int setTilBlink( int til_index, float frequency );
+    int setTilBlink( unsigned til_index, float frequency );
     
     /**
      * This sets the blinking for the polygon tiles.

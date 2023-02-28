@@ -316,17 +316,17 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
         this->glow_time = 0.0f;
 }
 
+size_t Graphics::SDL2::GLES2::Internal::World::getTilAmount() const {
+    return tiles.size();
+}
 
-int Graphics::SDL2::GLES2::Internal::World::setTilBlink( int til_index, float frequency ) {
-    if( til_index < 0 )
-        return tiles.size() - 1;
-    else
-    if( static_cast<unsigned int>( til_index ) < tiles.size() )
+int Graphics::SDL2::GLES2::Internal::World::setTilBlink( unsigned til_index, float frequency ) {
+    if( til_index < tiles.size() )
     {
         tiles[ til_index ].current = 0.0;
         tiles[ til_index ].change_rate = frequency;
 
-        return til_index;
+        return 1;
     }
     else
         return 0;

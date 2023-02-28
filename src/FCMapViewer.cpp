@@ -398,8 +398,12 @@ int main(int argc, char** argv)
                     // Stop the blinking on the previous current_tile_selected
                     environment_p->setTilBlink( current_tile_selected, -1.0 );
                     
+                    current_tile_selected--;
+                    
                     // Set the next current_tile_selected to flash
-                    current_tile_selected = environment_p->setTilBlink( current_tile_selected - 1, 1.0 );
+                    if( environment_p->setTilBlink( current_tile_selected, 1.0 ) == 0 ) {
+                        current_tile_selected = environment_p->getTilAmount();
+                    }
                 }
                 else
                 {
@@ -420,8 +424,12 @@ int main(int argc, char** argv)
                     // Stop the blinking on the previous current_tile_selected
                     environment_p->setTilBlink( current_tile_selected, -1.0 );
                     
+                    current_tile_selected++;
+                    
                     // Set the next current_tile_selected to flash
-                    current_tile_selected = environment_p->setTilBlink( current_tile_selected + 1, 1.0 );
+                    if( environment_p->setTilBlink( current_tile_selected, 1.0 ) == 0 ) {
+                        current_tile_selected = -1;
+                    }
                 }
                 else
                 {
@@ -515,7 +523,7 @@ int main(int argc, char** argv)
             text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
         }
 
-        if( current_tile_selected >= 0 ) {
+        if( current_tile_selected >= 0 && current_tile_selected < til_resources.size() ) {
             if( text_2d_buffer_r->setFont( 3 ) == -3 )
                 text_2d_buffer_r->setFont( 1 );
             text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );

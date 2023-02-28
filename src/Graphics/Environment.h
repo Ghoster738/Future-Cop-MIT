@@ -102,12 +102,17 @@ public:
     int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types );
     
     /**
+     * @return The number of Ctils in the environment.
+     */
+    size_t getTilAmount() const;
+    
+    /**
      * This sets the blink rate to an entire tile set for the use of selection.
      * @param til_index The index to the til_index
      * @param frequency The blink state in seconds. Basically it is how many seconds before a change in state.
-     * @return the til\_index for success or 0 if the til\_index is out of bounds or -1 if the world is not allocated.
+     * @return 1 for success or 0 if the til\_index is out of bounds or -1 if the world is not allocated.
      */
-    int setTilBlink( int til_index, float seconds );
+    int setTilBlink( unsigned til_index, float seconds );
     
     /**
      * This sets the blinking for the polygon tiles.

@@ -216,7 +216,18 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     return number_of_failures;
 }
 
-int Graphics::Environment::setTilBlink( int til_index, float seconds ) {
+size_t Graphics::Environment::getTilAmount() const {
+    auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
+
+    if( EnvironmentInternalData->world != nullptr )
+    {
+        return EnvironmentInternalData->world->getTilAmount();
+    }
+    else
+        return 0; // There are no Ctils to read if there is no world.
+}
+
+int Graphics::Environment::setTilBlink( unsigned til_index, float seconds ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
 
     if( EnvironmentInternalData->world != nullptr )
