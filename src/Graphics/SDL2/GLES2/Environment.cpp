@@ -11,7 +11,7 @@
 Graphics::Environment::Environment() {
     auto EnvironmentInternalData = new Graphics::SDL2::GLES2::EnvironmentInternalData;
 
-    EnvironmentInternalData->world = nullptr;
+    EnvironmentInternalData->world_p = nullptr;
     text_draw_routine_p = nullptr;
     Environment_internals = reinterpret_cast<void*>( EnvironmentInternalData ); // This is very important! This contains all the API specific variables.
     
@@ -32,6 +32,8 @@ Graphics::Environment::~Environment() {
         delete texture.second;
         texture.second = nullptr;
     }
+    
+    delete EnvironmentInternalData->world_p;
     
     delete EnvironmentInternalData;
     
@@ -135,15 +137,15 @@ void Graphics::Environment::setMap( const Data::Mission::PTCResource &ptc, const
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
     
     // Allocate the world
-    EnvironmentInternalData->world = new Graphics::SDL2::GLES2::Internal::World();
+    EnvironmentInternalData->world_p = new Graphics::SDL2::GLES2::Internal::World();
     
     // Setup the vertex and fragment shaders
-    EnvironmentInternalData->world->setVertexShader();
-    EnvironmentInternalData->world->setFragmentShader();
-    EnvironmentInternalData->world->compilieProgram();
+    EnvironmentInternalData->world_p->setVertexShader();
+    EnvironmentInternalData->world_p->setFragmentShader();
+    EnvironmentInternalData->world_p->compilieProgram();
     
     // Turn the map into a world.
-    EnvironmentInternalData->world->setWorld( ptc, tiles, EnvironmentInternalData->textures );
+    EnvironmentInternalData->world_p->setWorld( ptc, tiles, EnvironmentInternalData->textures );
 }
 
 int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
@@ -219,9 +221,9 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
 size_t Graphics::Environment::getTilAmount() const {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
 
-    if( EnvironmentInternalData->world != nullptr )
+    if( EnvironmentInternalData->world_p != nullptr )
     {
-        return EnvironmentInternalData->world->getTilAmount();
+        return EnvironmentInternalData->world_p->getTilAmount();
     }
     else
         return 0; // There are no Ctils to read if there is no world.
@@ -230,9 +232,9 @@ size_t Graphics::Environment::getTilAmount() const {
 int Graphics::Environment::setTilBlink( unsigned til_index, float seconds ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
 
-    if( EnvironmentInternalData->world != nullptr )
+    if( EnvironmentInternalData->world_p != nullptr )
     {
-        return EnvironmentInternalData->world->setTilBlink( til_index, seconds );
+        return EnvironmentInternalData->world_p->setTilBlink( til_index, seconds );
     }
     else
         return -1; // The world needs allocating first!
@@ -241,12 +243,12 @@ int Graphics::Environment::setTilBlink( unsigned til_index, float seconds ) {
 int Graphics::Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
     auto EnvironmentInternalData = reinterpret_cast<Graphics::SDL2::GLES2::EnvironmentInternalData*>( Environment_internals );
 
-    if( EnvironmentInternalData->world != nullptr )
+    if( EnvironmentInternalData->world_p != nullptr )
     {
-        return EnvironmentInternalData->world->setPolygonTypeBlink( polygon_type, rate );
+        return EnvironmentInternalData->world_p->setPolygonTypeBlink( polygon_type, rate );
     }
     else
-        return -1; // The world needs allocating first!
+        return -1; // The world_p needs allocating first!
 }
 
 void Graphics::Environment::drawFrame() const {
@@ -281,14 +283,14 @@ void Graphics::Environment::drawFrame() const {
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
             // Draw the map if available.
-            if( EnvironmentInternalData->world != nullptr )
+            if( EnvironmentInternalData->world_p != nullptr )
             {
                 // Enable culling on the world map.
                 // glEnable( GL_CULL_FACE );
                 // glCullFace( GL_FRONT ); // The floor seems to be in reverse order! I have got to fix the floor and the slopes.
                 
                 // Draw the map.
-                EnvironmentInternalData->world->draw( *current_camera );
+                EnvironmentInternalData->world_p->draw( *current_camera );
                 
                 // Disable culling on the world map.
                 // glDisable( GL_CULL_FACE );
@@ -355,6 +357,6 @@ void Graphics::Environment::advanceTime( float seconds_passed ) {
     EnvironmentInternalData->skeletal_model_draw_routine.advanceTime( seconds_passed );
 
     // The world map also has the concept of time if it exists.
-    if( EnvironmentInternalData->world != nullptr )
-        EnvironmentInternalData->world->advanceTime( seconds_passed );
+    if( EnvironmentInternalData->world_p != nullptr )
+        EnvironmentInternalData->world_p->advanceTime( seconds_passed );
 }

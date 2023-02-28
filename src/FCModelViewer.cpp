@@ -237,8 +237,10 @@ int main(int argc, char** argv)
     {
         window_r = Graphics::Window::alloc( *environment_p );
         
-        if( window_r == nullptr )
+        if( window_r == nullptr ) {
+            delete environment_p;
             return -40;
+        }
     }
     
     
@@ -348,6 +350,8 @@ int main(int argc, char** argv)
     
     if( resource_r == nullptr ) {
         display_game_files_missing( control_system_p, environment_p, text_2d_buffer_r, &manager, iff_mission_id, platform );
+        delete control_system_p;
+        delete environment_p;
         return -4;
     }
     

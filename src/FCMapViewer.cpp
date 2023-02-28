@@ -160,8 +160,10 @@ int main(int argc, char** argv)
     {
         window_p = Graphics::Window::alloc( *environment_p );
         
-        if( window_p == nullptr )
+        if( window_p == nullptr ) {
+            delete environment_p;
             return -40;
+        }
     }
     std::string title = "Future Cop Map Viewer";
 
@@ -171,9 +173,11 @@ int main(int argc, char** argv)
     window_p->setDimensions( glm::u32vec2( width, height ) );
     window_p->setFullScreen( true );
     
-    if( window_p->attach() != 1 )
+    if( window_p->attach() != 1 ) {
+        delete environment_p;
         return -40;
-
+    }
+    
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
@@ -198,17 +202,20 @@ int main(int argc, char** argv)
         manager.setIFFEntry( iff_mission_id, entry );
     }
 
-    if( !manager.hasEntry( iff_mission_id ) ){
+    if( !manager.hasEntry( iff_mission_id ) ) {
         Data::Manager::listIDs( std::cout );
+        delete environment_p;
         return -1;
     }
 
     auto entry = manager.getIFFEntry( iff_mission_id );
     entry.importance = Data::Manager::Importance::NEEDED;
 
-    if( !manager.setIFFEntry( iff_mission_id, entry ) )
+    if( !manager.setIFFEntry( iff_mission_id, entry ) ) {
+        delete environment_p;
         return -2;
-
+    }
+    
     manager.togglePlatform( platform, true );
     
     if( platform_all )
@@ -218,6 +225,7 @@ int main(int argc, char** argv)
 
     if( number_of_iffs < 2 ) {
         std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
+        delete environment_p;
         return -3;
     }
     
@@ -319,6 +327,8 @@ int main(int argc, char** argv)
     
     if( resource_r == nullptr ) {
         display_game_files_missing( control_system_p, environment_p, text_2d_buffer_r, &manager, iff_mission_id, platform );
+        delete control_system_p;
+        delete environment_p;
         return -4;
     }
     
