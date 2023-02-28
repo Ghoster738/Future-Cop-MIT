@@ -12,15 +12,18 @@
 #include "Data/Mission/ObjResource.h"
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/PTCResource.h"
-
 #include "Data/Mission/Til/Mesh.h"
 #include "Data/Mission/Til/Colorizer.h"
 
 #include "Graphics/Environment.h"
+
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
+
+#include "ConfigureInput.h"
+#include "SplashScreens.h"
 
 namespace {
 void helpExit( std::ostream &stream ) {
@@ -52,14 +55,6 @@ void helpExit( std::ostream &stream ) {
     stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
     stream << "\n";
     exit( 0 );
-}
-void listIDs( std::ostream &stream, Data::Manager &manager ) {
-    stream << "Printing all map IDs\n";
-    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
-        stream << " " << *Data::Manager::map_iffs[ i ] << "\n";
-    }
-    
-    stream << std::endl;
 }
 }
 
@@ -165,8 +160,10 @@ int main(int argc, char** argv)
     {
         window_p = Graphics::Window::alloc( *environment_p );
         
-        if( window_p == nullptr )
+        if( window_p == nullptr ) {
+            delete environment_p;
             return -40;
+        }
     }
     std::string title = "Future Cop Map Viewer";
 
@@ -176,9 +173,11 @@ int main(int argc, char** argv)
     window_p->setDimensions( glm::u32vec2( width, height ) );
     window_p->setFullScreen( true );
     
-    if( window_p->attach() != 1 )
+    if( window_p->attach() != 1 ) {
+        delete environment_p;
         return -40;
-
+    }
+    
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
@@ -203,17 +202,20 @@ int main(int argc, char** argv)
         manager.setIFFEntry( iff_mission_id, entry );
     }
 
-    if( !manager.hasEntry( iff_mission_id ) ){
-        listIDs( std::cout, manager );
+    if( !manager.hasEntry( iff_mission_id ) ) {
+        Data::Manager::listIDs( std::cout );
+        delete environment_p;
         return -1;
     }
 
     auto entry = manager.getIFFEntry( iff_mission_id );
     entry.importance = Data::Manager::Importance::NEEDED;
 
-    if( !manager.setIFFEntry( iff_mission_id, entry ) )
+    if( !manager.setIFFEntry( iff_mission_id, entry ) ) {
+        delete environment_p;
         return -2;
-
+    }
+    
     manager.togglePlatform( platform, true );
     
     if( platform_all )
@@ -223,29 +225,26 @@ int main(int argc, char** argv)
 
     if( number_of_iffs < 2 ) {
         std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
+        delete environment_p;
         return -3;
     }
-
-    Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
-    Data::Mission::IFF   *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
-    
     
     std::vector<Data::Mission::IFF*> loaded_IFFs;
-    loaded_IFFs.push_back( global_r );
-    loaded_IFFs.push_back( resource_r );
+    
+    Data::Mission::IFF *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
+    if( global_r != nullptr )
+        loaded_IFFs.push_back( global_r );
+    else
+        std::cout << "The global IFF " << global_id << " did not load." << std::endl;
 
-    if( resource_r == nullptr ) {
+    Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
+    if( resource_r != nullptr )
+        loaded_IFFs.push_back( resource_r );
+    else
         std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
-        return -4;
-    }
-
-    if( global_r == nullptr ) {
-        std::cout << "The global IFF did not load." << std::endl;
-        return -5;
-    }
 
     // First get the model textures from the resource file.
-    {
+    if( resource_r != nullptr ) {
         auto cbmp_resources = Data::Mission::BMPResource::getVector( *resource_r );
 
         int status = environment_p->setupTextures( cbmp_resources );
@@ -255,7 +254,7 @@ int main(int argc, char** argv)
     }
 
     // Load all the 3D meshes from the resource as well.
-    {
+    if( resource_r != nullptr ) {
         auto cobj_resources = Data::Mission::ObjResource::getVector( *resource_r );
 
         int status = environment_p->setModelTypes( cobj_resources );
@@ -265,13 +264,12 @@ int main(int argc, char** argv)
     }
     
     // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 )
-    {
+    if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
         std::cout << "Fonts missing!" << std::endl;
     }
     
-    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
-    {
+    if( resource_r != nullptr ) {
+        auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
         environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
@@ -302,11 +300,9 @@ int main(int argc, char** argv)
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
-	//GLint GlowCurrentLoc = glGetUniformLocation( default_graphics_program.getProgram(), "CurrentGlow" );
 	float glow_amount = 0.0f;
-	//GLint WhichTileLoc = glGetUniformLocation( default_graphics_program.getProgram(), "WhichTile" );
 	int current_tile_selected = -1;
-	//glUniform1f( WhichTileLoc, current_tile_selected );
+    unsigned til_polygon_type_selected = 111;
 	bool entering_number = false;
 
     glm::vec3 position_of_camera = glm::vec3( 103, 0, 122 );
@@ -327,51 +323,17 @@ int main(int argc, char** argv)
     control_system_p->allocateCursor();
     auto control_cursor_r = control_system_p->getCursor();
 
-    if( control_system_p->read("controls") <= 0 ) {
-        for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
-        {
-            auto input_set_r = control_system_p->getInputSet( x );
-
-            for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
-            {
-                int status = 0;
-                text_2d_buffer_r->setFont( 1 );
-                text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
-                text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
-                text_2d_buffer_r->print( "Input Set: \"" + input_set_r->getName() +"\"" );
-
-                text_2d_buffer_r->setFont( 1 );
-                text_2d_buffer_r->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
-                text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
-                text_2d_buffer_r->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
-
-                text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
-                text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
-                if( control_cursor_r == nullptr )
-                    text_2d_buffer_r->print( "There is no cursor!" );
-                else
-                    text_2d_buffer_r->print( "One cursor is being used!" );
-
-                while( status < 1  && viewer_loop )
-                {
-                    status = control_system_p->pollEventForInputSet( x, y );
-
-                    if( control_system_p->isOrderedToExit() )
-                        viewer_loop = false;
-
-                    environment_p->drawFrame();
-                    environment_p->advanceTime( 0 );
-
-                    std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
-                }
-
-                text_2d_buffer_r->reset();
-            }
-        }
-        
-        control_system_p->write( "controls" );
+    viewer_loop = configure_input( control_system_p, environment_p, text_2d_buffer_r, "controls");
+    
+    if( resource_r == nullptr ) {
+        display_game_files_missing( control_system_p, environment_p, text_2d_buffer_r, &manager, iff_mission_id, platform );
+        delete control_system_p;
+        delete environment_p;
+        return -4;
     }
-
+    
+    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
+    
     while(viewer_loop)
     {
         // Get the time
@@ -428,25 +390,66 @@ int main(int argc, char** argv)
                 else
                     movement_of_camera.x = 0;
             }
+            
+            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
+            if( input_r->isChanged() )
+            {
+                if( input_r->getState() > 0.5 )
+                    is_camera_moving = true;
+                else
+                    is_camera_moving = false;
+            }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ROTATE_LEFT );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                // Stop the blinking on the previous current_tile_selected
-                environment_p->setTilBlink( current_tile_selected, -1.0 );
-
-                // Set the next current_tile_selected to flash
-                current_tile_selected = environment_p->setTilBlink( current_tile_selected - 1, 1.0 );
+                if( !is_camera_moving )
+                {
+                    // Stop the blinking on the previous current_tile_selected
+                    environment_p->setTilBlink( current_tile_selected, -1.0 );
+                    
+                    current_tile_selected--;
+                    
+                    // Set the next current_tile_selected to flash
+                    if( environment_p->setTilBlink( current_tile_selected, 1.0 ) == 0 ) {
+                        current_tile_selected = environment_p->getTilAmount();
+                    }
+                }
+                else
+                {
+                    til_polygon_type_selected--;
+                    
+                    if( environment_p->setTilPolygonBlink( til_polygon_type_selected ) <= 0 ) {
+                        til_polygon_type_selected = 111;
+                        environment_p->setTilPolygonBlink( til_polygon_type_selected );
+                    }
+                }
             }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ROTATE_RIGHT );
             if( input_r->isChanged() && input_r->getState() > 0.5 )
             {
-                // Stop the blinking on the previous current_tile_selected
-                environment_p->setTilBlink( current_tile_selected, -1.0 );
-
-                // Set the next current_tile_selected to flash
-                current_tile_selected = environment_p->setTilBlink( current_tile_selected + 1, 1.0 );
+                if( !is_camera_moving )
+                {
+                    // Stop the blinking on the previous current_tile_selected
+                    environment_p->setTilBlink( current_tile_selected, -1.0 );
+                    
+                    current_tile_selected++;
+                    
+                    // Set the next current_tile_selected to flash
+                    if( environment_p->setTilBlink( current_tile_selected, 1.0 ) == 0 ) {
+                        current_tile_selected = -1;
+                    }
+                }
+                else
+                {
+                    til_polygon_type_selected++;
+                    
+                    if( environment_p->setTilPolygonBlink( til_polygon_type_selected ) <= 0 ) {
+                        til_polygon_type_selected = 0;
+                        environment_p->setTilPolygonBlink( til_polygon_type_selected );
+                    }
+                }
             }
 
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::CAMERA );
@@ -464,16 +467,6 @@ int main(int argc, char** argv)
                     }
                 }
             }
-            
-            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::ACTION );
-            if( input_r->isChanged() )
-            {
-                if( input_r->getState() > 0.5 )
-                    is_camera_moving = true;
-                else
-                    is_camera_moving = false;
-            }
-
         }
 
         if( control_cursor_r != nullptr && control_cursor_r->isChanged() )
@@ -531,12 +524,20 @@ int main(int argc, char** argv)
         text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
         text_2d_buffer_r->print( "Rotation = (" + std::to_string(rotation.x) + ", " + std::to_string(rotation.y) + ")" );
+        
+        if( til_polygon_type_selected != 111 ) {
+            if( text_2d_buffer_r->setFont( 3 ) == -3 )
+                text_2d_buffer_r->setFont( 1 );
+            text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+            text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
+        }
 
-        if( current_tile_selected >= 0 ) {
+        if( current_tile_selected >= 0 && current_tile_selected < til_resources.size() ) {
             if( text_2d_buffer_r->setFont( 3 ) == -3 )
                 text_2d_buffer_r->setFont( 1 );
             text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
-            text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 60 ) );
             text_2d_buffer_r->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
         }
 

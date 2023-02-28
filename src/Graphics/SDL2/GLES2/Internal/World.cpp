@@ -17,8 +17,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
 
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
-    "uniform float CurrentGlow;\n"
-    "uniform float  WhichTile;\n" // cause the tile to flash.
+    "uniform float GlowTime;\n"
+    "uniform float SelectedTile;\n"
 
     // These are the outputs
     "varying vec3 vertex_colors;\n"
@@ -29,9 +29,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
     "{\n"
     "   vertex_colors = COLOR_0;\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
-    "   float state = float(WhichTile > _TileType - 0.5 && WhichTile < _TileType + 0.5);"
-    "   _flashing = CurrentGlow * state;\n"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "   _flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
+    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0 + (_TileType * 0.0));\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "#version 110\n"
@@ -43,8 +42,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
 
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
-    "uniform float CurrentGlow;\n"
-    "uniform float  WhichTile;\n" // cause the tile to flash.
+    "uniform float GlowTime;\n"
+    "uniform float SelectedTile;\n"
 
     // These are the outputs
     "varying vec3 vertex_colors;\n"
@@ -55,20 +54,20 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "{\n"
     "   vertex_colors = COLOR_0;\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
-    "   float state = float(WhichTile > _TileType - 0.5 && WhichTile < _TileType + 0.5);"
-    "   _flashing = CurrentGlow * state;\n"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "   _flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
+    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0 + (_TileType * 0.0));\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader =
     "#version 100\n"
     "precision mediump float;\n"
+
     "varying vec3 vertex_colors;\n"
     "varying vec2 texture_coord_1;\n"
     "varying float _flashing;\n"
 
     "uniform sampler2D Texture;\n"
 
-    "const vec4 frag_inv = vec4(1,1,1,0);\n"
+    "const vec3 frag_inv = vec3(1,1,1);\n"
 
     "void main()\n"
     "{\n"
@@ -80,8 +79,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader
     "        frag_color.a = 0.5;\n"
     "    else\n"
     "        frag_color.a = 1.0;\n"
-    "    frag_color *= vec4(vertex_colors.xyz, 1);"
-    "    gl_FragColor = (1.0 - _flashing) * frag_color + _flashing * (frag_inv - frag_color);\n"
+    "    vec3 normal_color = vertex_colors * frag_color.rgb;\n"
+    "    vec3 inverse_color = frag_inv - normal_color;\n"
+    "    gl_FragColor = vec4( (1.0 - _flashing) * normal_color + _flashing * inverse_color, frag_color.a );\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "#version 110\n"
@@ -92,7 +92,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
     "uniform sampler2D Texture;\n"
 
-    "const vec4 frag_inv = vec4(1,1,1,0);\n"
+    "const vec3 frag_inv = vec3(1,1,1);\n"
 
     "void main()\n"
     "{\n"
@@ -104,11 +104,13 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "        frag_color.a = 0.5;\n"
     "    else\n"
     "        frag_color.a = 1.0;\n"
-    "    frag_color *= vec4(vertex_colors.xyz, 1);"
-    "    gl_FragColor = (1.0 - _flashing) * frag_color + _flashing * (frag_inv - frag_color);\n"
+    "    vec3 normal_color = vertex_colors * frag_color.rgb;\n"
+    "    vec3 inverse_color = frag_inv - normal_color;\n"
+    "    gl_FragColor = vec4( (1.0 - _flashing) * normal_color + _flashing * inverse_color, frag_color.a );\n"
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::World::World() {
+    glow_time = 0;
 }
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
@@ -176,8 +178,10 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
         else
         {
             // Setup the uniforms for the map.
-            texture_uniform_id = program.getUniform( "Texture",   &std::cout, &uniform_failed );
-            matrix_uniform_id  = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            texture_uniform_id       = program.getUniform( "Texture",   &std::cout, &uniform_failed );
+            matrix_uniform_id        = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            glow_time_uniform_id     = program.getUniform( "GlowTime",  &std::cout, &uniform_failed );
+            selected_tile_uniform_id = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
             
             attribute_failed |= !program.isAttribute(   "POSITION", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
@@ -270,6 +274,16 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     program.use();
 
     camera.getProjectionView3D( projection_view );
+    
+    if( this->glow_time > 1.0f )
+        glUniform1f( glow_time_uniform_id, 2.0f - this->glow_time );
+    else
+        glUniform1f( glow_time_uniform_id, this->glow_time );
+    
+    if( this->selected_tile != this->current_selected_tile ) {
+        this->current_selected_tile = this->selected_tile;
+        glUniform1f( selected_tile_uniform_id, this->selected_tile );
+    }
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
@@ -293,21 +307,36 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
             if( (*i).current > (*i).change_rate )
                 (*i).current -= (*i).change_rate * 2.0;
         }
-
     }
+    
+    // Update glow time.
+    this->glow_time += seconds_passed * this->scale;
+    
+    if( this->glow_time > 2.0f )
+        this->glow_time = 0.0f;
 }
 
+size_t Graphics::SDL2::GLES2::Internal::World::getTilAmount() const {
+    return tiles.size();
+}
 
-int Graphics::SDL2::GLES2::Internal::World::setTilBlink( int til_index, float frequency ) {
-    if( til_index < 0 )
-        return tiles.size() - 1;
-    else
-    if( static_cast<unsigned int>( til_index ) < tiles.size() )
+int Graphics::SDL2::GLES2::Internal::World::setTilBlink( unsigned til_index, float frequency ) {
+    if( til_index < tiles.size() )
     {
         tiles[ til_index ].current = 0.0;
         tiles[ til_index ].change_rate = frequency;
 
-        return til_index;
+        return 1;
+    }
+    else
+        return 0;
+}
+
+int Graphics::SDL2::GLES2::Internal::World::setPolygonTypeBlink( unsigned polygon_type, GLfloat scale ) {
+    if( polygon_type < 112 ) {
+        this->scale = scale;
+        this->selected_tile = polygon_type;
+        return 1;
     }
     else
         return 0;

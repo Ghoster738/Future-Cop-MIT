@@ -21,7 +21,7 @@ struct EnvironmentInternalData {
     
     Internal::Texture2D shiney_texture; // This holds the environment map.
 
-    Internal::World *world; // This handles drawing the whole world.
+    Internal::World *world_p; // This handles drawing the whole world.
     Internal::StaticModelDraw     static_model_draw_routine;
     Internal::MorphModelDraw       morph_model_draw_routine;
     Internal::SkeletalModelDraw skeletal_model_draw_routine;

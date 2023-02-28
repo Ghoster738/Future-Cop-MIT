@@ -128,7 +128,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
-
+    shiney_texture_r = nullptr;
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {

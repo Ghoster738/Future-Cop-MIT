@@ -91,7 +91,18 @@ Data::Manager::IFFEntryStorage::~IFFEntryStorage() {
 bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] == nullptr ) {
         this->iff_p[ platform ] = new Mission::IFF;
-        return this->iff_p[ platform ]->open( paths[ platform ].c_str() ) == 1;
+        
+        auto result = this->iff_p[ platform ]->open( paths[ platform ].c_str() );
+        
+        if( result == 1 )
+            return true;
+        else {
+            delete this->iff_p[ platform ];
+            
+            this->iff_p[ platform ] = nullptr;
+            
+            return false;
+        }
     }
     else
         return true; // Already allocated.
@@ -328,4 +339,12 @@ int Data::Manager::reload( unsigned core_amount ) {
    //  thread_lock.unlock();
 
     return number_reload;
+}
+
+void Data::Manager::listIDs( std::ostream &stream ) {
+    stream << "Printing all map IDs\n";
+    for( size_t i = 0; i < AMOUNT_OF_IFF_IDS; i++ ) {
+        stream << " " << *map_iffs[ i ] << "\n";
+    }
+    stream << std::endl;
 }

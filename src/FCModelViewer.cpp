@@ -21,6 +21,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include "ConfigureInput.h"
+#include "SplashScreens.h"
+
 namespace {
 void helpExit( std::ostream &stream ) {
    
@@ -54,14 +57,6 @@ void helpExit( std::ostream &stream ) {
     stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
     stream << "\n";
     exit( 0 );
-}
-void listIDs( std::ostream &stream, Data::Manager &manager ) {
-    stream << "Printing all map IDs\n";
-    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
-        stream << " " << *Data::Manager::map_iffs[ i ] << "\n";
-    }
-    
-    stream << std::endl;
 }
 
 glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {
@@ -192,7 +187,7 @@ int main(int argc, char** argv)
     }
 
     if( !manager.hasEntry( iff_mission_id ) ) {
-        listIDs( std::cout, manager );
+        Data::Manager::listIDs( std::cout );
         return -1;
     }
 
@@ -208,12 +203,19 @@ int main(int argc, char** argv)
     if( manager.setLoad( Data::Manager::Importance::NEEDED ) < 2 )
         return -3;
     
-    Data::Mission::IFF &resource = *manager.getIFFEntry( iff_mission_id ).getIFF( platform );
-    Data::Mission::IFF &global = *manager.getIFFEntry( global_id ).getIFF( platform );
-    
     std::vector<Data::Mission::IFF*> loaded_IFFs;
-    loaded_IFFs.push_back( &global );
-    loaded_IFFs.push_back( &resource );
+    
+    Data::Mission::IFF *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
+    if( global_r != nullptr )
+        loaded_IFFs.push_back( global_r );
+    else
+        std::cout << "The global IFF " << global_id << " did not load." << std::endl;
+
+    Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
+    if( resource_r != nullptr )
+        loaded_IFFs.push_back( resource_r );
+    else
+        std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
 
     Graphics::Environment::initSystem();
 
@@ -225,18 +227,20 @@ int main(int argc, char** argv)
     if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
         return -38;
     
-    Graphics::Environment *environment = Graphics::Environment::alloc( graphics_identifiers[0] );
-    if( environment == nullptr )
+    Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
+    if( environment_p == nullptr )
         return -39;
 
     // Declare a pointer to the Environment.
     Graphics::Window *window_r = nullptr;
     
     {
-        window_r = Graphics::Window::alloc( *environment );
+        window_r = Graphics::Window::alloc( *environment_p );
         
-        if( window_r == nullptr )
+        if( window_r == nullptr ) {
+            delete environment_p;
             return -40;
+        }
     }
     
     
@@ -246,10 +250,10 @@ int main(int argc, char** argv)
     window_r->attach();
 
     // First get the model textures from the resource file.
-    {
-        auto cbmp_resources = Data::Mission::BMPResource::getVector( resource );
+    if( resource_r != nullptr ) {
+        auto cbmp_resources = Data::Mission::BMPResource::getVector( *resource_r );
 
-        int status = environment->setupTextures( cbmp_resources );
+        int status = environment_p->setupTextures( cbmp_resources );
 
         if( status < 0 )
             std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;
@@ -261,14 +265,14 @@ int main(int argc, char** argv)
     unsigned int number_of_models = 0;
 
     // Load all the 3D meshes from the resource as well.
-    {
-        auto cobj_resources = Data::Mission::ObjResource::getVector( resource );
+    if( resource_r != nullptr ) {
+        auto cobj_resources = Data::Mission::ObjResource::getVector( *resource_r );
 
         number_of_models = cobj_resources.size();
 
         if( number_of_models != 0 ) // If the status is not one then there is an error
         {
-            int failures = environment->setModelTypes( cobj_resources );
+            int failures = environment_p->setModelTypes( cobj_resources );
 
             if( failures != 0 )
             {
@@ -285,7 +289,7 @@ int main(int argc, char** argv)
     }
 
     // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *environment, loaded_IFFs ) == 0 )
+    if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 )
     {
         std::cout << "Fonts missing!" << std::endl;
     }
@@ -300,10 +304,10 @@ int main(int argc, char** argv)
     glm::mat4 extra_matrix_0;
 
     // Setup the font
-    Graphics::Text2DBuffer *text_2d_buffer = Graphics::Text2DBuffer::alloc( *environment );
+    Graphics::Text2DBuffer *text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *environment_p );
     extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(WIDTH), -static_cast<float>(HEIGHT), 0.0f, -1.0f, 1.0f );
     
-    first_person->attachText2DBuffer( *text_2d_buffer );
+    first_person->attachText2DBuffer( *text_2d_buffer_r );
     first_person->setProjection2D( extra_matrix_0 );
 
     extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f );
@@ -325,65 +329,33 @@ int main(int argc, char** argv)
     // If there is an error detected it is time to show it.
     while( is_error )
     {
-        text_2d_buffer->setFont( 1 );
-        text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
-        text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-        text_2d_buffer->print( error_message );
+        text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
+        text_2d_buffer_r->print( error_message );
 
         control_system_p->advanceTime( 0 );
 
         if( control_system_p->isOrderedToExit() )
             is_error = false;
 
-        environment->drawFrame();
+        environment_p->drawFrame();
 
-        environment->advanceTime( 0 );
+        environment_p->advanceTime( 0 );
 
         std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
     }
 
-    if( control_system_p->read("controls") <= 0 ) {
-        for( unsigned x = 0; x < control_system_p->amountOfInputSets(); x++ )
-        {
-            auto input_set_r = control_system_p->getInputSet( x );
-
-            for( unsigned y = 0; input_set_r->getInput( y ) != nullptr; y++ )
-            {
-                int status = 0;
-
-                while( status < 1  && viewer_loop )
-                {
-                    if( text_2d_buffer->setFont( 3 ) == -3 )
-                        text_2d_buffer->setFont( 1 );
-                    text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
-                    text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-                    text_2d_buffer->print( "Input Set: \"" + input_set_r->getName() +"\"" );
-                    
-                    if( text_2d_buffer->setFont( 6 ) == -3 )
-                        text_2d_buffer->setFont( 1 );
-                    text_2d_buffer->setColor( glm::vec4( 1, 0.25, 0.25, 1 ) );
-                    text_2d_buffer->setPosition( glm::vec2( 0, 20 ) );
-                    text_2d_buffer->print( "Enter a key for Input, \"" + input_set_r->getInput( y )->getName() +"\"" );
-
-                    status = control_system_p->pollEventForInputSet( x, y );
-
-                    if( control_system_p->isOrderedToExit() )
-                        viewer_loop = false;
-
-                    environment->drawFrame();
-                    environment->advanceTime( 0 );
-
-                    text_2d_buffer->reset();
-
-                    std::this_thread::sleep_for( std::chrono::microseconds(40) ); // delay for 40ms the frequency really does not mater for things like this. Run 25 times in one second.
-                }
-            }
-        }
-        
-        control_system_p->write( "controls" );
+    viewer_loop = configure_input( control_system_p, environment_p, text_2d_buffer_r, "controls");
+    
+    if( resource_r == nullptr ) {
+        display_game_files_missing( control_system_p, environment_p, text_2d_buffer_r, &manager, iff_mission_id, platform );
+        delete control_system_p;
+        delete environment_p;
+        return -4;
     }
     
-    auto obj_vector = Data::Mission::ObjResource::getVector( resource );
+    auto obj_vector = Data::Mission::ObjResource::getVector( *resource_r );
 
     float rotate = 0.0;
     float count_down = 0.0;
@@ -397,7 +369,7 @@ int main(int argc, char** argv)
         }
     }
     
-    Graphics::ModelInstance* displayed_instance_p = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
+    Graphics::ModelInstance* displayed_instance_p = Graphics::ModelInstance::alloc( *environment_p, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
     
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
@@ -428,7 +400,7 @@ int main(int argc, char** argv)
             if( input_r->isChanged() && input_r->getState() < 0.5 && !resource_export_path.empty() ) {
                 // Export the textures from the mission file.
                 if(!exported_textures) {
-                    auto bmps = Data::Mission::BMPResource::getVector( resource );
+                    auto bmps = Data::Mission::BMPResource::getVector( *resource_r );
                     
                     for( auto it : bmps ) {
                         auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
@@ -439,7 +411,7 @@ int main(int argc, char** argv)
                     exported_textures = true;
                 }
                 
-                auto obj = Data::Mission::ObjResource::getVector( resource )[ cobj_index ];
+                auto obj = Data::Mission::ObjResource::getVector( *resource_r )[ cobj_index ];
                 
                 auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
                 
@@ -477,8 +449,8 @@ int main(int argc, char** argv)
                 if( displayed_instance_p != nullptr )
                     delete displayed_instance_p;
                 
-                if( Graphics::ModelInstance::exists( *environment, obj_vector.at(cobj_index)->getResourceID() ) ) {
-                    displayed_instance_p = Graphics::ModelInstance::alloc( *environment, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
+                if( Graphics::ModelInstance::exists( *environment_p, obj_vector.at(cobj_index)->getResourceID() ) ) {
+                    displayed_instance_p = Graphics::ModelInstance::alloc( *environment_p, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
                     
                     std::cout << "Sphere result is "<< displayed_instance_p->getBoundingSphere( position, radius ) << std::endl;
                     std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
@@ -502,22 +474,22 @@ int main(int argc, char** argv)
 
         count_down -= time_unit(delta).count();
         
-        if( text_2d_buffer->setFont( 3 ) == -3 )
-            text_2d_buffer->setFont( 1 );
-        text_2d_buffer->setColor( glm::vec4( 1, 1, 1, 1 ) );
-        text_2d_buffer->setPosition( glm::vec2( 0, 0 ) );
-        text_2d_buffer->print( "Resource ID = " + std::to_string(obj_vector.at(cobj_index)->getResourceID()) );
+        if( text_2d_buffer_r->setFont( 3 ) == -3 )
+            text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
+        text_2d_buffer_r->print( "Resource ID = " + std::to_string(obj_vector.at(cobj_index)->getResourceID()) );
         
         if( !resource_export_path.empty() ) {
-            text_2d_buffer->setColor( glm::vec4( 1, 0, 1, 1 ) );
-            text_2d_buffer->setPosition( glm::vec2( 0, 16 ) );
-            text_2d_buffer->print( "PRESS the \"" + player_1_controller_r->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
+            text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 16 ) );
+            text_2d_buffer_r->print( "PRESS the \"" + player_1_controller_r->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
         }
 
-        environment->drawFrame();
-        environment->advanceTime( time_unit(delta).count() );
+        environment_p->drawFrame();
+        environment_p->advanceTime( time_unit(delta).count() );
 
-        text_2d_buffer->reset();
+        text_2d_buffer_r->reset();
 
         if( delta < std::chrono::microseconds(17) )
             std::this_thread::sleep_for( std::chrono::microseconds(17) - delta );
@@ -527,7 +499,7 @@ int main(int argc, char** argv)
 
     // Clean up
     delete control_system_p;
-    delete environment;
+    delete environment_p;
 
     Graphics::Environment::deinitEntireSystem();
 

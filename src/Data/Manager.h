@@ -64,6 +64,8 @@ public:
         ~IFFEntry(); // DO NOT SET THIS TO VIRTUAL.
 
         void setPath( Platform platform, const std::string &path );
+        
+        std::string getPath( Platform platform ) const { return paths[ platform ]; }
 
         /**
          * Note: Do not delete the returned pointer!
@@ -131,6 +133,8 @@ public:
      * @return The number of resources reloaded.
      */
     int reload( unsigned core_amount = 1 );
+    
+    static void listIDs( std::ostream &stream );
 };
 
 } // Data
