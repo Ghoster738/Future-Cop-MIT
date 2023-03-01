@@ -178,6 +178,10 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
             // Switch to a font with a DEL symbol if the current font lacks one.
             if( switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text ) == Data::Mission::FontResource::FilterStatus::INVALID ) {
                 switch_text_2D_r = text_data_p[ font_system_r->getInvalidBackupFontID() ];
+
+                // This is a workaround for the fall back font code handle behaviors.
+                setFont( font_system_r->getInvalidBackupFontID() );
+
                 switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
             }
 
