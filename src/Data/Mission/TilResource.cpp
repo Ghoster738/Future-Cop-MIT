@@ -354,7 +354,7 @@ bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::
     for( auto cur = textures.begin(); cur != textures.end(); cur++ ) {
         if( (*cur)->getResourceID() - 1 < TEXTURE_LIMIT ) {
             if( (*cur)->getImageFormat() != nullptr )
-                texture_names[ (*cur)->getResourceID() - 1 ] = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getIndexNumber() ) );
+                texture_names[ (*cur)->getResourceID() - 1 ] = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
         }
     }
 
