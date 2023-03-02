@@ -134,7 +134,8 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
 
 int Data::Mission::PTCResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_export = true;
-    bool entire_map = false;
+    bool no_model = false;
+    bool entire_point_cloud = false;
     bool entire_height_map = false;
     Utilities::ImageFormat::Chooser chooser;
 
@@ -142,8 +143,12 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
         if( (*arg).compare("--dry") == 0 )
             enable_export = false;
         else
-        if( (*arg).compare("--PTC_ENTIRE_MAP") == 0 ) {
-            entire_map = true;
+        if( (*arg).compare("--PTC_NO_MODEL") == 0 ) {
+            no_model = true;
+        }
+        else
+        if( (*arg).compare("--PTC_ENTIRE_POINT_CLOUD") == 0 ) {
+            entire_point_cloud = true;
         }
         else
         if( (*arg).compare("--PTC_ENTIRE_HEIGHT_MAP") == 0 ) {
@@ -152,7 +157,7 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
     }
 
     if( enable_export ) {
-        if( !entire_map ) {
+        if( entire_point_cloud ) {
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *debug_map_display_p );
 
             if( the_choosen_r != nullptr ) {
@@ -161,10 +166,6 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
 
                 buffer.write( the_choosen_r->appendExtension( file_path ) );
             }
-        }
-        else {
-            // Write the entire map.
-            return writeEntireMap( std::string(file_path) );
         }
         
         if( entire_height_map ) {
@@ -195,7 +196,13 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
                 buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
             }
         }
-        return 1;
+        
+        if( !no_model ) {
+            // Write the entire map.
+            return writeEntireMap( std::string(file_path) );
+        }
+        else
+            return 1;
     }
     else
         return 0;

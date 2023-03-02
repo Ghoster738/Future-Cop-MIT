@@ -374,6 +374,7 @@ using Data::Mission::Til::Mesh::FRONT_LEFT;
 int Data::Mission::TilResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     bool enable_point_cloud_export = false;
     bool enable_height_map_export = false;
+    bool enable_til_export_model = false;
     bool enable_export = true;
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
@@ -384,6 +385,9 @@ int Data::Mission::TilResource::write( const std::string& file_path, const std::
         else
         if( (*arg).compare("--TIL_EXPORT_HEIGHT_MAP") == 0 )
             enable_height_map_export = true;
+        else
+        if( (*arg).compare("--TIL_EXPORT_MODEL") == 0 )
+            enable_til_export_model = true;
         else
         if( (*arg).compare("--dry") == 0 )
             enable_export = false;
@@ -411,12 +415,16 @@ int Data::Mission::TilResource::write( const std::string& file_path, const std::
         }
     }
 
-    Utilities::ModelBuilder *model_output = createModel( &arguments );
-
-    if( enable_export && model_output != nullptr )
-        glTF_return = model_output->write( file_path, "til_"+ std::to_string( getResourceID() ) );
-
-    delete model_output;
+    if( enable_til_export_model ) {
+        Utilities::ModelBuilder *model_output_p = createModel( &arguments );
+        
+        if( enable_export && model_output_p != nullptr )
+            glTF_return = model_output_p->write( file_path, "til_"+ std::to_string( getResourceID() ) );
+        
+        delete model_output_p;
+    }
+    else
+        glTF_return = true; // Nothing is wrong since Til was not set to be exported.
 
     return glTF_return;
 }
