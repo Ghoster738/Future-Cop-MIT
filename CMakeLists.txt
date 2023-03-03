@@ -63,21 +63,15 @@ find_package( Git )
 set (OpenGL_GL_PREFERENCE "LEGACY" CACHE STRING "Set the OPENGL affinity, if multiple libraries are available")
 mark_as_advanced(OpenGL_GL_PREFERENCE)
 
-if(ZLIB_FOUND)
-  include_directories(${ZLIB_INCLUDE_DIR})
-  if(PNG_FOUND)
-    include_directories(${PNG_INCLUDE_DIRS})
-  endif()
-endif()
-
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
-include_directories(${JSON_CPP_INCLUDE_DIR}) # A bug is found with Zlib and PNG
 
 if(ZLIB_FOUND)
   target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
+  include_directories(${ZLIB_INCLUDE_DIRS})
   if(PNG_FOUND)
     target_link_libraries (FC_IFF_IO PNG::PNG)
+    include_directories(${PNG_INCLUDE_DIRS})
   endif()
 endif()
 
