@@ -13,3 +13,6 @@
 [submodule "submodules/SDL"]
 	path = submodules/SDL2
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "submodules/zlib"]
+	path = submodules/zlib
+	url = https://github.com/madler/zlib

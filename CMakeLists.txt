@@ -9,7 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
 option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
-option(FCOption_JSONCPP_VENDORED "Use jsoncpp vendored library. Make sure the submodule is there fore using this option." OFF)
+option(FCOption_JSONCPP_VENDORED "Use jsoncpp vendored library. Make sure the submodule is there before using this option." OFF)
+option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodule is there before using this option. Zlib is not needed, but it would be nice to have for PNG export support." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -19,9 +20,6 @@ file(GLOB_RECURSE DATA_SOURCE_FILES src/Data/*.cpp )
 add_library(FC_IFF_IO STATIC ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
 
 target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
-
-find_package( ZLIB )
-find_package( PNG )
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
@@ -66,13 +64,27 @@ mark_as_advanced(OpenGL_GL_PREFERENCE)
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
-if(ZLIB_FOUND)
-  target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
-  include_directories(${ZLIB_INCLUDE_DIRS})
-  if(PNG_FOUND)
-    target_link_libraries (FC_IFF_IO PNG::PNG)
-    include_directories(${PNG_INCLUDE_DIRS})
+if( FCOption_ZLIB_VENDORED )
+  add_subdirectory(submodules/zlib EXCLUDE_FROM_ALL)
+
+  target_link_libraries (FC_IFF_IO zlib)
+  include_directories(${ZLIB_PUBLIC_HDRS})
+  set( ZLIB_FOUND True )
+
+else()
+  find_package( ZLIB )
+
+  if(ZLIB_FOUND)
+    target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
+    include_directories(${ZLIB_INCLUDE_DIRS})
   endif()
+endif()
+
+find_package( PNG )
+
+if(PNG_FOUND AND ZLIB_FOUND)
+  target_link_libraries (FC_IFF_IO PNG::PNG)
+  include_directories(${PNG_INCLUDE_DIRS})
 endif()
 
 if( FCOption_JSONCPP_VENDORED )
