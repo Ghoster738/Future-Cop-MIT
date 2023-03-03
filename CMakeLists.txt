@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
 option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
+option(FCOption_JSONCPP_VENDORED "Use jsoncpp vendored library. Make sure the submodule is there fore using this option." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -55,8 +56,6 @@ else()
   find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
 endif()
 
-find_package( JSON_CPP REQUIRED )
-
 find_package( OpenGL REQUIRED)
 find_package( Git )
 
@@ -71,9 +70,9 @@ if(ZLIB_FOUND)
   endif()
 endif()
 
-include_directories(${JSON_CPP_INCLUDE_DIR})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
+include_directories(${JSON_CPP_INCLUDE_DIR}) # A bug is found with Zlib and PNG
 
 if(ZLIB_FOUND)
   target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
@@ -82,7 +81,14 @@ if(ZLIB_FOUND)
   endif()
 endif()
 
-target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
+if( FCOption_JSONCPP_VENDORED )
+  add_subdirectory(submodules/jsoncpp EXCLUDE_FROM_ALL)
+  target_link_libraries( FC_IFF_IO  jsoncpp_lib )
+else()
+  find_package( JSON_CPP REQUIRED )
+  include_directories(${JSON_CPP_INCLUDE_DIR})
+  target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
+endif()
 
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
