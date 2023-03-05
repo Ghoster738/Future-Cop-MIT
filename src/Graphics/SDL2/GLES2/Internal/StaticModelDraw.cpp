@@ -7,7 +7,6 @@
 #include "SDL.h"
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_vertex_shader =
-    "#version 100\n"
     "precision mediump float;\n"
     // Inputs
     "attribute vec4 POSITION;\n"
@@ -41,7 +40,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_verte
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
-    "#version 110\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec3 NORMAL;\n"
@@ -74,7 +72,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_fragment_shader =
-    "#version 100\n"
     "precision mediump float;\n"
 
     "varying vec3 world_reflection;\n"
@@ -101,8 +98,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_fragm
     "    gl_FragColor = color;\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
-    "#version 110\n"
-
     "varying vec3 world_reflection;\n"
     "varying float specular;\n"
     "varying vec2 texture_coord_1;\n"

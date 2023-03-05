@@ -7,8 +7,6 @@
 #include <iostream>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec2 TEXCOORD_0;\n"
@@ -33,7 +31,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0 + (_TileType * 0.0));\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
-    "#version 110\n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec2 TEXCOORD_0;\n"
@@ -58,9 +55,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0 + (_TileType * 0.0));\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
-
     "varying vec3 vertex_colors;\n"
     "varying vec2 texture_coord_1;\n"
     "varying float _flashing;\n"
@@ -84,8 +78,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader
     "    gl_FragColor = vec4( (1.0 - _flashing) * normal_color + _flashing * inverse_color, frag_color.a );\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
-    "#version 110\n"
-
     "varying vec3 vertex_colors;\n"
     "varying vec2 texture_coord_1;\n"
     "varying float _flashing;\n"

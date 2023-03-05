@@ -20,7 +20,6 @@ glm::mat4* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_es_vertex_shader =
-    "#version 100\n"
     "precision mediump float;\n"
     // Inputs
     "attribute vec4 POSITION;\n"
@@ -62,7 +61,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_es_ver
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
-    "#version 110 \n"
     // Inputs
     "attribute vec4 POSITION;\n"
     "attribute vec3 NORMAL;\n"
