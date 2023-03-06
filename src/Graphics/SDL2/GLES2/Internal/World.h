@@ -31,8 +31,6 @@ public:
     };
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
-    static const GLchar* default_es_vertex_shader;
-    static const GLchar* default_es_fragment_shader;
 protected:
     Program program;
     std::vector<Shader::Attribute> attributes;
