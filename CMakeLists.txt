@@ -9,7 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
 option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
-option(FCOption_JSONCPP_VENDORED "Use jsoncpp vendored library. Make sure the submodule is there before using this option." OFF)
+# "Warning: Enabling this would mess with the locations where the program would normally compile to. Use jsoncpp vendored library. Make sure the submodule is there before using this option."
+set(FCOption_JSONCPP_VENDORED OFF)
 option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodule is there before using this option. Zlib is not needed, but it would be nice to have for PNG export support." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
