@@ -210,6 +210,135 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5A1::
     return color.toGeneric( interpolation );
 }
 
+Utilities::PixelFormatColor_R5G5B5T1::Color::Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate ) {
+    const float CUTOFF = 0.015625;
+    
+    if( generic.alpha < CUTOFF) {
+        red   = 0;
+        green = 0;
+        blue  = 0;
+        semi_transparency = true;
+    }
+    else
+    {
+        red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
+        green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
+        blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
+        
+        if( generic.alpha < 0.5 )
+            semi_transparency = true;
+        else
+            semi_transparency = false;
+    }
+}
+        
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::Color::toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const {
+    const float CUTOFF = 0.015625;
+    GenericColor color;
+    
+    color.red   = internalToGenricColor5<uint8_t>( red,   interpolate );
+    color.green = internalToGenricColor5<uint8_t>( green, interpolate );
+    color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
+    
+    if( !semi_transparency )
+        color.alpha = 1.0;
+    else if( color.red < CUTOFF && color.green < CUTOFF && color.blue < CUTOFF )
+        color.alpha = 0.0;
+    else
+        color.alpha = 0.5;
+    
+    return color;
+}
+    
+void Utilities::PixelFormatColor_R5G5B5T1::writePixel( Utilities::Buffer::Writer &buffer, Utilities::Buffer::Endian endian, const PixelFormatColor::GenericColor& coloring ) const {
+    PixelFormatColor_R5G5B5T1::Color color( coloring, interpolation );
+    
+    uint16_t data;
+    data  = (color.semi_transparency << 15);
+    data |= (color.red   << 10);
+    data |= (color.green <<  5);
+    data |= (color.blue  <<  0);
+    
+    buffer.writeU16( data, endian );
+}
+
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian ) const {
+    
+    PixelFormatColor_R5G5B5T1::Color color;
+    auto word = buffer.readU16( endian );
+    
+    color.blue  = (word & 0x001F);
+    color.green = (word & 0x03E0) >>  5; // Right shift by  4 and left shift by 2
+    color.red   = (word & 0x7C00) >> 10; // Right shift by 10 and left shift by 3
+    color.semi_transparency = (word & 0x8000) != 0;
+    
+    return color.toGeneric( interpolation );
+}
+
+Utilities::PixelFormatColor_B5G5R5T1::Color::Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate ) {
+    const float CUTOFF = 0.015625;
+    
+    if( generic.alpha < CUTOFF) {
+        red   = 0;
+        green = 0;
+        blue  = 0;
+        semi_transparency = true;
+    }
+    else
+    {
+        red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
+        green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
+        blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
+        
+        if( generic.alpha < 0.5 )
+            semi_transparency = true;
+        else
+            semi_transparency = false;
+    }
+}
+        
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5T1::Color::toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const {
+    const float CUTOFF = 0.015625;
+    GenericColor color;
+    
+    color.red   = internalToGenricColor5<uint8_t>( red,   interpolate );
+    color.green = internalToGenricColor5<uint8_t>( green, interpolate );
+    color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
+    
+    if( !semi_transparency )
+        color.alpha = 1.0;
+    else if( color.red < CUTOFF && color.green < CUTOFF && color.blue < CUTOFF )
+        color.alpha = 0.0;
+    else
+        color.alpha = 0.5;
+    
+    return color;
+}
+
+void Utilities::PixelFormatColor_B5G5R5T1::writePixel( Utilities::Buffer::Writer &buffer, Utilities::Buffer::Endian endian, const PixelFormatColor::GenericColor& coloring ) const {
+    PixelFormatColor_B5G5R5T1::Color color( coloring, interpolation );
+    
+    uint16_t data;
+    data  = (color.semi_transparency << 15);
+    data |= (color.blue  << 10);
+    data |= (color.green <<  5);
+    data |= (color.red   <<  0);
+    
+    buffer.writeU16( data, endian );
+}
+Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5T1::readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian ) const {
+    
+    PixelFormatColor_B5G5R5T1::Color color;
+    auto word = buffer.readU16( endian );
+    
+    color.red   = (word & 0x001F);
+    color.green = (word & 0x03E0) >>  5; // Right shift by  4 and left shift by 2
+    color.blue  = (word & 0x7C00) >> 10; // Right shift by 10 and left shift by 3
+    color.semi_transparency = (word & 0x8000) != 0;
+    
+    return color.toGeneric( interpolation );
+}
+
 Utilities::PixelFormatColor_R8G8B8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     PixelFormatColor_R8G8B8A8::Color other_color( generic, interpolate );

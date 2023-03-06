@@ -161,6 +161,61 @@ namespace Utilities {
         virtual std::string getName() const { return "Blue 5-bit, Green 5-bit, Red 5-bit, Alpha 1-bit"; }
     };
 
+    class PixelFormatColor_R5G5B5T1 : public PixelFormatColor {
+    public:
+        struct Color {
+            uint16_t red   : 5;
+            uint16_t green : 5;
+            uint16_t blue  : 5;
+            uint16_t semi_transparency : 1; // This is semi transparency. https://psx-spx.consoledev.net/graphicsprocessingunitgpu/
+            
+            Color() {}
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
+            
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
+        };
+        PixelFormatColor_R5G5B5T1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_R5G5B5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+        
+        virtual PixelFormat* duplicate() const {
+            return new PixelFormatColor_R5G5B5T1( interpolation );
+        }
+        
+        virtual uint_fast8_t byteSize() const { return 2; }
+        
+        virtual void writePixel( Utilities::Buffer::Writer &buffer, Utilities::Buffer::Endian endian, const PixelFormatColor::GenericColor& coloring ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::NO_SWAP ) const;
+        
+        virtual std::string getName() const { return "Red 5-bit, Green 5-bit, Blue 5-bit, Semi-Transparent 1-bit"; }
+    };
+
+    class PixelFormatColor_B5G5R5T1 : public Utilities::PixelFormatColor {
+    public:
+        struct Color {
+            uint16_t red   : 5;
+            uint16_t green : 5;
+            uint16_t blue  : 5;
+            uint16_t semi_transparency : 1; // This is semi transparency. https://psx-spx.consoledev.net/graphicsprocessingunitgpu/
+            
+            Color() {}
+            Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
+            
+            PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
+        };
+        PixelFormatColor_B5G5R5T1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
+        PixelFormatColor_B5G5R5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+        
+        virtual PixelFormat* duplicate() const {
+            return new PixelFormatColor_B5G5R5T1( interpolation );
+        }
+        
+        virtual uint_fast8_t byteSize() const { return 2; }
+        
+        virtual void writePixel( Utilities::Buffer::Writer &buffer, Utilities::Buffer::Endian endian, const PixelFormatColor::GenericColor& coloring ) const;
+        virtual PixelFormatColor::GenericColor readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::NO_SWAP ) const;
+        virtual std::string getName() const { return "Blue 5-bit, Green 5-bit, Red 5-bit, Semi-Transparent 1-bit"; }
+    };
+
     class PixelFormatColor_R8G8B8 : public PixelFormatColor {
     public:
         struct Color {

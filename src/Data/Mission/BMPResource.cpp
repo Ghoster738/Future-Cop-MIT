@@ -18,8 +18,11 @@ const uint32_t PLUT_TAG = 0x504C5554; // which is { 0x50, 0x4C, 0x55, 0x54 } or 
 // This is the pixel data for the Playstation 1 version, and probably the computer versions.
 const uint32_t PDAT_TAG = 0x50444154; // which is { 0x50, 0x44, 0x41, 0x54 } or { 'P', 'D', 'A', 'T' } or "PDAT"
 
-const Utilities::PixelFormatColor_R5G5B5A1 COLOR_FORMAT;
-const Utilities::ColorPalette COLOR_PALETTE( COLOR_FORMAT );
+const Utilities::PixelFormatColor_R5G5B5T1 COMPUTER_COLOR_FORMAT;
+const Utilities::ColorPalette COMPUTER_COLOR_PALETTE( COMPUTER_COLOR_FORMAT );
+
+const Utilities::PixelFormatColor_B5G5R5T1 PS1_COLOR_FORMAT;
+const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
 
 }
 
@@ -75,7 +78,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
         size_t pdat_size = 0;
         size_t plut_position = 0;
         size_t plut_size = 0;
-        Utilities::ColorPalette color_palette( COLOR_FORMAT );
+        Utilities::ColorPalette color_palette( COMPUTER_COLOR_FORMAT );
 
         while( reader.getPosition() < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
@@ -168,7 +171,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 if( image_p != nullptr )
                     delete image_p;
                 
-                this->image_p = new Utilities::Image2D( 0x100, 0x100, COLOR_FORMAT );
+                this->image_p = new Utilities::Image2D( 0x100, 0x100, COMPUTER_COLOR_FORMAT );
                  
                 if( !this->image_p->fromReader( px16_reader, settings.endian ) )
                     file_is_not_valid = true;
@@ -200,16 +203,14 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( isPSX ) {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    auto color = COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE );
-                    
-                    std::swap( color.red, color.blue );
+                    auto color = PS1_COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE );
                     
                     color_palette.setIndex( d, color );
                 }
             }
             else {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
+                    color_palette.setIndex( d, COMPUTER_COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
                 }
             }
             
@@ -273,11 +274,6 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const std::
                     for( unsigned int y = 0; y <= image_convert.getHeight(); y++ ) {
                         auto color = image_convert.readPixel( x, y );
                         
-                        if( color.alpha < 0.75)
-                            color.alpha = 1;
-                        else
-                            color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
-                        
                         image_convert.writePixel( x, y, color );
                     }
                 }
@@ -296,11 +292,6 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const std::
                 
                 for( unsigned int i = 0; i <= this->image_palette_p->getColorPalette()->getLastIndex(); i++ ) {
                     auto color =  this->image_palette_p->getColorPalette()->getIndex( i );
-                    
-                    if( color.alpha < 0.75)
-                        color.alpha = 1;
-                    else
-                        color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
                     
                     rgba_palette.setIndex( i, color );
                 }
