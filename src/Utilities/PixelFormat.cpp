@@ -225,7 +225,7 @@ Utilities::PixelFormatColor_R5G5B5T1::Color::Color( Utilities::PixelFormatColor:
         green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
         blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
         
-        if( generic.alpha < 0.5 )
+        if( generic.alpha < 0.75 )
             semi_transparency = true;
         else
             semi_transparency = false;
@@ -233,19 +233,21 @@ Utilities::PixelFormatColor_R5G5B5T1::Color::Color( Utilities::PixelFormatColor:
 }
         
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::Color::toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const {
-    const float CUTOFF = 0.015625;
     GenericColor color;
     
     color.red   = internalToGenricColor5<uint8_t>( red,   interpolate );
     color.green = internalToGenricColor5<uint8_t>( green, interpolate );
     color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
     
-    if( !semi_transparency )
+    if( !semi_transparency ) {
         color.alpha = 1.0;
-    else if( color.red < CUTOFF && color.green < CUTOFF && color.blue < CUTOFF )
-        color.alpha = 0.0;
-    else
-        color.alpha = 0.5;
+    }
+    else {
+        if( red == 0 && green == 0 && blue == 0 )
+            color.alpha = 0.0;
+        else
+            color.alpha = 0.5;
+    }
     
     return color;
 }
@@ -265,7 +267,7 @@ void Utilities::PixelFormatColor_R5G5B5T1::writePixel( Utilities::Buffer::Writer
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian ) const {
     
     PixelFormatColor_R5G5B5T1::Color color;
-    auto word = buffer.readU16( endian );
+    uint16_t word = buffer.readU16( endian );
     
     color.blue  = (word & 0x001F);
     color.green = (word & 0x03E0) >>  5; // Right shift by  4 and left shift by 2
@@ -290,7 +292,7 @@ Utilities::PixelFormatColor_B5G5R5T1::Color::Color( Utilities::PixelFormatColor:
         green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
         blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
         
-        if( generic.alpha < 0.5 )
+        if( generic.alpha < 0.75 )
             semi_transparency = true;
         else
             semi_transparency = false;
@@ -298,19 +300,22 @@ Utilities::PixelFormatColor_B5G5R5T1::Color::Color( Utilities::PixelFormatColor:
 }
         
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5T1::Color::toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const {
-    const float CUTOFF = 0.015625;
     GenericColor color;
     
     color.red   = internalToGenricColor5<uint8_t>( red,   interpolate );
     color.green = internalToGenricColor5<uint8_t>( green, interpolate );
     color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
     
-    if( !semi_transparency )
+    if( !semi_transparency ) {
         color.alpha = 1.0;
-    else if( color.red < CUTOFF && color.green < CUTOFF && color.blue < CUTOFF )
-        color.alpha = 0.0;
-    else
-        color.alpha = 0.5;
+    }
+    else {
+        if( red == 0 && green == 0 && blue == 0 )
+            color.alpha = 0.0;
+        else
+            color.alpha = 0.5;
+    }
+    color.alpha = !semi_transparency;
     
     return color;
 }
