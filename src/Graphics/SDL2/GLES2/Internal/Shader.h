@@ -58,8 +58,6 @@ private:
     TYPE shader_type;
     GLuint shader_id;
     
-    std::vector<Attribute> attributes;
-    std::vector<Varying> varyings;
     std::basic_string<GLchar> generated_shader;
     const GLchar *address_generated_shader_r;
 public:

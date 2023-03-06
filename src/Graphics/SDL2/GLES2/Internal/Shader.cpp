@@ -108,9 +108,6 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar
     {
         SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
         
-        this->attributes = attributes;
-        this->varyings = varyings;
-        
         // Deallocate the previous shader.
         deallocate();
 

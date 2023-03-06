@@ -27,6 +27,9 @@ protected:
     Shader *vertex_r;
     Shader *fragment_r;
     GLuint shader_program_id;
+    // TODO Program should handle this
+    // std::vector<Shader::Attribute> attributes;
+    // std::vector<Shader::Varying>   varyings;
 
     /**
      * This is a helper method used to set the shader to a new shader.
@@ -106,11 +109,13 @@ public:
     
     /**
      * This exports the attribute.
-     * @name This is the name of the attribute.
-     * @output This is the output of the method if it finds a non-existent output.
+     * @param name This is the name of the attribute.
+     * @param output This is the output of the method if it finds a non-existent output.
      * @return If the attribute exists return true.
      */
     bool isAttribute( const std::basic_string<GLchar> &name, std::ostream *output_r = nullptr ) const;
+
+    // void addAttribute( const Shader::Attribute &attrib );
     
     GLint getUniform( const std::basic_string<GLchar> &name, std::ostream *output_r = nullptr, bool *success_r = nullptr ) const;
 

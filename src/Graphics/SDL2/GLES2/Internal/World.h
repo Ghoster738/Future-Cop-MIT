@@ -35,6 +35,8 @@ public:
     static const GLchar* default_es_fragment_shader;
 protected:
     Program program;
+    std::vector<Shader::Attribute> attributes;
+    std::vector<Shader::Varying>   varyings;
     Shader vertex_shader;
     Shader fragment_shader;
     GLuint texture_uniform_id;

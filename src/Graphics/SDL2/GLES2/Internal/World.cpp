@@ -7,52 +7,40 @@
 #include <iostream>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
-    // Inputs
-    "attribute vec4 POSITION;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute vec3 COLOR_0;\n"
-    "attribute float _TileType;\n"
+    // These are the outputs
+    "varying vec3 vertex_colors;\n"
+    "varying vec2 texture_coord_1;\n"
+    "varying float _flashing;\n"
 
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
 
-    // These are the outputs
-    "varying vec3 vertex_colors;\n"
-    "varying vec2 texture_coord_1;\n"
-    "varying float _flashing;\n"
-
     "void main()\n"
     "{\n"
     "   vertex_colors = COLOR_0;\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
     "   _flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0 + (_TileType * 0.0));\n"
+    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
-    // Inputs
-    "attribute vec4 POSITION;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute vec3 COLOR_0;\n"
-    "attribute float _TileType;\n"
+    // These are the outputs
+    "varying vec3 vertex_colors;\n"
+    "varying vec2 texture_coord_1;\n"
+    "varying float _flashing;\n"
 
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
 
-    // These are the outputs
-    "varying vec3 vertex_colors;\n"
-    "varying vec2 texture_coord_1;\n"
-    "varying float _flashing;\n"
-
     "void main()\n"
     "{\n"
     "   vertex_colors = COLOR_0;\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
     "   _flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0 + (_TileType * 0.0));\n"
+    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader =
     "varying vec3 vertex_colors;\n"
@@ -103,6 +91,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     glow_time = 0;
+
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 COLOR_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "float _TileType" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
@@ -135,7 +128,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader()
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source );
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes );
 }
 
 int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const file_path ) {
@@ -175,10 +168,10 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
             glow_time_uniform_id     = program.getUniform( "GlowTime",  &std::cout, &uniform_failed );
             selected_tile_uniform_id = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
             
-            attribute_failed |= !program.isAttribute(   "POSITION", &std::cout );
+            attribute_failed |= !program.isAttribute( "POSITION",   &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute(    "COLOR_0", &std::cout );
-            attribute_failed |= !program.isAttribute(  "_TileType", &std::cout );
+            attribute_failed |= !program.isAttribute( "COLOR_0",    &std::cout );
+            attribute_failed |= !program.isAttribute( "_TileType",  &std::cout );
         }
         
         if( !link_success || uniform_failed || attribute_failed )
