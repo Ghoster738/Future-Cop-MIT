@@ -39,66 +39,17 @@ namespace {
     };
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_vertex_shader =
-    "precision mediump float;\n"
-    // Inputs
-    "attribute vec2 POSITION;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute vec4 COLOR_0;\n"
-
-    // Vertex shader uniforms
-    "uniform mat4  Transform;\n" // projection * view * model.
-
-    // These are the outputs
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
-    "void main()\n"
-    "{\n"
-    "   texture_coord = TEXCOORD_0;\n"
-    "   vertex_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
-    "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader =
-    // Inputs
-    "attribute vec2 POSITION;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute vec4 COLOR_0;\n"
-
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
-
-    // These are the outputs
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
     "void main()\n"
     "{\n"
     "   texture_coord = TEXCOORD_0;\n"
     "   vertex_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
-    "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_fragment_shader =
-    "precision mediump float;\n"
-
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
-    "uniform sampler2D Texture;\n"
-
-    "void main()\n"
-    "{\n"
-    "    float visable = texture2D(Texture, texture_coord).r;\n"
-    "    if( visable < 0.03125 )\n"
-    "        discard;\n"
-    "    gl_FragColor = vertex_color;\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shader =
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
     "uniform sampler2D Texture;\n"
-
     "void main()\n"
     "{\n"
     "    float visable = texture2D(Texture, texture_coord).r;\n"
@@ -108,25 +59,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shad
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_vertex_shader;
-    else
-        return default_vertex_shader;
+    return default_vertex_shader;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultFragmentShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_fragment_shader;
-    else
-        return default_fragment_shader;
+    return default_fragment_shader;
 }
 
 Graphics::SDL2::GLES2::Internal::FontSystem::Text2D * Graphics::SDL2::GLES2::Internal::FontSystem::Font::allocateText2D() {
@@ -312,6 +249,13 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
 Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
+
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
+
     bool has_backup = false;
 
     for( int i = 0; i < font_resources.size(); i++ )
@@ -396,7 +340,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::Font* Graphics::SDL2::GLES2::Intern
 }
 
 void Graphics::SDL2::GLES2::Internal::FontSystem::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source );
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::loadVertexShader( const char *const file_path ) {
@@ -404,7 +348,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::loadVertexShader( const char *c
 }
 
 void Graphics::SDL2::GLES2::Internal::FontSystem::setFragmentShader( const GLchar *const shader_source ) {
-    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source );
+    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::loadFragmentShader( const char *const file_path ) {
