@@ -7,11 +7,6 @@
 #include <iostream>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
-    // These are the outputs
-    "varying vec3 vertex_colors;\n"
-    "varying vec2 texture_coord_1;\n"
-    "varying float _flashing;\n"
-
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform float GlowTime;\n"
@@ -25,11 +20,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_vertex_shader =
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
-    // These are the outputs
-    "varying vec3 vertex_colors;\n"
-    "varying vec2 texture_coord_1;\n"
-    "varying float _flashing;\n"
-
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform float GlowTime;\n"
@@ -43,10 +33,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader =
-    "varying vec3 vertex_colors;\n"
-    "varying vec2 texture_coord_1;\n"
-    "varying float _flashing;\n"
-
     "uniform sampler2D Texture;\n"
 
     "const vec3 frag_inv = vec3(1,1,1);\n"
@@ -66,10 +52,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_es_fragment_shader
     "    gl_FragColor = vec4( (1.0 - _flashing) * normal_color + _flashing * inverse_color, frag_color.a );\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
-    "varying vec3 vertex_colors;\n"
-    "varying vec2 texture_coord_1;\n"
-    "varying float _flashing;\n"
-
     "uniform sampler2D Texture;\n"
 
     "const vec3 frag_inv = vec3(1,1,1);\n"
@@ -96,6 +78,10 @@ Graphics::SDL2::GLES2::Internal::World::World() {
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "float _TileType" ) );
+
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "float _flashing" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
@@ -128,7 +114,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader()
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes );
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const file_path ) {
@@ -136,7 +122,7 @@ int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const 
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const GLchar *const shader_source ) {
-    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source );
+    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *const file_path ) {
