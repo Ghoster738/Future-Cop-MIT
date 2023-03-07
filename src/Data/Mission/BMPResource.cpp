@@ -203,9 +203,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( isPSX ) {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    auto color = PS1_COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE );
-                    
-                    color_palette.setIndex( d, color );
+                    color_palette.setIndex( d, PS1_COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE ) );
                 }
             }
             else {

@@ -213,23 +213,20 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5A1::
 Utilities::PixelFormatColor_R5G5B5T1::Color::Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate ) {
     const float CUTOFF = 0.015625;
     
-    if( generic.alpha < CUTOFF) {
-        red   = 0;
+    red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
+    green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
+    blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
+    
+    if( generic.alpha > 0.50 + CUTOFF )
+        semi_transparency = 0;
+    else if( generic.alpha < 0.015625 ) {
+        semi_transparency = 1; // Can be 0?
+        red = 0;
         green = 0;
-        blue  = 0;
-        semi_transparency = true;
+        blue = 0;
     }
     else
-    {
-        red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
-        green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
-        blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
-        
-        if( generic.alpha < 0.75 )
-            semi_transparency = true;
-        else
-            semi_transparency = false;
-    }
+        semi_transparency = 1;
 }
         
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::Color::toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const {
@@ -239,14 +236,14 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::
     color.green = internalToGenricColor5<uint8_t>( green, interpolate );
     color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
     
-    if( !semi_transparency ) {
-        color.alpha = 1.0;
+    if( red == 0 && green == 0 && blue == 0 )
+        color.alpha = 0.0;
+    else
+    if( semi_transparency ) {
+        color.alpha = 0.5;
     }
     else {
-        if( red == 0 && green == 0 && blue == 0 )
-            color.alpha = 0.0;
-        else
-            color.alpha = 0.5;
+        color.alpha = 1.0;
     }
     
     return color;
@@ -280,23 +277,20 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::
 Utilities::PixelFormatColor_B5G5R5T1::Color::Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate ) {
     const float CUTOFF = 0.015625;
     
-    if( generic.alpha < CUTOFF) {
-        red   = 0;
+    red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
+    green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
+    blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
+    
+    if( generic.alpha > 0.50 + CUTOFF )
+        semi_transparency = 0;
+    else if( generic.alpha < 0.015625 ) {
+        semi_transparency = 1; // Can be 0?
+        red = 0;
         green = 0;
-        blue  = 0;
-        semi_transparency = true;
+        blue = 0;
     }
     else
-    {
-        red   = internalFromGenricColor5<uint8_t>( generic.red,   interpolate );
-        green = internalFromGenricColor5<uint8_t>( generic.green, interpolate );
-        blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
-        
-        if( generic.alpha < 0.75 )
-            semi_transparency = true;
-        else
-            semi_transparency = false;
-    }
+        semi_transparency = 1;
 }
         
 Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5T1::Color::toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const {
@@ -306,16 +300,15 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5T1::
     color.green = internalToGenricColor5<uint8_t>( green, interpolate );
     color.blue  = internalToGenricColor5<uint8_t>( blue,  interpolate );
     
-    if( !semi_transparency ) {
-        color.alpha = 1.0;
+    if( red == 0 && green == 0 && blue == 0 )
+        color.alpha = 0.0;
+    else
+    if( semi_transparency ) {
+        color.alpha = 0.5;
     }
     else {
-        if( red == 0 && green == 0 && blue == 0 )
-            color.alpha = 0.0;
-        else
-            color.alpha = 0.5;
+        color.alpha = 1.0;
     }
-    color.alpha = !semi_transparency;
     
     return color;
 }

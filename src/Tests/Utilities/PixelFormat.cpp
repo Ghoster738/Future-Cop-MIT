@@ -591,6 +591,56 @@ bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer:
     return true;
 }
 
+template <class T>
+int testSemiColor( std::string name )
+{
+    int problem = 0;
+    
+    const Utilities::PixelFormatColor::GenericColor generics[4] = {
+        { 0.0, 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0, 0.0 }, // { 0.0, 0.0, 0.0, 1.0 }, Likely Impossiable
+        { 0.0, 1.0, 0.0, 0.5 },
+        { 0.0, 1.0, 0.0, 1.0 }
+    };
+    
+    T expected_colors[4];
+    
+    expected_colors[0].red = 0; expected_colors[0].green = 0; expected_colors[0].blue = 0; expected_colors[0].semi_transparency = 1;
+    
+    expected_colors[1].red = 0; expected_colors[1].green = 0; expected_colors[1].blue = 0; expected_colors[1].semi_transparency = 1;
+    
+    expected_colors[2].red = 0; expected_colors[2].green = 31; expected_colors[2].blue = 0; expected_colors[2].semi_transparency = 1;
+    
+    expected_colors[3].red = 0; expected_colors[3].green = 31; expected_colors[3].blue = 0; expected_colors[3].semi_transparency = 0;
+    
+    for( int i = 0; i < 4; i++ ) {
+        // First convert Expected colors to a Generic.
+        auto generated = expected_colors[ i ].toGeneric( Utilities::PixelFormatColor::ChannelInterpolation::LINEAR );
+        
+        problem |= testColor( problem, generated, generics[i], name + " " + std::to_string( i ), "" );
+        
+        auto generated_2 = T( generics[i], Utilities::PixelFormatColor::ChannelInterpolation::LINEAR );
+        
+        if( expected_colors[i].red != generated_2.red ||
+           expected_colors[i].green != generated_2.green ||
+           expected_colors[i].blue != generated_2.blue ||
+           expected_colors[i].semi_transparency != generated_2.semi_transparency ) {
+            std::cout << name << ": " << i << std::endl;
+            std::cout << "red = " << expected_colors[i].red << "\n";
+            std::cout << "green = " << expected_colors[i].green << "\n";
+            std::cout << "blue = " << expected_colors[i].blue << "\n";
+            std::cout << "st = " << expected_colors[i].semi_transparency << "\n";
+            std::cout << "red = " << generated_2.red << "\n";
+            std::cout << "green = " << generated_2.green << "\n";
+            std::cout << "blue = " << generated_2.blue << "\n";
+            std::cout << "st = " << generated_2.semi_transparency << std::endl;
+            problem = 1;
+        }
+    }
+    
+    return problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -628,10 +678,38 @@ int main() {
         
         // Test R5G5B5A1.
         {
-            Utilities::PixelFormatColor_W8A8 format;
+            Utilities::PixelFormatColor_R5G5B5A1 format;
             problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1", 2 );
             Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
             problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1", 2 );
+        }
+        
+        // Test B5G5R5A1.
+        {
+            Utilities::PixelFormatColor_B5G5R5A1 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5A1", 2 );
+            Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5A1", 2 );
+        }
+        
+        // Test R5G5B5T1.
+        {
+            Utilities::PixelFormatColor_R5G5B5T1 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5T1", 2 );
+            Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5T1", 2 );
+            
+            problem |= testSemiColor<Utilities::PixelFormatColor_R5G5B5T1::Color>( "PixelFormatColor_R5G5B5T1" );
+        }
+        
+        // Test B5G5R5T1.
+        {
+            Utilities::PixelFormatColor_B5G5R5T1 format;
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5T1", 2 );
+            Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
+            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5T1", 2 );
+            
+            problem |= testSemiColor<Utilities::PixelFormatColor_B5G5R5T1::Color>( "PixelFormatColor_B5G5R5T1" );
         }
         
         // Test R8G8B8.
