@@ -2,6 +2,7 @@
 #include "../../../Utilities/ImageFormat/QuiteOkImage.h"
 #include <iostream>
 #include "../../Utilities/TestImage2D.h"
+#include <set>
 
 // Embbedded Files goes here.
 
@@ -780,6 +781,61 @@ int checkImage( const Data::Mission::FontResource &font, size_t qoi_len,
     return problem;
 }
 
+struct GlyphChecker {
+    uint8_t glyphID;
+    uint8_t width;
+    uint8_t height;
+    uint8_t left;
+    uint8_t top;
+    uint8_t x_advance;
+    
+    GlyphChecker() : glyphID( 0 ) {}
+    GlyphChecker( uint8_t glyphID_param ) : glyphID( glyphID_param ) {}
+    GlyphChecker( uint8_t glyphID_param, uint8_t width_param, uint8_t height_param, uint8_t left_param, uint8_t top_param, uint8_t x_advance_param ) : glyphID( glyphID_param ), width( width_param ), height( height_param ),left( left_param ), top( top_param ), x_advance( x_advance_param ) {}
+    
+    int check( const Data::Mission::FontGlyph &glyph, std::string name ) const {
+        int problem = 0;
+        
+        if( glyph.getGlyph() != glyphID ) {
+            std::cout << name << " has a hashing bug detected with " << (uint16_t)glyphID << "\n";
+            std::cout << (uint16_t)glyph.getGlyph() << " is placed in " << glyphID << std::endl;
+            
+            problem = 1;
+        }
+        if( glyph.getWidth() != width || glyph.getHeight() != height )
+        {
+            std::cout << name << " has a dimensions problem with " << (uint16_t)glyphID << "\n";
+            std::cout << "  width of " << (uint16_t)glyph.getWidth() << " is not " << (uint16_t)width << std::endl;
+            std::cout << "  height of " << (uint16_t)glyph.getHeight() << " is not " << (uint16_t)height << std::endl;
+            
+            problem = 1;
+            
+        }
+        if( glyph.getLeft() != left || glyph.getTop() != top )
+        {
+            std::cout << name << " has a placement problem with " <<  (uint16_t)glyphID << "\n";
+            std::cout << "  left of " << (uint16_t)glyph.getLeft() << " is not " << (uint16_t)left << std::endl;
+            std::cout << "  top of " << (uint16_t)glyph.getTop() << " is not " << (uint16_t)top << std::endl;
+            
+            problem = 1;
+            
+        }
+        if( glyph.getXAdvance() != x_advance )
+        {
+            std::cout << name << " has a x advance problem with " << (uint16_t)glyphID << "\n";
+            std::cout << " " << (uint16_t)glyph.getXAdvance() << " is not " << (uint16_t)x_advance << std::endl;
+            
+            problem = 1;
+        }
+        
+        return problem;
+    }
+};
+
+inline bool operator<( const GlyphChecker& A, const GlyphChecker& B ) {
+    return A.glyphID < B.glyphID;
+}
+
 int main() {
     int problem = 0;
     
@@ -833,6 +889,189 @@ int main() {
         }
         
         problem |= checkImage( *ps1_font_r, playstation_qoi_len, playstation_qoi, name );
+        
+        std::set<GlyphChecker> expected_glyphs;
+        
+        const GlyphChecker glyph_default = { 0, 5, 5, 70, 7, 6};
+        
+        // -- Start of checking PS1 characters to test here.
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = ' ';
+            glyph.left = 216;
+            glyph.top = 7;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        for( uint8_t i = 'A'; i <= 'Z'; i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = i;
+            glyph.left = 6 * (i - 'A');
+            glyph.top = 1;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        for( uint8_t i = '0'; i <= '9'; i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = i;
+            glyph.left = 156 + 6 * (i - '0');
+            glyph.top = 1;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        for( uint8_t i = 'a'; i <= 'z'; i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = i;
+            glyph.left = 6 * (i - 'a');
+            glyph.top = 1;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = '!';
+            glyph.left = 216;
+            glyph.top = 1;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = '%';
+            glyph.left = 234;
+            glyph.top = 1;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = '&';
+            glyph.left = 246;
+            glyph.top = 1;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = '&';
+            glyph.left = 246;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        const uint8_t row_7[] = { '-', '_', '+', '=', '{', '}', '[', ']', ':', ';', '\'', '"', '<', '>', ',', '.', '?', '\\', '|', '/'};
+        
+        for( unsigned i = 0; i < sizeof(row_7) / sizeof(row_7[0]); i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = row_7[ i ];
+            glyph.left = 6 * i;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        const uint8_t half_row_7[] = { '`', '(', ')', 0x7F };
+        
+        for( unsigned i = 0; i < sizeof(half_row_7) / sizeof(half_row_7[0]); i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = half_row_7[ i ];
+            glyph.left = 126 + 6 * i;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        const uint8_t german_character_upper[] = { 0xC4, 0xD6, 0xDC };
+        
+        for( unsigned i = 0; i < sizeof(german_character_upper) / sizeof(german_character_upper[0]); i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = german_character_upper[ i ];
+            glyph.left = 198 + 6 * i;
+            
+            expected_glyphs.insert( glyph );
+            
+            // Add the lower cases
+            glyph.glyphID = german_character_upper[ i ] | 0x20;
+            expected_glyphs.insert( glyph );
+        }
+        
+        const uint8_t ps1_symbols[] = { 35, 126, 64, 42 };
+        
+        for( unsigned i = 0; i < sizeof(ps1_symbols) / sizeof(ps1_symbols[0]); i++ )
+        {
+            GlyphChecker glyph = glyph_default;
+            
+            glyph.glyphID = ps1_symbols[ i ];
+            glyph.left = 174 + 6 * i;
+            
+            expected_glyphs.insert( glyph );
+        }
+        
+        {
+            GlyphChecker direction = glyph_default;
+            
+            direction.glyphID = 36;
+            direction.width = 11;
+            direction.left = 162;
+            direction.x_advance = 12;
+            expected_glyphs.insert( direction );
+            
+            direction.glyphID = 94;
+            direction.left = 150;
+        }
+        
+        uint16_t character_amount = 0;
+        int character_problem = 0;
+        
+        for( uint16_t i = 0; i < 0x100; i++ ) {
+            auto glyph_r = ps1_font_r->getGlyph( i );
+            
+            if( glyph_r != nullptr ) {
+                character_amount++;
+                
+                if( character_problem == 0 ) {
+                    auto accessor = expected_glyphs.find( i );
+                    
+                    if( accessor == expected_glyphs.end() ) {
+                        character_problem = 1;
+                        
+                        std::cout << name << " has a glyph that is not in the test with " << i << std::endl;
+                    }
+                    else if( (*accessor).check( *glyph_r, name ) == 1 )
+                    {
+                        character_problem = 1;
+                    }
+                }
+            }
+        }
+        
+        if( character_amount != expected_glyphs.size() ) {
+            problem = 1;
+            
+            std::cout << name << " the expected glyphs had expected " << expected_glyphs.size() << " while the acutal amount is " << character_amount << std::endl;
+        }
         
         delete ps1_font_r;
     }
