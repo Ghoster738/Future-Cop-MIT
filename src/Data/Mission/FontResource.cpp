@@ -21,7 +21,7 @@ namespace {
 #include "Embeded/PFNT.h"
 }
 
-Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader ) {
+Data::Mission::FontResource::Glyph::Glyph( Utilities::Buffer::Reader& reader ) {
     this->glyphID   = reader.readU8();
     this->unk_0     = reader.readU8(); // Skip a byte
     this->width     = reader.readU8();
@@ -35,46 +35,11 @@ Data::Mission::FontGlyph::FontGlyph( Utilities::Buffer::Reader& reader ) {
     this->offset.y  = reader.readI8();
 }
 
-uint8_t Data::Mission::FontGlyph::getGlyph() const {
-    return glyphID;
-}
-
-uint8_t Data::Mission::FontGlyph::getRight() const {
-    return this->left + this->width;
-}
-
-uint8_t Data::Mission::FontGlyph::getLeft() const {
-    return this->left;
-}
-
-uint8_t Data::Mission::FontGlyph::getTop() const {
-    return this->top;
-}
-
-uint8_t Data::Mission::FontGlyph::getBottom() const {
-    return this->top + this->height;
-}
-
-glm::i8vec2 Data::Mission::FontGlyph::getOffset() const {
-    return this->offset;
-}
-
-uint8_t Data::Mission::FontGlyph::getXAdvance() const {
-    return this->x_advance;
-}
-uint8_t Data::Mission::FontGlyph::getWidth() const {
-    return this->width;
-}
-
-uint8_t Data::Mission::FontGlyph::getHeight() const {
-    return this->height;
-}
-
 const std::string Data::Mission::FontResource::FILE_EXTENSION = "fnt";
 const uint32_t Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
 
 Data::Mission::FontResource::FontResource() : image_p( nullptr ) {
-    for( int i = 0; i < sizeof( font_glyphs_r ) / sizeof( FontGlyph* ); i++ ) {
+    for( int i = 0; i < sizeof( font_glyphs_r ) / sizeof( Glyph* ); i++ ) {
         font_glyphs_r[ i ] = nullptr;
     }
 }
@@ -102,7 +67,7 @@ uint32_t Data::Mission::FontResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-const Data::Mission::FontGlyph *const Data::Mission::FontResource::getGlyph( uint8_t which ) const {
+const Data::Mission::FontResource::Glyph *const Data::Mission::FontResource::getGlyph( uint8_t which ) const {
     return font_glyphs_r[ which ];
 }
 
@@ -214,15 +179,17 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 for( unsigned int i = 0; i < number_of_glyphs; i++ )
                 {
                     auto readerGlyph = readerGlyphs.getReader( GLYPH_SIZE );
-                    this->glyphs.push_back( FontGlyph( readerGlyph ) );
+                    this->glyphs.push_back( Glyph( readerGlyph ) );
                 }
 
                 // The reason why this is in a seperate loop is because the vector glyphs would reallocate.
-                for( unsigned int i = 0; i != this->glyphs.size(); i++ ) {
+                for( auto i = this->glyphs.cbegin(); i < this->glyphs.cend(); i++ ) {
+                    const uint32_t wrapped_character = (*i).glyphID % MAX_GLYPHS;
+
                     if( settings.output_level >= 3 ) {
-                        *settings.output_ref << "  glyphs[" << i << "] = " << static_cast<uint32_t>( glyphs[i].getGlyph() % MAX_GLYPHS ) << std::endl;
+                        *settings.output_ref << "  glyphs[" << (i - this->glyphs.cbegin()) << "] = " << wrapped_character << std::endl;
                     }
-                    font_glyphs_r[ glyphs[i].getGlyph() % MAX_GLYPHS ] = this->glyphs.data() + i;
+                    font_glyphs_r[ wrapped_character ] = this->glyphs.data() + (i - this->glyphs.cbegin());
                 }
 
                 reader.setPosition( offset_to_image_header, Utilities::Buffer::BEGIN );
@@ -335,14 +302,14 @@ int Data::Mission::FontResource::write( const std::string& file_path, const std:
 
             resource << "chars count=" << glyphs.size() << std::endl;
 
-            for( unsigned int i = 0; i < glyphs.size(); i++ ) {
-                resource << "char id=" << (static_cast<unsigned int>(glyphs.at(i).getGlyph()) & 0xFF)
-                         << " x=" << static_cast<int>( glyphs.at(i).getLeft() ) << " y=" << static_cast<int>( glyphs.at(i).getTop() )
-                         << " width="  << static_cast<int>(glyphs.at(i).getRight() - glyphs.at(i).getLeft())
-                         << " height=" << static_cast<int>(glyphs.at(i).getBottom() - glyphs.at(i).getTop())
-                         << " xoffset=" << static_cast<int>( glyphs.at(i).getOffset().x )
-                         << " yoffset=" << static_cast<int>( glyphs.at(i).getOffset().y )
-                         << " xadvance=" << static_cast<int>( glyphs.at(i).getXAdvance() ) << " page=0 chnl=15"
+            for( auto i = this->glyphs.cbegin(); i < this->glyphs.cend(); i++ ) {
+                resource << "char id=" << (static_cast<unsigned int>((*i).glyphID ) & 0xFF)
+                         << " x=" << static_cast<int>( (*i).left ) << " y=" << static_cast<int>( (*i).top )
+                         << " width="  << static_cast<int>( (*i).width )
+                         << " height=" << static_cast<int>( (*i).height )
+                         << " xoffset=" << static_cast<int>( (*i).offset.x )
+                         << " yoffset=" << static_cast<int>( (*i).offset.y )
+                         << " xadvance=" << static_cast<int>( (*i).x_advance ) << " page=0 chnl=15"
                          << std::endl;
             }
 

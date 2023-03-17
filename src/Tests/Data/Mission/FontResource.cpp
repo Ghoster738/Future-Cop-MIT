@@ -794,44 +794,44 @@ struct GlyphChecker {
     GlyphChecker( uint8_t glyphID_param ) : glyphID( glyphID_param ), offset(0,0) {}
     GlyphChecker( uint8_t glyphID_param, uint8_t width_param, uint8_t height_param, uint8_t left_param, uint8_t top_param, uint8_t x_advance_param, int8_t offset_x = 0, int8_t offset_y = 0 ) : glyphID( glyphID_param ), offset(offset_x, offset_y), width( width_param ), height( height_param ),left( left_param ), top( top_param ), x_advance( x_advance_param ) {}
     
-    int check( const Data::Mission::FontGlyph &glyph, std::string name ) const {
+    int check( const Data::Mission::FontResource::Glyph &glyph, std::string name ) const {
         int problem = 0;
         
-        if( glyph.getGlyph() != glyphID ) {
+        if( glyph.glyphID != glyphID ) {
             std::cout << name << " has a hashing bug detected with " << (uint16_t)glyphID << " which is '" << glyphID << "'\n";
-            std::cout << (uint16_t)glyph.getGlyph() << " is placed in " << glyphID << std::endl;
+            std::cout << (uint16_t)glyph.glyphID << " is placed in " << glyphID << std::endl;
             
             problem = 1;
         }
-        if( glyph.getWidth() != width || glyph.getHeight() != height )
+        if( glyph.width != width || glyph.height != height )
         {
             std::cout << name << " has a dimensions problem with " << (uint16_t)glyphID << "\n";
-            std::cout << "  width of " << (uint16_t)glyph.getWidth() << " is not " << (uint16_t)width << std::endl;
-            std::cout << "  height of " << (uint16_t)glyph.getHeight() << " is not " << (uint16_t)height << std::endl;
+            std::cout << "  width of " << (uint16_t)glyph.width << " is not " << (uint16_t)width << std::endl;
+            std::cout << "  height of " << (uint16_t)glyph.height << " is not " << (uint16_t)height << std::endl;
             
             problem = 1;
             
         }
-        if( glyph.getLeft() != left || glyph.getTop() != top )
+        if( glyph.left != left || glyph.top != top )
         {
             std::cout << name << " has a placement problem with " <<  (uint16_t)glyphID << "\n";
-            std::cout << "  left of " << (uint16_t)glyph.getLeft() << " is not " << (uint16_t)left << std::endl;
-            std::cout << "  top of " << (uint16_t)glyph.getTop() << " is not " << (uint16_t)top << std::endl;
+            std::cout << "  left of " << (uint16_t)glyph.left << " is not " << (uint16_t)left << std::endl;
+            std::cout << "  top of " << (uint16_t)glyph.top << " is not " << (uint16_t)top << std::endl;
             
             problem = 1;
             
         }
-        if( glyph.getXAdvance() != x_advance )
+        if( glyph.x_advance != x_advance )
         {
             std::cout << name << " has a x advance problem with " << (uint16_t)glyphID << "\n";
-            std::cout << " " << (uint16_t)glyph.getXAdvance() << " is not " << (uint16_t)x_advance << std::endl;
+            std::cout << " " << (uint16_t)glyph.x_advance << " is not " << (uint16_t)x_advance << std::endl;
             
             problem = 1;
         }
-        if( glyph.getOffset() != offset )
+        if( glyph.offset != offset )
         {
             std::cout << name << " has an offset with " << (uint16_t)glyphID << "\n";
-            std::cout << " (" << (int16_t)glyph.getOffset().x << ", " << (int16_t)glyph.getOffset().y << ") while it should be (" << (int16_t)offset.x << ", " << (int16_t)offset.y << ")" << std::endl;
+            std::cout << " (" << (int16_t)glyph.offset.x << ", " << (int16_t)glyph.offset.y << ") while it should be (" << (int16_t)offset.x << ", " << (int16_t)offset.y << ")" << std::endl;
 
             problem = 1;
         }

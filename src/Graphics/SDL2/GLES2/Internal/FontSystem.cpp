@@ -185,21 +185,21 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const char *co
 
             assert( this->font_r->font_resource_r != nullptr );
 
-            if( glyph_r != nullptr && glyph_r->getGlyph() == character[0] )
+            if( glyph_r != nullptr && glyph_r->glyphID == character[0] )
             {
                 // Since the glypth is found it can now be appart of the text
                 appended_size++;
 
-                lower_font.x = pen_position.x + static_cast<float>(  glyph_r->getOffset().x );
-                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->getWidth() );
-                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->getOffset().y );
-                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->getHeight());
-                texture_low.x  = static_cast<float>( glyph_r->getLeft()   ) / static_cast<float>( font_r->texture_scale.x );
-                texture_low.y  = static_cast<float>( glyph_r->getTop()    ) / static_cast<float>( font_r->texture_scale.y );
-                texture_high.x = static_cast<float>( glyph_r->getRight()  ) / static_cast<float>( font_r->texture_scale.x );
-                texture_high.y = static_cast<float>( glyph_r->getBottom() ) / static_cast<float>( font_r->texture_scale.y );
+                lower_font.x = pen_position.x + static_cast<float>(  glyph_r->offset.x );
+                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->width );
+                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->offset.y );
+                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->height );
+                texture_low.x  = static_cast<float>( glyph_r->left   ) / static_cast<float>( font_r->texture_scale.x );
+                texture_low.y  = static_cast<float>( glyph_r->top    ) / static_cast<float>( font_r->texture_scale.y );
+                texture_high.x = static_cast<float>( glyph_r->left + glyph_r->width ) / static_cast<float>( font_r->texture_scale.x );
+                texture_high.y = static_cast<float>( glyph_r->top + glyph_r->height ) / static_cast<float>( font_r->texture_scale.y );
 
-                pen_position.x += static_cast<float>( glyph_r->getXAdvance() );
+                pen_position.x += static_cast<float>( glyph_r->x_advance );
 
                 character_buffer[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
                 character_buffer[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );

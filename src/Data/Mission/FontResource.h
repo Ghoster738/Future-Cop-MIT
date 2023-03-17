@@ -9,43 +9,6 @@ namespace Data {
 
 namespace Mission {
 
-class FontGlyph {
-private:
-    uint8_t glyphID;
-    uint8_t unk_0;
-    uint8_t width;
-    uint8_t height;
-    // These are for texture space in pixels.
-    uint8_t left;
-    uint8_t unk_1;
-    uint8_t top;
-    uint8_t unk_2;
-
-    // This is the spacing of the characters.
-    uint8_t x_advance;
-    glm::i8vec2 offset;
-public:
-    FontGlyph( Utilities::Buffer::Reader& reader );
-    uint8_t getGlyph() const;
-    uint8_t getRight() const;
-    uint8_t getLeft() const;
-    uint8_t getTop() const;
-    uint8_t getBottom() const;
-    
-    /**
-     * @return the width of the font.
-     */
-    uint8_t getWidth() const;
-    
-    /**
-     * @return the height of the font.
-     */
-    uint8_t getHeight() const;
-
-    uint8_t getXAdvance() const;
-    glm::i8vec2 getOffset() const;
-};
-
 class FontResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
@@ -58,10 +21,29 @@ public:
         INVALID  // There is no DEL symbol in the Font Resource, so another font has to be used.
     };
 
+    struct Glyph {
+        uint8_t glyphID;
+        uint8_t unk_0;
+        uint8_t width;
+        uint8_t height;
+        // These are for texture space in pixels.
+        uint8_t left;
+        uint8_t unk_1;
+        uint8_t top;
+        uint8_t unk_2;
+
+        // This is the spacing of the characters.
+        uint8_t x_advance;
+        glm::i8vec2 offset;
+
+        Glyph() {};
+        Glyph( Utilities::Buffer::Reader& reader );
+    };
+
 protected:
-    std::vector<FontGlyph> glyphs;
+    std::vector<Glyph> glyphs;
     
-    FontGlyph *font_glyphs_r[ MAX_GLYPHS ];
+    Glyph *font_glyphs_r[ MAX_GLYPHS ];
 
     Utilities::Image2D *image_p; // The image containing all of the glyphs.
 public:
@@ -77,7 +59,7 @@ public:
      * @param character_id This is an ISO-8859-1 code value.
      * @return If the glyph exists then it would return a valid FontGlyph, or it would simply return nullptr.
      */
-    const FontGlyph *const getGlyph( uint8_t character_id ) const;
+    const Glyph *const getGlyph( uint8_t character_id ) const;
 
     /**
      * This function is used to filter the text, so it would create more valid text.
