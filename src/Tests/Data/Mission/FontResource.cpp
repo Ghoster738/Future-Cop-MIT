@@ -836,6 +836,41 @@ inline bool operator<( const GlyphChecker& A, const GlyphChecker& B ) {
     return A.glyphID < B.glyphID;
 }
 
+int checkFont( const Data::Mission::FontResource &font, const std::set<GlyphChecker> &expected_glyphs, std::string name ) {
+    uint16_t character_amount = 0;
+    int character_problem = 0;
+
+    for( uint16_t i = 0; i < 0x100; i++ ) {
+        auto glyph_r = font.getGlyph( i );
+
+        if( glyph_r != nullptr ) {
+            character_amount++;
+
+            if( character_problem == 0 ) {
+                auto accessor = expected_glyphs.find( i );
+
+                if( accessor == expected_glyphs.end() ) {
+                    character_problem = 1;
+
+                    std::cout << name << " has a glyph that is not in the test with " << i << std::endl;
+                }
+                else if( (*accessor).check( *glyph_r, name ) == 1 )
+                {
+                    character_problem = 1;
+                }
+            }
+        }
+    }
+
+    if( character_amount != expected_glyphs.size() ) {
+        character_problem = 1;
+
+        std::cout << name << " the expected glyphs had expected " << expected_glyphs.size() << " while the actual amount is " << character_amount << std::endl;
+    }
+
+    return character_problem;
+}
+
 int main() {
     int problem = 0;
     
@@ -1042,39 +1077,8 @@ int main() {
             direction.left = 150;
             expected_glyphs.insert( direction );
         }
-        
-        uint16_t character_amount = 0;
-        int character_problem = 0;
-        
-        for( uint16_t i = 0; i < 0x100; i++ ) {
-            auto glyph_r = ps1_font_r->getGlyph( i );
-            
-            if( glyph_r != nullptr ) {
-                character_amount++;
-                
-                if( character_problem == 0 ) {
-                    auto accessor = expected_glyphs.find( i );
-                    
-                    if( accessor == expected_glyphs.end() ) {
-                        character_problem = 1;
-                        
-                        std::cout << name << " has a glyph that is not in the test with " << i << std::endl;
-                    }
-                    else if( (*accessor).check( *glyph_r, name ) == 1 )
-                    {
-                        character_problem = 1;
-                    }
-                }
-            }
-        }
 
-        problem |= character_problem;
-        
-        if( character_amount != expected_glyphs.size() ) {
-            problem = 1;
-            
-            std::cout << name << " the expected glyphs had expected " << expected_glyphs.size() << " while the acutal amount is " << character_amount << std::endl;
-        }
+        problem |= checkFont(*ps1_font_r, expected_glyphs, name);
         
         delete ps1_font_r;
     }
