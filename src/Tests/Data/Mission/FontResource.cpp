@@ -1040,6 +1040,7 @@ int main() {
             
             direction.glyphID = 94;
             direction.left = 150;
+            expected_glyphs.insert( direction );
         }
         
         uint16_t character_amount = 0;
@@ -1066,6 +1067,8 @@ int main() {
                 }
             }
         }
+
+        problem |= character_problem;
         
         if( character_amount != expected_glyphs.size() ) {
             problem = 1;
