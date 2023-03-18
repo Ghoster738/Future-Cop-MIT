@@ -196,8 +196,12 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
                 auto readerImageHeader = reader.getReader( IMAGE_HEADER_SIZE );
 
-                auto width  = static_cast<uint16_t>( readerImageHeader.readU8() ) * 4;
-                readerImageHeader.setPosition( 0x6, Utilities::Buffer::BEGIN );
+                const auto font_image_identifier = readerImageHeader.readU8();
+
+                assert( font_image_identifier == '@' );
+
+                readerImageHeader.setPosition( 0x4, Utilities::Buffer::BEGIN );
+                auto width  = readerImageHeader.readU16( settings.endian );
                 auto height = readerImageHeader.readU16( settings.endian );
 
                 if( settings.output_level >= 2 ) {
