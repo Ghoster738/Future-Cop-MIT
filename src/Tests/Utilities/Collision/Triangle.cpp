@@ -7,7 +7,6 @@ int main() {
     // This tests the plane class to see if it works as intended.
     const static int FAILURE = 1;
     const static int SUCCESS = 0;
-    float tolerence = 0.0078125;
     
     // Test Plane( DataTypes::Vec3 points[3] ), Plane( a, b, c, d ), getIntersectionDistance.
     {

@@ -75,7 +75,7 @@ public:
         x = 0;
         y = 0;
         
-        for( int i = 0; i < (sizeof(offset) / 2) * 8; i++ )
+        for( unsigned int i = 0; i < (sizeof(offset) / 2) * 8; i++ )
         {
             x |= ((offset >> (2 * i + 0)) & 1) << i;
             y |= ((offset >> (2 * i + 1)) & 1) << i;

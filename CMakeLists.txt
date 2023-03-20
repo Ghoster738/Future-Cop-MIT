@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project( "Future Cop: MIT" DESCRIPTION "Open-source reimplementation of Future Cop: L.A.P.D. game")
 
-# Set the C++ standard to C++ 11
-set(CMAKE_CXX_STANDARD 11)
+# Set the C++ standard to C++ 17 for file system support.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS False)
 
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)

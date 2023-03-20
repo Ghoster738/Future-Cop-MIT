@@ -239,11 +239,11 @@ public:
 
     /**
      * This tests to see if the any of the vertex components are invalid in glTF standards.
-     * @param The index where the search would begin.
-     * @param The stream output for warning.
+     * @param begin The index where the search would begin.
+     * @param warning_output The stream output for warning.
      * @return It will return true if an error is found through vertex_components[begin] through vertex_components[end].
      */
-    bool checkForInvalidComponent( int &begin, std::ostream *warning_output = nullptr ) const;
+    bool checkForInvalidComponent( unsigned &begin, std::ostream *warning_output = nullptr ) const;
 
     /**
      * This should be called when the programmer is done adding all the components.

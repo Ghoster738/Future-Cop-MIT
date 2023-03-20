@@ -99,8 +99,6 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
         const std::string name_1 = image_2D_type + "( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
         I dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
         
-        int offset = 0;
-        
         // Write a Julia Set fractal in order to catch bugs.
         for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
         {

@@ -14,7 +14,7 @@ int main() {
 
     auto position_morph_component_index = model.setVertexComponentMorph( position_component_index );
 
-    int index_of_component = 0;
+    unsigned index_of_component = 0;
 
     model.checkForInvalidComponent( index_of_component, nullptr );
 

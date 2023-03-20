@@ -501,7 +501,7 @@ std::vector<bool> Utilities::Buffer::Reader::getBitfield( size_t byte_amount ) {
            return value;
     }
     
-    for( int i = 0; i < byte_amount; i++ ) {
+    for( size_t i = 0; i < byte_amount; i++ ) {
         auto byte = readU8();
         
         value.push_back( byte & 0x80 );
