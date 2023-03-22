@@ -240,7 +240,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Skip 2 bytes
                 reader_sect.readU16( settings.endian );
                 
-                const size_t PREDICTED_POLYGON_TILE_AMOUNT = (this->mesh_library_size >> 4) / sizeof( uint32_t );
+                const size_t PREDICTED_POLYGON_TILE_AMOUNT = this->mesh_library_size >> 6;
                 
                 mesh_tiles.reserve( PREDICTED_POLYGON_TILE_AMOUNT );
                 
