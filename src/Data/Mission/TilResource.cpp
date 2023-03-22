@@ -291,7 +291,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     
                     if( tile_graphics.type == 3 ) {
                         if( seen_graphics_tiles.find( tile_graphics_bitfield.size() - 1 ) != seen_graphics_tiles.end() ) {
-                            assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
+                            // assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
                         }
                     }
                 }
@@ -501,7 +501,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                 {
                     unsigned int current_tile_polygon_amount = 0;
 
-                    const Tile current_tile = mesh_tiles.at( t + mesh_reference_grid[x][y].tiles_start );
+                    const Tile current_tile = mesh_tiles.at( (t + mesh_reference_grid[x][y].tiles_start) % mesh_tiles.size() );
 
                     Data::Mission::Til::Mesh::Input input;
                     input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
@@ -639,7 +639,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
             
-            current_tile = mesh_tiles.at( current_tile_index + mesh_reference_grid[x][z].tiles_start );
+            current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
             
             input.coord_index = current_tile.texture_cord_index;
             

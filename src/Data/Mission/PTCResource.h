@@ -10,7 +10,7 @@ namespace Data {
 namespace Mission {
 
 /**
- * This is the resource that basically stores the entire map.
+ * This is the resource stores the layout of the map.
  * It is effectively a pointer grid containing the pointers to the tiles.
  *
  */
@@ -25,7 +25,7 @@ private:
     // How many CTils from the map boarder should not be crossed.
     uint32_t border_range; // Thank you BahKooJ.
 
-    std::vector<TilResource*> tile_array_r;
+    std::map<uint32_t, TilResource*> ctil_id_r;
 public:
     PTCResource();
     PTCResource( const PTCResource &obj );
@@ -52,9 +52,7 @@ public:
      * Get the number of tiles that are in this class.
      * @return A nullptr if the coordinates are out of bounds or if the tile is a nullptr to begin with; If these two conditions are not meet then it is a valid tile reference pointer.
      */
-    unsigned int getAmountOfTiles() const { return tile_array_r.size(); }
-
-    TilResource ** getTileReference() { return tile_array_r.data(); }
+    unsigned int getAmountOfTiles() const { return ctil_id_r.size(); }
 
     /**
      * Get the width of the map.

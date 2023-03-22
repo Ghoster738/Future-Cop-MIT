@@ -538,7 +538,10 @@ int main(int argc, char** argv)
                 text_2d_buffer_r->setFont( 1 );
             text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
             text_2d_buffer_r->setPosition( glm::vec2( 0, 60 ) );
-            text_2d_buffer_r->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+            text_2d_buffer_r->print( "Ctil Resource ID = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+            text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 80 ) );
+            text_2d_buffer_r->print( "Ctil Offset = " + std::to_string( til_resources.at(current_tile_selected)->getOffset() ) );
         }
 
         environment_p->drawFrame();

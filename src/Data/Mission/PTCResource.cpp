@@ -17,7 +17,7 @@ const uint32_t Data::Mission::PTCResource::IDENTIFIER_TAG = 0x43707463; // which
 Data::Mission::PTCResource::PTCResource() : grid(), debug_map_display_p( nullptr ) {
 }
 
-Data::Mission::PTCResource::PTCResource( const PTCResource &obj ) : Resource( obj ), grid( obj.grid ), debug_map_display_p( nullptr ), tile_array_r( obj.tile_array_r ) {
+Data::Mission::PTCResource::PTCResource( const PTCResource &obj ) : Resource( obj ), grid( obj.grid ), debug_map_display_p( nullptr ), ctil_id_r( obj.ctil_id_r ) {
         
     if( obj.debug_map_display_p != nullptr )
         debug_map_display_p = new Utilities::Image2D( *obj.debug_map_display_p );
@@ -47,7 +47,9 @@ bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::Til
         
         debug_map_display_p = new Utilities::Image2D( grid.getWidth() * 0x11,  grid.getHeight() * 0x11, color_format );
         
-        this->tile_array_r = std::vector<Data::Mission::TilResource*>( tile_array_r );
+        for( auto i : tile_array_r ) {
+            ctil_id_r[ i->getResourceID() ] = i;
+        }
 
         for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
             for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
@@ -72,8 +74,8 @@ bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::Til
 
 Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned int x, unsigned int y ) {
     if( x < grid.getWidth() && y < grid.getHeight() ) {
-        if( grid.getValue( x, y ) != 0 )
-            return tile_array_r.at( (grid.getValue( x, y ) / 4 - 1) % this->tile_array_r.size() );
+        if( grid.getValue( x, y ) != 0 && ctil_id_r.find(grid.getValue( x, y ) / 4) != ctil_id_r.end() )
+            return ctil_id_r[ grid.getValue( x, y ) / 4 ];
     }
 
     return nullptr;
