@@ -240,35 +240,51 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Skip 2 bytes
                 reader_sect.readU16( settings.endian );
                 
-                const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
+                const size_t PREDICTED_POLYGON_TILE_AMOUNT = (this->mesh_library_size >> 4) / sizeof( uint32_t );
                 
-                mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
+                mesh_tiles.reserve( PREDICTED_POLYGON_TILE_AMOUNT );
                 
                 std::set<uint16_t> seen_graphics_tiles;
+
+                size_t actual_polygon_tile_amount = 0;
                 
-                for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ ) {
+                for( size_t i = 0; i < AMOUNT_OF_TILES * AMOUNT_OF_TILES; ) {
+
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
+
                     seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
+
+                    if( mesh_tiles.back().end_column )
+                        i++;
+                    actual_polygon_tile_amount++;
+                }
+
+                if( actual_polygon_tile_amount != PREDICTED_POLYGON_TILE_AMOUNT && settings.output_level >= 1  ) {
+                    *settings.output_ref << "\n"
+                    << "The resource id " << this->getResourceID() << " has mispredicted the polygon tile amount." << "\n"
+                    << " mesh_library_size is 0x" << std::hex << this->mesh_library_size << std::dec << "\n"
+                    << " The predicted polygons to be there are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n"
+                    << " The amount of polygons that exist are  " << actual_polygon_tile_amount << std::endl;
                 }
                 
                 bool skipped_space = false;
-                
+
                 // There are dead uvs that are not being used!
                 while( reader_sect.readU32( settings.endian ) == 0 )
                     skipped_space = true;
-                
+
                 // Undo the read after the bytes are skipped.
                 reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
-                
+
                 if( skipped_space && settings.output_level >= 3 )
                 {
                     *settings.output_ref << std::endl
-                    << "The resource number " << this->getIndexNumber() << " has " << skipped_space << " skipped." << std::endl
+                    << "The resource number " << this->getResourceID() << " has " << skipped_space << " skipped." << std::endl
                     << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
                     << " or 0x" << (this->mesh_library_size >> 4)
-                    << " or " << std::dec << ACTUAL_MESH_LIBRARY_SIZE << std::endl;
+                    << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << std::endl;
                 }
-                
+
                 // Read the UV's
                 texture_cords.reserve( texture_cordinates_amount );
                 
