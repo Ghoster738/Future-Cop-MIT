@@ -22,7 +22,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     for( const auto &i : raw_arguments ) {
         if( i.size() >= 2 ) {
             if( (i.at(0) == '-' && i.at(1) == '-') || // if it is a full option.
-                (i.at(0) == '-' && i.at(1) < '0' && i.at(1) > '9') // If this is a partial option, and partial options should not be confussed with negative numbers.
+                (i.at(0) == '-' && (i.at(1) < '0' || i.at(1) > '9')) // If this is a partial option, and partial options should not be confussed with negative numbers.
             ) {
                 // Submit previous command.
                 if( !key_value.empty() ) {
@@ -39,7 +39,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
             parameters.push_back( i );
     }
 
-    if( !key_value.empty() ) {
+    if( !key_value.empty() || !parameters.empty() ) {
         arguments[ key_value ] = parameters;
         parameters.clear();
     }

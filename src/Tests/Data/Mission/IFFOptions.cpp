@@ -70,6 +70,20 @@ bool IFFOptionCompare( const Data::Mission::IFFOptions a, const Data::Mission::I
     return true;
 }
 
+void invalid_parameter_test( const std::string single_param, int &is_not_success, std::ostream *information_r = nullptr ) {
+    Data::Mission::IFFOptions enabled_nothing;
+
+    bool is_valid = enabled_nothing.readParams( std::vector<std::string>({ single_param }), nullptr );
+
+    if( is_valid ) {
+        if( information_r != nullptr ) {
+            *information_r << "Error: \"" << single_param << "\" parameter cause failed to fail." << std::endl;
+            enabled_nothing.readParams( std::vector<std::string>({ single_param }), information_r );
+        }
+        is_not_success = true;
+    }
+}
+
 }
 
 int main() {
@@ -84,6 +98,33 @@ int main() {
             is_not_success = true;
         }
     }
+
+    { // Test empty parameter cause.
+        Data::Mission::IFFOptions enabled_nothing;
+
+        bool is_valid = enabled_nothing.readParams( std::vector<std::string>(), nullptr );
+
+        if( !is_valid ) {
+            std::cout << "Error: empty parameter cause failed!" << std::endl;
+            enabled_nothing.readParams( std::vector<std::string>(), nullptr );
+            is_not_success = true;
+        }
+    }
+
+    // Kelp is the most unlikely word to test hence it is being used.
+
+    invalid_parameter_test( "k",      is_not_success, &std::cout );
+    invalid_parameter_test( "ke",     is_not_success, &std::cout );
+    invalid_parameter_test( "kel",    is_not_success, &std::cout );
+    invalid_parameter_test( "kelp",   is_not_success, &std::cout );
+    invalid_parameter_test( "-k",     is_not_success, &std::cout );
+    invalid_parameter_test( "-ke",    is_not_success, &std::cout );
+    invalid_parameter_test( "-kel",   is_not_success, &std::cout );
+    invalid_parameter_test( "-kelp",  is_not_success, &std::cout );
+    invalid_parameter_test( "--k",    is_not_success, &std::cout );
+    invalid_parameter_test( "--ke",   is_not_success, &std::cout );
+    invalid_parameter_test( "--kel",  is_not_success, &std::cout );
+    invalid_parameter_test( "--kelp", is_not_success, &std::cout );
 
     { // Test act.override_dry
         Data::Mission::IFFOptions enabled_nothing;
