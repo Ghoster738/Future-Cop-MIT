@@ -221,11 +221,11 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
                 readCullingTile( culling_bottom_right, reader_sect, settings.endian );
                 
-                auto what1 = reader_sect.readU16( settings.endian ) & 0xFF;
+                auto what1 = reader_sect.readU16( settings.endian );
                 
                 // Modifiying this to be other than what it is will cause an error?
                 if( what1 != 0 && settings.output_level >= 1 )
-                    *settings.output_ref << "Error expected zero in the Til resource." << std::endl;
+                    *settings.output_ref << "Error expected zero in the Til resource." << (unsigned)what1 << std::endl;
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
                 

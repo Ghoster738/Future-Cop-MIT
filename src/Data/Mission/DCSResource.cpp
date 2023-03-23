@@ -38,7 +38,7 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
                 for( uint32_t i = 0; i < num_entry; i++ ) {
                     element.push_back( Element() );
 
-                    element.back().unk_0 = reader.readU8(); // This is probably an opcoce.
+                    element.back().unk_0 = reader.readU8(); // This is probably an opcode.
                     element.back().unk_1 = reader.readU8(); // start x?
                     element.back().unk_2 = reader.readU8(); // start y?
                     element.back().unk_3 = reader.readU8(); // end x?
