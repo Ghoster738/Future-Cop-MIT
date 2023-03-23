@@ -227,16 +227,10 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::ACTResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::ACTResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
-    bool enable_export = true;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
-
-    if( enable_export )
+    if( iff_options.act.shouldWrite( iff_options.enable_global_dry_default ) )
     {
         resource.open( file_path + ".json", std::ios::out );
 

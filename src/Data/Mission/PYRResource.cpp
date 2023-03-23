@@ -280,19 +280,9 @@ Data::Mission::Resource * Data::Mission::PYRResource::duplicate() const {
     return new Data::Mission::PYRResource( *this );
 }
 
-int Data::Mission::PYRResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool export_prime_bw = false;
-    bool enable_export = true;
+int Data::Mission::PYRResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int return_value = 0;
     Utilities::ImageFormat::Chooser chooser;
-
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--PYR_Prime_BlackWhite") == 0 )
-            export_prime_bw = true;
-        else
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
 
     Utilities::Buffer buffer;
 
@@ -319,7 +309,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const std::
 
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( sub_image );
 
-            if( enable_export && the_choosen_r != nullptr ) {
+            if( iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) && the_choosen_r != nullptr ) {
                 the_choosen_r->write( sub_image, buffer );
                 buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
                 buffer.set( nullptr, 0 );
@@ -328,7 +318,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const std::
         return_value = 1;
     }
 
-    if( export_prime_bw && enable_export ) {
+    if( iff_options.pyr.export_prime_bw && iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) ) {
         Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *primary_image_p );
 
         if( the_choosen_r != nullptr ) {

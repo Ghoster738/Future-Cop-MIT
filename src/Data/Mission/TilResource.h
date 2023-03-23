@@ -179,9 +179,9 @@ public:
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
-    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
-    virtual Utilities::ModelBuilder * createModel( const std::vector<std::string> * arguments ) const;
+    virtual Utilities::ModelBuilder * createModel() const;
     
     Utilities::ModelBuilder * createPartial( unsigned int texture_index, float x_offset = 0.0f, float z_offset = 0.0f ) const;
     

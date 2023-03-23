@@ -246,8 +246,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             else {
 
                 const uint32_t TYPE_ID = type_reader.readU32( default_settings.endian );
-                const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
-                const int32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
+                const uint32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
+                const uint32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
                 if( TYPE_ID == FILL_TAG ) {
                     //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
@@ -504,8 +504,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             std::vector<Data::Mission::ObjResource*> objects = Data::Mission::ObjResource::getVector( *this );
 
             for( auto it = objects.begin(); it != objects.end(); it++ ) {
-                bool valid_texture_obj = (*it)->loadTextures( textures_from_prime );
-                // assert(valid_texture_obj);
+                (*it)->loadTextures( textures_from_prime );
             }
         }
 
@@ -586,6 +585,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
         if( path.back() != '/' )
             path += '/';
 
+        Data::Mission::IFFOptions iff_options( arguments, &std::cout );
+
         // For every resource type categories in the Mission file.
         for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
         {
@@ -594,9 +595,9 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
                 std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
 
                 if( raw_file_mode )
-                    (*it)->write( full_path, arguments );
+                    (*it)->write( full_path, iff_options );
                 else
-                    (*it)->writeRaw( full_path, arguments );
+                    (*it)->writeRaw( full_path, iff_options );
             }
         }
         return true;

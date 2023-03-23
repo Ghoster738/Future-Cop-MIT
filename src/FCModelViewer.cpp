@@ -294,8 +294,6 @@ int main(int argc, char** argv)
         std::cout << "Fonts missing!" << std::endl;
     }
 
-    int times = 0;
-
     // Setup the camera
     Graphics::Camera *first_person = new Graphics::Camera();
     first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
@@ -405,7 +403,7 @@ int main(int argc, char** argv)
                     for( auto it : bmps ) {
                         auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
                         
-                        (*it).write( str.c_str(), std::vector<std::string>() );
+                        (*it).write( str.c_str() );
                     }
                     
                     exported_textures = true;
@@ -415,7 +413,7 @@ int main(int argc, char** argv)
                 
                 auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
                 
-                obj->write( str.c_str(), std::vector<std::string>() );
+                obj->write( str.c_str() );
             }
             
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::RIGHT );

@@ -62,7 +62,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     static std::vector<WAVResource*> getVector( IFF &mission_file );
     static const std::vector<WAVResource*> getVector( const IFF &mission_file );

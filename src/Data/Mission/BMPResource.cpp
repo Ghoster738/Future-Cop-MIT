@@ -251,16 +251,10 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
-int Data::Mission::BMPResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool export_enable = true;
+int Data::Mission::BMPResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            export_enable = false;
-    }
-
-    if( export_enable && getImage() != nullptr ) {
+    if( iff_options.bmp.shouldWrite( iff_options.enable_global_dry_default ) && getImage() != nullptr ) {
         if( this->format_p != nullptr ) {
             Utilities::Buffer buffer;
             int state;

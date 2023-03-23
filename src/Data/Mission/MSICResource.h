@@ -25,7 +25,7 @@ public:
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
-    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Resource * duplicate() const;
 

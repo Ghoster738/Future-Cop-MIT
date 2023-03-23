@@ -172,18 +172,18 @@ public:
      * This method writes the resource format in a converted format that is commonly supported like WAV, AIFF, PNG, ... etc.
      * However, if you are only using this base class, then it will not write anything while returning -1.
      * @param file_path This is the file path to the file to write to.
-     * @param arguments These are program permeters for the resources.
+     * @param iff_options These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     /**
      * This method writes the resource's raw\_data, as it was in the file format. Byte to byte.
      * @param file_path This is the file path to the file to write to.
-     * @param arguments These are program permeters for the resources.
+     * @param iff_options These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    int writeRaw( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    int writeRaw( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const;
 
     friend bool operator == ( const Resource& l_operand, const Resource& r_operand );
     friend bool operator != ( const Resource& l_operand, const Resource& r_operand );

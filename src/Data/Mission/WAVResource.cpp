@@ -165,15 +165,10 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
     audio_stream_length = audio_stream.size();
 }
 
-int Data::Mission::WAVResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
     Utilities::Buffer header;
-    bool enable_export = true;
-
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
+    const bool enable_export = iff_options.wav.shouldWrite( iff_options.enable_global_dry_default );
 
     if( enable_export )
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::binary | std::ios::out );

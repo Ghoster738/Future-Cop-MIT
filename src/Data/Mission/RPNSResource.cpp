@@ -50,7 +50,7 @@ Data::Mission::Resource * Data::Mission::RPNSResource::duplicate() const {
     return new RPNSResource( *this );
 }
 
-int Data::Mission::RPNSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::RPNSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_option ) const {
     return 0;
 }
 

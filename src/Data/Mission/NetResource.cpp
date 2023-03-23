@@ -118,23 +118,13 @@ Data::Mission::Resource * Data::Mission::NetResource::duplicate() const {
     return new Data::Mission::NetResource( *this );
 }
 
-int Data::Mission::NetResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::NetResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
     int state = -2;
-    bool enable_obj = false;
-    bool enable_export = true;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--NET_EXPORT_OBJ") == 0 )
-            enable_obj = true;
-        else
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
-
-    if( enable_obj )
+    if( iff_options.net.enable_obj )
     {
-        if( enable_export )
+        if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) )
             resource.open( std::string(file_path) + ".obj", std::ios::out );
 
         if( resource.is_open() )
@@ -196,7 +186,7 @@ int Data::Mission::NetResource::write( const std::string& file_path, const std::
             }
         }
 
-        if( enable_export )
+        if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) )
         {
             resource.open( std::string(file_path) + ".json", std::ios::out );
 

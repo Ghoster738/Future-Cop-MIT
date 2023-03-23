@@ -848,18 +848,12 @@ Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
     return new ObjResource( *this );
 }
 
-int Data::Mission::ObjResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_export = true;
+int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
+    Utilities::ModelBuilder *model_output = createModel();
 
-    Utilities::ModelBuilder *model_output = createModel( &arguments );
-
-    if( enable_export ) {
+    if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
         if( model_output->getNumVertices() >= 3 ) {
             
@@ -930,7 +924,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
     }
 }
 
-Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::vector<std::string> * arguments ) const {
+Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.

@@ -391,54 +391,40 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-int Data::Mission::TilResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_point_cloud_export = false;
-    bool enable_height_map_export = false;
-    bool enable_til_export_model = false;
-    bool enable_export = true;
+int Data::Mission::TilResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
-
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--TIL_EXPORT_POINT_CLOUD_MAP") == 0 )
-            enable_point_cloud_export = true;
-        else
-        if( (*arg).compare("--TIL_EXPORT_HEIGHT_MAP") == 0 )
-            enable_height_map_export = true;
-        else
-        if( (*arg).compare("--TIL_EXPORT_MODEL") == 0 )
-            enable_til_export_model = true;
-        else
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
 
     Utilities::PixelFormatColor_R8G8B8 rgb;
     Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( rgb );
 
-    if( the_choosen_r != nullptr && enable_export ) {
-        if( enable_point_cloud_export ) {
+    if( the_choosen_r != nullptr && iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) ) {
+        if( iff_options.til.enable_point_cloud_export ) {
             // Write the three heightmaps encoded in three color channels.
             // TODO Find out what to do if the image cannot be written.
             Utilities::Buffer buffer;
             
             the_choosen_r->write( getImage(), buffer );
-            buffer.write( the_choosen_r->appendExtension( file_path ) );
+
+            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) )
+                buffer.write( the_choosen_r->appendExtension( file_path ) );
         }
-        if( enable_height_map_export ) {
+        if( iff_options.til.enable_height_map_export ) {
             // Write out the depth field of the Til Resource.
             Utilities::Image2D heightmap = getHeightMap( 8 );
             
             Utilities::Buffer buffer;
             the_choosen_r->write( heightmap, buffer );
-            buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+
+            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) )
+                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
         }
     }
 
-    if( enable_til_export_model ) {
-        Utilities::ModelBuilder *model_output_p = createModel( &arguments );
+    if( iff_options.til.enable_til_export_model ) {
+        Utilities::ModelBuilder *model_output_p = createModel();
         
-        if( enable_export && model_output_p != nullptr )
+        if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) && model_output_p != nullptr )
             glTF_return = model_output_p->write( file_path, "til_"+ std::to_string( getResourceID() ) );
         
         delete model_output_p;
@@ -449,7 +435,7 @@ int Data::Mission::TilResource::write( const std::string& file_path, const std::
     return glTF_return;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::vector<std::string> * arguments ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createModel() const {
     if( !mesh_tiles.empty() ) // Make sure there is no out of bounds error.
     {
         // Single texture models are to be generated first.

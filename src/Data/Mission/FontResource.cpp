@@ -39,7 +39,7 @@ const std::string Data::Mission::FontResource::FILE_EXTENSION = "fnt";
 const uint32_t Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
 
 Data::Mission::FontResource::FontResource() : image_p( nullptr ) {
-    for( int i = 0; i < sizeof( font_glyphs_r ) / sizeof( Glyph* ); i++ ) {
+    for( unsigned int i = 0; i < sizeof( font_glyphs_r ) / sizeof( Glyph* ); i++ ) {
         font_glyphs_r[ i ] = nullptr;
     }
 }
@@ -279,17 +279,11 @@ Utilities::Image2D *const Data::Mission::FontResource::getImage() const {
     return const_cast<Utilities::Image2D *const>(image_p);
 }
 
-int Data::Mission::FontResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::FontResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
-    bool export_enable = true;
     Utilities::ImageFormat::Chooser chooser;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            export_enable = false;
-    }
-
-    if( export_enable ) {
+    if( iff_options.font.shouldWrite( iff_options.enable_global_dry_default ) ) {
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
 
         if( resource.is_open() ) {

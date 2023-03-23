@@ -195,7 +195,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )
         {
-            model = model_types[ i ]->createModel( nullptr ); // TODO revise createModel
+            model = model_types[ i ]->createModel();
 
             if( model != nullptr )
             {

@@ -134,32 +134,11 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
     return new PTCResource( *this );
 }
 
-int Data::Mission::PTCResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_export = true;
-    bool no_model = false;
-    bool entire_point_cloud = false;
-    bool entire_height_map = false;
+int Data::Mission::PTCResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-        else
-        if( (*arg).compare("--PTC_NO_MODEL") == 0 ) {
-            no_model = true;
-        }
-        else
-        if( (*arg).compare("--PTC_ENTIRE_POINT_CLOUD") == 0 ) {
-            entire_point_cloud = true;
-        }
-        else
-        if( (*arg).compare("--PTC_ENTIRE_HEIGHT_MAP") == 0 ) {
-            entire_height_map = true;
-        }
-    }
-
-    if( enable_export ) {
-        if( entire_point_cloud ) {
+    if( iff_options.ptc.shouldWrite( iff_options.enable_global_dry_default ) ) {
+        if( iff_options.ptc.entire_point_cloud ) {
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *debug_map_display_p );
 
             if( the_choosen_r != nullptr ) {
@@ -170,7 +149,7 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
             }
         }
         
-        if( entire_height_map ) {
+        if( iff_options.ptc.entire_height_map ) {
             unsigned int rays_per_tile = 1;
             Utilities::PixelFormatColor_R8G8B8 color_format;
             
@@ -199,7 +178,7 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
             }
         }
         
-        if( !no_model ) {
+        if( !iff_options.ptc.no_model ) {
             // Write the entire map.
             return writeEntireMap( std::string(file_path) );
         }
