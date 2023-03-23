@@ -84,6 +84,32 @@ void invalid_parameter_test( const std::string single_param, int &is_not_success
     }
 }
 
+void testSingleCommand( const Data::Mission::IFFOptions expected, const std::string argument, int &is_not_success, std::ostream &information ) {
+    Data::Mission::IFFOptions enabled_nothing;
+    Data::Mission::IFFOptions result;
+    const std::vector<std::string> parameter_array = { argument };
+
+    if( IFFOptionCompare( enabled_nothing, expected ) ) {
+        information << "Error: there is no corresponding boolean for " << argument << "." << std::endl;
+        is_not_success = true;
+    }
+
+    const bool parameter_status = result.readParams( parameter_array, nullptr );
+
+    if( !IFFOptionCompare( expected, result ) ) {
+        information << "Error: " << argument << " did not enable properly." << std::endl;
+        IFFOptionCompare( expected, result, &information );
+        Data::Mission::IFFOptions( parameter_array, &information );
+        is_not_success = true;
+    }
+
+    if( !parameter_status ) {
+        information << "Error: " << argument << " somehow invoked parameter errors." << std::endl;
+        result.readParams( parameter_array, &information );
+        is_not_success = true;
+    }
+}
+
 }
 
 int main() {
@@ -126,77 +152,23 @@ int main() {
     invalid_parameter_test( "--kelp", is_not_success, &std::cout );
 
     { // Test act.override_dry
-        Data::Mission::IFFOptions enabled_nothing;
         Data::Mission::IFFOptions expected;
-
         expected.enable_global_dry_default = true;
         expected.act.override_dry = true;
-
-        if( IFFOptionCompare( enabled_nothing, expected ) ) {
-            std::cout << "Error: act.override_dry is not in comparision." << std::endl;
-            is_not_success = true;
-        }
-
-        Data::Mission::IFFOptions result( std::vector<std::string>({ "--ACT_ENABLE" }), nullptr );
-
-        if( !IFFOptionCompare( expected, result ) ) {
-            std::cout << "Error: --ACT_ENABLE did not enable properly." << std::endl;
-            IFFOptionCompare( expected, result, &std::cout );
-            Data::Mission::IFFOptions( std::vector<std::string>({ "--ACT_ENABLE" }), &std::cout );
-            is_not_success = true;
-        }
+        testSingleCommand( expected, "--ACT_ENABLE", is_not_success, std::cout );
     }
 
     { // Test anm.override_dry
-        Data::Mission::IFFOptions enabled_nothing;
         Data::Mission::IFFOptions expected;
-
         expected.enable_global_dry_default = true;
         expected.anm.override_dry = true;
-
-        if( IFFOptionCompare( enabled_nothing, expected ) ) {
-            std::cout << "Error: anm.override_dry is not in comparision." << std::endl;
-            is_not_success = true;
-        }
-
-        Data::Mission::IFFOptions result( std::vector<std::string>({ "--ANM_ENABLE" }), nullptr );
-
-        if( !IFFOptionCompare( expected, result ) ) {
-            std::cout << "Error: --ANM_ENABLE did not enable properly." << std::endl;
-            IFFOptionCompare( expected, result, &std::cout );
-            Data::Mission::IFFOptions( std::vector<std::string>({ "--ANM_ENABLE" }), &std::cout );
-            is_not_success = true;
-        }
+        testSingleCommand( expected, "--ANM_ENABLE", is_not_success, std::cout );
     }
 
     { // Test anm.export_palette
         Data::Mission::IFFOptions expected;
         expected.anm.export_palette = true;
-        const std::string argument = "--ANM_Palette";
-
-        Data::Mission::IFFOptions enabled_nothing;
-        Data::Mission::IFFOptions result;
-        const std::vector<std::string> parameter_array = { argument };
-
-        if( IFFOptionCompare( enabled_nothing, expected ) ) {
-            std::cout << "Error: there is no corresponding boolean for " << argument << "." << std::endl;
-            is_not_success = true;
-        }
-
-        const bool parameter_status = result.readParams( parameter_array, nullptr );
-
-        if( !IFFOptionCompare( expected, result ) ) {
-            std::cout << "Error: " << argument << " did not enable properly." << std::endl;
-            IFFOptionCompare( expected, result, &std::cout );
-            Data::Mission::IFFOptions( parameter_array, &std::cout );
-            is_not_success = true;
-        }
-
-        if( !parameter_status ) {
-            std::cout << "Error: " << argument << " somehow invoked parameter errors." << std::endl;
-            result.readParams( parameter_array, &std::cout );
-            is_not_success = true;
-        }
+        testSingleCommand( expected, "--ANM_Palette", is_not_success, std::cout );
     }
 
     return is_not_success;
