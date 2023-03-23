@@ -240,6 +240,10 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Skip 2 bytes
                 reader_sect.readU16( settings.endian );
                 
+                // It turned out that Future Cop: LAPD does not care about this value.
+                // Since, every original map that I encounted seemed to have this value,
+                // my program would just pay attention to this value and use it for predicting
+                // the size of the mesh_tiles for the vector.
                 const size_t PREDICTED_POLYGON_TILE_AMOUNT = this->mesh_library_size >> 6;
                 
                 mesh_tiles.reserve( PREDICTED_POLYGON_TILE_AMOUNT );
