@@ -73,7 +73,7 @@ bool IFFOptionCompare( const Data::Mission::IFFOptions a, const Data::Mission::I
     return status;
 }
 
-void invalid_parameter_test( const std::string single_param, int &is_not_success, std::ostream *information_r = nullptr ) {
+void invalidParameterTest( const std::string single_param, int &is_not_success, std::ostream *information_r = nullptr ) {
     Data::Mission::IFFOptions enabled_nothing;
 
     bool is_valid = enabled_nothing.readParams( std::vector<std::string>({ single_param }), nullptr );
@@ -331,18 +331,18 @@ int main() {
     }
 
     // Kelp is the most unlikely word to test hence it is being used.
-    invalid_parameter_test( "k",      is_not_success, &std::cout );
-    invalid_parameter_test( "ke",     is_not_success, &std::cout );
-    invalid_parameter_test( "kel",    is_not_success, &std::cout );
-    invalid_parameter_test( "kelp",   is_not_success, &std::cout );
-    invalid_parameter_test( "-\"",    is_not_success, &std::cout ); // I do not think there will be a `-"` case.
-    invalid_parameter_test( "-ke",    is_not_success, &std::cout );
-    invalid_parameter_test( "-kel",   is_not_success, &std::cout );
-    invalid_parameter_test( "-kelp",  is_not_success, &std::cout );
-    invalid_parameter_test( "--k",    is_not_success, &std::cout );
-    invalid_parameter_test( "--ke",   is_not_success, &std::cout );
-    invalid_parameter_test( "--kel",  is_not_success, &std::cout );
-    invalid_parameter_test( "--kelp", is_not_success, &std::cout );
+    invalidParameterTest( "k",      is_not_success, &std::cout );
+    invalidParameterTest( "ke",     is_not_success, &std::cout );
+    invalidParameterTest( "kel",    is_not_success, &std::cout );
+    invalidParameterTest( "kelp",   is_not_success, &std::cout );
+    invalidParameterTest( "-\"",    is_not_success, &std::cout ); // I do not think there will be a `-"` case.
+    invalidParameterTest( "-ke",    is_not_success, &std::cout );
+    invalidParameterTest( "-kel",   is_not_success, &std::cout );
+    invalidParameterTest( "-kelp",  is_not_success, &std::cout );
+    invalidParameterTest( "--k",    is_not_success, &std::cout );
+    invalidParameterTest( "--ke",   is_not_success, &std::cout );
+    invalidParameterTest( "--kel",  is_not_success, &std::cout );
+    invalidParameterTest( "--kelp", is_not_success, &std::cout );
 
     return is_not_success;
 }
