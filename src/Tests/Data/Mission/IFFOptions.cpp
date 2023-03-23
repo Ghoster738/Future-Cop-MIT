@@ -130,6 +130,7 @@ int main() {
         Data::Mission::IFFOptions enabled_nothing;
         Data::Mission::IFFOptions expected;
 
+        expected.enable_global_dry_default = true;
         expected.act.override_dry = true;
 
         if( IFFOptionCompare( enabled_nothing, expected ) ) {
@@ -151,6 +152,7 @@ int main() {
         Data::Mission::IFFOptions enabled_nothing;
         Data::Mission::IFFOptions expected;
 
+        expected.enable_global_dry_default = true;
         expected.anm.override_dry = true;
 
         if( IFFOptionCompare( enabled_nothing, expected ) ) {

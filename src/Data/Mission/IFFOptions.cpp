@@ -106,7 +106,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     return valid_parameters;
 }
 
-bool IFFOptions::noAdditionalParams( const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r ) {
+bool IFFOptions::hasUnexpectedParams( const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r ) {
     if( arguments.size() != 0 ) {
         if( output_r != nullptr ) {
             *output_r << name << " should not have arguments.\n";
@@ -116,9 +116,9 @@ bool IFFOptions::noAdditionalParams( const std::string &name, const std::vector<
             }
             *output_r << std::endl;
         }
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool IFFOptions::singleArgument( std::map<std::string, std::vector<std::string>> &arguments, const std::string actual_name, std::ostream *output_r, bool &is_found ) {
@@ -126,7 +126,7 @@ bool IFFOptions::singleArgument( std::map<std::string, std::vector<std::string>>
 
     if( argument != arguments.end() ) {
 
-        if( noAdditionalParams( argument->first, argument->second, output_r ) ) {
+        if( hasUnexpectedParams( argument->first, argument->second, output_r ) ) {
             return false;
         }
 
@@ -143,7 +143,7 @@ bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<s
 
     if( enable_option != arguments.end() ) {
 
-        if( noAdditionalParams( enable_option->first, enable_option->second, output_r ) ) {
+        if( hasUnexpectedParams( enable_option->first, enable_option->second, output_r ) ) {
             return false; // Cancel due to irrecoverable error.
         }
 

@@ -15,7 +15,7 @@ struct IFFOptions {
 
     bool readParams( const std::vector<std::string> &arguments, std::ostream *output_r );
 
-    static bool noAdditionalParams(  const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r );
+    static bool hasUnexpectedParams( const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r );
 
     static bool singleArgument( std::map<std::string, std::vector<std::string>> &argument, const std::string actual_name, std::ostream *output_r, bool &is_found );
 
@@ -55,7 +55,7 @@ struct IFFOptions {
     struct BMPOption : public ResourceOption {
         bool export_palette;
 
-        BMPOption() : ResourceOption() {}
+        BMPOption() : ResourceOption(), export_palette( false ) {}
         std::string getNameSpace() const { return "BMP"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
     } bmp;
