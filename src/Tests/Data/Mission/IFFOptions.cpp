@@ -140,20 +140,6 @@ int main() {
         }
     }
 
-    // Kelp is the most unlikely word to test hence it is being used.
-    invalid_parameter_test( "k",      is_not_success, &std::cout );
-    invalid_parameter_test( "ke",     is_not_success, &std::cout );
-    invalid_parameter_test( "kel",    is_not_success, &std::cout );
-    invalid_parameter_test( "kelp",   is_not_success, &std::cout );
-    invalid_parameter_test( "-\"",    is_not_success, &std::cout ); // I do not think there will be a `-"` case.
-    invalid_parameter_test( "-ke",    is_not_success, &std::cout );
-    invalid_parameter_test( "-kel",   is_not_success, &std::cout );
-    invalid_parameter_test( "-kelp",  is_not_success, &std::cout );
-    invalid_parameter_test( "--k",    is_not_success, &std::cout );
-    invalid_parameter_test( "--ke",   is_not_success, &std::cout );
-    invalid_parameter_test( "--kel",  is_not_success, &std::cout );
-    invalid_parameter_test( "--kelp", is_not_success, &std::cout );
-
     { // Test act.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
@@ -279,6 +265,52 @@ int main() {
         expected.snds.override_dry = true;
         testSingleCommand( expected, "--SNDS_ENABLE", is_not_success, std::cout );
     }
+
+    { // Test til.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.til.override_dry = true;
+        testSingleCommand( expected, "--TIL_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test til.enable_point_cloud_export
+        Data::Mission::IFFOptions expected;
+        expected.til.enable_point_cloud_export = true;
+        testSingleCommand( expected, "--TIL_EXPORT_POINT_CLOUD_MAP", is_not_success, std::cout );
+    }
+
+    { // Test til.enable_height_map_export
+        Data::Mission::IFFOptions expected;
+        expected.til.enable_height_map_export = true;
+        testSingleCommand( expected, "--TIL_EXPORT_HEIGHT_MAP", is_not_success, std::cout );
+    }
+
+    { // Test til.entire_height_map
+        Data::Mission::IFFOptions expected;
+        expected.til.enable_til_export_model = true;
+        testSingleCommand( expected, "--TIL_EXPORT_MODEL", is_not_success, std::cout );
+    }
+
+    { // Test wav.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.wav.override_dry = true;
+        testSingleCommand( expected, "--WAV_ENABLE", is_not_success, std::cout );
+    }
+
+    // Kelp is the most unlikely word to test hence it is being used.
+    invalid_parameter_test( "k",      is_not_success, &std::cout );
+    invalid_parameter_test( "ke",     is_not_success, &std::cout );
+    invalid_parameter_test( "kel",    is_not_success, &std::cout );
+    invalid_parameter_test( "kelp",   is_not_success, &std::cout );
+    invalid_parameter_test( "-\"",    is_not_success, &std::cout ); // I do not think there will be a `-"` case.
+    invalid_parameter_test( "-ke",    is_not_success, &std::cout );
+    invalid_parameter_test( "-kel",   is_not_success, &std::cout );
+    invalid_parameter_test( "-kelp",  is_not_success, &std::cout );
+    invalid_parameter_test( "--k",    is_not_success, &std::cout );
+    invalid_parameter_test( "--ke",   is_not_success, &std::cout );
+    invalid_parameter_test( "--kel",  is_not_success, &std::cout );
+    invalid_parameter_test( "--kelp", is_not_success, &std::cout );
 
     return is_not_success;
 }
