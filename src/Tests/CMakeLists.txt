@@ -29,7 +29,7 @@ target_link_libraries(grid_sq_2d_test PRIVATE FC_IFF_IO)
 add_test( NAME grid_sq_2d_test COMMAND $<TARGET_FILE:grid_sq_2d_test> )
 
 # Test PixelFormat Code
-add_executable(pixel_format_test Utilities/PixelFormat)
+add_executable(pixel_format_test Utilities/PixelFormat.cpp)
 target_link_libraries(pixel_format_test PRIVATE FC_IFF_IO)
 add_test( NAME pixel_format_test COMMAND $<TARGET_FILE:pixel_format_test> )
 
