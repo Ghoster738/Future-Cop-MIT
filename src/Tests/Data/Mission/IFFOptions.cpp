@@ -15,59 +15,62 @@ bool compareBooleans( bool e, bool r, std::string field_name, std::ostream *info
 }
 
 bool IFFOptionCompare( const Data::Mission::IFFOptions a, const Data::Mission::IFFOptions b, std::ostream *information_r = nullptr ) {
+    bool status = true;
+
     if( !compareBooleans( a.enable_global_dry_default, b.enable_global_dry_default, "enable_global_dry_default",information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.act.override_dry, b.act.override_dry, "act.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.anm.override_dry, b.anm.override_dry, "anm.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.anm.export_palette, b.anm.export_palette, "anm.export_palette", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.bmp.override_dry, b.bmp.override_dry, "bmp.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.bmp.export_palette, b.bmp.export_palette, "bmp.export_palette", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.dcs.override_dry, b.dcs.override_dry, "dcs.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.font.override_dry, b.font.override_dry, "font.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.fun.override_dry, b.fun.override_dry, "fun.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.msic.override_dry, b.msic.override_dry, "msic.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.net.override_dry, b.net.override_dry, "net.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.net.enable_obj, b.net.enable_obj, "net.enable_obj", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.obj.override_dry, b.obj.override_dry, "obj.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.ptc.override_dry, b.ptc.override_dry, "ptc.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.ptc.no_model, b.ptc.no_model, "ptc.no_model", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.ptc.entire_point_cloud, b.ptc.entire_point_cloud, "ptc.entire_point_cloud", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.ptc.entire_height_map, b.ptc.entire_height_map, "ptc.entire_height_map", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.pyr.override_dry, b.pyr.override_dry, "pyr.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.pyr.export_prime_bw, b.pyr.export_prime_bw, "pyr.export_prime_bw", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.rpns.override_dry, b.rpns.override_dry, "rpns.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.snds.override_dry, b.snds.override_dry, "snds.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.til.override_dry, b.til.override_dry, "til.override_dry", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.til.enable_point_cloud_export, b.til.enable_point_cloud_export, "til.enable_point_cloud_export", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.til.enable_height_map_export, b.til.enable_height_map_export, "til.enable_height_map_export", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.til.enable_til_export_model, b.til.enable_til_export_model, "til.enable_til_export_model", information_r ) )
-        return false;
+        status = false;
     if( !compareBooleans( a.wav.override_dry, b.wav.override_dry, "wav.override_dry", information_r ) )
-        return false;
-    return true;
+        status = false;
+
+    return status;
 }
 
 void invalid_parameter_test( const std::string single_param, int &is_not_success, std::ostream *information_r = nullptr ) {
@@ -169,6 +172,47 @@ int main() {
         Data::Mission::IFFOptions expected;
         expected.anm.export_palette = true;
         testSingleCommand( expected, "--ANM_Palette", is_not_success, std::cout );
+    }
+
+    { // Test bmp.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.bmp.override_dry = true;
+        testSingleCommand( expected, "--BMP_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test bmp.export_palette
+        Data::Mission::IFFOptions expected;
+        expected.bmp.export_palette = true;
+        testSingleCommand( expected, "--BMP_Palette", is_not_success, std::cout );
+    }
+
+    { // Test dcs.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.dcs.override_dry = true;
+        testSingleCommand( expected, "--DCS_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test font.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.font.override_dry = true;
+        testSingleCommand( expected, "--FONT_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test fun.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.fun.override_dry = true;
+        testSingleCommand( expected, "--FUN_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test msic.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.msic.override_dry = true;
+        testSingleCommand( expected, "--FUN_ENABLE", is_not_success, std::cout );
     }
 
     return is_not_success;
