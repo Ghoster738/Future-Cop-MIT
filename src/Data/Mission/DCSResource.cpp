@@ -72,3 +72,7 @@ Data::Mission::Resource * Data::Mission::DCSResource::duplicate() const {
 int Data::Mission::DCSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     return 0;
 }
+
+bool Data::Mission::IFFOptions::DCSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

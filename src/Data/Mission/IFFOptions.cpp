@@ -56,6 +56,9 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     valid_parameters          |= dcs.readParams( arguments, output_r );
     enable_global_dry_default |= dcs.override_dry;
 
+    valid_parameters          |= font.readParams( arguments, output_r );
+    enable_global_dry_default |= font.override_dry;
+
     valid_parameters          |= fun.readParams( arguments, output_r );
     enable_global_dry_default |= fun.override_dry;
 
@@ -103,21 +106,44 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     return valid_parameters;
 }
 
+bool IFFOptions::noAdditionalParams( const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r ) {
+    if( arguments.size() != 0 ) {
+        if( output_r != nullptr ) {
+            *output_r << name << " should not have arguments.\n";
+
+            for( auto i : arguments ) {
+                *output_r << "  " << i << "\n";
+            }
+            *output_r << std::endl;
+        }
+        return false;
+    }
+    return true;
+}
+
+bool IFFOptions::singleArgument( std::map<std::string, std::vector<std::string>> &arguments, const std::string actual_name, std::ostream *output_r, bool &is_found ) {
+    auto argument = arguments.find( actual_name );
+
+    if( argument != arguments.end() ) {
+
+        if( noAdditionalParams( argument->first, argument->second, output_r ) ) {
+            return false;
+        }
+
+        arguments.erase( argument );
+
+        is_found = true;
+    }
+
+    return true; // Successfully found.
+}
+
 bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     auto enable_option = arguments.find("--" + getNameSpace() + "_ENABLE");
 
     if( enable_option != arguments.end() ) {
 
-        if( enable_option->second.size() != 0 ) {
-
-            if( output_r != nullptr ) {
-                *output_r << enable_option->first << " should not have arguments.\n";
-
-                for( auto i : enable_option->second ) {
-                    *output_r << "  " << i << "\n";
-                }
-                *output_r << std::endl;
-            }
+        if( noAdditionalParams( enable_option->first, enable_option->second, output_r ) ) {
             return false; // Cancel due to irrecoverable error.
         }
 

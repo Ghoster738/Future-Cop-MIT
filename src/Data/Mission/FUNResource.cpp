@@ -181,3 +181,7 @@ std::vector<uint8_t> Data::Mission::FUNResource::getFunctionCode( unsigned index
     
     return code;
 }
+
+bool Data::Mission::IFFOptions::FUNOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

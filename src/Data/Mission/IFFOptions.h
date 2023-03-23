@@ -15,6 +15,10 @@ struct IFFOptions {
 
     bool readParams( const std::vector<std::string> &arguments, std::ostream *output_r );
 
+    static bool noAdditionalParams(  const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r );
+
+    static bool singleArgument( std::map<std::string, std::vector<std::string>> &argument, const std::string actual_name, std::ostream *output_r, bool &is_found );
+
     struct ResourceOption {
         bool override_dry;
 
@@ -49,6 +53,7 @@ struct IFFOptions {
     } anm;
 
     struct BMPOption : public ResourceOption {
+        bool export_palette;
 
         BMPOption() : ResourceOption() {}
         std::string getNameSpace() const { return "BMP"; }
@@ -61,6 +66,13 @@ struct IFFOptions {
         std::string getNameSpace() const { return "DCS"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
     } dcs;
+
+    struct FontOption : public ResourceOption {
+
+        FontOption() : ResourceOption() {}
+        std::string getNameSpace() const { return "FONT"; }
+        virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+    } font;
 
     struct FUNOption : public ResourceOption {
 
@@ -115,6 +127,13 @@ struct IFFOptions {
         std::string getNameSpace() const { return "RPNS"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
     } rpns;
+
+    struct SNDSOption : public ResourceOption {
+
+        SNDSOption() : ResourceOption() {}
+        std::string getNameSpace() const { return "SNDS"; }
+        virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+    } snds;
 
     struct TilOption : public ResourceOption {
         bool enable_point_cloud_export;

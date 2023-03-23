@@ -303,3 +303,14 @@ std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( 
 const std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::PTCResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_NO_MODEL", output_r, no_model ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_ENTIRE_POINT_CLOUD", output_r, entire_point_cloud ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_ENTIRE_HEIGHT_MAP", output_r, entire_height_map ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

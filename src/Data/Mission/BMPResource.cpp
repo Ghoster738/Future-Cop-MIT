@@ -339,3 +339,10 @@ std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( 
 const std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::BMPResource::getVector( const_cast< IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_Palette", output_r, export_palette ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

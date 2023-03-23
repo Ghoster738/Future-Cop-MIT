@@ -235,3 +235,10 @@ std::vector<Data::Mission::NetResource*> Data::Mission::NetResource::getVector( 
 const std::vector<Data::Mission::NetResource*> Data::Mission::NetResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::NetResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::NETOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_OBJ", output_r, enable_obj ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

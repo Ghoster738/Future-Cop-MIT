@@ -310,11 +310,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     *settings.output_ref << "Mission::ObjResource::load() 3DTL unexpected number at beginning!" << std::endl;
                 }
 
-                auto texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
+                size_t texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
                 if( settings.output_level >= 2 )
                     *settings.output_ref << "triangle amount " << std::dec << texture_ref_amount << std::hex << std::endl;
 
-                for( auto i = 0; i < texture_ref_amount; i++ )
+                for( size_t i = 0; i < texture_ref_amount; i++ )
                 {
                     /*if( DataHandler::read_u8( start_data ) != 2 )
                         std::cout << "Mission::ObjResource::load() expected 2 at uv not " << std::dec
@@ -455,7 +455,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 this->max_bone_childern = 0;
 
-                for( int i = 0; i < amount_of_bones; i++ ) {
+                for( size_t i = 0; i < amount_of_bones; i++ ) {
                     // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
                     bones.push_back( Bone() );
                     
@@ -530,9 +530,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         << std::hex;
                 }
                 
-                for( int d = 0; d < frames_gen_3DHS; d++ )
+                for( size_t d = 0; d < frames_gen_3DHS; d++ )
                 {
-                    for( int i = 0; i < bone_depth_number; i++ )
+                    for( size_t i = 0; i < bone_depth_number; i++ )
                     {
                         auto u_x = reader3DHS.readU16( settings.endian );
                         auto u_y = reader3DHS.readU16( settings.endian );
@@ -556,7 +556,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 this->bone_animation_data = new int16_t [ this->bone_animation_data_size ];
                 
-                for( int d = 0; d < this->bone_animation_data_size; d++ )
+                for( size_t d = 0; d < this->bone_animation_data_size; d++ )
                     this->bone_animation_data[ d ] = reader3DMI.readU16( settings.endian );
             }
             else
@@ -1327,4 +1327,8 @@ std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( 
 
 const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ObjResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }

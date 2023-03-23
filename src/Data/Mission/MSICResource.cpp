@@ -105,3 +105,7 @@ std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::getVector
 const std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::MSICResource::getVector( const_cast< IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::MSICOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

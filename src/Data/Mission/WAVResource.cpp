@@ -232,3 +232,8 @@ std::vector<Data::Mission::WAVResource*> Data::Mission::WAVResource::getVector( 
 const std::vector<Data::Mission::WAVResource*> Data::Mission::WAVResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::WAVResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::WavOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

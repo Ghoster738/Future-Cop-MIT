@@ -53,3 +53,7 @@ Data::Mission::Resource * Data::Mission::RPNSResource::duplicate() const {
 int Data::Mission::RPNSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
     return 0;
 }
+
+bool Data::Mission::IFFOptions::RPNSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

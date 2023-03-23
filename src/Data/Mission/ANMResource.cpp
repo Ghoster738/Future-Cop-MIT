@@ -360,3 +360,10 @@ std::vector<Data::Mission::ANMResource*> Data::Mission::ANMResource::getVector( 
 const std::vector<Data::Mission::ANMResource*> Data::Mission::ANMResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ANMResource::getVector( const_cast< IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::ANMOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_Palette", output_r, export_palette ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

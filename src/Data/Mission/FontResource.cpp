@@ -406,3 +406,7 @@ Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( std::o
 
     return playstation_font_p;
 }
+
+bool Data::Mission::IFFOptions::FontOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}

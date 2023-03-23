@@ -2,6 +2,7 @@
 #define MISSION_RESOURCE_HEADER
 
 #include "IFF.h"
+#include "IFFOptions.h"
 #include "../../Utilities/Buffer.h"
 
 #include <ostream>

@@ -356,3 +356,10 @@ std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVector( 
 const std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVector( const IFF &mission_file ) {
     return Data::Mission::PYRResource::getVector( const_cast< IFF& >( mission_file ) );
 }
+
+bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_Prime_BlackWhite", output_r, export_prime_bw ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
