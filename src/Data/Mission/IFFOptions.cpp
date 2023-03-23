@@ -5,7 +5,7 @@ namespace Data::Mission {
 IFFOptions::IFFOptions() : enable_global_dry_default( false ) {
 }
 
-IFFOptions::IFFOptions( const std::vector<std::string> & arguments, std::ostream *output_r ) {
+IFFOptions::IFFOptions( const std::vector<std::string> & arguments, std::ostream *output_r ) : enable_global_dry_default( false ) {
     readParams( arguments, output_r );
 }
 
