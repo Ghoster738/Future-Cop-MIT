@@ -112,12 +112,11 @@ int main() {
     }
 
     // Kelp is the most unlikely word to test hence it is being used.
-
     invalid_parameter_test( "k",      is_not_success, &std::cout );
     invalid_parameter_test( "ke",     is_not_success, &std::cout );
     invalid_parameter_test( "kel",    is_not_success, &std::cout );
     invalid_parameter_test( "kelp",   is_not_success, &std::cout );
-    invalid_parameter_test( "-k",     is_not_success, &std::cout );
+    invalid_parameter_test( "-\"",    is_not_success, &std::cout ); // I do not think there will be a `-"` case.
     invalid_parameter_test( "-ke",    is_not_success, &std::cout );
     invalid_parameter_test( "-kel",   is_not_success, &std::cout );
     invalid_parameter_test( "-kelp",  is_not_success, &std::cout );
@@ -134,7 +133,7 @@ int main() {
         expected.act.override_dry = true;
 
         if( IFFOptionCompare( enabled_nothing, expected ) ) {
-            std::cout << "Error: enabled_something.act.override_dry is not in comparision." << std::endl;
+            std::cout << "Error: act.override_dry is not in comparision." << std::endl;
             is_not_success = true;
         }
 
@@ -156,7 +155,7 @@ int main() {
         expected.anm.override_dry = true;
 
         if( IFFOptionCompare( enabled_nothing, expected ) ) {
-            std::cout << "Error: enabled_something.anm.override_dry is not in comparision." << std::endl;
+            std::cout << "Error: anm.override_dry is not in comparision." << std::endl;
             is_not_success = true;
         }
 
@@ -171,22 +170,31 @@ int main() {
     }
 
     { // Test anm.export_palette
-        Data::Mission::IFFOptions enabled_nothing;
         Data::Mission::IFFOptions expected;
-
         expected.anm.export_palette = true;
+        const std::string argument = "--ANM_Palette";
+
+        Data::Mission::IFFOptions enabled_nothing;
+        Data::Mission::IFFOptions result;
+        const std::vector<std::string> parameter_array = { argument };
 
         if( IFFOptionCompare( enabled_nothing, expected ) ) {
-            std::cout << "Error: enabled_something.anm.export_palette is not in comparision." << std::endl;
+            std::cout << "Error: there is no corresponding boolean for " << argument << "." << std::endl;
             is_not_success = true;
         }
 
-        Data::Mission::IFFOptions result( std::vector<std::string>({ "--ANM_Palette" }), nullptr );
+        const bool parameter_status = result.readParams( parameter_array, nullptr );
 
         if( !IFFOptionCompare( expected, result ) ) {
-            std::cout << "Error: --ANM_Palette did not enable properly." << std::endl;
+            std::cout << "Error: " << argument << " did not enable properly." << std::endl;
             IFFOptionCompare( expected, result, &std::cout );
-            Data::Mission::IFFOptions( std::vector<std::string>({ "--ANM_Palette" }), &std::cout );
+            Data::Mission::IFFOptions( parameter_array, &std::cout );
+            is_not_success = true;
+        }
+
+        if( !parameter_status ) {
+            std::cout << "Error: " << argument << " somehow invoked parameter errors." << std::endl;
+            result.readParams( parameter_array, &std::cout );
             is_not_success = true;
         }
     }
