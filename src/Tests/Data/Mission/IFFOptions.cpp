@@ -208,11 +208,76 @@ int main() {
         testSingleCommand( expected, "--FUN_ENABLE", is_not_success, std::cout );
     }
 
-    { // Test msic.override_dry
+    { // Test net.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
-        expected.msic.override_dry = true;
-        testSingleCommand( expected, "--MSIC_ENABLE", is_not_success, std::cout );
+        expected.net.override_dry = true;
+        testSingleCommand( expected, "--NET_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test net.enable_obj
+        Data::Mission::IFFOptions expected;
+        expected.net.enable_obj = true;
+        testSingleCommand( expected, "--NET_EXPORT_OBJ", is_not_success, std::cout );
+    }
+
+    { // Test obj.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.obj.override_dry = true;
+        testSingleCommand( expected, "--OBJ_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test ptc.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.ptc.override_dry = true;
+        testSingleCommand( expected, "--PTC_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test ptc.no_model
+        Data::Mission::IFFOptions expected;
+        expected.ptc.no_model = true;
+        testSingleCommand( expected, "--PTC_NO_MODEL", is_not_success, std::cout );
+    }
+
+    { // Test ptc.entire_point_cloud
+        Data::Mission::IFFOptions expected;
+        expected.ptc.entire_point_cloud = true;
+        testSingleCommand( expected, "--PTC_ENTIRE_POINT_CLOUD", is_not_success, std::cout );
+    }
+
+    { // Test ptc.entire_height_map
+        Data::Mission::IFFOptions expected;
+        expected.ptc.entire_height_map = true;
+        testSingleCommand( expected, "--PTC_ENTIRE_HEIGHT_MAP", is_not_success, std::cout );
+    }
+
+    { // Test pyr.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.pyr.override_dry = true;
+        testSingleCommand( expected, "--PYR_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test ptc.export_prime_bw
+        Data::Mission::IFFOptions expected;
+        expected.pyr.export_prime_bw = true;
+        testSingleCommand( expected, "--PYR_Prime_BlackWhite", is_not_success, std::cout );
+    }
+
+    { // Test rpns.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.rpns.override_dry = true;
+        testSingleCommand( expected, "--RPNS_ENABLE", is_not_success, std::cout );
+    }
+
+    { // Test snds.override_dry
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.snds.override_dry = true;
+        testSingleCommand( expected, "--SNDS_ENABLE", is_not_success, std::cout );
     }
 
     return is_not_success;
