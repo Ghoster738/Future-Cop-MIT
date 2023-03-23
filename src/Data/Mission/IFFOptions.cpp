@@ -17,6 +17,33 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
 
     std::map<std::string, std::vector<std::string>> arguments;
 
+    std::string key_value = "";
+    std::vector<std::string> parameters;
+    for( const auto &i : raw_arguments ) {
+        if( i.size() >= 2 ) {
+            if( (i.at(0) == '-' && i.at(1) == '-') || // if it is a full option.
+                (i.at(0) == '-' && i.at(1) < '0' && i.at(1) > '9') // If this is a partial option, and partial options should not be confussed with negative numbers.
+            ) {
+                // Submit previous command.
+                if( !key_value.empty() ) {
+                    arguments[ key_value ] = parameters;
+                    parameters.clear();
+                }
+
+                key_value = i;
+            }
+            else
+                parameters.push_back( i );
+        }
+        else
+            parameters.push_back( i );
+    }
+
+    if( !key_value.empty() ) {
+        arguments[ key_value ] = parameters;
+        parameters.clear();
+    }
+
     valid_parameters          |= act.readParams( arguments, output_r );
     enable_global_dry_default |= act.override_dry;
 
@@ -56,6 +83,23 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     valid_parameters          |= wav.readParams( arguments, output_r );
     enable_global_dry_default |= wav.override_dry;
 
+    if( !arguments.empty() ) {
+        if( output_r != nullptr ) {
+            *output_r << "Unrecognized IFF Options\n";
+
+            for( auto a : arguments) {
+                *output_r << "  " << a.first << ":";
+
+                for( auto i : a.second ) {
+                    *output_r << " " << i;
+                }
+            }
+            *output_r << std::endl;
+        }
+
+        valid_parameters = false;
+    }
+
     return valid_parameters;
 }
 
@@ -67,7 +111,7 @@ bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<s
         if( enable_option->second.size() != 0 ) {
 
             if( output_r != nullptr ) {
-                *output_r << enable_option->first << " should not have arguments next to it!\n";
+                *output_r << enable_option->first << " should not have arguments.\n";
 
                 for( auto i : enable_option->second ) {
                     *output_r << "  " << i << "\n";
