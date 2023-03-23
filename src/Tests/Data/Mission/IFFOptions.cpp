@@ -140,168 +140,194 @@ int main() {
         }
     }
 
+    const std::string DRY         =  "--dry";
+    const std::string ACT_ENABLE  =  "--ACT_ENABLE";
+    const std::string ANM_ENABLE  =  "--ANM_ENABLE";
+    const std::string ANM_PALETTE =  "--ANM_Palette";
+    const std::string BMP_ENABLE  =  "--BMP_ENABLE";
+    const std::string BMP_PALETTE =  "--BMP_Palette";
+    const std::string DCS_ENABLE  =  "--DCS_ENABLE";
+    const std::string FONT_ENABLE = "--FONT_ENABLE";
+    const std::string FUN_ENABLE  =  "--FUN_ENABLE";
+    const std::string NET_ENABLE  =  "--NET_ENABLE";
+    const std::string NET_EXPORT_OBJ = "--NET_EXPORT_OBJ";
+    const std::string OBJ_ENABLE  =  "--OBJ_ENABLE";
+    const std::string PTC_ENABLE  =  "--PTC_ENABLE";
+    const std::string PTC_NO_MODEL = "--PTC_NO_MODEL";
+    const std::string PTC_ENTIRE_POINT_CLOUD = "--PTC_ENTIRE_POINT_CLOUD";
+    const std::string PTC_ENTIRE_HEIGHT_MAP = "--PTC_ENTIRE_HEIGHT_MAP";
+    const std::string PYR_ENABLE  =  "--PYR_ENABLE";
+    const std::string PYR_PRIME_BLACK_WHITE = "--PYR_Prime_BlackWhite";
+    const std::string RPNS_ENABLE =  "--RPNS_ENABLE";
+    const std::string SNDS_ENABLE =  "--SNDS_ENABLE";
+    const std::string TIL_ENABLE  =  "--TIL_ENABLE";
+    const std::string TIL_EXPORT_POINT_CLOUD_MAP  =  "--TIL_EXPORT_POINT_CLOUD_MAP";
+    const std::string TIL_EXPORT_HEIGHT_MAP  =  "--TIL_EXPORT_HEIGHT_MAP";
+    const std::string TIL_EXPORT_MODEL  =  "--TIL_EXPORT_MODEL";
+    const std::string WAV_ENABLE  =  "--WAV_ENABLE";
+
     { // Test expected.enable_global_dry_default. The dry command test.
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
-        testSingleCommand( expected, "--dry", is_not_success, std::cout );
+        testSingleCommand( expected, DRY, is_not_success, std::cout );
     }
 
     { // Test act.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.act.override_dry = true;
-        testSingleCommand( expected, "--ACT_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, ACT_ENABLE, is_not_success, std::cout );
     }
 
     { // Test anm.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.anm.override_dry = true;
-        testSingleCommand( expected, "--ANM_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, ANM_ENABLE, is_not_success, std::cout );
     }
 
     { // Test anm.export_palette
         Data::Mission::IFFOptions expected;
         expected.anm.export_palette = true;
-        testSingleCommand( expected, "--ANM_Palette", is_not_success, std::cout );
+        testSingleCommand( expected, ANM_PALETTE, is_not_success, std::cout );
     }
 
     { // Test bmp.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.bmp.override_dry = true;
-        testSingleCommand( expected, "--BMP_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, BMP_ENABLE, is_not_success, std::cout );
     }
 
     { // Test bmp.export_palette
         Data::Mission::IFFOptions expected;
         expected.bmp.export_palette = true;
-        testSingleCommand( expected, "--BMP_Palette", is_not_success, std::cout );
+        testSingleCommand( expected, BMP_PALETTE, is_not_success, std::cout );
     }
 
     { // Test dcs.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.dcs.override_dry = true;
-        testSingleCommand( expected, "--DCS_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, DCS_ENABLE, is_not_success, std::cout );
     }
 
     { // Test font.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.font.override_dry = true;
-        testSingleCommand( expected, "--FONT_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, FONT_ENABLE, is_not_success, std::cout );
     }
 
     { // Test fun.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.fun.override_dry = true;
-        testSingleCommand( expected, "--FUN_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, FUN_ENABLE, is_not_success, std::cout );
     }
 
     { // Test net.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.net.override_dry = true;
-        testSingleCommand( expected, "--NET_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, NET_ENABLE, is_not_success, std::cout );
     }
 
     { // Test net.enable_obj
         Data::Mission::IFFOptions expected;
         expected.net.enable_obj = true;
-        testSingleCommand( expected, "--NET_EXPORT_OBJ", is_not_success, std::cout );
+        testSingleCommand( expected, NET_EXPORT_OBJ, is_not_success, std::cout );
     }
 
     { // Test obj.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.obj.override_dry = true;
-        testSingleCommand( expected, "--OBJ_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, OBJ_ENABLE, is_not_success, std::cout );
     }
 
     { // Test ptc.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.ptc.override_dry = true;
-        testSingleCommand( expected, "--PTC_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, PTC_ENABLE, is_not_success, std::cout );
     }
 
     { // Test ptc.no_model
         Data::Mission::IFFOptions expected;
         expected.ptc.no_model = true;
-        testSingleCommand( expected, "--PTC_NO_MODEL", is_not_success, std::cout );
+        testSingleCommand( expected, PTC_NO_MODEL, is_not_success, std::cout );
     }
 
     { // Test ptc.entire_point_cloud
         Data::Mission::IFFOptions expected;
         expected.ptc.entire_point_cloud = true;
-        testSingleCommand( expected, "--PTC_ENTIRE_POINT_CLOUD", is_not_success, std::cout );
+        testSingleCommand( expected, PTC_ENTIRE_POINT_CLOUD, is_not_success, std::cout );
     }
 
     { // Test ptc.entire_height_map
         Data::Mission::IFFOptions expected;
         expected.ptc.entire_height_map = true;
-        testSingleCommand( expected, "--PTC_ENTIRE_HEIGHT_MAP", is_not_success, std::cout );
+        testSingleCommand( expected, PTC_ENTIRE_HEIGHT_MAP, is_not_success, std::cout );
     }
 
     { // Test pyr.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.pyr.override_dry = true;
-        testSingleCommand( expected, "--PYR_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, PYR_ENABLE, is_not_success, std::cout );
     }
 
     { // Test ptc.export_prime_bw
         Data::Mission::IFFOptions expected;
         expected.pyr.export_prime_bw = true;
-        testSingleCommand( expected, "--PYR_Prime_BlackWhite", is_not_success, std::cout );
+        testSingleCommand( expected, PYR_PRIME_BLACK_WHITE, is_not_success, std::cout );
     }
 
     { // Test rpns.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.rpns.override_dry = true;
-        testSingleCommand( expected, "--RPNS_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, RPNS_ENABLE, is_not_success, std::cout );
     }
 
     { // Test snds.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.snds.override_dry = true;
-        testSingleCommand( expected, "--SNDS_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, SNDS_ENABLE, is_not_success, std::cout );
     }
 
     { // Test til.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.til.override_dry = true;
-        testSingleCommand( expected, "--TIL_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, TIL_ENABLE, is_not_success, std::cout );
     }
 
     { // Test til.enable_point_cloud_export
         Data::Mission::IFFOptions expected;
         expected.til.enable_point_cloud_export = true;
-        testSingleCommand( expected, "--TIL_EXPORT_POINT_CLOUD_MAP", is_not_success, std::cout );
+        testSingleCommand( expected, TIL_EXPORT_POINT_CLOUD_MAP, is_not_success, std::cout );
     }
 
     { // Test til.enable_height_map_export
         Data::Mission::IFFOptions expected;
         expected.til.enable_height_map_export = true;
-        testSingleCommand( expected, "--TIL_EXPORT_HEIGHT_MAP", is_not_success, std::cout );
+        testSingleCommand( expected, TIL_EXPORT_HEIGHT_MAP, is_not_success, std::cout );
     }
 
     { // Test til.entire_height_map
         Data::Mission::IFFOptions expected;
         expected.til.enable_til_export_model = true;
-        testSingleCommand( expected, "--TIL_EXPORT_MODEL", is_not_success, std::cout );
+        testSingleCommand( expected, TIL_EXPORT_MODEL, is_not_success, std::cout );
     }
 
     { // Test wav.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.wav.override_dry = true;
-        testSingleCommand( expected, "--WAV_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, WAV_ENABLE, is_not_success, std::cout );
     }
 
     // Kelp is the most unlikely word to test hence it is being used.
