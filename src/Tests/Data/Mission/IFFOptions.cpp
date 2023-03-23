@@ -212,7 +212,7 @@ int main() {
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;
         expected.msic.override_dry = true;
-        testSingleCommand( expected, "--FUN_ENABLE", is_not_success, std::cout );
+        testSingleCommand( expected, "--MSIC_ENABLE", is_not_success, std::cout );
     }
 
     return is_not_success;
