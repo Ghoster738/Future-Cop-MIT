@@ -80,6 +80,9 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     valid_parameters          |= rpns.readParams( arguments, output_r );
     enable_global_dry_default |= rpns.override_dry;
 
+    valid_parameters          |= snds.readParams( arguments, output_r );
+    enable_global_dry_default |= snds.override_dry;
+
     valid_parameters          |= til.readParams( arguments, output_r );
     enable_global_dry_default |= til.override_dry;
 
