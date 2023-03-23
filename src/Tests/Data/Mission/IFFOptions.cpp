@@ -140,6 +140,12 @@ int main() {
         }
     }
 
+    { // Test expected.enable_global_dry_default. The dry command test.
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        testSingleCommand( expected, "--dry", is_not_success, std::cout );
+    }
+
     { // Test act.override_dry
         Data::Mission::IFFOptions expected;
         expected.enable_global_dry_default = true;

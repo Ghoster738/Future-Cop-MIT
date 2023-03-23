@@ -13,8 +13,6 @@ IFFOptions::~IFFOptions() {
 }
 
 bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std::ostream *output_r ) {
-    bool valid_parameters = 0;
-
     std::map<std::string, std::vector<std::string>> arguments;
 
     std::string key_value = "";
@@ -43,6 +41,8 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
         arguments[ key_value ] = parameters;
         parameters.clear();
     }
+
+    bool valid_parameters = singleArgument( arguments, "--dry", output_r, enable_global_dry_default );
 
     valid_parameters          |= act.readParams( arguments, output_r );
     enable_global_dry_default |= act.override_dry;
