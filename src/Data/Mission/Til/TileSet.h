@@ -678,17 +678,17 @@ Data::Mission::Til::Mesh::Polygon default_mesh[POLYGON_COUNT] = {
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
+             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
         }
     },
     { // 85
         {
+             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
              {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
         }
     },
@@ -877,10 +877,10 @@ Data::Mission::Til::Mesh::Polygon default_mesh[POLYGON_COUNT] = {
     },
     { // 110
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
+             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN}
+             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
+             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN}
         }
     },
     {
