@@ -64,6 +64,15 @@ public:
 
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
+    /**
+     * This would write the audio stream to the filesystem if successful.
+     * @note This command is meant to be used by children classes of WAV.
+     * @param file_path The path of the file to write.
+     * @param is_dry The boolean to prevent the writing.
+     * @return 1 if the file is written to the filesystem. 0 if nothing has been written.
+     */
+    int writeAudio( const std::string& file_path, bool is_dry = false ) const;
+
     static std::vector<WAVResource*> getVector( IFF &mission_file );
     static const std::vector<WAVResource*> getVector( const IFF &mission_file );
 };

@@ -166,11 +166,14 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
 }
 
 int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+    return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
+}
+
+int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool is_dry ) const {
     std::ofstream resource;
     Utilities::Buffer header;
-    const bool enable_export = iff_options.wav.shouldWrite( iff_options.enable_global_dry_default );
 
-    if( enable_export )
+    if( is_dry )
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::binary | std::ios::out );
 
     if( resource.is_open() )
@@ -190,10 +193,10 @@ int Data::Mission::WAVResource::write( const std::string& file_path, const Data:
 
         header.addU32( TAG_SUB_CHUNK_2_ID, Utilities::Buffer::Endian::BIG );
         header.addU32( audio_stream_length, Utilities::Buffer::Endian::LITTLE );
-        
+
         auto reader = header.getReader();
         auto header_bytes = reader.getBytes();
-        
+
         // Finally write down the header.
         resource.write( reinterpret_cast<const char*>( header_bytes.data() ), header_bytes.size() );
 
