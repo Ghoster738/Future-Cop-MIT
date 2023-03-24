@@ -76,3 +76,9 @@ int Data::Mission::DCSResource::write( const std::string& file_path, const Data:
 bool Data::Mission::IFFOptions::DCSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::DCSOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+}

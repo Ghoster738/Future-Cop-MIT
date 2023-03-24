@@ -29,14 +29,9 @@ namespace {
         stream << "  -r         Export raws" << "\n";
         stream << "  -d         Export supported and decoded files" << "\n";
         stream << "  -c         Determine and write the similarities between two inputs" << "\n";
-        stream << "Decoding [ -d ] Options:" << "\n";
-        stream << "  --DRY      Do not export any decoded files. Do not use with ENABLE commands." << "\n";
-        stream << "  --*_ENABLE This sets sepecific resources to be exported rather than decoding them all." << "\n";
-        stream << " ACT Options:" << "\n";
-        stream << "  --ACT_ENABLE  Set these resources to be explicitly exported." << "\n";
-        stream << " ANM Options:" << "\n";
-        stream << "  --ANM_ENABLE  Set these resources to be explicitly exported." << "\n";
-        stream << "  --ANM_PALETTE Display this help screen" << "\n";
+        stream << "Decoding Export [ -d ] Options:" << "\n";
+        Data::Mission::IFFOptions dialog;
+        stream << dialog.getOptions();
     }
 }
 

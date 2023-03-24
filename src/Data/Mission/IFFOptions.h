@@ -19,6 +19,8 @@ struct IFFOptions {
 
     static bool singleArgument( std::map<std::string, std::vector<std::string>> &argument, const std::string actual_name, std::ostream *output_r, bool &is_found );
 
+    std::string getOptions() const;
+
     struct ResourceOption {
         bool override_dry;
 
@@ -28,6 +30,9 @@ struct IFFOptions {
         virtual std::string getNameSpace() const = 0;
 
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+
+        std::string getBuiltInOptions() const;
+        virtual std::string getOptions() const = 0;
 
         bool shouldWrite( bool enable_global_dry_default ) const;
     };
@@ -42,6 +47,7 @@ struct IFFOptions {
         ACTOption() : ResourceOption() {}
         std::string getNameSpace() const { return "ACT"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } act;
 
     struct ANMOption : public ResourceOption {
@@ -50,6 +56,7 @@ struct IFFOptions {
         ANMOption() : ResourceOption(), export_palette( false ) {}
         std::string getNameSpace() const { return "ANM"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } anm;
 
     struct BMPOption : public ResourceOption {
@@ -58,6 +65,7 @@ struct IFFOptions {
         BMPOption() : ResourceOption(), export_palette( false ) {}
         std::string getNameSpace() const { return "BMP"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } bmp;
 
     struct DCSOption : public ResourceOption {
@@ -65,6 +73,7 @@ struct IFFOptions {
         DCSOption() : ResourceOption() {}
         std::string getNameSpace() const { return "DCS"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } dcs;
 
     struct FontOption : public ResourceOption {
@@ -72,6 +81,7 @@ struct IFFOptions {
         FontOption() : ResourceOption() {}
         std::string getNameSpace() const { return "FONT"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } font;
 
     struct FUNOption : public ResourceOption {
@@ -79,6 +89,7 @@ struct IFFOptions {
         FUNOption() : ResourceOption() {}
         std::string getNameSpace() const { return "FUN"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } fun;
 
     struct MSICOption : public ResourceOption {
@@ -86,6 +97,7 @@ struct IFFOptions {
         MSICOption() : ResourceOption() {}
         std::string getNameSpace() const { return "MSIC"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } msic;
 
     struct NETOption : public ResourceOption {
@@ -94,6 +106,7 @@ struct IFFOptions {
         NETOption() : ResourceOption(), enable_obj( false ) {}
         std::string getNameSpace() const { return "NET"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } net;
 
     struct ObjOption : public ResourceOption {
@@ -101,6 +114,7 @@ struct IFFOptions {
         ObjOption() : ResourceOption() {}
         std::string getNameSpace() const { return "OBJ"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } obj;
 
     struct PTCOption : public ResourceOption {
@@ -111,6 +125,7 @@ struct IFFOptions {
         PTCOption() : ResourceOption(), no_model( false ), entire_point_cloud( false ), entire_height_map( false ) {}
         std::string getNameSpace() const { return "PTC"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } ptc;
 
     struct PYROption : public ResourceOption {
@@ -119,6 +134,7 @@ struct IFFOptions {
         PYROption() : ResourceOption(), export_prime_bw( false ) {}
         std::string getNameSpace() const { return "PYR"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } pyr;
 
     struct RPNSOption : public ResourceOption {
@@ -126,6 +142,7 @@ struct IFFOptions {
         RPNSOption() : ResourceOption() {}
         std::string getNameSpace() const { return "RPNS"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } rpns;
 
     struct SNDSOption : public ResourceOption {
@@ -133,6 +150,7 @@ struct IFFOptions {
         SNDSOption() : ResourceOption() {}
         std::string getNameSpace() const { return "SNDS"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } snds;
 
     struct TilOption : public ResourceOption {
@@ -143,6 +161,7 @@ struct IFFOptions {
         TilOption() : ResourceOption(), enable_point_cloud_export( false ), enable_height_map_export( false ), enable_til_export_model( false ) {}
         std::string getNameSpace() const { return "TIL"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } til;
 
     struct WavOption : public ResourceOption {
@@ -150,6 +169,7 @@ struct IFFOptions {
         WavOption() : ResourceOption() {}
         std::string getNameSpace() const { return "WAV"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
     } wav;
 };
 

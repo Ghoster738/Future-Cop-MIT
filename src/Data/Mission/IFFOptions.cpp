@@ -183,6 +183,30 @@ bool IFFOptions::singleArgument( std::map<std::string, std::vector<std::string>>
     return true; // Successfully executed.
 }
 
+std::string IFFOptions::getOptions() const {
+    std::string option_dialog;
+
+    option_dialog += "  --DRY      Do not export any decoded files. Do not use with ENABLE commands\n";
+    option_dialog += "  --*_ENABLE This sets specific resources to be exported rather than decoding them all\n";
+    option_dialog +=  act.getOptions();
+    option_dialog +=  anm.getOptions();
+    option_dialog +=  bmp.getOptions();
+    option_dialog +=  dcs.getOptions();
+    option_dialog += font.getOptions();
+    option_dialog +=  fun.getOptions();
+    option_dialog += msic.getOptions();
+    option_dialog +=  net.getOptions();
+    option_dialog +=  obj.getOptions();
+    option_dialog +=  ptc.getOptions();
+    option_dialog +=  pyr.getOptions();
+    option_dialog += rpns.getOptions();
+    option_dialog += snds.getOptions();
+    option_dialog +=  til.getOptions();
+    option_dialog +=  wav.getOptions();
+
+    return option_dialog;
+}
+
 bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     auto enable_option = arguments.find("--" + getNameSpace() + "_ENABLE");
 
@@ -199,6 +223,15 @@ bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<s
     }
 
     return false;
+}
+
+std::string IFFOptions::ResourceOption::getBuiltInOptions() const {
+    std::string option_dialog;
+
+    option_dialog += " " + getNameSpace() + " Options:\n";
+    option_dialog += "  --" + getNameSpace() + "_ENABLE Set these resources to be explicitly exported.\n";
+
+    return option_dialog;
 }
 
 bool IFFOptions::ResourceOption::shouldWrite( bool enable_global_dry_default ) const {

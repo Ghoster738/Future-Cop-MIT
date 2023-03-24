@@ -302,3 +302,10 @@ const std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVe
 bool Data::Mission::IFFOptions::ACTOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::ACTOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+
+}

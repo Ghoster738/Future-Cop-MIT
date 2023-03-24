@@ -1326,3 +1326,9 @@ const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVe
 bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::ObjOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+}

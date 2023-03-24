@@ -357,3 +357,11 @@ bool Data::Mission::IFFOptions::ANMOption::readParams( std::map<std::string, std
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::ANMOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    information_text += "  --ANM_PALETTE Export a 1D texture of the this palette.\n";
+
+    return information_text;
+}

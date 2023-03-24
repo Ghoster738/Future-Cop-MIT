@@ -109,3 +109,9 @@ const std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::get
 bool Data::Mission::IFFOptions::MSICOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::MSICOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+}

@@ -404,3 +404,9 @@ Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( std::o
 bool Data::Mission::IFFOptions::FontOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::FontOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+}

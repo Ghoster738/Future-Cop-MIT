@@ -79,3 +79,9 @@ bool Data::Mission::IFFOptions::SNDSOption::readParams( std::map<std::string, st
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::SNDSOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+}

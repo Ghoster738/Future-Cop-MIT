@@ -232,3 +232,11 @@ bool Data::Mission::IFFOptions::NETOption::readParams( std::map<std::string, std
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::NETOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    information_text += "  --" + getNameSpace() + "_EXPORT_OBJ Export a Wavefront Obj model to show the navigation mesh\n";
+
+    return information_text;
+}

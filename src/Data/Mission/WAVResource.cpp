@@ -235,3 +235,9 @@ bool Data::Mission::IFFOptions::WavOption::readParams( std::map<std::string, std
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
+
+std::string Data::Mission::IFFOptions::WavOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
+}
