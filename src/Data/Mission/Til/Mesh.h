@@ -29,6 +29,7 @@ namespace Mesh {
 
     struct Polygon {
         Point points[4];
+        bool is_opposite;
     };
 
     struct VertexData {
@@ -71,6 +72,8 @@ namespace Mesh {
     unsigned int createTile( const Input &input, VertexData &result, unsigned int tileType );
 
     bool isWall( unsigned int tile_type );
+
+    bool isFliped( unsigned int tile_type );
 }
 
 }

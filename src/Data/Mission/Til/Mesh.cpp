@@ -272,3 +272,11 @@ bool Data::Mission::Til::Mesh::isWall( unsigned int tile_type ) {
             return false;
     }
 }
+bool Data::Mission::Til::Mesh::isFliped( unsigned int tile_type ) {
+    // Buffer overflow check.
+    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+        return false;
+    }
+
+    return default_mesh[tile_type].is_opposite;
+}

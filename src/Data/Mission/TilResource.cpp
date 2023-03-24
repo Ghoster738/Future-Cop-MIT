@@ -493,8 +493,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         position_displacement.x = SPAN_OF_TIL + x_offset;
         position_displacement.y = 0.0;
         position_displacement.z = SPAN_OF_TIL + y_offset;
-        
-        TileGraphics tileGraphic;
 
         has_texture_displayed = false;
         
@@ -593,19 +591,35 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     }
 
                     {
-                        // This writes the forward side of the tile data.
-                        for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
-                        {
-                            model_output->startVertex();
-
-                            model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
-                            model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
-                            model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
-                            model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                            model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
-                        }
+                        bool front = true;
+                        bool back = false;
 
                         if( Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
+                            if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
+                                front = current_tile.front;
+                                back  = current_tile.back;
+                            }
+                            else {
+                                front = current_tile.back;
+                                back  = current_tile.front;
+                            }
+                        }
+
+                        if( front ) {
+                            // This writes the forward side of the tile data.
+                            for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
+                            {
+                                model_output->startVertex();
+
+                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
+                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
+                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
+                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                            }
+                        }
+
+                        if( back ) {
                             // This writes the backface side of the tile data.
                             for( unsigned int p = current_tile_polygon_amount; p > 0; p-- )
                             {
