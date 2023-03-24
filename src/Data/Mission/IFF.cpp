@@ -585,22 +585,26 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
         if( path.back() != '/' )
             path += '/';
 
-        Data::Mission::IFFOptions iff_options( arguments, &std::cout );
+        Data::Mission::IFFOptions iff_options;
 
-        // For every resource type categories in the Mission file.
-        for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
-        {
-            for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+        if( iff_options.readParams( arguments, &std::cout ) ) {
+            // For every resource type categories in the Mission file.
+            for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
             {
-                std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
+                for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+                {
+                    std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
 
-                if( raw_file_mode )
-                    (*it)->write( full_path, iff_options );
-                else
-                    (*it)->writeRaw( full_path, iff_options );
+                    if( raw_file_mode )
+                        (*it)->write( full_path, iff_options );
+                    else
+                        (*it)->writeRaw( full_path, iff_options );
+                }
             }
+            return true;
         }
-        return true;
+        else
+            return false;
     }
     else
         return false;
