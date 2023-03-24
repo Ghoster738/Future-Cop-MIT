@@ -20,7 +20,7 @@ namespace {
         stream << "Future Cop: MIT - Mission reader (version " << FUTURE_COP_MIT_VERSION << ")\n";
         stream << "\n";
         stream << "Usage:" << "\n";
-        stream << "  FCMissionReader [-h] [-i <path>] [-o <path>] [-r] [-d] [-c] " << "\n";
+        stream << "  FCMissionReader [-h] [-i <path>] [-o <path>] [-c] [-d] [-r] " << "\n";
         stream << "\n";
         stream << "Options:" << "\n";
         stream << "  -h         Display this help screen" << "\n";
@@ -29,7 +29,14 @@ namespace {
         stream << "  -r         Export raws" << "\n";
         stream << "  -d         Export supported and decoded files" << "\n";
         stream << "  -c         Determine and write the similarities between two inputs" << "\n";
-
+        stream << "Decoding [ -d ] Options:" << "\n";
+        stream << "  --DRY      Do not export any decoded files. Do not use with ENABLE commands." << "\n";
+        stream << "  --*_ENABLE This sets sepecific resources to be exported rather than decoding them all." << "\n";
+        stream << " ACT Options:" << "\n";
+        stream << "  --ACT_ENABLE  Set these resources to be explicitly exported." << "\n";
+        stream << " ANM Options:" << "\n";
+        stream << "  --ANM_ENABLE  Set these resources to be explicitly exported." << "\n";
+        stream << "  --ANM_PALETTE Display this help screen" << "\n";
     }
 }
 
