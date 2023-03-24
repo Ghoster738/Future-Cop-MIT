@@ -82,7 +82,7 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
 }
 
 int Data::Mission::MSICResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
-    return sound.writeAudio( file_path, iff_options.msic.shouldWrite( iff_options.msic.override_dry ) );
+    return sound.writeAudio( file_path, iff_options.msic.shouldWrite( iff_options.enable_global_dry_default ) );
 }
 
 Data::Mission::Resource * Data::Mission::MSICResource::duplicate() const {
