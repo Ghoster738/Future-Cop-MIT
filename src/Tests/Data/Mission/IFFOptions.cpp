@@ -398,6 +398,54 @@ int main() {
         testMultipleCommands( expected, parameter_array, is_not_success, std::cout );
     }
 
+    // DRY and ENABLE would conflict with each other. Thus, it is forbidden.
+    // ENABLE should be used to make the program more specific on what it exports.
+    // DRY should express when not to write to anything to the disk.
+    {
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.net.override_dry = true;
+        expected.net.enable_obj = true;
+        const std::vector<std::string> parameter_array = { NET_EXPORT_OBJ, DRY, NET_ENABLE };
+
+        int should_fail = false;
+
+        // TODO Fix flaw.
+        testMultipleCommands( expected, parameter_array, should_fail, std::cout );
+
+        if( !should_fail ) {
+            is_not_success = true;
+
+            std::cout << "Error: DRY and ENABLE do not mix." << std::endl;
+        }
+    }
+
+    // This makes sure the write operations would work well.
+    {
+        Data::Mission::IFFOptions expected;
+        expected.net.override_dry = true;
+
+        if( !expected.net.shouldWrite( true ) ) {
+            is_not_success = true;
+            std::cout << "Error: override_dry (1) with dry (1) should write." << std::endl;
+        }
+        if( !expected.net.shouldWrite( false ) ) {
+            is_not_success = true;
+            std::cout << "Error: override_dry (1) with dry (0) should write." << std::endl;
+        }
+
+        expected.net.override_dry = false;
+
+        if( expected.net.shouldWrite( true ) ) {
+            is_not_success = true;
+            std::cout << "Error: override_dry (0) with dry (1) should not write." << std::endl;
+        }
+        if( !expected.net.shouldWrite( false ) ) {
+            is_not_success = true;
+            std::cout << "Error: override_dry (0) with dry (0) should write." << std::endl;
+        }
+    }
+
     // Kelp is the most unlikely word to test hence it is being used.
     invalidParameterTest( "k",      is_not_success, &std::cout );
     invalidParameterTest( "ke",     is_not_success, &std::cout );
@@ -411,27 +459,6 @@ int main() {
     invalidParameterTest( "--ke",   is_not_success, &std::cout );
     invalidParameterTest( "--kel",  is_not_success, &std::cout );
     invalidParameterTest( "--kelp", is_not_success, &std::cout );
-
-    // DRY and ENABLE would conflict with each other. Thus, it is forbidden.
-    // ENABLE should be used to make the program more specific on what it exports.
-    // DRY should express when not to write to anything to the disk.
-    {
-        Data::Mission::IFFOptions expected;
-        expected.enable_global_dry_default = true;
-        expected.net.override_dry = true;
-        expected.net.enable_obj = true;
-        const std::vector<std::string> parameter_array = { NET_EXPORT_OBJ, DRY, NET_ENABLE };
-
-        int should_fail = false;
-
-        testMultipleCommands( expected, parameter_array, should_fail, std::cout );
-
-        if( !should_fail ) {
-            is_not_success = true;
-
-            std::cout << "Error: DRY and ENABLE do not mix." << std::endl;
-        }
-    }
 
     return is_not_success;
 }
