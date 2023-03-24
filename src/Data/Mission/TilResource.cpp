@@ -805,7 +805,7 @@ bool Data::Mission::IFFOptions::TilOption::readParams( std::map<std::string, std
 }
 
 std::string Data::Mission::IFFOptions::TilOption::getOptions() const {
-    std::string information_text = getBuiltInOptions();
+    std::string information_text = getBuiltInOptions( 16 );
 
     information_text += "  --" + getNameSpace() + "_EXPORT_MODEL           Export the Til as in the glTF model format. There you will see a piece of the map\n";
     information_text += "  --" + getNameSpace() + "_EXPORT_HEIGHT_MAP      Export the raycasted Til, so you could see a piece of the map\n";

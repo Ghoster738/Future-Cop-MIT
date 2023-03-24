@@ -355,7 +355,7 @@ bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std
 }
 
 std::string Data::Mission::IFFOptions::PYROption::getOptions() const {
-    std::string information_text = getBuiltInOptions();
+    std::string information_text = getBuiltInOptions( 11 );
 
     information_text += "  --" + getNameSpace() + "_PRIME_BLACK_WHITE Export the index values as a single black and white image. This will look ugly\n";
 

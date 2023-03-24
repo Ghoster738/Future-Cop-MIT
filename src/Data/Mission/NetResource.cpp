@@ -234,7 +234,7 @@ bool Data::Mission::IFFOptions::NETOption::readParams( std::map<std::string, std
 }
 
 std::string Data::Mission::IFFOptions::NETOption::getOptions() const {
-    std::string information_text = getBuiltInOptions();
+    std::string information_text = getBuiltInOptions( 4 );
 
     information_text += "  --" + getNameSpace() + "_EXPORT_OBJ Export a Wavefront Obj model to show the navigation mesh\n";
 

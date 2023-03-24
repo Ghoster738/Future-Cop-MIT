@@ -295,7 +295,7 @@ bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std
 }
 
 std::string Data::Mission::IFFOptions::PTCOption::getOptions() const {
-    std::string information_text = getBuiltInOptions();
+    std::string information_text = getBuiltInOptions( 12 );
 
     information_text += "  --" + getNameSpace() + "_NO_MODEL           Disable model exporting for the map.\n";
     information_text += "  --" + getNameSpace() + "_ENTIRE_POINT_CLOUD Export the point cloud values in an rgb image.\n";

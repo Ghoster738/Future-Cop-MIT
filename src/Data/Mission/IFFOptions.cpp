@@ -225,11 +225,17 @@ bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<s
     return false;
 }
 
-std::string IFFOptions::ResourceOption::getBuiltInOptions() const {
+std::string IFFOptions::ResourceOption::getBuiltInOptions( unsigned number_of_spaces ) const {
     std::string option_dialog;
 
     option_dialog += " " + getNameSpace() + " Options:\n";
-    option_dialog += "  --" + getNameSpace() + "_ENABLE Set these resources to be explicitly exported.\n";
+    option_dialog += "  --" + getNameSpace() + "_ENABLE ";
+
+    for( unsigned i = 0; i < number_of_spaces; i++ ) {
+        option_dialog += " ";
+    }
+
+    option_dialog += "Set these resources to be explicitly exported.\n";
 
     return option_dialog;
 }

@@ -31,7 +31,7 @@ struct IFFOptions {
 
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
 
-        std::string getBuiltInOptions() const;
+        std::string getBuiltInOptions( unsigned number_of_spaces = 0 ) const;
         virtual std::string getOptions() const = 0;
 
         bool shouldWrite( bool enable_global_dry_default ) const;

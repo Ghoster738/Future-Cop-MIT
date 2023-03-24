@@ -342,7 +342,7 @@ bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std
 }
 
 std::string Data::Mission::IFFOptions::BMPOption::getOptions() const {
-    std::string information_text = getBuiltInOptions();
+    std::string information_text = getBuiltInOptions( 1 );
 
     information_text += "  --BMP_PALETTE Export a 1D texture of the this palette\n";
 
