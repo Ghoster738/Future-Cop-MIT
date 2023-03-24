@@ -239,7 +239,9 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
         
         assert( this->image_p != nullptr );
         
-        this->format_p = chooser.getWriterCopy( *getImage() );
+        Utilities::PixelFormatColor_R8G8B8A8 rgba8;
+        this->format_p = chooser.getWriterCopy( rgba8 );
+
         assert( this->format_p != nullptr );
 
         return !file_is_not_valid;
@@ -276,7 +278,7 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const Data:
 
             buffer.set( nullptr, 0 ); // This effectively clears the buffer.
 
-            {
+            if( iff_options.bmp.export_palette ) {
                 // Make a color palette that holds RGBA values
                 Utilities::ColorPalette rgba_palette( rgba_color );
                 
