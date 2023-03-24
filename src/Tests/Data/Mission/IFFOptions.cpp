@@ -73,15 +73,30 @@ bool IFFOptionCompare( const Data::Mission::IFFOptions a, const Data::Mission::I
     return status;
 }
 
-void invalidParameterTest( const std::string single_param, int &is_not_success, std::ostream *information_r = nullptr ) {
+void invalidParameterTest( std::vector<std::string> before, const std::string single_param,  std::vector<std::string> after, int &is_not_success, std::ostream *information_r = nullptr ) {
     Data::Mission::IFFOptions enabled_nothing;
+    std::vector<std::string> parameters;
 
-    bool is_valid = enabled_nothing.readParams( std::vector<std::string>({ single_param }), nullptr );
+    for( auto i : before ) {
+        parameters.push_back( i );
+    }
+    parameters.push_back( single_param );
+    for( auto i : after ) {
+        parameters.push_back( i );
+    }
+
+    bool is_valid = enabled_nothing.readParams( parameters, nullptr );
 
     if( is_valid ) {
         if( information_r != nullptr ) {
-            *information_r << "Error: \"" << single_param << "\" parameter cause failed to fail." << std::endl;
-            enabled_nothing.readParams( std::vector<std::string>({ single_param }), information_r );
+            *information_r << "Error: parameter cause failed to fail for {";
+
+            for( auto i : parameters ) {
+                *information_r << " \"" << i << "\"";
+            }
+            *information_r << std::endl;
+
+            enabled_nothing.readParams( parameters, information_r );
         }
         is_not_success = true;
     }
@@ -164,7 +179,7 @@ int main() {
 
         if( !is_valid ) {
             std::cout << "Error: empty parameter cause failed!" << std::endl;
-            enabled_nothing.readParams( std::vector<std::string>(), nullptr );
+            enabled_nothing.readParams( std::vector<std::string>(), &std::cout );
             is_not_success = true;
         }
     }
@@ -446,19 +461,55 @@ int main() {
         }
     }
 
-    // Kelp is the most unlikely word to test hence it is being used.
-    invalidParameterTest( "k",      is_not_success, &std::cout );
-    invalidParameterTest( "ke",     is_not_success, &std::cout );
-    invalidParameterTest( "kel",    is_not_success, &std::cout );
-    invalidParameterTest( "kelp",   is_not_success, &std::cout );
-    invalidParameterTest( "-\"",    is_not_success, &std::cout ); // I do not think there will be a `-"` case.
-    invalidParameterTest( "-ke",    is_not_success, &std::cout );
-    invalidParameterTest( "-kel",   is_not_success, &std::cout );
-    invalidParameterTest( "-kelp",  is_not_success, &std::cout );
-    invalidParameterTest( "--k",    is_not_success, &std::cout );
-    invalidParameterTest( "--ke",   is_not_success, &std::cout );
-    invalidParameterTest( "--kel",  is_not_success, &std::cout );
-    invalidParameterTest( "--kelp", is_not_success, &std::cout );
+    {
+        std::vector<std::string> invalid_commands = { "k", "ke", "kel", "kelp", "-\"", "-ke", "-kel", "-kelp", "--k", "--ke", "--kel", "--kelp" };
+
+        { // Empty of valid test.
+            const std::vector<std::string> before = {};
+            const std::vector<std::string> after  = {};
+
+            // Kelp is the most unlikely word to test hence it is being used.
+            for( auto i : invalid_commands ) {
+                invalidParameterTest( before, i, after, is_not_success, &std::cout );
+            }
+        }
+        { // Empty of valid test.
+            const std::vector<std::string> before = {};
+            const std::vector<std::string> after  = { BMP_PALETTE };
+
+            // Kelp is the most unlikely word to test hence it is being used.
+            for( auto i : invalid_commands ) {
+                invalidParameterTest( before, i, after, is_not_success, &std::cout );
+            }
+        }
+        { // Empty of valid test.
+            const std::vector<std::string> before = { BMP_PALETTE };
+            const std::vector<std::string> after  = {};
+
+            // Kelp is the most unlikely word to test hence it is being used.
+            for( auto i : invalid_commands ) {
+                invalidParameterTest( before, i, after, is_not_success, &std::cout );
+            }
+        }
+        { // One occerence case enforcement.
+            const std::vector<std::string> before = { BMP_PALETTE };
+            const std::vector<std::string> after  = { BMP_PALETTE };
+
+            // Kelp is the most unlikely word to test hence it is being used.
+            for( auto i : invalid_commands ) {
+                invalidParameterTest( before, i, after, is_not_success, &std::cout );
+            }
+        }
+        { // One occerence case needed
+            const std::vector<std::string> before = { ANM_PALETTE };
+            const std::vector<std::string> after  = { BMP_PALETTE };
+
+            // Kelp is the most unlikely word to test hence it is being used.
+            for( auto i : invalid_commands ) {
+                invalidParameterTest( before, i, after, is_not_success, &std::cout );
+            }
+        }
+    }
 
     return is_not_success;
 }

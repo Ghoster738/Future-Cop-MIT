@@ -1,5 +1,20 @@
 #include "IFFOptions.h"
 
+namespace {
+
+bool hasExtraOf( std::string key_value, const std::map<std::string, std::vector<std::string>> arguments, std::ostream *output_r ) {
+    if( arguments.find( key_value ) != arguments.end() ) {
+        if( output_r != nullptr ) {
+            *output_r << "The number of \"" << key_value << "\"'s should only be one or zero!" << std::endl;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+}
+
 namespace Data::Mission {
 
 IFFOptions::IFFOptions() : enable_global_dry_default( false ) {
@@ -14,6 +29,7 @@ IFFOptions::~IFFOptions() {
 
 bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std::ostream *output_r ) {
     std::map<std::string, std::vector<std::string>> arguments;
+    bool invalid_parameters = false;
 
     std::string key_value = "";
     std::vector<std::string> parameters;
@@ -24,6 +40,10 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
             ) {
                 // Submit previous command.
                 if( !key_value.empty() ) {
+                    if( hasExtraOf( key_value, arguments, output_r ) ) {
+                        invalid_parameters |= true;
+                    }
+
                     arguments[ key_value ] = parameters;
                     parameters.clear();
                 }
@@ -38,56 +58,58 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     }
 
     if( !key_value.empty() || !parameters.empty() ) {
+        if( hasExtraOf( key_value, arguments, output_r ) ) {
+            invalid_parameters |= true;
+        }
         arguments[ key_value ] = parameters;
         parameters.clear();
     }
 
-    bool valid_parameters = false;
     enable_global_dry_default = false;
 
-    valid_parameters          |= act.readParams( arguments, output_r );
+    invalid_parameters        |= act.readParams( arguments, output_r );
     enable_global_dry_default |= act.override_dry;
 
-    valid_parameters          |= anm.readParams( arguments, output_r );
+    invalid_parameters        |= anm.readParams( arguments, output_r );
     enable_global_dry_default |= anm.override_dry;
 
-    valid_parameters          |= bmp.readParams( arguments, output_r );
+    invalid_parameters        |= bmp.readParams( arguments, output_r );
     enable_global_dry_default |= bmp.override_dry;
 
-    valid_parameters          |= dcs.readParams( arguments, output_r );
+    invalid_parameters        |= dcs.readParams( arguments, output_r );
     enable_global_dry_default |= dcs.override_dry;
 
-    valid_parameters          |= font.readParams( arguments, output_r );
+    invalid_parameters        |= font.readParams( arguments, output_r );
     enable_global_dry_default |= font.override_dry;
 
-    valid_parameters          |= fun.readParams( arguments, output_r );
+    invalid_parameters        |= fun.readParams( arguments, output_r );
     enable_global_dry_default |= fun.override_dry;
 
-    valid_parameters          |= msic.readParams( arguments, output_r );
+    invalid_parameters        |= msic.readParams( arguments, output_r );
     enable_global_dry_default |= msic.override_dry;
 
-    valid_parameters          |= net.readParams( arguments, output_r );
+    invalid_parameters        |= net.readParams( arguments, output_r );
     enable_global_dry_default |= net.override_dry;
 
-    valid_parameters          |= obj.readParams( arguments, output_r );
+    invalid_parameters        |= obj.readParams( arguments, output_r );
     enable_global_dry_default |= obj.override_dry;
 
-    valid_parameters          |= ptc.readParams( arguments, output_r );
+    invalid_parameters        |= ptc.readParams( arguments, output_r );
     enable_global_dry_default |= ptc.override_dry;
 
-    valid_parameters          |= pyr.readParams( arguments, output_r );
+    invalid_parameters        |= pyr.readParams( arguments, output_r );
     enable_global_dry_default |= pyr.override_dry;
 
-    valid_parameters          |= rpns.readParams( arguments, output_r );
+    invalid_parameters        |= rpns.readParams( arguments, output_r );
     enable_global_dry_default |= rpns.override_dry;
 
-    valid_parameters          |= snds.readParams( arguments, output_r );
+    invalid_parameters        |= snds.readParams( arguments, output_r );
     enable_global_dry_default |= snds.override_dry;
 
-    valid_parameters          |= til.readParams( arguments, output_r );
+    invalid_parameters        |= til.readParams( arguments, output_r );
     enable_global_dry_default |= til.override_dry;
 
-    valid_parameters          |= wav.readParams( arguments, output_r );
+    invalid_parameters        |= wav.readParams( arguments, output_r );
     enable_global_dry_default |= wav.override_dry;
 
     bool has_dry;
@@ -97,7 +119,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
             // If enable_global_dry_default is turned on by resource.override_dry. Then, give
             // out an error.
             if( enable_global_dry_default ) {
-                valid_parameters = false;
+                invalid_parameters |= true;
 
                 if( output_r != nullptr ) {
                     *output_r << "--dry is not allowed to be used with *_ENABLE parameter!" << std::endl;
@@ -123,10 +145,10 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
             *output_r << std::endl;
         }
 
-        valid_parameters = false;
+        invalid_parameters |= true;
     }
 
-    return valid_parameters;
+    return !invalid_parameters;
 }
 
 bool IFFOptions::hasUnexpectedParams( const std::string &name, const std::vector<std::string> &arguments, std::ostream *output_r ) {
@@ -167,7 +189,7 @@ bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<s
     if( enable_option != arguments.end() ) {
 
         if( hasUnexpectedParams( enable_option->first, enable_option->second, output_r ) ) {
-            return false; // Cancel due to irrecoverable error.
+            return true; // Cancel due to irrecoverable error.
         }
 
         // Do not want to make the program think there is an unrecognized command.
@@ -176,7 +198,7 @@ bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<s
         override_dry = true;
     }
 
-    return true;
+    return false;
 }
 
 bool IFFOptions::ResourceOption::shouldWrite( bool enable_global_dry_default ) const {
