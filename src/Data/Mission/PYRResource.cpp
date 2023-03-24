@@ -348,7 +348,7 @@ const std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVe
 }
 
 bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
-    if( !singleArgument( arguments, "--" + getNameSpace() + "_Prime_BlackWhite", output_r, export_prime_bw ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_PRIME_BLACK_WHITE", output_r, export_prime_bw ) )
         return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );

@@ -184,12 +184,12 @@ int main() {
         }
     }
 
-    const std::string DRY         =  "--dry";
+    const std::string DRY         =  "--DRY";
     const std::string ACT_ENABLE  =  "--ACT_ENABLE";
     const std::string ANM_ENABLE  =  "--ANM_ENABLE";
-    const std::string ANM_PALETTE =  "--ANM_Palette";
+    const std::string ANM_PALETTE =  "--ANM_PALETTE";
     const std::string BMP_ENABLE  =  "--BMP_ENABLE";
-    const std::string BMP_PALETTE =  "--BMP_Palette";
+    const std::string BMP_PALETTE =  "--BMP_PALETTE";
     const std::string DCS_ENABLE  =  "--DCS_ENABLE";
     const std::string FONT_ENABLE = "--FONT_ENABLE";
     const std::string FUN_ENABLE  =  "--FUN_ENABLE";
@@ -201,7 +201,7 @@ int main() {
     const std::string PTC_ENTIRE_POINT_CLOUD = "--PTC_ENTIRE_POINT_CLOUD";
     const std::string PTC_ENTIRE_HEIGHT_MAP = "--PTC_ENTIRE_HEIGHT_MAP";
     const std::string PYR_ENABLE  =  "--PYR_ENABLE";
-    const std::string PYR_PRIME_BLACK_WHITE = "--PYR_Prime_BlackWhite";
+    const std::string PYR_PRIME_BLACK_WHITE = "--PYR_PRIME_BLACK_WHITE";
     const std::string RPNS_ENABLE =  "--RPNS_ENABLE";
     const std::string SNDS_ENABLE =  "--SNDS_ENABLE";
     const std::string TIL_ENABLE  =  "--TIL_ENABLE";

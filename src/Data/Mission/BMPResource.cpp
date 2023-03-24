@@ -335,7 +335,7 @@ const std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVe
 }
 
 bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
-    if( !singleArgument( arguments, "--" + getNameSpace() + "_Palette", output_r, export_palette ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_PALETTE", output_r, export_palette ) )
         return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );

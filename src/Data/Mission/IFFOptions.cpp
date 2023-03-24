@@ -114,7 +114,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
 
     bool has_dry;
 
-    if( singleArgument( arguments, "--dry", output_r, has_dry ) ) {
+    if( singleArgument( arguments, "--DRY", output_r, has_dry ) ) {
         if( has_dry ) {
             // If enable_global_dry_default is turned on by resource.override_dry. Then, give
             // out an error.
@@ -122,7 +122,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
                 invalid_parameters |= true;
 
                 if( output_r != nullptr ) {
-                    *output_r << "--dry is not allowed to be used with *_ENABLE parameter!" << std::endl;
+                    *output_r << "--DRY is not allowed to be used with *_ENABLE parameter!" << std::endl;
                 }
             }
 
