@@ -42,7 +42,8 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
         parameters.clear();
     }
 
-    bool valid_parameters = singleArgument( arguments, "--dry", output_r, enable_global_dry_default );
+    bool valid_parameters = false;
+    enable_global_dry_default = false;
 
     valid_parameters          |= act.readParams( arguments, output_r );
     enable_global_dry_default |= act.override_dry;
@@ -88,6 +89,25 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
 
     valid_parameters          |= wav.readParams( arguments, output_r );
     enable_global_dry_default |= wav.override_dry;
+
+    bool has_dry;
+
+    if( singleArgument( arguments, "--dry", output_r, has_dry ) ) {
+        if( has_dry ) {
+            // If enable_global_dry_default is turned on by resource.override_dry. Then, give
+            // out an error.
+            if( enable_global_dry_default ) {
+                valid_parameters = false;
+
+                if( output_r != nullptr ) {
+                    *output_r << "--dry is not allowed to be used with *_ENABLE parameter!" << std::endl;
+                }
+            }
+
+            enable_global_dry_default = true;
+        }
+    }
+
 
     if( !arguments.empty() ) {
         if( output_r != nullptr ) {
@@ -138,7 +158,7 @@ bool IFFOptions::singleArgument( std::map<std::string, std::vector<std::string>>
         is_found = true;
     }
 
-    return true; // Successfully found.
+    return true; // Successfully executed.
 }
 
 bool IFFOptions::ResourceOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

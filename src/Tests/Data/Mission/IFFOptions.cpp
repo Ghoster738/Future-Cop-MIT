@@ -87,30 +87,59 @@ void invalidParameterTest( const std::string single_param, int &is_not_success, 
     }
 }
 
-void testSingleCommand( const Data::Mission::IFFOptions expected, const std::string argument, int &is_not_success, std::ostream &information ) {
+void testMultipleCommands( const Data::Mission::IFFOptions expected, const std::vector<std::string> parameter_array, int &is_not_success, std::ostream &information ) {
     Data::Mission::IFFOptions enabled_nothing;
     Data::Mission::IFFOptions result;
-    const std::vector<std::string> parameter_array = { argument };
+    int found_failure = false;
 
     if( IFFOptionCompare( enabled_nothing, expected ) ) {
-        information << "Error: there is no corresponding boolean for " << argument << "." << std::endl;
-        is_not_success = true;
+        if( parameter_array.size() == 1 )
+            information << "Error: there is no corresponding boolean for " << parameter_array[0] << "." << std::endl;
+        else
+            information << "Error: there is no corresponding boolean for Parameters." << std::endl;
+
+        found_failure = true;
     }
 
     const bool parameter_status = result.readParams( parameter_array, nullptr );
 
     if( !IFFOptionCompare( expected, result ) ) {
-        information << "Error: " << argument << " did not enable properly." << std::endl;
+        if( parameter_array.size() == 1 )
+            information << "Error: " << parameter_array[0] << " did not enable properly." << std::endl;
+        else {
+            information << "Error: Parameters did not enable properly." << std::endl;
+        }
+
         IFFOptionCompare( expected, result, &information );
         Data::Mission::IFFOptions( parameter_array, &information );
-        is_not_success = true;
+        found_failure = true;
     }
 
     if( !parameter_status ) {
-        information << "Error: " << argument << " somehow invoked parameter errors." << std::endl;
+        if( parameter_array.size() == 1 )
+            information << "Error: " << parameter_array[0] << " somehow invoked parameter errors." << std::endl;
+        else {
+            information << "Error: Parameters somehow invoked parameter errors." << std::endl;
+        }
         result.readParams( parameter_array, &information );
-        is_not_success = true;
+        found_failure = true;
     }
+
+    if( found_failure && parameter_array.size() != 1 ) {
+        std::cout << "  The given parameters are { ";
+        for( auto i : parameter_array ) {
+            std::cout << " \"" << i << "\"";
+        }
+        std::cout << "}" << std::endl;
+    }
+
+    is_not_success |= found_failure;
+}
+
+void testSingleCommand( const Data::Mission::IFFOptions expected, const std::string argument, int &is_not_success, std::ostream &information ) {
+    const std::vector<std::string> parameter_array = { argument };
+
+    testMultipleCommands( expected, parameter_array, is_not_success, information );
 }
 
 }
@@ -330,6 +359,45 @@ int main() {
         testSingleCommand( expected, WAV_ENABLE, is_not_success, std::cout );
     }
 
+    { // Test multiple parameter inputs.
+        Data::Mission::IFFOptions expected;
+        expected.net.enable_obj = true;
+        expected.ptc.no_model = true;
+        expected.ptc.entire_height_map = true;
+        expected.bmp.export_palette = true;
+        expected.til.enable_til_export_model = true;
+        const std::vector<std::string> parameter_array = { NET_EXPORT_OBJ, PTC_NO_MODEL, PTC_ENTIRE_HEIGHT_MAP, BMP_PALETTE, TIL_EXPORT_MODEL};
+
+        testMultipleCommands( expected, parameter_array, is_not_success, std::cout );
+    }
+
+    { // Test multiple parameter inputs with dry parameter.
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.net.enable_obj = true;
+        expected.ptc.no_model = true;
+        expected.ptc.entire_height_map = true;
+        expected.bmp.export_palette = true;
+        expected.til.enable_til_export_model = true;
+        const std::vector<std::string> parameter_array = { NET_EXPORT_OBJ, PTC_NO_MODEL, DRY, PTC_ENTIRE_HEIGHT_MAP, BMP_PALETTE, TIL_EXPORT_MODEL};
+
+        testMultipleCommands( expected, parameter_array, is_not_success, std::cout );
+    }
+
+    { // Test multiple parameter inputs with ENABLE parameter.
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.ptc.override_dry = true;
+        expected.net.enable_obj = true;
+        expected.ptc.no_model = true;
+        expected.ptc.entire_height_map = true;
+        expected.bmp.export_palette = true;
+        expected.til.enable_til_export_model = true;
+        const std::vector<std::string> parameter_array = { NET_EXPORT_OBJ, PTC_NO_MODEL, PTC_ENABLE, PTC_ENTIRE_HEIGHT_MAP, BMP_PALETTE, TIL_EXPORT_MODEL};
+
+        testMultipleCommands( expected, parameter_array, is_not_success, std::cout );
+    }
+
     // Kelp is the most unlikely word to test hence it is being used.
     invalidParameterTest( "k",      is_not_success, &std::cout );
     invalidParameterTest( "ke",     is_not_success, &std::cout );
@@ -343,6 +411,27 @@ int main() {
     invalidParameterTest( "--ke",   is_not_success, &std::cout );
     invalidParameterTest( "--kel",  is_not_success, &std::cout );
     invalidParameterTest( "--kelp", is_not_success, &std::cout );
+
+    // DRY and ENABLE would conflict with each other. Thus, it is forbidden.
+    // ENABLE should be used to make the program more specific on what it exports.
+    // DRY should express when not to write to anything to the disk.
+    {
+        Data::Mission::IFFOptions expected;
+        expected.enable_global_dry_default = true;
+        expected.net.override_dry = true;
+        expected.net.enable_obj = true;
+        const std::vector<std::string> parameter_array = { NET_EXPORT_OBJ, DRY, NET_ENABLE };
+
+        int should_fail = false;
+
+        testMultipleCommands( expected, parameter_array, should_fail, std::cout );
+
+        if( !should_fail ) {
+            is_not_success = true;
+
+            std::cout << "Error: DRY and ENABLE do not mix." << std::endl;
+        }
+    }
 
     return is_not_success;
 }
