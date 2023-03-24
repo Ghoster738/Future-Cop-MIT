@@ -186,7 +186,7 @@ bool IFFOptions::singleArgument( std::map<std::string, std::vector<std::string>>
 std::string IFFOptions::getOptions() const {
     std::string option_dialog;
 
-    option_dialog += "  --DRY      Do not export any decoded files. Do not use with ENABLE commands\n";
+    option_dialog += "  --DRY      Do not export any decoded and raw files. Do not use with ENABLE commands\n";
     option_dialog += "  --*_ENABLE This sets specific resources to be exported rather than decoding them all\n";
     option_dialog +=  act.getOptions();
     option_dialog +=  anm.getOptions();

@@ -598,6 +598,7 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
                     if( raw_file_mode )
                         (*it)->write( full_path, iff_options );
                     else
+                    if( !iff_options.enable_global_dry_default )
                         (*it)->writeRaw( full_path, iff_options );
                 }
             }
