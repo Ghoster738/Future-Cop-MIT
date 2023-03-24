@@ -69,6 +69,8 @@ namespace Mesh {
     unsigned int BuildQuad( const Input &input, const Polygon &quad, VertexData &result );
 
     unsigned int createTile( const Input &input, VertexData &result, unsigned int tileType );
+
+    bool isWall( unsigned int tile_type );
 }
 
 }

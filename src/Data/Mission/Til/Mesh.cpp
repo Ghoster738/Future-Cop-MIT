@@ -214,3 +214,61 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
 
     return number_of_written_vertices;
 }
+
+bool Data::Mission::Til::Mesh::isWall( unsigned int tile_type ) {
+    const unsigned ARRAY_LENGTH = 4;
+    unsigned number_array[ARRAY_LENGTH] = {0, 0, 0, 0};
+    unsigned number_of_twos = 0;
+    unsigned number_of_ones = 0;
+
+    // Buffer overflow check.
+    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+        return false;
+    }
+
+    unsigned number_of_corners = 4;
+
+    if( default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
+        number_of_corners = 3;
+
+    for( unsigned i = 0; i < number_of_corners; i++ ) {
+        number_array[ default_mesh[tile_type].points[i].facing_direction ]++;
+    }
+
+    if( number_of_corners == 3 ) { // 3 side case.
+        for( unsigned i = 0; i < ARRAY_LENGTH; i++ ) {
+            if( number_array[ i ] == 0 ) { // Do nothing.
+            } else
+            if( number_array[ i ] == 1 ) { // Increment the number of ones.
+                number_of_ones++;
+            } else
+            if( number_array[ i ] == 2 ) { // Increment the number of twos.
+                number_of_twos++;
+            } else
+                return false; // Abort this search.
+        }
+
+        if( number_of_ones == 1 && number_of_twos == 1 )
+            return true; // Succeeded.
+        else
+            return false;
+    }
+    else { // 4 side case.
+        for( unsigned i = 0; i < ARRAY_LENGTH; i++ ) {
+            if( number_array[ i ] == 0 ) { // Do nothing.
+            } else
+            if( number_array[ i ] == 1 ) { // This is not a wall then.
+                return false;
+            } else
+            if( number_array[ i ] == 2 ) { // Increment the number of twos.
+                number_of_twos++;
+            } else
+                return false; // Abort this search.
+        }
+
+        if( number_of_twos == 2 )
+            return true; // Succeeded.
+        else
+            return false;
+    }
+}

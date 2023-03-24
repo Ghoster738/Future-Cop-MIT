@@ -593,7 +593,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     }
 
                     {
-                        // The write loop for the tiles.
+                        // This writes the forward side of the tile data.
                         for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
                         {
                             model_output->startVertex();
@@ -603,6 +603,20 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                             model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
                             model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                        }
+
+                        if( Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
+                            // This writes the backface side of the tile data.
+                            for( unsigned int p = current_tile_polygon_amount; p > 0; p-- )
+                            {
+                                model_output->startVertex();
+
+                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p - 1] ) );
+                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p - 1] ) );
+                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p - 1] ) );
+                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                            }
                         }
                     }
                 }
