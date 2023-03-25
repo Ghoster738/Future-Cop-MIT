@@ -73,6 +73,8 @@ namespace Mesh {
 
     bool isWall( unsigned int tile_type );
 
+    bool isSlope( unsigned int tile_type );
+
     bool isFliped( unsigned int tile_type );
 }
 

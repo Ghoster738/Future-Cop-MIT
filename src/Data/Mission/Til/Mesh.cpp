@@ -272,6 +272,31 @@ bool Data::Mission::Til::Mesh::isWall( unsigned int tile_type ) {
             return false;
     }
 }
+
+bool Data::Mission::Til::Mesh::isSlope( unsigned int tile_type ) {
+    const unsigned ARRAY_LENGTH = 4;
+    unsigned number_array[ARRAY_LENGTH] = {0, 0, 0, 0};
+    unsigned number_of_corners = 4;
+
+    // Buffer overflow check.
+    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+        return false;
+    }
+
+    if( default_mesh[tile_type].points[0].heightmap_channel == NO_ELEMENT )
+        return false;
+
+    if( default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
+        number_of_corners = 3;
+
+    for( unsigned i = 1; i < number_of_corners; i++ ) {
+        if( default_mesh[tile_type].points[ 0 ].heightmap_channel != default_mesh[tile_type].points[ i ].heightmap_channel )
+            return true;
+    }
+    return false;
+}
+
+
 bool Data::Mission::Til::Mesh::isFliped( unsigned int tile_type ) {
     // Buffer overflow check.
     if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
