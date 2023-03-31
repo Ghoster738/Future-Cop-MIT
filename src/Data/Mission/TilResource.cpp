@@ -497,7 +497,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         has_texture_displayed = false;
         
         if( texture_index < TEXTURE_NAMES_AMOUNT )
-            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1 );
+            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1, true );
 
         for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
             for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
@@ -610,7 +610,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             }
                         }
 
-                        if( front ) {
+                        if( back ) {
                             // This writes the forward side of the tile data.
                             for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
                             {
@@ -624,7 +624,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             }
                         }
 
-                        if( back ) {
+                        if( front ) {
                             // This writes the backface side of the tile data.
                             for( unsigned int p = current_tile_polygon_amount; p > 0; p-- )
                             {

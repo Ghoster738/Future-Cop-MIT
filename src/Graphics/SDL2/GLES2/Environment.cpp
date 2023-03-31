@@ -287,7 +287,6 @@ void Graphics::Environment::drawFrame() const {
             {
                 // Enable culling on the world map.
                 glEnable( GL_CULL_FACE );
-                glCullFace( GL_FRONT ); // The floor seems to be in reverse order! I have got to fix the floor and the slopes.
                 
                 // Draw the map.
                 EnvironmentInternalData->world_p->draw( *current_camera );

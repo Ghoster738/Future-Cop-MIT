@@ -67,11 +67,14 @@ public:
     class TextureMaterial {
     public:
         TextureMaterial();
+        TextureMaterial( const TextureMaterial& mat );
+
         uint32_t cbmp_resource_id;
         std::string file_name; // The file is relative to the texture.
         unsigned int starting_vertex_index; // The index of the starting vertices.
         unsigned int count; // The amount of vertices that the texture material covers.
         Utilities::DataTypes::Vec3Type min, max;
+        bool has_culling;
         
         // This holds the span for each material.
         std::vector< std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> > morph_bounds;
@@ -270,7 +273,7 @@ public:
      * @return True if the setupVertexComponents() method was called.
      * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
      */
-    bool setMaterial( std::string file_name, uint32_t cbmp_resource_id = 0 );
+    bool setMaterial( std::string file_name, uint32_t cbmp_resource_id = 0, bool has_culling = false );
 
     /**
      * This gets the number of materials for this class.

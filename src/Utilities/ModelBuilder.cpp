@@ -70,6 +70,17 @@ Utilities::ModelBuilder::TextureMaterial::TextureMaterial() {
     max.data.z = -min.data.x;
 }
 
+Utilities::ModelBuilder::TextureMaterial::TextureMaterial( const TextureMaterial& mat ) :
+    cbmp_resource_id( mat.cbmp_resource_id ),
+    file_name( mat.file_name ),
+    starting_vertex_index( mat.starting_vertex_index ),
+    count( mat.count ),
+    min( mat.min ),
+    max( mat.max ),
+    has_culling( mat.has_culling ),
+    morph_bounds( mat.morph_bounds )
+{}
+
 void Utilities::ModelBuilder::TextureMaterial::bounds( const TextureMaterial &material ) {
     min.data.x = std::min( min.data.x, material.min.data.x );
     min.data.y = std::min( min.data.y, material.min.data.y );
@@ -398,7 +409,7 @@ void Utilities::ModelBuilder::allocateVertices( unsigned int size ) {
     vertex_amount = size;
 }
 
-bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_resource_id ) {
+bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_resource_id, bool culling_enabled ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -411,6 +422,7 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
+        texture_materials.back().has_culling = culling_enabled;
         
         // Allocate morph_bounds.
         std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> min_max;
@@ -438,6 +450,7 @@ bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMa
         element.starting_vertex_index = texture_materials[material_index].starting_vertex_index;
         element.file_name             = texture_materials[material_index].file_name;
         element.cbmp_resource_id      = texture_materials[material_index].cbmp_resource_id;
+        element.has_culling           = texture_materials[material_index].has_culling;
 
         return true;
     }
@@ -969,7 +982,11 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
             root["textures"][position]["source"]  = position;
             root["textures"][position]["sampler"] = 0;
-            root["materials"][position]["doubleSided"] = true; // This is set, because I do not know how to deceren the correct direction.
+
+            if( (*i).has_culling )
+                root["materials"][position]["doubleSided"] = false;
+            else
+                root["materials"][position]["doubleSided"] = true;
 
             root["materials"][position]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = position;
             root["materials"][position]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
@@ -1276,7 +1293,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
         }
         
         // Set the material of this new model.
-        new_model->setMaterial( models[0]->texture_materials[0].file_name, models[0]->texture_materials[0].cbmp_resource_id );
+        new_model->setMaterial( models[0]->texture_materials[0].file_name, models[0]->texture_materials[0].cbmp_resource_id, models[0]->texture_materials[0].has_culling );
         
         // Finally fill in the primary model.
         for( auto it = models.begin(); it != models.end(); it++ ) {
@@ -1285,11 +1302,12 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             auto new_file_name = new_model->texture_materials.back().file_name;
             auto it_file_name = (*it)->texture_materials.back().file_name;
             auto it_cbmp_id = (*it)->texture_materials.back().cbmp_resource_id;
+            auto it_has_culling = (*it)->texture_materials.back().has_culling;
             
             // The material does not match then set the (*it) material to new_model.
             if( new_cbmp_id != it_cbmp_id ||
                 new_file_name.compare( it_file_name ) != 0 ) {
-                new_model->setMaterial( it_file_name, it_cbmp_id );
+                new_model->setMaterial( it_file_name, it_cbmp_id, it_has_culling );
             }
             
             // The texture bounds need to be applyed.
