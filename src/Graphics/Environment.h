@@ -13,6 +13,12 @@
 
 // TODO Make this environment into SDL2 GLES2 to abstract these data types again.
 #include "SDL2/GLES2/Internal/FontSystem.h"
+#include "SDL2/GLES2/Internal/GLES2.h"
+#include "SDL2/GLES2/Internal/MorphModelDraw.h"
+#include "SDL2/GLES2/Internal/Texture2D.h"
+#include "SDL2/GLES2/Internal/StaticModelDraw.h"
+#include "SDL2/GLES2/Internal/SkeletalModelDraw.h"
+#include "SDL2/GLES2/Internal/World.h"
 
 namespace Graphics {
 
@@ -25,15 +31,19 @@ namespace Graphics {
  */
 class Environment {
 protected:
-    void *Environment_internals; // This contains graphics programing language specific variables.
-    
     /**
      * This declares the environment.
      */
     Environment();
 public:
-    Window* window_p;
-    SDL2::GLES2::Internal::FontSystem *text_draw_routine_p;
+    Window                                             *window_p;
+    SDL2::GLES2::Internal::FontSystem                  *text_draw_routine_p;
+    std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> textures;
+    Graphics::SDL2::GLES2::Internal::Texture2D          shiney_texture; // This holds the environment map.
+    Graphics::SDL2::GLES2::Internal::World             *world_p; // This handles drawing the whole world.
+    Graphics::SDL2::GLES2::Internal::StaticModelDraw    static_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::MorphModelDraw     morph_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::SkeletalModelDraw  skeletal_model_draw_routine;
     
     /**
      * When you are done with the program this should clean up the rest of the graphics.
@@ -141,11 +151,6 @@ public:
      * @param seconds_passed This does not need to be too percise.
      */
     void advanceTime( float seconds_passed );
-
-    /**
-     * This gets the Graphics API variables for use in the internal code for the Environment.
-     */
-    void* getInternalData() { return Environment_internals; }
 };
 
 }
