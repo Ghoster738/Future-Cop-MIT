@@ -25,6 +25,7 @@ Open Source Game Engine Project
 * [Resource types](#resource-types)
   + [Internal](#internal)
   + [Exported](#exported)
+* [Thanks](#thanks)
 
 ## About
 This is an **_incomplete_** re-implementation attempt of the [Future Cop: LAPD][fcop-lapd-wikipedia-link] game, developed by Visceral Games (named **EA Redwod Shores** at the time) and released in 1998 for the PlayStation, Mac OS and Windows platforms.
@@ -253,3 +254,16 @@ This is list of exported resource formats and the corresponding internal format 
 * **Meta resources** - exported to `JSON` format to make the exports more readable:
   * `ACT`: Only what seems to be "prop" types from the game are exported at this time.
   * `NET`: Only coordinates and some other properties are exported at this time.
+
+## Thanks
+### Users
+BahKooJ for various information about Future Cop.
+Killermosi for improving most of the parameter system.
+
+### Libraries
+SDL2
+GLAD2
+JsonCPP
+OpenGL Mathematics Library (GLM)
+libpng
+libz
