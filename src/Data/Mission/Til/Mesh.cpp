@@ -1,6 +1,5 @@
 #include "Mesh.h"
 #include <fstream>
-#include <json/json.h>
 
 namespace {
     const float TILE_CORNER_POSITION_X[4] = { 0.5, -0.5,  0.5, -0.5 };
@@ -30,120 +29,6 @@ unsigned int Data::Mission::Til::Mesh::getNeighboor( unsigned int index, int nex
     }
 
     return index;
-}
-
-unsigned int Data::Mission::Til::Mesh::loadMeshScript( const char *const filepath, std::ostream *error_output ) {
-    std::ifstream file_loaded;
-    unsigned int result;
-
-    file_loaded.open( filepath );
-
-    if( file_loaded.is_open() )
-    {
-        Json::Value root;
-        Json::CharReaderBuilder reader_settings;
-        std::string error_stream;
-
-        if( Json::parseFromStream( reader_settings, file_loaded, &root, &error_stream ) )
-        {
-            Json::Value tileset_type = root["FutureCopReverse"]["type"];
-            Json::Value tiles = root["tiles"];
-
-            if( tileset_type.isString() && tileset_type.asString().compare("tileSet") == 0 ) {
-                Json::Value version = root["FutureCopReverse"]["version"];
-
-                if( version.isInt() && version.asInt() != 0 && error_output != nullptr)
-                {
-                    *error_output << "Warning: This json file version does not match the current version." << std::endl;
-                }
-
-                if( tiles.isArray() ) {
-                    // Finally loading code.
-
-                    // This should be first cleaned of all the old stuff.
-                    for( unsigned int i = 0; i < 0x80; i++ ) {
-                        default_mesh[ i ].points[ 0 ].heightmap_channel = NO_ELEMENT; // This means that the value was not set
-                    }
-
-                    for( auto current_tile = tiles.begin(); current_tile != tiles.end(); current_tile++ ) {
-                        Json::Value id = (*current_tile)["id"];
-                        Json::Value polygon = (*current_tile)["polygon"];
-
-                        if( id.isInt() && polygon.isArray() && polygon.size() >= 3 ) {
-                            Polygon poly;
-
-                            // This is the defaults of the polygon
-                            poly.points[3].heightmap_channel = NO_ELEMENT; // This means that this polygon is a triangle by default.
-
-                            // Do not go beyond four points unless you want a buffer overflow.
-                            unsigned int amount = polygon.size();
-                            if(amount > 4)
-                                amount = 4;
-
-                            for( unsigned int i = 0; i < amount; i++ ) {
-                                Json::Value position = polygon[i]["position"];
-                                Json::Value heightmapChannel = polygon[i]["heightmap_channel"];
-                                Json::Value textureCoordinateIndex = polygon[i]["coord_index"];
-
-                                // Ignore data that is not compatible only flare can be excluded.
-                                if( position.isString() && heightmapChannel.isInt() && textureCoordinateIndex.isInt() ) {
-                                    auto index = textureCoordinateIndex.asUInt() % amount;
-                                    
-                                    std::string position_string = position.asString();
-                                    if( position_string.compare("FRONT_LEFT") == 0 )
-                                        poly.points[ index ].facing_direction = FRONT_LEFT;
-                                    else
-                                    if( position_string.compare("FRONT_RIGHT") == 0 )
-                                        poly.points[ index ].facing_direction = FRONT_RIGHT;
-                                    else
-                                    if( position_string.compare("BACK_LEFT") == 0 )
-                                        poly.points[ index ].facing_direction = BACK_LEFT;
-                                    else
-                                    if( position_string.compare("BACK_RIGHT") == 0 )
-                                        poly.points[ index ].facing_direction = BACK_RIGHT;
-
-                                    poly.points[ index ].heightmap_channel = heightmapChannel.asUInt();
-                                }
-                            }
-
-                            default_mesh[ id.asInt() ] = poly;
-                        }
-                    }
-                }
-                else
-                {
-                    *error_output << "This json file must have arrays." << std::endl;
-                    result = 0;
-                }
-
-                result = 1; // For success!
-            }
-            else
-            {
-                result = 0;
-                if( error_output != nullptr ) {
-                    *error_output << "This json file is not a tile set json. In short the wrong json file is loaded." << std::endl;
-                }
-            }
-        }
-        else
-        {
-            result = 0;
-            if( error_output != nullptr ) {
-                *error_output << "There is an error found with json parsing." << std::endl
-                              << "    " << error_stream << std::endl;
-            }
-        }
-    }
-    else
-    {
-        result = -1;
-        if( error_output != nullptr ) {
-            *error_output << "The file \"" << filepath << "\" did not even open." << std::endl;
-        }
-    }
-
-    return result;
 }
 
 unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped ) {
