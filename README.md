@@ -257,13 +257,21 @@ This is list of exported resource formats and the corresponding internal format 
 
 ## Thanks
 ### Users
-BahKooJ for various information about Future Cop.
-Killermosi for improving most of the parameter system.
+
+* BahKooJ for various information about Future Cop.
+
+* Killermosi for improving most of the parameter system.
 
 ### Libraries
-SDL2
-GLAD2
-JsonCPP
-OpenGL Mathematics Library (GLM)
-libpng
-libz
+
+* SDL2
+
+* GLAD2
+
+* JsonCPP
+
+* OpenGL Mathematics Library (GLM)
+
+* libpng
+
+* libz
