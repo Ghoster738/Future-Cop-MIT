@@ -29,7 +29,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "   vec4 frag_color = texture2D(Texture, texture_coord_1);\n"
     "   if( frag_color.a < 0.015625 )\n"
     "       discard;\n"
-    "   vec3 normal_color = vertex_colors * frag_color.rgb;\n"
+    "   vec3 normal_color = vertex_colors * frag_color.rgb * 2.0;\n"
     "   vec3 inverse_color = frag_inv - normal_color;\n"
     "   gl_FragColor = vec4( (1.0 - _flashing) * normal_color + _flashing * inverse_color, frag_color.a );\n"
     "}\n";
