@@ -181,9 +181,12 @@ public:
 
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
-    virtual Utilities::ModelBuilder * createModel() const;
+    virtual Utilities::ModelBuilder * createModel() const { return createModel( false ); }
+    virtual Utilities::ModelBuilder * createCulledModel() const { return createModel( true ); }
+
+    virtual Utilities::ModelBuilder * createModel( bool is_culled ) const;
     
-    Utilities::ModelBuilder * createPartial( unsigned int texture_index, float x_offset = 0.0f, float z_offset = 0.0f ) const;
+    Utilities::ModelBuilder * createPartial( unsigned int texture_index, bool is_culled = false, float x_offset = 0.0f, float z_offset = 0.0f ) const;
     
     void createPhysicsCell( unsigned int x, unsigned int z );
     

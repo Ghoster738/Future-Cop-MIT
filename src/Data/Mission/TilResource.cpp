@@ -435,14 +435,14 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createModel() const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culled ) const {
     if( !mesh_tiles.empty() ) // Make sure there is no out of bounds error.
     {
         // Single texture models are to be generated first.
         std::vector<Utilities::ModelBuilder*> texture_models;
         
         for( unsigned int i = 0; i < TEXTURE_NAMES_AMOUNT; i++ ) {
-            auto texture_model_p = createPartial( i );
+            auto texture_model_p = createPartial( i, is_culled );
             
             if( texture_model_p != nullptr )
                 texture_models.push_back( texture_model_p );
@@ -467,7 +467,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel() const {
         return nullptr;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, float x_offset, float y_offset ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, float x_offset, float y_offset ) const {
     if( texture_index > TEXTURE_NAMES_AMOUNT + 1 )
         return nullptr;
     else {
@@ -497,7 +497,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         has_texture_displayed = false;
         
         if( texture_index < TEXTURE_NAMES_AMOUNT )
-            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1, true );
+            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1, is_culled );
 
         for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
             for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
@@ -594,19 +594,21 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         bool front = true;
                         bool back = false;
 
-                        if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
-                            if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
-                                front = current_tile.front;
-                                back  = current_tile.back;
-                            }
-                            else {
-                                front = current_tile.back;
-                                back  = current_tile.front;
-                            }
+                        if( is_culled ) {
+                            if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
+                                if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
+                                    front = current_tile.front;
+                                    back  = current_tile.back;
+                                }
+                                else {
+                                    front = current_tile.back;
+                                    back  = current_tile.front;
+                                }
 
-                            if( front == false && back == false ) {
-                                front = true;
-                                back = true;
+                                if( front == false && back == false ) {
+                                    front = true;
+                                    back = true;
+                                }
                             }
                         }
 

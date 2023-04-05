@@ -20,6 +20,12 @@ public:
      * This should create the model. However, using this very class would only result in a nullptr.
      * @return If successful it should return a valid GLTFWriter pointer (which must be manually deleted when done). Else it will return a nullptr.
      */
+    virtual Utilities::ModelBuilder * createCulledModel() const { return nullptr; }
+
+    /**
+     * This should create the model. However, using this very class would only result in a nullptr.
+     * @return If successful it should return a valid GLTFWriter pointer (which must be manually deleted when done). Else it will return a nullptr.
+     */
     virtual Utilities::ModelBuilder * createModel() const = 0;
 };
 

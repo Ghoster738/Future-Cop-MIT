@@ -135,7 +135,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // Set up the primary tiles. O(n)
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         const Data::Mission::TilResource *data = resources_til[ i - tiles.begin() ];
-        auto model = data->createModel();
+        auto model = data->createCulledModel();
 
         assert( model != nullptr );
 
