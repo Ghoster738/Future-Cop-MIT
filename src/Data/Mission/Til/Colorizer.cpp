@@ -6,7 +6,9 @@
 
 namespace {
 
-const double SHADING_VALUE = 0.0078125;
+const double   COLOR_SCALE = 1.0 /  32.0;
+const double DYNAMIC_SCALE = 1.0 /  64.0;
+const double  SINGLE_SCALE = 1.0 / 256.0;
 
 glm::vec3 colorToVec3( Utilities::PixelFormatColor::GenericColor color )
 {
@@ -35,15 +37,15 @@ void Data::Mission::Til::Colorizer::setColors( std::vector<Utilities::PixelForma
     for( size_t i = 0; i < color_amount; i++ ) {
         auto word = reader.readU16( endian );
         
-        auto blue  = ((word & 0x001F) >>  0) << 2;
-        auto green = ((word & 0x03E0) >>  5) << 2;
-        auto red   = ((word & 0x7C00) >> 10) << 2;
+        auto blue  = ((word & 0x001F) >>  0);
+        auto green = ((word & 0x03E0) >>  5);
+        auto red   = ((word & 0x7C00) >> 10);
         
         Utilities::PixelFormatColor::GenericColor value = { 0.0, 0.0, 0.0, 1.0 };
         
-        value.blue  = static_cast<double>(blue)  * SHADING_VALUE;
-        value.green = static_cast<double>(green) * SHADING_VALUE;
-        value.red   = static_cast<double>(red)   * SHADING_VALUE;
+        value.blue  = static_cast<double>(blue)  * COLOR_SCALE;
+        value.green = static_cast<double>(green) * COLOR_SCALE;
+        value.red   = static_cast<double>(red)   * COLOR_SCALE;
         
         colors.push_back( value );
     }
@@ -58,7 +60,7 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
         switch( primary.type ) {
             case 0b00: // Solid Monochrome
                 {
-                    result_r[0].x = static_cast<double>(primary.shading) * SHADING_VALUE;
+                    result_r[0].x = static_cast<double>(primary.shading) * SINGLE_SCALE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
                     result_r[1] = result_r[0];
@@ -68,21 +70,21 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    result_r[0].x = static_cast<double>(primary.shading & 0xFC) * SHADING_VALUE;
+                    result_r[0].x = static_cast<double>(primary.shading & 0xFC) * DYNAMIC_SCALE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
                     
                     const auto dynamic_monochrome = TilResource::DynamicMonoGraphics( input.til_graphics.at( input.tile_index + 1 ) );
                     
                     uint8_t second = ((primary.shading & 0x03) << 4) | dynamic_monochrome.second_lower;
-                    result_r[1].x = static_cast<double>( second << 2 ) * SHADING_VALUE;
+                    result_r[1].x = static_cast<double>( second << 2 ) * DYNAMIC_SCALE;
                     result_r[1].y = result_r[1].x;
                     result_r[1].z = result_r[1].x;
                     
-                    result_r[2].x = static_cast<double>( dynamic_monochrome.third << 2 ) * SHADING_VALUE;
+                    result_r[2].x = static_cast<double>( dynamic_monochrome.third << 2 ) * DYNAMIC_SCALE;
                     result_r[2].y = result_r[2].x;
                     result_r[2].z = result_r[2].x;
-                    result_r[3].x = static_cast<double>( dynamic_monochrome.forth << 2 ) * SHADING_VALUE;
+                    result_r[3].x = static_cast<double>( dynamic_monochrome.forth << 2 ) * DYNAMIC_SCALE;
                     result_r[3].y = result_r[3].x;
                     result_r[3].z = result_r[3].x;
                 }
@@ -103,7 +105,7 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b11: // Lava Animation
                 {
-                    result_r[0].x = static_cast<double>(primary.shading) * SHADING_VALUE;
+                    result_r[0].x = static_cast<double>(primary.shading) * SINGLE_SCALE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
                     result_r[1] = glm::vec3(1.0, 1.0, 1.0) - result_r[0];
