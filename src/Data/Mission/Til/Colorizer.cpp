@@ -6,7 +6,7 @@
 
 namespace {
 
-const double   COLOR_SCALE = 1.0 /  32.0;
+const double   COLOR_SCALE = 1.0 /  64.0;
 const double DYNAMIC_SCALE = 1.0 /  64.0;
 const double  SINGLE_SCALE = 1.0 / 256.0;
 
@@ -70,21 +70,21 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                 break;
             case 0b01: // Dynamic Monochrome
                 {
-                    result_r[0].x = static_cast<double>(primary.shading & 0xFC) * DYNAMIC_SCALE;
+                    result_r[0].x = static_cast<double>((primary.shading & 0xFC) >> 2) * DYNAMIC_SCALE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
                     
                     const auto dynamic_monochrome = TilResource::DynamicMonoGraphics( input.til_graphics.at( input.tile_index + 1 ) );
                     
                     uint8_t second = ((primary.shading & 0x03) << 4) | dynamic_monochrome.second_lower;
-                    result_r[1].x = static_cast<double>( second << 2 ) * DYNAMIC_SCALE;
+                    result_r[1].x = static_cast<double>( second ) * DYNAMIC_SCALE;
                     result_r[1].y = result_r[1].x;
                     result_r[1].z = result_r[1].x;
                     
-                    result_r[2].x = static_cast<double>( dynamic_monochrome.third << 2 ) * DYNAMIC_SCALE;
+                    result_r[2].x = static_cast<double>( dynamic_monochrome.third ) * DYNAMIC_SCALE;
                     result_r[2].y = result_r[2].x;
                     result_r[2].z = result_r[2].x;
-                    result_r[3].x = static_cast<double>( dynamic_monochrome.forth << 2 ) * DYNAMIC_SCALE;
+                    result_r[3].x = static_cast<double>( dynamic_monochrome.forth ) * DYNAMIC_SCALE;
                     result_r[3].y = result_r[3].x;
                     result_r[3].z = result_r[3].x;
                 }
