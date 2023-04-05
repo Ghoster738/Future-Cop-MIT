@@ -61,6 +61,8 @@ bool IFFOptionCompare( const Data::Mission::IFFOptions a, const Data::Mission::I
         status = false;
     if( !compareBooleans( a.til.override_dry, b.til.override_dry, "til.override_dry", information_r ) )
         status = false;
+    if( !compareBooleans( a.til.enable_til_backface_culling, b.til.enable_til_backface_culling, "til.enable_til_backface_culling", information_r ) )
+        status = false;
     if( !compareBooleans( a.til.enable_point_cloud_export, b.til.enable_point_cloud_export, "til.enable_point_cloud_export", information_r ) )
         status = false;
     if( !compareBooleans( a.til.enable_height_map_export, b.til.enable_height_map_export, "til.enable_height_map_export", information_r ) )
@@ -208,6 +210,7 @@ int main() {
     const std::string TIL_EXPORT_POINT_CLOUD_MAP  =  "--TIL_EXPORT_POINT_CLOUD_MAP";
     const std::string TIL_EXPORT_HEIGHT_MAP  =  "--TIL_EXPORT_HEIGHT_MAP";
     const std::string TIL_EXPORT_MODEL  =  "--TIL_EXPORT_MODEL";
+    const std::string TIL_EXPORT_CULL   =  "--TIL_EXPORT_CULL";
     const std::string WAV_ENABLE  =  "--WAV_ENABLE";
 
     { // Test expected.enable_global_dry_default. The dry command test.
@@ -359,6 +362,12 @@ int main() {
         Data::Mission::IFFOptions expected;
         expected.til.enable_height_map_export = true;
         testSingleCommand( expected, TIL_EXPORT_HEIGHT_MAP, is_not_success, std::cout );
+    }
+
+    { // Test til.enable_til_backface_culling
+        Data::Mission::IFFOptions expected;
+        expected.til.enable_til_backface_culling = true;
+        testSingleCommand( expected, TIL_EXPORT_CULL, is_not_success, std::cout );
     }
 
     { // Test til.entire_height_map

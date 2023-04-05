@@ -422,7 +422,15 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
     }
 
     if( iff_options.til.enable_til_export_model ) {
-        Utilities::ModelBuilder *model_output_p = createModel();
+        Utilities::ModelBuilder *model_output_p = nullptr;
+
+        if( iff_options.til.enable_til_backface_culling ) {
+            model_output_p = createCulledModel();
+            assert( model_output_p != nullptr );
+        }
+
+        if( model_output_p == nullptr )
+            model_output_p = createModel();
         
         if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) && model_output_p != nullptr )
             glTF_return = model_output_p->write( file_path, "til_"+ std::to_string( getResourceID() ) );
@@ -829,11 +837,13 @@ const std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVe
 }
 
 bool Data::Mission::IFFOptions::TilOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
-    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_POINT_CLOUD_MAP", output_r, enable_point_cloud_export ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_MODEL", output_r, enable_til_export_model ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_CULL", output_r, enable_til_backface_culling ) )
         return false; // The single argument is not valid.
     if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_HEIGHT_MAP", output_r, enable_height_map_export ) )
         return false; // The single argument is not valid.
-    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_MODEL", output_r, enable_til_export_model ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_POINT_CLOUD_MAP", output_r, enable_point_cloud_export ) )
         return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
@@ -843,6 +853,7 @@ std::string Data::Mission::IFFOptions::TilOption::getOptions() const {
     std::string information_text = getBuiltInOptions( 16 );
 
     information_text += "  --" + getNameSpace() + "_EXPORT_MODEL           Export the Til as in the glTF model format. There you will see a piece of the map\n";
+    information_text += "  --" + getNameSpace() + "_EXPORT_CULL            If " + getNameSpace() + "_EXPORT_MODEL is enabled then it will export a backface culled Ctil for faster rendering speeds.\n";
     information_text += "  --" + getNameSpace() + "_EXPORT_HEIGHT_MAP      Export the raycasted Til, so you could see a piece of the map\n";
     information_text += "  --" + getNameSpace() + "_EXPORT_POINT_CLOUD_MAP Export the point cloud spanning the this Til\n";
 

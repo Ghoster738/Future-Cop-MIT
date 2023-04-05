@@ -157,8 +157,9 @@ struct IFFOptions {
         bool enable_point_cloud_export;
         bool enable_height_map_export;
         bool enable_til_export_model;
+        bool enable_til_backface_culling;
 
-        TilOption() : ResourceOption(), enable_point_cloud_export( false ), enable_height_map_export( false ), enable_til_export_model( false ) {}
+        TilOption() : ResourceOption(), enable_point_cloud_export( false ), enable_height_map_export( false ), enable_til_export_model( false ), enable_til_backface_culling(false) {}
         std::string getNameSpace() const { return "TIL"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;
