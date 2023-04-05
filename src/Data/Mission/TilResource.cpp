@@ -575,9 +575,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             v.y = position[ p * 3 + 2 ].y - position[ p * 3 + 0 ].y;
                             v.z = position[ p * 3 + 2 ].z - position[ p * 3 + 0 ].z;
 
-                            normal[3 * p].x = u.y * v.z - u.z * v.y;
-                            normal[3 * p].y = u.z * v.x - u.x * v.z;
-                            normal[3 * p].z = u.x * v.y - u.y * v.x;
+                            normal[3 * p].x = (u.y * v.z - u.z * v.y);
+                            normal[3 * p].y = (u.z * v.x - u.x * v.z);
+                            normal[3 * p].z = (u.x * v.y - u.y * v.x);
                             
                             normal[3 * p] = glm::normalize( normal[3 * p] );
 
@@ -630,9 +630,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             {
                                 model_output->startVertex();
 
-                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p - 1] ) );
-                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p - 1] ) );
-                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p - 1] ) );
+                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type(  position[p - 1] ) );
+                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
+                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                 model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
                                 model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
                             }
