@@ -51,6 +51,8 @@ bool IFFOptionCompare( const Data::Mission::IFFOptions a, const Data::Mission::I
         status = false;
     if( !compareBooleans( a.ptc.entire_height_map, b.ptc.entire_height_map, "ptc.entire_height_map", information_r ) )
         status = false;
+    if( !compareBooleans( a.ptc.enable_backface_culling, b.ptc.enable_backface_culling, "ptc.enable_backface_culling", information_r ) )
+        status = false;
     if( !compareBooleans( a.pyr.override_dry, b.pyr.override_dry, "pyr.override_dry", information_r ) )
         status = false;
     if( !compareBooleans( a.pyr.export_prime_bw, b.pyr.export_prime_bw, "pyr.export_prime_bw", information_r ) )
@@ -202,6 +204,7 @@ int main() {
     const std::string PTC_NO_MODEL = "--PTC_NO_MODEL";
     const std::string PTC_ENTIRE_POINT_CLOUD = "--PTC_ENTIRE_POINT_CLOUD";
     const std::string PTC_ENTIRE_HEIGHT_MAP = "--PTC_ENTIRE_HEIGHT_MAP";
+    const std::string PTC_EXPORT_CULL = "--PTC_EXPORT_CULL";
     const std::string PYR_ENABLE  =  "--PYR_ENABLE";
     const std::string PYR_PRIME_BLACK_WHITE = "--PYR_PRIME_BLACK_WHITE";
     const std::string RPNS_ENABLE =  "--RPNS_ENABLE";
@@ -316,6 +319,12 @@ int main() {
         Data::Mission::IFFOptions expected;
         expected.ptc.entire_height_map = true;
         testSingleCommand( expected, PTC_ENTIRE_HEIGHT_MAP, is_not_success, std::cout );
+    }
+
+    { // Test ptc.enable_til_backface_culling
+        Data::Mission::IFFOptions expected;
+        expected.ptc.enable_backface_culling = true;
+        testSingleCommand( expected, PTC_EXPORT_CULL, is_not_success, std::cout );
     }
 
     { // Test pyr.override_dry

@@ -121,8 +121,9 @@ struct IFFOptions {
         bool no_model;
         bool entire_point_cloud;
         bool entire_height_map;
+        bool enable_backface_culling;
 
-        PTCOption() : ResourceOption(), no_model( false ), entire_point_cloud( false ), entire_height_map( false ) {}
+        PTCOption() : ResourceOption(), no_model( false ), entire_point_cloud( false ), entire_height_map( false ), enable_backface_culling( false ) {}
         std::string getNameSpace() const { return "PTC"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;

@@ -79,7 +79,7 @@ public:
      */
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
     
-    int writeEntireMap( std::string file_path ) const;
+    int writeEntireMap( std::string file_path, bool make_culled = false ) const;
     
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float y ) const;
