@@ -3,6 +3,8 @@
 
 #include "../../Text2DBuffer.h"
 
+#include "Environment.h"
+
 // Implementation includes.
 #include "Internal/GLES2.h"
 #include "Internal/FontSystem.h"
@@ -12,13 +14,15 @@ namespace SDL2 {
 namespace GLES2 {
 
 class Text2DBuffer : public Graphics::Text2DBuffer {
+private:
+    Graphics::SDL2::GLES2::Environment *gl_environment_r;
 public:
     std::map<uint32_t, Internal::FontSystem::Text2D*> text_data_p;
     Internal::FontSystem::Text2D *current_text_2D_r; // This merely references the text_data vector.
     unsigned int buffer_size_per_font_KiB; // This is the memory size of the pages.
     unsigned int text_2D_expand_factor; // The amount of characters the text 2D expands
     
-    Text2DBuffer( Environment &env_r );
+    Text2DBuffer( Graphics::Environment &env_r );
     virtual ~Text2DBuffer();
     
     /**
@@ -27,7 +31,7 @@ public:
      * @param data These are the IFF files that hold resources.
      * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
      */
-    static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
+    static int loadFonts( Graphics::Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
     
     void draw( const glm::mat4 &projection ) const;
     

@@ -12,9 +12,7 @@ class Environment;
 
 class Text2DBuffer {
 protected:
-    Environment *env_r;
-    
-    Text2DBuffer( Environment &environment );
+    Text2DBuffer();
 public:
     static Graphics::Text2DBuffer* alloc( Environment &env_r );
     

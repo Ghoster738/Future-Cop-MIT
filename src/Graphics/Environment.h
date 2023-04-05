@@ -11,23 +11,12 @@
 #include "../Data/Mission/TilResource.h"
 #include "../Data/Mission/ObjResource.h"
 
-// TODO Make this environment into SDL2 GLES2 to abstract these data types again.
-#include "SDL2/GLES2/Internal/FontSystem.h"
-#include "SDL2/GLES2/Internal/GLES2.h"
-#include "SDL2/GLES2/Internal/MorphModelDraw.h"
-#include "SDL2/GLES2/Internal/Texture2D.h"
-#include "SDL2/GLES2/Internal/StaticModelDraw.h"
-#include "SDL2/GLES2/Internal/SkeletalModelDraw.h"
-#include "SDL2/GLES2/Internal/World.h"
-
 namespace Graphics {
 
 /**
- * This is the meat and the bones of the graphics engine.
+ * This is holds the interface to the graphics system.
  * This contains every resource needed to play a single Future Cop level.
- * It still very basic, but it is a good start for my graphics engine.
- * This is meant to make graphics code much easier to deal with.
- * It is primarly for sperating graphically specific commands from the programmer for the most part.
+ * This is to make porting the code to other platforms easier.
  */
 class Environment {
 protected:
@@ -36,14 +25,7 @@ protected:
      */
     Environment();
 public:
-    Window                                             *window_p;
-    SDL2::GLES2::Internal::FontSystem                  *text_draw_routine_p;
-    std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> textures;
-    Graphics::SDL2::GLES2::Internal::Texture2D          shiney_texture; // This holds the environment map.
-    Graphics::SDL2::GLES2::Internal::World             *world_p; // This handles drawing the whole world.
-    Graphics::SDL2::GLES2::Internal::StaticModelDraw    static_model_draw_routine;
-    Graphics::SDL2::GLES2::Internal::MorphModelDraw     morph_model_draw_routine;
-    Graphics::SDL2::GLES2::Internal::SkeletalModelDraw  skeletal_model_draw_routine;
+    Window *window_p;
     
     /**
      * When you are done with the program this should clean up the rest of the graphics.
@@ -68,32 +50,32 @@ public:
      * @return A valid pointer for success, a nullptr for failure.
      */
     static Environment* alloc( const std::string &identifier );
+
+    /**
+     * Initialize the graphics library used by this graphics system.
+     * @return 1 for success. 0 for failure.
+     */
+    static int initSystem( const std::string &identifier );
+
+    /**
+     * Deinitilizes every library used by the system. Graphics, controls, and sound system will be deinitialized.
+     * @return 1 for success.
+     */
+    static int deinitEntireSystem( const std::string &identifier );
     
     /**
      * Get the identifer that the environment is using.
      * Basically, use the render system that this engine has provided.
      * @return The type of renderer the program is using.
      */
-    std::string getEnvironmentIdentifier() const;
-
-    /**
-     * Initialize the graphics library used by this graphics system.
-     * @return 1 for success. 0 for failure.
-     */
-    static int initSystem();
-    
-    /**
-     * Deinitilizes every library used by the system. Graphics, controls, and sound system will be deinitialized.
-     * @return 1 for success.
-     */
-    static int deinitEntireSystem();
+    virtual std::string getEnvironmentIdentifier() const = 0;
 
     /**
      * This is used to setup the textures.
      * @param textures The pointer vector to the textures for the models.
      * @return It will return 1 for success or a negative number stating how many textures failed to load.
      */
-    int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures );
+    virtual int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) = 0;
 
     /**
      * This is used to setup the textures for the 3D models.
@@ -101,7 +83,7 @@ public:
      * @param tiles The tiles to be referenced by the ptc.
      * @param tile_amount The amount of elements in tiles.
      */
-    void setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles );
+    virtual void setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) = 0;
     
     /**
      * This is used to setup the 3D models.
@@ -109,12 +91,12 @@ public:
      * @param model_amount The amount of the objects.
      * @return It will return 1 for success or a negative number stating how many textures failed to load.
      */
-    int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types );
+    virtual int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) = 0;
     
     /**
      * @return The number of Ctils in the environment.
      */
-    size_t getTilAmount() const;
+    virtual size_t getTilAmount() const = 0;
     
     /**
      * This sets the blink rate to an entire tile set for the use of selection.
@@ -122,7 +104,7 @@ public:
      * @param frequency The blink state in seconds. Basically it is how many seconds before a change in state.
      * @return 1 for success or 0 if the til\_index is out of bounds or -1 if the world is not allocated.
      */
-    int setTilBlink( unsigned til_index, float seconds );
+    virtual int setTilBlink( unsigned til_index, float seconds ) = 0;
     
     /**
      * This sets the blinking for the polygon tiles.
@@ -130,12 +112,12 @@ public:
      * @param scale This scales the blinking factor of world.
      * @return -1 if there is no functionality to set the polygon type. 0 if the end of the types has been reached. Otherwise just 1.
      */
-    int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
+    virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f) = 0;
 
     /**
      * Draw a single frame onto the main context.
      */
-    void drawFrame() const;
+    virtual void drawFrame() const = 0;
 
     /**
      * This makes a screenshot of the Environment's rendering.
@@ -143,14 +125,14 @@ public:
      * @param image this is the image. This image must at most the dimensions of the context being rendered.
      * @return true if the screenshot had been successfully placed onto the image.
      */
-    bool screenshot( Utilities::Image2D &image ) const;
+    virtual bool screenshot( Utilities::Image2D &image ) const = 0;
 
     /**
      * This advances time on the environment.
      * @warning This method is neccesary for every animation system to work.
      * @param seconds_passed This does not need to be too percise.
      */
-    void advanceTime( float seconds_passed );
+    virtual void advanceTime( float seconds_passed ) = 0;
 };
 
 }

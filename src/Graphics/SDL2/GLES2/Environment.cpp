@@ -5,16 +5,18 @@
 #include "Internal/GLES2.h"
 #include <algorithm>
 
+#include <iostream>
+
 // This source code is a decendent of https://gist.github.com/SuperV1234/5c5ad838fe5fe1bf54f9 or SuperV1234
 
-#include <iostream>
-Graphics::Environment::Environment() {
+namespace Graphics::SDL2::GLES2 {
+
+Environment::Environment() {
     this->world_p             = nullptr;
     this->text_draw_routine_p = nullptr;
-    this->window_p            = nullptr;
 }
 
-Graphics::Environment::~Environment() {
+Environment::~Environment() {
     if( this->text_draw_routine_p != nullptr )
     {
         delete this->text_draw_routine_p;
@@ -28,42 +30,9 @@ Graphics::Environment::~Environment() {
     
     if( this->world_p != nullptr)
         delete this->world_p;
-    
-    // Close and destroy the window
-    if( this->window_p != nullptr )
-        delete this->window_p;
 }
 
-std::vector<std::string> Graphics::Environment::getAvailableIdentifiers() {
-    std::vector<std::string> identifiers;
-    
-    identifiers.push_back( "OpenGL ES 2" );
-    
-    return identifiers;
-}
-
-bool Graphics::Environment::isIdentifier( const std::string &identifier ) {
-    if( identifier.compare( "OpenGL ES 2" ) == 0 )
-        return true;
-    else
-        return false;
-}
-
-Graphics::Environment* Graphics::Environment::alloc( const std::string &identifier ) {
-    // TODO Choose which renderer to attach this to based on the identifier.
-    // However, the only choice right now is OpenGLES 2.
-    
-    if( isIdentifier(identifier) )
-        return new Environment();
-    else
-        return nullptr;
-}
-
-std::string Graphics::Environment::getEnvironmentIdentifier() const {
-    return "OpenGL ES 2";
-}
-
-int Graphics::Environment::initSystem() {
+int Environment::initSystem() {
     if( SDL_InitSubSystem( SDL_INIT_VIDEO ) == 0 ) {
         return 1;
     }
@@ -71,7 +40,7 @@ int Graphics::Environment::initSystem() {
         return 0;
 }
 
-int Graphics::Environment::deinitEntireSystem() {
+int Environment::deinitEntireSystem() {
     SDL_GL_UnloadLibrary();    
     
     SDL_Quit();
@@ -79,7 +48,11 @@ int Graphics::Environment::deinitEntireSystem() {
     return 1;
 }
 
-int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
+std::string Environment::getEnvironmentIdentifier() const {
+    return "OpenGL ES 2";
+}
+
+int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
     int shine_index = -1;
@@ -124,9 +97,9 @@ int Graphics::Environment::setupTextures( const std::vector<Data::Mission::BMPRe
         return -failed_texture_loads;
 }
 
-void Graphics::Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) {
+void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) {
     // Allocate the world
-    this->world_p = new Graphics::SDL2::GLES2::Internal::World();
+    this->world_p = new Internal::World();
     
     // Setup the vertex and fragment shaders
     this->world_p->setVertexShader();
@@ -137,7 +110,7 @@ void Graphics::Environment::setMap( const Data::Mission::PTCResource &ptc, const
     this->world_p->setWorld( ptc, tiles, this->textures );
 }
 
-int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
+int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
@@ -206,7 +179,7 @@ int Graphics::Environment::setModelTypes( const std::vector<Data::Mission::ObjRe
     return number_of_failures;
 }
 
-size_t Graphics::Environment::getTilAmount() const {
+size_t Environment::getTilAmount() const {
     if( this->world_p != nullptr )
     {
         return this->world_p->getTilAmount();
@@ -215,7 +188,7 @@ size_t Graphics::Environment::getTilAmount() const {
         return 0; // There are no Ctils to read if there is no world.
 }
 
-int Graphics::Environment::setTilBlink( unsigned til_index, float seconds ) {
+int Environment::setTilBlink( unsigned til_index, float seconds ) {
     if( this->world_p != nullptr )
     {
         return this->world_p->setTilBlink( til_index, seconds );
@@ -224,7 +197,7 @@ int Graphics::Environment::setTilBlink( unsigned til_index, float seconds ) {
         return -1; // The world needs allocating first!
 }
 
-int Graphics::Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
+int Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
     if( this->world_p != nullptr )
     {
         return this->world_p->setPolygonTypeBlink( polygon_type, rate );
@@ -233,11 +206,11 @@ int Graphics::Environment::setTilPolygonBlink( unsigned polygon_type, float rate
         return -1; // The world_p needs allocating first!
 }
 
-void Graphics::Environment::drawFrame() const {
+void Environment::drawFrame() const {
     auto window_r =  window_p;
     
-    auto window_SDL_r = dynamic_cast<Graphics::SDL2::GLES2::Window*>( window_r );
-    Graphics::Camera* current_camera; // Used to store the camera.
+    auto window_SDL_r = dynamic_cast<GLES2::Window*>( window_r );
+    Camera* current_camera; // Used to store the camera.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
     // Clear the screen to black
@@ -290,7 +263,7 @@ void Graphics::Environment::drawFrame() const {
             for( auto i = current_camera->getText2DBuffer()->begin(); i != current_camera->getText2DBuffer()->end(); i++ )
             {
                 // TODO Eventually remove this kind of upcasts. They are dangerious.
-                auto text_2d_draw_routine = dynamic_cast<Graphics::SDL2::GLES2::Text2DBuffer*>( *i );
+                auto text_2d_draw_routine = dynamic_cast<Text2DBuffer*>( *i );
                 
                 assert( text_2d_draw_routine != nullptr );
                 
@@ -303,7 +276,7 @@ void Graphics::Environment::drawFrame() const {
     }
 }
 
-bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
+bool Environment::screenshot( Utilities::Image2D &image ) const {
     auto gl_error = glGetError();
 
     if( gl_error != GL_NO_ERROR ) {
@@ -329,7 +302,7 @@ bool Graphics::Environment::screenshot( Utilities::Image2D &image ) const {
         return true;
 }
 
-void Graphics::Environment::advanceTime( float seconds_passed ) {
+void Environment::advanceTime( float seconds_passed ) {
     // For animatable meshes advance the time
     this->morph_model_draw_routine.advanceTime( seconds_passed );
     this->skeletal_model_draw_routine.advanceTime( seconds_passed );
@@ -337,4 +310,6 @@ void Graphics::Environment::advanceTime( float seconds_passed ) {
     // The world map also has the concept of time if it exists.
     if( this->world_p != nullptr )
         this->world_p->advanceTime( seconds_passed );
+}
+
 }

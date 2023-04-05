@@ -67,7 +67,6 @@ glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {
 
 int main(int argc, char** argv)
 {
-    // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
     int WIDTH = 0;
     int HEIGHT = 0;
 
@@ -217,8 +216,6 @@ int main(int argc, char** argv)
     else
         std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
 
-    Graphics::Environment::initSystem();
-
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
     if( graphics_identifiers.size() == 0 )
@@ -226,6 +223,8 @@ int main(int argc, char** argv)
     
     if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
         return -38;
+
+    Graphics::Environment::initSystem( graphics_identifiers[0] );
     
     Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
     if( environment_p == nullptr )
@@ -499,7 +498,7 @@ int main(int argc, char** argv)
     delete control_system_p;
     delete environment_p;
 
-    Graphics::Environment::deinitEntireSystem();
+    Graphics::Environment::deinitEntireSystem( graphics_identifiers[0] );
 
     return 0;
 }
