@@ -19,7 +19,7 @@ const uint32_t Data::Mission::ACTResource::ACT_CHUNK_ID = 0x74414354; // which i
 const uint32_t Data::Mission::ACTResource::RSL_CHUNK_ID = 0x6152534c; // which is { 0x61, 0x52, 0x53, 0x4c } or { 'a', 'R', 'S', 'L' } or "aRSL"
 const uint32_t Data::Mission::ACTResource::SAC_CHUNK_ID = 0x74534143; // which is { 0x74, 0x53, 0x41, 0x43 } or { 't', 'S', 'A', 'C' } or "tSAC"
 
-Data::Mission::ACTResource::ACTResource() : tSAC( {false, 0, 1, 2, 3} ), matching_number( 0xFFFFF ), rsl_data() {
+Data::Mission::ACTResource::ACTResource() : matching_number( 0xFFFFF ), rsl_data(), tSAC( {false, 0, 1, 2, 3} ) {
 }
 
 Data::Mission::ACTResource::ACTResource( const ACTResource *const obj ) : Resource( *obj ), matching_number( obj->matching_number ), rsl_data( obj->rsl_data ), tSAC( obj->tSAC ) {
@@ -123,6 +123,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         }
         
         bool processed = readACTType( act_type, reader_act, endian );
+        assert( processed == true );
         
         if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
             *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;

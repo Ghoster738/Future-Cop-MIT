@@ -23,7 +23,7 @@ uint32_t Data::Mission::RPNSResource::getResourceTagID() const {
 }
 
 bool Data::Mission::RPNSResource::parse( const ParseSettings &settings ) {
-    const size_t TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
+    // const size_t TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
     Bitfield bitfield;
     uint8_t byte;
     

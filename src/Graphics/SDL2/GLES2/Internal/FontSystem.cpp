@@ -258,7 +258,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
 
     bool has_backup = false;
 
-    for( int i = 0; i < font_resources.size(); i++ )
+    for( unsigned i = 0; i < font_resources.size(); i++ )
     {
         this->font_bank.push_back( Font() );
 

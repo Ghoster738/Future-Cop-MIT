@@ -371,7 +371,7 @@ int main(int argc, char** argv)
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
     
-    if( displayed_instance_p == nullptr )
+    if( displayed_instance_p != nullptr )
         displayed_instance_p->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );

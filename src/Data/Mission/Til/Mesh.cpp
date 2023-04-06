@@ -74,7 +74,6 @@ unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Poly
 
 unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexData &vertex_data, unsigned int tileType ) {
     unsigned number_of_written_vertices = 0;
-    bool found = false;
     Polygon tile_polygon;
 
     tile_polygon = default_mesh[ tileType ];
@@ -159,8 +158,6 @@ bool Data::Mission::Til::Mesh::isWall( unsigned int tile_type ) {
 }
 
 bool Data::Mission::Til::Mesh::isSlope( unsigned int tile_type ) {
-    const unsigned ARRAY_LENGTH = 4;
-    unsigned number_array[ARRAY_LENGTH] = {0, 0, 0, 0};
     unsigned number_of_corners = 4;
 
     // Buffer overflow check.

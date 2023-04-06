@@ -342,7 +342,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
             Grid2DPlacementNormal placer( &dim2D );
             grid_2d_unit placer_x, placer_y;
             
-            if( width != 0 && height != 0 )
+            if( width != 0 && height != 0 && channels >= 3 && channels <= 4 && colorspace <= 1 )
             {
                 // Find the ending 8 byte 0x1.
                 size_t back_limit = reader.totalSize() - (INFO_STRUCT + END_BYTES);

@@ -22,7 +22,7 @@ Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reade
 
     assert( this->num_sprites != 0 ); // This should not crash at all.
     // This should not crash at all.
-    assert( sprite_size == 0x80 | sprite_size == 0x40 | sprite_size == 0x20 | sprite_size == 0x10 );
+    assert( (sprite_size == 0x80) | (sprite_size == 0x40) | (sprite_size == 0x20) | (sprite_size == 0x10) );
 
     this->textures.reserve( this->num_sprites );
 
@@ -146,7 +146,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 // This number contains the amount of particles.
                 amount_of_tiles = readerPYDT.readU32( settings.endian );
 
-                for( unsigned int i = 0; i < amount_of_tiles; i++ )
+                for( unsigned i = 0; i < amount_of_tiles; i++ )
                     particles.push_back( Particle( readerPYDT, settings.endian ) );
             }
             else
@@ -162,7 +162,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 Utilities::ColorPalette color_palette( color_profile_w8 );
                 color_palette.setAmount( PC_PALETTE_SIZE );
                 
-                for( int i = 0; i < PC_PALETTE_SIZE; i++ ) {
+                for( unsigned i = 0; i < PC_PALETTE_SIZE; i++ ) {
                     color_palette.setIndex( i, Utilities::PixelFormatColor::GenericColor( static_cast<float>(i) / static_cast<float>(PC_PALETTE_SIZE), 1.0f, 1.0f, 1.0f) );
                 }
                 
@@ -181,7 +181,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 Utilities::ColorPalette color_palette( color_profile_w8 );
                 color_palette.setAmount( PS1_PALETTE_SIZE );
                 
-                for( int i = 0; i < PS1_PALETTE_SIZE; i++ ) {
+                for( unsigned i = 0; i < PS1_PALETTE_SIZE; i++ ) {
                     color_palette.setIndex( i, Utilities::PixelFormatColor::GenericColor( static_cast<float>(i) / static_cast<float>(PS1_PALETTE_SIZE), 1.0f, 1.0f, 1.0f) );
                 }
                 
@@ -259,7 +259,6 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 for( unsigned int p = 0; p < amount_of_tiles; p++ ) {
                     for( unsigned int t = 0; t < particles.at( p ).getNumSprites(); t++ ) {
                         auto color_palette_r = particles.at( p ).getTexture( t )->getPalette();
-                        auto color_format_r = color_palette_r->getColorFormat();
                         color_palette_r->setAmount( PS1_PALETTE_SIZE );
 
                         for( unsigned int d = 0; d < PS1_PALETTE_SIZE; d++ ) {

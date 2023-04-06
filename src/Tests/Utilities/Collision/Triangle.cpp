@@ -191,13 +191,10 @@ int main() {
         // Now this test should test to see if the triangles act like each other.
         static size_t AMOUNT_OF_RAYS = 2;
         Utilities::Collision::Ray rays[AMOUNT_OF_RAYS];
-        bool expected_ray_collision_result[AMOUNT_OF_RAYS];
         
         rays[0] = Utilities::Collision::Ray( glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2, 5.0/3.0, 3.0f) );
-        expected_ray_collision_result[0] = true;
         
         rays[1] = Utilities::Collision::Ray( glm::vec3(52.5f, 0.0f, -11.0f), glm::vec3(52.5f, 5.1f, -11.0f) );
-        expected_ray_collision_result[1] = false;
         
         for( size_t i = 0; i < AMOUNT_OF_RAYS; i++ ) {
             const float gen_dist_s_point = set_s_point_tri.getIntersectionDistance( rays[ i ] );

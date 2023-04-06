@@ -656,8 +656,6 @@ int main() {
         // Only one color is useful enough.
         Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.75);
         
-        const auto INTERPOLATE = Utilities::PixelFormatColor::ChannelInterpolation::LINEAR;
-        
         Utilities::Buffer pixel_buffer;
         
         // Allocate enough memory for the pixel. For now 64 bit would due.

@@ -530,7 +530,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         << std::hex;
                 }
                 
-                for( size_t d = 0; d < frames_gen_3DHS; d++ )
+                for( int d = 0; d < frames_gen_3DHS; d++ )
                 {
                     for( size_t i = 0; i < bone_depth_number; i++ )
                     {
@@ -994,7 +994,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         model_output->allocateJoints( bones.size(), bone_frames );
         
         glm::mat4 bone_matrix;
-        unsigned int opcode_decode = 0;
         
         const float ANGLE_UNITS_TO_RADIANS = M_PI / 2048.0;
         

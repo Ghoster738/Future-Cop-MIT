@@ -27,7 +27,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
             auto tag_format     = reader.readU32( Utilities::Buffer::Endian::BIG ); // 8
             auto tag_sub_1      = reader.readU32( Utilities::Buffer::Endian::BIG ); // 12
             auto size_of_chunk_1 = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 16
-            auto size_sub_1     = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+            auto size_sub_1      = reader.readU32( Utilities::Buffer::Endian::LITTLE );
             reader.setPosition( 36, Utilities::Buffer::BEGIN );
             auto tag_sub_2      = reader.readU32( Utilities::Buffer::Endian::BIG );
 

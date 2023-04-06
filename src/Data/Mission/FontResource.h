@@ -41,11 +41,11 @@ public:
     };
 
 protected:
+    Utilities::Image2D *image_p; // The image containing all of the glyphs.
+
     std::vector<Glyph> glyphs;
     
     Glyph *font_glyphs_r[ MAX_GLYPHS ];
-
-    Utilities::Image2D *image_p; // The image containing all of the glyphs.
 public:
     FontResource();
     FontResource( const FontResource &obj );

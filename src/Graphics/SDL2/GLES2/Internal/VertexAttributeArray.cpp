@@ -50,7 +50,7 @@ int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::allocate( Graphics::S
 int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::cullUnfound( std::ostream *output_r ) {
     int amount_culled = 0;
 
-    for( signed int d = 0; d < attributes.size(); d++ ) {
+    for( unsigned int d = 0; d < attributes.size(); d++ ) {
         auto i = (attributes.begin() + d);
         if( (*i).index < 0 ) {
             if( output_r != nullptr ) {

@@ -29,7 +29,7 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
 
         if( reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + ENTRY_SIZE ) {
             auto header    = reader.readU32( settings.endian );
-            auto size      = reader.readU32( settings.endian );
+            auto size      = reader.readU32( settings.endian ); //TODO Figure out what this does.
             auto num_entry = reader.readU32( settings.endian );
 
             if( header == IDENTIFIER_TAG && reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + num_entry * ENTRY_SIZE ) {
