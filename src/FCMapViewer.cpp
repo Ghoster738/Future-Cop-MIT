@@ -553,15 +553,6 @@ int main(int argc, char** argv)
         last_time = this_time;
     }
 
-    for( unsigned i = 0; i < 128; i++ ) {
-        std::cout << "[" << i << "] = ";
-
-        if( Data::Mission::TilResource::zero_table[i] )
-            std::cout << "true\n";
-        else
-            std::cout << "false\n";
-    }
-
     delete control_system_p;
     delete environment_p;
 
