@@ -48,6 +48,11 @@ add_executable(qoi_image_format_test Utilities/ImageFormat/QuiteOkImage.cpp)
 target_link_libraries(qoi_image_format_test PRIVATE FC_IFF_IO)
 add_test( NAME qoi_image_format_test COMMAND $<TARGET_FILE:qoi_image_format_test> )
 
+# Test Portable Network Graphics Code
+add_executable(png_image_format_test Utilities/ImageFormat/PortableNetworkGraphics.cpp)
+target_link_libraries(png_image_format_test PRIVATE FC_IFF_IO)
+add_test( NAME png_image_format_test COMMAND $<TARGET_FILE:png_image_format_test> )
+
 # Test Model Builder Code
 add_executable(model_builder_test Utilities/ModelBuilder.cpp)
 target_link_libraries(model_builder_test PRIVATE FC_IFF_IO)
