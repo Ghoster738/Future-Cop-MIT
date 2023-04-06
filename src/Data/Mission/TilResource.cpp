@@ -603,6 +603,10 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         bool front = true;
                         bool back = false;
 
+                        if( current_tile.front == false && current_tile.back == false ) {
+                            zero_table[ current_tile.mesh_type ] = true;
+                        }
+
                         if( is_culled ) {
                             if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
                                 if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
@@ -615,7 +619,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 }
 
                                 if( front == false && back == false ) {
-                                    zero_table[ current_tile.mesh_type ] = true;
                                     front = true;
                                     back = true;
                                 }
