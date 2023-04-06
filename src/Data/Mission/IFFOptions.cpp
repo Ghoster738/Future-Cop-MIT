@@ -112,7 +112,7 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
     invalid_parameters        |= wav.readParams( arguments, output_r );
     enable_global_dry_default |= wav.override_dry;
 
-    bool has_dry;
+    bool has_dry = false;
 
     if( singleArgument( arguments, "--DRY", output_r, has_dry ) ) {
         if( has_dry ) {
