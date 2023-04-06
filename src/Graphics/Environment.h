@@ -25,6 +25,8 @@ protected:
      */
     Environment();
 public:
+    static const std::string SDL2_WITH_GLES_2;
+
     Window *window_p;
     
     /**

@@ -49,7 +49,7 @@ int Environment::deinitEntireSystem() {
 }
 
 std::string Environment::getEnvironmentIdentifier() const {
-    return "OpenGL ES 2";
+    return Graphics::Environment::SDL2_WITH_GLES_2;
 }
 
 int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {

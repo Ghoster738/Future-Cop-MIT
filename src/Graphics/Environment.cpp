@@ -5,6 +5,8 @@
 
 namespace Graphics {
 
+const std::string Environment::SDL2_WITH_GLES_2 = "OpenGL ES 2";
+
 Environment::Environment() : window_p( nullptr ) {
 }
 
@@ -17,20 +19,20 @@ Environment::~Environment() {
 std::vector<std::string> Environment::getAvailableIdentifiers() {
     std::vector<std::string> identifiers;
 
-    identifiers.push_back( "OpenGL ES 2" );
+    identifiers.push_back( SDL2_WITH_GLES_2 );
 
     return identifiers;
 }
 
 bool Environment::isIdentifier( const std::string &identifier ) {
-    if( identifier.compare( "OpenGL ES 2" ) == 0 )
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
         return true;
     else
         return false;
 }
 
 Environment* Environment::alloc( const std::string &identifier ) {
-    if( identifier.compare( "OpenGL ES 2" ) == 0 ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
         return new SDL2::GLES2::Environment();
     }
     else
@@ -38,7 +40,7 @@ Environment* Environment::alloc( const std::string &identifier ) {
 }
 
 int Environment::initSystem( const std::string &identifier ) {
-    if( identifier.compare( "OpenGL ES 2" ) == 0 ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
         return SDL2::GLES2::Environment::initSystem();
     }
     else
@@ -46,7 +48,7 @@ int Environment::initSystem( const std::string &identifier ) {
 }
 
 int Environment::deinitEntireSystem( const std::string &identifier ) {
-    if( identifier.compare( "OpenGL ES 2" ) == 0 ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
         return SDL2::GLES2::Environment::deinitEntireSystem();
     }
     else

@@ -22,6 +22,8 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
+    static bool zero_table[];
+
     struct HeightmapPixel {
         int8_t channel[3];
     };

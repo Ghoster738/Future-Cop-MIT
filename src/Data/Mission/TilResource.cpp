@@ -34,6 +34,7 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
+bool Data::Mission::TilResource::zero_table[0x80] = { 0 };
 
 Data::Mission::TilResource::TilResource() {
 
@@ -614,6 +615,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 }
 
                                 if( front == false && back == false ) {
+                                    zero_table[ current_tile.mesh_type ] = true;
                                     front = true;
                                     back = true;
                                 }
