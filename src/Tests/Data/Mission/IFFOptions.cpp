@@ -1,4 +1,5 @@
 #include "../../../Data/Mission/IFFOptions.h"
+#include <sstream>
 #include <iostream>
 
 namespace {
@@ -145,11 +146,11 @@ void testMultipleCommands( const Data::Mission::IFFOptions expected, const std::
     }
 
     if( found_failure && parameter_array.size() != 1 ) {
-        std::cout << "  The given parameters are { ";
+        information << "  The given parameters are { ";
         for( auto i : parameter_array ) {
-            std::cout << " \"" << i << "\"";
+            information << " \"" << i << "\"";
         }
-        std::cout << "}" << std::endl;
+        information << "}" << std::endl;
     }
 
     is_not_success |= found_failure;
@@ -443,13 +444,15 @@ int main() {
 
         int should_fail = false;
 
-        // TODO Fix flaw.
-        testMultipleCommands( expected, parameter_array, should_fail, std::cout );
+        std::stringstream stream_empty;
+
+        testMultipleCommands( expected, parameter_array, should_fail, stream_empty );
 
         if( !should_fail ) {
             is_not_success = true;
 
-            std::cout << "Error: DRY and ENABLE do not mix." << std::endl;
+            std::cout << "Error: DRY and ENABLE do not mix. Output:\n";
+            std::cout << stream_empty.str() << std::endl;
         }
     }
 
