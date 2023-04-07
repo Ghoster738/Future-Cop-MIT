@@ -364,12 +364,17 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     assert(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 ));
                     auto face_type_2 = reader3DQL.readU8();
 
-                    auto texture_quad_ref = (reader3DQL.readU16( settings.endian ) / 0x10) + texture_quads.data();
+                    const size_t triangle_quad_index = reader3DQL.readU16( settings.endian ) / 0x10;
+
+                    TextureQuad* texture_quad_r = nullptr;
+
+                    if( !texture_quads.empty() )
+                        texture_quad_r = &texture_quads.at(triangle_quad_index);
 
                     /*
                     // Add to the indexes of this texture to the list when it is not contained in the data base.
-                    if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_ref - texture_quads.data() > texture_quads.size() ) {
-                        texture_dependences.push_back( texture_quad_ref->index );
+                    if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_r - texture_quads.data() > texture_quads.size() ) {
+                        texture_dependences.push_back( texture_quad_r->index );
                         std::sort( texture_dependences.begin(), texture_dependences.end() );
                     }*/
                     bool reflect = ((face_type_2 & 0xF0) == 0x80);
@@ -379,7 +384,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if( (face_type & 0x07) == 4 ) {
                         face_quads.push_back( FaceQuad() );
 
-                        face_quads.back().texture_quad_ref = texture_quad_ref;
+                        face_quads.back().texture_quad_ref = texture_quad_r;
                         // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
                         // 0x07 Appears to be its own face type
                         face_quads.back().is_reflective = reflect;
@@ -398,7 +403,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         face_trinagles.push_back( FaceTriangle() );
 
                         face_trinagles.back().is_other_side = false;
-                        face_trinagles.back().texture_quad_ref = texture_quad_ref;
+                        face_trinagles.back().texture_quad_ref = texture_quad_r;
                         // (face_type & 0x08) seems to be the effect bit.
                         // (face_type & 0x28) seems to be the tranlucent bit.
                         face_trinagles.back().is_reflective = reflect;
