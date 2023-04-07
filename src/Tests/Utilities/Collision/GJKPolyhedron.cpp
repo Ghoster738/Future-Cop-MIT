@@ -40,6 +40,18 @@ std::vector<glm::vec3> generateTetrahedronData( glm::vec3 center = glm::vec3(0,0
     return poly_data;
 }
 
+std::vector<glm::vec3> generateTriangleData( glm::vec3 center = glm::vec3(0,0,0) ) {
+    std::vector<glm::vec3> poly_data;
+    
+    center -= glm::vec3(-0.166667, 0, 0);
+
+    poly_data.push_back( glm::vec3(  0.5,  0.0, 0 ) + center );
+    poly_data.push_back( glm::vec3( -0.5,  0.5, 0 ) + center );
+    poly_data.push_back( glm::vec3( -0.5, -0.5, 0 ) + center );
+
+    return poly_data;
+}
+
 int testSupport( std::string name, const GJKShape &shape, const std::vector<glm::vec3> &vec3_data, size_t index, glm::vec3 direction, bool expected_status ) {
     glm::vec3 position = vec3_data.at( index );
     glm::vec3 support  = shape.getSupport( direction );
@@ -122,6 +134,23 @@ int main() {
                     glm::vec3 scale(x, y, z);
                     scale *= 3.0;
                     status |= testPolygon( name, scale, generateTetrahedronData( scale ) );
+                }
+            }
+        }
+    }
+    
+    {
+        std::string name = "triangle";
+        
+        const glm::vec3 center = glm::vec3(0,0,0);
+        status |= testPolygon( name, center, generateTriangleData( center ) );
+        
+        for( int x = -1; x <= 1 && status == SUCCESS; x++ ) {
+            for( int y = -1; y <= 1 && status == SUCCESS; y++ ) {
+                for( int z = -1; z <= 1 && status == SUCCESS; z++ ) {
+                    glm::vec3 scale(x, y, z);
+                    scale *= 3.0;
+                    status |= testPolygon( name, scale, generateTriangleData( scale ) );
                 }
             }
         }
