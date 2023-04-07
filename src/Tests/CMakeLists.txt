@@ -23,6 +23,10 @@ add_executable(gjk_shape_polyhedron_test Utilities/Collision/GJKPolyhedron.cpp)
 target_link_libraries(gjk_shape_polyhedron_test PRIVATE FC_IFF_IO)
 add_test( NAME gjk_shape_polyhedron_test COMMAND $<TARGET_FILE:gjk_shape_polyhedron_test> )
 
+# Test GJK Code
+add_executable(gjk_test Utilities/Collision/GJK.cpp)
+target_link_libraries(gjk_test PRIVATE FC_IFF_IO)
+add_test( NAME gjk_test COMMAND $<TARGET_FILE:gjk_test> )
 
 # Test Grid2D Code
 add_executable(grid_2d_test Utilities/Grid2D.cpp)

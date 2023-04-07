@@ -1,4 +1,5 @@
 #include "GJKPolyhedron.h"
+
 #include <limits>
 #include <stdexcept>
 
