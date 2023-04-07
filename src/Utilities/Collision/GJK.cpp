@@ -67,12 +67,12 @@ GJK::SimplexStatus GJK::evolveSimplex() {
             // Make the direction to the origin.
             const glm::vec3 d0 = -simplex[3];
 
-            const glm::vec3 abd = direction = glm::cross(da, db);
-            const glm::vec3 bcd = direction = glm::cross(db, dc);
-            const glm::vec3 cad = direction = glm::cross(dc, da);
+            const glm::vec3 abd = glm::cross(da, db);
+            const glm::vec3 bcd = glm::cross(db, dc);
+            const glm::vec3 cad = glm::cross(dc, da);
 
             if( glm::dot(abd, d0) > 0 ) {
-                // Remove vertex 0 or c.
+                // Remove vertex 2 or c.
                 simplex[2] = simplex[3];
                 simplex_length--;
 

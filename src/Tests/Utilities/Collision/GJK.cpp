@@ -62,7 +62,7 @@ int main() {
 
     GJK gjk(&cube, &tetrahedron);
 
-    if( !gjk.hasCollision() )
+    if( gjk.hasCollision() )
         status = FAILURE;
 
     return status;
