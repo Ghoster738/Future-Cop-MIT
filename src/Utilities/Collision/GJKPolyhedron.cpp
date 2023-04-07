@@ -1,4 +1,5 @@
 #include "GJKPolyhedron.h"
+#include <limits>
 #include <stdexcept>
 
 namespace Utilities {
@@ -36,11 +37,11 @@ glm::vec3 GJKPolyhedron::getCenter() const {
 }
 glm::vec3 GJKPolyhedron::getSupport( glm::vec3 direction ) const {
     // Grab the first element in the array.
-    glm::vec3 furthest_point = array[0];
-    float furthest_distance = glm::dot( array[0], direction );
+    glm::vec3 furthest_point;
+    float furthest_distance = -std::numeric_limits<float>::infinity();
 
     // Then iterate through the rest of the points.
-    for( auto i = array.begin() + 1; i < array.end(); i++ ) {
+    for( auto i = array.begin(); i < array.end(); i++ ) {
         float new_distance = glm::dot( (*i), direction );
 
         if( furthest_distance < new_distance ) {
@@ -48,6 +49,8 @@ glm::vec3 GJKPolyhedron::getSupport( glm::vec3 direction ) const {
             furthest_point = (*i);
         }
     }
+    
+    assert( furthest_distance != -std::numeric_limits<float>::infinity() );
 
     // O(n) Complexity.
     return furthest_point;
