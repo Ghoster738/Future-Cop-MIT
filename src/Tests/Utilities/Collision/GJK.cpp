@@ -58,12 +58,21 @@ int main() {
     int status = SUCCESS;
 
     GJKPolyhedron cube( generateCubeData() );
-    GJKPolyhedron tetrahedron( generateTetrahedronData( glm::vec3(7,7,7) ) );
+    GJKPolyhedron tetrahedron_inside( generateTetrahedronData( glm::vec3(0,0,0) ) );
 
-    GJK gjk(&cube, &tetrahedron);
-
-    if( gjk.hasCollision() )
+    GJK gjk_collide(&cube, &tetrahedron_inside);
+    if( !gjk_collide.hasCollision() ) {
+        std::cout << "Inside did not collide" << std::endl;
         status = FAILURE;
+    }
+
+    GJKPolyhedron tetrahedron_outside( generateTetrahedronData( glm::vec3(8,8,8) ) );
+
+    GJK gjk(&cube, &tetrahedron_outside);
+    if( gjk.hasCollision() ) {
+        std::cout << "Outside has collided!" << std::endl;
+        status = FAILURE;
+    }
 
     return status;
 }
