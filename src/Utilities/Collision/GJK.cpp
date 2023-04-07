@@ -16,7 +16,7 @@ bool GJK::addSupport( glm::vec3 direction ) {
 
     simplex[ simplex_length ] = shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
     simplex_length++;
-    return glm::dot( direction, simplex[ simplex_length - 1 ] ) > 0;
+    return glm::dot( direction, simplex[ simplex_length - 1 ] ) >= 0;
 }
 
 glm::vec3 GJK::tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
@@ -41,43 +41,64 @@ GJK::SimplexStatus GJK::evolveSimplex() {
         }
         case 2:
         {
-            const glm::vec3 cb = simplex[ 1 ] - simplex[ 0 ];
-            const glm::vec3 c0 = -1.0f * simplex[ 0 ];
+            const glm::vec3 ab  = simplex[ 1 ] - simplex[ 0 ];
+            const glm::vec3 a0  = -1.0f * simplex[ 0 ];
 
-            direction = tripleProduct( cb, c0, cb );
+            direction = tripleProduct( ab, a0, ab );
         }
         case 3:
         {
-            const glm::vec3 a0 = -1.0f * simplex[ 2 ];
-            const glm::vec3 ab = simplex[ 1 ] - simplex[ 2 ];
-            const glm::vec3 ac = simplex[ 0 ] - simplex[ 2 ];
+            const glm::vec3 ac = simplex[2] - simplex[0];
+            const glm::vec3 ab = simplex[1] - simplex[0];
+            direction = glm::cross(ac, ab);
 
-            const glm::vec3 ab_perpendicular = tripleProduct( ac, ab, ab );
-            const glm::vec3 ac_perpendicular = tripleProduct( ab, ac, ac );
+            const glm::vec3 a0 = -simplex[0];
 
-            if( glm::dot(a0, ab_perpendicular) > 0 ) { // The origin is outside of plane ab.
-                // Remove vertex 0.
-                simplex[0] = simplex[1];
-                simplex[1] = simplex[2];
+            if( glm::dot( direction, a0 ) < 0 )
+                direction *= -1.0;
+        }
+        case 4:
+        {
+            // Calculate the three edges.
+            const glm::vec3 da = simplex[3] - simplex[0];
+            const glm::vec3 db = simplex[3] - simplex[1];
+            const glm::vec3 dc = simplex[3] - simplex[2];
 
-                direction = ab_perpendicular;
+            // Make the direction to the origin.
+            const glm::vec3 d0 = -simplex[3];
 
+            const glm::vec3 abd = direction = glm::cross(da, db);
+            const glm::vec3 bcd = direction = glm::cross(db, dc);
+            const glm::vec3 cad = direction = glm::cross(dc, da);
+
+            if( glm::dot(abd, d0) > 0 ) {
+                // Remove vertex 0 or c.
+                simplex[2] = simplex[3];
                 simplex_length--;
 
+                direction = abd;
             }
             else
-            if( glm::dot(a0, ac_perpendicular) > 0 ) { // The origin is outside of plane ac.
-                // Remove vertex 1.
+            if( glm::dot(bcd, d0) > 0 ) {
+                // Remove vertex 0 or a.
+                simplex[0] = simplex[1];
                 simplex[1] = simplex[2];
-
-                direction = ac_perpendicular;
-
+                simplex[2] = simplex[3];
                 simplex_length--;
+
+                direction = bcd;
             }
-            else {
-                // Found origin.
+            else
+            if( glm::dot(cad, d0) > 0 ) {
+                // Remove vertex 1 or b.
+                simplex[1] = simplex[2];
+                simplex[2] = simplex[3];
+                simplex_length--;
+
+                direction = cad;
+            }
+            else
                 return SimplexStatus::VALID;
-            }
         }
         default:
         {
