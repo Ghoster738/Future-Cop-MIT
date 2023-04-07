@@ -1,4 +1,4 @@
-#include "GJKPolygon.h"
+#include "GJKPolyhedron.h"
 #include <stdexcept>
 
 namespace Utilities {

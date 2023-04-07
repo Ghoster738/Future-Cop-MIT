@@ -18,6 +18,12 @@ add_executable(triangle_test Utilities/Collision/Triangle.cpp)
 target_link_libraries(triangle_test PRIVATE FC_IFF_IO)
 add_test( NAME triangle_test COMMAND $<TARGET_FILE:triangle_test> )
 
+# Test GJKPolygon Code
+add_executable(gjk_shape_polyhedron_test Utilities/Collision/GJKPolyhedron.cpp)
+target_link_libraries(gjk_shape_polyhedron_test PRIVATE FC_IFF_IO)
+add_test( NAME gjk_shape_polyhedron_test COMMAND $<TARGET_FILE:gjk_shape_polyhedron_test> )
+
+
 # Test Grid2D Code
 add_executable(grid_2d_test Utilities/Grid2D.cpp)
 target_link_libraries(grid_2d_test PRIVATE FC_IFF_IO)
