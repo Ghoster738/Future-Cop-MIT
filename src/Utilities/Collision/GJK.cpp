@@ -12,7 +12,7 @@ GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_sha
 GJK::~GJK() {}
 
 bool GJK::addSupport( glm::vec3 direction ) {
-    assert( SIMPLEX_LENGTH <= simplex_length );
+    assert( SIMPLEX_LENGTH >= simplex_length );
 
     simplex[ simplex_length ] = shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
     simplex_length++;
@@ -33,11 +33,13 @@ GJK::SimplexStatus GJK::evolveSimplex() {
         case 0:
         {
             direction = shape_1_r->getCenter() - shape_0_r->getCenter();
+            break;
         }
         case 1:
         {
             // This code flips the direction.
             direction *= -1.0;
+            break;
         }
         case 2:
         {
@@ -45,6 +47,7 @@ GJK::SimplexStatus GJK::evolveSimplex() {
             const glm::vec3 a0  = -1.0f * simplex[ 0 ];
 
             direction = tripleProduct( ab, a0, ab );
+            break;
         }
         case 3:
         {
@@ -56,6 +59,7 @@ GJK::SimplexStatus GJK::evolveSimplex() {
 
             if( glm::dot( direction, a0 ) < 0 )
                 direction *= -1.0;
+            break;
         }
         case 4:
         {
@@ -99,17 +103,18 @@ GJK::SimplexStatus GJK::evolveSimplex() {
             }
             else
                 return SimplexStatus::VALID;
+            break;
         }
         default:
         {
             throw std::runtime_error( "GJK simplex should not exceed 4 vertices." );
         }
-
-        if( addSupport(direction) )
-            return SimplexStatus::INCOMPLETE;
-        else
-            return SimplexStatus::INVALID;
     }
+
+    if( addSupport(direction) )
+        return SimplexStatus::INCOMPLETE;
+    else
+        return SimplexStatus::INVALID;
 }
 
 bool GJK::hasCollision() {
