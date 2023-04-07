@@ -9,16 +9,16 @@
 namespace Utilities {
 namespace Collision {
 
-class GJKPolygon {
+class GJKPolyhedron {
 private:
     std::vector<glm::vec3> array;
 
     glm::vec3 center;
 
 public:
-    GJKPolygon( const std::vector<glm::vec3> &array );
-    GJKPolygon( const GJKPolygon &gjk_polygon, const glm::mat4 &matrix );
-    virtual ~GJKPolygon();
+    GJKPolyhedron( const std::vector<glm::vec3> &array );
+    GJKPolyhedron( const GJKPolyhedron &gjk_polygon, const glm::mat4 &matrix );
+    virtual ~GJKPolyhedron();
 
     virtual glm::vec3 getCenter() const;
     virtual glm::vec3 getSupport( glm::vec3 direction ) const;

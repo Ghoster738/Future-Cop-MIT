@@ -4,9 +4,9 @@
 namespace Utilities {
 namespace Collision {
 
-GJKPolygon::GJKPolygon( const std::vector<glm::vec3> &param_array ) : array( param_array ), center( glm::vec3(0, 0, 0) ) {
+GJKPolyhedron::GJKPolyhedron( const std::vector<glm::vec3> &param_array ) : array( param_array ), center( glm::vec3(0, 0, 0) ) {
     if( param_array.empty() ) {
-        throw std::runtime_error( "GJKPolygon should always have more than zero vertices in it." );
+        throw std::runtime_error( "GJKPolyhedron should always have more than zero vertices in it." );
     }
 
     for( auto element : array )
@@ -15,7 +15,7 @@ GJKPolygon::GJKPolygon( const std::vector<glm::vec3> &param_array ) : array( par
     center *= 1.0 / static_cast<float>( array.size() );
 }
 
-GJKPolygon::GJKPolygon( const GJKPolygon &gjk_polygon, const glm::mat4 &matrix ) : array(), center( glm::vec3(0, 0, 0) ) {
+GJKPolyhedron::GJKPolyhedron( const GJKPolyhedron &gjk_polygon, const glm::mat4 &matrix ) : array(), center( glm::vec3(0, 0, 0) ) {
     for( auto element : gjk_polygon.array ) {
         glm::vec4 transformed = glm::vec4( element, 1) * matrix;
 
@@ -29,12 +29,12 @@ GJKPolygon::GJKPolygon( const GJKPolygon &gjk_polygon, const glm::mat4 &matrix )
     center *= 1.0 / static_cast<float>( array.size() );
 }
 
-GJKPolygon::~GJKPolygon() {}
+GJKPolyhedron::~GJKPolyhedron() {}
 
-glm::vec3 GJKPolygon::getCenter() const {
+glm::vec3 GJKPolyhedron::getCenter() const {
     return center;
 }
-glm::vec3 GJKPolygon::getSupport( glm::vec3 direction ) const {
+glm::vec3 GJKPolyhedron::getSupport( glm::vec3 direction ) const {
     // Grab the first element in the array.
     glm::vec3 furthest_point = array[0];
     float furthest_distance = glm::dot( array[0], direction );
