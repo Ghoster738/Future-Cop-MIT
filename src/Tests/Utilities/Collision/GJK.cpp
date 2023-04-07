@@ -54,13 +54,13 @@ std::vector<glm::vec3> generateTriangleData( glm::vec3 center = glm::vec3(0,0,0)
     return poly_data;
 }
 
-int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name ) {
+int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name, glm::vec3 displacement = glm::vec3(0) ) {
     int status = SUCCESS;
     glm::vec3 position = 8.0f * glm::vec3( x, y, z );
 
-    GJKPolyhedron cube_outside( generateCubeData( position ) );
-    GJKPolyhedron tetrahedron_outside( generateTetrahedronData( position ) );
-    GJKPolyhedron triangle_outside( generateTriangleData( position ) );
+    GJKPolyhedron cube_outside( generateCubeData( position + displacement ) );
+    GJKPolyhedron tetrahedron_outside( generateTetrahedronData( position + displacement ) );
+    GJKPolyhedron triangle_outside( generateTriangleData( position + displacement ) );
 
     GJK gjk_cube_collide(&shape, &cube_outside);
     if( gjk_cube_collide.hasCollision() ) {
@@ -86,13 +86,13 @@ int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name ) 
     return status;
 }
 
-int insideTest( int x, int y, int z, const GJKShape &shape, std::string name ) {
+int insideTest( int x, int y, int z, const GJKShape &shape, std::string name, glm::vec3 displacement = glm::vec3(0) ) {
     int status = SUCCESS;
     glm::vec3 position = 0.5f * glm::vec3( x, y, z );
 
-    GJKPolyhedron cube_inside( generateCubeData( position ) );
-    GJKPolyhedron tetrahedron_inside( generateTetrahedronData( position ) );
-    GJKPolyhedron triangle_inside( generateTriangleData( position ) );
+    GJKPolyhedron cube_inside( generateCubeData( position + displacement ) );
+    GJKPolyhedron tetrahedron_inside( generateTetrahedronData( position + displacement ) );
+    GJKPolyhedron triangle_inside( generateTriangleData( position + displacement ) );
 
     GJK gjk_cube_collide(&shape, &cube_inside);
     if( !gjk_cube_collide.hasCollision() ) {
@@ -118,18 +118,35 @@ int insideTest( int x, int y, int z, const GJKShape &shape, std::string name ) {
     return status;
 }
 
+int quaderentTest( int x, int y, int z ) {
+    int status = SUCCESS;
+    glm::vec3 position = 16.0f * glm::vec3( x, y, z );
+
+    GJKPolyhedron cube( generateCubeData( position ) );
+
+    for( int x = -1; x <= 1 && status == SUCCESS; x++) {
+        for( int y = -1; y <= 1 && status == SUCCESS; y++) {
+            for( int z = -1; z <= 1 && status == SUCCESS; z++) {
+                status |= insideTest(x, y, z, cube, "cube", position);
+                if( !(x == y && y == z) ) {
+                    status |= outsideTest(x, y, z, cube, "cube", position);
+                }
+            }
+        }
+    }
+
+    return status;
+}
+
 int main() {
     int status = SUCCESS;
 
-    GJKPolyhedron cube( generateCubeData() );
-
-    for( int x = -1; x <= 1; x++) {
-        for( int y = -1; y <= 1; y++) {
-            for( int z = -1; z <= 1; z++) {
-                status |= insideTest(x, y, z, cube, "cube");
-                if( !(x == y && y == z) ) {
-                    status |= outsideTest(x, y, z, cube, "cube");
-                }
+    // This is very slow, but it would test every quaderent.
+    // As it is it will run insideTest and outsideTest about 729 times.
+    for( int x = -1; x <= 1 && status == SUCCESS; x++) {
+        for( int y = -1; y <= 1 && status == SUCCESS; y++) {
+            for( int z = -1; z <= 1 && status == SUCCESS; z++) {
+                status |= quaderentTest(x, y, z);
             }
         }
     }
