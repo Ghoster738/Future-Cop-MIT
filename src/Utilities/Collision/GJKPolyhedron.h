@@ -9,7 +9,7 @@
 namespace Utilities {
 namespace Collision {
 
-class GJKPolyhedron {
+class GJKPolyhedron : public GJKShape {
 private:
     std::vector<glm::vec3> array;
 
