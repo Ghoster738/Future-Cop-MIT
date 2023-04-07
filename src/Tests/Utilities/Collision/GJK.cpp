@@ -54,24 +54,84 @@ std::vector<glm::vec3> generateTriangleData( glm::vec3 center = glm::vec3(0,0,0)
     return poly_data;
 }
 
+int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name ) {
+    int status = SUCCESS;
+    glm::vec3 position = 8.0f * glm::vec3( x, y, z );
+
+    GJKPolyhedron cube_outside( generateCubeData( position ) );
+    GJKPolyhedron tetrahedron_outside( generateTetrahedronData( position ) );
+    GJKPolyhedron triangle_outside( generateTriangleData( position ) );
+
+    GJK gjk_cube_collide(&shape, &cube_outside);
+    if( gjk_cube_collide.hasCollision() ) {
+        std::cout << "Cube did collide outside " << name << std::endl;
+        displayVec3( "v", position, std::cout );
+        status = FAILURE;
+    }
+
+    GJK gjk_tetrahedron_collide(&shape, &tetrahedron_outside);
+    if( gjk_tetrahedron_collide.hasCollision() ) {
+        std::cout << "Tetrahedron did collide outside " << name << std::endl;
+        displayVec3( "v", position, std::cout );
+        status = FAILURE;
+    }
+
+    GJK gjk_triangle_collide(&shape, &triangle_outside);
+    if( gjk_cube_collide.hasCollision() ) {
+        std::cout << "Triangle did collide outside " << name << std::endl;
+        displayVec3( "v", position, std::cout );
+        status = FAILURE;
+    }
+
+    return status;
+}
+
+int insideTest( int x, int y, int z, const GJKShape &shape, std::string name ) {
+    int status = SUCCESS;
+    glm::vec3 position = 0.5f * glm::vec3( x, y, z );
+
+    GJKPolyhedron cube_inside( generateCubeData( position ) );
+    GJKPolyhedron tetrahedron_inside( generateTetrahedronData( position ) );
+    GJKPolyhedron triangle_inside( generateTriangleData( position ) );
+
+    GJK gjk_cube_collide(&shape, &cube_inside);
+    if( !gjk_cube_collide.hasCollision() ) {
+        std::cout << "Cube did not collide inside " << name << std::endl;
+        displayVec3( "v", position, std::cout );
+        status = FAILURE;
+    }
+
+    GJK gjk_tetrahedron_collide(&shape, &tetrahedron_inside);
+    if( !gjk_tetrahedron_collide.hasCollision() ) {
+        std::cout << "Tetrahedron did not collide inside " << name << std::endl;
+        displayVec3( "v", position, std::cout );
+        status = FAILURE;
+    }
+
+    GJK gjk_triangle_collide(&shape, &triangle_inside);
+    if( !gjk_cube_collide.hasCollision() ) {
+        std::cout << "Triangle did not collide inside " << name << std::endl;
+        displayVec3( "v", position, std::cout );
+        status = FAILURE;
+    }
+
+    return status;
+}
+
 int main() {
     int status = SUCCESS;
 
     GJKPolyhedron cube( generateCubeData() );
-    GJKPolyhedron tetrahedron_inside( generateTetrahedronData( glm::vec3(0,0,0) ) );
 
-    GJK gjk_collide(&cube, &tetrahedron_inside);
-    if( !gjk_collide.hasCollision() ) {
-        std::cout << "Inside did not collide" << std::endl;
-        status = FAILURE;
-    }
-
-    GJKPolyhedron tetrahedron_outside( generateTetrahedronData( glm::vec3(8,8,8) ) );
-
-    GJK gjk(&cube, &tetrahedron_outside);
-    if( gjk.hasCollision() ) {
-        std::cout << "Outside has collided!" << std::endl;
-        status = FAILURE;
+    for( int x = -1; x <= 1; x++) {
+        for( int y = -1; y <= 1; y++) {
+            for( int z = -1; z <= 1; z++) {
+                status |= insideTest(x, y, z, cube, "cube");
+                if( !(x == y && y == z) ) {
+                    status |= outsideTest(x, y, z, cube, "cube");
+                }
+            }
+        }
     }
 
     return status;
