@@ -1,11 +1,24 @@
 #include "Buffer.h"
-#include "DataHandler.h"
 
 #include <sstream>
 #include <fstream>
 #include <cassert>
 
 namespace {
+constexpr bool isLittleEndian() {
+    bool is_little_endian = false;
+
+    // Thanks David Cournapeau!
+    union {
+        uint32_t i;
+        uint8_t  c[4];
+    } bint = {0x01020304};
+
+    is_little_endian = !(bint.c[0] == 1);
+
+    return is_little_endian;
+}
+
 void swapBytes( uint8_t *word, unsigned int size ) {
     uint8_t store;
     for( unsigned int i = 0; i < size / 2; i++ )
@@ -63,6 +76,9 @@ int8_t read_8( const uint8_t *const word) {
     return static_cast<int8_t>( read_u8( word ) );
 }
 }
+
+const bool Utilities::Buffer::IS_CPU_LITTLE_ENDIAN = isLittleEndian();
+const bool Utilities::Buffer::IS_CPU_BIG_ENDIAN = !isLittleEndian();
 
 Utilities::Buffer::Buffer() {}
 
@@ -313,10 +329,10 @@ bool Utilities::Buffer::getSwap( Endian endianess ) {
             swap_value = true;
             break;
         case LITTLE:
-            swap_value = !Utilities::DataHandler::isLittleEndian();
+            swap_value = IS_CPU_BIG_ENDIAN;
             break;
         case BIG:
-            swap_value = Utilities::DataHandler::isLittleEndian();
+            swap_value = IS_CPU_LITTLE_ENDIAN;
             break;
         case NO_SWAP:
         default:

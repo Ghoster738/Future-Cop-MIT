@@ -19,7 +19,6 @@
 
 #include "ACT/Unknown.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/Buffer.h"
 
 #include <fstream>
@@ -208,7 +207,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     this->type = FILE_IS_LITTLE_ENDIAN;
                     std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
-                    default_settings.is_opposite_endian = !Utilities::DataHandler::isLittleEndian(); // TODO Remove this
+                    default_settings.is_opposite_endian = Utilities::Buffer::IS_CPU_BIG_ENDIAN; // TODO Remove this
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
@@ -216,7 +215,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     this->type = FILE_IS_BIG_ENDIAN;
                     std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Macintosh;
-                    default_settings.is_opposite_endian = Utilities::DataHandler::isLittleEndian();
+                    default_settings.is_opposite_endian = Utilities::Buffer::IS_CPU_LITTLE_ENDIAN;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
                 else

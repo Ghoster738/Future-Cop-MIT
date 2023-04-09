@@ -1,7 +1,5 @@
 #include "MSICResource.h"
 
-#include "../../Utilities/DataHandler.h"
-
 #include <cassert>
 
 namespace {

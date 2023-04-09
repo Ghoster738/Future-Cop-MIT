@@ -2,8 +2,6 @@
 
 #include "../ObjResource.h"
 
-#include "../../../Utilities/DataHandler.h"
-
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::BaseTurret::TYPE_ID = 8;

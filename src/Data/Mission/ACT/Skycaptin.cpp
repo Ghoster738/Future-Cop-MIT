@@ -2,8 +2,6 @@
 
 #include "../ObjResource.h"
 
-#include "../../../Utilities/DataHandler.h"
-
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::Skycaptin::TYPE_ID = 37;

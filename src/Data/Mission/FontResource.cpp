@@ -1,6 +1,5 @@
 #include "FontResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include "../../Utilities/ImagePalette2D.h"
 #include <string.h>

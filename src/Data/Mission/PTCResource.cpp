@@ -1,6 +1,5 @@
 #include "PTCResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include "../../Utilities/ModelBuilder.h"
 #include <string>

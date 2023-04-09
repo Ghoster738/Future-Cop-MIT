@@ -12,7 +12,6 @@
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/Til/Mesh.h"
 
-#include "Utilities/DataHandler.h"
 #include "Graphics/Environment.h"
 #include "Graphics/Text2DBuffer.h"
 #include "Controls/System.h"

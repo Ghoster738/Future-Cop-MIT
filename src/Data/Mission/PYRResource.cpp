@@ -1,6 +1,5 @@
 #include "PYRResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <string.h>
 #include <fstream>

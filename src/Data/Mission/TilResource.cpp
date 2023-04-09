@@ -4,7 +4,6 @@
 
 #include "IFF.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
 #include <fstream>

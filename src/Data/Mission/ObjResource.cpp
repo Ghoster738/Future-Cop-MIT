@@ -2,7 +2,6 @@
 
 #include "IFF.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <glm/geometric.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <algorithm>

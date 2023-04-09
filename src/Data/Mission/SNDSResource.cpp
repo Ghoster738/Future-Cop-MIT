@@ -1,6 +1,5 @@
 #include "SNDSResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <iostream>
 
 const std::string Data::Mission::SNDSResource::FILE_EXTENSION = "snds";

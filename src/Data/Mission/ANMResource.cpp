@@ -1,6 +1,5 @@
 #include "ANMResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 
 const unsigned Data::Mission::ANMResource::Video::WIDTH = 64;

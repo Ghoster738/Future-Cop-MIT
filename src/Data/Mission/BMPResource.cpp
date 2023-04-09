@@ -1,7 +1,6 @@
 #include "BMPResource.h"
 
 #include <cmath>
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <fstream>
 #include <cassert>

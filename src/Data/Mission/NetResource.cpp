@@ -1,6 +1,5 @@
 #include "NetResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <fstream>
 #include <cassert>
 

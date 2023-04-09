@@ -1,5 +1,4 @@
 #include "Data/Mission/IFF.h"
-#include "Utilities/DataHandler.h"
 #include <iostream>
 #include <fstream>
 #include "Config.h"
