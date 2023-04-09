@@ -760,17 +760,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             {
                 reader.setPosition( data_tag_size, Utilities::Buffer::CURRENT );
-                
-                char identifier_word[5] = {'\0'};
-                const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
-
-                for( unsigned int i = 0; i < IDENTIFIER_SIZE; i++ ) {
-                    identifier_word[ i ] = reinterpret_cast<char*>( &identifier )[ i ];
-                }
-                Utilities::DataHandler::swapBytes( reinterpret_cast< uint8_t* >( identifier_word ), 4 );
 
                 if( settings.output_level >= 1 )
-                    *settings.output_ref << "Mission::ObjResource::load() " << identifier_word << " not recognized" << std::endl;
+                    *settings.output_ref << "Mission::ObjResource::load() " << identifier << " not recognized" << std::endl;
                 
                 assert( false );
             }
