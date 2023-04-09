@@ -44,9 +44,6 @@ int main( int argc, char *argv[] ) {
     int number_of_inputs = 0;
     std::vector<std::string> extra_commands;
 
-    // Setup the data handler
-    Utilities::DataHandler::init();
-
     if( argc == 1 )
     {
         help_output( std::cout );

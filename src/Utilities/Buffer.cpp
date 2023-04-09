@@ -254,10 +254,10 @@ bool Utilities::Buffer::getSwap( Endian endianess ) {
             swap_value = true;
             break;
         case LITTLE:
-            swap_value = !Utilities::DataHandler::is_little_endian();
+            swap_value = !Utilities::DataHandler::isLittleEndian();
             break;
         case BIG:
-            swap_value = Utilities::DataHandler::is_little_endian();
+            swap_value = Utilities::DataHandler::isLittleEndian();
             break;
         case NO_SWAP:
         default:

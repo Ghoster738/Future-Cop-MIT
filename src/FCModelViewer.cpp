@@ -160,7 +160,6 @@ int main(int argc, char** argv)
     if( HEIGHT <= 0 )
         HEIGHT = 480;
 
-    Utilities::DataHandler::init();
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
