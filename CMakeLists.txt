@@ -2,13 +2,17 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project( "Future Cop: MIT" DESCRIPTION "Open-source reimplementation of Future Cop: L.A.P.D. game")
 
-# Set the C++ standard to C++ 11
-set(CMAKE_CXX_STANDARD 11)
+# Set the C++ standard to C++ 17 for file system support.
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS False)
 
 option(FCOption_TESTS "Run tests to the project to see any potential problems." OFF)
 option(FCOption_SDL2_VENDORED "Use SDL2 vendored library. Make sure the submodule is there before using this option." OFF)
 option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Make sure the submodule is there before using this option." OFF)
+# "Warning: Enabling this would mess with the locations where the program would normally compile to. Use jsoncpp vendored library. Make sure the submodule is there before using this option."
+set(FCOption_JSONCPP_VENDORED OFF)
+option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodule is there before using this option. Zlib is not needed, but it would be nice to have for PNG export support." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -18,9 +22,6 @@ file(GLOB_RECURSE DATA_SOURCE_FILES src/Data/*.cpp )
 add_library(FC_IFF_IO STATIC ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
 
 target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
-
-find_package( ZLIB )
-find_package( PNG )
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
@@ -55,8 +56,6 @@ else()
   find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main) # SDL2main is optional for this build.
 endif()
 
-find_package( JSON_CPP REQUIRED )
-
 find_package( OpenGL REQUIRED)
 find_package( Git )
 
@@ -64,25 +63,40 @@ find_package( Git )
 set (OpenGL_GL_PREFERENCE "LEGACY" CACHE STRING "Set the OPENGL affinity, if multiple libraries are available")
 mark_as_advanced(OpenGL_GL_PREFERENCE)
 
-if(ZLIB_FOUND)
-  include_directories(${ZLIB_INCLUDE_DIR})
-  if(PNG_FOUND)
-    include_directories(${PNG_INCLUDE_DIRS})
-  endif()
-endif()
-
-include_directories(${JSON_CPP_INCLUDE_DIR})
 include_directories(${OPENGL_INCLUDE_DIR})
 include_directories(${PROJECT_BINARY_DIR})
 
-if(ZLIB_FOUND)
-  target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
-  if(PNG_FOUND)
-    target_link_libraries (FC_IFF_IO PNG::PNG)
+if( FCOption_ZLIB_VENDORED )
+  add_subdirectory(submodules/zlib EXCLUDE_FROM_ALL)
+
+  target_link_libraries (FC_IFF_IO zlib)
+  include_directories(${ZLIB_PUBLIC_HDRS})
+  set( ZLIB_FOUND True )
+
+else()
+  find_package( ZLIB )
+
+  if(ZLIB_FOUND)
+    target_link_libraries (FC_IFF_IO ZLIB::ZLIB)
+    include_directories(${ZLIB_INCLUDE_DIRS})
   endif()
 endif()
 
-target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
+find_package( PNG )
+
+if(PNG_FOUND AND ZLIB_FOUND)
+  target_link_libraries (FC_IFF_IO PNG::PNG)
+  include_directories(${PNG_INCLUDE_DIRS})
+endif()
+
+if( FCOption_JSONCPP_VENDORED )
+  add_subdirectory(submodules/jsoncpp EXCLUDE_FROM_ALL)
+  target_link_libraries( FC_IFF_IO  jsoncpp_lib )
+else()
+  find_package( JSON_CPP REQUIRED )
+  include_directories(${JSON_CPP_INCLUDE_DIR})
+  target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
+endif()
 
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )

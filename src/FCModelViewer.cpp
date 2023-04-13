@@ -12,7 +12,6 @@
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/Til/Mesh.h"
 
-#include "Utilities/DataHandler.h"
 #include "Graphics/Environment.h"
 #include "Graphics/Text2DBuffer.h"
 #include "Controls/System.h"
@@ -67,7 +66,6 @@ glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {
 
 int main(int argc, char** argv)
 {
-    // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
     int WIDTH = 0;
     int HEIGHT = 0;
 
@@ -161,7 +159,6 @@ int main(int argc, char** argv)
     if( HEIGHT <= 0 )
         HEIGHT = 480;
 
-    Utilities::DataHandler::init();
     Data::Manager manager;
 
     manager.autoSetEntries( "Data/Platform/" );
@@ -217,8 +214,6 @@ int main(int argc, char** argv)
     else
         std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
 
-    Graphics::Environment::initSystem();
-
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
     if( graphics_identifiers.size() == 0 )
@@ -226,6 +221,8 @@ int main(int argc, char** argv)
     
     if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
         return -38;
+
+    Graphics::Environment::initSystem( graphics_identifiers[0] );
     
     Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
     if( environment_p == nullptr )
@@ -293,8 +290,6 @@ int main(int argc, char** argv)
     {
         std::cout << "Fonts missing!" << std::endl;
     }
-
-    int times = 0;
 
     // Setup the camera
     Graphics::Camera *first_person = new Graphics::Camera();
@@ -374,7 +369,7 @@ int main(int argc, char** argv)
     glm::vec3 position(0,0,0);
     float radius = 1.0f;
     
-    if( displayed_instance_p == nullptr )
+    if( displayed_instance_p != nullptr )
         displayed_instance_p->getBoundingSphere( position, radius );
     
     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
@@ -405,7 +400,7 @@ int main(int argc, char** argv)
                     for( auto it : bmps ) {
                         auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
                         
-                        (*it).write( str.c_str(), std::vector<std::string>() );
+                        (*it).write( str.c_str() );
                     }
                     
                     exported_textures = true;
@@ -415,7 +410,7 @@ int main(int argc, char** argv)
                 
                 auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
                 
-                obj->write( str.c_str(), std::vector<std::string>() );
+                obj->write( str.c_str() );
             }
             
             input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::RIGHT );
@@ -501,7 +496,7 @@ int main(int argc, char** argv)
     delete control_system_p;
     delete environment_p;
 
-    Graphics::Environment::deinitEntireSystem();
+    Graphics::Environment::deinitEntireSystem( graphics_identifiers[0] );
 
     return 0;
 }

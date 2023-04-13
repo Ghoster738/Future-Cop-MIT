@@ -118,6 +118,11 @@ bool Graphics::SDL2::GLES2::Internal::Program::isAttribute( const std::basic_str
         return true;
 }
 
+// void Graphics::SDL2::GLES2::Internal::Program::addAttribute( const Shader::Attribute &attrib )
+// {
+//    attributes.push_back( attrib );
+// }
+
 GLint Graphics::SDL2::GLES2::Internal::Program::getUniform( const std::basic_string<GLchar> &name, std::ostream *output_r, bool *success_r ) const
 {
     GLint uniform_id = glGetUniformLocation( this->getProgramID(), name.c_str() );

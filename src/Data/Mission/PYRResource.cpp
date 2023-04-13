@@ -1,6 +1,5 @@
 #include "PYRResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <string.h>
 #include <fstream>
@@ -22,7 +21,7 @@ Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reade
 
     assert( this->num_sprites != 0 ); // This should not crash at all.
     // This should not crash at all.
-    assert( sprite_size == 0x80 | sprite_size == 0x40 | sprite_size == 0x20 | sprite_size == 0x10 );
+    assert( (sprite_size == 0x80) | (sprite_size == 0x40) | (sprite_size == 0x20) | (sprite_size == 0x10) );
 
     this->textures.reserve( this->num_sprites );
 
@@ -146,7 +145,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 // This number contains the amount of particles.
                 amount_of_tiles = readerPYDT.readU32( settings.endian );
 
-                for( unsigned int i = 0; i < amount_of_tiles; i++ )
+                for( unsigned i = 0; i < amount_of_tiles; i++ )
                     particles.push_back( Particle( readerPYDT, settings.endian ) );
             }
             else
@@ -162,7 +161,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 Utilities::ColorPalette color_palette( color_profile_w8 );
                 color_palette.setAmount( PC_PALETTE_SIZE );
                 
-                for( int i = 0; i < PC_PALETTE_SIZE; i++ ) {
+                for( unsigned i = 0; i < PC_PALETTE_SIZE; i++ ) {
                     color_palette.setIndex( i, Utilities::PixelFormatColor::GenericColor( static_cast<float>(i) / static_cast<float>(PC_PALETTE_SIZE), 1.0f, 1.0f, 1.0f) );
                 }
                 
@@ -181,7 +180,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 Utilities::ColorPalette color_palette( color_profile_w8 );
                 color_palette.setAmount( PS1_PALETTE_SIZE );
                 
-                for( int i = 0; i < PS1_PALETTE_SIZE; i++ ) {
+                for( unsigned i = 0; i < PS1_PALETTE_SIZE; i++ ) {
                     color_palette.setIndex( i, Utilities::PixelFormatColor::GenericColor( static_cast<float>(i) / static_cast<float>(PS1_PALETTE_SIZE), 1.0f, 1.0f, 1.0f) );
                 }
                 
@@ -259,7 +258,6 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 for( unsigned int p = 0; p < amount_of_tiles; p++ ) {
                     for( unsigned int t = 0; t < particles.at( p ).getNumSprites(); t++ ) {
                         auto color_palette_r = particles.at( p ).getTexture( t )->getPalette();
-                        auto color_format_r = color_palette_r->getColorFormat();
                         color_palette_r->setAmount( PS1_PALETTE_SIZE );
 
                         for( unsigned int d = 0; d < PS1_PALETTE_SIZE; d++ ) {
@@ -280,19 +278,9 @@ Data::Mission::Resource * Data::Mission::PYRResource::duplicate() const {
     return new Data::Mission::PYRResource( *this );
 }
 
-int Data::Mission::PYRResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool export_prime_bw = false;
-    bool enable_export = true;
+int Data::Mission::PYRResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int return_value = 0;
     Utilities::ImageFormat::Chooser chooser;
-
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--PYR_Prime_BlackWhite") == 0 )
-            export_prime_bw = true;
-        else
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
 
     Utilities::Buffer buffer;
 
@@ -319,7 +307,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const std::
 
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( sub_image );
 
-            if( enable_export && the_choosen_r != nullptr ) {
+            if( iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) && the_choosen_r != nullptr ) {
                 the_choosen_r->write( sub_image, buffer );
                 buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
                 buffer.set( nullptr, 0 );
@@ -328,7 +316,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const std::
         return_value = 1;
     }
 
-    if( export_prime_bw && enable_export ) {
+    if( iff_options.pyr.export_prime_bw && iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) ) {
         Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *primary_image_p );
 
         if( the_choosen_r != nullptr ) {
@@ -355,4 +343,19 @@ std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVector( 
 
 const std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVector( const IFF &mission_file ) {
     return Data::Mission::PYRResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_PRIME_BLACK_WHITE", output_r, export_prime_bw ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::PYROption::getOptions() const {
+    std::string information_text = getBuiltInOptions( 11 );
+
+    information_text += "  --" + getNameSpace() + "_PRIME_BLACK_WHITE Export the index values as a single black and white image. This will look ugly\n";
+
+    return information_text;
 }

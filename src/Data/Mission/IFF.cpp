@@ -19,7 +19,6 @@
 
 #include "ACT/Unknown.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/Buffer.h"
 
 #include <fstream>
@@ -208,7 +207,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     this->type = FILE_IS_LITTLE_ENDIAN;
                     std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
-                    default_settings.is_opposite_endian = !Utilities::DataHandler::is_little_endian(); // TODO Remove this
+                    default_settings.is_opposite_endian = Utilities::Buffer::IS_CPU_BIG_ENDIAN; // TODO Remove this
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
@@ -216,7 +215,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     this->type = FILE_IS_BIG_ENDIAN;
                     std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Macintosh;
-                    default_settings.is_opposite_endian = Utilities::DataHandler::is_little_endian();
+                    default_settings.is_opposite_endian = Utilities::Buffer::IS_CPU_LITTLE_ENDIAN;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
                 else
@@ -246,8 +245,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             else {
 
                 const uint32_t TYPE_ID = type_reader.readU32( default_settings.endian );
-                const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
-                const int32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
+                const uint32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
+                const uint32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
                 if( TYPE_ID == FILL_TAG ) {
                     //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
@@ -504,8 +503,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             std::vector<Data::Mission::ObjResource*> objects = Data::Mission::ObjResource::getVector( *this );
 
             for( auto it = objects.begin(); it != objects.end(); it++ ) {
-                bool valid_texture_obj = (*it)->loadTextures( textures_from_prime );
-                // assert(valid_texture_obj);
+                (*it)->loadTextures( textures_from_prime );
             }
         }
 
@@ -586,20 +584,27 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
         if( path.back() != '/' )
             path += '/';
 
-        // For every resource type categories in the Mission file.
-        for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
-        {
-            for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
-            {
-                std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
+        Data::Mission::IFFOptions iff_options;
 
-                if( raw_file_mode )
-                    (*it)->write( full_path, arguments );
-                else
-                    (*it)->writeRaw( full_path, arguments );
+        if( iff_options.readParams( arguments, &std::cout ) ) {
+            // For every resource type categories in the Mission file.
+            for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
+            {
+                for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+                {
+                    std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
+
+                    if( raw_file_mode )
+                        (*it)->write( full_path, iff_options );
+                    else
+                    if( !iff_options.enable_global_dry_default )
+                        (*it)->writeRaw( full_path, iff_options );
+                }
             }
+            return true;
         }
-        return true;
+        else
+            return false;
     }
     else
         return false;

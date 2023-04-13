@@ -1,5 +1,4 @@
 #include "Data/Mission/IFF.h"
-#include "Utilities/DataHandler.h"
 #include <iostream>
 #include <fstream>
 #include "Config.h"
@@ -20,7 +19,7 @@ namespace {
         stream << "Future Cop: MIT - Mission reader (version " << FUTURE_COP_MIT_VERSION << ")\n";
         stream << "\n";
         stream << "Usage:" << "\n";
-        stream << "  FCMissionReader [-h] [-i <path>] [-o <path>] [-r] [-d] [-c] " << "\n";
+        stream << "  FCMissionReader [-h] [-i <path>] [-o <path>] [-c] [-d] [-r] " << "\n";
         stream << "\n";
         stream << "Options:" << "\n";
         stream << "  -h         Display this help screen" << "\n";
@@ -29,7 +28,9 @@ namespace {
         stream << "  -r         Export raws" << "\n";
         stream << "  -d         Export supported and decoded files" << "\n";
         stream << "  -c         Determine and write the similarities between two inputs" << "\n";
-
+        stream << "Decoding Export [ -d ] Options:" << "\n";
+        Data::Mission::IFFOptions dialog;
+        stream << dialog.getOptions();
     }
 }
 
@@ -41,9 +42,6 @@ int main( int argc, char *argv[] ) {
     bool custom_output = false;
     int number_of_inputs = 0;
     std::vector<std::string> extra_commands;
-
-    // Setup the data handler
-    Utilities::DataHandler::init();
 
     if( argc == 1 )
     {

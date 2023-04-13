@@ -6,58 +6,12 @@
 #include <iostream> // fmod()
 #include "SDL.h"
 
-const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_vertex_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
-    // Inputs
-    "attribute vec4 POSITION;\n"
-    "attribute vec3 NORMAL;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute float _Specular;\n"
-
-    // Vertex shader uniforms
-    "uniform mat4 ModelViewInv;\n"
-    "uniform mat4 ModelView;\n"
-    "uniform mat4 Transform;\n" // projection * view * model.
-    "uniform vec2 TextureTranslation;\n"
-
-    // These are the outputs
-    "varying vec3 world_reflection;\n"
-    "varying float specular;\n"
-    "varying vec2 texture_coord_1;\n"
-
-    "void main()\n"
-    "{\n"
-    // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
-    "   vec3 eye_coord_position = vec3( ModelView * POSITION );\n" // Model View multiplied by Model Position.
-    "   vec3 eye_coord_normal   = vec3( ModelView * vec4(NORMAL, 0.0));\n"
-    "   eye_coord_normal        = normalize( eye_coord_normal );\n"
-    "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
-    // Find a way to use the spherical projection properly.
-    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
-    "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
-    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
-    "   specular = _Specular\n;"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
-    "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
-    "#version 110\n"
-    // Inputs
-    "attribute vec4 POSITION;\n"
-    "attribute vec3 NORMAL;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute float _Specular;\n"
-
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
     "uniform vec2 TextureTranslation;\n"
-
-    // These are the outputs
-    "varying vec3 world_reflection;\n"
-    "varying float specular;\n"
-    "varying vec2 texture_coord_1;\n"
 
     "void main()\n"
     "{\n"
@@ -72,56 +26,18 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
     "   specular = _Specular\n;"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
-    "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_es_fragment_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
-
-    "varying vec3 world_reflection;\n"
-    "varying float specular;\n"
-    "varying vec2 texture_coord_1;\n"
-
-    "uniform sampler2D Texture;\n"
-    "uniform sampler2D Shine;\n"
-
-    "void main()\n"
-    "{\n"
-    "  vec4 color = texture2D(Texture, texture_coord_1);\n"
-    "  const float CUTOFF = 0.015625;\n"
-    "  float BLENDING = color.a;\n"
-    "  if( color.r < CUTOFF && color.g < CUTOFF && color.b < CUTOFF )"
-    "    discard;\n"
-    "  if( color.a > 0.0125 )\n"
-    "    color.a = 0.5;\n"
-    "  else\n"
-    "    color.a = 1.0;\n"
-    "  if( specular > 0.5)\n"
-    "    gl_FragColor = texture2D(Shine, world_reflection.xz) * BLENDING + vec4(color.rgb, 1.0);\n"
-    "  else\n"
-    "    gl_FragColor = color;\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
-    "#version 110\n"
-
-    "varying vec3 world_reflection;\n"
-    "varying float specular;\n"
-    "varying vec2 texture_coord_1;\n"
-
     "uniform sampler2D Texture;\n"
     "uniform sampler2D Shine;\n"
 
     "void main()\n"
     "{\n"
     "  vec4 color = texture2D(Texture, texture_coord_1);\n"
-    "  const float CUTOFF = 0.015625;\n"
-    "  float BLENDING = color.a;\n"
-    "  if( color.r < CUTOFF && color.g < CUTOFF && color.b < CUTOFF )"
-    "    discard;\n"
-    "  if( color.a > 0.0125 )\n"
-    "    color.a = 0.5;\n"
-    "  else\n"
-    "    color.a = 1.0;\n"
-    "  if( specular > 0.5)\n"
+    "   if( color.a < 0.015625 )\n"
+    "       discard;\n"
+    "  float BLENDING = 1.0 - color.a;\n"
+    "  if( specular > 0.5 )\n"
     "    gl_FragColor = texture2D(Shine, world_reflection.xz) * BLENDING + vec4(color.rgb, 1.0);\n"
     "  else\n"
     "    gl_FragColor = color;\n"
@@ -129,6 +45,15 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
     shiney_texture_r = nullptr;
+
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "float _Specular" ) );
+
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "float specular" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
@@ -141,29 +66,15 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultVertexShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_vertex_shader;
-    else
-        return default_vertex_shader;
+    return default_vertex_shader;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultFragmentShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_fragment_shader;
-    else
-        return default_fragment_shader;
+    return default_fragment_shader;
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source );
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadVertexShader( const char *const file_path ) {
@@ -171,7 +82,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadVertexShader( const ch
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setFragmentShader( const GLchar *const shader_source ) {
-    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source );
+    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings  );
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::loadFragmentShader( const char *const file_path ) {

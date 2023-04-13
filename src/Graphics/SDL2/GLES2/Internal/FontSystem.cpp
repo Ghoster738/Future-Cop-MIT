@@ -39,71 +39,17 @@ namespace {
     };
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_vertex_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
-    // Inputs
-    "attribute vec2 POSITION;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute vec4 COLOR_0;\n"
-
-    // Vertex shader uniforms
-    "uniform mat4  Transform;\n" // projection * view * model.
-
-    // These are the outputs
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
-    "void main()\n"
-    "{\n"
-    "   texture_coord = TEXCOORD_0;\n"
-    "   vertex_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
-    "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader =
-    "#version 110\n"
-    // Inputs
-    "attribute vec2 POSITION;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute vec4 COLOR_0;\n"
-
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
-
-    // These are the outputs
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
     "void main()\n"
     "{\n"
     "   texture_coord = TEXCOORD_0;\n"
     "   vertex_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
-    "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_es_fragment_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
-
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
-    "uniform sampler2D Texture;\n"
-
-    "void main()\n"
-    "{\n"
-    "    float visable = texture2D(Texture, texture_coord).r;\n"
-    "    if( visable < 0.03125 )\n"
-    "        discard;\n"
-    "    gl_FragColor = vertex_color;\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shader =
-    "#version 110\n"
-
-    "varying vec4 vertex_color;\n"
-    "varying vec2 texture_coord;\n"
-
     "uniform sampler2D Texture;\n"
-
     "void main()\n"
     "{\n"
     "    float visable = texture2D(Texture, texture_coord).r;\n"
@@ -113,25 +59,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shad
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_vertex_shader;
-    else
-        return default_vertex_shader;
+    return default_vertex_shader;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultFragmentShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_fragment_shader;
-    else
-        return default_fragment_shader;
+    return default_fragment_shader;
 }
 
 Graphics::SDL2::GLES2::Internal::FontSystem::Text2D * Graphics::SDL2::GLES2::Internal::FontSystem::Font::allocateText2D() {
@@ -253,21 +185,21 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const char *co
 
             assert( this->font_r->font_resource_r != nullptr );
 
-            if( glyph_r != nullptr && glyph_r->getGlyph() == character[0] )
+            if( glyph_r != nullptr && glyph_r->glyphID == character[0] )
             {
                 // Since the glypth is found it can now be appart of the text
                 appended_size++;
 
-                lower_font.x = pen_position.x + static_cast<float>(  glyph_r->getOffset().x );
-                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->getWidth() );
-                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->getOffset().y );
-                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->getHeight());
-                texture_low.x  = static_cast<float>( glyph_r->getLeft()   ) / static_cast<float>( font_r->texture_scale.x );
-                texture_low.y  = static_cast<float>( glyph_r->getTop()    ) / static_cast<float>( font_r->texture_scale.y );
-                texture_high.x = static_cast<float>( glyph_r->getRight()  ) / static_cast<float>( font_r->texture_scale.x );
-                texture_high.y = static_cast<float>( glyph_r->getBottom() ) / static_cast<float>( font_r->texture_scale.y );
+                lower_font.x = pen_position.x + static_cast<float>(  glyph_r->offset.x );
+                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->width );
+                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->offset.y );
+                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->height );
+                texture_low.x  = static_cast<float>( glyph_r->left   ) / static_cast<float>( font_r->texture_scale.x );
+                texture_low.y  = static_cast<float>( glyph_r->top    ) / static_cast<float>( font_r->texture_scale.y );
+                texture_high.x = static_cast<float>( glyph_r->left + glyph_r->width ) / static_cast<float>( font_r->texture_scale.x );
+                texture_high.y = static_cast<float>( glyph_r->top + glyph_r->height ) / static_cast<float>( font_r->texture_scale.y );
 
-                pen_position.x += static_cast<float>( glyph_r->getXAdvance() );
+                pen_position.x += static_cast<float>( glyph_r->x_advance );
 
                 character_buffer[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
                 character_buffer[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
@@ -317,9 +249,16 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
 Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
+
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
+
     bool has_backup = false;
 
-    for( int i = 0; i < font_resources.size(); i++ )
+    for( unsigned i = 0; i < font_resources.size(); i++ )
     {
         this->font_bank.push_back( Font() );
 
@@ -401,7 +340,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::Font* Graphics::SDL2::GLES2::Intern
 }
 
 void Graphics::SDL2::GLES2::Internal::FontSystem::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source );
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::loadVertexShader( const char *const file_path ) {
@@ -409,7 +348,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::loadVertexShader( const char *c
 }
 
 void Graphics::SDL2::GLES2::Internal::FontSystem::setFragmentShader( const GLchar *const shader_source ) {
-    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source );
+    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::loadFragmentShader( const char *const file_path ) {

@@ -33,9 +33,6 @@ protected:
     static const uint32_t ACT_CHUNK_ID;
     static const uint32_t RSL_CHUNK_ID;
     static const uint32_t SAC_CHUNK_ID;
-    int32_t position_y;
-    int32_t position_height; // This is likely just zero.
-    int32_t position_x;
 
     struct RSLEntry {
         uint32_t type;
@@ -58,6 +55,10 @@ protected:
 
     // This holds the info for the tSAC chunk
     tSAC_chunk tSAC;
+
+    int32_t position_y;
+    int32_t position_height; // This is likely just zero.
+    int32_t position_x;
 
     virtual Json::Value makeJson() const;
 
@@ -92,16 +93,17 @@ public:
 
     /**
      * @param file_path the path to the file.
-     * @param arguments The two commands are --dry for no exporting.
+     * @param iff_options The two commands are --dry for no exporting.
      * @return If there was an error while writing it will return false.
      */
-    virtual int write( const std::string& file_path, const std::vector<std::string>& arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Resource* genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const;
     
     virtual ACTResource* duplicate( const ACTResource &original ) const = 0;
 
     uint_fast32_t getID() { return matching_number; }
+    int_fast16_t getMatchingNumber() { return matching_number; }
     int_fast16_t getGameTicks() { return tSAC.game_ticks; }
     virtual uint_fast8_t getTypeID() const = 0;
     virtual size_t getSize() const = 0;

@@ -1,7 +1,5 @@
 #include "MSICResource.h"
 
-#include "../../Utilities/DataHandler.h"
-
 #include <cassert>
 
 namespace {
@@ -81,8 +79,8 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::MSICResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    return sound.write( file_path, arguments );
+int Data::Mission::MSICResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+    return sound.writeAudio( file_path, iff_options.msic.shouldWrite( iff_options.enable_global_dry_default ) );
 }
 
 Data::Mission::Resource * Data::Mission::MSICResource::duplicate() const {
@@ -104,4 +102,14 @@ std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::getVector
 
 const std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::MSICResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::MSICOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::MSICOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

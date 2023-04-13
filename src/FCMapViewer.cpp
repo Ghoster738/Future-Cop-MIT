@@ -139,8 +139,6 @@ int main(int argc, char** argv)
     if( height <= 0 )
         height = 480;
 
-    Graphics::Environment::initSystem();
-
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
     if( graphics_identifiers.size() == 0 )
@@ -148,6 +146,8 @@ int main(int argc, char** argv)
     
     if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
         return -38;
+
+    Graphics::Environment::initSystem( graphics_identifiers[0] );
     
     Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
     if( environment_p == nullptr )
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
         environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
-	bool viewer_loop = true;
+    bool viewer_loop = true;
 
     Graphics::Text2DBuffer *text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *environment_p );
 
@@ -300,13 +300,11 @@ int main(int argc, char** argv)
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
-	float glow_amount = 0.0f;
-	int current_tile_selected = -1;
+    float glow_amount = 0.0f;
+    int current_tile_selected = -1;
     unsigned til_polygon_type_selected = 111;
-	bool entering_number = false;
 
-    glm::vec3 position_of_camera = glm::vec3( 103, 0, 122 );
-    glm::vec4 direction_keyboard = glm::vec4( 0, 0, 0, 0 );
+    glm::vec3 position_of_camera = glm::vec3( 105, 0, 96 );
     glm::vec4 movement_of_camera = glm::vec4( 0, 0, 0, 0 );
     glm::vec2 rotation = glm::vec2( 0, glm::pi<float>() / 4.0f );
     double distance_away = -10;
@@ -533,12 +531,15 @@ int main(int argc, char** argv)
             text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
         }
 
-        if( current_tile_selected >= 0 && current_tile_selected < til_resources.size() ) {
+        if( current_tile_selected >= 0 && static_cast<unsigned>(current_tile_selected) < til_resources.size() ) {
             if( text_2d_buffer_r->setFont( 3 ) == -3 )
                 text_2d_buffer_r->setFont( 1 );
             text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
             text_2d_buffer_r->setPosition( glm::vec2( 0, 60 ) );
-            text_2d_buffer_r->print( "Ctil Identifier = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+            text_2d_buffer_r->print( "Ctil Resource ID = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+            text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 0, 80 ) );
+            text_2d_buffer_r->print( "Ctil Offset = " + std::to_string( til_resources.at(current_tile_selected)->getOffset() ) );
         }
 
         environment_p->drawFrame();
@@ -556,7 +557,7 @@ int main(int argc, char** argv)
     delete environment_p;
 
     // Clean up
-    Graphics::Environment::deinitEntireSystem();
+    Graphics::Environment::deinitEntireSystem( graphics_identifiers[0] );
 
     return 0;
 }

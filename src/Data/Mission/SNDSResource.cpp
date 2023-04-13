@@ -1,6 +1,5 @@
 #include "SNDSResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <iostream>
 
 const std::string Data::Mission::SNDSResource::FILE_EXTENSION = "snds";
@@ -50,8 +49,8 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::SNDSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    return sound.write( file_path, arguments );
+int Data::Mission::SNDSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+    return sound.writeAudio( file_path, iff_options.snds.shouldWrite( iff_options.enable_global_dry_default ) );
 }
 
 Data::Mission::Resource * Data::Mission::SNDSResource::duplicate() const {
@@ -73,4 +72,15 @@ std::vector<Data::Mission::SNDSResource*> Data::Mission::SNDSResource::getVector
 
 const std::vector<Data::Mission::SNDSResource*> Data::Mission::SNDSResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::SNDSResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::SNDSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::SNDSOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

@@ -11,7 +11,6 @@ namespace Internal {
 
 class MorphModelDraw : public StaticModelDraw {
 public:
-    static const GLchar* default_es_vertex_shader;
     static const GLchar* default_vertex_shader;
 protected:
     VertexAttributeArray morph_attribute_array_last;

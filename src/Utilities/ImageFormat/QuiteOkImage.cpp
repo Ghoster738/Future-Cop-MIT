@@ -170,8 +170,6 @@ bool Utilities::ImageFormat::QuiteOkImage::canWrite() const {
 }
 
 size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_data ) const {
-    const size_t INFO_STRUCT = 14;
-    const size_t END_BYTES = 8;
     size_t current_size = 0;
     
     // TODO Replace this with a more effient method.
@@ -344,7 +342,7 @@ int Utilities::ImageFormat::QuiteOkImage::read( const Buffer& buffer, ImageColor
             Grid2DPlacementNormal placer( &dim2D );
             grid_2d_unit placer_x, placer_y;
             
-            if( width != 0 && height != 0 )
+            if( width != 0 && height != 0 && channels >= 3 && channels <= 4 && colorspace <= 1 )
             {
                 // Find the ending 8 byte 0x1.
                 size_t back_limit = reader.totalSize() - (INFO_STRUCT + END_BYTES);

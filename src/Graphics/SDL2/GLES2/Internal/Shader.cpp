@@ -2,14 +2,93 @@
 
 #include <fstream>
 
+#include "SDL.h"
+
+namespace {
+const GLchar PRECISION_NAME[][8] = { "lowp", "mediump", "highp" };
+}
+
+Graphics::SDL2::GLES2::Internal::Shader::Type::Type( PRECISION param_precision, std::basic_string<GLchar> variable_entry ) : precision( param_precision ), variable( variable_entry )
+{}
+
+Graphics::SDL2::GLES2::Internal::Shader::Attribute::Attribute( PRECISION param_precision, std::basic_string<GLchar> variable_entry ) : Type( param_precision, variable_entry )
+{}
+
+std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::Shader::Attribute::getEntryES2() const {
+    std::basic_string<GLchar> name = "attribute ";
+    name += PRECISION_NAME[ precision ];
+    name += " ";
+    name += variable;
+    name += ";\n";
+    
+    if( precision == HIGH ) {
+        std::basic_string<GLchar> guard;
+        
+        guard += "#ifdef GL_FRAGMENT_PRECISION_HIGH\n";
+        guard += "  ";
+        guard += name;
+        guard += "#else\n";
+        guard += "  ";
+        guard += Attribute( MEDIUM, variable ).getEntryES2();
+        guard += "#endif\n";
+        
+        return guard;
+    }
+    else
+        return name;
+}
+
+std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::Shader::Attribute::getEntry2() const {
+    std::basic_string<GLchar> name = "attribute ";
+    name += variable;
+    name += ";\n";
+    
+    return name;
+}
+
+std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::Shader::Varying::getEntryES2() const {
+    std::basic_string<GLchar> name = "varying ";
+    name += PRECISION_NAME[ precision ];
+    name += " ";
+    name += variable;
+    name += ";\n";
+    
+    if( precision == HIGH ) {
+        std::basic_string<GLchar> guard;
+        
+        guard += "#ifdef GL_FRAGMENT_PRECISION_HIGH\n";
+        guard += "  ";
+        guard += name;
+        guard += "#else\n";
+        guard += "  ";
+        guard += Varying( MEDIUM, variable ).getEntryES2();
+        guard += "#endif\n";
+        
+        return guard;
+    }
+    else
+        return name; // Simply return the unmodified variable.
+}
+
+std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::Shader::Varying::getEntry2() const {
+    std::basic_string<GLchar> name = "varying ";
+    name += variable;
+    name += ";\n";
+    
+    return name;
+}
+
+Graphics::SDL2::GLES2::Internal::Shader::Varying::Varying( PRECISION param_precision, std::basic_string<GLchar> variable_entry ) : Type( param_precision, variable_entry )
+{}
+
 Graphics::SDL2::GLES2::Internal::Shader::Shader() : shader_type( EMPTY ), shader_id( 0 ) {
 }
 
-Graphics::SDL2::GLES2::Internal::Shader::Shader( TYPE type, const GLchar *const shader_source ) :
+Graphics::SDL2::GLES2::Internal::Shader::Shader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes_param, std::vector<Varying> varyings_param ) :
         shader_type( EMPTY ), // Set these values to the defaults just in case.
         shader_id( 0 )
 {
-    setShader( type, shader_source );
+    setShader( type, shader_source, attributes_param, varyings_param );
 }
 
 Graphics::SDL2::GLES2::Internal::Shader::~Shader() {
@@ -17,9 +96,18 @@ Graphics::SDL2::GLES2::Internal::Shader::~Shader() {
     deallocate();
 }
 
-void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar *const shader_source ) {
+void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar *const primary_shader_source, std::vector<Attribute> attributes, std::vector<Varying> varyings ) {
+    int opengl_profile;
+    
+    GLchar glsl_es2_version[] = "#version 100\nprecision mediump float;\n";
+    GLchar glsl_2_version[] = "#version 110\n";
+    
+    this->generated_shader = "";
+    
     if( type != EMPTY )
     {
+        SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
+        
         // Deallocate the previous shader.
         deallocate();
 
@@ -28,12 +116,36 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar
 
         // Create and compile the shader.
         shader_id = glCreateShader( type );
-        glShaderSource( shader_id, 1, &shader_source, nullptr );
+        
+        if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 ) {
+            this->generated_shader += glsl_es2_version;
+            for( auto i = attributes.begin(); i != attributes.end(); i++ ) {
+                this->generated_shader += (*i).getEntryES2();
+            }
+            for( auto i = varyings.begin(); i != varyings.end(); i++ ) {
+                this->generated_shader += (*i).getEntryES2();
+            }
+        }
+        else {
+            this->generated_shader += glsl_2_version;
+            for( auto i = attributes.begin(); i != attributes.end(); i++ ) {
+                this->generated_shader += (*i).getEntry2();
+            }
+            for( auto i = varyings.begin(); i != varyings.end(); i++ ) {
+                this->generated_shader += (*i).getEntry2();
+            }
+        }
+        
+        this->generated_shader += primary_shader_source;
+        
+        address_generated_shader_r = generated_shader.c_str();
+        
+        glShaderSource( shader_id, 1, &address_generated_shader_r, nullptr );
         glCompileShader( shader_id );
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *const file_path ) {
+int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *const file_path, std::vector<Attribute> attributes, std::vector<Varying> varyings ) {
     std::ifstream shader_file;
     shader_file.open( file_path, std::ios::out );
 
@@ -51,7 +163,7 @@ int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *
         shader_file.read( shader_buffer, FILE_SIZE );
 
         // Set this shader with the shader buffer.
-        setShader( type, shader_buffer );
+        setShader( type, shader_buffer, attributes, varyings );
 
         // DO NOT FORGET TO DELETE THE BUFFFER WHEN DONE.
         delete [] shader_buffer;
@@ -72,7 +184,7 @@ void Graphics::SDL2::GLES2::Internal::Shader::deallocate() {
     shader_id = 0;
 }
 std::string Graphics::SDL2::GLES2::Internal::Shader::getInfoLog() const {
-    std::string returnry;
+    std::string returnry = this->generated_shader;
     GLchar *temporary_string_p;
     GLint info_length;
     GLsizei actual_info_length;
@@ -96,10 +208,10 @@ std::string Graphics::SDL2::GLES2::Internal::Shader::getInfoLog() const {
             delete [] temporary_string_p;
         }
         else
-            returnry = "shader's getInfoLog has ran out of memory?";
+            returnry += "shader's getInfoLog has ran out of memory?";
     }
     else
-        returnry = "This shader has no info log.";
+        returnry += "This shader has no info log.";
     
     return returnry;
 }

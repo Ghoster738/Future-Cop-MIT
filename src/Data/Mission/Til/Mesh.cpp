@@ -1,6 +1,5 @@
 #include "Mesh.h"
 #include <fstream>
-#include <json/json.h>
 
 namespace {
     const float TILE_CORNER_POSITION_X[4] = { 0.5, -0.5,  0.5, -0.5 };
@@ -30,120 +29,6 @@ unsigned int Data::Mission::Til::Mesh::getNeighboor( unsigned int index, int nex
     }
 
     return index;
-}
-
-unsigned int Data::Mission::Til::Mesh::loadMeshScript( const char *const filepath, std::ostream *error_output ) {
-    std::ifstream file_loaded;
-    unsigned int result;
-
-    file_loaded.open( filepath );
-
-    if( file_loaded.is_open() )
-    {
-        Json::Value root;
-        Json::CharReaderBuilder reader_settings;
-        std::string error_stream;
-
-        if( Json::parseFromStream( reader_settings, file_loaded, &root, &error_stream ) )
-        {
-            Json::Value tileset_type = root["FutureCopReverse"]["type"];
-            Json::Value tiles = root["tiles"];
-
-            if( tileset_type.isString() && tileset_type.asString().compare("tileSet") == 0 ) {
-                Json::Value version = root["FutureCopReverse"]["version"];
-
-                if( version.isInt() && version.asInt() != 0 && error_output != nullptr)
-                {
-                    *error_output << "Warning: This json file version does not match the current version." << std::endl;
-                }
-
-                if( tiles.isArray() ) {
-                    // Finally loading code.
-
-                    // This should be first cleaned of all the old stuff.
-                    for( unsigned int i = 0; i < 0x80; i++ ) {
-                        default_mesh[ i ].points[ 0 ].heightmap_channel = NO_ELEMENT; // This means that the value was not set
-                    }
-
-                    for( auto current_tile = tiles.begin(); current_tile != tiles.end(); current_tile++ ) {
-                        Json::Value id = (*current_tile)["id"];
-                        Json::Value polygon = (*current_tile)["polygon"];
-
-                        if( id.isInt() && polygon.isArray() && polygon.size() >= 3 ) {
-                            Polygon poly;
-
-                            // This is the defaults of the polygon
-                            poly.points[3].heightmap_channel = NO_ELEMENT; // This means that this polygon is a triangle by default.
-
-                            // Do not go beyond four points unless you want a buffer overflow.
-                            unsigned int amount = polygon.size();
-                            if(amount > 4)
-                                amount = 4;
-
-                            for( unsigned int i = 0; i < amount; i++ ) {
-                                Json::Value position = polygon[i]["position"];
-                                Json::Value heightmapChannel = polygon[i]["heightmap_channel"];
-                                Json::Value textureCoordinateIndex = polygon[i]["coord_index"];
-
-                                // Ignore data that is not compatible only flare can be excluded.
-                                if( position.isString() && heightmapChannel.isInt() && textureCoordinateIndex.isInt() ) {
-                                    auto index = textureCoordinateIndex.asUInt() % amount;
-                                    
-                                    std::string position_string = position.asString();
-                                    if( position_string.compare("FRONT_LEFT") == 0 )
-                                        poly.points[ index ].facing_direction = FRONT_LEFT;
-                                    else
-                                    if( position_string.compare("FRONT_RIGHT") == 0 )
-                                        poly.points[ index ].facing_direction = FRONT_RIGHT;
-                                    else
-                                    if( position_string.compare("BACK_LEFT") == 0 )
-                                        poly.points[ index ].facing_direction = BACK_LEFT;
-                                    else
-                                    if( position_string.compare("BACK_RIGHT") == 0 )
-                                        poly.points[ index ].facing_direction = BACK_RIGHT;
-
-                                    poly.points[ index ].heightmap_channel = heightmapChannel.asUInt();
-                                }
-                            }
-
-                            default_mesh[ id.asInt() ] = poly;
-                        }
-                    }
-                }
-                else
-                {
-                    *error_output << "This json file must have arrays." << std::endl;
-                    result = 0;
-                }
-
-                result = 1; // For success!
-            }
-            else
-            {
-                result = 0;
-                if( error_output != nullptr ) {
-                    *error_output << "This json file is not a tile set json. In short the wrong json file is loaded." << std::endl;
-                }
-            }
-        }
-        else
-        {
-            result = 0;
-            if( error_output != nullptr ) {
-                *error_output << "There is an error found with json parsing." << std::endl
-                              << "    " << error_stream << std::endl;
-            }
-        }
-    }
-    else
-    {
-        result = -1;
-        if( error_output != nullptr ) {
-            *error_output << "The file \"" << filepath << "\" did not even open." << std::endl;
-        }
-    }
-
-    return result;
 }
 
 unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped ) {
@@ -189,7 +74,6 @@ unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Poly
 
 unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexData &vertex_data, unsigned int tileType ) {
     unsigned number_of_written_vertices = 0;
-    bool found = false;
     Polygon tile_polygon;
 
     tile_polygon = default_mesh[ tileType ];
@@ -213,4 +97,93 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
 
 
     return number_of_written_vertices;
+}
+
+bool Data::Mission::Til::Mesh::isWall( unsigned int tile_type ) {
+    const unsigned ARRAY_LENGTH = 4;
+    unsigned number_array[ARRAY_LENGTH] = {0, 0, 0, 0};
+    unsigned number_of_twos = 0;
+    unsigned number_of_ones = 0;
+
+    // Buffer overflow check.
+    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+        return false;
+    }
+
+    unsigned number_of_corners = 4;
+
+    if( default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
+        number_of_corners = 3;
+
+    for( unsigned i = 0; i < number_of_corners; i++ ) {
+        number_array[ default_mesh[tile_type].points[i].facing_direction ]++;
+    }
+
+    if( number_of_corners == 3 ) { // 3 side case.
+        for( unsigned i = 0; i < ARRAY_LENGTH; i++ ) {
+            if( number_array[ i ] == 0 ) { // Do nothing.
+            } else
+            if( number_array[ i ] == 1 ) { // Increment the number of ones.
+                number_of_ones++;
+            } else
+            if( number_array[ i ] == 2 ) { // Increment the number of twos.
+                number_of_twos++;
+            } else
+                return false; // Abort this search.
+        }
+
+        if( number_of_ones == 1 && number_of_twos == 1 )
+            return true; // Succeeded.
+        else
+            return false;
+    }
+    else { // 4 side case.
+        for( unsigned i = 0; i < ARRAY_LENGTH; i++ ) {
+            if( number_array[ i ] == 0 ) { // Do nothing.
+            } else
+            if( number_array[ i ] == 1 ) { // This is not a wall then.
+                return false;
+            } else
+            if( number_array[ i ] == 2 ) { // Increment the number of twos.
+                number_of_twos++;
+            } else
+                return false; // Abort this search.
+        }
+
+        if( number_of_twos == 2 )
+            return true; // Succeeded.
+        else
+            return false;
+    }
+}
+
+bool Data::Mission::Til::Mesh::isSlope( unsigned int tile_type ) {
+    unsigned number_of_corners = 4;
+
+    // Buffer overflow check.
+    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+        return false;
+    }
+
+    if( default_mesh[tile_type].points[0].heightmap_channel == NO_ELEMENT )
+        return false;
+
+    if( default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
+        number_of_corners = 3;
+
+    for( unsigned i = 1; i < number_of_corners; i++ ) {
+        if( default_mesh[tile_type].points[ 0 ].heightmap_channel != default_mesh[tile_type].points[ i ].heightmap_channel )
+            return true;
+    }
+    return false;
+}
+
+
+bool Data::Mission::Til::Mesh::isFliped( unsigned int tile_type ) {
+    // Buffer overflow check.
+    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+        return false;
+    }
+
+    return default_mesh[tile_type].is_opposite;
 }

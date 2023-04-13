@@ -29,6 +29,7 @@ namespace Mesh {
 
     struct Polygon {
         Point points[4];
+        bool is_opposite;
     };
 
     struct VertexData {
@@ -55,20 +56,16 @@ namespace Mesh {
      */
     unsigned int getNeighboor( unsigned int index, int next_amount );
 
-    /**
-     * This function loads the mesh builder file. It configures create tile to use the json tile set.
-     * I do not normally practice globals, but this solution is only temporay.
-     * TODO eventually turn this script into c++ code again.
-     * @param filepath the path to this json file.
-     * @param error_output If there is a problem the class will put into this. If null then the class will say nothing.
-     * @return 1 for success, 0 for incompatibilties and -1 for not found.
-     */
-    unsigned int loadMeshScript( const char *const filepath, std::ostream *error_output );
-
     unsigned int BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped = false );
     unsigned int BuildQuad( const Input &input, const Polygon &quad, VertexData &result );
 
     unsigned int createTile( const Input &input, VertexData &result, unsigned int tileType );
+
+    bool isWall( unsigned int tile_type );
+
+    bool isSlope( unsigned int tile_type );
+
+    bool isFliped( unsigned int tile_type );
 }
 
 }

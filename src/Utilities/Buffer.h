@@ -11,6 +11,9 @@ namespace Utilities {
 
 class Buffer {
 public:
+    static const bool IS_CPU_LITTLE_ENDIAN;
+    static const bool IS_CPU_BIG_ENDIAN;
+
     class Reader;
     class Writer;
     

@@ -1,6 +1,5 @@
 #include "WAVResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <string.h>
 #include <fstream>
 #include <iostream>
@@ -27,7 +26,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
             auto tag_format     = reader.readU32( Utilities::Buffer::Endian::BIG ); // 8
             auto tag_sub_1      = reader.readU32( Utilities::Buffer::Endian::BIG ); // 12
             auto size_of_chunk_1 = reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 16
-            auto size_sub_1     = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+            auto size_sub_1      = reader.readU32( Utilities::Buffer::Endian::LITTLE );
             reader.setPosition( 36, Utilities::Buffer::BEGIN );
             auto tag_sub_2      = reader.readU32( Utilities::Buffer::Endian::BIG );
 
@@ -165,17 +164,15 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
     audio_stream_length = audio_stream.size();
 }
 
-int Data::Mission::WAVResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+    return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
+}
+
+int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool is_dry ) const {
     std::ofstream resource;
     Utilities::Buffer header;
-    bool enable_export = true;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
-
-    if( enable_export )
+    if( is_dry )
         resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::binary | std::ios::out );
 
     if( resource.is_open() )
@@ -195,10 +192,10 @@ int Data::Mission::WAVResource::write( const std::string& file_path, const std::
 
         header.addU32( TAG_SUB_CHUNK_2_ID, Utilities::Buffer::Endian::BIG );
         header.addU32( audio_stream_length, Utilities::Buffer::Endian::LITTLE );
-        
+
         auto reader = header.getReader();
         auto header_bytes = reader.getBytes();
-        
+
         // Finally write down the header.
         resource.write( reinterpret_cast<const char*>( header_bytes.data() ), header_bytes.size() );
 
@@ -231,4 +228,15 @@ std::vector<Data::Mission::WAVResource*> Data::Mission::WAVResource::getVector( 
 
 const std::vector<Data::Mission::WAVResource*> Data::Mission::WAVResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::WAVResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::WavOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::WavOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

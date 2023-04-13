@@ -9,43 +9,6 @@ namespace Data {
 
 namespace Mission {
 
-class FontGlyph {
-private:
-    uint8_t glyphID;
-    uint8_t unk_0;
-    uint8_t width;
-    uint8_t height;
-    // These are for texture space in pixels.
-    uint8_t left;
-    uint8_t unk_1;
-    uint8_t top;
-    uint8_t unk_2;
-
-    // This is the spacing of the characters.
-    uint8_t x_advance;
-    glm::i8vec2 offset;
-public:
-    FontGlyph( Utilities::Buffer::Reader& reader );
-    uint8_t getGlyph() const;
-    uint8_t getRight() const;
-    uint8_t getLeft() const;
-    uint8_t getTop() const;
-    uint8_t getBottom() const;
-    
-    /**
-     * @return the width of the font.
-     */
-    uint8_t getWidth() const;
-    
-    /**
-     * @return the height of the font.
-     */
-    uint8_t getHeight() const;
-
-    uint8_t getXAdvance() const;
-    glm::i8vec2 getOffset() const;
-};
-
 class FontResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
@@ -58,12 +21,31 @@ public:
         INVALID  // There is no DEL symbol in the Font Resource, so another font has to be used.
     };
 
-protected:
-    std::vector<FontGlyph> glyphs;
-    
-    FontGlyph *font_glyphs_r[ MAX_GLYPHS ];
+    struct Glyph {
+        uint8_t glyphID;
+        uint8_t unk_0;
+        uint8_t width;
+        uint8_t height;
+        // These are for texture space in pixels.
+        uint8_t left;
+        uint8_t unk_1;
+        uint8_t top;
+        uint8_t unk_2;
 
+        // This is the spacing of the characters.
+        uint8_t x_advance;
+        glm::i8vec2 offset;
+
+        Glyph() {};
+        Glyph( Utilities::Buffer::Reader& reader );
+    };
+
+protected:
     Utilities::Image2D *image_p; // The image containing all of the glyphs.
+
+    std::vector<Glyph> glyphs;
+    
+    Glyph *font_glyphs_r[ MAX_GLYPHS ];
 public:
     FontResource();
     FontResource( const FontResource &obj );
@@ -77,7 +59,7 @@ public:
      * @param character_id This is an ISO-8859-1 code value.
      * @return If the glyph exists then it would return a valid FontGlyph, or it would simply return nullptr.
      */
-    const FontGlyph *const getGlyph( uint8_t character_id ) const;
+    const Glyph *const getGlyph( uint8_t character_id ) const;
 
     /**
      * This function is used to filter the text, so it would create more valid text.
@@ -106,7 +88,7 @@ public:
      * @param arguments Only one command is recognized --dry.
      * @return 1 if the file has successfully been written.
      */
-    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     static std::vector<FontResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<FontResource*> getVector( const Data::Mission::IFF &mission_file );

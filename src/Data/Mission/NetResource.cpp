@@ -1,6 +1,5 @@
 #include "NetResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <fstream>
 #include <cassert>
 
@@ -118,23 +117,13 @@ Data::Mission::Resource * Data::Mission::NetResource::duplicate() const {
     return new Data::Mission::NetResource( *this );
 }
 
-int Data::Mission::NetResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::NetResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
     int state = -2;
-    bool enable_obj = false;
-    bool enable_export = true;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--NET_EXPORT_OBJ") == 0 )
-            enable_obj = true;
-        else
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
-
-    if( enable_obj )
+    if( iff_options.net.enable_obj )
     {
-        if( enable_export )
+        if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) )
             resource.open( std::string(file_path) + ".obj", std::ios::out );
 
         if( resource.is_open() )
@@ -196,7 +185,7 @@ int Data::Mission::NetResource::write( const std::string& file_path, const std::
             }
         }
 
-        if( enable_export )
+        if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) )
         {
             resource.open( std::string(file_path) + ".json", std::ios::out );
 
@@ -234,4 +223,19 @@ std::vector<Data::Mission::NetResource*> Data::Mission::NetResource::getVector( 
 
 const std::vector<Data::Mission::NetResource*> Data::Mission::NetResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::NetResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::NETOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_OBJ", output_r, enable_obj ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::NETOption::getOptions() const {
+    std::string information_text = getBuiltInOptions( 4 );
+
+    information_text += "  --" + getNameSpace() + "_EXPORT_OBJ Export a Wavefront Obj model to show the navigation mesh\n";
+
+    return information_text;
 }

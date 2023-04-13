@@ -1,6 +1,5 @@
 #include "ANMResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 
 const unsigned Data::Mission::ANMResource::Video::WIDTH = 64;
@@ -266,9 +265,7 @@ Utilities::ImagePalette2D* Data::Mission::ANMResource::generateAnimationSheet( u
     return animation_sheet_p;
 }
 
-int Data::Mission::ANMResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_color_palette_export = false;
-    bool enable_export = true;
+int Data::Mission::ANMResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
     // Check if there is data to export.
@@ -298,20 +295,12 @@ int Data::Mission::ANMResource::write( const std::string& file_path, const std::
         // This contains a list of frames of this file format.
         Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, rgba_palette );
 
-        for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-            if( (*arg).compare("--ANM_EXPORT_Palette") == 0 )
-                enable_color_palette_export = true;
-            else
-            if( (*arg).compare("--dry") == 0 )
-                enable_export = false;
-        }
-
         Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( Utilities::PixelFormatColor_R8G8B8A8() );
 
-        if( enable_export && the_choosen_r != nullptr ) {
+        if( iff_options.anm.shouldWrite( iff_options.enable_global_dry_default ) && the_choosen_r != nullptr ) {
             Utilities::Buffer buffer;
 
-            if( enable_color_palette_export ) {
+            if( iff_options.anm.export_palette ) {
                 Utilities::ImagePalette2D palette_image( palette );
                 
                 the_choosen_r->write( palette_image, buffer );
@@ -359,4 +348,19 @@ std::vector<Data::Mission::ANMResource*> Data::Mission::ANMResource::getVector( 
 
 const std::vector<Data::Mission::ANMResource*> Data::Mission::ANMResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ANMResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::ANMOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_PALETTE", output_r, export_palette ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::ANMOption::getOptions() const {
+    std::string information_text = getBuiltInOptions( 1 );
+
+    information_text += "  --ANM_PALETTE Export a 1D texture of the this palette.\n";
+
+    return information_text;
 }

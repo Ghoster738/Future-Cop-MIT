@@ -19,59 +19,7 @@ glm::mat4* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation
         return nullptr;
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_es_vertex_shader =
-    "#version 100\n"
-    "precision mediump float;\n"
-    // Inputs
-    "attribute vec4 POSITION;\n"
-    "attribute vec3 NORMAL;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute float _Specular;\n"
-    // These attributes are for the skelatal animation.
-    "attribute vec4 JOINTS_0;\n"
-    "attribute vec3 WEIGHTS_0;\n"
-
-    // Vertex shader uniforms
-    "uniform mat4 ModelViewInv;\n"
-    "uniform mat4 ModelView;\n"
-    "uniform mat4 Transform;\n" // projection * view * model.
-    "uniform vec2 TextureTranslation;\n"
-    // These uniforms are for the bones of the animation.
-    "uniform mat4 Bone[12];\n" // 12 bones seems to be the limit of Future Cop.
-
-    // These are the outputs
-    "varying vec3 world_reflection;\n"
-    "varying float specular;\n"
-    "varying vec2 texture_coord_1;\n"
-
-    "void main()\n"
-    "{\n"
-    "   vec4 current_position = Bone[ int( JOINTS_0.x ) ] * POSITION;\n"
-    "   vec3 current_normal   = NORMAL;\n"
-    // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
-    "   vec3 eye_coord_position = vec3( ModelView * current_position );\n" // Model View multiplied by Model Position.
-    "   vec3 eye_coord_normal   = vec3( ModelView * vec4(current_normal, 0.0));\n"
-    "   eye_coord_normal        = normalize( eye_coord_normal );\n"
-    "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
-    // Find a way to use the spherical projection properly.
-    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
-    "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
-    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
-    "   specular = _Specular;\n"
-    "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
-    "}\n";
-
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
-    "#version 110 \n"
-    // Inputs
-    "attribute vec4 POSITION;\n"
-    "attribute vec3 NORMAL;\n"
-    "attribute vec2 TEXCOORD_0;\n"
-    "attribute float _Specular;\n"
-    // These attributes are for the skelatal animation.
-    "attribute vec4 JOINTS_0;\n"
-    "attribute vec3 WEIGHTS_0;\n"
-
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
@@ -79,11 +27,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for the bones of the animation.
     "uniform mat4 Bone[12];\n" // 12 bones seems to be the limit of Future Cop.
-
-    // These are the outputs
-    "varying vec3 world_reflection;\n"
-    "varying float specular;\n"
-    "varying vec2 texture_coord_1;\n"
 
     "void main()\n"
     "{\n"
@@ -102,7 +45,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
-
+    // These attributes are for the skelatal animation.
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 JOINTS_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 WEIGHTS_0" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
@@ -115,14 +60,7 @@ Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::getDefaultVertexShader() {
-    int opengl_profile;
-    
-    SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &opengl_profile );
-
-    if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-        return default_es_vertex_shader;
-    else
-        return default_vertex_shader;
+    return default_vertex_shader;
 }
 
 int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compileProgram() {

@@ -18,11 +18,15 @@ class ModelResource : public Resource {
 public:
     /**
      * This should create the model. However, using this very class would only result in a nullptr.
-     * @param globals This file contains the globals it must either be a nullptr or a valid MissionFile pointer.
-     * @param arguments This is the comaands that goes to the model. it must either be a nullptr or a valid vector of string.
      * @return If successful it should return a valid GLTFWriter pointer (which must be manually deleted when done). Else it will return a nullptr.
      */
-    virtual Utilities::ModelBuilder * createModel(const IFF *const globals, const std::vector<std::string> * arguments ) const { return nullptr; };
+    virtual Utilities::ModelBuilder * createCulledModel() const { return nullptr; }
+
+    /**
+     * This should create the model. However, using this very class would only result in a nullptr.
+     * @return If successful it should return a valid GLTFWriter pointer (which must be manually deleted when done). Else it will return a nullptr.
+     */
+    virtual Utilities::ModelBuilder * createModel() const = 0;
 };
 
 }

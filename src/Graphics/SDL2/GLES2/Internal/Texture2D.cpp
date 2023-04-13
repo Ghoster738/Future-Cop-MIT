@@ -39,11 +39,11 @@ void Graphics::SDL2::GLES2::Internal::Texture2D::genChecker( GLuint active_textu
     GLubyte * spriteData = new GLubyte [ width * height * 3 ];
 
     bool flip = false; // used to flip the pixels to a checker board
-    unsigned int sync = 0; // used to count to the width
+    GLsizei sync = 0; // used to count to the width
     unsigned int offset; // used to for the pixel offsets.
     bool bounds_check; // On when sync is lower than the width.
 
-    for( unsigned int x = 0; x < width * height; x++, sync++ ) {
+    for( GLsizei x = 0; x < width * height; x++, sync++ ) {
         offset = x * 3;
 
         bounds_check = (sync < width);

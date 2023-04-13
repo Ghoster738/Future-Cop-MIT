@@ -1,6 +1,5 @@
 #include "PTCResource.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include "../../Utilities/ModelBuilder.h"
 #include <string>
@@ -17,8 +16,8 @@ const uint32_t Data::Mission::PTCResource::IDENTIFIER_TAG = 0x43707463; // which
 Data::Mission::PTCResource::PTCResource() : grid(), debug_map_display_p( nullptr ) {
 }
 
-Data::Mission::PTCResource::PTCResource( const PTCResource &obj ) : Resource( obj ), grid( obj.grid ), debug_map_display_p( nullptr ), tile_array_r( obj.tile_array_r ) {
-        
+Data::Mission::PTCResource::PTCResource( const PTCResource &obj ) : Resource( obj ), grid( obj.grid ), debug_map_display_p( nullptr ), ctil_id_r( obj.ctil_id_r ) {
+
     if( obj.debug_map_display_p != nullptr )
         debug_map_display_p = new Utilities::Image2D( *obj.debug_map_display_p );
 }
@@ -39,15 +38,17 @@ uint32_t Data::Mission::PTCResource::getResourceTagID() const {
 bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::TilResource*> &tile_array_r )
 {
     Utilities::PixelFormatColor_R8G8B8 color_format;
-    
+
     if( tile_array_r.size() > 0 )
     {
         if( debug_map_display_p != nullptr )
             delete debug_map_display_p;
-        
+
         debug_map_display_p = new Utilities::Image2D( grid.getWidth() * 0x11,  grid.getHeight() * 0x11, color_format );
-        
-        this->tile_array_r = std::vector<Data::Mission::TilResource*>( tile_array_r );
+
+        for( auto i : tile_array_r ) {
+            ctil_id_r[ i->getResourceID() ] = i;
+        }
 
         for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
             for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
@@ -56,11 +57,11 @@ bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::Til
                 if( tile != nullptr ) {
                     auto grid_x = x * 0x11;
                     auto grid_y = y * 0x11;
-                    
+
                     auto image = tile->getImage();
-                    
+
                     debug_map_display_p->inscribeSubImage( grid_x, grid_y, image );
-                    
+
                 }
             }
         }
@@ -72,8 +73,8 @@ bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::Til
 
 Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned int x, unsigned int y ) {
     if( x < grid.getWidth() && y < grid.getHeight() ) {
-        if( grid.getValue( x, y ) != 0 )
-            return tile_array_r.at( (grid.getValue( x, y ) / 4 - 1) % this->tile_array_r.size() );
+        if( grid.getValue( x, y ) != 0 && ctil_id_r.find(grid.getValue( x, y ) / 4) != ctil_id_r.end() )
+            return ctil_id_r[ grid.getValue( x, y ) / 4 ];
     }
 
     return nullptr;
@@ -96,15 +97,15 @@ bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
             if( identifier == GRDB_TAG ) {
                 auto readerGRDB = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
                 readerGRDB.setPosition( sizeof( uint32_t ), Utilities::Buffer::BEGIN );
-                
+
                 auto tile_amount = readerGRDB.readU32( settings.endian );
                 auto width       = readerGRDB.readU32( settings.endian );
                 auto height      = readerGRDB.readU32( settings.endian );
-                
+
                 // Go to offset for boarder settings.
                 readerGRDB.setPosition( 0x1C, Utilities::Buffer::BEGIN );
                 border_range = readerGRDB.readU32( settings.endian );
-                
+
                 readerGRDB.setPosition( 0x24, Utilities::Buffer::BEGIN );
 
                 // setup the grid
@@ -132,32 +133,11 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
     return new PTCResource( *this );
 }
 
-int Data::Mission::PTCResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_export = true;
-    bool no_model = false;
-    bool entire_point_cloud = false;
-    bool entire_height_map = false;
+int Data::Mission::PTCResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-        else
-        if( (*arg).compare("--PTC_NO_MODEL") == 0 ) {
-            no_model = true;
-        }
-        else
-        if( (*arg).compare("--PTC_ENTIRE_POINT_CLOUD") == 0 ) {
-            entire_point_cloud = true;
-        }
-        else
-        if( (*arg).compare("--PTC_ENTIRE_HEIGHT_MAP") == 0 ) {
-            entire_height_map = true;
-        }
-    }
-
-    if( enable_export ) {
-        if( entire_point_cloud ) {
+    if( iff_options.ptc.shouldWrite( iff_options.enable_global_dry_default ) ) {
+        if( iff_options.ptc.entire_point_cloud ) {
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *debug_map_display_p );
 
             if( the_choosen_r != nullptr ) {
@@ -167,11 +147,11 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
                 buffer.write( the_choosen_r->appendExtension( file_path ) );
             }
         }
-        
-        if( entire_height_map ) {
+
+        if( iff_options.ptc.entire_height_map ) {
             unsigned int rays_per_tile = 1;
             Utilities::PixelFormatColor_R8G8B8 color_format;
-            
+
             Utilities::Image2D ptc_height_map( grid.getWidth() * rays_per_tile * 16, grid.getHeight() * rays_per_tile * 16, color_format );
 
             for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
@@ -179,16 +159,16 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
                     auto tile_r = getTile( x, y );
 
                     if( tile_r != nullptr ) {
-                        
+
                         auto height_map = tile_r->getHeightMap( rays_per_tile );
-                        
+
                         ptc_height_map.inscribeSubImage( x * rays_per_tile * 16, y * rays_per_tile * 16, height_map );
                     }
                 }
             }
-            
+
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( ptc_height_map );
-            
+
             if( the_choosen_r != nullptr ) {
                 Utilities::Buffer buffer;
                 the_choosen_r->write( ptc_height_map, buffer );
@@ -196,10 +176,10 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
                 buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
             }
         }
-        
-        if( !no_model ) {
+
+        if( !iff_options.ptc.no_model ) {
             // Write the entire map.
-            return writeEntireMap( std::string(file_path) );
+            return writeEntireMap( std::string(file_path), iff_options.ptc.enable_backface_culling );
         }
         else
             return 1;
@@ -208,58 +188,58 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const std::
         return 0;
 }
 
-int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
+int Data::Mission::PTCResource::writeEntireMap( std::string file_path, bool make_culled ) const {
     // Write the entire map
     std::vector<Utilities::ModelBuilder*> map_tils;
-    
+
     for( unsigned i = 0; i < 8; i++ ) {
         // This is to combine single textured tils into one.
         std::vector<Utilities::ModelBuilder*> texture_tils;
-        
+
         // Go through every til.
         for( unsigned w = 0; w < getWidth(); w++ ) {
             float x = static_cast<float>(w) - (static_cast<float>(getWidth()) / 2.0f);
-            
+
             for( unsigned h = 0; h < getHeight(); h++ ) {
                 float y = static_cast<float>(h) - (static_cast<float>(getHeight()) / 2.0f);
                 auto tile_r = getTile( w, h );
-                
+
                 if( tile_r != nullptr ) {
-                    auto model_p = tile_r->createPartial( i, -y * 16.0f, -x * 16.0f );
-                    
+                    auto model_p = tile_r->createPartial( i, make_culled, -y * 16.0f, -x * 16.0f );
+
                     if( model_p != nullptr )
                         texture_tils.push_back( model_p );
                 }
             }
         }
-        
+
         // Combine every texture in common texture into one.
         int result;
         auto combine_model_p = Utilities::ModelBuilder::combine( texture_tils, result );
-        
+
         // Delete the other models.
         for( auto i : texture_tils ) {
             delete i;
         }
-        
+
         // If a combine model is created add this to map_tils.
         if( combine_model_p != nullptr )
             map_tils.push_back( combine_model_p );
     }
-    
+
     // Combine everything.
     int result;
     auto combine_model_p = Utilities::ModelBuilder::combine( map_tils, result );
-    
+
     // Do a clean up.
     for( auto i : map_tils ) {
         delete i;
     }
-    
+
     // If the combine fails return a negative one.
     if( combine_model_p == nullptr )
         return -1; // There is no model to write.
-    
+
     if( combine_model_p->write( file_path ) )
         return 1; // The whole map had been written to the "disk"
     else
@@ -269,19 +249,19 @@ int Data::Mission::PTCResource::writeEntireMap( std::string file_path ) const {
 float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     if( x < 0.0 || y < 0.0 )
         return 10.0f;
-    
+
     const unsigned int x_til = x / static_cast<float>( TilResource::AMOUNT_OF_TILES );
     const unsigned int y_til = y / static_cast<float>( TilResource::AMOUNT_OF_TILES );
-    
+
     // There is some kind of blank boarder.
     auto tile_r = getTile( y_til + 1, x_til );
-    
+
     if( tile_r == nullptr )
         return 10.0f;
-    
+
     const float x_til_offset = fmod( x, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
     const float y_til_offset = fmod( y, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
-    
+
     return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
 }
 
@@ -300,4 +280,28 @@ std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( 
 
 const std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::PTCResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_NO_MODEL", output_r, no_model ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_CULL", output_r, enable_backface_culling ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_ENTIRE_POINT_CLOUD", output_r, entire_point_cloud ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_ENTIRE_HEIGHT_MAP", output_r, entire_height_map ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::PTCOption::getOptions() const {
+    std::string information_text = getBuiltInOptions( 12 );
+
+    information_text += "  --" + getNameSpace() + "_NO_MODEL           Disable model exporting for the map.\n";
+    information_text += "  --" + getNameSpace() + "_EXPORT_CULL        This program will export a backface culled Cptc for faster rendering speeds.\n";
+    information_text += "  --" + getNameSpace() + "_ENTIRE_POINT_CLOUD Export the point cloud values in an rgb image.\n";
+    information_text += "  --" + getNameSpace() + "_ENTIRE_HEIGHT_MAP  Use raycasting to render a heightmap then export the image.\n";
+
+    return information_text;
 }

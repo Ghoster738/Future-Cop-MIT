@@ -2,7 +2,6 @@
 
 #include "IFF.h"
 
-#include "../../Utilities/DataHandler.h"
 #include <glm/geometric.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <algorithm>
@@ -310,11 +309,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     *settings.output_ref << "Mission::ObjResource::load() 3DTL unexpected number at beginning!" << std::endl;
                 }
 
-                auto texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
+                size_t texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
                 if( settings.output_level >= 2 )
                     *settings.output_ref << "triangle amount " << std::dec << texture_ref_amount << std::hex << std::endl;
 
-                for( auto i = 0; i < texture_ref_amount; i++ )
+                for( size_t i = 0; i < texture_ref_amount; i++ )
                 {
                     /*if( DataHandler::read_u8( start_data ) != 2 )
                         std::cout << "Mission::ObjResource::load() expected 2 at uv not " << std::dec
@@ -364,12 +363,17 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     assert(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 ));
                     auto face_type_2 = reader3DQL.readU8();
 
-                    auto texture_quad_ref = (reader3DQL.readU16( settings.endian ) / 0x10) + texture_quads.data();
+                    const size_t triangle_quad_index = reader3DQL.readU16( settings.endian ) / 0x10;
+
+                    TextureQuad* texture_quad_r = nullptr;
+
+                    if( !texture_quads.empty() )
+                        texture_quad_r = &texture_quads.at(triangle_quad_index);
 
                     /*
                     // Add to the indexes of this texture to the list when it is not contained in the data base.
-                    if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_ref - texture_quads.data() > texture_quads.size() ) {
-                        texture_dependences.push_back( texture_quad_ref->index );
+                    if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_r - texture_quads.data() > texture_quads.size() ) {
+                        texture_dependences.push_back( texture_quad_r->index );
                         std::sort( texture_dependences.begin(), texture_dependences.end() );
                     }*/
                     bool reflect = ((face_type_2 & 0xF0) == 0x80);
@@ -379,7 +383,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if( (face_type & 0x07) == 4 ) {
                         face_quads.push_back( FaceQuad() );
 
-                        face_quads.back().texture_quad_ref = texture_quad_ref;
+                        face_quads.back().texture_quad_ref = texture_quad_r;
                         // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
                         // 0x07 Appears to be its own face type
                         face_quads.back().is_reflective = reflect;
@@ -398,7 +402,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         face_trinagles.push_back( FaceTriangle() );
 
                         face_trinagles.back().is_other_side = false;
-                        face_trinagles.back().texture_quad_ref = texture_quad_ref;
+                        face_trinagles.back().texture_quad_ref = texture_quad_r;
                         // (face_type & 0x08) seems to be the effect bit.
                         // (face_type & 0x28) seems to be the tranlucent bit.
                         face_trinagles.back().is_reflective = reflect;
@@ -455,7 +459,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 this->max_bone_childern = 0;
 
-                for( int i = 0; i < amount_of_bones; i++ ) {
+                for( size_t i = 0; i < amount_of_bones; i++ ) {
                     // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
                     bones.push_back( Bone() );
                     
@@ -532,7 +536,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 for( int d = 0; d < frames_gen_3DHS; d++ )
                 {
-                    for( int i = 0; i < bone_depth_number; i++ )
+                    for( size_t i = 0; i < bone_depth_number; i++ )
                     {
                         auto u_x = reader3DHS.readU16( settings.endian );
                         auto u_y = reader3DHS.readU16( settings.endian );
@@ -556,7 +560,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 this->bone_animation_data = new int16_t [ this->bone_animation_data_size ];
                 
-                for( int d = 0; d < this->bone_animation_data_size; d++ )
+                for( size_t d = 0; d < this->bone_animation_data_size; d++ )
                     this->bone_animation_data[ d ] = reader3DMI.readU16( settings.endian );
             }
             else
@@ -755,17 +759,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             {
                 reader.setPosition( data_tag_size, Utilities::Buffer::CURRENT );
-                
-                char identifier_word[5] = {'\0'};
-                const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
-
-                for( unsigned int i = 0; i < IDENTIFIER_SIZE; i++ ) {
-                    identifier_word[ i ] = reinterpret_cast<char*>( &identifier )[ i ];
-                }
-                Utilities::DataHandler::swapBytes( reinterpret_cast< uint8_t* >( identifier_word ), 4 );
 
                 if( settings.output_level >= 1 )
-                    *settings.output_ref << "Mission::ObjResource::load() " << identifier_word << " not recognized" << std::endl;
+                    *settings.output_ref << "Mission::ObjResource::load() " << identifier << " not recognized" << std::endl;
                 
                 assert( false );
             }
@@ -848,18 +844,12 @@ Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
     return new ObjResource( *this );
 }
 
-int Data::Mission::ObjResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_export = true;
+int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
+    Utilities::ModelBuilder *model_output = createModel();
 
-    Utilities::ModelBuilder *model_output = createModel( &arguments );
-
-    if( enable_export ) {
+    if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
         if( model_output->getNumVertices() >= 3 ) {
             
@@ -930,7 +920,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
     }
 }
 
-Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::vector<std::string> * arguments ) const {
+Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
@@ -1000,7 +990,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel( const std::ve
         model_output->allocateJoints( bones.size(), bone_frames );
         
         glm::mat4 bone_matrix;
-        unsigned int opcode_decode = 0;
         
         const float ANGLE_UNITS_TO_RADIANS = M_PI / 2048.0;
         
@@ -1327,4 +1316,14 @@ std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( 
 
 const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ObjResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::ObjOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

@@ -1,9 +1,84 @@
 #include "Buffer.h"
-#include "DataHandler.h"
 
 #include <sstream>
 #include <fstream>
 #include <cassert>
+
+namespace {
+bool isLittleEndian() {
+    bool is_little_endian = false;
+
+    // Thanks David Cournapeau!
+    union {
+        uint32_t i;
+        uint8_t  c[4];
+    } const bint = {0x01020304};
+
+    is_little_endian = !(bint.c[0] == 1);
+
+    return is_little_endian;
+}
+
+void swapBytes( uint8_t *word, unsigned int size ) {
+    uint8_t store;
+    for( unsigned int i = 0; i < size / 2; i++ )
+    {
+        store = word[i];
+        word[i] = word[ size - 1 - i ];
+        word[ size - 1 - i ] = store;
+    }
+}
+
+uint64_t read_u64( const uint8_t *const word, bool swap ) {
+    uint64_t word_read = *reinterpret_cast<const uint64_t *const>(word);
+
+    if( swap )
+        swapBytes( reinterpret_cast<uint8_t*>( &word_read ), sizeof( uint64_t ) );
+
+    return word_read;
+}
+int64_t read_64( const uint8_t *const word, bool swap ) {
+    return static_cast<int64_t>( read_u64( word, swap ) );
+}
+
+uint32_t read_u32( const uint8_t *const word, bool swap ) {
+    uint32_t word_read = *reinterpret_cast<const uint32_t *const>(word);
+
+    if( swap )
+        swapBytes( reinterpret_cast<uint8_t*>( &word_read ), sizeof( uint32_t ) );
+
+    return word_read;
+}
+int32_t read_32( const uint8_t *const word, bool swap ) {
+    return static_cast<int32_t>( read_u32( word, swap ) );
+}
+
+uint16_t read_u16( const uint8_t *const word, bool swap ) {
+    uint16_t word_read = *reinterpret_cast<const uint16_t *const>(word);
+
+    if( swap )
+        swapBytes( reinterpret_cast<uint8_t*>( &word_read ), sizeof( uint16_t ) );
+
+    return word_read;
+}
+int16_t read_16( const uint8_t *const word, bool swap ) {
+    return static_cast<int16_t>( read_u16( word, swap ) );
+}
+
+
+uint8_t read_u8( const uint8_t *const word ) {
+    uint8_t word_read = *reinterpret_cast<const uint8_t *const>(word);
+
+    return word_read;
+}
+
+int8_t read_8( const uint8_t *const word) {
+    return static_cast<int8_t>( read_u8( word ) );
+}
+}
+
+const bool Utilities::Buffer::IS_CPU_LITTLE_ENDIAN = isLittleEndian();
+const bool Utilities::Buffer::IS_CPU_BIG_ENDIAN = !isLittleEndian();
 
 Utilities::Buffer::Buffer() {}
 
@@ -62,7 +137,7 @@ bool Utilities::Buffer::addU16( uint16_t value, Endian endianess ) {
     uint16_t store = value;
     
     if( getSwap( endianess ) )
-        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
+        swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
     
@@ -75,7 +150,7 @@ bool Utilities::Buffer::addI16( int16_t value, Endian endianess ) {
     int16_t store = value;
     
     if( getSwap( endianess ) )
-        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
+        swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint16_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
     
@@ -88,7 +163,7 @@ bool Utilities::Buffer::addU32( uint32_t value, Endian endianess ) {
     uint32_t store = value;
     
     if( getSwap( endianess ) )
-        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
+        swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
     
@@ -103,7 +178,7 @@ bool Utilities::Buffer::addI32( int32_t value, Endian endianess ) {
     int32_t store = value;
     
     if( getSwap( endianess ) )
-        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
+        swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint32_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
     
@@ -118,7 +193,7 @@ bool Utilities::Buffer::addU64( uint64_t value, Endian endianess ) {
     uint64_t store = value;
     
     if( getSwap( endianess ) )
-        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
+        swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
     
@@ -137,7 +212,7 @@ bool Utilities::Buffer::addI64(  int64_t value, Endian endianess ) {
     int64_t store = value;
     
     if( getSwap( endianess ) )
-        DataHandler::swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
+        swapBytes( reinterpret_cast<uint8_t*>(&store), sizeof(uint64_t) );
     
     auto array = reinterpret_cast<uint8_t*>( &store );
     
@@ -254,10 +329,10 @@ bool Utilities::Buffer::getSwap( Endian endianess ) {
             swap_value = true;
             break;
         case LITTLE:
-            swap_value = !Utilities::DataHandler::is_little_endian();
+            swap_value = IS_CPU_BIG_ENDIAN;
             break;
         case BIG:
-            swap_value = Utilities::DataHandler::is_little_endian();
+            swap_value = IS_CPU_LITTLE_ENDIAN;
             break;
         case NO_SWAP:
         default:
@@ -379,7 +454,7 @@ uint64_t Utilities::Buffer::Reader::readU64( Endian endianess ) {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_u64( data_r + current_index - sizeof( uint64_t ), getSwap( endianess ) );
+        return read_u64( data_r + current_index - sizeof( uint64_t ), getSwap( endianess ) );
     }
 }
 
@@ -394,7 +469,7 @@ int64_t Utilities::Buffer::Reader::readI64( Endian endianess ) {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_64( data_r + current_index - sizeof( uint64_t ), getSwap( endianess ) );
+        return read_64( data_r + current_index - sizeof( uint64_t ), getSwap( endianess ) );
     }
 }
 
@@ -409,7 +484,7 @@ uint32_t Utilities::Buffer::Reader::readU32( Endian endianess ) {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_u32( data_r + current_index - sizeof( uint32_t ), getSwap( endianess ) );
+        return read_u32( data_r + current_index - sizeof( uint32_t ), getSwap( endianess ) );
     }
 }
 
@@ -424,7 +499,7 @@ int32_t Utilities::Buffer::Reader::readI32( Endian endianess ) {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_32( data_r + current_index - sizeof( uint32_t ), getSwap( endianess ) );
+        return read_32( data_r + current_index - sizeof( uint32_t ), getSwap( endianess ) );
     }
 }
 
@@ -439,7 +514,7 @@ uint16_t Utilities::Buffer::Reader::readU16( Endian endianess ) {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_u16( data_r + current_index - sizeof( uint16_t ), getSwap( endianess ) );
+        return read_u16( data_r + current_index - sizeof( uint16_t ), getSwap( endianess ) );
     }
 }
 
@@ -454,7 +529,7 @@ int16_t Utilities::Buffer::Reader::readI16( Endian endianess ) {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_16( data_r + current_index - sizeof( uint16_t ), getSwap( endianess ) );
+        return read_16( data_r + current_index - sizeof( uint16_t ), getSwap( endianess ) );
     }
 }
 
@@ -469,7 +544,7 @@ uint8_t Utilities::Buffer::Reader::readU8() {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_u8( data_r + current_index - sizeof( uint8_t ) );
+        return read_u8( data_r + current_index - sizeof( uint8_t ) );
     }
 }
 
@@ -484,7 +559,7 @@ int8_t Utilities::Buffer::Reader::readI8() {
     else
     {
         current_index = new_offset;
-        return Utilities::DataHandler::read_8( data_r + current_index - sizeof( uint8_t ) );
+        return read_8( data_r + current_index - sizeof( uint8_t ) );
     }
 }
 
@@ -501,7 +576,7 @@ std::vector<bool> Utilities::Buffer::Reader::getBitfield( size_t byte_amount ) {
            return value;
     }
     
-    for( int i = 0; i < byte_amount; i++ ) {
+    for( size_t i = 0; i < byte_amount; i++ ) {
         auto byte = readU8();
         
         value.push_back( byte & 0x80 );
@@ -599,7 +674,7 @@ void Utilities::Buffer::Writer::writeU64( uint64_t content, Endian endianess )
         *reinterpret_cast<uint64_t*>( data_r + current_index - sizeof( uint64_t )) = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index - sizeof( uint64_t ), sizeof( uint64_t ) );
+            swapBytes( data_r + current_index - sizeof( uint64_t ), sizeof( uint64_t ) );
     }
 }
 
@@ -618,7 +693,7 @@ void Utilities::Buffer::Writer::writeI64( int64_t content, Endian endianess )
         *reinterpret_cast<int64_t*>( data_r + current_index - sizeof( int64_t )) = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index - sizeof( int64_t ), sizeof( int64_t ) );
+            swapBytes( data_r + current_index - sizeof( int64_t ), sizeof( int64_t ) );
     }
 }
 
@@ -637,7 +712,7 @@ void Utilities::Buffer::Writer::writeU32( uint32_t content, Endian endianess )
         *reinterpret_cast<uint32_t*>( data_r + current_index - sizeof( uint32_t )) = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index - sizeof( uint32_t ), sizeof( uint32_t ) );
+            swapBytes( data_r + current_index - sizeof( uint32_t ), sizeof( uint32_t ) );
     }
 }
 
@@ -656,7 +731,7 @@ void Utilities::Buffer::Writer::writeI32( int32_t content, Endian endianess )
         *reinterpret_cast<int32_t*>( data_r + current_index - sizeof( int32_t )) = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index - sizeof( int32_t ), sizeof( int32_t ) );
+            swapBytes( data_r + current_index - sizeof( int32_t ), sizeof( int32_t ) );
     }
 }
 
@@ -674,7 +749,7 @@ void Utilities::Buffer::Writer::writeU16( uint16_t content, Endian endianess )
         *reinterpret_cast<uint16_t*>( data_r + current_index ) = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index, sizeof( uint16_t ) );
+            swapBytes( data_r + current_index, sizeof( uint16_t ) );
         
         current_index = new_offset;
     }
@@ -694,7 +769,7 @@ void Utilities::Buffer::Writer::writeI16(  int16_t content, Endian endianess )
         reinterpret_cast<int16_t*>( data_r + current_index )[ 0 ] = content;
         
         if( getSwap( endianess ) )
-            DataHandler::swapBytes( data_r + current_index, sizeof( int16_t ) );
+            swapBytes( data_r + current_index, sizeof( int16_t ) );
         
         current_index = new_offset;
     }

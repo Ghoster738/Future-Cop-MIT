@@ -1,7 +1,6 @@
 #include "BMPResource.h"
 
 #include <cmath>
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <fstream>
 #include <cassert>
@@ -18,8 +17,11 @@ const uint32_t PLUT_TAG = 0x504C5554; // which is { 0x50, 0x4C, 0x55, 0x54 } or 
 // This is the pixel data for the Playstation 1 version, and probably the computer versions.
 const uint32_t PDAT_TAG = 0x50444154; // which is { 0x50, 0x44, 0x41, 0x54 } or { 'P', 'D', 'A', 'T' } or "PDAT"
 
-const Utilities::PixelFormatColor_R5G5B5A1 COLOR_FORMAT;
-const Utilities::ColorPalette COLOR_PALETTE( COLOR_FORMAT );
+const Utilities::PixelFormatColor_R5G5B5T1 COMPUTER_COLOR_FORMAT;
+const Utilities::ColorPalette COMPUTER_COLOR_PALETTE( COMPUTER_COLOR_FORMAT );
+
+const Utilities::PixelFormatColor_B5G5R5T1 PS1_COLOR_FORMAT;
+const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
 
 }
 
@@ -75,7 +77,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
         size_t pdat_size = 0;
         size_t plut_position = 0;
         size_t plut_size = 0;
-        Utilities::ColorPalette color_palette( COLOR_FORMAT );
+        Utilities::ColorPalette color_palette( COMPUTER_COLOR_FORMAT );
 
         while( reader.getPosition() < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
@@ -168,7 +170,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 if( image_p != nullptr )
                     delete image_p;
                 
-                this->image_p = new Utilities::Image2D( 0x100, 0x100, COLOR_FORMAT );
+                this->image_p = new Utilities::Image2D( 0x100, 0x100, COMPUTER_COLOR_FORMAT );
                  
                 if( !this->image_p->fromReader( px16_reader, settings.endian ) )
                     file_is_not_valid = true;
@@ -200,16 +202,12 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( isPSX ) {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    auto color = COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE );
-                    
-                    std::swap( color.red, color.blue );
-                    
-                    color_palette.setIndex( d, color );
+                    color_palette.setIndex( d, PS1_COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE ) );
                 }
             }
             else {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    color_palette.setIndex( d, COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
+                    color_palette.setIndex( d, COMPUTER_COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
                 }
             }
             
@@ -240,7 +238,9 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
         
         assert( this->image_p != nullptr );
         
-        this->format_p = chooser.getWriterCopy( *getImage() );
+        Utilities::PixelFormatColor_R8G8B8A8 rgba8;
+        this->format_p = chooser.getWriterCopy( rgba8 );
+
         assert( this->format_p != nullptr );
 
         return !file_is_not_valid;
@@ -252,16 +252,10 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
-int Data::Mission::BMPResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool export_enable = true;
+int Data::Mission::BMPResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
 
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--dry") == 0 )
-            export_enable = false;
-    }
-
-    if( export_enable && getImage() != nullptr ) {
+    if( iff_options.bmp.shouldWrite( iff_options.enable_global_dry_default ) && getImage() != nullptr ) {
         if( this->format_p != nullptr ) {
             Utilities::Buffer buffer;
             int state;
@@ -273,11 +267,6 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const std::
                     for( unsigned int y = 0; y <= image_convert.getHeight(); y++ ) {
                         auto color = image_convert.readPixel( x, y );
                         
-                        if( color.alpha < 0.75)
-                            color.alpha = 1;
-                        else
-                            color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
-                        
                         image_convert.writePixel( x, y, color );
                     }
                 }
@@ -288,7 +277,7 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const std::
 
             buffer.set( nullptr, 0 ); // This effectively clears the buffer.
 
-            {
+            if( iff_options.bmp.export_palette ) {
                 // Make a color palette that holds RGBA values
                 Utilities::ColorPalette rgba_palette( rgba_color );
                 
@@ -296,11 +285,6 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const std::
                 
                 for( unsigned int i = 0; i <= this->image_palette_p->getColorPalette()->getLastIndex(); i++ ) {
                     auto color =  this->image_palette_p->getColorPalette()->getIndex( i );
-                    
-                    if( color.alpha < 0.75)
-                        color.alpha = 1;
-                    else
-                        color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
                     
                     rgba_palette.setIndex( i, color );
                 }
@@ -349,4 +333,19 @@ std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( 
 
 const std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::BMPResource::getVector( const_cast< IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_PALETTE", output_r, export_palette ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::BMPOption::getOptions() const {
+    std::string information_text = getBuiltInOptions( 1 );
+
+    information_text += "  --BMP_PALETTE Export a 1D texture of the this palette\n";
+
+    return information_text;
 }

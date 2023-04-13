@@ -12,7 +12,6 @@ namespace Internal {
 class SkeletalModelDraw : public StaticModelDraw {
 public:
     static const GLchar* default_vertex_shader;
-    static const GLchar* default_es_vertex_shader;
 protected:
     // This is the uniform used for the bone array.
     GLuint mat4_array_uniform_id;

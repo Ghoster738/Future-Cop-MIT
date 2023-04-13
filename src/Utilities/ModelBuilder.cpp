@@ -70,6 +70,17 @@ Utilities::ModelBuilder::TextureMaterial::TextureMaterial() {
     max.data.z = -min.data.x;
 }
 
+Utilities::ModelBuilder::TextureMaterial::TextureMaterial( const TextureMaterial& mat ) :
+    cbmp_resource_id( mat.cbmp_resource_id ),
+    file_name( mat.file_name ),
+    starting_vertex_index( mat.starting_vertex_index ),
+    count( mat.count ),
+    min( mat.min ),
+    max( mat.max ),
+    has_culling( mat.has_culling ),
+    morph_bounds( mat.morph_bounds )
+{}
+
 void Utilities::ModelBuilder::TextureMaterial::bounds( const TextureMaterial &material ) {
     min.data.x = std::min( min.data.x, material.min.data.x );
     min.data.y = std::min( min.data.y, material.min.data.y );
@@ -95,15 +106,15 @@ Utilities::ModelBuilder::NonMatchingVertexComponentTypes::NonMatchingVertexCompo
 }
 
 Utilities::ModelBuilder::ModelBuilder( MeshPrimativeMode mode ) {
-	current_vertex_index = 0;
-	vertex_amount = 0;
-	total_components_size = 0;
-	total_morph_components_size = 0;
-	is_model_finished = false;
-	components_are_done = false;
-	joint_amount = 0;
+    current_vertex_index = 0;
+    vertex_amount = 0;
+    total_components_size = 0;
+    total_morph_components_size = 0;
+    is_model_finished = false;
+    components_are_done = false;
+    joint_amount = 0;
     joint_inverse_frame = std::numeric_limits<unsigned int>::max();
-    
+
     mesh_primative_mode = mode;
 }
 Utilities::ModelBuilder::ModelBuilder( const ModelBuilder& to_copy ) :
@@ -130,19 +141,19 @@ unsigned int Utilities::ModelBuilder::addVertexComponent( const std::string &nam
 }
 
 unsigned int Utilities::ModelBuilder::addVertexComponent( const char *const name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized ) {
-	if( components_are_done )
+    if( components_are_done )
         throw CannotAddVertexComponentAfterSetup();
-	vertex_components.push_back( VertexComponent( name ) );
+    vertex_components.push_back( VertexComponent( name ) );
 
-	vertex_components.back().setNormalization( normalized );
-	vertex_components.back().type = type;
-	vertex_components.back().component_type = component_type;
+    vertex_components.back().setNormalization( normalized );
+    vertex_components.back().type = type;
+    vertex_components.back().component_type = component_type;
 
-	vertex_components.back().begin = total_components_size;
-	vertex_components.back().size = Utilities::DataTypes::getDataTypeSizeInt32( type, component_type ) / 4;
-	total_components_size += vertex_components.back().size;
+    vertex_components.back().begin = total_components_size;
+    vertex_components.back().size = Utilities::DataTypes::getDataTypeSizeInt32( type, component_type ) / 4;
+    total_components_size += vertex_components.back().size;
 
-	return vertex_components.size() - 1;
+    return vertex_components.size() - 1;
 
 }
 
@@ -166,20 +177,20 @@ unsigned int Utilities::ModelBuilder::setVertexComponentMorph( unsigned int vert
     if( components_are_done )
         throw CannotAddVertexComponentAfterSetup();
 
-	if( vertex_component_index < vertex_components.size() )
-	{
-		vertex_morph_components.push_back( VertexComponent( vertex_components[ vertex_component_index ] ) );
+    if( vertex_component_index < vertex_components.size() )
+    {
+        vertex_morph_components.push_back( VertexComponent( vertex_components[ vertex_component_index ] ) );
         vertex_morph_components.back().begin = total_morph_components_size;
         vertex_morph_components.back().size = Utilities::DataTypes::getDataTypeSizeInt32( vertex_components[ vertex_component_index ].type, vertex_components[ vertex_component_index ].component_type ) / 4;
         total_morph_components_size += vertex_morph_components.back().size;
-        
+
         if( vertex_components[ vertex_component_index ].isPosition() )
             vertex_morph_position_component_index = vertex_morph_components.size() - 1;
 
-		return vertex_morph_components.size() - 1;
-	}
-	else
-		return -1;
+        return vertex_morph_components.size() - 1;
+    }
+    else
+        return -1;
 }
 
 unsigned int Utilities::ModelBuilder::getNumMorphVertexComponents() const {
@@ -267,35 +278,35 @@ bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned 
         return false;
 }
 
-bool Utilities::ModelBuilder::checkForInvalidComponent( int &begin, std::ostream *warning_output ) const {
+bool Utilities::ModelBuilder::checkForInvalidComponent( unsigned &begin, std::ostream *warning_output ) const {
     bool correct = true;
 
     // This loop checks each vertex components if it has valid glTF attributes.
-	while( correct && begin < vertex_components.size() ) {
+    while( correct && begin < vertex_components.size() ) {
         std::string current_component_name = vertex_components[ begin ].getName();
         correct = false;
 
         // This checks to see the components follow the glTF 2.0 specification.
         // This given address shows what are all the valid values for glTF.
         // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#meshes
-		if( POSITION_COMPONENT_NAME.compare( current_component_name ) == 0 || NORMAL_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
+        if( POSITION_COMPONENT_NAME.compare( current_component_name ) == 0 || NORMAL_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC3 )
             {
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::FLOAT )
                     correct = !vertex_components[ begin ].isNormalized();
             }
-		}
-		else
-		if( TANGENT_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
+        }
+        else
+        if( TANGENT_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC4 )
             {
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::FLOAT )
                     correct = !vertex_components[ begin ].isNormalized();
             }
-		}
-		else
-		if( TEX_COORD_0_COMPONENT_NAME.compare( current_component_name ) == 0 ||
-		    TEX_COORD_1_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
+        }
+        else
+        if( TEX_COORD_0_COMPONENT_NAME.compare( current_component_name ) == 0 ||
+            TEX_COORD_1_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC2 )
             {
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::FLOAT )
@@ -305,9 +316,9 @@ bool Utilities::ModelBuilder::checkForInvalidComponent( int &begin, std::ostream
                     vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_SHORT )
                     correct = vertex_components[ begin ].isNormalized();
             }
-		}
-		else
-		if( COLORS_0_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
+        }
+        else
+        if( COLORS_0_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC3 ||
                 vertex_components[ begin ].type == Utilities::DataTypes::VEC4 )
             {
@@ -318,18 +329,18 @@ bool Utilities::ModelBuilder::checkForInvalidComponent( int &begin, std::ostream
                     vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_SHORT )
                     correct = vertex_components[ begin ].isNormalized();
             }
-		}
-		else
-		if( JOINTS_INDEX_0_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
+        }
+        else
+        if( JOINTS_INDEX_0_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC4 )
             {
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_BYTE ||
                     vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_SHORT )
                     correct = !vertex_components[ begin ].isNormalized();
             }
-		}
-		else
-		if( WEIGHTS_INDEX_0_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
+        }
+        else
+        if( WEIGHTS_INDEX_0_COMPONENT_NAME.compare( current_component_name ) == 0 ) {
             if( vertex_components[ begin ].type == Utilities::DataTypes::VEC4 )
             {
                 if( vertex_components[ begin ].component_type == Utilities::DataTypes::FLOAT )
@@ -339,18 +350,18 @@ bool Utilities::ModelBuilder::checkForInvalidComponent( int &begin, std::ostream
                     vertex_components[ begin ].component_type == Utilities::DataTypes::UNSIGNED_SHORT )
                     correct = vertex_components[ begin ].isNormalized();
             }
-		}
-		else
-		{
+        }
+        else
+        {
             // Check to see if the component has a '_' at the begining.
             // This does not tell if the component name has lower case characters.
             if( current_component_name.size() > 0 && current_component_name[0] == '_' )
                 correct = true;
-		}
+        }
 
-		begin++;
-	}
-	return false; // Everything appears to be correct in accordance to the glTF standards.
+        begin++;
+    }
+    return false; // Everything appears to be correct in accordance to the glTF standards.
 }
 
 bool Utilities::ModelBuilder::setupVertexComponents( unsigned int morph_frames ) {
@@ -398,7 +409,7 @@ void Utilities::ModelBuilder::allocateVertices( unsigned int size ) {
     vertex_amount = size;
 }
 
-bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_resource_id ) {
+bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_resource_id, bool culling_enabled ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -411,6 +422,7 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
+        texture_materials.back().has_culling = culling_enabled;
         
         // Allocate morph_bounds.
         std::pair<Utilities::DataTypes::Vec3Type, Utilities::DataTypes::Vec3Type> min_max;
@@ -438,6 +450,7 @@ bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMa
         element.starting_vertex_index = texture_materials[material_index].starting_vertex_index;
         element.file_name             = texture_materials[material_index].file_name;
         element.cbmp_resource_id      = texture_materials[material_index].cbmp_resource_id;
+        element.has_culling           = texture_materials[material_index].has_culling;
 
         return true;
     }
@@ -846,7 +859,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
             
             float frame;
-            for( int frame_index = 0; frame_index < morph_frame_buffers.size() + 2; frame_index++ ) {
+            for( unsigned frame_index = 0; frame_index < morph_frame_buffers.size() + 2; frame_index++ ) {
                 frame = static_cast<float>( frame_index ) * TIME_SPEED;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
@@ -860,12 +873,12 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             // Write all zeros for the first frame.
             frame = 0.0f;
-            for( int morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
+            for( unsigned morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
             
-            for( int frame_index = 0; frame_index < morph_frame_buffers.size(); frame_index++ ) {
-                for( int morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
+            for( unsigned frame_index = 0; frame_index < morph_frame_buffers.size(); frame_index++ ) {
+                for( unsigned morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
                     
                     if( frame_index == morph_index )
                         frame = 1.0f;
@@ -878,7 +891,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             // Write all zeros for the first frame.
             frame = 0.0f;
-            for( int morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
+            for( unsigned morph_index = 0; morph_index < morph_frame_buffers.size(); morph_index++ ) {
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ) );
             }
             
@@ -969,7 +982,11 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
             root["textures"][position]["source"]  = position;
             root["textures"][position]["sampler"] = 0;
-            root["materials"][position]["doubleSided"] = true; // This is set, because I do not know how to deceren the correct direction.
+
+            if( (*i).has_culling )
+                root["materials"][position]["doubleSided"] = false;
+            else
+                root["materials"][position]["doubleSided"] = true;
 
             root["materials"][position]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = position;
             root["materials"][position]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
@@ -1065,8 +1082,6 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     }
     
     if( getNumJointFrames() != 0 ) {
-        unsigned int joint_accessor_index = accessors_amount;
-        
         root["accessors"][accessors_amount]["bufferView"] = bone_buffer_view_index;
         root["accessors"][accessors_amount]["byteOffset"] = 0;
         root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
@@ -1129,8 +1144,6 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["skins"][0]["joints"][i] = i + 2;
         }
         root["nodes"][0]["skin"] = 0;
-        
-        unsigned int current_accessor_index = accessors_amount;
         
         unsigned int current_channels = 0;
         
@@ -1280,7 +1293,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
         }
         
         // Set the material of this new model.
-        new_model->setMaterial( models[0]->texture_materials[0].file_name, models[0]->texture_materials[0].cbmp_resource_id );
+        new_model->setMaterial( models[0]->texture_materials[0].file_name, models[0]->texture_materials[0].cbmp_resource_id, models[0]->texture_materials[0].has_culling );
         
         // Finally fill in the primary model.
         for( auto it = models.begin(); it != models.end(); it++ ) {
@@ -1289,11 +1302,12 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
             auto new_file_name = new_model->texture_materials.back().file_name;
             auto it_file_name = (*it)->texture_materials.back().file_name;
             auto it_cbmp_id = (*it)->texture_materials.back().cbmp_resource_id;
+            auto it_has_culling = (*it)->texture_materials.back().has_culling;
             
             // The material does not match then set the (*it) material to new_model.
             if( new_cbmp_id != it_cbmp_id ||
                 new_file_name.compare( it_file_name ) != 0 ) {
-                new_model->setMaterial( it_file_name, it_cbmp_id );
+                new_model->setMaterial( it_file_name, it_cbmp_id, it_has_culling );
             }
             
             // The texture bounds need to be applyed.

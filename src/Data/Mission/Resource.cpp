@@ -216,11 +216,11 @@ int Data::Mission::Resource::read( const std::string &file_path ) {
     return read( file_path.c_str() );
 }
 
-int Data::Mission::Resource::write( const std::string& file_path, const std::vector<std::string> & arguments  ) const {
+int Data::Mission::Resource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options  ) const {
     return -1;
 }
 
-int Data::Mission::Resource::writeRaw( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::Resource::writeRaw( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
 
     resource.open( file_path + "." + getFileExtension(), std::ios::binary | std::ios::out );

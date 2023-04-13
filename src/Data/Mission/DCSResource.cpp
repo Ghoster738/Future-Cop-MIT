@@ -29,7 +29,7 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
 
         if( reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + ENTRY_SIZE ) {
             auto header    = reader.readU32( settings.endian );
-            auto size      = reader.readU32( settings.endian );
+            auto size      = reader.readU32( settings.endian ); //TODO Figure out what this does.
             auto num_entry = reader.readU32( settings.endian );
 
             if( header == IDENTIFIER_TAG && reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + num_entry * ENTRY_SIZE ) {
@@ -38,7 +38,7 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
                 for( uint32_t i = 0; i < num_entry; i++ ) {
                     element.push_back( Element() );
 
-                    element.back().unk_0 = reader.readU8(); // This is probably an opcoce.
+                    element.back().unk_0 = reader.readU8(); // This is probably an opcode.
                     element.back().unk_1 = reader.readU8(); // start x?
                     element.back().unk_2 = reader.readU8(); // start y?
                     element.back().unk_3 = reader.readU8(); // end x?
@@ -69,6 +69,16 @@ Data::Mission::Resource * Data::Mission::DCSResource::duplicate() const {
     return new DCSResource( *this );
 }
 
-int Data::Mission::DCSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::DCSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
+}
+
+bool Data::Mission::IFFOptions::DCSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::DCSOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

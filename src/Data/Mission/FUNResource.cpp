@@ -22,8 +22,8 @@ uint32_t Data::Mission::FUNResource::getResourceTagID() const {
 
 bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     const size_t  TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
-    const size_t NUM_ENTRIES_SIZE = sizeof(uint32_t);
-    const size_t       ENTRY_SIZE = 8 * sizeof(uint8_t);
+    // const size_t NUM_ENTRIES_SIZE = sizeof(uint32_t);
+    // const size_t       ENTRY_SIZE = 8 * sizeof(uint8_t);
     const uint32_t TAG_tFUN = 0x7446554e;
     // which is { 0x74, 0x46, 0x55, 0x4e } or { 't', 'F', 'U', 'N' } or "tFUN"
     const uint32_t TAG_tEXT = 0x74455854;
@@ -109,8 +109,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                             *settings.output_ref << std::dec << "\n" << std::endl;
                         }
                         
-                        bool found_item = false;
-                        
                         // faction = 1, identifier = 5 Probably means initialization!
                         // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
                         // NEUTRAL_TURRET_INIT = NUMBER, { 0xC7, 0x80, 0x3D }
@@ -143,7 +141,7 @@ Data::Mission::Resource * Data::Mission::FUNResource::duplicate() const {
     return new FUNResource( *this );
 }
 
-int Data::Mission::FUNResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::FUNResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 
@@ -180,4 +178,14 @@ std::vector<uint8_t> Data::Mission::FUNResource::getFunctionCode( unsigned index
     }
     
     return code;
+}
+
+bool Data::Mission::IFFOptions::FUNOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::FUNOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

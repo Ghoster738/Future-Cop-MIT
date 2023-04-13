@@ -4,7 +4,6 @@
 
 #include "IFF.h"
 
-#include "../../Utilities/DataHandler.h"
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
 #include <fstream>
@@ -221,11 +220,11 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
                 readCullingTile( culling_bottom_right, reader_sect, settings.endian );
                 
-                auto what1 = reader_sect.readU16( settings.endian ) & 0xFF;
+                auto what1 = reader_sect.readU16( settings.endian );
                 
                 // Modifiying this to be other than what it is will cause an error?
                 if( what1 != 0 && settings.output_level >= 1 )
-                    *settings.output_ref << "Error expected zero in the Til resource." << std::endl;
+                    *settings.output_ref << "Error expected zero in the Til resource." << (unsigned)what1 << std::endl;
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
                 
@@ -240,35 +239,55 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Skip 2 bytes
                 reader_sect.readU16( settings.endian );
                 
-                const size_t ACTUAL_MESH_LIBRARY_SIZE = (this->mesh_library_size >> 4) / sizeof( uint32_t );
+                // It turned out that Future Cop: LAPD does not care about this value.
+                // Since, every original map that I encounted seemed to have this value,
+                // my program would just pay attention to this value and use it for predicting
+                // the size of the mesh_tiles for the vector.
+                const size_t PREDICTED_POLYGON_TILE_AMOUNT = this->mesh_library_size >> 6;
                 
-                mesh_tiles.reserve( ACTUAL_MESH_LIBRARY_SIZE );
+                mesh_tiles.reserve( PREDICTED_POLYGON_TILE_AMOUNT );
                 
                 std::set<uint16_t> seen_graphics_tiles;
+
+                size_t actual_polygon_tile_amount = 0;
                 
-                for( size_t i = 0; i < ACTUAL_MESH_LIBRARY_SIZE; i++ ) {
+                for( size_t i = 0; i < AMOUNT_OF_TILES * AMOUNT_OF_TILES; ) {
+
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
+
                     seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
+
+                    if( mesh_tiles.back().end_column )
+                        i++;
+                    actual_polygon_tile_amount++;
+                }
+
+                if( actual_polygon_tile_amount != PREDICTED_POLYGON_TILE_AMOUNT && settings.output_level >= 1  ) {
+                    *settings.output_ref << "\n"
+                    << "The resource id " << this->getResourceID() << " has mispredicted the polygon tile amount." << "\n"
+                    << " mesh_library_size is 0x" << std::hex << this->mesh_library_size << std::dec << "\n"
+                    << " The predicted polygons to be there are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n"
+                    << " The amount of polygons that exist are  " << actual_polygon_tile_amount << std::endl;
                 }
                 
                 bool skipped_space = false;
-                
+
                 // There are dead uvs that are not being used!
                 while( reader_sect.readU32( settings.endian ) == 0 )
                     skipped_space = true;
-                
+
                 // Undo the read after the bytes are skipped.
                 reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
-                
+
                 if( skipped_space && settings.output_level >= 3 )
                 {
                     *settings.output_ref << std::endl
-                    << "The resource number " << this->getIndexNumber() << " has " << skipped_space << " skipped." << std::endl
+                    << "The resource number " << this->getResourceID() << " has " << skipped_space << " skipped." << std::endl
                     << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
                     << " or 0x" << (this->mesh_library_size >> 4)
-                    << " or " << std::dec << ACTUAL_MESH_LIBRARY_SIZE << std::endl;
+                    << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << std::endl;
                 }
-                
+
                 // Read the UV's
                 texture_cords.reserve( texture_cordinates_amount );
                 
@@ -291,7 +310,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     
                     if( tile_graphics.type == 3 ) {
                         if( seen_graphics_tiles.find( tile_graphics_bitfield.size() - 1 ) != seen_graphics_tiles.end() ) {
-                            assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
+                            // assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
                         }
                     }
                 }
@@ -318,16 +337,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             }
             else
             {
-                char identifier_word[5] = {'\0'};
-                const auto IDENTIFIER_SIZE = (sizeof( identifier_word ) - 1) / sizeof(identifier_word[0]);
-
-                for( unsigned int i = 0; i < IDENTIFIER_SIZE; i++ ) {
-                    identifier_word[ i ] = reinterpret_cast<const char*>( &identifier )[ i ];
-                }
-                Utilities::DataHandler::swapBytes( reinterpret_cast< uint8_t* >( identifier_word ), 4 );
-
                 if( settings.output_level >= 0 ) {
-                    *settings.output_ref << "Mission::TilResource::load() " << identifier_word << " not recognized" << std::endl;
+                    *settings.output_ref << "Mission::TilResource::load() " << identifier << " not recognized" << std::endl;
                 }
                 
                 reader.setPosition( data_size, Utilities::Buffer::CURRENT );
@@ -371,54 +382,48 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-int Data::Mission::TilResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
-    bool enable_point_cloud_export = false;
-    bool enable_height_map_export = false;
-    bool enable_til_export_model = false;
-    bool enable_export = true;
+int Data::Mission::TilResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
-
-    for( auto arg = arguments.begin(); arg != arguments.end(); arg++ ) {
-        if( (*arg).compare("--TIL_EXPORT_POINT_CLOUD_MAP") == 0 )
-            enable_point_cloud_export = true;
-        else
-        if( (*arg).compare("--TIL_EXPORT_HEIGHT_MAP") == 0 )
-            enable_height_map_export = true;
-        else
-        if( (*arg).compare("--TIL_EXPORT_MODEL") == 0 )
-            enable_til_export_model = true;
-        else
-        if( (*arg).compare("--dry") == 0 )
-            enable_export = false;
-    }
 
     Utilities::PixelFormatColor_R8G8B8 rgb;
     Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( rgb );
 
-    if( the_choosen_r != nullptr && enable_export ) {
-        if( enable_point_cloud_export ) {
+    if( the_choosen_r != nullptr && iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) ) {
+        if( iff_options.til.enable_point_cloud_export ) {
             // Write the three heightmaps encoded in three color channels.
             // TODO Find out what to do if the image cannot be written.
             Utilities::Buffer buffer;
             
             the_choosen_r->write( getImage(), buffer );
-            buffer.write( the_choosen_r->appendExtension( file_path ) );
+
+            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) )
+                buffer.write( the_choosen_r->appendExtension( file_path ) );
         }
-        if( enable_height_map_export ) {
+        if( iff_options.til.enable_height_map_export ) {
             // Write out the depth field of the Til Resource.
             Utilities::Image2D heightmap = getHeightMap( 8 );
             
             Utilities::Buffer buffer;
             the_choosen_r->write( heightmap, buffer );
-            buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+
+            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) )
+                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
         }
     }
 
-    if( enable_til_export_model ) {
-        Utilities::ModelBuilder *model_output_p = createModel( &arguments );
+    if( iff_options.til.enable_til_export_model ) {
+        Utilities::ModelBuilder *model_output_p = nullptr;
+
+        if( iff_options.til.enable_til_backface_culling ) {
+            model_output_p = createCulledModel();
+            assert( model_output_p != nullptr );
+        }
+
+        if( model_output_p == nullptr )
+            model_output_p = createModel();
         
-        if( enable_export && model_output_p != nullptr )
+        if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) && model_output_p != nullptr )
             glTF_return = model_output_p->write( file_path, "til_"+ std::to_string( getResourceID() ) );
         
         delete model_output_p;
@@ -429,14 +434,14 @@ int Data::Mission::TilResource::write( const std::string& file_path, const std::
     return glTF_return;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::vector<std::string> * arguments ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culled ) const {
     if( !mesh_tiles.empty() ) // Make sure there is no out of bounds error.
     {
         // Single texture models are to be generated first.
         std::vector<Utilities::ModelBuilder*> texture_models;
         
         for( unsigned int i = 0; i < TEXTURE_NAMES_AMOUNT; i++ ) {
-            auto texture_model_p = createPartial( i );
+            auto texture_model_p = createPartial( i, is_culled );
             
             if( texture_model_p != nullptr )
                 texture_models.push_back( texture_model_p );
@@ -461,7 +466,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( const std::ve
         return nullptr;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, float x_offset, float y_offset ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, float x_offset, float y_offset ) const {
     if( texture_index > TEXTURE_NAMES_AMOUNT + 1 )
         return nullptr;
     else {
@@ -474,7 +479,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         unsigned int normal_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int tex_coord_0_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output->addVertexComponent( "_TileType", Utilities::DataTypes::ComponentType::INT, Utilities::DataTypes::SCALAR, false );
+        unsigned int tile_type_compon_index = model_output->addVertexComponent( "_TileType", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::SCALAR, false );
 
         model_output->setupVertexComponents();
 
@@ -487,13 +492,11 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         position_displacement.x = SPAN_OF_TIL + x_offset;
         position_displacement.y = 0.0;
         position_displacement.z = SPAN_OF_TIL + y_offset;
-        
-        TileGraphics tileGraphic;
 
         has_texture_displayed = false;
         
         if( texture_index < TEXTURE_NAMES_AMOUNT )
-            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1 );
+            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1, is_culled );
 
         for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
             for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
@@ -501,7 +504,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                 {
                     unsigned int current_tile_polygon_amount = 0;
 
-                    const Tile current_tile = mesh_tiles.at( t + mesh_reference_grid[x][y].tiles_start );
+                    const Tile current_tile = mesh_tiles.at( (t + mesh_reference_grid[x][y].tiles_start) % mesh_tiles.size() );
 
                     Data::Mission::Til::Mesh::Input input;
                     input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
@@ -571,9 +574,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             v.y = position[ p * 3 + 2 ].y - position[ p * 3 + 0 ].y;
                             v.z = position[ p * 3 + 2 ].z - position[ p * 3 + 0 ].z;
 
-                            normal[3 * p].x = u.y * v.z - u.z * v.y;
-                            normal[3 * p].y = u.z * v.x - u.x * v.z;
-                            normal[3 * p].z = u.x * v.y - u.y * v.x;
+                            normal[3 * p].x = (u.y * v.z - u.z * v.y);
+                            normal[3 * p].y = (u.z * v.x - u.x * v.z);
+                            normal[3 * p].z = (u.x * v.y - u.y * v.x);
                             
                             normal[3 * p] = glm::normalize( normal[3 * p] );
 
@@ -587,16 +590,53 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     }
 
                     {
-                        // The write loop for the tiles.
-                        for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
-                        {
-                            model_output->startVertex();
+                        bool front = true;
+                        bool back = false;
 
-                            model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
-                            model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
-                            model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
-                            model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                            model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                        if( is_culled ) {
+                            if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
+                                if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
+                                    front = current_tile.front;
+                                    back  = current_tile.back;
+                                }
+                                else {
+                                    front = current_tile.back;
+                                    back  = current_tile.front;
+                                }
+
+                                if( front == false && back == false ) {
+                                    front = true;
+                                    back = true;
+                                }
+                            }
+                        }
+
+                        if( back ) {
+                            // This writes the forward side of the tile data.
+                            for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
+                            {
+                                model_output->startVertex();
+
+                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
+                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
+                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
+                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( current_tile.mesh_type ) );
+                            }
+                        }
+
+                        if( front ) {
+                            // This writes the backface side of the tile data.
+                            for( unsigned int p = current_tile_polygon_amount; p > 0; p-- )
+                            {
+                                model_output->startVertex();
+
+                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type(  position[p - 1] ) );
+                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
+                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
+                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                            }
                         }
                     }
                 }
@@ -639,7 +679,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
             
-            current_tile = mesh_tiles.at( current_tile_index + mesh_reference_grid[x][z].tiles_start );
+            current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
             
             input.coord_index = current_tile.texture_cord_index;
             
@@ -785,4 +825,28 @@ std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( 
 
 const std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::TilResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
+}
+
+bool Data::Mission::IFFOptions::TilOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_MODEL", output_r, enable_til_export_model ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_CULL", output_r, enable_til_backface_culling ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_HEIGHT_MAP", output_r, enable_height_map_export ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_POINT_CLOUD_MAP", output_r, enable_point_cloud_export ) )
+        return false; // The single argument is not valid.
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::TilOption::getOptions() const {
+    std::string information_text = getBuiltInOptions( 16 );
+
+    information_text += "  --" + getNameSpace() + "_EXPORT_MODEL           Export the Til as in the glTF model format. There you will see a piece of the map\n";
+    information_text += "  --" + getNameSpace() + "_EXPORT_CULL            If " + getNameSpace() + "_EXPORT_MODEL is enabled then it will export a backface culled Ctil for faster rendering speeds.\n";
+    information_text += "  --" + getNameSpace() + "_EXPORT_HEIGHT_MAP      Export the raycasted Til, so you could see a piece of the map\n";
+    information_text += "  --" + getNameSpace() + "_EXPORT_POINT_CLOUD_MAP Export the point cloud spanning the this Til\n";
+
+    return information_text;
 }

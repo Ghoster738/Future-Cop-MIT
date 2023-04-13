@@ -23,7 +23,7 @@ uint32_t Data::Mission::RPNSResource::getResourceTagID() const {
 }
 
 bool Data::Mission::RPNSResource::parse( const ParseSettings &settings ) {
-    const size_t TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
+    // const size_t TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
     Bitfield bitfield;
     uint8_t byte;
     
@@ -50,6 +50,16 @@ Data::Mission::Resource * Data::Mission::RPNSResource::duplicate() const {
     return new RPNSResource( *this );
 }
 
-int Data::Mission::RPNSResource::write( const std::string& file_path, const std::vector<std::string> & arguments ) const {
+int Data::Mission::RPNSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_option ) const {
     return 0;
+}
+
+bool Data::Mission::IFFOptions::RPNSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string Data::Mission::IFFOptions::RPNSOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }

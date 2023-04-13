@@ -10,7 +10,7 @@ namespace Data {
 namespace Mission {
 
 /**
- * This is the resource that basically stores the entire map.
+ * This is the resource stores the layout of the map.
  * It is effectively a pointer grid containing the pointers to the tiles.
  *
  */
@@ -25,7 +25,7 @@ private:
     // How many CTils from the map boarder should not be crossed.
     uint32_t border_range; // Thank you BahKooJ.
 
-    std::vector<TilResource*> tile_array_r;
+    std::map<uint32_t, TilResource*> ctil_id_r;
 public:
     PTCResource();
     PTCResource( const PTCResource &obj );
@@ -52,9 +52,7 @@ public:
      * Get the number of tiles that are in this class.
      * @return A nullptr if the coordinates are out of bounds or if the tile is a nullptr to begin with; If these two conditions are not meet then it is a valid tile reference pointer.
      */
-    unsigned int getAmountOfTiles() const { return tile_array_r.size(); }
-
-    TilResource ** getTileReference() { return tile_array_r.data(); }
+    unsigned int getAmountOfTiles() const { return ctil_id_r.size(); }
 
     /**
      * Get the width of the map.
@@ -76,12 +74,12 @@ public:
     /**
      * This exports all three heightmaps of all the tiles in one texture. It looks interesting in its own way.
      * @param file_path The path the file will be written.
-     * @param agruments --dry for no writing operations.
+     * @param iff_option --dry for no writing operations.
      * @return zero if it is a dry run or the return results of the Image2D write operations.
      */
-    virtual int write( const std::string& file_path, const std::vector<std::string> & arguments ) const;
+    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
     
-    int writeEntireMap( std::string file_path ) const;
+    int writeEntireMap( std::string file_path, bool make_culled = false ) const;
     
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float y ) const;

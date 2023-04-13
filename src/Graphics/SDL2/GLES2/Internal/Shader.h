@@ -2,6 +2,7 @@
 #define GL_SHADER_4853_INCLUDE
 
 #include "GLES2.h"
+#include <vector>
 #include <string>
 
 namespace Graphics {
@@ -21,12 +22,47 @@ public:
         VERTEX   = GL_VERTEX_SHADER, // The vertex shader deals with the vertices
         FRAGMENT = GL_FRAGMENT_SHADER  // The fragment shader deals with the pixels
     };
+    
+    class Type {
+    public:
+        enum PRECISION {
+            LOW,
+            MEDIUM,
+            HIGH,
+            ALL
+        };
+    protected:
+        PRECISION precision;
+        std::basic_string<GLchar> variable; // This holds the name with type.
+    public:
+        Type( PRECISION precision, std::basic_string<GLchar> variable_entry );
+        
+        virtual std::basic_string<GLchar> getEntryES2() const = 0;
+        virtual std::basic_string<GLchar> getEntry2() const = 0;
+    };
+    class Attribute : public Type {
+    public:
+        Attribute( PRECISION precision, std::basic_string<GLchar> variable_entry );
+        
+        virtual std::basic_string<GLchar> getEntryES2() const;
+        virtual std::basic_string<GLchar> getEntry2() const;
+    };
+    class Varying : public Type {
+    public:
+        Varying( PRECISION precision, std::basic_string<GLchar> variable_entry );
+        
+        virtual std::basic_string<GLchar> getEntryES2() const;
+        virtual std::basic_string<GLchar> getEntry2() const;
+    };
 private:
     TYPE shader_type;
     GLuint shader_id;
+    
+    std::basic_string<GLchar> generated_shader;
+    const GLchar *address_generated_shader_r;
 public:
     /**
-     * This does not allocate anything in OpenGLES.
+     * This does not allocate anything in OpenGL ES.
      * This simply sets this shader to an empty state.
      */
     Shader();
@@ -36,8 +72,10 @@ public:
      * This is to be used for internal shaders.
      * @param type This holds the type of the Shader. If this has the value of EMPTY then this constructor sets this Shader to its EMPTY state.
      * @param shader_source The memory pointer to the source code of the shader.
+     * @param attributes These are the attributes.
+     * @param varyings These are the varyings.
      */
-    Shader( TYPE type, const GLchar *const shader_source );
+    Shader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
 
     /**
      * This calls deallocate() in which it sets this Shader to an Empty state, and calls OpenGLES to delete this very shader.
@@ -49,15 +87,19 @@ public:
      * This is to be used for internal shaders.
      * @param type This holds the type of the Shader. If this has the value of EMPTY then this method does nothing.
      * @param shader_source The memory pointer to the source code of the shader.
+     * @param attributes These are the attributes.
+     * @param varyings These are the varyings.
      */
-    void setShader( TYPE type, const GLchar *const shader_source );
+    void setShader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
 
     /**
      * This loads a shader from a text file, and compiles it.
      * @param type This holds the type of the Shader. If this has the value of EMPTY then this method does load the text file into memory, but it does nothing with it.
      * @param shader_source The memory pointer to the source code of the shader.
+     * @param attributes These are the attributes.
+     * @param varyings These are the varyings.
      */
-    int loadShader( TYPE type, const char *const file_path );
+    int loadShader( TYPE type, const char *const file_path, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
 
     /**
      * Tell OpenGL to delete the shader in memory, and set this class to an empty state.
