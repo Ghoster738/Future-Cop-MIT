@@ -67,6 +67,36 @@ namespace  {
 
         return true;
     }
+    bool compareFloatMaxMin( Random::Generator generator, uint32_t number_attempts, float max, float min, float margin_of_error, std::string name, std::ostream *output_r ) {
+        float max_found = -std::numeric_limits<float>::max();
+        float min_found =  std::numeric_limits<float>::max();
+        float current_value;
+        bool fatal_error = false;
+
+        for( uint32_t i = 0; i < number_attempts; i++ ) {
+            current_value = generator.nextFloat( max, min );
+
+            if( current_value > max && current_value < min ) {
+                if( output_r != nullptr )
+                    *output_r << "Error Float: " << name << " at index " << i << " which is " << current_value << " is not inside [" << min << ", " << max << "]" << std::endl;
+                return false;
+            }
+            max_found = std::max(max_found, current_value);
+            min_found = std::min(min_found, current_value);
+        }
+
+        if( max_found < max - margin_of_error ) {
+            if( output_r != nullptr )
+                *output_r << "Error Float: " << name << " has max of " << max_found << ", but it is not close (" << margin_of_error << ") enough to " << max << std::endl;
+            fatal_error = true;
+        }
+        if( min_found > min + margin_of_error ) {
+            if( output_r != nullptr )
+                *output_r << "Error Float: " << name << " has min of " << min_found << ", but it is not close (" << margin_of_error << ") enough to " << min << std::endl;
+            fatal_error = true;
+        }
+        return !fatal_error;
+    }
 }
 
 int main() {
@@ -87,6 +117,9 @@ int main() {
         std::vector<int32_t> signed_numbers = {1816026831, 1700756648, 744911551, -137246805};
 
         if( !compareSVectors( general_signed_numbers, signed_numbers, "General Signed Test", &std::cout ) )
+            problem = FAILURE;
+
+        if( !compareFloatMaxMin( general, 128, 24.0, -32.0, 0.4375, "Float Min Max", &std::cout ) )
             problem = FAILURE;
     }
 
