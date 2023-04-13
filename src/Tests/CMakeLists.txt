@@ -43,6 +43,11 @@ add_executable(pixel_format_test Utilities/PixelFormat.cpp)
 target_link_libraries(pixel_format_test PRIVATE FC_IFF_IO)
 add_test( NAME pixel_format_test COMMAND $<TARGET_FILE:pixel_format_test> )
 
+# Test Random Code
+add_executable(random_test Utilities/Random.cpp)
+target_link_libraries(random_test PRIVATE FC_IFF_IO)
+add_test( NAME random_test COMMAND $<TARGET_FILE:random_test> )
+
 # Test Image2D Code
 add_executable(image_2d_test Utilities/Image2D.cpp)
 target_link_libraries(image_2d_test PRIVATE FC_IFF_IO)
