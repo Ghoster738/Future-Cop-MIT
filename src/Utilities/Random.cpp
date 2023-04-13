@@ -47,13 +47,15 @@ float Random::RandomGenerator::nextFloat( float max, float min ) {
 }
 
 Random::Random( uint64_t current_seeder_param ) : current_seeder( current_seeder_param )
-{}
+{
+    if( current_seeder == 0 )
+        current_seeder = 1;
+}
 
 Random::~Random() {
 }
 
 void Random::setSeeder( uint64_t seeder ) {
-
     if( seeder == 0 )
         seeder = 1;
 
