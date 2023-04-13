@@ -124,7 +124,6 @@ int main() {
     }
 
     { // Initialization Test.
-
         // Setup these three random number generator causes.
         // They should all match the output of the original.
         Random random;
@@ -141,12 +140,27 @@ int main() {
         std::vector<uint32_t> first_array_z  = getNumbers( first_z,  64 );
         std::vector<uint32_t> second_array_z = getNumbers( second_z, 64 );
 
+        Random random_sz;
+        random_sz.setSeeder(0);
+        Random::Generator first_sz = random_sz.getGenerator();
+        Random::Generator second_sz = random_sz.getGenerator();
+
+        std::vector<uint32_t> first_array_sz  = getNumbers( first_sz,  64 );
+        std::vector<uint32_t> second_array_sz = getNumbers( second_sz, 64 );
+
         Random random_1(1);
         Random::Generator first_1 = random_1.getGenerator();
         Random::Generator second_1 = random_1.getGenerator();
 
         std::vector<uint32_t> first_array_1  = getNumbers( first_1,  64 );
         std::vector<uint32_t> second_array_1 = getNumbers( second_1, 64 );
+
+        Random random_s1;
+        random_s1.setSeeder(1);
+        Random::Generator first_s1 = random_s1.getGenerator();
+        Random::Generator second_s1 = random_s1.getGenerator();
+        std::vector<uint32_t> first_array_s1  = getNumbers( first_s1,  64 );
+        std::vector<uint32_t> second_array_s1 = getNumbers( second_s1, 64 );
 
         if( compareVectors( first_array, second_array, "", nullptr ) ) {
             std::cout << "The first array should not match the second array!" << std::endl;
@@ -156,10 +170,47 @@ int main() {
             problem = FAILURE;
         if( !compareVectors( second_array, second_array_z, "Init Zero Test 2", &std::cout ) )
             problem = FAILURE;
-        if( !compareVectors( first_array, first_array_1, "Init  One Test 1", &std::cout ) )
+        if( !compareVectors( first_array, first_array_sz, "Init Set Zero Test 1", &std::cout ) )
+            problem = FAILURE;
+        if( !compareVectors( second_array, second_array_sz, "Init Set Zero Test 2", &std::cout ) )
+            problem = FAILURE;
+        if( !compareVectors( first_array, first_array_1, "Init One Test 1", &std::cout ) )
             problem = FAILURE;
         if( !compareVectors( second_array, second_array_1, "Init One Test 2", &std::cout ) )
             problem = FAILURE;
+        if( !compareVectors( first_array, first_array_s1, "Init Set One Test 1", &std::cout ) )
+            problem = FAILURE;
+        if( !compareVectors( second_array, second_array_s1, "Init Set One Test 2", &std::cout ) )
+            problem = FAILURE;
+    }
+
+    { // Proof that getNext would do as it says.
+        Random random( 0x5F93282D6FDEC ); // That is a time stamp.
+
+        Random::Generator copy_next = random.getGenerator();
+        Random::Generator zero_next = copy_next;
+        Random::Generator  one_next = zero_next;
+        one_next.nextSeed();
+        Random::Generator  two_next = one_next;
+        two_next.nextSeed();
+
+        uint32_t copy_next_value = copy_next.nextUnsignedInt();
+        uint32_t zero_next_value = zero_next.nextUnsignedInt();
+        uint32_t  one_next_value = one_next.nextUnsignedInt();
+        uint32_t  two_next_value = one_next.nextUnsignedInt();
+
+        if( copy_next_value != zero_next_value ) {
+            std::cout << "Get Next Failed: Generators are not duplicated properly! Expected: " << copy_next_value << " Return: " << zero_next_value << std::endl;
+            problem = FAILURE;
+        }
+        if( zero_next_value == one_next_value ) {
+            std::cout << "Get Next Failed: zero_next_value: " << zero_next_value << " and one_next_value " << one_next_value << " should not be equal" << std::endl;
+            problem = FAILURE;
+        }
+        if( one_next_value == two_next_value ) {
+            std::cout << "Get Next Failed: one_next_value " << one_next_value << " and two_next_value " << two_next_value << " should not be equal" << std::endl;
+            problem = FAILURE;
+        }
     }
 
     return problem;
