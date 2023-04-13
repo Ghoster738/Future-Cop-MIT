@@ -16,27 +16,27 @@ namespace {
 
 namespace Utilities {
 
-Random::RandomGenerator::RandomGenerator( uint64_t current_seed_param ) :
+Random::Generator::Generator( uint64_t current_seed_param ) :
     current_seed( current_seed_param )
 {}
 
-void Random::RandomGenerator::nextSeed() {
+void Random::Generator::nextSeed() {
     current_seed ^= current_seed >> 12;
     current_seed ^= current_seed << 25;
     current_seed ^= current_seed >> 27;
 }
 
-uint32_t Random::RandomGenerator::nextUnsignedInt() {
+uint32_t Random::Generator::nextUnsignedInt() {
     nextSeed();
     return (current_seed * M32) >> 32;
 }
 
-int32_t Random::RandomGenerator::nextSignedInt() {
+int32_t Random::Generator::nextSignedInt() {
     nextSeed();
     return static_cast<int32_t>(nextUnsignedInt());
 }
 
-float Random::RandomGenerator::nextFloat( float max, float min ) {
+float Random::Generator::nextFloat( float max, float min ) {
     nextSeed();
     const uint64_t value = current_seed * M32;
 
@@ -46,8 +46,7 @@ float Random::RandomGenerator::nextFloat( float max, float min ) {
     return far * max + small * min;
 }
 
-Random::Random( uint64_t current_seeder_param ) : current_seeder( current_seeder_param )
-{
+Random::Random( uint64_t current_seeder_param ) : current_seeder( current_seeder_param ) {
     if( current_seeder == 0 )
         current_seeder = 1;
 }
@@ -66,10 +65,10 @@ void Random::setSeeder( uint64_t seeder ) {
     guard.unlock();
 }
 
-Random::RandomGenerator Random::getGenerator() {
+Random::Generator Random::getGenerator() {
     guard.lock();
 
-    auto generator = RandomGenerator( reverseBits( current_seeder ) );
+    auto generator = Generator( reverseBits( current_seeder ) );
 
     current_seeder++;
     if( current_seeder == 0 )

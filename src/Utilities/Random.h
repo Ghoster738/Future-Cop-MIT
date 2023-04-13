@@ -11,12 +11,12 @@ namespace Utilities {
  *
  * I know that C++ has its own random number solution, but I wanted to make this program determinisic, and for that I must know the exact algorithms for random numbers.
  *
- * Random creates the seeds for RandomGenerator using the recommendations from https://www.dice-research.org/news/2020-01-18-seedsatscale/.
- * RandomGenerator uses the XORShift64* generator. https://en.wikipedia.org/wiki/Xorshift
+ * Random creates the seeds for Generator using the recommendations from https://www.dice-research.org/news/2020-01-18-seedsatscale/.
+ * Generator uses the XORShift64* generator. https://en.wikipedia.org/wiki/Xorshift
  *
  * This generator is to be used for things like choosing which path a tank should go to. Each entity
- * should have their own RandomGenerator. The Random class is thread safe, but not the
- * RandomGenerator.
+ * should have their own Generator. The Random class is thread safe, but not the
+ * Generator.
  * @warning This is for gameplay uses only. DO NOT USE THIS FOR SECURITY. Using class for encryption or anything simualar would be rejected for merge until fixed with a cryptographically-secure random number generator.
  */
 class Random {
@@ -24,11 +24,11 @@ public:
     /**
      * Unlike the main class, Random, this class is not thread safe.
      */
-    class RandomGenerator {
+    class Generator {
     private:
         uint64_t current_seed;
     public:
-        RandomGenerator( uint64_t current_seed );
+        Generator( uint64_t current_seed );
 
         /**
          * Increment the seed for the RandomGenrator
@@ -71,7 +71,7 @@ public:
      * @note This is thread safe, but you would need to wait for a few microseconds maybe.
      * @return The random number generator.
      */
-    RandomGenerator getGenerator();
+    Generator getGenerator();
 };
 
 }
