@@ -129,5 +129,10 @@ bool GJK::hasCollision() {
     return result == SimplexStatus::VALID;
 }
 
+bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 ) {
+    GJK collider( &shape_0, &shape_1 );
+    return collider.hasCollision();
+}
+
 }
 }
