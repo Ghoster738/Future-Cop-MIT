@@ -15,6 +15,11 @@ public:
     // A 3D Simplex would only take up to 4 vertices.
     static constexpr size_t SIMPLEX_LENGTH = 4;
 
+    struct Depth {
+        glm::vec3 normal;
+        float     depth;
+        bool      has_collision;
+    };
 protected:
     enum SimplexStatus {
         INVALID,
@@ -38,6 +43,9 @@ public:
     static glm::vec3 tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c );
 
     bool hasCollision();
+
+    static bool hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 );
+    static Depth getDepth( const GJKShape &shape_0, const GJKShape &shape_1 );
 };
 
 }
