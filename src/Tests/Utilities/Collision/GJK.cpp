@@ -2,7 +2,6 @@
 #include "../../../Utilities/Collision/GJKPolyhedron.h"
 
 #include <glm/common.hpp>
-#include <glm/gtc/epsilon.hpp>
 #include <iostream>
 
 #include "Helper.h"
