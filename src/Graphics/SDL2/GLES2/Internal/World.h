@@ -20,13 +20,17 @@ namespace Internal {
  */
 class World {
 public:
-    class MeshDraw {
-    public:
+    struct MeshDraw {
+        struct Section {
+            glm::i32vec2 position;
+            uint32_t camera_visable_index;
+        };
+
         Mesh *mesh_p;
         const Data::Mission::TilResource *til_resource_r;
         float change_rate;
         float current; // [ -change_rate, change_rate ]
-        std::vector<glm::i32vec2> positions;
+        std::vector<Section> sections;
     };
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
@@ -41,6 +45,7 @@ protected:
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
+    uint32_t valid_sections;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
