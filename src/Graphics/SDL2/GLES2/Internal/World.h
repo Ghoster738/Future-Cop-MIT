@@ -22,12 +22,11 @@ class World {
 public:
     class MeshDraw {
     public:
-        Mesh *mesh;
-        const Data::Mission::TilResource *tilResourceR;
+        Mesh *mesh_p;
+        const Data::Mission::TilResource *til_resource_r;
         float change_rate;
         float current; // [ -change_rate, change_rate ]
-        unsigned int positions_amount;
-        glm::i32vec2 *positions;
+        std::vector<glm::i32vec2> positions;
     };
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;

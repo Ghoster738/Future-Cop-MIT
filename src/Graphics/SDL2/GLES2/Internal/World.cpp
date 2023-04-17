@@ -49,8 +49,7 @@ Graphics::SDL2::GLES2::Internal::World::World() {
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        delete (*i).mesh;
-        delete [] (*i).positions;
+        delete (*i).mesh_p;
     }
 }
 
@@ -135,36 +134,38 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // Set up the primary tiles. O(n)
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         const Data::Mission::TilResource *data = resources_til[ i - tiles.begin() ];
-        auto model = data->createCulledModel();
+        auto model_p = data->createCulledModel();
 
         assert( model != nullptr );
 
-        (*i).mesh = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
-        (*i).tilResourceR = data;
+        (*i).mesh_p = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
+        (*i).til_resource_r = data;
         (*i).change_rate = -1.0;
         (*i).current = 0.0;
-        (*i).positions_amount = 0;
 
-        (*i).mesh->setup( *model, textures );
+        (*i).mesh_p->setup( *model_p, textures );
 
-        delete model;
+        delete model_p;
     }
 
-    // Set the position amounts. O(x*y) or O(n^2).
-    for( unsigned int x = 0; x < pointer_tile_cluster.getWidth(); x++ )
     {
-        for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
-        {
-            auto pointer = pointer_tile_cluster.getTile(x, y);
-            if( pointer != nullptr )
-                tiles.at( pointer->getIndexNumber() ).positions_amount++;
-        }
-    }
+        uint32_t temp_amounts[ tiles.size() ] = { 0 };
 
-    // Allocate them. O(n)
-    for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        (*i).positions = new glm::i32vec2 [ (*i).positions_amount ];
-        (*i).positions_amount = 0; // This will be used as an index. Later it will change back into the orignal amount of positions.
+        // Set the position amounts. O(x*y) or O(n^2).
+        for( unsigned int x = 0; x < pointer_tile_cluster.getWidth(); x++ )
+        {
+            for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
+            {
+                auto pointer = pointer_tile_cluster.getTile(x, y);
+                if( pointer != nullptr )
+                    temp_amounts[ pointer->getIndexNumber() ]++;
+            }
+        }
+
+        // Allocate them. O(n)
+        for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
+            (*i).positions.reserve( temp_amounts[ i - tiles.begin() ] );
+        }
     }
 
     // Finally setup the map. O(x*y) or O(n^2).
@@ -177,10 +178,10 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             {
                 unsigned int index = pointer->getIndexNumber();
                 
-                tiles.at(index).positions[ tiles.at(index).positions_amount ].x = x - 1;
-                tiles.at(index).positions[ tiles.at(index).positions_amount ].y = y;
+                tiles.at(index).positions.push_back( glm::i32vec2() );
 
-                tiles.at(index).positions_amount++;
+                tiles.at(index).positions.back().x = x - 1;
+                tiles.at(index).positions.back().y = y;
             }
         }
     }
@@ -207,13 +208,13 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
-        for( unsigned int d = 0; d < (*i).positions_amount; d++ ) {
+        for( unsigned int d = 0; d < (*i).positions.size(); d++ ) {
             final_position = glm::translate( projection_view, glm::vec3( ((*i).positions[d].x * 16 + 8.5), 0, ((*i).positions[d].y * 16  + 8.5) ) );
 
             // We can now send the matrix to the program.
             glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-            (*i).mesh->draw( 0, texture_uniform_id );
+            (*i).mesh_p->draw( 0, texture_uniform_id );
         }
     }
 }
