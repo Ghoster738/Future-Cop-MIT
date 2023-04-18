@@ -192,7 +192,23 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera ) {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<bool> &culling_info, const Utilities::Collision::GJKShape *projection_r ) const {
+    if( culling_info.size() < valid_sections ) {
+        return false;
+    }
+
+    int value = 0;
+
+    for( auto i : culling_info ) {
+        i = value % 2;
+
+        value++;
+    }
+
+    return true;
+}
+
+void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const std::vector<bool> *const culling_info_r ) {
     glm::mat4 projection_view, final_position;
     
     // Use the map shader for the 3D map or the world.
@@ -216,12 +232,14 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
-            final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
+            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] == true ) {
+                final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
 
-            // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
+                // We can now send the matrix to the program.
+                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-            (*i).mesh_p->draw( 0, texture_uniform_id );
+                (*i).mesh_p->draw( 0, texture_uniform_id );
+            }
         }
     }
 }

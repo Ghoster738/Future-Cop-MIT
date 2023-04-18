@@ -5,6 +5,7 @@
 #include "../../../Camera.h"
 #include "../../../../Data/Mission/PTCResource.h"
 #include "../../../../Data/Mission/TilResource.h"
+#include "../../../../Utilities/Collision/GJKShape.h"
 
 namespace Graphics {
 namespace SDL2 {
@@ -111,11 +112,26 @@ public:
     void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
+     * @return The number of drawable sections in this world.
+     */
+    uint32_t getNumberSections() const { return valid_sections; }
+
+    /**
+     * Update Culling for the camera.
+     * @note This will change the parameter culling_info.
+     * @param culling_info The boolean vector that will hold culling information for the World.
+     * @param projection The projection shape to make the culling info from.
+     * @return true if culling has successfully been setup.
+     */
+    bool updateCulling( std::vector<bool> &culling_info, const Utilities::Collision::GJKShape *projection_r = nullptr ) const;
+
+    /**
      * This draws the entire map.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
-     * @param This is the camera data to be passed into world.
+     * @param camera This is the camera data to be passed into world.
+     * @param culling_info The culling information that would affect the World.
      */
-    void draw( const Camera &camera );
+    void draw( const Camera &camera, const std::vector<bool> *const culling_info_r = nullptr );
 
     /**
      * @return the program that this World uses.

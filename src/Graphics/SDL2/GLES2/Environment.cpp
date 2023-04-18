@@ -240,9 +240,13 @@ void Environment::drawFrame() const {
             {
                 // Enable culling on the world map.
                 glEnable( GL_CULL_FACE );
+
+                std::vector<bool> culling_info( this->world_p->getNumberSections(), true );
+
+                this->world_p->updateCulling( culling_info );
                 
                 // Draw the map.
-                this->world_p->draw( *current_camera );
+                this->world_p->draw( *current_camera, &culling_info );
                 
                 // Disable culling on the world map.
                 glDisable( GL_CULL_FACE );
