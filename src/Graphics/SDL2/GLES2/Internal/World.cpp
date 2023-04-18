@@ -211,11 +211,12 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     }
 
      // TODO Add culling logic! camera should be modified to have collision boxes of the Ctils and a projection shape to check if the projection box intersects with the camera.
+     const float TILE_SPAN = 0.5;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
-            final_position = glm::translate( projection_view, glm::vec3( ((*i).sections[d].position.x * 16 + 8.5), 0, ((*i).sections[d].position.y * 16  + 8.5) ) );
+            final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
 
             // We can now send the matrix to the program.
             glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
