@@ -166,12 +166,6 @@ public:
     int removeText2DBuffer( Text2DBuffer* buffer_p );
 
     /**
-     * This sets up the 3D culling data structure that this camera has.
-     * @note Only graphics should invoke this.
-     */
-    void updateCulling();
-
-    /**
      * This gets the 3D camera shape from the projection matrix.
      * @note This might actually be useful for gameplay purposes.
      */
