@@ -1,5 +1,6 @@
 #include "World.h"
 #include "../../../../Data/Mission/IFF.h"
+#include "../../../../Utilities/Collision/GJK.h"
 #include "GLES2.h"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -192,20 +193,45 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape *projection_r ) const {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const {
     if( culling_info.size() < valid_sections ) {
         return false;
     }
 
-    int value = 0;
-
+    // Clear the sections.
     for( size_t i = 0; i < culling_info.size(); i++ ) {
-        if( (value % 2) == 1 )
-            culling_info[i] = -1.0f;
-        else
-            culling_info[i] = 1.0f;
+        culling_info[i] = -1.0f;
+    }
 
-        value++;
+    std::vector<glm::vec3> section_data( 8, glm::vec3() );
+    const glm::vec3 MIN = glm::vec3(0,-16,0);
+    const glm::vec3 MAX = glm::vec3( Data::Mission::TilResource::AMOUNT_OF_TILES, 16, Data::Mission::TilResource::AMOUNT_OF_TILES );
+
+    for( auto m : tiles ) {
+        for( auto s : m.sections ) {
+            glm::vec3 adjusted_position( s.position.x, 0, s.position.y );
+            adjusted_position *= Data::Mission::TilResource::AMOUNT_OF_TILES;
+
+            glm::vec3 min = adjusted_position + MIN;
+            glm::vec3 max = adjusted_position + MAX;
+
+            section_data[0] = glm::vec3( min.x, min.y, min.z );
+            section_data[1] = glm::vec3( max.x, min.y, min.z );
+            section_data[2] = glm::vec3( min.x, max.y, min.z );
+            section_data[3] = glm::vec3( max.x, max.y, min.z );
+            section_data[4] = glm::vec3( min.x, min.y, max.z );
+            section_data[5] = glm::vec3( max.x, min.y, max.z );
+            section_data[6] = glm::vec3( min.x, max.y, max.z );
+            section_data[7] = glm::vec3( max.x, max.y, max.z );
+
+            Utilities::Collision::GJKPolyhedron section_shape( section_data );
+
+            if( Utilities::Collision::GJK::hasCollision( projection, section_shape ) ) {
+                culling_info[ s.camera_visable_index ] = 1.0f;
+            }
+            else
+                culling_info[ s.camera_visable_index ] = -1.0f;
+        }
     }
 
     return true;

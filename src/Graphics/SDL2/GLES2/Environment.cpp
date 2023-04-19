@@ -244,7 +244,9 @@ void Environment::drawFrame() const {
                 if( current_camera->culling_info.empty() )
                     current_camera->culling_info = std::vector<float>( this->world_p->getNumberSections(), 1 );
 
-                this->world_p->updateCulling( current_camera->culling_info );
+                auto projection_shape = current_camera->getProjection3DShape();
+
+                this->world_p->updateCulling( current_camera->culling_info, projection_shape );
                 
                 // Draw the map.
                 this->world_p->draw( *current_camera, &current_camera->culling_info );

@@ -3,7 +3,7 @@
 
 #include "Text2DBuffer.h"
 #include "../Utilities/DataTypes.h"
-#include "../Utilities/Collision/GJKShape.h"
+#include "../Utilities/Collision/GJKPolyhedron.h"
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 #include <vector>
@@ -169,7 +169,7 @@ public:
      * This gets the 3D camera shape from the projection matrix.
      * @note This might actually be useful for gameplay purposes.
      */
-    Utilities::Collision::GJKShape getProjection3DShape() const;
+    Utilities::Collision::GJKPolyhedron getProjection3DShape() const;
 };
 
 }

@@ -192,9 +192,13 @@ bool GJK::hasCollision() {
     // Reset simplex.
     simplex_length = 0;
     SimplexStatus result = INCOMPLETE;
+    size_t limit_cycles = 0;
 
-    while( result == SimplexStatus::INCOMPLETE ) {
+    // TODO In certain situations this will get stuck.
+    // Cell (3, 0) min(48, -16, 0) max(64, 16, 16) of ConFt if limit_cycles did not exist.
+    while( result == SimplexStatus::INCOMPLETE && limit_cycles < 32 ) {
         result = evolveSimplex();
+        limit_cycles++;
     }
 
     return result == SimplexStatus::VALID;

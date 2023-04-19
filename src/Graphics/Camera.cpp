@@ -125,3 +125,26 @@ int Graphics::Camera::removeText2DBuffer( Graphics::Text2DBuffer* buffer_p ) {
 
     return erased_value;
 }
+
+namespace {
+std::vector<glm::vec3> generateCubeData( glm::vec3 scale, glm::vec3 center = glm::vec3(0,0,0) ) {
+    std::vector<glm::vec3> cube_data;
+
+    cube_data.push_back( glm::vec3( -scale.x, -scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x, -scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x,  scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x,  scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x, -scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x, -scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x,  scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x,  scale.y,  scale.z ) + center );
+
+    return cube_data;
+}
+}
+
+Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() const {
+    Utilities::Collision::GJKPolyhedron camera_polyhedron( generateCubeData( glm::vec3( 32, 32, 96), glm::vec3( 96, 0, 108) ) );
+
+    return camera_polyhedron;
+}

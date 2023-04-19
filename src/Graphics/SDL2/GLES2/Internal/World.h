@@ -123,7 +123,7 @@ public:
      * @param projection The projection shape to make the culling info from.
      * @return true if culling has successfully been setup.
      */
-    bool updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape *projection_r = nullptr ) const;
+    bool updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const;
 
     /**
      * This draws the entire map.
