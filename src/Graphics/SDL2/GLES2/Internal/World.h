@@ -123,7 +123,7 @@ public:
      * @param projection The projection shape to make the culling info from.
      * @return true if culling has successfully been setup.
      */
-    bool updateCulling( std::vector<bool> &culling_info, const Utilities::Collision::GJKShape *projection_r = nullptr ) const;
+    bool updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape *projection_r = nullptr ) const;
 
     /**
      * This draws the entire map.
@@ -131,7 +131,7 @@ public:
      * @param camera This is the camera data to be passed into world.
      * @param culling_info The culling information that would affect the World.
      */
-    void draw( const Camera &camera, const std::vector<bool> *const culling_info_r = nullptr );
+    void draw( const Camera &camera, const std::vector<float> *const culling_info_r = nullptr );
 
     /**
      * @return the program that this World uses.

@@ -137,7 +137,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         const Data::Mission::TilResource *data = resources_til[ i - tiles.begin() ];
         auto model_p = data->createCulledModel();
 
-        assert( model != nullptr );
+        assert( model_p != nullptr );
 
         (*i).mesh_p = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
         (*i).til_resource_r = data;
@@ -192,15 +192,18 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<bool> &culling_info, const Utilities::Collision::GJKShape *projection_r ) const {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape *projection_r ) const {
     if( culling_info.size() < valid_sections ) {
         return false;
     }
 
     int value = 0;
 
-    for( auto i : culling_info ) {
-        i = value % 2;
+    for( size_t i = 0; i < culling_info.size(); i++ ) {
+        if( (value % 2) == 1 )
+            culling_info[i] = -1.0f;
+        else
+            culling_info[i] = 1.0f;
 
         value++;
     }
@@ -208,7 +211,7 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<bool> &c
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const std::vector<bool> *const culling_info_r ) {
+void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const std::vector<float> *const culling_info_r ) {
     glm::mat4 projection_view, final_position;
     
     // Use the map shader for the 3D map or the world.
@@ -232,7 +235,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
-            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] == true ) {
+            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] >= 0 ) {
                 final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
 
                 // We can now send the matrix to the program.

@@ -241,7 +241,7 @@ void Environment::drawFrame() const {
                 // Enable culling on the world map.
                 glEnable( GL_CULL_FACE );
 
-                std::vector<bool> culling_info( this->world_p->getNumberSections(), true );
+                std::vector<float> culling_info( this->world_p->getNumberSections(), 1 );
 
                 this->world_p->updateCulling( culling_info );
                 
