@@ -43,8 +43,10 @@ public:
     static glm::vec3 tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c );
 
     bool hasCollision();
+    bool hasCollision( size_t &limit ); // NOTE This is provisional
 
     static bool hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 );
+    static bool hasCollision( const GJKShape &shape_0, const GJKShape &shape_1,  size_t &limit ); // NOTE This is provisional
     static Depth getDepth( const GJKShape &shape_0, const GJKShape &shape_1 );
 };
 

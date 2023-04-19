@@ -198,14 +198,9 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
         return false;
     }
 
-    // Clear the sections.
-    for( size_t i = 0; i < culling_info.size(); i++ ) {
-        culling_info[i] = -1.0f;
-    }
-
     std::vector<glm::vec3> section_data( 8, glm::vec3() );
-    const glm::vec3 MIN = glm::vec3(0,-16,0);
-    const glm::vec3 MAX = glm::vec3( Data::Mission::TilResource::AMOUNT_OF_TILES, 16, Data::Mission::TilResource::AMOUNT_OF_TILES );
+    const glm::vec3 MIN = glm::vec3(0, Data::Mission::TilResource::MAX_HEIGHT, 0);
+    const glm::vec3 MAX = glm::vec3( Data::Mission::TilResource::AMOUNT_OF_TILES, Data::Mission::TilResource::MIN_HEIGHT, Data::Mission::TilResource::AMOUNT_OF_TILES );
 
     for( auto m : tiles ) {
         for( auto s : m.sections ) {
@@ -225,8 +220,9 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
             section_data[7] = glm::vec3( max.x, max.y, max.z );
 
             Utilities::Collision::GJKPolyhedron section_shape( section_data );
+            size_t limit = 16;
 
-            if( Utilities::Collision::GJK::hasCollision( projection, section_shape ) ) {
+            if( Utilities::Collision::GJK::hasCollision( projection, section_shape, limit ) ) {
                 culling_info[ s.camera_visable_index ] = 1.0f;
             }
             else

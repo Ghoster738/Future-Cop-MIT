@@ -15,17 +15,17 @@ using Utilities::Collision::GJKPolyhedron;
 using Utilities::Collision::GJKShape;
 using Utilities::Collision::GJK;
 
-std::vector<glm::vec3> generateCubeData( glm::vec3 center = glm::vec3(0,0,0) ) {
+std::vector<glm::vec3> generateCubeData( glm::vec3 scale, glm::vec3 center = glm::vec3(0,0,0) ) {
     std::vector<glm::vec3> cube_data;
 
-    cube_data.push_back( glm::vec3( -1, -1, -1 ) + center );
-    cube_data.push_back( glm::vec3(  1, -1, -1 ) + center );
-    cube_data.push_back( glm::vec3( -1,  1, -1 ) + center );
-    cube_data.push_back( glm::vec3(  1,  1, -1 ) + center );
-    cube_data.push_back( glm::vec3( -1, -1,  1 ) + center );
-    cube_data.push_back( glm::vec3(  1, -1,  1 ) + center );
-    cube_data.push_back( glm::vec3( -1,  1,  1 ) + center );
-    cube_data.push_back( glm::vec3(  1,  1,  1 ) + center );
+    cube_data.push_back( glm::vec3( -scale.x, -scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x, -scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x,  scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x,  scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x, -scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x, -scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x,  scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x,  scale.y,  scale.z ) + center );
 
     return cube_data;
 }
@@ -57,7 +57,7 @@ int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name, g
     int status = SUCCESS;
     glm::vec3 position = 8.0f * glm::vec3( x, y, z );
 
-    GJKPolyhedron cube_outside( generateCubeData( position + displacement ) );
+    GJKPolyhedron cube_outside( generateCubeData( glm::vec3(1,1,1), position + displacement ) );
     GJKPolyhedron tetrahedron_outside( generateTetrahedronData( position + displacement ) );
     GJKPolyhedron triangle_outside( generateTriangleData( position + displacement ) );
 
@@ -84,7 +84,7 @@ int insideTest( int x, int y, int z, const GJKShape &shape, std::string name, gl
     int status = SUCCESS;
     glm::vec3 position = 0.5f * glm::vec3( x, y, z );
 
-    GJKPolyhedron cube_inside( generateCubeData( position + displacement ) );
+    GJKPolyhedron cube_inside( generateCubeData( glm::vec3(1,1,1), position + displacement ) );
     GJKPolyhedron tetrahedron_inside( generateTetrahedronData( position + displacement ) );
     GJKPolyhedron triangle_inside( generateTriangleData( position + displacement ) );
 
@@ -113,7 +113,7 @@ int quaderentTest( int x, int y, int z ) {
     int status = SUCCESS;
     glm::vec3 position = 16.0f * glm::vec3( x, y, z );
 
-    GJKPolyhedron cube( generateCubeData( position ) );
+    GJKPolyhedron cube( generateCubeData( glm::vec3(1,1,1), position ) );
 
     for( int x = -1; x <= 1 && status == SUCCESS; x++) {
         for( int y = -1; y <= 1 && status == SUCCESS; y++) {
@@ -139,6 +139,38 @@ int main() {
             for( int z = -1; z <= 1 && status == SUCCESS; z++) {
                 status |= quaderentTest(x, y, z);
             }
+        }
+    }
+
+    // This tests for the bug to hopefully fix.
+    {
+        GJKPolyhedron camera_shape( generateCubeData( glm::vec3( 32, 32, 32 ), glm::vec3( 96, 0, 108 ) ) );
+
+        std::vector<glm::vec3> section_data( 8, glm::vec3() );
+        glm::vec3 min(48, -16, 0);
+        glm::vec3 max(64, 16, 16);
+
+        section_data[0] = glm::vec3( min.x, min.y, min.z );
+        section_data[1] = glm::vec3( max.x, min.y, min.z );
+        section_data[2] = glm::vec3( min.x, max.y, min.z );
+        section_data[3] = glm::vec3( max.x, max.y, min.z );
+        section_data[4] = glm::vec3( min.x, min.y, max.z );
+        section_data[5] = glm::vec3( max.x, min.y, max.z );
+        section_data[6] = glm::vec3( min.x, max.y, max.z );
+        section_data[7] = glm::vec3( max.x, max.y, max.z );
+
+        GJKPolyhedron section_shape( section_data );
+
+        size_t limit = 2048;
+
+        if( GJK::hasCollision(camera_shape, section_shape, limit) ) {
+            std::cout << "The problematic shape would not collide!" << std::endl;
+            status = FAILURE;
+        }
+
+        if( limit == 0 ) {
+            std::cout << "The limit is reached for extermely simple shapes who have about 16 vertices." << std::endl;
+            status = FAILURE;
         }
     }
 
