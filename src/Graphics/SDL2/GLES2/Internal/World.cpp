@@ -12,10 +12,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
+    "uniform float Blueness;\n"
 
     "void main()\n"
     "{\n"
-    "   vertex_colors = COLOR_0;\n"
+    "   vertex_colors = COLOR_0 * vec3(Blueness, Blueness, 1.0 );\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
     "   _flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
@@ -225,6 +226,8 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
             if( Utilities::Collision::GJK::hasCollision( projection, section_shape, limit ) ) {
                 culling_info[ s.camera_visable_index ] = 1.0f;
             }
+            else if( limit == 0 )
+                culling_info[ s.camera_visable_index ] = -0.25f;
             else
                 culling_info[ s.camera_visable_index ] = -1.0f;
         }
@@ -240,6 +243,8 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     program.use();
 
     camera.getProjectionView3D( projection_view );
+
+    const auto blueness_uniform_id = program.getUniform( "Blueness" );
     
     if( this->glow_time > 1.0f )
         glUniform1f( glow_time_uniform_id, 2.0f - this->glow_time );
@@ -251,13 +256,18 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
         glUniform1f( selected_tile_uniform_id, this->selected_tile );
     }
 
-     // TODO Add culling logic! camera should be modified to have collision boxes of the Ctils and a projection shape to check if the projection box intersects with the camera.
      const float TILE_SPAN = 0.5;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
-            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] >= 0 ) {
+            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] >= -0.5 ) {
+
+                if( culling_info_r != nullptr && (*culling_info_r)[ (*i).sections[d].camera_visable_index ] < 0.0 )
+                    glUniform1f( blueness_uniform_id, 0.0f );
+                else
+                    glUniform1f( blueness_uniform_id, 1.0f );
+
                 final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
 
                 // We can now send the matrix to the program.

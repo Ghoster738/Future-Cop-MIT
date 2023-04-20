@@ -163,7 +163,7 @@ int main() {
 
         size_t limit = 2048;
 
-        if( GJK::hasCollision(camera_shape, section_shape, limit) ) {
+        if( !GJK::hasCollision(camera_shape, section_shape, limit) ) {
             std::cout << "The problematic shape would not collide!" << std::endl;
             status = FAILURE;
         }
