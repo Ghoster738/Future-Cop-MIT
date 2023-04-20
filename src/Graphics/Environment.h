@@ -117,6 +117,11 @@ public:
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f) = 0;
 
     /**
+     * Setup the draw graph for the renderer.
+     */
+    virtual void setupFrame() = 0;
+
+    /**
      * Draw a single frame onto the main context.
      */
     virtual void drawFrame() const = 0;

@@ -329,6 +329,8 @@ int main(int argc, char** argv)
         delete environment_p;
         return -4;
     }
+
+    bool update_culling = false;
     
     auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
     
@@ -465,6 +467,12 @@ int main(int argc, char** argv)
                     }
                 }
             }
+
+            input_r = player_1_controller_r->getInput( Controls::StandardInputSet::Buttons::JUMP );
+            if( input_r->isChanged() && input_r->getState() > 0.5 )
+            {
+                update_culling = !update_culling;
+            }
         }
 
         if( control_cursor_r != nullptr && control_cursor_r->isChanged() )
@@ -541,6 +549,9 @@ int main(int argc, char** argv)
             text_2d_buffer_r->setPosition( glm::vec2( 0, 80 ) );
             text_2d_buffer_r->print( "Ctil Offset = " + std::to_string( til_resources.at(current_tile_selected)->getOffset() ) );
         }
+
+        if( update_culling )
+            environment_p->setupFrame();
 
         environment_p->drawFrame();
         environment_p->advanceTime( delta_f );
