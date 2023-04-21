@@ -6,6 +6,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "SDL.h"
 #include <iostream>
+#include <stdexcept>
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     // Vertex shader uniforms
@@ -221,7 +222,7 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
             section_data[7] = glm::vec3( max.x, max.y, max.z );
 
             Utilities::Collision::GJKPolyhedron section_shape( section_data );
-            size_t limit = 16;
+            size_t limit = 128;
 
             if( Utilities::Collision::GJK::hasCollision( projection, section_shape, limit ) ) {
                 culling_info[ s.camera_visable_index ] = 1.0f;
@@ -230,6 +231,15 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
                 culling_info[ s.camera_visable_index ] = -0.25f;
             else
                 culling_info[ s.camera_visable_index ] = -1.0f;
+
+            std::ostringstream out;
+            out.precision(16);
+            out << std::fixed;
+
+            out << "Error Limit reached at " << "(" << min.x << ", " << min.y << ", "  << min.z << ") ";
+            out << "(" << max.x << ", " << max.y << ", " << max.z << ") ";
+
+            if( limit == 0 ) throw std::runtime_error( out.str() );
         }
     }
 

@@ -144,27 +144,40 @@ int main() {
 
     // This tests for the bug to hopefully fix.
     {
-        GJKPolyhedron camera_shape( generateCubeData( glm::vec3( 32, 32, 32 ), glm::vec3( 96, 0, 108 ) ) );
+        std::vector<glm::vec3> camera_data( 8, glm::vec3() );
+        camera_data[0] = glm::vec3( 69.21285247802734,5.121590614318848 ,155.7484283447266 );
+        camera_data[1] = glm::vec3( 69.07632446289062,5.121588706970215 ,155.8036193847656 );
+        camera_data[2] = glm::vec3( 69.22514343261719,5.197661399841309 ,155.7788391113281 );
+        camera_data[3] = glm::vec3( 69.08860778808594,5.197659492492676 ,155.8340301513672 );
+        camera_data[4] = glm::vec3( 262.2105712890625,-150.0403594970703 ,240.3976745605469 );
+        camera_data[5] = glm::vec3( -10.86629772186279,-150.0435638427734 ,350.7831726074219 );
+        camera_data[6] = glm::vec3( 286.7877197265625,2.108406543731689 ,301.203857421875 );
+        camera_data[7] = glm::vec3( 13.71085262298584,2.105211734771729 ,411.58935546875 );
+
+
+        GJKPolyhedron camera_shape( camera_data );
 
         std::vector<glm::vec3> section_data( 8, glm::vec3() );
-        glm::vec3 min(48, -16, 0);
-        glm::vec3 max(64, 16, 16);
+        {
+            glm::vec3 min( 64,  6, 144 );
+            glm::vec3 max( 80, -6, 160 );
 
-        section_data[0] = glm::vec3( min.x, min.y, min.z );
-        section_data[1] = glm::vec3( max.x, min.y, min.z );
-        section_data[2] = glm::vec3( min.x, max.y, min.z );
-        section_data[3] = glm::vec3( max.x, max.y, min.z );
-        section_data[4] = glm::vec3( min.x, min.y, max.z );
-        section_data[5] = glm::vec3( max.x, min.y, max.z );
-        section_data[6] = glm::vec3( min.x, max.y, max.z );
-        section_data[7] = glm::vec3( max.x, max.y, max.z );
-
+            section_data[0] = glm::vec3( min.x, min.y, min.z );
+            section_data[1] = glm::vec3( max.x, min.y, min.z );
+            section_data[2] = glm::vec3( min.x, max.y, min.z );
+            section_data[3] = glm::vec3( max.x, max.y, min.z );
+            section_data[4] = glm::vec3( min.x, min.y, max.z );
+            section_data[5] = glm::vec3( max.x, min.y, max.z );
+            section_data[6] = glm::vec3( min.x, max.y, max.z );
+            section_data[7] = glm::vec3( max.x, max.y, max.z );
+        }
         GJKPolyhedron section_shape( section_data );
 
         size_t limit = 2048;
 
-        if( !GJK::hasCollision(camera_shape, section_shape, limit) ) {
-            std::cout << "The problematic shape would not collide!" << std::endl;
+        if( GJK::hasCollision(camera_shape, section_shape, limit) ) {
+            std::cout << "The problematic shape should collide!" << std::endl;
+            std::cout << "Limit = " << limit << std::endl;
             status = FAILURE;
         }
 

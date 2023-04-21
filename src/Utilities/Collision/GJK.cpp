@@ -83,7 +83,7 @@ GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_sha
 GJK::~GJK() {}
 
 bool GJK::addSupport( glm::vec3 direction ) {
-    assert( SIMPLEX_LENGTH >= simplex_length );
+    assert( SIMPLEX_LENGTH > simplex_length );
 
     simplex[ simplex_length ] = shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
     simplex_length++;
@@ -135,12 +135,12 @@ GJK::SimplexStatus GJK::evolveSimplex() {
         case 4:
         {
             // Calculate the three edges.
-            const glm::vec3 da = simplex[3] - simplex[0];
-            const glm::vec3 db = simplex[3] - simplex[1];
-            const glm::vec3 dc = simplex[3] - simplex[2];
+            const glm::vec3 da = simplex[1] - simplex[0];
+            const glm::vec3 db = simplex[2] - simplex[0];
+            const glm::vec3 dc = simplex[3] - simplex[0];
 
             // Make the direction to the origin.
-            const glm::vec3 d0 = -simplex[3];
+            const glm::vec3 d0 = -simplex[0];
 
             const glm::vec3 abd = glm::cross(da, db);
             const glm::vec3 bcd = glm::cross(db, dc);
@@ -205,8 +205,6 @@ bool GJK::hasCollision( size_t &limit ) {
     simplex_length = 0;
     SimplexStatus result = INCOMPLETE;
 
-    // TODO In certain situations this will get stuck.
-    // Cell (3, 0) min(48, -16, 0) max(64, 16, 16) of ConFt if limit_cycles did not exist.
     while( result == SimplexStatus::INCOMPLETE && limit != 0 ) {
         result = evolveSimplex();
         limit--;
