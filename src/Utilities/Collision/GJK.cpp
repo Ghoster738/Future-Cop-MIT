@@ -8,70 +8,18 @@
 #include <cassert>
 
 namespace {
-struct FaceNormals {
-    struct Direction {
-        glm::vec3 normal;
-        float     distance;
-    };
-    std::vector<Direction> direction;
-    size_t minimum_triangle;
-};
 
-FaceNormals getFaceNormals( const std::vector<glm::vec3> &ploytype, const std::vector<uint_fast16_t> &faces ) {
-    FaceNormals face_normals;
-    face_normals.minimum_triangle = 0;
+glm::vec3 tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
+    // Since I would be using an extension to do the same thing. I decided to add this function.
+    // I am unconfortable with relying on extensions.
 
-    float minimum_distance = std::numeric_limits<float>::max();
-    glm::vec3 a;
-    glm::vec3 b;
-    glm::vec3 c;
-    glm::vec3 normal;
-    float distance;
+    glm::vec3 ab_cross = glm::cross( a, b );
 
-    face_normals.direction.reserve( faces.size() / 3 );
-
-    for( size_t i = 0; i < faces.size(); i += 3 ) {
-        a = ploytype[ faces[i + 0] ];
-        b = ploytype[ faces[i + 1] ];
-        c = ploytype[ faces[i + 2] ];
-
-        normal = glm::normalize( glm::cross( (b - a), (c - a) ) );
-        distance = glm::dot( normal, a );
-
-        if( distance < 0 ) {
-            distance *= -1.0;
-            normal *= -1.0;
-        }
-
-        face_normals.direction.push_back( { normal, distance } );
-
-        if( distance < minimum_distance ) {
-            face_normals.minimum_triangle = i / 3;
-            minimum_distance = distance;
-        }
-    }
-
-    return face_normals;
+    return glm::cross( ab_cross, c );
 }
 
-struct Edge {
-    uint_fast16_t first;
-    uint_fast16_t second;
-
-    bool operator==(const Edge& b) const {
-        return (first == b.first) & (second == b.second);
-    }
-};
-
-void addUniqueEdge(std::vector<Edge> &edges, const std::vector<uint_fast16_t> &faces, uint_fast16_t a, uint_fast16_t b) {
-    auto reverse = std::find( edges.begin(), edges.end(), Edge( {faces[b], faces[a]} ) );
-
-    if( reverse != edges.end() ) {
-        edges.erase( reverse );
-    }
-    else {
-        edges.push_back( {faces[a], faces[b]} );
-    }
+bool isSameDirection( const glm::vec3 direction, const glm::vec3 a0 ) {
+    return glm::dot( direction, a0 ) > 0.0;
 }
 
 }
@@ -82,21 +30,150 @@ namespace Collision {
 GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_shape_1_r ) : shape_0_r( param_shape_0_r ), shape_1_r( param_shape_1_r ), simplex_length( 0 ) {}
 GJK::~GJK() {}
 
+glm::vec3 GJK::getSupport( glm::vec3 direction ) const {
+    return shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
+}
+
 bool GJK::addSupport( glm::vec3 direction ) {
     assert( SIMPLEX_LENGTH > simplex_length );
 
-    simplex[ simplex_length ] = shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
+    simplex[ simplex_length ] = getSupport( direction );
     simplex_length++;
     return glm::dot( direction, simplex[ simplex_length - 1 ] ) >= 0;
 }
 
-glm::vec3 GJK::tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
-    // Since I would be using an extension to do the same thing. I decided to add this function.
-    // I am unconfortable with relying on extensions.
+bool GJK::line( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction )
+{
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
 
-    glm::vec3 ab_cross = glm::cross( a, b );
+    const glm::vec3 ab  = b - a;
+    const glm::vec3 a0  = -a;
 
-    return glm::cross( ab_cross, c );
+    if( isSameDirection(ab, a0) )
+        direction = tripleProduct( ab, a0, ab );
+    else {
+        simplex[ 0 ] = a;
+        simplex_length = 1;
+
+        direction = a0;
+    }
+
+    return false;
+}
+
+bool GJK::triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction )
+{
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
+    const glm::vec3 c = simplex[2];
+
+    const glm::vec3 ab = b - a;
+    const glm::vec3 ac = c - a;
+    const glm::vec3 a0 = -a;
+
+    const glm::vec3 abc = glm::cross(ab, ac);
+
+    if( isSameDirection(glm::cross(abc, ac), a0) ) {
+        if( isSameDirection(ac, a0) ) {
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = c;
+            simplex_length = 2;
+
+            direction = tripleProduct( ac, a0, ac );
+        }
+        else {
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = b;
+            simplex_length = 2;
+
+            return line( simplex, simplex_length, direction );
+        }
+    }
+    else {
+        if( isSameDirection(glm::cross(ab, abc), a0) ) {
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = b;
+            simplex_length = 2;
+
+            return line( simplex, simplex_length, direction );
+        }
+        else {
+            if( isSameDirection(abc, a0) ) {
+                direction = abc;
+            }
+            else {
+                simplex[ 0 ] = a;
+                simplex[ 1 ] = c;
+                simplex[ 2 ] = b;
+                simplex_length = 3;
+
+                direction = -abc;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool GJK::tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction ) {
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
+    const glm::vec3 c = simplex[2];
+    const glm::vec3 d = simplex[3];
+
+    // Calculate the three edges.
+    const glm::vec3 ab = b - a;
+    const glm::vec3 ac = c - a;
+    const glm::vec3 ad = d - a;
+
+    // Make the direction to the origin.
+    const glm::vec3 a0 = -a;
+
+    const glm::vec3 abc = glm::cross(ab, ac);
+    const glm::vec3 acd = glm::cross(ac, ad);
+    const glm::vec3 adb = glm::cross(ad, ab);
+
+    if( glm::dot(abc, a0) > 0 ) {
+        simplex[ 0 ] = a;
+        simplex[ 1 ] = b;
+        simplex[ 2 ] = c;
+        simplex_length = 3;
+
+        return triangle( simplex, simplex_length, direction );
+    }
+    else
+    if( glm::dot(acd, a0) > 0 ) {
+        simplex[ 0 ] = a;
+        simplex[ 1 ] = c;
+        simplex[ 2 ] = d;
+        simplex_length = 3;
+
+        return triangle( simplex, simplex_length, direction );
+    }
+    else
+    if( glm::dot(adb, a0) > 0 ) {
+        simplex[ 0 ] = a;
+        simplex[ 1 ] = d;
+        simplex[ 2 ] = b;
+        simplex_length = 3;
+
+        return triangle( simplex, simplex_length, direction );
+    }
+
+    return true;
+}
+
+bool GJK::nextSimplex() {
+    switch( simplex_length ) {
+        case 2: return line( simplex, simplex_length, direction );
+        case 3: return triangle( simplex, simplex_length, direction );
+        case 4: return tetrahedron( simplex, simplex_length, direction );
+        default:
+        {
+            throw std::runtime_error( "GJK simplex should not exceed 4 vertices." );
+        }
+    }
 }
 
 GJK::SimplexStatus GJK::evolveSimplex() {
@@ -203,14 +280,29 @@ bool GJK::hasCollision() {
 bool GJK::hasCollision( size_t &limit ) {
     // Reset simplex.
     simplex_length = 0;
-    SimplexStatus result = INCOMPLETE;
 
-    while( result == SimplexStatus::INCOMPLETE && limit != 0 ) {
-        result = evolveSimplex();
+    glm::vec3 support = getSupport( glm::vec3(0,1,0) );
+
+    simplex = { support, simplex[0], simplex[1], simplex[2] };
+    simplex_length++;
+
+    direction = -support;
+
+    while( limit != 0 ) {
+        support = getSupport( direction );
+
+        if( glm::dot(support, direction ) <= 0.0 )
+            return false;
+
+        simplex = { support, simplex[0], simplex[1], simplex[2] };
+        simplex_length++;
+
+        if( nextSimplex() ) {
+            return true;
+        }
         limit--;
     }
-
-    return result == SimplexStatus::VALID;
+    return false;
 }
 
 bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 ) {
@@ -221,6 +313,74 @@ bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 ) {
 bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1,  size_t &limit ) {
     GJK collider( &shape_0, &shape_1 );
     return collider.hasCollision( limit );
+}
+
+namespace {
+struct FaceNormals {
+    struct Direction {
+        glm::vec3 normal;
+        float     distance;
+    };
+    std::vector<Direction> direction;
+    size_t minimum_triangle;
+};
+
+FaceNormals getFaceNormals( const std::vector<glm::vec3> &ploytype, const std::vector<uint_fast16_t> &faces ) {
+    FaceNormals face_normals;
+    face_normals.minimum_triangle = 0;
+
+    float minimum_distance = std::numeric_limits<float>::max();
+    glm::vec3 a;
+    glm::vec3 b;
+    glm::vec3 c;
+    glm::vec3 normal;
+    float distance;
+
+    face_normals.direction.reserve( faces.size() / 3 );
+
+    for( size_t i = 0; i < faces.size(); i += 3 ) {
+        a = ploytype[ faces[i + 0] ];
+        b = ploytype[ faces[i + 1] ];
+        c = ploytype[ faces[i + 2] ];
+
+        normal = glm::normalize( glm::cross( (b - a), (c - a) ) );
+        distance = glm::dot( normal, a );
+
+        if( distance < 0 ) {
+            distance *= -1.0;
+            normal *= -1.0;
+        }
+
+        face_normals.direction.push_back( { normal, distance } );
+
+        if( distance < minimum_distance ) {
+            face_normals.minimum_triangle = i / 3;
+            minimum_distance = distance;
+        }
+    }
+
+    return face_normals;
+}
+
+struct Edge {
+    uint_fast16_t first;
+    uint_fast16_t second;
+
+    bool operator==(const Edge& b) const {
+        return (first == b.first) & (second == b.second);
+    }
+};
+
+void addUniqueEdge(std::vector<Edge> &edges, const std::vector<uint_fast16_t> &faces, uint_fast16_t a, uint_fast16_t b) {
+    auto reverse = std::find( edges.begin(), edges.end(), Edge( {faces[b], faces[a]} ) );
+
+    if( reverse != edges.end() ) {
+        edges.erase( reverse );
+    }
+    else {
+        edges.push_back( {faces[a], faces[b]} );
+    }
+}
 }
 
 // Thank you Winterdev.

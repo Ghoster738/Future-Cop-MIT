@@ -1,6 +1,7 @@
 #ifndef UTILITIES_COLLISON_GJK_H
 #define UTILITIES_COLLISON_GJK_H
 
+#include <array>
 #include "GJKShape.h"
 
 namespace Utilities {
@@ -8,7 +9,8 @@ namespace Collision {
 
 /**
  *
- * Thank You Hamaluik for the GJK tutorial. However, there are differences between this and Hamaluik's tutorial.
+ * Thank You Hamaluik and WinterDev for the GJK tutorials.
+ *
  */
 class GJK {
 public:
@@ -31,16 +33,20 @@ protected:
     const GJKShape *const shape_1_r;
     unsigned simplex_length;
     glm::vec3 direction;
-    glm::vec3 simplex[SIMPLEX_LENGTH];
+    std::array<glm::vec3, 4> simplex;
 
     SimplexStatus evolveSimplex();
 
+    static bool line( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
+    static bool triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
+    static bool tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
+    bool nextSimplex();
+
+    glm::vec3 getSupport( glm::vec3 direction ) const;
     bool addSupport( glm::vec3 direction );
 public:
     GJK( const GJKShape *const shape_0_r, const GJKShape *const shape_1_r );
     virtual ~GJK();
-
-    static glm::vec3 tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c );
 
     bool hasCollision();
     bool hasCollision( size_t &limit ); // NOTE This is provisional

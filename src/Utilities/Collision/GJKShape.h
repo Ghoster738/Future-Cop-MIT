@@ -1,6 +1,7 @@
 #ifndef UTILITIES_COLLISON_GJK_SHAPE_H
 #define UTILITIES_COLLISON_GJK_SHAPE_H
 
+#include <string>
 #include <glm/vec3.hpp>
 
 namespace Utilities {
@@ -13,6 +14,7 @@ public:
 
     virtual glm::vec3 getCenter() const = 0;
     virtual glm::vec3 getSupport( glm::vec3 direction ) const = 0;
+    virtual std::string toString() const = 0;
 };
 
 }

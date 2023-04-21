@@ -1,5 +1,6 @@
 #include "GJKPolyhedron.h"
 
+#include <sstream>
 #include <stdexcept>
 
 namespace Utilities {
@@ -52,6 +53,18 @@ glm::vec3 GJKPolyhedron::getSupport( glm::vec3 direction ) const {
 
     // O(n) Complexity.
     return furthest_point;
+}
+
+std::string GJKPolyhedron::toString() const {
+    std::ostringstream out;
+    out.precision(16);
+    out << std::fixed;
+
+    for( auto i = array.begin(); i != array.end(); i++ ) {
+        out << "camera_data[" << (array.begin() - i) << "] = glm::vec3( " << (*i).x << "," << (*i).y << " ," << (*i).z << " );\n";
+    }
+
+    return out.str();
 }
 
 }

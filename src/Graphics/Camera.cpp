@@ -157,12 +157,6 @@ Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() con
         projection[ i ].x = value.x * scale;
         projection[ i ].y = value.y * scale;
         projection[ i ].z = value.z * scale;
-
-        std::ostringstream out;
-        std::cout.precision(16);
-        out << std::fixed;
-
-        std::cout << "camera_data[" << i << "] = glm::vec3( " << projection[ i ].x << "," << projection[ i ].y << " ," << projection[ i ].z << " );" << std::endl;
     }
 
     return Utilities::Collision::GJKPolyhedron( projection );

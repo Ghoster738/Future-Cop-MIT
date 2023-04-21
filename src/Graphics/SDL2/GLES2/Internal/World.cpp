@@ -237,7 +237,7 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
             out << std::fixed;
 
             out << "Error Limit reached at " << "(" << min.x << ", " << min.y << ", "  << min.z << ") ";
-            out << "(" << max.x << ", " << max.y << ", " << max.z << ") ";
+            out << "(" << max.x << ", " << max.y << ", " << max.z << ") " << projection.toString();
 
             if( limit == 0 ) throw std::runtime_error( out.str() );
         }

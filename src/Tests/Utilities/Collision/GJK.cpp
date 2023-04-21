@@ -132,6 +132,55 @@ int quaderentTest( int x, int y, int z ) {
 int main() {
     int status = SUCCESS;
 
+    // This tests for the bug to hopefully fix.
+    {
+        std::vector<glm::vec3> camera_data( 8, glm::vec3() );
+        camera_data[0] = glm::vec3( 145.9847106933594,3.178083181381226 ,143.4626617431641 );
+        camera_data[1] = glm::vec3( 145.8795318603516,3.178083419799805 ,143.5657501220703 );
+        camera_data[2] = glm::vec3( 146.0030975341797,3.099510431289673 ,143.4814300537109 );
+        camera_data[3] = glm::vec3( 145.8979187011719,3.099510669708252 ,143.5845184326172 );
+        camera_data[4] = glm::vec3( 100.0131454467773,18.33088302612305 ,-113.711311340332 );
+        camera_data[5] = glm::vec3( -110.3445205688477,18.33116912841797 ,92.482666015625 );
+        camera_data[6] = glm::vec3( 136.7857360839844,-138.8161010742188 ,-76.196533203125 );
+        camera_data[7] = glm::vec3( -73.57000732421875,-138.8158111572266 ,129.9955596923828 );
+
+
+        GJKPolyhedron camera_shape( camera_data );
+
+        for( int x = 0; x < 14; x++ ) {
+            for( int y = 0; y < 16; y++ ) {
+                std::vector<glm::vec3> section_data( 8, glm::vec3() );
+
+                glm::vec3 min(     x * 16,  6,     y * 16 );
+                glm::vec3 max( min.x + 16, -6, min.y + 16 );
+
+                section_data[0] = glm::vec3( min.x, min.y, min.z );
+                section_data[1] = glm::vec3( max.x, min.y, min.z );
+                section_data[2] = glm::vec3( min.x, max.y, min.z );
+                section_data[3] = glm::vec3( max.x, max.y, min.z );
+                section_data[4] = glm::vec3( min.x, min.y, max.z );
+                section_data[5] = glm::vec3( max.x, min.y, max.z );
+                section_data[6] = glm::vec3( min.x, max.y, max.z );
+                section_data[7] = glm::vec3( max.x, max.y, max.z );
+
+                GJKPolyhedron section_shape( section_data );
+
+                size_t limit = 128;
+
+                if( !GJK::hasCollision(camera_shape, section_shape, limit) ) {
+                    std::cout << "The problematic shape should collide!" << std::endl;
+                    std::cout << "Limit = " << limit << std::endl;
+                    status = FAILURE;
+                }
+
+                if( limit == 0 ) {
+                    std::cout << "The limit is reached for extermely simple shapes who have about 16 vertices." << std::endl;
+                    status = FAILURE;
+                }
+            }
+        }
+    }
+
     // This is very slow, but it would test every quaderent.
     // As it is it will run insideTest and outsideTest about 729 times.
     for( int x = -1; x <= 1 && status == SUCCESS; x++) {
@@ -139,51 +188,6 @@ int main() {
             for( int z = -1; z <= 1 && status == SUCCESS; z++) {
                 status |= quaderentTest(x, y, z);
             }
-        }
-    }
-
-    // This tests for the bug to hopefully fix.
-    {
-        std::vector<glm::vec3> camera_data( 8, glm::vec3() );
-        camera_data[0] = glm::vec3( 69.21285247802734,5.121590614318848 ,155.7484283447266 );
-        camera_data[1] = glm::vec3( 69.07632446289062,5.121588706970215 ,155.8036193847656 );
-        camera_data[2] = glm::vec3( 69.22514343261719,5.197661399841309 ,155.7788391113281 );
-        camera_data[3] = glm::vec3( 69.08860778808594,5.197659492492676 ,155.8340301513672 );
-        camera_data[4] = glm::vec3( 262.2105712890625,-150.0403594970703 ,240.3976745605469 );
-        camera_data[5] = glm::vec3( -10.86629772186279,-150.0435638427734 ,350.7831726074219 );
-        camera_data[6] = glm::vec3( 286.7877197265625,2.108406543731689 ,301.203857421875 );
-        camera_data[7] = glm::vec3( 13.71085262298584,2.105211734771729 ,411.58935546875 );
-
-
-        GJKPolyhedron camera_shape( camera_data );
-
-        std::vector<glm::vec3> section_data( 8, glm::vec3() );
-        {
-            glm::vec3 min( 64,  6, 144 );
-            glm::vec3 max( 80, -6, 160 );
-
-            section_data[0] = glm::vec3( min.x, min.y, min.z );
-            section_data[1] = glm::vec3( max.x, min.y, min.z );
-            section_data[2] = glm::vec3( min.x, max.y, min.z );
-            section_data[3] = glm::vec3( max.x, max.y, min.z );
-            section_data[4] = glm::vec3( min.x, min.y, max.z );
-            section_data[5] = glm::vec3( max.x, min.y, max.z );
-            section_data[6] = glm::vec3( min.x, max.y, max.z );
-            section_data[7] = glm::vec3( max.x, max.y, max.z );
-        }
-        GJKPolyhedron section_shape( section_data );
-
-        size_t limit = 2048;
-
-        if( GJK::hasCollision(camera_shape, section_shape, limit) ) {
-            std::cout << "The problematic shape should collide!" << std::endl;
-            std::cout << "Limit = " << limit << std::endl;
-            status = FAILURE;
-        }
-
-        if( limit == 0 ) {
-            std::cout << "The limit is reached for extermely simple shapes who have about 16 vertices." << std::endl;
-            status = FAILURE;
         }
     }
 
