@@ -1,8 +1,12 @@
 #include "../../../Utilities/Collision/GJK.h"
 #include "../../../Utilities/Collision/GJKPolyhedron.h"
+#include "../../../Utilities/Random.h" // Used in the stress test.
 
 #include <glm/common.hpp>
+#include "glm/gtc/matrix_transform.hpp"
 #include <iostream>
+#include <random> // Used in the stress test using the Random device.
+#include <thread> // Definitely used in this stress test.
 
 #include "Helper.h"
 
@@ -14,6 +18,7 @@ namespace  {
 using Utilities::Collision::GJKPolyhedron;
 using Utilities::Collision::GJKShape;
 using Utilities::Collision::GJK;
+using Utilities::Random; // Used in the stress test.
 
 std::vector<glm::vec3> generateCubeData( glm::vec3 scale, glm::vec3 center = glm::vec3(0,0,0) ) {
     std::vector<glm::vec3> cube_data;
@@ -129,55 +134,172 @@ int quaderentTest( int x, int y, int z ) {
     return status;
 }
 
-int main() {
+std::mutex say_guard;
+std::random_device random_device;
+std::mutex random_device_guard;
+
+void sayProblem( glm::vec3 position_of_camera, glm::vec2 rotation, float distance_away ) {
+
+    say_guard.lock();
+
+    std::cout << "This GJK algorithm broke at\n";
+    std::cout << "  position = ( " << position_of_camera.x << ", " << position_of_camera.y << ", " << position_of_camera.z << " );\n";
+    std::cout << "  rotation = ( " << rotation.x << ", " << rotation.y << " );\n";
+    std::cout << "  distance_away = " << distance_away << std::endl;
+
+    say_guard.unlock();
+}
+
+int stressTest( Random::Generator &general ) {
     int status = SUCCESS;
 
-    // This tests for the bug to hopefully fix.
-    {
-        std::vector<glm::vec3> camera_data( 8, glm::vec3() );
-        camera_data[0] = glm::vec3( 145.9847106933594,3.178083181381226 ,143.4626617431641 );
-        camera_data[1] = glm::vec3( 145.8795318603516,3.178083419799805 ,143.5657501220703 );
-        camera_data[2] = glm::vec3( 146.0030975341797,3.099510431289673 ,143.4814300537109 );
-        camera_data[3] = glm::vec3( 145.8979187011719,3.099510669708252 ,143.5845184326172 );
-        camera_data[4] = glm::vec3( 100.0131454467773,18.33088302612305 ,-113.711311340332 );
-        camera_data[5] = glm::vec3( -110.3445205688477,18.33116912841797 ,92.482666015625 );
-        camera_data[6] = glm::vec3( 136.7857360839844,-138.8161010742188 ,-76.196533203125 );
-        camera_data[7] = glm::vec3( -73.57000732421875,-138.8158111572266 ,129.9955596923828 );
+    auto camera_data = generateCubeData( glm::vec3( 1, 1, 1 ), glm::vec3( 0, 0, 0 ) );
 
+    GJKPolyhedron cube_shape( camera_data );
 
-        GJKPolyhedron camera_shape( camera_data );
+    glm::vec3 position_of_camera;
+    glm::vec2 rotation;
+    float distance_away;
+    glm::mat4 extra_matrix_0;
+    glm::mat4 extra_matrix_1;
+    glm::mat4 PV3D;
 
-        for( int x = 0; x < 14; x++ ) {
-            for( int y = 0; y < 16; y++ ) {
-                std::vector<glm::vec3> section_data( 8, glm::vec3() );
+    position_of_camera.x = general.nextFloat( 14 * 16, 0 );
+    position_of_camera.y = 0;
+    position_of_camera.z = general.nextFloat( 16 * 16, 0 );
+    rotation.x = general.nextFloat( 7, 0 );
+    rotation.y = general.nextFloat( 7, 0 );
+    distance_away = general.nextFloat( 100, -100 );
 
-                glm::vec3 min(     x * 16,  6,     y * 16 );
-                glm::vec3 max( min.x + 16, -6, min.y + 16 );
+    extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, distance_away ) );
+    extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
+    PV3D           = extra_matrix_0 * extra_matrix_1;
+    extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
+    extra_matrix_0 = PV3D * extra_matrix_1;
+    extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
+    PV3D           = extra_matrix_0 * extra_matrix_1;
 
-                section_data[0] = glm::vec3( min.x, min.y, min.z );
-                section_data[1] = glm::vec3( max.x, min.y, min.z );
-                section_data[2] = glm::vec3( min.x, max.y, min.z );
-                section_data[3] = glm::vec3( max.x, max.y, min.z );
-                section_data[4] = glm::vec3( min.x, min.y, max.z );
-                section_data[5] = glm::vec3( max.x, min.y, max.z );
-                section_data[6] = glm::vec3( min.x, max.y, max.z );
-                section_data[7] = glm::vec3( max.x, max.y, max.z );
+    glm::mat4 inverse = glm::inverse( PV3D );
+    auto camera_shape = GJKPolyhedron( cube_shape, inverse );
 
-                GJKPolyhedron section_shape( section_data );
+    for( int x = 0; x < 14 && status != FAILURE; x++ ) {
+        for( int y = 0; y < 16 && status != FAILURE; y++ ) {
+            std::vector<glm::vec3> section_data( 8, glm::vec3() );
 
-                size_t limit = 128;
+            glm::vec3 min(     x * 16,  6,     y * 16 );
+            glm::vec3 max( min.x + 16, -6, min.y + 16 );
 
-                if( !GJK::hasCollision(camera_shape, section_shape, limit) ) {
-                    std::cout << "The problematic shape should collide!" << std::endl;
-                    std::cout << "Limit = " << limit << std::endl;
-                    status = FAILURE;
-                }
+            section_data[0] = glm::vec3( min.x, min.y, min.z );
+            section_data[1] = glm::vec3( max.x, min.y, min.z );
+            section_data[2] = glm::vec3( min.x, max.y, min.z );
+            section_data[3] = glm::vec3( max.x, max.y, min.z );
+            section_data[4] = glm::vec3( min.x, min.y, max.z );
+            section_data[5] = glm::vec3( max.x, min.y, max.z );
+            section_data[6] = glm::vec3( min.x, max.y, max.z );
+            section_data[7] = glm::vec3( max.x, max.y, max.z );
 
-                if( limit == 0 ) {
-                    std::cout << "The limit is reached for extermely simple shapes who have about 16 vertices." << std::endl;
-                    status = FAILURE;
-                }
+            GJKPolyhedron section_shape( section_data );
+
+            size_t limit = 128;
+
+            // Its status is not important. Just detect if it got stuck.
+            GJK::hasCollision(camera_shape, section_shape, limit);
+
+            if( limit == 0 ) {
+                sayProblem( position_of_camera, rotation, distance_away );
+                status = FAILURE;
             }
+        }
+    }
+
+    return status;
+}
+
+void stressThread( int &global_status, std::mutex &status_guard, uint16_t running_minutes ) {
+    int status = SUCCESS;
+    Random random;
+    std::uniform_int_distribution<uint64_t> dist(0, 0xFFFFFFFFFFFFFFFF);
+
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::minutes;
+
+    const auto starting_time = high_resolution_clock::now();
+    auto current_time = starting_time;
+
+    while( duration_cast<minutes>(current_time - starting_time).count() <= running_minutes ) {
+        random_device_guard.lock();
+
+        random.setSeeder( dist(random_device) );
+
+        random_device_guard.unlock();
+
+        Random::Generator general = random.getGenerator();
+
+        for( size_t times = 0; times < 0xFFF && status != FAILURE; times++ ) {
+            status |= stressTest( general );
+
+            if( status == FAILURE ) {
+                status_guard.lock();
+
+                global_status = FAILURE;
+
+                status_guard.unlock();
+            }
+        }
+
+        current_time = high_resolution_clock::now();
+    }
+}
+
+int main( int argc, char* argv[] ) {
+    int status = SUCCESS;
+
+    std::string input;
+
+    if( argc > 1 ) {
+        input = std::string( argv[1] );
+
+        if( input != "--stress" )
+            std::cout << "Use --stress to stress test the GJK algorithm rather than the usual routine of the test" << std::endl;
+    }
+
+    // Stress Test Do Not Enable this by Default.
+    if( input == "--stress" ) {
+        unsigned number_of_threads = 0;
+        std::mutex status_guard;
+
+        std::cout << "How Many threads do you want for this stress test. Enter 0 for all that is available in the system." << std::endl;
+
+        std::cin >> number_of_threads;
+
+        if( number_of_threads == 0 )
+            number_of_threads = std::thread::hardware_concurrency();
+
+        std::vector<std::thread> threads;
+
+        int minutes = 2;
+
+        std::cout << "How many minutes do you want this test to run on your computer. Note: The worst cause for speed is that GJK never halts." << std::endl;
+
+        std::cout << "\nWarning: If you do not want to run this stress test then you can simply enter 0 in the minutes and this program will exit." << std::endl;
+
+        std::cin >> minutes;
+
+        if( minutes == 0 ) {
+            return 0; // Exit the program.
+        }
+
+        for( size_t i = 0; i < number_of_threads; i++ ) {
+            threads.push_back( std::thread( [&status, &status_guard, minutes]
+                {
+                    stressThread( status, status_guard, minutes );
+                }
+            ) );
+        }
+        for( size_t i = 0; i < number_of_threads; i++ ) {
+            threads[i].join();
         }
     }
 
