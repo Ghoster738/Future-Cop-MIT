@@ -17,7 +17,7 @@ GJKPolyhedron::GJKPolyhedron( const std::vector<glm::vec3> &param_array ) : arra
     center *= 1.0 / static_cast<float>( array.size() );
 }
 
-GJKPolyhedron::GJKPolyhedron( const GJKPolyhedron &gjk_polygon, const glm::mat4 &matrix ) : array(), center( glm::vec3(0, 0, 0) ) {
+GJKPolyhedron::GJKPolyhedron( const GJKPolyhedron &gjk_polygon, const glm::mat4 &matrix ) : array(gjk_polygon.array), center( glm::vec3(0, 0, 0) ) {
     for( auto element : gjk_polygon.array ) {
         glm::vec4 transformed = glm::vec4( element, 1) * matrix;
 
