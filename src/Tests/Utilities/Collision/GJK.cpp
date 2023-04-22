@@ -157,13 +157,19 @@ int stressTest( Random::Generator &general ) {
 
     GJKPolyhedron cube_shape( camera_data );
 
+
+    int width;
+    int height;
     glm::vec3 position_of_camera;
     glm::vec2 rotation;
     float distance_away;
+    glm::mat4 projection_matrix;
     glm::mat4 extra_matrix_0;
     glm::mat4 extra_matrix_1;
-    glm::mat4 PV3D;
+    glm::mat4 extra_matrix_2;
 
+    width = general.nextUnsignedInt() % 3520 + 320;
+    height = general.nextUnsignedInt() % 1808 + 240;
     position_of_camera.x = general.nextFloat( 14 * 16, 0 );
     position_of_camera.y = 0;
     position_of_camera.z = general.nextFloat( 16 * 16, 0 );
@@ -171,15 +177,17 @@ int stressTest( Random::Generator &general ) {
     rotation.y = general.nextFloat( 7, 0 );
     distance_away = general.nextFloat( 100, -100 );
 
+    projection_matrix = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f );
+
     extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, distance_away ) );
     extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
-    PV3D           = extra_matrix_0 * extra_matrix_1;
+    extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
     extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
-    extra_matrix_0 = PV3D * extra_matrix_1;
+    extra_matrix_0 = extra_matrix_2 * extra_matrix_1;
     extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
-    PV3D           = extra_matrix_0 * extra_matrix_1;
+    extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
-    glm::mat4 inverse = glm::inverse( PV3D );
+    glm::mat4 inverse = glm::inverse( projection_matrix * extra_matrix_2 );
     auto camera_shape = GJKPolyhedron( cube_shape, inverse );
 
     for( int x = 0; x < 14 && status != FAILURE; x++ ) {
