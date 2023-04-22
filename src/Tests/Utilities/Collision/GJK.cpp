@@ -7,6 +7,7 @@
 #include <iostream>
 #include <random> // Used in the stress test using the Random device.
 #include <thread> // Definitely used in this stress test.
+#include <ctime>
 
 #include "Helper.h"
 
@@ -302,6 +303,7 @@ int main( int argc, char* argv[] ) {
 
         std::cout << "How Many threads do you want for this stress test. Enter 0 for all that is available in the system." << std::endl;
 
+        std::cout << "Threads: ";
         std::cin >> number_of_threads;
 
         if( number_of_threads == 0 )
@@ -312,13 +314,15 @@ int main( int argc, char* argv[] ) {
 
         int tminutes = 2;
 
-        std::cout << "How many minutes do you want this test to run on your computer. Note: The worst cause for speed is that GJK never halts." << std::endl;
+        std::cout << "\nHow many minutes do you want this test to run on your computer. Note: The worst cause for speed is that GJK never halts. Warning: If you do not want to run this stress test then you can simply enter 0 in the minutes and this program will exit." << std::endl;
 
-        std::cout << "\nWarning: If you do not want to run this stress test then you can simply enter 0 in the minutes and this program will exit." << std::endl;
-
+        std::cout << "Minutes: ";
         std::cin >> tminutes;
 
         const auto starting_time = high_resolution_clock::now();
+
+        const auto system_time = std::chrono::system_clock::to_time_t(starting_time);
+        std::cout << "Started test at " << std::ctime(&system_time) << std::endl;
 
         if( tminutes == 0 ) {
             return 0; // Exit the program.
@@ -331,14 +335,32 @@ int main( int argc, char* argv[] ) {
                 }
             ) );
         }
+
+        uint64_t total_times_on_threads = 0;
+
         for( size_t i = 0; i < number_of_threads; i++ ) {
             threads[i].join();
             std::cout << "Times run on thread " << i << " is " << map_views[ i ] << std::endl;
+            total_times_on_threads += map_views[ i ];
         }
 
-        auto current_time = high_resolution_clock::now();
+        std::cout << "Total Times Run on Thread = " << total_times_on_threads << std::endl;
 
-        std::cout << "Minutes run = " << duration_cast<minutes>(current_time - starting_time).count() << std::endl;
+        const auto current_time = high_resolution_clock::now();
+        const auto min_ran = duration_cast<minutes>(current_time - starting_time).count();
+
+        std::cout << "Minutes run = " << min_ran << std::endl;
+
+        const auto runs_per_minute = total_times_on_threads / min_ran;
+
+        std::cout << "Runs per minute = " << runs_per_minute << std::endl;
+
+        const double runs_per_second = static_cast<double>(runs_per_minute) / 60.0;
+
+        std::cout << "Runs per second = " << runs_per_second << std::endl;
+
+        const auto end_system_time = std::chrono::system_clock::to_time_t(current_time);
+        std::cout << "Ended test at " << std::ctime(&end_system_time) << std::endl;
     }
 
     // This is very slow, but it would test every quaderent.
