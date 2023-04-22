@@ -69,16 +69,19 @@ int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name, g
     if( GJK::hasCollision(shape, cube_outside) ) {
         std::cout << "Cube did collide outside " << name << std::endl;
         displayVec3( "v", position, std::cout );
+        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
     if( GJK::hasCollision(shape, tetrahedron_outside) ) {
         std::cout << "Tetrahedron did collide outside " << name << std::endl;
         displayVec3( "v", position, std::cout );
+        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
     if( GJK::hasCollision(shape, triangle_outside) ) {
         std::cout << "Triangle did collide outside " << name << std::endl;
         displayVec3( "v", position, std::cout );
+        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
 
@@ -226,7 +229,7 @@ int stressTest( Random::Generator &general ) {
     return status;
 }
 
-void stressThread( int &global_status, std::mutex &status_guard, uint16_t running_minutes ) {
+void stressThread( int &global_status, std::mutex &status_guard, uint16_t running_minutes, uint64_t *times_run_r = nullptr ) {
     int status = SUCCESS;
     Random random;
     std::uniform_int_distribution<uint64_t> dist(0, 0xFFFFFFFFFFFFFFFF);
@@ -248,7 +251,9 @@ void stressThread( int &global_status, std::mutex &status_guard, uint16_t runnin
 
         Random::Generator general = random.getGenerator();
 
-        for( size_t times = 0; times < 0xFFF && status != FAILURE; times++ ) {
+        size_t RUN_CYCLE = 0xFFF;
+
+        for( size_t times = 0; times < RUN_CYCLE && status != FAILURE; times++ ) {
             status |= stressTest( general );
 
             if( status == FAILURE ) {
@@ -258,6 +263,15 @@ void stressThread( int &global_status, std::mutex &status_guard, uint16_t runnin
 
                 status_guard.unlock();
             }
+        }
+
+        if( times_run_r != nullptr && *times_run_r != std::numeric_limits<uint64_t>::max() ) {
+            uint64_t previous = *times_run_r;
+
+            *times_run_r += RUN_CYCLE;
+
+            if( previous > *times_run_r )
+                *times_run_r = std::numeric_limits<uint64_t>::max();
         }
 
         current_time = high_resolution_clock::now();
@@ -278,6 +292,11 @@ int main( int argc, char* argv[] ) {
 
     // Stress Test Do Not Enable this by Default.
     if( input == "--stress" ) {
+        using std::chrono::high_resolution_clock;
+        using std::chrono::duration_cast;
+        using std::chrono::duration;
+        using std::chrono::minutes;
+
         unsigned number_of_threads = 0;
         std::mutex status_guard;
 
@@ -289,29 +308,37 @@ int main( int argc, char* argv[] ) {
             number_of_threads = std::thread::hardware_concurrency();
 
         std::vector<std::thread> threads;
+        std::vector<uint64_t> map_views(number_of_threads, 0);
 
-        int minutes = 2;
+        int tminutes = 2;
 
         std::cout << "How many minutes do you want this test to run on your computer. Note: The worst cause for speed is that GJK never halts." << std::endl;
 
         std::cout << "\nWarning: If you do not want to run this stress test then you can simply enter 0 in the minutes and this program will exit." << std::endl;
 
-        std::cin >> minutes;
+        std::cin >> tminutes;
 
-        if( minutes == 0 ) {
+        const auto starting_time = high_resolution_clock::now();
+
+        if( tminutes == 0 ) {
             return 0; // Exit the program.
         }
 
         for( size_t i = 0; i < number_of_threads; i++ ) {
-            threads.push_back( std::thread( [&status, &status_guard, minutes]
+            threads.push_back( std::thread( [&status, &status_guard, &map_views, tminutes, i]
                 {
-                    stressThread( status, status_guard, minutes );
+                    stressThread( status, status_guard, tminutes, &map_views[ i ] );
                 }
             ) );
         }
         for( size_t i = 0; i < number_of_threads; i++ ) {
             threads[i].join();
+            std::cout << "Times run on thread " << i << " is " << map_views[ i ] << std::endl;
         }
+
+        auto current_time = high_resolution_clock::now();
+
+        std::cout << "Minutes run = " << duration_cast<minutes>(current_time - starting_time).count() << std::endl;
     }
 
     // This is very slow, but it would test every quaderent.
