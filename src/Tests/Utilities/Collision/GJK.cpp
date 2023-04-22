@@ -96,18 +96,21 @@ int insideTest( int x, int y, int z, const GJKShape &shape, std::string name, gl
     if( !GJK::hasCollision(shape, cube_inside) ) {
         std::cout << "Cube did not collide inside " << name << std::endl;
         displayVec3( "v", position, std::cout );
+        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
 
     if( !GJK::hasCollision(shape, tetrahedron_inside) ) {
         std::cout << "Tetrahedron did not collide inside " << name << std::endl;
         displayVec3( "v", position, std::cout );
+        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
 
     if( !GJK::hasCollision(shape, triangle_inside) ) {
         std::cout << "Triangle did not collide inside " << name << std::endl;
         displayVec3( "v", position, std::cout );
+        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
 

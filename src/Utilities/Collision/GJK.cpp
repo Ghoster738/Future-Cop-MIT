@@ -83,29 +83,19 @@ bool GJK::triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length,
             direction = tripleProduct( ac, a0, ac );
         }
         else {
-            simplex[ 0 ] = a;
-            simplex[ 1 ] = b;
-            simplex_length = 2;
-
-            return line( simplex, simplex_length, direction );
+            return line( simplex = { a, b }, simplex_length = 2, direction );
         }
     }
     else {
         if( isSameDirection(glm::cross(ab, abc), a0) ) {
-            simplex[ 0 ] = a;
-            simplex[ 1 ] = b;
-            simplex_length = 2;
-
-            return line( simplex, simplex_length, direction );
+            return line( simplex = { a, b }, simplex_length = 2, direction );
         }
         else {
             if( isSameDirection(abc, a0) ) {
                 direction = abc;
             }
             else {
-                simplex[ 0 ] = a;
-                simplex[ 1 ] = c;
-                simplex[ 2 ] = b;
+                simplex = { a, c, b };
                 simplex_length = 3;
 
                 direction = -abc;
@@ -134,31 +124,16 @@ bool GJK::tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_leng
     const glm::vec3 acd = glm::cross(ac, ad);
     const glm::vec3 adb = glm::cross(ad, ab);
 
-    if( glm::dot(abc, a0) > 0 ) {
-        simplex[ 0 ] = a;
-        simplex[ 1 ] = b;
-        simplex[ 2 ] = c;
-        simplex_length = 3;
-
-        return triangle( simplex, simplex_length, direction );
+    if( isSameDirection( abc, a0 ) ) {
+        return triangle( simplex = { a, b, c }, simplex_length = 3, direction );
     }
-    else
-    if( glm::dot(acd, a0) > 0 ) {
-        simplex[ 0 ] = a;
-        simplex[ 1 ] = c;
-        simplex[ 2 ] = d;
-        simplex_length = 3;
 
-        return triangle( simplex, simplex_length, direction );
+    if( isSameDirection( acd, a0 ) ) {
+        return triangle( simplex = { a, c, d }, simplex_length = 3, direction );
     }
-    else
-    if( glm::dot(adb, a0) > 0 ) {
-        simplex[ 0 ] = a;
-        simplex[ 1 ] = d;
-        simplex[ 2 ] = b;
-        simplex_length = 3;
 
-        return triangle( simplex, simplex_length, direction );
+    if( isSameDirection( adb, a0 ) ) {
+        return triangle( simplex = { a, d, b }, simplex_length = 3, direction );
     }
 
     return true;
@@ -176,105 +151,31 @@ bool GJK::nextSimplex() {
     }
 }
 
-GJK::SimplexStatus GJK::evolveSimplex() {
-    switch( simplex_length ) {
-        case 0:
-        {
-            direction = shape_1_r->getCenter() - shape_0_r->getCenter();
-            break;
-        }
-        case 1:
-        {
-            // This code flips the direction.
-            direction *= -1.0;
-            break;
-        }
-        case 2:
-        {
-            const glm::vec3 ab  = simplex[ 1 ] - simplex[ 0 ];
-            const glm::vec3 a0  = -1.0f * simplex[ 0 ];
-
-            direction = tripleProduct( ab, a0, ab );
-            break;
-        }
-        case 3:
-        {
-            const glm::vec3 ac = simplex[2] - simplex[0];
-            const glm::vec3 ab = simplex[1] - simplex[0];
-            direction = glm::cross(ac, ab);
-
-            const glm::vec3 a0 = -simplex[0];
-
-            if( glm::dot( direction, a0 ) < 0 )
-                direction *= -1.0;
-            break;
-        }
-        case 4:
-        {
-            // Calculate the three edges.
-            const glm::vec3 da = simplex[1] - simplex[0];
-            const glm::vec3 db = simplex[2] - simplex[0];
-            const glm::vec3 dc = simplex[3] - simplex[0];
-
-            // Make the direction to the origin.
-            const glm::vec3 d0 = -simplex[0];
-
-            const glm::vec3 abd = glm::cross(da, db);
-            const glm::vec3 bcd = glm::cross(db, dc);
-            const glm::vec3 cad = glm::cross(dc, da);
-
-            if( glm::dot(abd, d0) > 0 ) {
-                // Remove vertex 2 or c.
-                simplex[2] = simplex[3];
-                simplex_length--;
-
-                direction = abd;
-            }
-            else
-            if( glm::dot(bcd, d0) > 0 ) {
-                // Remove vertex 0 or a.
-                simplex[0] = simplex[1];
-                simplex[1] = simplex[2];
-                simplex[2] = simplex[3];
-                simplex_length--;
-
-                direction = bcd;
-            }
-            else
-            if( glm::dot(cad, d0) > 0 ) {
-                // Remove vertex 1 or b.
-                simplex[1] = simplex[2];
-                simplex[2] = simplex[3];
-                simplex_length--;
-
-                direction = cad;
-            }
-            else
-                return SimplexStatus::VALID;
-            break;
-        }
-        default:
-        {
-            throw std::runtime_error( "GJK simplex should not exceed 4 vertices." );
-        }
-    }
-
-    if( addSupport(direction) )
-        return SimplexStatus::INCOMPLETE;
-    else
-        return SimplexStatus::INVALID;
-}
-
 bool GJK::hasCollision() {
     // Reset simplex.
     simplex_length = 0;
-    SimplexStatus result = INCOMPLETE;
 
-    while( result == SimplexStatus::INCOMPLETE ) {
-        result = evolveSimplex();
+    glm::vec3 support = getSupport( glm::vec3(0,1,0) );
+
+    simplex = { support, simplex[0], simplex[1], simplex[2] };
+    simplex_length++;
+
+    direction = -support;
+
+    while( true ) {
+        support = getSupport( direction );
+
+        if( glm::dot(support, direction ) < 0.0 )
+            return false;
+
+        simplex = { support, simplex[0], simplex[1], simplex[2] };
+        simplex_length++;
+
+        if( nextSimplex() ) {
+            return true;
+        }
     }
-
-    return result == SimplexStatus::VALID;
+    return false;
 }
 
 bool GJK::hasCollision( size_t &limit ) {
@@ -387,7 +288,7 @@ void addUniqueEdge(std::vector<Edge> &edges, const std::vector<uint_fast16_t> &f
 // This implementation is based on https://blog.winter.dev/2020/epa-algorithm/.
 // I made changes, but this needs further optimization. Basically, I need to
 // reduce the number of allocations this makes.
-GJK::Depth GJK::getDepth( const GJKShape &shape_0, const GJKShape &shape_1 ) {
+GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0 ) {
     Depth depth;
     GJK gjk( &shape_0, &shape_1 );
 

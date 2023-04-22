@@ -23,19 +23,11 @@ public:
         bool      has_collision;
     };
 protected:
-    enum SimplexStatus {
-        INVALID,
-        INCOMPLETE,
-        VALID
-    };
-
     const GJKShape *const shape_0_r;
     const GJKShape *const shape_1_r;
     unsigned simplex_length;
     glm::vec3 direction;
     std::array<glm::vec3, 4> simplex;
-
-    SimplexStatus evolveSimplex();
 
     static bool line( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
     static bool triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
