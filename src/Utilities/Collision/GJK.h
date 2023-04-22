@@ -1,7 +1,6 @@
 #ifndef UTILITIES_COLLISON_GJK_H
 #define UTILITIES_COLLISON_GJK_H
 
-#include <array>
 #include "GJKShape.h"
 
 namespace Utilities {
@@ -27,11 +26,12 @@ protected:
     const GJKShape *const shape_1_r;
     unsigned simplex_length;
     glm::vec3 direction;
-    std::array<glm::vec3, 4> simplex;
+    glm::vec3 simplex[4];
 
-    static bool line( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
-    static bool triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
-    static bool tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction );
+    inline bool line();
+    inline bool triangle();
+    inline bool tetrahedron();
+
     bool nextSimplex();
 
     glm::vec3 getSupport( glm::vec3 direction ) const;

@@ -9,7 +9,7 @@
 
 namespace {
 
-glm::vec3 tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
+inline glm::vec3 tripleProduct( const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c ) {
     // Since I would be using an extension to do the same thing. I decided to add this function.
     // I am unconfortable with relying on extensions.
 
@@ -18,7 +18,7 @@ glm::vec3 tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
     return glm::cross( ab_cross, c );
 }
 
-bool isSameDirection( const glm::vec3 direction, const glm::vec3 a0 ) {
+inline bool isSameDirection( const glm::vec3 &direction, const glm::vec3 &a0 ) {
     return glm::dot( direction, a0 ) > 0.0;
 }
 
@@ -42,10 +42,10 @@ bool GJK::addSupport( glm::vec3 direction ) {
     return glm::dot( direction, simplex[ simplex_length - 1 ] ) >= 0;
 }
 
-bool GJK::line( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction )
+bool GJK::line()
 {
-    const glm::vec3 a = simplex[0];
-    const glm::vec3 b = simplex[1];
+    const glm::vec3 &a = simplex[0];
+    const glm::vec3 &b = simplex[1];
 
     const glm::vec3 ab  = b - a;
     const glm::vec3 a0  = -a;
@@ -62,11 +62,11 @@ bool GJK::line( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm
     return false;
 }
 
-bool GJK::triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction )
+bool GJK::triangle()
 {
-    const glm::vec3 a = simplex[0];
-    const glm::vec3 b = simplex[1];
-    const glm::vec3 c = simplex[2];
+    const glm::vec3 &a = simplex[0];
+    const glm::vec3 &b = simplex[1];
+    const glm::vec3 &c = simplex[2];
 
     const glm::vec3 ab = b - a;
     const glm::vec3 ac = c - a;
@@ -83,19 +83,29 @@ bool GJK::triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length,
             direction = tripleProduct( ac, a0, ac );
         }
         else {
-            return line( simplex = { a, b }, simplex_length = 2, direction );
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = b;
+            simplex_length = 2;
+
+            return line();
         }
     }
     else {
         if( isSameDirection(glm::cross(ab, abc), a0) ) {
-            return line( simplex = { a, b }, simplex_length = 2, direction );
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = b;
+            simplex_length = 2;
+
+            return line();
         }
         else {
             if( isSameDirection(abc, a0) ) {
                 direction = abc;
             }
             else {
-                simplex = { a, c, b };
+                simplex[ 0 ] = a;
+                simplex[ 2 ] = b;
+                simplex[ 1 ] = c;
                 simplex_length = 3;
 
                 direction = -abc;
@@ -106,11 +116,11 @@ bool GJK::triangle( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length,
     return false;
 }
 
-bool GJK::tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_length, glm::vec3 &direction ) {
-    const glm::vec3 a = simplex[0];
-    const glm::vec3 b = simplex[1];
-    const glm::vec3 c = simplex[2];
-    const glm::vec3 d = simplex[3];
+bool GJK::tetrahedron() {
+    const glm::vec3 &a = simplex[0];
+    const glm::vec3 &b = simplex[1];
+    const glm::vec3 &c = simplex[2];
+    const glm::vec3 &d = simplex[3];
 
     // Calculate the three edges.
     const glm::vec3 ab = b - a;
@@ -125,15 +135,30 @@ bool GJK::tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_leng
     const glm::vec3 adb = glm::cross(ad, ab);
 
     if( isSameDirection( abc, a0 ) ) {
-        return triangle( simplex = { a, b, c }, simplex_length = 3, direction );
+        simplex[0] = a;
+        simplex[1] = b;
+        simplex[2] = c;
+        simplex_length = 3;
+
+        return triangle();
     }
 
     if( isSameDirection( acd, a0 ) ) {
-        return triangle( simplex = { a, c, d }, simplex_length = 3, direction );
+        simplex[0] = a;
+        simplex[1] = c;
+        simplex[2] = d;
+        simplex_length = 3;
+
+        return triangle();
     }
 
     if( isSameDirection( adb, a0 ) ) {
-        return triangle( simplex = { a, d, b }, simplex_length = 3, direction );
+        simplex[0] = a;
+        simplex[2] = b;
+        simplex[1] = d;
+        simplex_length = 3;
+
+        return triangle();
     }
 
     return true;
@@ -141,9 +166,9 @@ bool GJK::tetrahedron( std::array<glm::vec3, 4> &simplex, unsigned &simplex_leng
 
 bool GJK::nextSimplex() {
     switch( simplex_length ) {
-        case 2: return line( simplex, simplex_length, direction );
-        case 3: return triangle( simplex, simplex_length, direction );
-        case 4: return tetrahedron( simplex, simplex_length, direction );
+        case 2: return line();
+        case 3: return triangle();
+        case 4: return tetrahedron();
         default:
         {
             throw std::runtime_error( "GJK simplex should not exceed 4 vertices." );
@@ -155,9 +180,9 @@ bool GJK::hasCollision() {
     // Reset simplex.
     simplex_length = 0;
 
-    glm::vec3 support = getSupport( glm::vec3(0,1,0) );
+    glm::vec3 support = getSupport( glm::vec3(0,0,1) );
 
-    simplex = { support, simplex[0], simplex[1], simplex[2] };
+    simplex[0] = support;
     simplex_length++;
 
     direction = -support;
@@ -168,7 +193,10 @@ bool GJK::hasCollision() {
         if( glm::dot(support, direction ) < 0.0 )
             return false;
 
-        simplex = { support, simplex[0], simplex[1], simplex[2] };
+        simplex[3] = simplex[2];
+        simplex[2] = simplex[1];
+        simplex[1] = simplex[0];
+        simplex[0] = support;
         simplex_length++;
 
         if( nextSimplex() ) {
@@ -182,9 +210,9 @@ bool GJK::hasCollision( size_t &limit ) {
     // Reset simplex.
     simplex_length = 0;
 
-    glm::vec3 support = getSupport( glm::vec3(0,1,0) );
+    glm::vec3 support = getSupport( glm::vec3(0,0,1) );
 
-    simplex = { support, simplex[0], simplex[1], simplex[2] };
+    simplex[0] = support;
     simplex_length++;
 
     direction = -support;
@@ -192,10 +220,13 @@ bool GJK::hasCollision( size_t &limit ) {
     while( limit != 0 ) {
         support = getSupport( direction );
 
-        if( glm::dot(support, direction ) <= 0.0 )
+        if( glm::dot(support, direction ) < 0.0 )
             return false;
 
-        simplex = { support, simplex[0], simplex[1], simplex[2] };
+        simplex[3] = simplex[2];
+        simplex[2] = simplex[1];
+        simplex[1] = simplex[0];
+        simplex[0] = support;
         simplex_length++;
 
         if( nextSimplex() ) {
@@ -301,7 +332,7 @@ GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0 ) {
         return depth;
 
     std::vector<glm::vec3> ploytype;
-    ploytype.insert( ploytype.end(), &gjk.simplex[0], &gjk.simplex[SIMPLEX_LENGTH] );
+    ploytype.insert( ploytype.end(), &gjk.simplex[0], &gjk.simplex[SIMPLEX_LENGTH - 1] );
     std::vector<uint_fast16_t> faces = {
         0, 1, 2,
         0, 3, 1,
