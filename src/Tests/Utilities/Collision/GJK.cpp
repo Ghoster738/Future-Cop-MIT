@@ -138,11 +138,12 @@ std::mutex say_guard;
 std::random_device random_device;
 std::mutex random_device_guard;
 
-void sayProblem( glm::vec3 position_of_camera, glm::vec2 rotation, float distance_away ) {
-
+void sayProblem( int width, int height, glm::vec3 position_of_camera, glm::vec2 rotation, float distance_away ) {
     say_guard.lock();
 
     std::cout << "This GJK algorithm broke at\n";
+    std::cout << "  width = " << width << "\n";
+    std::cout << "  height = " << height << "\n";
     std::cout << "  position = ( " << position_of_camera.x << ", " << position_of_camera.y << ", " << position_of_camera.z << " );\n";
     std::cout << "  rotation = ( " << rotation.x << ", " << rotation.y << " );\n";
     std::cout << "  distance_away = " << distance_away << std::endl;
@@ -156,7 +157,6 @@ int stressTest( Random::Generator &general ) {
     auto camera_data = generateCubeData( glm::vec3( 1, 1, 1 ), glm::vec3( 0, 0, 0 ) );
 
     GJKPolyhedron cube_shape( camera_data );
-
 
     int width;
     int height;
@@ -214,7 +214,7 @@ int stressTest( Random::Generator &general ) {
             GJK::hasCollision(camera_shape, section_shape, limit);
 
             if( limit == 0 ) {
-                sayProblem( position_of_camera, rotation, distance_away );
+                sayProblem( width, height, position_of_camera, rotation, distance_away );
                 status = FAILURE;
             }
         }
