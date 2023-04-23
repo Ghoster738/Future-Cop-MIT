@@ -64,9 +64,9 @@ bool GJK::line()
 
 bool GJK::triangle()
 {
-    const glm::vec3 &a = simplex[0];
-    const glm::vec3 &b = simplex[1];
-    const glm::vec3 &c = simplex[2];
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
+    const glm::vec3 c = simplex[2];
 
     const glm::vec3 ab = b - a;
     const glm::vec3 ac = c - a;
