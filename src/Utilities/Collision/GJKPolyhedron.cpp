@@ -61,7 +61,7 @@ std::string GJKPolyhedron::toString() const {
     out << std::fixed;
 
     for( auto i = array.begin(); i != array.end(); i++ ) {
-        out << "camera_data[" << (array.begin() - i) << "] = glm::vec3( " << (*i).x << "," << (*i).y << " ," << (*i).z << " );\n";
+        out << "camera_data[" << (i - array.begin()) << "] = glm::vec3( " << (*i).x << ", " << (*i).y << ", " << (*i).z << " );\n";
     }
 
     return out.str();
