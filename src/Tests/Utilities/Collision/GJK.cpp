@@ -243,7 +243,7 @@ void stressThread( int &global_status, std::mutex &status_guard, uint16_t runnin
     const auto starting_time = high_resolution_clock::now();
     auto current_time = starting_time;
 
-    while( duration_cast<minutes>(current_time - starting_time).count() <= running_minutes ) {
+    while( duration_cast<minutes>(current_time - starting_time).count() <= running_minutes && status != FAILURE ) {
         random_device_guard.lock();
 
         random.setSeeder( dist(random_device) );
@@ -256,14 +256,6 @@ void stressThread( int &global_status, std::mutex &status_guard, uint16_t runnin
 
         for( size_t times = 0; times < RUN_CYCLE && status != FAILURE; times++ ) {
             status |= stressTest( general );
-
-            if( status == FAILURE ) {
-                status_guard.lock();
-
-                global_status = FAILURE;
-
-                status_guard.unlock();
-            }
         }
 
         if( times_run_r != nullptr && *times_run_r != std::numeric_limits<uint64_t>::max() ) {
@@ -276,6 +268,14 @@ void stressThread( int &global_status, std::mutex &status_guard, uint16_t runnin
         }
 
         current_time = high_resolution_clock::now();
+    }
+
+    if( status == FAILURE ) {
+        status_guard.lock();
+
+        global_status = FAILURE;
+
+        status_guard.unlock();
     }
 }
 
@@ -340,27 +340,33 @@ int main( int argc, char* argv[] ) {
 
         for( size_t i = 0; i < number_of_threads; i++ ) {
             threads[i].join();
+            say_guard.lock();
             std::cout << "Times run on thread " << i << " is " << map_views[ i ] << std::endl;
+            say_guard.unlock();
             total_times_on_threads += map_views[ i ];
         }
 
+        say_guard.lock();
         std::cout << "Total Times Run on Thread = " << total_times_on_threads << std::endl;
 
         const auto current_time = high_resolution_clock::now();
         const auto min_ran = duration_cast<minutes>(current_time - starting_time).count();
 
-        std::cout << "Minutes run = " << min_ran << std::endl;
+        if( min_ran != 0 ) {
+            std::cout << "Minutes run = " << min_ran << std::endl;
 
-        const auto runs_per_minute = total_times_on_threads / min_ran;
+            const auto runs_per_minute = total_times_on_threads / min_ran;
 
-        std::cout << "Runs per minute = " << runs_per_minute << std::endl;
+            std::cout << "Runs per minute = " << runs_per_minute << std::endl;
 
-        const double runs_per_second = static_cast<double>(runs_per_minute) / 60.0;
+            const double runs_per_second = static_cast<double>(runs_per_minute) / 60.0;
 
-        std::cout << "Runs per second = " << runs_per_second << std::endl;
+            std::cout << "Runs per second = " << runs_per_second << std::endl;
 
-        const auto end_system_time = std::chrono::system_clock::to_time_t(current_time);
-        std::cout << "Ended test at " << std::ctime(&end_system_time) << std::endl;
+            const auto end_system_time = std::chrono::system_clock::to_time_t(current_time);
+            std::cout << "Ended test at " << std::ctime(&end_system_time) << std::endl;
+        }
+        say_guard.unlock();
     }
 
     // This is very slow, but it would test every quaderent.
