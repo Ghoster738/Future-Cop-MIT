@@ -161,19 +161,30 @@ void sayProblem( int width, int height, glm::vec3 position_of_camera, glm::vec2 
 int stressTest( Random::Generator &general ) {
     int status = SUCCESS;
 
-    auto camera_data = generateCubeData( glm::vec3( 1, 1, 1 ), glm::vec3( 0, 0, 0 ) );
+    std::vector<glm::vec3> camera_data(8);
 
-    GJKPolyhedron cube_shape( camera_data );
+    camera_data[0] = glm::vec3( 127.6480636596679688, 3.1758630275726318, 60.8731765747070312 );
+    camera_data[1] = glm::vec3( 127.5414276123046875, 3.1758630275726318, 60.7715873718261719 );
+    camera_data[2] = glm::vec3( 127.6340255737304688, 3.2561616897583008, 60.8879165649414062 );
+    camera_data[3] = glm::vec3( 127.5273895263671875, 3.2561612129211426, 60.7863273620605469 );
+    camera_data[4] = glm::vec3( 114.6178359985351562, -126.2063064575195312, 287.9737854003906250 );
+    camera_data[5] = glm::vec3( -98.6433944702148438, -126.2067489624023438, 84.7968063354492188 );
+    camera_data[6] = glm::vec3( 86.5334472656250000, 34.3913993835449219, 317.4512329101562500 );
+    camera_data[7] = glm::vec3( -126.7258300781250000, 34.3909606933593750, 114.2761077880859375 );
 
     int width;
     int height;
     glm::vec3 position_of_camera;
     glm::vec2 rotation;
     float distance_away;
+
+    /*
     glm::mat4 projection_matrix;
     glm::mat4 extra_matrix_0;
     glm::mat4 extra_matrix_1;
     glm::mat4 extra_matrix_2;
+
+    GJKPolyhedron cube_shape( camera_data );
 
     width = general.nextUnsignedInt() % 3520 + 320;
     height = general.nextUnsignedInt() % 1808 + 240;
@@ -194,8 +205,8 @@ int stressTest( Random::Generator &general ) {
     extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
     extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
-    glm::mat4 inverse = glm::inverse( projection_matrix * extra_matrix_2 );
-    auto camera_shape = GJKPolyhedron( cube_shape, inverse );
+    glm::mat4 inverse = glm::inverse( projection_matrix * extra_matrix_2 );*/
+    auto camera_shape = GJKPolyhedron( camera_data );
 
     for( int x = 0; x < 14 && status != FAILURE; x++ ) {
         for( int y = 0; y < 16 && status != FAILURE; y++ ) {

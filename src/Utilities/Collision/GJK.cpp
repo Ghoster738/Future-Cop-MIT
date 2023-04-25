@@ -7,6 +7,13 @@
 #include <stdexcept>
 #include <cassert>
 
+#ifdef WORDY_GJK
+#include <iostream>
+#define BLERT(x) std::cout << x
+#else
+#define BLERT(x)
+#endif // WORDY_GJK
+
 namespace {
 
 inline glm::vec3 tripleProduct( const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c ) {
@@ -44,15 +51,20 @@ bool GJK::addSupport( glm::vec3 direction ) {
 
 bool GJK::line()
 {
+    BLERT( "GJK::line() " );
+
     const glm::vec3 &a = simplex[0];
     const glm::vec3 &b = simplex[1];
 
     const glm::vec3 ab  = b - a;
     const glm::vec3 a0  = -a;
 
-    if( isSameDirection(ab, a0) )
+    if( isSameDirection(ab, a0) ) {
+        BLERT( "-> isSameDirection(ab, a0) " );
         direction = tripleProduct( ab, a0, ab );
+    }
     else {
+        BLERT( " -> !isSameDirection(ab, a0) " );
         simplex[ 0 ] = a;
         simplex_length = 1;
 
@@ -64,8 +76,10 @@ bool GJK::line()
 
 bool GJK::triangle()
 {
+    BLERT( "GJK::triangle() " );
+
     const glm::vec3 &a = simplex[0];
-    const glm::vec3 &b = simplex[1];
+    const glm::vec3 b = simplex[1];
     const glm::vec3 c = simplex[2]; // This is not a reference for a reason.
 
     const glm::vec3 ab = b - a;
@@ -75,7 +89,11 @@ bool GJK::triangle()
     const glm::vec3 abc = glm::cross(ab, ac);
 
     if( isSameDirection(glm::cross(abc, ac), a0) ) {
+        BLERT( "isSameDirection( glm::cross(abc, ac), a0 ) " );
+
         if( isSameDirection(ac, a0) ) {
+            BLERT( " -> isSameDirection( ac, a0 ) " );
+
             simplex[ 0 ] = a;
             simplex[ 1 ] = c;
             simplex_length = 2;
@@ -83,6 +101,8 @@ bool GJK::triangle()
             direction = tripleProduct( ac, a0, ac );
         }
         else {
+            BLERT( "!isSameDirection( ac, a0 ) -> " );
+
             simplex[ 0 ] = a;
             simplex[ 1 ] = b;
             simplex_length = 2;
@@ -91,7 +111,9 @@ bool GJK::triangle()
         }
     }
     else {
+        BLERT( "!isSameDirection( glm::cross(abc, ac), a0 ) " );
         if( isSameDirection(glm::cross(ab, abc), a0) ) {
+            BLERT( "isSameDirection( glm::cross(ab, abc), a0 ) -> " );
             simplex[ 0 ] = a;
             simplex[ 1 ] = b;
             simplex_length = 2;
@@ -99,13 +121,17 @@ bool GJK::triangle()
             return line();
         }
         else {
+            BLERT( "!isSameDirection( glm::cross(ab, abc), a0 ) " );
             if( isSameDirection(abc, a0) ) {
+
+                BLERT( " -> isSameDirection( abc, a0 ) " );
                 direction = abc;
             }
             else {
+                BLERT( " -> !isSameDirection( abc, a0 ) " );
                 simplex[ 0 ] = a;
-                simplex[ 2 ] = b;
                 simplex[ 1 ] = c;
+                simplex[ 2 ] = b;
                 simplex_length = 3;
 
                 direction = -abc;
@@ -117,10 +143,12 @@ bool GJK::triangle()
 }
 
 bool GJK::tetrahedron() {
+    BLERT( "GJK::tetrahedron() " );
+
     const glm::vec3 &a = simplex[0];
-    const glm::vec3 &b = simplex[1];
+    const glm::vec3 b = simplex[1];
     const glm::vec3 &c = simplex[2];
-    const glm::vec3 &d = simplex[3];
+    const glm::vec3 d = simplex[3];
 
     // Calculate the three edges.
     const glm::vec3 ab = b - a;
@@ -139,6 +167,7 @@ bool GJK::tetrahedron() {
         simplex[1] = b;
         simplex[2] = c;
         simplex_length = 3;
+        BLERT( "isSameDirection( abc, a0 ) -> " );
 
         return triangle();
     }
@@ -148,23 +177,27 @@ bool GJK::tetrahedron() {
         simplex[1] = c;
         simplex[2] = d;
         simplex_length = 3;
+        BLERT( "isSameDirection( acd, a0 ) -> " );
 
         return triangle();
     }
 
     if( isSameDirection( adb, a0 ) ) {
         simplex[0] = a;
-        simplex[2] = b;
         simplex[1] = d;
+        simplex[2] = b;
         simplex_length = 3;
+        BLERT( "isSameDirection( adb, a0 ) -> " );
 
         return triangle();
     }
+    BLERT( " -> finished" );
 
     return true;
 }
 
 bool GJK::nextSimplex() {
+    BLERT( "GJK::nextSimplex() -> " );
     switch( simplex_length ) {
         case 2: return line();
         case 3: return triangle();
@@ -220,7 +253,7 @@ bool GJK::hasCollision( size_t &limit ) {
     while( limit != 0 ) {
         support = getSupport( direction );
 
-        if( glm::dot(support, direction ) < 0.0 )
+        if( glm::dot(support, direction ) <= 0.0 )
             return false;
 
         simplex[3] = simplex[2];
@@ -229,9 +262,19 @@ bool GJK::hasCollision( size_t &limit ) {
         simplex[0] = support;
         simplex_length++;
 
+        #ifdef WORDY_GJK
+        BLERT( "Simplex " );
+        BLERT( "( " << simplex[0].x << ", " << simplex[0].y << ", " << simplex[0].z << " )" );
+        for( int i = 1; i < simplex_length; i++ ) {
+            BLERT( ", ( " << simplex[i].x << ", " << simplex[i].y << ", " << simplex[i].z << " )" );
+        }
+        BLERT( std::endl );
+        #endif
+
         if( nextSimplex() ) {
             return true;
         }
+        BLERT( std::endl );
         limit--;
     }
     return false;
@@ -414,3 +457,6 @@ GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0 ) {
 
 }
 }
+
+// We do not need BLERT anymore.
+#undef BLERT
