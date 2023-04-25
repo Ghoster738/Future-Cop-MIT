@@ -34,7 +34,7 @@ inline bool isSameDirection( const glm::vec3 &direction, const glm::vec3 &a0 ) {
 namespace Utilities {
 namespace Collision {
 
-GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_shape_1_r ) : shape_0_r( param_shape_0_r ), shape_1_r( param_shape_1_r ), simplex_length( 0 ) {}
+GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_shape_1_r, unsigned param_limit ) : shape_0_r( param_shape_0_r ), shape_1_r( param_shape_1_r ), simplex_length( 0 ), limit( param_limit ) {}
 GJK::~GJK() {}
 
 glm::vec3 GJK::getSupport( glm::vec3 direction ) const {
@@ -53,8 +53,8 @@ bool GJK::line()
 {
     BLERT( "GJK::line() " );
 
-    const glm::vec3 &a = simplex[0];
-    const glm::vec3 &b = simplex[1];
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
 
     const glm::vec3 ab  = b - a;
     const glm::vec3 a0  = -a;
@@ -78,7 +78,7 @@ bool GJK::triangle()
 {
     BLERT( "GJK::triangle() " );
 
-    const glm::vec3 &a = simplex[0];
+    const glm::vec3 a = simplex[0];
     const glm::vec3 b = simplex[1];
     const glm::vec3 c = simplex[2]; // This is not a reference for a reason.
 
@@ -145,9 +145,9 @@ bool GJK::triangle()
 bool GJK::tetrahedron() {
     BLERT( "GJK::tetrahedron() " );
 
-    const glm::vec3 &a = simplex[0];
+    const glm::vec3 a = simplex[0];
     const glm::vec3 b = simplex[1];
-    const glm::vec3 &c = simplex[2];
+    const glm::vec3 c = simplex[2];
     const glm::vec3 d = simplex[3];
 
     // Calculate the three edges.
@@ -209,37 +209,7 @@ bool GJK::nextSimplex() {
     }
 }
 
-bool GJK::hasCollision() {
-    // Reset simplex.
-    simplex_length = 0;
-
-    glm::vec3 support = getSupport( glm::vec3(0,0,1) );
-
-    simplex[0] = support;
-    simplex_length++;
-
-    direction = -support;
-
-    while( true ) {
-        support = getSupport( direction );
-
-        if( glm::dot(support, direction ) < 0.0 )
-            return false;
-
-        simplex[3] = simplex[2];
-        simplex[2] = simplex[1];
-        simplex[1] = simplex[0];
-        simplex[0] = support;
-        simplex_length++;
-
-        if( nextSimplex() ) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool GJK::hasCollision( size_t &limit ) {
+GJK::GJKState GJK::hasCollision() {
     // Reset simplex.
     simplex_length = 0;
 
@@ -253,8 +223,8 @@ bool GJK::hasCollision( size_t &limit ) {
     while( limit != 0 ) {
         support = getSupport( direction );
 
-        if( glm::dot(support, direction ) <= 0.0 )
-            return false;
+        if( glm::dot(support, direction ) < 0.0 )
+            return GJKState::NO_COLLISION;
 
         simplex[3] = simplex[2];
         simplex[2] = simplex[1];
@@ -272,22 +242,17 @@ bool GJK::hasCollision( size_t &limit ) {
         #endif
 
         if( nextSimplex() ) {
-            return true;
+            return GJKState::COLLISION;
         }
         BLERT( std::endl );
         limit--;
     }
-    return false;
+    return GJKState::NOT_DETERMINED;
 }
 
-bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 ) {
-    GJK collider( &shape_0, &shape_1 );
+bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit ) {
+    GJK collider( &shape_0, &shape_1, limit );
     return collider.hasCollision();
-}
-
-bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1,  size_t &limit ) {
-    GJK collider( &shape_0, &shape_1 );
-    return collider.hasCollision( limit );
 }
 
 namespace {
@@ -362,7 +327,7 @@ void addUniqueEdge(std::vector<Edge> &edges, const std::vector<uint_fast16_t> &f
 // This implementation is based on https://blog.winter.dev/2020/epa-algorithm/.
 // I made changes, but this needs further optimization. Basically, I need to
 // reduce the number of allocations this makes.
-GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0 ) {
+GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0, unsigned limit ) {
     Depth depth;
     GJK gjk( &shape_0, &shape_1 );
 

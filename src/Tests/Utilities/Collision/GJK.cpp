@@ -67,23 +67,22 @@ int outsideTest( int x, int y, int z, const GJKShape &shape, std::string name, g
     GJKPolyhedron tetrahedron_outside( generateTetrahedronData( position + displacement ) );
     GJKPolyhedron triangle_outside( generateTriangleData( position + displacement ) );
 
-    if( GJK::hasCollision(shape, cube_outside) ) {
+    if( GJK::hasCollision(shape, cube_outside) == GJK::COLLISION ) {
         std::cout << "Cube did collide outside " << name << std::endl;
-        displayVec3( "v", position, std::cout );
-        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
-    if( GJK::hasCollision(shape, tetrahedron_outside) ) {
+    if( GJK::hasCollision(shape, tetrahedron_outside) == GJK::COLLISION ) {
         std::cout << "Tetrahedron did collide outside " << name << std::endl;
-        displayVec3( "v", position, std::cout );
-        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
-    if( GJK::hasCollision(shape, triangle_outside) ) {
+    if( GJK::hasCollision(shape, triangle_outside) == GJK::COLLISION ) {
         std::cout << "Triangle did collide outside " << name << std::endl;
+        status = FAILURE;
+    }
+
+    if( status == FAILURE ) {
         displayVec3( "v", position, std::cout );
         displayVec3( "d", displacement, std::cout );
-        status = FAILURE;
     }
 
     return status;
@@ -97,25 +96,24 @@ int insideTest( int x, int y, int z, const GJKShape &shape, std::string name, gl
     GJKPolyhedron tetrahedron_inside( generateTetrahedronData( position + displacement ) );
     GJKPolyhedron triangle_inside( generateTriangleData( position + displacement ) );
 
-    if( !GJK::hasCollision(shape, cube_inside) ) {
+    if( GJK::hasCollision(shape, cube_inside) == GJK::NO_COLLISION ) {
         std::cout << "Cube did not collide inside " << name << std::endl;
-        displayVec3( "v", position, std::cout );
-        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
 
-    if( !GJK::hasCollision(shape, tetrahedron_inside) ) {
+    if( GJK::hasCollision(shape, tetrahedron_inside) == GJK::NO_COLLISION ) {
         std::cout << "Tetrahedron did not collide inside " << name << std::endl;
-        displayVec3( "v", position, std::cout );
-        displayVec3( "d", displacement, std::cout );
         status = FAILURE;
     }
 
-    if( !GJK::hasCollision(shape, triangle_inside) ) {
+    if( GJK::hasCollision(shape, triangle_inside) == GJK::NO_COLLISION ) {
         std::cout << "Triangle did not collide inside " << name << std::endl;
+        status = FAILURE;
+    }
+
+    if( status == FAILURE ) {
         displayVec3( "v", position, std::cout );
         displayVec3( "d", displacement, std::cout );
-        status = FAILURE;
     }
 
     return status;
@@ -226,12 +224,8 @@ int stressTest( Random::Generator &general ) {
 
             GJKPolyhedron section_shape( section_data );
 
-            size_t limit = 128;
-
             // Its status is not important. Just detect if it got stuck.
-            GJK::hasCollision(camera_shape, section_shape, limit);
-
-            if( limit == 0 ) {
+            if( GJK::hasCollision(camera_shape, section_shape, 128) == GJK::NOT_DETERMINED ) {
                 sayProblem( width, height, position_of_camera, rotation, distance_away );
                 status = FAILURE;
             }
