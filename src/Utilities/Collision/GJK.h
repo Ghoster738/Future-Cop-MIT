@@ -51,7 +51,7 @@ public:
 
     unsigned getLimit() const { return limit; }
 
-    static bool hasCollision( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit = DEFAULT_LIMIT );
+    static GJKState hasCollision( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit = DEFAULT_LIMIT );
     static Depth getDepth( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit = DEFAULT_LIMIT );
 };
 

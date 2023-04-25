@@ -213,7 +213,7 @@ GJK::GJKState GJK::hasCollision() {
     // Reset simplex.
     simplex_length = 0;
 
-    glm::vec3 support = getSupport( glm::vec3(0,0,1) );
+    glm::vec3 support = getSupport( glm::vec3(0,1,0) );
 
     simplex[0] = support;
     simplex_length++;
@@ -250,7 +250,7 @@ GJK::GJKState GJK::hasCollision() {
     return GJKState::NOT_DETERMINED;
 }
 
-bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit ) {
+GJK::GJKState GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit ) {
     GJK collider( &shape_0, &shape_1, limit );
     return collider.hasCollision();
 }
@@ -329,7 +329,7 @@ void addUniqueEdge(std::vector<Edge> &edges, const std::vector<uint_fast16_t> &f
 // reduce the number of allocations this makes.
 GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0, unsigned limit ) {
     Depth depth;
-    GJK gjk( &shape_0, &shape_1 );
+    GJK gjk( &shape_0, &shape_1, limit );
 
     depth.normal = glm::vec3( 0, 0, 0 );
     depth.depth  = 0.0;
