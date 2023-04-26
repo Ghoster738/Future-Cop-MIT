@@ -368,7 +368,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     TextureQuad* texture_quad_r = nullptr;
 
                     if( !texture_quads.empty() )
-                        texture_quad_r = &texture_quads.at(triangle_quad_index);
+                        texture_quad_r = &texture_quads.at(triangle_quad_index % texture_quads.size()); // TODO Investigate workaround.
 
                     /*
                     // Add to the indexes of this texture to the list when it is not contained in the data base.
