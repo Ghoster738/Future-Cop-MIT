@@ -411,9 +411,9 @@ Data::Mission::Til::Mesh::Polygon default_mesh[POLYGON_COUNT] = {
     },
     { // 45
         {
+             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
              {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
              {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
              {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
         },
         false
