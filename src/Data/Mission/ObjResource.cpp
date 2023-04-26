@@ -1107,7 +1107,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             
             model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
             
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[0] ) );
+            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[2] ) );
             if( is_specular )
             {
                 model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
@@ -1191,7 +1191,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             
             model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
             
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[2] ) );
+            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[0] ) );
             if( is_specular )
             {
                 model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
