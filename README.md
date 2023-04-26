@@ -34,6 +34,8 @@ This is an **_incomplete_** re-implementation attempt of the [Future Cop: LAPD][
 
 Right now there is no gameplay yet. However, there is a map viewer that can display the level geometry, a model viewer that can view the models (with animations if available), and a mission reader/ripper that can extract various resources from the game files.
 
+Disclaimer: This project no way is affliated with the Massachusetts Institute of Technology (MIT) except that its license is choosen bu Ghoster738 for this project.
+
 ## System Requirements
 There are no clearly defined system requirements at this time, however the project's aim is to run on very low spec computers by today standards (but not on the original computers that ran Future Cop when it was released). This should encompass most of today's devices, as the project successful compiled on a Raspberry PI 4.
 
