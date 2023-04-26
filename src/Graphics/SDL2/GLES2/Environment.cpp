@@ -253,26 +253,27 @@ void Environment::drawFrame() const {
             glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
+            // Enable culling on the world map.
+            glEnable( GL_CULL_FACE );
+
             // Draw the map if available.
             if( this->world_p != nullptr )
             {
-                // Enable culling on the world map.
-                glEnable( GL_CULL_FACE );
-                
                 // Draw the map.
                 if( current_camera->culling_info.empty() )
                     this->world_p->draw( *current_camera );
                 else
                     this->world_p->draw( *current_camera, &current_camera->culling_info );
-                
-                // Disable culling on the world map.
-                glDisable( GL_CULL_FACE );
             }
 
             // TODO Find a way to make const draw.
             const_cast<Environment*>(this)->static_model_draw_routine.draw(   *current_camera );
             const_cast<Environment*>(this)->morph_model_draw_routine.draw(    *current_camera );
             const_cast<Environment*>(this)->skeletal_model_draw_routine.draw( *current_camera );
+
+
+            // Disable culling on the world map.
+            glDisable( GL_CULL_FACE );
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);

@@ -1098,10 +1098,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v0 );
+            handlePositions( position, vertex_positions.data(), (*triangle).v2 );
             
             if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n0 );
+                handleNormals( normal, vertex_normals.data(), (*triangle).n2 );
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
@@ -1114,21 +1114,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
             for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
             {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v0 );
+                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v2 );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n0 );
+                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n2 );
                 
                 model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v0 ) {
+                    if( (*bone).vertex_start > (*triangle).v2 ) {
                         break;
                     }
                     else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v0 )
+                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v2 )
                     {
                         joints.x = bone - bones.begin();
                         model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
@@ -1182,10 +1182,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v2 );
+            handlePositions( position, vertex_positions.data(), (*triangle).v0 );
             
             if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n2 );
+                handleNormals( normal, vertex_normals.data(), (*triangle).n0 );
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
@@ -1198,21 +1198,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
             for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
             {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v2 );
+                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v0 );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n2 );
+                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n0 );
                 
                 model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v2 ) {
+                    if( (*bone).vertex_start > (*triangle).v0 ) {
                         break;
                     }
                     else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v2 )
+                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v0 )
                     {
                         joints.x = bone - bones.begin();
                         model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
