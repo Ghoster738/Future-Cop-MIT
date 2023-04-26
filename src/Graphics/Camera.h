@@ -3,6 +3,7 @@
 
 #include "Text2DBuffer.h"
 #include "../Utilities/DataTypes.h"
+#include "../Utilities/Collision/GJKPolyhedron.h"
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 #include <vector>
@@ -41,6 +42,8 @@ protected:
     void updatePV2D();
 
 public:
+    std::vector<float> culling_info; // Only graphic
+
     Camera();
     virtual ~Camera();
 
@@ -161,6 +164,12 @@ public:
      * @return true if the buffer is found and deleted.
      */
     int removeText2DBuffer( Text2DBuffer* buffer_p );
+
+    /**
+     * This gets the 3D camera shape from the projection matrix.
+     * @note This might actually be useful for gameplay purposes.
+     */
+    Utilities::Collision::GJKPolyhedron getProjection3DShape() const;
 };
 
 }

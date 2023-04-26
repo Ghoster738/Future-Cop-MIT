@@ -28,7 +28,7 @@ Open Source Game Engine Project
 * [Thanks](#thanks)
 
 ## About
-This is an **_incomplete_** re-implementation attempt of the [Future Cop: LAPD][fcop-lapd-wikipedia-link] game, developed by Visceral Games (named **EA Redwod Shores** at the time) and released in 1998 for the PlayStation, Mac OS and Windows platforms.
+This is an **_incomplete_** re-implementation attempt of the [Future Cop: LAPD][fcop-lapd-wikipedia-link] game, developed by Visceral Games (named **EA Redwood Shores** at the time) and released in 1998 for the PlayStation, Mac OS and Windows platforms.
 
 [fcop-lapd-wikipedia-link]: https://en.wikipedia.org/wiki/Future_Cop:_LAPD "Wikipiedia article about the game"
 
@@ -37,7 +37,7 @@ Right now there is no gameplay yet. However, there is a map viewer that can disp
 ## System Requirements
 There are no clearly defined system requirements at this time, however the project's aim is to run on very low spec computers by today standards (but not on the original computers that ran Future Cop when it was released). This should encompass most of today's devices, as the project successful compiled on a Raspberry PI 4.
 
-Although another aim is to create portable code, this code will not work on the PlayStation 1 due to its lack of C++11 support - as developing for C99 would be harder with the constant worry of memory management. However, the code might be able to run on the Raspberry PI Nano.
+Although another aim is to create portable code, this code will not work on the PlayStation 1 due to its lack of C++17 support - as developing for C99 would be harder with the constant worry of memory management. However, the code might be able to run on the Raspberry PI Zero.
 
 ## Original game data
 All these tools (and the actual game when ready) require the presence of the original game data in order to function.
@@ -260,7 +260,7 @@ This is list of exported resource formats and the corresponding internal format 
 
 * BahKooJ for various information about Future Cop.
 
-* Killermosi for improving most of the parameter system.
+* Killermosi for improving most of the terminal parameter system.
 
 ### Libraries
 

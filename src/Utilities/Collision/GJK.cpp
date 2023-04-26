@@ -7,6 +7,254 @@
 #include <stdexcept>
 #include <cassert>
 
+#ifdef WORDY_GJK
+#include <iostream>
+#define BLERT(x) std::cout << x
+#else
+#define BLERT(x)
+#endif // WORDY_GJK
+
+namespace {
+
+inline glm::vec3 tripleProduct( const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c ) {
+    // Since I would be using an extension to do the same thing. I decided to add this function.
+    // I am unconfortable with relying on extensions.
+
+    glm::vec3 ab_cross = glm::cross( a, b );
+
+    return glm::cross( ab_cross, c );
+}
+
+inline bool isSameDirection( const glm::vec3 &direction, const glm::vec3 &a0 ) {
+    return glm::dot( direction, a0 ) > 0.0;
+}
+
+}
+
+namespace Utilities {
+namespace Collision {
+
+GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_shape_1_r, unsigned param_limit ) : shape_0_r( param_shape_0_r ), shape_1_r( param_shape_1_r ), simplex_length( 0 ), limit( param_limit ) {}
+GJK::~GJK() {}
+
+glm::vec3 GJK::getSupport( glm::vec3 direction ) const {
+    return shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
+}
+
+bool GJK::addSupport( glm::vec3 direction ) {
+    assert( SIMPLEX_LENGTH > simplex_length );
+
+    simplex[ simplex_length ] = getSupport( direction );
+    simplex_length++;
+    return glm::dot( direction, simplex[ simplex_length - 1 ] ) >= 0;
+}
+
+bool GJK::line()
+{
+    BLERT( "GJK::line() " );
+
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
+
+    const glm::vec3 ab  = b - a;
+    const glm::vec3 a0  = -a;
+
+    if( isSameDirection(ab, a0) ) {
+        BLERT( "-> isSameDirection(ab, a0) " );
+        direction = tripleProduct( ab, a0, ab );
+    }
+    else {
+        BLERT( " -> !isSameDirection(ab, a0) " );
+        simplex[ 0 ] = a;
+        simplex_length = 1;
+
+        direction = a0;
+    }
+
+    return false;
+}
+
+bool GJK::triangle()
+{
+    BLERT( "GJK::triangle() " );
+
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
+    const glm::vec3 c = simplex[2]; // This is not a reference for a reason.
+
+    const glm::vec3 ab = b - a;
+    const glm::vec3 ac = c - a;
+    const glm::vec3 a0 = -a;
+
+    const glm::vec3 abc = glm::cross(ab, ac);
+
+    if( isSameDirection(glm::cross(abc, ac), a0) ) {
+        BLERT( "isSameDirection( glm::cross(abc, ac), a0 ) " );
+
+        if( isSameDirection(ac, a0) ) {
+            BLERT( " -> isSameDirection( ac, a0 ) " );
+
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = c;
+            simplex_length = 2;
+
+            direction = tripleProduct( ac, a0, ac );
+        }
+        else {
+            BLERT( "!isSameDirection( ac, a0 ) -> " );
+
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = b;
+            simplex_length = 2;
+
+            return line();
+        }
+    }
+    else {
+        BLERT( "!isSameDirection( glm::cross(abc, ac), a0 ) " );
+        if( isSameDirection(glm::cross(ab, abc), a0) ) {
+            BLERT( "isSameDirection( glm::cross(ab, abc), a0 ) -> " );
+            simplex[ 0 ] = a;
+            simplex[ 1 ] = b;
+            simplex_length = 2;
+
+            return line();
+        }
+        else {
+            BLERT( "!isSameDirection( glm::cross(ab, abc), a0 ) " );
+            if( isSameDirection(abc, a0) ) {
+
+                BLERT( " -> isSameDirection( abc, a0 ) " );
+                direction = abc;
+            }
+            else {
+                BLERT( " -> !isSameDirection( abc, a0 ) " );
+                simplex[ 0 ] = a;
+                simplex[ 1 ] = c;
+                simplex[ 2 ] = b;
+                simplex_length = 3;
+
+                direction = -abc;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool GJK::tetrahedron() {
+    BLERT( "GJK::tetrahedron() " );
+
+    const glm::vec3 a = simplex[0];
+    const glm::vec3 b = simplex[1];
+    const glm::vec3 c = simplex[2];
+    const glm::vec3 d = simplex[3];
+
+    // Calculate the three edges.
+    const glm::vec3 ab = b - a;
+    const glm::vec3 ac = c - a;
+    const glm::vec3 ad = d - a;
+
+    // Make the direction to the origin.
+    const glm::vec3 a0 = -a;
+
+    const glm::vec3 abc = glm::cross(ab, ac);
+    const glm::vec3 acd = glm::cross(ac, ad);
+    const glm::vec3 adb = glm::cross(ad, ab);
+
+    if( isSameDirection( abc, a0 ) ) {
+        simplex[0] = a;
+        simplex[1] = b;
+        simplex[2] = c;
+        simplex_length = 3;
+        BLERT( "isSameDirection( abc, a0 ) -> " );
+
+        return triangle();
+    }
+
+    if( isSameDirection( acd, a0 ) ) {
+        simplex[0] = a;
+        simplex[1] = c;
+        simplex[2] = d;
+        simplex_length = 3;
+        BLERT( "isSameDirection( acd, a0 ) -> " );
+
+        return triangle();
+    }
+
+    if( isSameDirection( adb, a0 ) ) {
+        simplex[0] = a;
+        simplex[1] = d;
+        simplex[2] = b;
+        simplex_length = 3;
+        BLERT( "isSameDirection( adb, a0 ) -> " );
+
+        return triangle();
+    }
+    BLERT( " -> finished" );
+
+    return true;
+}
+
+bool GJK::nextSimplex() {
+    BLERT( "GJK::nextSimplex() -> " );
+    switch( simplex_length ) {
+        case 2: return line();
+        case 3: return triangle();
+        case 4: return tetrahedron();
+        default:
+        {
+            throw std::runtime_error( "GJK simplex should not exceed 4 vertices." );
+        }
+    }
+}
+
+GJK::GJKState GJK::hasCollision() {
+    // Reset simplex.
+    simplex_length = 0;
+
+    glm::vec3 support = getSupport( glm::vec3(0,1,0) );
+
+    simplex[0] = support;
+    simplex_length++;
+
+    direction = -support;
+
+    while( limit != 0 ) {
+        support = getSupport( direction );
+
+        if( glm::dot(support, direction ) < 0.0 )
+            return GJKState::NO_COLLISION;
+
+        simplex[3] = simplex[2];
+        simplex[2] = simplex[1];
+        simplex[1] = simplex[0];
+        simplex[0] = support;
+        simplex_length++;
+
+        #ifdef WORDY_GJK
+        BLERT( "Simplex " );
+        BLERT( "( " << simplex[0].x << ", " << simplex[0].y << ", " << simplex[0].z << " )" );
+        for( int i = 1; i < simplex_length; i++ ) {
+            BLERT( ", ( " << simplex[i].x << ", " << simplex[i].y << ", " << simplex[i].z << " )" );
+        }
+        BLERT( std::endl );
+        #endif
+
+        if( nextSimplex() ) {
+            return GJKState::COLLISION;
+        }
+        BLERT( std::endl );
+        limit--;
+    }
+    return GJKState::NOT_DETERMINED;
+}
+
+GJK::GJKState GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1, unsigned limit ) {
+    GJK collider( &shape_0, &shape_1, limit );
+    return collider.hasCollision();
+}
+
 namespace {
 struct FaceNormals {
     struct Direction {
@@ -73,145 +321,15 @@ void addUniqueEdge(std::vector<Edge> &edges, const std::vector<uint_fast16_t> &f
         edges.push_back( {faces[a], faces[b]} );
     }
 }
-
-}
-
-namespace Utilities {
-namespace Collision {
-
-GJK::GJK( const GJKShape *const param_shape_0_r, const GJKShape *const param_shape_1_r ) : shape_0_r( param_shape_0_r ), shape_1_r( param_shape_1_r ), simplex_length( 0 ) {}
-GJK::~GJK() {}
-
-bool GJK::addSupport( glm::vec3 direction ) {
-    assert( SIMPLEX_LENGTH >= simplex_length );
-
-    simplex[ simplex_length ] = shape_0_r->getSupport( direction ) - shape_1_r->getSupport( -direction );
-    simplex_length++;
-    return glm::dot( direction, simplex[ simplex_length - 1 ] ) >= 0;
-}
-
-glm::vec3 GJK::tripleProduct( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
-    // Since I would be using an extension to do the same thing. I decided to add this function.
-    // I am unconfortable with relying on extensions.
-
-    glm::vec3 ab_cross = glm::cross( a, b );
-
-    return glm::cross( ab_cross, c );
-}
-
-GJK::SimplexStatus GJK::evolveSimplex() {
-    switch( simplex_length ) {
-        case 0:
-        {
-            direction = shape_1_r->getCenter() - shape_0_r->getCenter();
-            break;
-        }
-        case 1:
-        {
-            // This code flips the direction.
-            direction *= -1.0;
-            break;
-        }
-        case 2:
-        {
-            const glm::vec3 ab  = simplex[ 1 ] - simplex[ 0 ];
-            const glm::vec3 a0  = -1.0f * simplex[ 0 ];
-
-            direction = tripleProduct( ab, a0, ab );
-            break;
-        }
-        case 3:
-        {
-            const glm::vec3 ac = simplex[2] - simplex[0];
-            const glm::vec3 ab = simplex[1] - simplex[0];
-            direction = glm::cross(ac, ab);
-
-            const glm::vec3 a0 = -simplex[0];
-
-            if( glm::dot( direction, a0 ) < 0 )
-                direction *= -1.0;
-            break;
-        }
-        case 4:
-        {
-            // Calculate the three edges.
-            const glm::vec3 da = simplex[3] - simplex[0];
-            const glm::vec3 db = simplex[3] - simplex[1];
-            const glm::vec3 dc = simplex[3] - simplex[2];
-
-            // Make the direction to the origin.
-            const glm::vec3 d0 = -simplex[3];
-
-            const glm::vec3 abd = glm::cross(da, db);
-            const glm::vec3 bcd = glm::cross(db, dc);
-            const glm::vec3 cad = glm::cross(dc, da);
-
-            if( glm::dot(abd, d0) > 0 ) {
-                // Remove vertex 2 or c.
-                simplex[2] = simplex[3];
-                simplex_length--;
-
-                direction = abd;
-            }
-            else
-            if( glm::dot(bcd, d0) > 0 ) {
-                // Remove vertex 0 or a.
-                simplex[0] = simplex[1];
-                simplex[1] = simplex[2];
-                simplex[2] = simplex[3];
-                simplex_length--;
-
-                direction = bcd;
-            }
-            else
-            if( glm::dot(cad, d0) > 0 ) {
-                // Remove vertex 1 or b.
-                simplex[1] = simplex[2];
-                simplex[2] = simplex[3];
-                simplex_length--;
-
-                direction = cad;
-            }
-            else
-                return SimplexStatus::VALID;
-            break;
-        }
-        default:
-        {
-            throw std::runtime_error( "GJK simplex should not exceed 4 vertices." );
-        }
-    }
-
-    if( addSupport(direction) )
-        return SimplexStatus::INCOMPLETE;
-    else
-        return SimplexStatus::INVALID;
-}
-
-bool GJK::hasCollision() {
-    // Reset simplex.
-    simplex_length = 0;
-    SimplexStatus result = INCOMPLETE;
-
-    while( result == SimplexStatus::INCOMPLETE ) {
-        result = evolveSimplex();
-    }
-
-    return result == SimplexStatus::VALID;
-}
-
-bool GJK::hasCollision( const GJKShape &shape_0, const GJKShape &shape_1 ) {
-    GJK collider( &shape_0, &shape_1 );
-    return collider.hasCollision();
 }
 
 // Thank you Winterdev.
 // This implementation is based on https://blog.winter.dev/2020/epa-algorithm/.
 // I made changes, but this needs further optimization. Basically, I need to
 // reduce the number of allocations this makes.
-GJK::Depth GJK::getDepth( const GJKShape &shape_0, const GJKShape &shape_1 ) {
+GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0, unsigned limit ) {
     Depth depth;
-    GJK gjk( &shape_0, &shape_1 );
+    GJK gjk( &shape_0, &shape_1, limit );
 
     depth.normal = glm::vec3( 0, 0, 0 );
     depth.depth  = 0.0;
@@ -222,7 +340,7 @@ GJK::Depth GJK::getDepth( const GJKShape &shape_0, const GJKShape &shape_1 ) {
         return depth;
 
     std::vector<glm::vec3> ploytype;
-    ploytype.insert( ploytype.end(), &gjk.simplex[0], &gjk.simplex[SIMPLEX_LENGTH] );
+    ploytype.insert( ploytype.end(), &gjk.simplex[0], &gjk.simplex[SIMPLEX_LENGTH - 1] );
     std::vector<uint_fast16_t> faces = {
         0, 1, 2,
         0, 3, 1,
@@ -304,3 +422,6 @@ GJK::Depth GJK::getDepth( const GJKShape &shape_0, const GJKShape &shape_1 ) {
 
 }
 }
+
+// We do not need BLERT anymore.
+#undef BLERT

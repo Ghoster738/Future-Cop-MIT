@@ -22,6 +22,8 @@ public:
 
     virtual glm::vec3 getCenter() const;
     virtual glm::vec3 getSupport( glm::vec3 direction ) const;
+
+    std::string toString() const;
 };
 
 }

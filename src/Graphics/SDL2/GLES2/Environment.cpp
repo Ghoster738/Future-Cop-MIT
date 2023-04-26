@@ -206,6 +206,24 @@ int Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
         return -1; // The world_p needs allocating first!
 }
 
+void Environment::setupFrame() {
+    for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ )
+    {
+        // Setup the current camera.
+        auto current_camera_r = window_p->getCameras()->at( i );
+
+        if( current_camera_r != nullptr && this->world_p != nullptr )
+        {
+            if( current_camera_r->culling_info.empty() )
+                current_camera_r->culling_info = std::vector<float>( this->world_p->getNumberSections(), 1 );
+
+            auto projection_shape = current_camera_r->getProjection3DShape();
+
+            this->world_p->updateCulling( current_camera_r->culling_info, projection_shape );
+        }
+    }
+}
+
 void Environment::drawFrame() const {
     auto window_r =  window_p;
     
@@ -242,7 +260,10 @@ void Environment::drawFrame() const {
                 glEnable( GL_CULL_FACE );
                 
                 // Draw the map.
-                this->world_p->draw( *current_camera );
+                if( current_camera->culling_info.empty() )
+                    this->world_p->draw( *current_camera );
+                else
+                    this->world_p->draw( *current_camera, &current_camera->culling_info );
                 
                 // Disable culling on the world map.
                 glDisable( GL_CULL_FACE );

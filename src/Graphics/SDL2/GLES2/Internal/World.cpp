@@ -1,5 +1,6 @@
 #include "World.h"
 #include "../../../../Data/Mission/IFF.h"
+#include "../../../../Utilities/Collision/GJK.h"
 #include "GLES2.h"
 
 #include <glm/ext/matrix_transform.hpp>
@@ -36,6 +37,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     glow_time = 0;
+    valid_sections = 0;
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
@@ -49,8 +51,7 @@ Graphics::SDL2::GLES2::Internal::World::World() {
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        delete (*i).mesh;
-        delete [] (*i).positions;
+        delete (*i).mesh_p;
     }
 }
 
@@ -135,36 +136,38 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // Set up the primary tiles. O(n)
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         const Data::Mission::TilResource *data = resources_til[ i - tiles.begin() ];
-        auto model = data->createCulledModel();
+        auto model_p = data->createCulledModel();
 
-        assert( model != nullptr );
+        assert( model_p != nullptr );
 
-        (*i).mesh = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
-        (*i).tilResourceR = data;
+        (*i).mesh_p = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
+        (*i).til_resource_r = data;
         (*i).change_rate = -1.0;
         (*i).current = 0.0;
-        (*i).positions_amount = 0;
 
-        (*i).mesh->setup( *model, textures );
+        (*i).mesh_p->setup( *model_p, textures );
 
-        delete model;
+        delete model_p;
     }
 
-    // Set the position amounts. O(x*y) or O(n^2).
-    for( unsigned int x = 0; x < pointer_tile_cluster.getWidth(); x++ )
     {
-        for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
-        {
-            auto pointer = pointer_tile_cluster.getTile(x, y);
-            if( pointer != nullptr )
-                tiles.at( pointer->getIndexNumber() ).positions_amount++;
-        }
-    }
+        uint32_t temp_amounts[ tiles.size() ] = { 0 };
 
-    // Allocate them. O(n)
-    for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        (*i).positions = new glm::i32vec2 [ (*i).positions_amount ];
-        (*i).positions_amount = 0; // This will be used as an index. Later it will change back into the orignal amount of positions.
+        // Set the position amounts. O(x*y) or O(n^2).
+        for( unsigned int x = 0; x < pointer_tile_cluster.getWidth(); x++ )
+        {
+            for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
+            {
+                auto pointer = pointer_tile_cluster.getTile(x, y);
+                if( pointer != nullptr )
+                    temp_amounts[ pointer->getIndexNumber() ]++;
+            }
+        }
+
+        // Allocate them. O(n)
+        for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
+            (*i).sections.reserve( temp_amounts[ i - tiles.begin() ] );
+        }
     }
 
     // Finally setup the map. O(x*y) or O(n^2).
@@ -177,17 +180,59 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             {
                 unsigned int index = pointer->getIndexNumber();
                 
-                tiles.at(index).positions[ tiles.at(index).positions_amount ].x = x - 1;
-                tiles.at(index).positions[ tiles.at(index).positions_amount ].y = y;
+                tiles.at(index).sections.push_back( MeshDraw::Section() );
 
-                tiles.at(index).positions_amount++;
+                tiles.at(index).sections.back().position.x = x - 1;
+                tiles.at(index).sections.back().position.y = y;
+                tiles.at(index).sections.back().camera_visable_index = valid_sections;
+
+                valid_sections++;
             }
         }
     }
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera ) {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const {
+    if( culling_info.size() < valid_sections ) {
+        return false;
+    }
+
+    std::vector<glm::vec3> section_data( 8, glm::vec3() );
+    const glm::vec3 MIN = glm::vec3(0, Data::Mission::TilResource::MAX_HEIGHT, 0);
+    const glm::vec3 MAX = glm::vec3( Data::Mission::TilResource::AMOUNT_OF_TILES, Data::Mission::TilResource::MIN_HEIGHT, Data::Mission::TilResource::AMOUNT_OF_TILES );
+
+    for( auto m : tiles ) {
+        for( auto s : m.sections ) {
+            glm::vec3 adjusted_position( s.position.x, 0, s.position.y );
+            adjusted_position *= Data::Mission::TilResource::AMOUNT_OF_TILES;
+
+            glm::vec3 min = adjusted_position + MIN;
+            glm::vec3 max = adjusted_position + MAX;
+
+            section_data[0] = glm::vec3( min.x, min.y, min.z );
+            section_data[1] = glm::vec3( max.x, min.y, min.z );
+            section_data[2] = glm::vec3( min.x, max.y, min.z );
+            section_data[3] = glm::vec3( max.x, max.y, min.z );
+            section_data[4] = glm::vec3( min.x, min.y, max.z );
+            section_data[5] = glm::vec3( max.x, min.y, max.z );
+            section_data[6] = glm::vec3( min.x, max.y, max.z );
+            section_data[7] = glm::vec3( max.x, max.y, max.z );
+
+            Utilities::Collision::GJKPolyhedron section_shape( section_data );
+
+            if( Utilities::Collision::GJK::hasCollision( projection, section_shape ) == Utilities::Collision::GJK::NO_COLLISION ) {
+                culling_info[ s.camera_visable_index ] = -1.0f;
+            }
+            else
+                culling_info[ s.camera_visable_index ] = 1.0f;
+        }
+    }
+
+    return true;
+}
+
+void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const std::vector<float> *const culling_info_r ) {
     glm::mat4 projection_view, final_position;
     
     // Use the map shader for the 3D map or the world.
@@ -205,15 +250,19 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
         glUniform1f( selected_tile_uniform_id, this->selected_tile );
     }
 
+     const float TILE_SPAN = 0.5;
+
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
-        for( unsigned int d = 0; d < (*i).positions_amount; d++ ) {
-            final_position = glm::translate( projection_view, glm::vec3( ((*i).positions[d].x * 16 + 8.5), 0, ((*i).positions[d].y * 16  + 8.5) ) );
+        for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
+            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] >= -0.5 ) {
+                final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
 
-            // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
+                // We can now send the matrix to the program.
+                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-            (*i).mesh->draw( 0, texture_uniform_id );
+                (*i).mesh_p->draw( 0, texture_uniform_id );
+            }
         }
     }
 }

@@ -125,3 +125,39 @@ int Graphics::Camera::removeText2DBuffer( Graphics::Text2DBuffer* buffer_p ) {
 
     return erased_value;
 }
+
+namespace {
+std::vector<glm::vec3> generateCubeData( glm::vec3 scale, glm::vec3 center = glm::vec3(0,0,0) ) {
+    std::vector<glm::vec3> cube_data;
+
+    cube_data.push_back( glm::vec3( -scale.x, -scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x, -scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x,  scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x,  scale.y, -scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x, -scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x, -scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3( -scale.x,  scale.y,  scale.z ) + center );
+    cube_data.push_back( glm::vec3(  scale.x,  scale.y,  scale.z ) + center );
+
+    return cube_data;
+}
+}
+
+#include <iostream>
+
+Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() const {
+    auto projection = generateCubeData( glm::vec3( 1, 1, 1 ), glm::vec3( 0, 0, 0 ) );
+
+    glm::mat4 inverse = glm::inverse( PV3D );
+
+    for( size_t i = 0; i < projection.size(); i++ ) {
+        auto value = inverse * glm::vec4( projection[ i ], 1 );
+        auto scale = 1.0f / value.w;
+
+        projection[ i ].x = value.x * scale;
+        projection[ i ].y = value.y * scale;
+        projection[ i ].z = value.z * scale;
+    }
+
+    return Utilities::Collision::GJKPolyhedron( projection );
+}

@@ -1,5 +1,6 @@
 #include "GJKPolyhedron.h"
 
+#include <sstream>
 #include <stdexcept>
 
 namespace Utilities {
@@ -16,7 +17,7 @@ GJKPolyhedron::GJKPolyhedron( const std::vector<glm::vec3> &param_array ) : arra
     center *= 1.0 / static_cast<float>( array.size() );
 }
 
-GJKPolyhedron::GJKPolyhedron( const GJKPolyhedron &gjk_polygon, const glm::mat4 &matrix ) : array(), center( glm::vec3(0, 0, 0) ) {
+GJKPolyhedron::GJKPolyhedron( const GJKPolyhedron &gjk_polygon, const glm::mat4 &matrix ) : array(gjk_polygon.array), center( glm::vec3(0, 0, 0) ) {
     for( auto element : gjk_polygon.array ) {
         glm::vec4 transformed = glm::vec4( element, 1) * matrix;
 
@@ -52,6 +53,18 @@ glm::vec3 GJKPolyhedron::getSupport( glm::vec3 direction ) const {
 
     // O(n) Complexity.
     return furthest_point;
+}
+
+std::string GJKPolyhedron::toString() const {
+    std::ostringstream out;
+    out.precision(16);
+    out << std::fixed;
+
+    for( auto i = array.begin(); i != array.end(); i++ ) {
+        out << "camera_data[" << (i - array.begin()) << "] = glm::vec3( " << (*i).x << ", " << (*i).y << ", " << (*i).z << " );\n";
+    }
+
+    return out.str();
 }
 
 }
