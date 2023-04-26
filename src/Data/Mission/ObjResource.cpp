@@ -1085,7 +1085,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
     {
-        model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id );
+        model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id, true );
 
         for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
         {
