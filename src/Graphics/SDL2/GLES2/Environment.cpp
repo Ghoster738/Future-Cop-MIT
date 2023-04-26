@@ -105,6 +105,9 @@ void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vect
     this->world_p->setVertexShader();
     this->world_p->setFragmentShader();
     this->world_p->compilieProgram();
+
+    this->map_section_width  = ptc.getWidth();
+    this->map_section_height = ptc.getHeight();
     
     // Turn the map into a world.
     this->world_p->setWorld( ptc, tiles, this->textures );
@@ -214,8 +217,8 @@ void Environment::setupFrame() {
 
         if( current_camera_r != nullptr && this->world_p != nullptr )
         {
-            if( current_camera_r->culling_info.empty() )
-                current_camera_r->culling_info = std::vector<float>( this->world_p->getNumberSections(), 1 );
+            if( current_camera_r->culling_info.getWidth() * current_camera_r->culling_info.getHeight() == 0 )
+                current_camera_r->culling_info.setDimensions( this->map_section_width, this->map_section_height );
 
             auto projection_shape = current_camera_r->getProjection3DShape();
 
@@ -260,7 +263,7 @@ void Environment::drawFrame() const {
             if( this->world_p != nullptr )
             {
                 // Draw the map.
-                if( current_camera->culling_info.empty() )
+                if( current_camera->culling_info.getWidth() * current_camera->culling_info.getHeight() == 0 )
                     this->world_p->draw( *current_camera );
                 else
                     this->world_p->draw( *current_camera, &current_camera->culling_info );

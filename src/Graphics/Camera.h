@@ -42,7 +42,7 @@ protected:
     void updatePV2D();
 
 public:
-    std::vector<float> culling_info; // Only graphic
+    Utilities::GridBase2D<float> culling_info;
 
     Camera();
     virtual ~Camera();

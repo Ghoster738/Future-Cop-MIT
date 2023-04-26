@@ -24,6 +24,9 @@ protected:
      * This declares the environment.
      */
     Environment();
+
+    unsigned map_section_width;
+    unsigned map_section_height;
 public:
     static const std::string SDL2_WITH_GLES_2;
 

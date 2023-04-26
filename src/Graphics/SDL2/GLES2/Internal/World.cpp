@@ -37,7 +37,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     glow_time = 0;
-    valid_sections = 0;
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
@@ -184,17 +183,14 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
                 tiles.at(index).sections.back().position.x = x - 1;
                 tiles.at(index).sections.back().position.y = y;
-                tiles.at(index).sections.back().camera_visable_index = valid_sections;
-
-                valid_sections++;
             }
         }
     }
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const {
-    if( culling_info.size() < valid_sections ) {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const {
+    if( culling_info.getWidth() * culling_info.getHeight() == 0 ) {
         return false;
     }
 
@@ -222,17 +218,17 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( std::vector<float> &
             Utilities::Collision::GJKPolyhedron section_shape( section_data );
 
             if( Utilities::Collision::GJK::hasCollision( projection, section_shape ) == Utilities::Collision::GJK::NO_COLLISION ) {
-                culling_info[ s.camera_visable_index ] = -1.0f;
+                culling_info.setValue( s.position.x, s.position.y, -1.0f );
             }
             else
-                culling_info[ s.camera_visable_index ] = 1.0f;
+                culling_info.setValue( s.position.x, s.position.y,  1.0f );
         }
     }
 
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const std::vector<float> *const culling_info_r ) {
+void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r ) {
     glm::mat4 projection_view, final_position;
     
     // Use the map shader for the 3D map or the world.
@@ -255,8 +251,11 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
-            if( culling_info_r == nullptr || (*culling_info_r)[ (*i).sections[d].camera_visable_index ] >= -0.5 ) {
-                final_position = glm::translate( projection_view, glm::vec3( (((*i).sections[d].position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, (((*i).sections[d].position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
+
+            auto section = (*i).sections[d];
+
+            if( culling_info_r == nullptr || culling_info_r->getValue( section.position.x, section.position.y ) >= -0.5 ) {
+                final_position = glm::translate( projection_view, glm::vec3( ((section.position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, ((section.position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
 
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );

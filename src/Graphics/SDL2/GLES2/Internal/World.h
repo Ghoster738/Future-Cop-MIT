@@ -24,7 +24,6 @@ public:
     struct MeshDraw {
         struct Section {
             glm::i32vec2 position;
-            uint32_t camera_visable_index;
         };
 
         Mesh *mesh_p;
@@ -46,7 +45,6 @@ protected:
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
-    uint32_t valid_sections;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
@@ -112,18 +110,13 @@ public:
     void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
-     * @return The number of drawable sections in this world.
-     */
-    uint32_t getNumberSections() const { return valid_sections; }
-
-    /**
      * Update Culling for the camera.
      * @note This will change the parameter culling_info.
      * @param culling_info The boolean vector that will hold culling information for the World.
      * @param projection The projection shape to make the culling info from.
      * @return true if culling has successfully been setup.
      */
-    bool updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const;
+    bool updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const;
 
     /**
      * This draws the entire map.
@@ -131,7 +124,7 @@ public:
      * @param camera This is the camera data to be passed into world.
      * @param culling_info The culling information that would affect the World.
      */
-    void draw( const Camera &camera, const std::vector<float> *const culling_info_r = nullptr );
+    void draw( const Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r = nullptr );
 
     /**
      * @return the program that this World uses.

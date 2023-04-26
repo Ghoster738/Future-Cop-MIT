@@ -7,7 +7,7 @@ namespace Graphics {
 
 const std::string Environment::SDL2_WITH_GLES_2 = "OpenGL ES 2";
 
-Environment::Environment() : window_p( nullptr ) {
+Environment::Environment() : map_section_width( 0 ), map_section_height( 0 ), window_p( nullptr ) {
 }
 
 Environment::~Environment() {
