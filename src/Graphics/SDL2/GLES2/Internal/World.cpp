@@ -150,7 +150,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     }
 
     {
-        uint32_t temp_amounts[ tiles.size() ] = { 0 };
+        std::vector<uint32_t> temp_amounts( tiles.size(), 0 );
 
         // Set the position amounts. O(x*y) or O(n^2).
         for( unsigned int x = 0; x < pointer_tile_cluster.getWidth(); x++ )

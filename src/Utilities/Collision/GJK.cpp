@@ -384,7 +384,7 @@ GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0, unsi
             }
         }
 
-        std::vector<size_t> new_faces;
+        std::vector<uint_fast16_t> new_faces;
         for( auto edge : unique_edges ) {
             new_faces.push_back( edge.first );
             new_faces.push_back( edge.second );
