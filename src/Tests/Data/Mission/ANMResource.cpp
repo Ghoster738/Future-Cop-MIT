@@ -3,6 +3,7 @@
 #include "../../../Utilities/Buffer.h"
 #include "../../Utilities/TestPalette.h"
 #include "../../Utilities/TestImage2D.h"
+#include "Embedded/ANM.h"
 
 // Get the number of pixels for the ANM animations.
 const size_t VIDEO_PIXEL_COUNT = Data::Mission::ANMResource::Video::WIDTH * Data::Mission::ANMResource::Video::HEIGHT;
@@ -229,6 +230,31 @@ int main() {
     
     is_not_success |= testANM( Utilities::Buffer::LITTLE, colors, "little" );
     is_not_success |= testANM( Utilities::Buffer::BIG, colors, "big" );
+
+    Data::Mission::ANMResource* windows_animation_p = new Data::Mission::ANMResource;
+    {
+        auto loading = Utilities::Buffer::Reader( windows_canm, windows_canm_len );
+        windows_animation_p->read( loading );
+        Data::Mission::Resource::ParseSettings parse_settings;
+        parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
+        parse_settings.endian = Utilities::Buffer::LITTLE;
+
+        windows_animation_p->parse( parse_settings );
+    }
+
+    Data::Mission::ANMResource* macintosh_animation_p = new Data::Mission::ANMResource;
+    {
+        auto loading = Utilities::Buffer::Reader( macintosh_canm, macintosh_canm_len );
+        macintosh_animation_p->read( loading );
+        Data::Mission::Resource::ParseSettings parse_settings;
+        parse_settings.type = Data::Mission::Resource::ParseSettings::Macintosh;
+        parse_settings.endian = Utilities::Buffer::BIG;
+
+        macintosh_animation_p->parse( parse_settings );
+    }
+
+    delete windows_animation_p;
+    delete macintosh_animation_p;
     
     return is_not_success;
 }
