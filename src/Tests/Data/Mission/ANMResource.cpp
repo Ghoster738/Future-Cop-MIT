@@ -240,6 +240,7 @@ int main() {
         parse_settings.endian = Utilities::Buffer::LITTLE;
 
         windows_animation_p->parse( parse_settings );
+        // windows_animation_p->write( "windows" );
     }
 
     Data::Mission::ANMResource* macintosh_animation_p = new Data::Mission::ANMResource;
@@ -251,6 +252,7 @@ int main() {
         parse_settings.endian = Utilities::Buffer::BIG;
 
         macintosh_animation_p->parse( parse_settings );
+        // macintosh_animation_p->write( "macintosh" );
     }
 
     delete windows_animation_p;
