@@ -75,6 +75,7 @@ public:
     }
     
     virtual Image2D toColorImage() const = 0;
+    virtual void inscribeColorImage( Image2D &image, const ColorPalette *const palette ) const = 0;
     virtual ImageMorbin2D toColorMorbinImage() const = 0;
 };
 
@@ -93,6 +94,7 @@ public:
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementNormal>& sub_image ) const;
     virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 );
     virtual Image2D toColorImage() const;
+    virtual void inscribeColorImage( Image2D &image, const ColorPalette *const palette_r = nullptr ) const;
     virtual ImageMorbin2D toColorMorbinImage() const;
 };
 
@@ -108,6 +110,7 @@ public:
     virtual bool subImage( grid_2d_unit x, grid_2d_unit y, grid_2d_unit width, grid_2d_unit height, ImagePaletteBase2D<Grid2DPlacementMorbin>& sub_image ) const;
     virtual bool fromBitfield( const std::vector<bool> &packed, unsigned bitAmount = 1 );
     virtual Image2D toColorImage() const;
+    virtual void inscribeColorImage( Image2D &image, const ColorPalette *const palette_r = nullptr ) const;
     virtual ImageMorbin2D toColorMorbinImage() const;
 };
 }

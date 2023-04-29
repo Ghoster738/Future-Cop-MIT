@@ -42,6 +42,12 @@ public:
 
         const Utilities::ImagePalette2D* getImage() const;
         const Utilities::ImagePalette2D* getImage();
+
+        Utilities::Image2D generateImage( Utilities::PixelFormatColor &format_color ) const;
+        Utilities::ImagePalette2D generatePalettedImage( Utilities::ColorPalette &color_palette ) const;
+
+        void setImage( Utilities::Image2D& image, const Utilities::ColorPalette* const color_palette_r = nullptr ) const;
+        void setImage( Utilities::ImagePalette2D& image ) const;
     };
 private:
     // This stores the palette of the ANM resource.
@@ -75,6 +81,7 @@ public:
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
     
     const Utilities::ColorPalette& getColorPalette() const { return palette; }
+    void setColorPalette( Utilities::ColorPalette &rgba_palette ) const;
 
     static std::vector<ANMResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<ANMResource*> getVector( const Data::Mission::IFF &mission_file );

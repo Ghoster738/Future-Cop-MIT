@@ -1,84 +1,25 @@
 #include <iostream>
 #include "../../../Data/Mission/ANMResource.h"
 #include "../../../Utilities/Buffer.h"
+#include "../../../Utilities/ImageFormat/QuiteOkImage.h"
 #include "../../Utilities/TestPalette.h"
 #include "../../Utilities/TestImage2D.h"
 #include "Embedded/ANM.h"
+#include "Embedded/ANMExpected.h"
 
 // Get the number of pixels for the ANM animations.
 const size_t VIDEO_PIXEL_COUNT = Data::Mission::ANMResource::Video::WIDTH * Data::Mission::ANMResource::Video::HEIGHT;
 
-/**
- * This function produces an animation where it goes through every color per frame.
- * @warning If you have epilspsy please do not play ANM visually. It might cause a sesuire.
- * @note I would place the output of this function to be under the creative commons license.
- * @param endian states what the endianess should the buffer be generated.
- * @return An ANM of an animation going through the colors of a color palette.
- */
-Utilities::Buffer generateColorANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors, const std::vector<Utilities::GridBase2D<uint8_t>> last_images = {} ) {
-    Utilities::Buffer buffer;
-    
-    // The number of frames that should be written is number of colors.
-    buffer.addU32( colors.size() + last_images.size(), endian );
-    
-    // Then generate the color palette.
-    Utilities::PixelFormatColor_R5G5B5A1 color_format;
-    Utilities::ColorPalette color_palette( color_format );
-    color_palette.setAmount( colors.size() );
-    
-    // Pixel Buffer Must be added in order for it to generate.
-    Utilities::Buffer pixel_buffer;
-    pixel_buffer.addU16( 0 );
-    auto pixel_buffer_writer = pixel_buffer.getWriter();
-    auto pixel_buffer_reader = pixel_buffer.getReader();
-    
-    // As the color palette gets generated.
-    for( size_t i = 0; i < colors.size(); i++ ) {
-        color_palette.setIndex( i, colors[ i ] );
-        
-        color_format.writePixel( pixel_buffer_writer, endian, color_palette.getIndex( i ) );
-        
-        buffer.addU16( pixel_buffer_reader.readU16( endian ), endian );
-        
-        pixel_buffer_writer.setPosition( 0 );
-        pixel_buffer_reader.setPosition( 0 );
-    }
-    
-    // Now, that the color palettes have been generated and written.
-    // Frames can now be written.
-    
-    // For each color
-    for( size_t color_index = 0; color_index < colors.size(); color_index++ ) {
-        
-        // Write a frame with the color from the palette.
-        for( size_t p = 0; p < VIDEO_PIXEL_COUNT; p++ ) {
-            buffer.addU8( color_index );
-        }
-    }
-    
-    // For each grid
-    /*
-    for( size_t color_index = 0; color_index < colors.size(); color_index++ ) {
-        
-        // Write a frame with the color from the palette.
-        for( size_t p = 0; p < VIDEO_PIXEL_COUNT; p++ ) {
-            buffer.addU8( color_index );
-        }
-    }*/
-    
-    // This should be a valid ANM Resource buffer.
-    return buffer;
-}
-
-int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::PixelFormatColor::GenericColor> &colors, std::string name, const std::vector<Utilities::GridBase2D<uint8_t>> last_images = {} )
+int testANM( Utilities::Buffer::Endian endian, std::string name, const uint8_t *const anm_bytes_p, size_t anm_bytes_len, const std::vector<Utilities::GridBase2D<uint8_t>> last_images = {} )
 {
     int is_not_success = false;
-    Utilities::Buffer buffer = generateColorANM( endian, colors );
     std::string full_name = "ANMResource " + name;
     
     Data::Mission::ANMResource anm;
-    auto reader = buffer.getReader();
-    auto answer = anm.read( reader );
+    auto loading = Utilities::Buffer::Reader( anm_bytes_p, anm_bytes_len );
+    auto answer = anm.read( loading );
+
+    Utilities::ImageFormat::QuiteOkImage qoi_reader;
     
     if( answer < 1 ) {
         std::cout << full_name << " has failed to load with this error " << answer << std::endl;
@@ -101,7 +42,7 @@ int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::Pixe
         }
         
         const auto SCANLINE_AMOUNT = anm.getTotalScanlines();
-        const auto EXPECTED_AMOUNT = colors.size() * Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS;
+        const auto EXPECTED_AMOUNT = 30 * Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS;
         
         if( SCANLINE_AMOUNT != EXPECTED_AMOUNT ) {
             std::cout << full_name << " does not have the correct scanlines" << std::endl;
@@ -131,10 +72,10 @@ int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::Pixe
         }
         
         // Test the number of colors avaiable to the frame.
-        if( frame->getColorPalette()->getLastIndex() != colors.size() - 1 )  {
+        if( frame->getColorPalette()->getLastIndex() != 255 )  {
             std::cout << full_name << " has the wrong amount of colors!" << std::endl;
             std::cout << "  actual colors = " << (static_cast<unsigned>( frame->getColorPalette()->getLastIndex() ) + 1) << std::endl;
-            std::cout << "  expected colors = " << colors.size() << std::endl;
+            std::cout << "  expected colors = " << 256 << std::endl;
             is_not_success = true;
         }
         
@@ -145,21 +86,25 @@ int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::Pixe
             std::cout << "  expected colors = " << Utilities::PixelFormatColor_R5G5B5A1().getName()<< std::endl;
             is_not_success = true;
         }
+
+        Utilities::PixelFormatColor_R8G8B8A8 qoi_pixel_format;
+        Utilities::ColorPalette rgba_palette( qoi_pixel_format );
+        anm.setColorPalette( rgba_palette );
+        Utilities::Image2D expected_frame( 0, 0, qoi_pixel_format );
         
-        for( uint16_t i = 0; i <= frame->getColorPalette()->getLastIndex() && !is_not_success; i++ ) {
-            int test_color_unsuccess = false;
-            
-            // Test one pixel for the current color.
-            test_color_unsuccess |= testColor( test_color_unsuccess, frame->readPixel( 0, 0 ), colors.at( i ), full_name, "" );
-            
-            if( test_color_unsuccess ) {
-                std::cout << full_name << " has failed at frame " << i << std::endl;
+        // Do a normal scan at first
+        for( size_t i = 0; i < anm.getTotalFrames() && !is_not_success; i++ ) {
+            Utilities::Buffer expected_buffer( frames[i].bytes_r, frames[i].length );
+
+            if( qoi_reader.read( expected_buffer, expected_frame ) <= 0 ) {
+                std::cout << name <<  ": There is something wrong with QOI reading not this module itself at frame " << i << "!" << std::endl;
+                is_not_success = 1;
             }
             
             // Test the current frame.
-            for( unsigned y = 0; y < frame->getHeight(); y++ ) {
-                for( unsigned x = 0; x < frame->getWidth(); x++ ) {
-                    if( !is_not_success && frame->getPixelIndex( x, y ) != i ) {
+            for( unsigned y = 0; y < frame->getHeight() && !is_not_success; y++ ) {
+                for( unsigned x = 0; x < frame->getWidth() && !is_not_success; x++ ) {
+                    if( testColor( is_not_success, rgba_palette.getIndex( frame->getPixelIndex(x, y)), expected_frame.readPixel(x,y), "Color mismatch!", "") ) {
                         std::cout << full_name << " has a bad pixel at (" << x << ", " << y << ")" << std::endl;
                         std::cout << "  actual index = " << static_cast<unsigned>( frame->getPixelIndex(x, y) ) << std::endl;
                         std::cout << "  expected index = " << i << std::endl;
@@ -169,12 +114,40 @@ int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::Pixe
                 }
             }
             
-            is_not_success |= test_color_unsuccess;
-            
             // Advance one frame.
             for( unsigned d = 0; d < Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS; d++ )
                 video.nextFrame();
         }
+
+        video.reset(); // Rest for next test.
+
+        // Do the transition test.
+        for( size_t i = 0; i < Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS - 1; i++ ) {
+            // Advance one scanline.
+            video.nextFrame();
+
+            Utilities::Buffer expected_buffer( transition[i].bytes_r, transition[i].length );
+
+            if( qoi_reader.read( expected_buffer, expected_frame ) <= 0 ) {
+                std::cout << name <<  ": There is something wrong with QOI reading not this module itself at frame " << i << "!" << std::endl;
+                is_not_success = 1;
+            }
+
+            // Test the current frame.
+            for( unsigned y = 0; y < frame->getHeight() && !is_not_success; y++ ) {
+                for( unsigned x = 0; x < frame->getWidth() && !is_not_success; x++ ) {
+                    if( testColor( is_not_success, rgba_palette.getIndex( frame->getPixelIndex(x, y) ), expected_frame.readPixel(x,y), "Color mismatch!", "") ) {
+                        std::cout << full_name << " has a bad pixel at (" << x << ", " << y << ")" << std::endl;
+                        std::cout << "  actual index = " << static_cast<unsigned>( frame->getPixelIndex(x, y) ) << std::endl;
+                        std::cout << "  expected index = " << i << std::endl;
+                        std::cout << "  video frame = " << video.getIndex() << std::endl;
+                        is_not_success = true;
+                    }
+                }
+            }
+        }
+
+        video.reset(); // Rest for next test.
         
         for( int is_rgba = 0; is_rgba <= true; is_rgba++ ) {
             auto sheet_p = anm.generateAnimationSheet( 0, is_rgba );
@@ -185,25 +158,19 @@ int testANM( Utilities::Buffer::Endian endian, const std::vector<Utilities::Pixe
             
             // Confirm that the color palette of the animation sheet
             // Confirm that the sprite sheet itself is what it says it is.
-            for( uint16_t i = 0; i <= sheet_p->getColorPalette()->getLastIndex() && !is_not_success; i++ ) {
-                
-                auto palette_color = sheet_p->getColorPalette()->getIndex( i );
-                
-                if( is_rgba ) {
-                    if( palette_color.alpha < 0.5 )
-                        palette_color.alpha = 0.75;
-                    else
-                        palette_color.alpha = 1;
+            for( uint16_t i = 0; i < anm.getTotalFrames() && !is_not_success; i++ ) {
+
+                Utilities::Buffer expected_buffer( frames[i].bytes_r, frames[i].length );
+
+                if( qoi_reader.read( expected_buffer, expected_frame ) <= 0 ) {
+                    std::cout << name <<  ": There is something wrong with QOI reading for sprite sheet " << i << "!" << std::endl;
+                    is_not_success = 1;
                 }
-                
-                // Test one pixel for the current color.
-                is_not_success |= testColor( is_not_success, palette_color, colors.at( i ), full_name + " animation sheet palette ", "" );
-                
-                
+
                 // Test the current frame.
-                for( unsigned y = 0; y < Data::Mission::ANMResource::Video::HEIGHT; y++ ) {
-                    for( unsigned x = 0; x < Data::Mission::ANMResource::Video::WIDTH; x++ ) {
-                        if( !is_not_success && sheet_p->getPixelIndex( x, y + Data::Mission::ANMResource::Video::HEIGHT * i ) != i ) {
+                for( unsigned y = 0; y < Data::Mission::ANMResource::Video::HEIGHT && !is_not_success; y++ ) {
+                    for( unsigned x = 0; x < Data::Mission::ANMResource::Video::WIDTH && !is_not_success; x++ ) {
+                        if( testColor( is_not_success, rgba_palette.getIndex( sheet_p->getPixelIndex( x, y + Data::Mission::ANMResource::Video::HEIGHT * i ) ), expected_frame.readPixel(x,y), "Animation Sheet mismatch!", " " + std::to_string(i)) ) {
                             std::cout << full_name << " has a bad pixel at (" << x << ", " << (y + Data::Mission::ANMResource::Video::HEIGHT * i) << ")" << std::endl;
                             std::cout << "  expected index = " << i << std::endl;
                             std::cout << " frame = " << i << std::endl;
@@ -228,35 +195,8 @@ int main() {
     // First the number of colors must be generated.
     auto colors = generateColorPalette();
     
-    is_not_success |= testANM( Utilities::Buffer::LITTLE, colors, "little" );
-    is_not_success |= testANM( Utilities::Buffer::BIG, colors, "big" );
-
-    Data::Mission::ANMResource* windows_animation_p = new Data::Mission::ANMResource;
-    {
-        auto loading = Utilities::Buffer::Reader( windows_canm, windows_canm_len );
-        windows_animation_p->read( loading );
-        Data::Mission::Resource::ParseSettings parse_settings;
-        parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
-        parse_settings.endian = Utilities::Buffer::LITTLE;
-
-        windows_animation_p->parse( parse_settings );
-        // windows_animation_p->write( "windows" );
-    }
-
-    Data::Mission::ANMResource* macintosh_animation_p = new Data::Mission::ANMResource;
-    {
-        auto loading = Utilities::Buffer::Reader( macintosh_canm, macintosh_canm_len );
-        macintosh_animation_p->read( loading );
-        Data::Mission::Resource::ParseSettings parse_settings;
-        parse_settings.type = Data::Mission::Resource::ParseSettings::Macintosh;
-        parse_settings.endian = Utilities::Buffer::BIG;
-
-        macintosh_animation_p->parse( parse_settings );
-        // macintosh_animation_p->write( "macintosh" );
-    }
-
-    delete windows_animation_p;
-    delete macintosh_animation_p;
+    is_not_success |= testANM( Utilities::Buffer::LITTLE, "little", windows_canm, windows_canm_len );
+    is_not_success |= testANM( Utilities::Buffer::BIG, "big", macintosh_canm, macintosh_canm_len );
     
     return is_not_success;
 }
