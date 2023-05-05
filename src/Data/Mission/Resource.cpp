@@ -8,7 +8,6 @@ const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PA
 
 Data::Mission::Resource::ParseSettings::ParseSettings() {
     type = Unidentified; // We do not know what is being loaded.
-    is_opposite_endian = false; // Do not switch endianess mode by default.
     output_level = 0;
     output_ref = &std::cout; // The console is the default output.
 }
