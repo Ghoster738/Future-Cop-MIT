@@ -4,6 +4,7 @@
 #include "../../Utilities/TestImage2D.h"
 #include <set>
 #include "Embedded/PFNT.h"
+#include "Embedded/PFNTExpected.h"
 
 Data::Mission::FontResource* getMacintosh( std::ostream *stream, int output_level ) {
     Data::Mission::FontResource* macintosh_font_p = new Data::Mission::FontResource;
