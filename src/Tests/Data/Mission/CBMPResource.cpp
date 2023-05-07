@@ -183,7 +183,9 @@ int main() {
     is_not_success |= testCBMP( Utilities::Buffer::LITTLE, "windows transparency", windows_transparency_cbmp, windows_transparency_cbmp_len, transparency_answer_qoi, transparency_answer_qoi_len );
     is_not_success |= testTrianglesCBMP( Utilities::Buffer::LITTLE, "windows triangle transparency", windows_transparency_cbmp, windows_transparency_cbmp_len );
     is_not_success |= testCBMP( Utilities::Buffer::BIG, "macintosh transparency", macintosh_transparency_cbmp, macintosh_transparency_cbmp_len, transparency_answer_qoi, transparency_answer_qoi_len );
+    is_not_success |= testTrianglesCBMP( Utilities::Buffer::BIG, "macintosh triangle transparency", macintosh_transparency_cbmp, macintosh_transparency_cbmp_len );
     is_not_success |= testCBMP( Utilities::Buffer::LITTLE, "playstation transparency", playstation_transparency_cbmp, playstation_transparency_cbmp_len, transparency_answer_qoi, transparency_answer_qoi_len );
+    is_not_success |= testTrianglesCBMP( Utilities::Buffer::LITTLE, "playstation triangle transparency", playstation_transparency_cbmp, playstation_transparency_cbmp_len );
     
     return is_not_success;
 }
