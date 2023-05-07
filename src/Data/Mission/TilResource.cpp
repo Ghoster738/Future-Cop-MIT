@@ -297,6 +297,14 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     texture_cords.back().x = reader_sect.readU8();
                     texture_cords.back().y = reader_sect.readU8();
                 }
+
+                for( unsigned i = 0; i < TEXTURE_NAMES_AMOUNT; i++ ) {
+                    texture_info[ i ].is_semi_transparent.resize( texture_cordinates_amount, false );
+
+                    for( auto m : mesh_tiles ) {
+                        texture_info[ i ].is_semi_transparent[ m.texture_cord_index % texture_cordinates_amount ] = true;
+                    }
+                }
                 
                 Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );
                 
@@ -359,18 +367,32 @@ Data::Mission::Resource * Data::Mission::TilResource::duplicate() const {
 }
 
 bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
-    const static size_t TEXTURE_LIMIT = sizeof(texture_names) / sizeof( texture_names[0] );
+    const static size_t TEXTURE_LIMIT = sizeof(texture_info) / sizeof( texture_info[0] );
+    glm::vec2 points[3];
     bool valid = true;
 
     for( auto cur = textures.begin(); cur != textures.end(); cur++ ) {
-        if( (*cur)->getResourceID() - 1 < TEXTURE_LIMIT ) {
-            if( (*cur)->getImageFormat() != nullptr )
-                texture_names[ (*cur)->getResourceID() - 1 ] = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
+        const auto offset = (*cur)->getResourceID() - 1;
+
+        if( offset < TEXTURE_LIMIT ) {
+            if( (*cur)->getImageFormat() != nullptr ) {
+                texture_info[ offset ].name = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
+
+                for( size_t i = 0; i < this->texture_cords.size(); i++ ) {
+                    if( this->texture_info[ offset ].is_semi_transparent[ i ] ) {
+                        points[0] = this->texture_cords[ i ];
+                        points[1] = this->texture_cords[ (i + 1) % this->texture_cords.size() ];
+                        points[2] = this->texture_cords[ (i + 2) % this->texture_cords.size() ];
+
+                        this->texture_info[ offset ].is_semi_transparent[ i ] = (*cur)->isSemiTransparent( *(*cur)->getImage(), points );
+                    }
+                }
+            }
         }
     }
 
     for( size_t i = 0; i < TEXTURE_LIMIT; i++ ) {
-        if( texture_names[ i ].empty() )
+        if( texture_info[ i ].name.empty() )
             valid = false;
     }
 
@@ -496,7 +518,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         has_texture_displayed = false;
         
         if( texture_index < TEXTURE_NAMES_AMOUNT )
-            model_output->setMaterial( texture_names[ texture_index ], texture_index + 1, is_culled );
+            model_output->setMaterial( texture_info[ texture_index ].name, texture_index + 1, is_culled );
 
         for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
             for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
@@ -611,6 +633,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                             }
                         }
 
+                        bool is_semi_transparent = texture_info[ texture_index ].is_semi_transparent[ current_tile.texture_cord_index ];
+
                         if( back ) {
                             // This writes the forward side of the tile data.
                             for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
@@ -621,7 +645,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                 model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                 model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( current_tile.mesh_type ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( is_semi_transparent ) );
                             }
                         }
 
@@ -635,7 +659,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                 model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                 model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( is_semi_transparent ) );
                             }
                         }
                     }

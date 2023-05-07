@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <fstream>
 #include <cassert>
-#include <iostream>
 
 namespace {
 // All three versions have this for this is the header for the texture.
@@ -329,10 +328,6 @@ inline bool transparent_on_scanline( const Utilities::Image2D &texture, int x1, 
         auto pixel = texture.readPixel( i, y_level );
 
         if( pixel.alpha > 0.03125 && pixel.alpha < 0.96875 ) {
-            std::cout << "Found at " << i << "\n";
-            std::cout << "x1 = " << x1 << "\n";
-            std::cout << "x2 = " << x2 << "\n";
-            std::cout << "y  = " << y_level << std::endl;
             return true;
         }
     }
@@ -404,8 +399,8 @@ bool Data::Mission::BMPResource::isSemiTransparent( const Utilities::Image2D &te
 
     std::sort( points, points + 3, compare );
 
-    assert( (points[0].y < points[1].y) || (points[0].y == points[1].y && points[0].x < points[1].x) );
-    assert( (points[1].y < points[2].y) || (points[1].y == points[2].y && points[1].x < points[2].x) );
+    assert( (points[0].y < points[1].y) || (points[0].y == points[1].y && points[0].x <= points[1].x) );
+    assert( (points[1].y < points[2].y) || (points[1].y == points[2].y && points[1].x <= points[2].x) );
 
     if( points[1].y == points[2].y ) {
         return checkBottomTriangle( texture, points[0], points[1], points[2] );
