@@ -645,7 +645,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                 model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                 model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( is_semi_transparent ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( current_tile.mesh_type ) );
                             }
                         }
 
@@ -659,7 +659,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                 model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                 model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( is_semi_transparent ) );
+                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
                             }
                         }
                     }
