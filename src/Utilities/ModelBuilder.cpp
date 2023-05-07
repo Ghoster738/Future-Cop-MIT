@@ -75,6 +75,7 @@ Utilities::ModelBuilder::TextureMaterial::TextureMaterial( const TextureMaterial
     file_name( mat.file_name ),
     starting_vertex_index( mat.starting_vertex_index ),
     count( mat.count ),
+    opeque_count( mat.opeque_count ),
     min( mat.min ),
     max( mat.max ),
     has_culling( mat.has_culling ),
@@ -422,6 +423,7 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
+        texture_materials.back().opeque_count = std::numeric_limits<unsigned int>::max();
         texture_materials.back().has_culling = culling_enabled;
         
         // Allocate morph_bounds.
@@ -447,6 +449,7 @@ bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMa
     if( material_index < texture_materials.size() ) {
 
         element.count                 = texture_materials[material_index].count;
+        element.opeque_count          = texture_materials[material_index].opeque_count;
         element.starting_vertex_index = texture_materials[material_index].starting_vertex_index;
         element.file_name             = texture_materials[material_index].file_name;
         element.cbmp_resource_id      = texture_materials[material_index].cbmp_resource_id;
@@ -456,6 +459,10 @@ bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMa
     }
     else
         return false;
+}
+
+void Utilities::ModelBuilder::beginSemiTransperency() {
+    texture_materials.back().opeque_count = texture_materials.back().count;
 }
 
 void Utilities::ModelBuilder::startVertex() {

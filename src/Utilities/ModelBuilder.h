@@ -73,6 +73,7 @@ public:
         std::string file_name; // The file is relative to the texture.
         unsigned int starting_vertex_index; // The index of the starting vertices.
         unsigned int count; // The amount of vertices that the texture material covers.
+        unsigned int opeque_count; // The amount of vertices that the texture material covers.
         Utilities::DataTypes::Vec3Type min, max;
         bool has_culling;
         
@@ -288,6 +289,12 @@ public:
      * @return True if the element has successfully been written
      */
     bool getMaterial( unsigned int material_index, TextureMaterial &element ) const;
+
+    /**
+     * When done with the opeque part of the model then you can use semi transparency.
+     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     */
+    void beginSemiTransperency();
 
     /**
      * When all the methods of setVertexData and addMorphVertexData is called for the current vertex it is time to call this method.

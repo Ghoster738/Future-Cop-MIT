@@ -470,7 +470,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
         }
         
         int status;
-        Utilities::ModelBuilder* model_output = Utilities::ModelBuilder::combine( texture_models, status );
+        Utilities::ModelBuilder* model_output_p = Utilities::ModelBuilder::combine( texture_models, status );
         
         if( status != 1 ) {
             std::cout << "Data::Mission::TilResource::createModel has a problem" << std::endl;
@@ -482,7 +482,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
             delete i;
         }
 
-        return model_output;
+        return model_output_p;
     }
     else
         return nullptr;
@@ -492,18 +492,18 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
     if( texture_index > TEXTURE_NAMES_AMOUNT + 1 )
         return nullptr;
     else {
-        Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
+        Utilities::ModelBuilder *model_output_p = new Utilities::ModelBuilder();
         bool display_unread = false;
         bool has_displayed = false;
         bool has_texture_displayed = false;
         
-        unsigned int position_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int normal_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int color_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int tex_coord_0_compon_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output->addVertexComponent( "_TileType", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::SCALAR, false );
+        unsigned int position_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+        unsigned int normal_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+        unsigned int color_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+        unsigned int tex_coord_0_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
+        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( "_TileType", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::SCALAR, false );
 
-        model_output->setupVertexComponents();
+        model_output_p->setupVertexComponents();
 
         glm::vec3   position_displacement;
         glm::vec3   position[6];
@@ -511,172 +511,181 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         glm::vec3   color[6];
         glm::u8vec2 coord[6];
 
-        position_displacement.x = SPAN_OF_TIL + x_offset;
-        position_displacement.y = 0.0;
-        position_displacement.z = SPAN_OF_TIL + y_offset;
-
         has_texture_displayed = false;
         
         if( texture_index < TEXTURE_NAMES_AMOUNT )
-            model_output->setMaterial( texture_info[ texture_index ].name, texture_index + 1, is_culled );
+            model_output_p->setMaterial( texture_info[ texture_index ].name, texture_index + 1, is_culled );
 
-        for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-            for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
-                for( auto t = 0; t < mesh_reference_grid[x][y].tile_amount; t++ )
-                {
-                    unsigned int current_tile_polygon_amount = 0;
+        for( unsigned int not_opaque = 0; not_opaque < 2; not_opaque++) {
 
-                    const Tile current_tile = mesh_tiles.at( (t + mesh_reference_grid[x][y].tiles_start) % mesh_tiles.size() );
+            position_displacement.x = SPAN_OF_TIL + x_offset;
+            position_displacement.y = 0.0;
+            position_displacement.z = SPAN_OF_TIL + y_offset;
 
-                    Data::Mission::Til::Mesh::Input input;
-                    input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
-                    input.pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( y + 1, x + 0 );
-                    input.pixels[  BACK_RIGHT ] = point_cloud_3_channel.getRef( y + 1, x + 1 );
-                    input.pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( y + 0, x + 1 );
-                    input.coord_index = current_tile.texture_cord_index;
-                    input.coord_index_limit = this->texture_cords.size();
-                    input.coord_data = this->texture_cords.data();
-
-                    Data::Mission::Til::Mesh::VertexData vertex_data;
-                    vertex_data.position = position;
-                    vertex_data.coords = coord;
-                    vertex_data.colors = color;
-                    vertex_data.element_amount = 6;
-                    vertex_data.element_start = 0;
-
-                    Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->tile_graphics_bitfield };
-                    input_color.tile_index = current_tile.graphics_type_index;
-                    input_color.unk = 0;
-                    input_color.position.x = x;
-                    input_color.position.y = y;
-                    input_color.position.z = 0;
-
-                    Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
-
-                    if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
-                        current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
-
-                        if( current_tile_polygon_amount == 0 && display_unread ) {
-                            if( !has_displayed ) {
-                                std::cout << "Starting error log for " << this->getIndexNumber() << std::endl;
-                                has_displayed = true;
-                            }
-
-                            if( !has_texture_displayed ) {
-                                std::cout << "For texture index of " << texture_index << std::endl;
-                                has_texture_displayed = true;
-                            }
-
-                            std::cout << "Unknown tile at (" << x << "," << y << ") for " << current_tile.mesh_type << std::endl;
-                        }
-
-                        for( unsigned int i = 0; i < current_tile_polygon_amount; i++ ) {
-                            position[ i ].x += position_displacement.x;
-                            position[ i ].z += position_displacement.z;
-
-                            std::swap( position[ i ].x, position[ i ].z );
-                            position[ i ].x = -position[ i ].x;
-                            position[ i ].z = -position[ i ].z;
-                        }
-                    }
-
-                    // Generate the normals
+            for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
+                    for( auto t = 0; t < mesh_reference_grid[x][y].tile_amount; t++ )
                     {
-                        glm::vec3 u;
-                        glm::vec3 v;
+                        unsigned int current_tile_polygon_amount = 0;
+
+                        const Tile current_tile = mesh_tiles.at( (t + mesh_reference_grid[x][y].tiles_start) % mesh_tiles.size() );
+
+                        Data::Mission::Til::Mesh::Input input;
+                        input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
+                        input.pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( y + 1, x + 0 );
+                        input.pixels[  BACK_RIGHT ] = point_cloud_3_channel.getRef( y + 1, x + 1 );
+                        input.pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( y + 0, x + 1 );
+                        input.coord_index = current_tile.texture_cord_index;
+                        input.coord_index_limit = this->texture_cords.size();
+                        input.coord_data = this->texture_cords.data();
+
+                        Data::Mission::Til::Mesh::VertexData vertex_data;
+                        vertex_data.position = position;
+                        vertex_data.coords = coord;
+                        vertex_data.colors = color;
+                        vertex_data.element_amount = 6;
+                        vertex_data.element_start = 0;
+
+                        Data::Mission::Til::Colorizer::Input input_color = { this->colors, this->tile_graphics_bitfield };
+                        input_color.tile_index = current_tile.graphics_type_index;
+                        input_color.unk = 0;
+                        input_color.position.x = x;
+                        input_color.position.y = y;
+                        input_color.position.z = 0;
+
+                        Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
+
+                        if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
+                            current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
+
+                            if( current_tile_polygon_amount == 0 && display_unread ) {
+                                if( !has_displayed ) {
+                                    std::cout << "Starting error log for " << this->getIndexNumber() << std::endl;
+                                    has_displayed = true;
+                                }
+
+                                if( !has_texture_displayed ) {
+                                    std::cout << "For texture index of " << texture_index << std::endl;
+                                    has_texture_displayed = true;
+                                }
+
+                                std::cout << "Unknown tile at (" << x << "," << y << ") for " << current_tile.mesh_type << std::endl;
+                            }
+
+                            for( unsigned int i = 0; i < current_tile_polygon_amount; i++ ) {
+                                position[ i ].x += position_displacement.x;
+                                position[ i ].z += position_displacement.z;
+
+                                std::swap( position[ i ].x, position[ i ].z );
+                                position[ i ].x = -position[ i ].x;
+                                position[ i ].z = -position[ i ].z;
+                            }
+                        }
 
                         // Generate the normals
-                        for( unsigned int p = 0; p < current_tile_polygon_amount / 3; p++ )
                         {
-                            u.x = position[ p * 3 + 1 ].x - position[ p * 3 + 0 ].x;
-                            u.y = position[ p * 3 + 1 ].y - position[ p * 3 + 0 ].y;
-                            u.z = position[ p * 3 + 1 ].z - position[ p * 3 + 0 ].z;
+                            glm::vec3 u;
+                            glm::vec3 v;
 
-                            v.x = position[ p * 3 + 2 ].x - position[ p * 3 + 0 ].x;
-                            v.y = position[ p * 3 + 2 ].y - position[ p * 3 + 0 ].y;
-                            v.z = position[ p * 3 + 2 ].z - position[ p * 3 + 0 ].z;
+                            // Generate the normals
+                            for( unsigned int p = 0; p < current_tile_polygon_amount / 3; p++ )
+                            {
+                                u.x = position[ p * 3 + 1 ].x - position[ p * 3 + 0 ].x;
+                                u.y = position[ p * 3 + 1 ].y - position[ p * 3 + 0 ].y;
+                                u.z = position[ p * 3 + 1 ].z - position[ p * 3 + 0 ].z;
 
-                            normal[3 * p].x = (u.y * v.z - u.z * v.y);
-                            normal[3 * p].y = (u.z * v.x - u.x * v.z);
-                            normal[3 * p].z = (u.x * v.y - u.y * v.x);
-                            
-                            normal[3 * p] = glm::normalize( normal[3 * p] );
+                                v.x = position[ p * 3 + 2 ].x - position[ p * 3 + 0 ].x;
+                                v.y = position[ p * 3 + 2 ].y - position[ p * 3 + 0 ].y;
+                                v.z = position[ p * 3 + 2 ].z - position[ p * 3 + 0 ].z;
 
-                            // Fill in the value on all points
-                            for( unsigned int i = 1; i < 3; i++ ) {
-                                normal[3 * p + i ].x = normal[3 * p].x;
-                                normal[3 * p + i ].y = normal[3 * p].y;
-                                normal[3 * p + i ].z = normal[3 * p].z;
+                                normal[3 * p].x = (u.y * v.z - u.z * v.y);
+                                normal[3 * p].y = (u.z * v.x - u.x * v.z);
+                                normal[3 * p].z = (u.x * v.y - u.y * v.x);
+
+                                normal[3 * p] = glm::normalize( normal[3 * p] );
+
+                                // Fill in the value on all points
+                                for( unsigned int i = 1; i < 3; i++ ) {
+                                    normal[3 * p + i ].x = normal[3 * p].x;
+                                    normal[3 * p + i ].y = normal[3 * p].y;
+                                    normal[3 * p + i ].z = normal[3 * p].z;
+                                }
+                            }
+                        }
+
+                        {
+                            bool front = true;
+                            bool back = false;
+
+                            if( is_culled ) {
+                                if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
+                                    if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
+                                        front = current_tile.front;
+                                        back  = current_tile.back;
+                                    }
+                                    else {
+                                        front = current_tile.back;
+                                        back  = current_tile.front;
+                                    }
+
+                                    if( front == false && back == false ) {
+                                        front = true;
+                                        back = true;
+                                    }
+                                }
+                            }
+
+                            bool is_semi_transparent = texture_info[ texture_index ].is_semi_transparent[ current_tile.texture_cord_index ];
+
+                            if( not_opaque == is_semi_transparent ) {
+                                if( back ) {
+                                    // This writes the forward side of the tile data.
+                                    for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
+                                    {
+                                        model_output_p->startVertex();
+
+                                        model_output_p->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
+                                        model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
+                                        model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
+                                        model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( current_tile.mesh_type ) );
+                                    }
+                                }
+
+                                if( front ) {
+                                    // This writes the backface side of the tile data.
+                                    for( unsigned int p = current_tile_polygon_amount; p > 0; p-- )
+                                    {
+                                        model_output_p->startVertex();
+
+                                        model_output_p->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type(  position[p - 1] ) );
+                                        model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
+                                        model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
+                                        model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                                    }
+                                }
                             }
                         }
                     }
 
-                    {
-                        bool front = true;
-                        bool back = false;
-
-                        if( is_culled ) {
-                            if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
-                                if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
-                                    front = current_tile.front;
-                                    back  = current_tile.back;
-                                }
-                                else {
-                                    front = current_tile.back;
-                                    back  = current_tile.front;
-                                }
-
-                                if( front == false && back == false ) {
-                                    front = true;
-                                    back = true;
-                                }
-                            }
-                        }
-
-                        bool is_semi_transparent = texture_info[ texture_index ].is_semi_transparent[ current_tile.texture_cord_index ];
-
-                        if( back ) {
-                            // This writes the forward side of the tile data.
-                            for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
-                            {
-                                model_output->startVertex();
-
-                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type( position[p] ) );
-                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
-                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
-                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( current_tile.mesh_type ) );
-                            }
-                        }
-
-                        if( front ) {
-                            // This writes the backface side of the tile data.
-                            for( unsigned int p = current_tile_polygon_amount; p > 0; p-- )
-                            {
-                                model_output->startVertex();
-
-                                model_output->setVertexData(    position_compon_index, Utilities::DataTypes::Vec3Type(  position[p - 1] ) );
-                                model_output->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
-                                model_output->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
-                                model_output->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                model_output->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
-                            }
-                        }
-                    }
+                    position_displacement.z -= 1.0;
                 }
-
-                position_displacement.z -= 1.0;
+                position_displacement.x -= 1.0;
+                position_displacement.z = SPAN_OF_TIL + y_offset;
             }
-            position_displacement.x -= 1.0;
-            position_displacement.z = SPAN_OF_TIL + y_offset;
+
+            if( not_opaque == false ) {
+                model_output_p->beginSemiTransperency();
+            }
         }
         
-        if( model_output->getNumVertices() < 3 ) {
-            delete model_output;
+        if( model_output_p->getNumVertices() < 3 ) {
+            delete model_output_p;
             return nullptr;
         }
         else
-            return model_output;
+            return model_output_p;
     }
 }
 
