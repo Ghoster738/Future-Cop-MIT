@@ -2,11 +2,13 @@
 
 #include <cmath>
 #include "../../Utilities/ImageFormat/Chooser.h"
+#include <algorithm>
 #include <fstream>
 #include <cassert>
+#include <iostream>
 
 namespace {
-// Both versions have this for this is the header for the texture.
+// All three versions have this for this is the header for the texture.
 const uint32_t CCB_TAG = 0x43434220; // which is { 0x43, 0x43, 0x42, 0x20 } or { 'C', 'C', 'B', ' ' } or "CCB "
 // This is probably something for converting 16 bit data to 8 bit pallete data for Windows and Mac.
 const uint32_t LKUP_TAG = 0x4C6B5570; // which is { 0x4C, 0x75, 0x55, 0x70 } or { 'L', 'k', 'U', 'p' } or "LkUp"
@@ -85,7 +87,6 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( identifier == CCB_TAG ) {
                 auto cbb_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
-                // TODO This probably handles the transparency, and maybe other effects.
                 
                 // Zero data 0x0-0xC.
                 // 0x4
@@ -314,6 +315,130 @@ Utilities::Image2D *const Data::Mission::BMPResource::getImage() const {
 
 Utilities::ImagePalette2D *const Data::Mission::BMPResource::getPaletteImage() const {
     return image_palette_p;
+}
+
+namespace {
+// This rasterization algorithm could be repurposed into a semi transparent detector.
+// http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+
+inline bool transparent_on_scanline( const Utilities::Image2D &texture, int x1, int x2, int y_level ) {
+    if( x1 > x2 )
+        std::swap( x1, x2 );
+
+    for( int i = x1; i < x2; i++ ) {
+        auto pixel = texture.readPixel( i, y_level );
+
+        if( pixel.alpha > 0.03125 && pixel.alpha < 0.96875 ) {
+            std::cout << "Found at " << i << "\n";
+            std::cout << "x1 = " << x1 << "\n";
+            std::cout << "x2 = " << x2 << "\n";
+            std::cout << "y  = " << y_level << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+inline bool checkBottomTriangle( const Utilities::Image2D &texture, const glm::vec2 &v1, const glm::vec2 &v2, const glm::vec2 &v3 ) {
+    const float inverse_slope[2] = {
+        (v2.x - v1.x) / (v2.y - v1.y),
+        (v3.x - v1.x) / (v3.y - v1.y) };
+
+    float current_x[2];
+    current_x[0] = v1.x;
+    current_x[1] = v1.x;
+
+    for( int s_y = v1.y; s_y <= v2.y; s_y++ ) {
+        if( transparent_on_scanline( texture, current_x[0], current_x[1], s_y ) )
+            return true;
+
+        current_x[0] += inverse_slope[0];
+        current_x[1] += inverse_slope[1];
+
+        current_x[0] = std::min( current_x[0], (float)texture.getWidth() );
+        current_x[0] = std::max( current_x[0], 0.f );
+        current_x[1] = std::min( current_x[1], (float)texture.getWidth() );
+        current_x[1] = std::max( current_x[1], 0.f );
+    }
+
+    return false;
+}
+
+inline bool checkTopTriangle( const Utilities::Image2D &texture, const glm::vec2 &v1, const glm::vec2 &v2, const glm::vec2 &v3 ) {
+    const float inverse_slope[2] = {
+        (v3.x - v1.x) / (v3.y - v1.y),
+        (v3.x - v2.x) / (v3.y - v2.y) };
+
+    float current_x[2];
+    current_x[0] = v3.x;
+    current_x[1] = v3.x;
+
+    for( int s_y = v3.y; s_y > v1.y; s_y-- ) {
+        if( transparent_on_scanline( texture, current_x[0], current_x[1], s_y ) )
+            return true;
+
+        current_x[0] -= inverse_slope[0];
+        current_x[1] -= inverse_slope[1];
+
+        current_x[0] = std::min( current_x[0], (float)texture.getWidth() );
+        current_x[0] = std::max( current_x[0], 0.f );
+        current_x[1] = std::min( current_x[1], (float)texture.getWidth() );
+        current_x[1] = std::max( current_x[1], 0.f );
+    }
+
+    return false;
+}
+
+bool compare( glm::vec2 a, glm::vec2 b ) {
+    if( a.y > b.y )
+        return false;
+    if( a.y == b.y && a.x > b.x)
+        return false;
+    return true;
+}
+
+}
+
+bool Data::Mission::BMPResource::isSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[3] ) {
+    glm::vec2 temp;
+
+    std::sort( points, points + 3, compare );
+
+    assert( (points[0].y < points[1].y) || (points[0].y == points[1].y && points[0].x < points[1].x) );
+    assert( (points[1].y < points[2].y) || (points[1].y == points[2].y && points[1].x < points[2].x) );
+
+    if( points[1].y == points[2].y ) {
+        return checkBottomTriangle( texture, points[0], points[1], points[2] );
+    }
+    else
+    if( points[0].y == points[1].y ) {
+        return checkTopTriangle( texture, points[0], points[1], points[2] );
+    }
+    else {
+        temp = glm::vec2( static_cast<int>( points[0].x + ((points[1].y - points[0].y) / (points[2].y - points[0].y)) * (points[2].x - points[0].x)), points[1].y );
+
+        if( checkBottomTriangle( texture, points[0], points[1], temp ) )
+            return true;
+        else
+            return checkTopTriangle( texture, points[1], temp, points[2] );
+    }
+}
+
+
+bool Data::Mission::BMPResource::isAreaSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[2] ) {
+    glm::vec2 min;
+    glm::vec2 max;
+
+    min.x = std::min( points[0].x, points[1].x );
+    min.y = std::min( points[0].y, points[1].y );
+    max.x = std::max( points[0].x, points[1].x );
+    max.y = std::max( points[0].y, points[1].y );
+
+    for( int y = min.y; y < max.y; y++ ) {
+        if( transparent_on_scanline( texture, min.x, max.x, y) )
+            return true;
+    }
+    return false;
 }
 
 std::vector<Data::Mission::BMPResource*> Data::Mission::BMPResource::getVector( Data::Mission::IFF &mission_file ) {
