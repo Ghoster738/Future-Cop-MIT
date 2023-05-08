@@ -104,6 +104,16 @@ void Graphics::SDL2::GLES2::Internal::Mesh::draw( GLuint active_switch_texture, 
     noPreBindDraw( active_switch_texture, texture_switch_uniform );
 }
 
+void Graphics::SDL2::GLES2::Internal::Mesh::drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    bindArray();
+    noPreBindDrawOpaque( active_switch_texture, texture_switch_uniform );
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    bindArray();
+    noPreBindDrawTransparent( active_switch_texture, texture_switch_uniform );
+}
+
 void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
     vertex_array.bind();
@@ -121,6 +131,34 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
         glDrawArrays( draw_command_array_mode, (*i).first, (*i).count );
+        auto err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "glDrawArrays could have a problem! " << err << std::endl;
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    {
+        if( (*i).texture_r != nullptr )
+            (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
+
+        glDrawArrays( draw_command_array_mode, (*i).first, (*i).opeque_count );
+        auto err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "glDrawArrays could have a problem! " << err << std::endl;
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    {
+        if( (*i).texture_r != nullptr )
+            (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
+
+        glDrawArrays( draw_command_array_mode, (*i).first + (*i).opeque_count, (*i).count - (*i).opeque_count );
         auto err = glGetError();
 
         if( err != GL_NO_ERROR )

@@ -220,15 +220,16 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
             if( Utilities::Collision::GJK::hasCollision( projection, section_shape ) == Utilities::Collision::GJK::NO_COLLISION ) {
                 culling_info.setValue( s.position.x, s.position.y, -1.0f );
             }
-            else
-                culling_info.setValue( s.position.x, s.position.y,  1.0f );
+            else {
+                culling_info.setValue( s.position.x, s.position.y, 1.0f );
+            }
         }
     }
 
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r ) {
+void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, bool draw_opaque, const Utilities::GridBase2D<float> *const culling_info_r ) {
     glm::mat4 projection_view, final_position;
     
     // Use the map shader for the 3D map or the world.
@@ -260,7 +261,10 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-                (*i).mesh_p->draw( 0, texture_uniform_id );
+                if( draw_opaque )
+                    (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
+                else
+                    (*i).mesh_p->drawTransparent( 0, texture_uniform_id );
             }
         }
     }

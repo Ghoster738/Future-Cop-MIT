@@ -48,8 +48,12 @@ public:
     void bindArray() const;
 
     void noPreBindDraw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void noPreBindDrawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void noPreBindDrawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
 
     void draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
 
     Program *getProgram() const { return program_r; }
 

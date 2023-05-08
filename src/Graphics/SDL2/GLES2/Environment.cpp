@@ -264,15 +264,25 @@ void Environment::drawFrame() const {
             {
                 // Draw the map.
                 if( current_camera->culling_info.getWidth() * current_camera->culling_info.getHeight() == 0 )
-                    this->world_p->draw( *current_camera );
+                    this->world_p->draw( *current_camera, true );
                 else
-                    this->world_p->draw( *current_camera, &current_camera->culling_info );
+                    this->world_p->draw( *current_camera, true, &current_camera->culling_info );
             }
 
             // TODO Find a way to make const draw.
             const_cast<Environment*>(this)->static_model_draw_routine.draw(   *current_camera );
             const_cast<Environment*>(this)->morph_model_draw_routine.draw(    *current_camera );
             const_cast<Environment*>(this)->skeletal_model_draw_routine.draw( *current_camera );
+
+            // Draw the transparent map when available.
+            if( this->world_p != nullptr )
+            {
+                // Draw the map.
+                if( current_camera->culling_info.getWidth() * current_camera->culling_info.getHeight() == 0 )
+                    this->world_p->draw( *current_camera, false );
+                else
+                    this->world_p->draw( *current_camera, false, &current_camera->culling_info );
+            }
 
 
             // Disable culling on the world map.
