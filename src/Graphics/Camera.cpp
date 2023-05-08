@@ -159,11 +159,16 @@ Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() con
 
     return Utilities::Collision::GJKPolyhedron( projection );
 }
-glm::vec3 Graphics::Camera::getPosition() const {
-    glm::mat4 inverse = glm::inverse( PV3D );
 
+#include <iostream>
+
+glm::vec3 Graphics::Camera::getPosition() const {
+    glm::mat4 inverse = glm::inverse( view3D );
+
+     // TODO Verify, if this point is the actual distance.
     auto value = inverse * glm::vec4( 0, 0, 0, 1 );
     auto scale = 1.0f / value.w;
+    auto test_position = glm::vec3( value.x, value.y, value.z ) * scale;
 
-    return this->position;
+    return glm::vec3( value.x, value.y, value.z ) * scale;
 }

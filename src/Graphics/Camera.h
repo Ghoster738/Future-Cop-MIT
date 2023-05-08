@@ -42,7 +42,6 @@ protected:
     void updatePV2D();
 
 public:
-    glm::vec3 position;
     Utilities::GridBase2D<float> culling_info;
 
     Camera();

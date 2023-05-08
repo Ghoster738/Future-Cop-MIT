@@ -508,7 +508,6 @@ int main(int argc, char** argv)
         position_of_camera.x += tmp.x;
         position_of_camera.y += tmp.y;
         position_of_camera.z += tmp.z;
-        first_person_r->position = position_of_camera;
 
         extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, distance_away ) );
         extra_matrix_1 = glm::rotate( glm::mat4(1.0f), rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
