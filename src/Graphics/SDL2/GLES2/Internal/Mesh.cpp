@@ -91,8 +91,16 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         else if( !textures.empty() ) {
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
+
+        GLsizei count = material.count;
+
+        if( count > material.opeque_count )
+            count = material.opeque_count;
+
+        //std::cout << "material.count = 0x" << std::hex << material.count << std::dec << std::endl;
+        //std::cout << "material.opeque_count = 0x" << std::hex << material.opeque_count << std::dec << std::endl;
             
-        addCommand( material.starting_vertex_index, material.count, texture_2d_r );
+        addCommand( material.starting_vertex_index, count, texture_2d_r );
     }
 }
 

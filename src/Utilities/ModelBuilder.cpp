@@ -976,7 +976,6 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     root["samplers"][0]["wrapS"] = 10497;
     root["samplers"][0]["wrapT"] = 10497;
 
-    // TODO Find a way to include bone animatinons.
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
         unsigned int position = i - texture_materials.begin();
         
@@ -1339,6 +1338,10 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
                 
                 // Increment the material
                 new_model->texture_materials.back().count++;
+            }
+
+            if( (*it)->texture_materials.back().opeque_count != std::numeric_limits<unsigned int>::max() ) {
+                new_model->texture_materials.back().opeque_count = (*it)->texture_materials.back().opeque_count;
             }
         }
         
