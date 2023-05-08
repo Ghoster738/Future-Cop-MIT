@@ -222,7 +222,7 @@ void Environment::setupFrame() {
 
             auto projection_shape = current_camera_r->getProjection3DShape();
 
-            this->world_p->updateCulling( current_camera_r->culling_info, projection_shape );
+            this->world_p->updateCulling( current_camera_r->culling_info, projection_shape, current_camera_r->getPosition() );
         }
     }
 }

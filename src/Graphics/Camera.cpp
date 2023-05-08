@@ -143,8 +143,6 @@ std::vector<glm::vec3> generateCubeData( glm::vec3 scale, glm::vec3 center = glm
 }
 }
 
-#include <iostream>
-
 Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() const {
     auto projection = generateCubeData( glm::vec3( 1, 1, 1 ), glm::vec3( 0, 0, 0 ) );
 
@@ -160,4 +158,12 @@ Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() con
     }
 
     return Utilities::Collision::GJKPolyhedron( projection );
+}
+glm::vec3 Graphics::Camera::getPosition() const {
+    glm::mat4 inverse = glm::inverse( PV3D );
+
+    auto value = inverse * glm::vec4( 0, 0, 0, 1 );
+    auto scale = 1.0f / value.w;
+
+    return this->position;
 }

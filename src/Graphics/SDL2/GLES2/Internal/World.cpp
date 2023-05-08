@@ -189,7 +189,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection, const glm::vec3 &position ) const {
     if( culling_info.getWidth() * culling_info.getHeight() == 0 ) {
         return false;
     }
@@ -221,7 +221,9 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
                 culling_info.setValue( s.position.x, s.position.y, -1.0f );
             }
             else {
-                culling_info.setValue( s.position.x, s.position.y, 1.0f );
+                const auto distance_2 = (adjusted_position.x - position.x) * (adjusted_position.x - position.x) + (adjusted_position.z - position.z) * (adjusted_position.z - position.z);
+
+                culling_info.setValue( s.position.x, s.position.y, distance_2 );
             }
         }
     }
@@ -261,10 +263,15 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-                if( draw_opaque )
-                    (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
+                if( culling_info_r == nullptr || culling_info_r->getValue( section.position.x, section.position.y ) < 32 * 32 ) {
+                    if( draw_opaque )
+                        (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
+                    else
+                        (*i).mesh_p->drawTransparent( 0, texture_uniform_id );
+                }
                 else
-                    (*i).mesh_p->drawTransparent( 0, texture_uniform_id );
+                if( draw_opaque )
+                    (*i).mesh_p->draw( 0, texture_uniform_id );
             }
         }
     }

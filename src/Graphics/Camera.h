@@ -42,6 +42,7 @@ protected:
     void updatePV2D();
 
 public:
+    glm::vec3 position;
     Utilities::GridBase2D<float> culling_info;
 
     Camera();
@@ -170,6 +171,12 @@ public:
      * @note This might actually be useful for gameplay purposes.
      */
     Utilities::Collision::GJKPolyhedron getProjection3DShape() const;
+
+    /**
+     * This gets the 3D camera shape from the projection matrix.
+     * @note This might actually be useful for gameplay purposes.
+     */
+    glm::vec3 getPosition() const;
 };
 
 }

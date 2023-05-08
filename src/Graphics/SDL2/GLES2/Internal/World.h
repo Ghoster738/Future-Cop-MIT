@@ -114,9 +114,10 @@ public:
      * @note This will change the parameter culling_info.
      * @param culling_info The boolean vector that will hold culling information for the World.
      * @param projection The projection shape to make the culling info from.
+     * @param position The position of the camera for distance culling.
      * @return true if culling has successfully been setup.
      */
-    bool updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const;
+    bool updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection, const glm::vec3 &position ) const;
 
     /**
      * This draws the entire map.
