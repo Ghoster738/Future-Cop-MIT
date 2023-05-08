@@ -12,9 +12,10 @@ Graphics::SDL2::GLES2::Internal::Mesh::~Mesh() {
     glDeleteBuffers( 1, &vertex_buffer_object );
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei count, const Texture2D *texture_r ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r ) {
     draw_command.push_back( DrawCommand() );
     draw_command.back().first = first;
+    draw_command.back().opeque_count = opeque_count;
     draw_command.back().count = count;
     draw_command.back().texture_r = texture_r;
 }
@@ -92,15 +93,9 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
 
-        GLsizei count = material.count;
+        GLsizei opeque_count = std::min( material.count, material.opeque_count );
 
-        if( count > material.opeque_count )
-            count = material.opeque_count;
-
-        //std::cout << "material.count = 0x" << std::hex << material.count << std::dec << std::endl;
-        //std::cout << "material.opeque_count = 0x" << std::hex << material.opeque_count << std::dec << std::endl;
-            
-        addCommand( material.starting_vertex_index, count, texture_2d_r );
+        addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
     }
 }
 
