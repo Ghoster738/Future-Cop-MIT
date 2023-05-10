@@ -26,7 +26,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
     "   gl_FragColor = color;\n"
     "}\n";
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setDistance( const glm::vec3 &camera_position ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( const glm::vec3 &camera_position ) {
     glm::vec3 combine = vertices[0].position + vertices[1].position + vertices[2].position;
     combine *= 1.0 / 3.0;
 
@@ -173,17 +173,18 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {
     transparent_triangles_amount = 0;
 }
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::addTriangle( const Triangle& triangle, const glm::vec3 &camera_position ) {
+Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangle() {
     if( transparent_triangles_p == nullptr )
-        return;
+        return nullptr;
 
     if( transparent_triangles_amount >= transparent_triangles_max )
-        return;
+        return nullptr;
 
-    transparent_triangles_p[transparent_triangles_amount] = triangle;
-    transparent_triangles_p[transparent_triangles_amount].setDistance( camera_position );
+    auto item_r = &transparent_triangles_p[transparent_triangles_amount];
 
     transparent_triangles_amount++;
+
+    return item_r;
 }
 
 namespace {

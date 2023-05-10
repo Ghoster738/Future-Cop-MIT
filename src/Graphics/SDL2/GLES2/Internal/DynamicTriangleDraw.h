@@ -33,10 +33,7 @@ public:
     struct Triangle {
         Vertex vertices[3];
 
-        /**
-         * @note Called by method addTriangle(...), and it should only be called when the camera gets updated.
-         */
-        void setDistance( const glm::vec3 &camera_position );
+        void setup( const glm::vec3 &camera_position );
     };
 protected:
     Program program;
@@ -123,11 +120,9 @@ public:
     
     /**
      * Add a triangle to draw.
-     * @param triangle This is the reference to the triangle.
-     * @param camera_position This is the reference to the camera_position.
-     * @return true if the triangle is successfully added to the list.
+     * @return A direct reference to the triangle if successful.
      */
-    void addTriangle( const Triangle& triangle, const glm::vec3 &camera_position );
+    Triangle* allocateTriangle();
 
     /**
      * This draws all the stored triangles.
