@@ -27,12 +27,13 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
     "   gl_FragColor = texture_color * color;\n"
     "}\n";
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( const glm::vec3 &camera_position ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position ) {
     glm::vec3 combine = vertices[0].position + vertices[1].position + vertices[2].position;
     combine *= 1.0 / 3.0;
 
     glm::vec3 status = combine - camera_position;
 
+    vertices[0].metadata.bitfield.texture_id = texture_id;
     vertices[1].metadata.distance_from_camera = status.x * status.x + status.y * status.y + status.z * status.z;
 }
 
@@ -56,7 +57,7 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
     vertex_array.addAttribute( "COLOR_0",    4, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, color) ) );
     vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, coordinate) ) );
 
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
 
@@ -119,6 +120,9 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
             attribute_failed |= !program.isAttribute( "COLOR_0", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
+
+            vertex_array.allocate( program );
+            vertex_array.cullUnfound( &std::cout );
 
             link_success = true;
         }
@@ -213,7 +217,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );
 
     // Sort the trinagles
-    std::sort( transparent_triangles_p, transparent_triangles_p + transparent_triangles_amount, compare );
+    // std::sort( transparent_triangles_p, transparent_triangles_p + transparent_triangles_amount, compare );
 
     // Finally we can draw the triangles.
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
@@ -224,6 +228,8 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
     if( textures.size() != 0 ) {
         texture_id = textures.begin()->first;
         current_texture_r = textures.begin()->second;
+
+        current_texture_r->bind( 0, diffusive_texture_uniform_id );
     }
 
     size_t t_last = 0;
@@ -239,7 +245,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
 
                 if( t_last != t ) {
                     glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (t - t_last) * sizeof(Triangle), &transparent_triangles_p[t_last] );
-                    glDrawArrays( GL_TRIANGLES * 3, t_last, (t - t_last) * 3 );
+                    glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
 
                     t_last = t;
                 }
@@ -247,5 +253,10 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
                 current_texture_r->bind( 0, diffusive_texture_uniform_id );
             }
         }
+    }
+
+    if( t_last < transparent_triangles_amount ) {
+        glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (transparent_triangles_amount - t_last) * sizeof(Triangle), &transparent_triangles_p[t_last] );
+        glDrawArrays( GL_TRIANGLES, t_last * 3, (transparent_triangles_amount - t_last) * 3 );
     }
 }

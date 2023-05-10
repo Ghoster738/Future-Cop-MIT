@@ -33,7 +33,7 @@ public:
     struct Triangle {
         Vertex vertices[3];
 
-        void setup( const glm::vec3 &camera_position );
+        void setup( uint32_t texture_id, const glm::vec3 &camera_position );
     };
 protected:
     Program program;

@@ -297,10 +297,43 @@ void Environment::drawFrame() const {
             }
 
             // Draw transparent objects at this point.
+            Internal::DynamicTriangleDraw::Triangle *triangle = const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTriangle();
+            triangle->vertices[0].position.x = 100.0;
+            triangle->vertices[0].position.y = 0.0;
+            triangle->vertices[0].position.z = 0.0;
+            triangle->vertices[0].color.x = 1.0;
+            triangle->vertices[0].color.y = 1.0;
+            triangle->vertices[0].color.z = 1.0;
+            triangle->vertices[0].color.w = 1.0;
+            triangle->vertices[0].coordinate.x = 0.0;
+            triangle->vertices[0].coordinate.y = 0.0;
+
+            triangle->vertices[1].position.x = 100.0;
+            triangle->vertices[1].position.y = 100.0;
+            triangle->vertices[1].position.z = 0.0;
+            triangle->vertices[1].color.x = 1.0;
+            triangle->vertices[1].color.y = 1.0;
+            triangle->vertices[1].color.z = 1.0;
+            triangle->vertices[1].color.w = 1.0;
+            triangle->vertices[1].coordinate.x = 1.0;
+            triangle->vertices[1].coordinate.y = 0.0;
+
+            triangle->vertices[2].position.x = 0.0;
+            triangle->vertices[2].position.y = 100.0;
+            triangle->vertices[2].position.z = 0.0;
+            triangle->vertices[2].color.x = 1.0;
+            triangle->vertices[2].color.y = 1.0;
+            triangle->vertices[2].color.z = 1.0;
+            triangle->vertices[2].color.w = 1.0;
+            triangle->vertices[2].coordinate.x = 0.0;
+            triangle->vertices[2].coordinate.y = 1.0;
+
+            triangle->setup( 1, current_camera->getPosition() );
+
             const_cast<Environment*>(this)->dynamic_triangle_draw_routine.draw( *current_camera, textures );
+            const_cast<Environment*>(this)->dynamic_triangle_draw_routine.clearTriangles();
 
             // Disable culling on the world map.
-            glDisable( GL_CULL_FACE );
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
