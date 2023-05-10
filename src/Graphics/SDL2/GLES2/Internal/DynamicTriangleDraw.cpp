@@ -196,6 +196,7 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle* Graphics::SDL2::
 
 namespace {
 
+// This method sorts the traingles physically.
 bool compare( Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle a, Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle b ) {
     return a.vertices[1].metadata.distance_from_camera > b.vertices[1].metadata.distance_from_camera;
 }
@@ -216,7 +217,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
     // We can now send the matrix to the program.
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );
 
-    // Sort the trinagles
+    // Sort the trinagles from back to front for the transparent triangles.
     std::sort( transparent_triangles_p, transparent_triangles_p + transparent_triangles_amount, compare );
 
     // Finally we can draw the triangles.
