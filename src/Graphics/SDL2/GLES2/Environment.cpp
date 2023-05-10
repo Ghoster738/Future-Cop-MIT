@@ -160,10 +160,13 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     this->dynamic_triangle_draw_routine.setFragmentShader();
     this->dynamic_triangle_draw_routine.compileProgram();
 
+    err = glGetError();
+
     if( err != GL_NO_ERROR )
         std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
 
-    err = glGetError();
+    if( this->dynamic_triangle_draw_routine.allocateTriangles() == 0 )
+        std::cout << "Failed to allocate triangles"<< std::endl;
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )
@@ -293,6 +296,8 @@ void Environment::drawFrame() const {
                     this->world_p->draw( *current_camera, false, &current_camera->culling_info );
             }
 
+            // Draw transparent objects at this point.
+            const_cast<Environment*>(this)->dynamic_triangle_draw_routine.draw( *current_camera, textures );
 
             // Disable culling on the world map.
             glDisable( GL_CULL_FACE );

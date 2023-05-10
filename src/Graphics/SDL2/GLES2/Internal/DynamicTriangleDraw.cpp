@@ -148,7 +148,7 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangles( size_t limit ) {
+size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangles( size_t limit ) {
     GLint size = 0;
 
     if( limit == 0 )
@@ -158,18 +158,18 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangles( siz
 
     glGenBuffers(1, &vertex_buffer_object);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
-    glBufferData(GL_ARRAY_BUFFER, limit, nullptr, GL_DYNAMIC_DRAW);
-
-    transparent_triangles_max = limit;
-    transparent_triangles_p = new Triangle [limit];
+    glBufferData(GL_ARRAY_BUFFER, limit * sizeof(Triangle), nullptr, GL_DYNAMIC_DRAW);
 
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    if( size == 0 ) {
-        deleteTriangles();
-        return false;
+    if( size < sizeof(Triangle) ) {
+        return 0;
     }
-    else
-        return true;
+
+    transparent_triangles_max = size / sizeof(Triangle);
+    transparent_triangles_p = new Triangle [transparent_triangles_max];
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, limit * sizeof(Triangle), transparent_triangles_p);
+
+    return transparent_triangles_max;
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {

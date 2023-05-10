@@ -108,9 +108,9 @@ public:
      * Allocate the triangles that this render rountine could handle
      * @note 1 MiB would store 8738 Triangles with 16 bytes free
      * @param limit The number of triangles that dynamic triangle draw would support.
-     * @return 1 for success.
+     * @return The number of triangles that where allocated.
      */
-    int allocateTriangles( size_t limit = 8738 );
+    size_t allocateTriangles( size_t limit = 8738 );
 
     /**
      * This method clears the list of triangles.
