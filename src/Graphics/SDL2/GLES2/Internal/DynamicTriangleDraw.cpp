@@ -48,6 +48,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::deleteTriangles() {
 }
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
+    transparent_triangles_p = nullptr;
     deleteTriangles();
 
     vertex_array.addAttribute( "POSITION",   3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, position) ) );
@@ -236,7 +237,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
 
                 if( t_last != t ) {
                     glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (t - t_last) * sizeof(Triangle), &transparent_triangles_p[t_last] );
-                    glDrawArrays( GL_TRIANGLES, t_last, (t - t_last) * 3 );
+                    glDrawArrays( GL_TRIANGLES * 3, t_last, (t - t_last) * 3 );
 
                     t_last = t;
                 }

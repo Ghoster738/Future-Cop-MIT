@@ -250,7 +250,7 @@ void Environment::drawFrame() const {
 
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
-            
+
             // This is very crude blending.
             glEnable( GL_BLEND );
             glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);

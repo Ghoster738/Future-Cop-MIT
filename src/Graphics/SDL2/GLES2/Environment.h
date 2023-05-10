@@ -5,6 +5,7 @@
 
 #include "Internal/GLES2.h"
 
+#include "Internal/DynamicTriangleDraw.h"
 #include "Internal/MorphModelDraw.h"
 #include "Internal/Texture2D.h"
 #include "Internal/FontSystem.h"
@@ -20,13 +21,14 @@ namespace GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
-    SDL2::GLES2::Internal::FontSystem                  *text_draw_routine_p;
+    SDL2::GLES2::Internal::FontSystem                   *text_draw_routine_p;
     std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> textures;
-    Graphics::SDL2::GLES2::Internal::Texture2D          shiney_texture; // This holds the environment map.
-    Graphics::SDL2::GLES2::Internal::World             *world_p; // This handles drawing the whole world.
-    Graphics::SDL2::GLES2::Internal::StaticModelDraw    static_model_draw_routine;
-    Graphics::SDL2::GLES2::Internal::MorphModelDraw     morph_model_draw_routine;
-    Graphics::SDL2::GLES2::Internal::SkeletalModelDraw  skeletal_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::Texture2D           shiney_texture; // This holds the environment map.
+    Graphics::SDL2::GLES2::Internal::World              *world_p; // This handles drawing the whole world.
+    Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
 public:
     Environment();
