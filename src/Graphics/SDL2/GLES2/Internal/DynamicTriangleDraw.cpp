@@ -169,6 +169,10 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangles( siz
         return true;
 }
 
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {
+    transparent_triangles_amount = 0;
+}
+
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::addTriangle( const Triangle& triangle, const glm::vec3 &camera_position ) {
     if( transparent_triangles_p == nullptr )
         return;

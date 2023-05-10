@@ -116,6 +116,12 @@ public:
     int allocateTriangles( size_t limit = 8738 );
 
     /**
+     * This method clears the list of triangles.
+     * @note O(1) basically sets a counter to zero.
+     */
+    void clearTriangles();
+    
+    /**
      * Add a triangle to draw.
      * @param triangle This is the reference to the triangle.
      * @param camera_position This is the reference to the camera_position.
