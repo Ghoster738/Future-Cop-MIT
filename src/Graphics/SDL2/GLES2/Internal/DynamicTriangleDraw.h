@@ -119,10 +119,12 @@ public:
     void clearTriangles();
     
     /**
-     * Add a triangle to draw.
+     * Allocate and get a single triangle.
+     * @note This is not a const method for a reason. It adds a triangle to be drawn.
+     * @warning The triangle is added to the list, so be sure to set the triangle up before drawing it.
      * @return A direct reference to the triangle if successful.
      */
-    Triangle* allocateTriangle();
+    Triangle* getTriangle();
 
     /**
      * This draws all the stored triangles.

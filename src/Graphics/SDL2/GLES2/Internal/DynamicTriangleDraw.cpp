@@ -173,7 +173,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {
     transparent_triangles_amount = 0;
 }
 
-Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangle() {
+Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTriangle() {
     if( transparent_triangles_p == nullptr )
         return nullptr;
 
