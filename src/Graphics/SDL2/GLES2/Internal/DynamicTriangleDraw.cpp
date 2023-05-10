@@ -13,6 +13,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_vert
     "void main()\n"
     "{\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
+    "   color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_fragment_shader =
@@ -20,10 +21,10 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
 
     "void main()\n"
     "{\n"
-    "  vec4 color = texture2D(Texture, texture_coord_1);\n"
-    "   if( color.a < 0.015625 )\n"
+    "  vec4 texture_color = texture2D(Texture, texture_coord_1);\n"
+    "   if( texture_color.a < 0.015625 )\n"
     "       discard;\n"
-    "   gl_FragColor = color;\n"
+    "   gl_FragColor = texture_color * color;\n"
     "}\n";
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( const glm::vec3 &camera_position ) {
@@ -56,10 +57,11 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
     vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, coordinate) ) );
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 COLOR_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 color" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::~DynamicTriangleDraw() {
@@ -115,7 +117,7 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
 
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
-            attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
+            attribute_failed |= !program.isAttribute( "COLOR_0", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
 
             link_success = true;

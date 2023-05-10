@@ -156,6 +156,15 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     if( err != GL_NO_ERROR )
         std::cout << "Skeletal Model shader is broken!: " << err << std::endl;
     
+    this->dynamic_triangle_draw_routine.setVertexShader();
+    this->dynamic_triangle_draw_routine.setFragmentShader();
+    this->dynamic_triangle_draw_routine.compileProgram();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
+
+    err = glGetError();
+
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )
         {
