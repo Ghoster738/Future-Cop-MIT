@@ -217,7 +217,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );
 
     // Sort the trinagles
-    // std::sort( transparent_triangles_p, transparent_triangles_p + transparent_triangles_amount, compare );
+    std::sort( transparent_triangles_p, transparent_triangles_p + transparent_triangles_amount, compare );
 
     // Finally we can draw the triangles.
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);

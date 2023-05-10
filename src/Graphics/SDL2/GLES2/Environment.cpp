@@ -297,38 +297,78 @@ void Environment::drawFrame() const {
             }
 
             // Draw transparent objects at this point.
-            Internal::DynamicTriangleDraw::Triangle *triangle = const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTriangle();
-            triangle->vertices[0].position.x = 100.0;
-            triangle->vertices[0].position.y = 0.0;
-            triangle->vertices[0].position.z = 0.0;
-            triangle->vertices[0].color.x = 1.0;
-            triangle->vertices[0].color.y = 1.0;
-            triangle->vertices[0].color.z = 1.0;
-            triangle->vertices[0].color.w = 1.0;
-            triangle->vertices[0].coordinate.x = 0.0;
-            triangle->vertices[0].coordinate.y = 0.0;
+            glm::vec3 positions[4];
+            positions[0] = {  0.296, -1.110,  0.0 };
+            positions[1] = { -1.243,  0.429,  0.0 };
+            positions[2] = {  0.807,  0.878,  0.0 };
+            positions[3] = {  0.000,  0.000,  1.5 };
 
-            triangle->vertices[1].position.x = 100.0;
-            triangle->vertices[1].position.y = 100.0;
-            triangle->vertices[1].position.z = 0.0;
-            triangle->vertices[1].color.x = 1.0;
-            triangle->vertices[1].color.y = 1.0;
-            triangle->vertices[1].color.z = 1.0;
-            triangle->vertices[1].color.w = 1.0;
-            triangle->vertices[1].coordinate.x = 1.0;
-            triangle->vertices[1].coordinate.y = 0.0;
+            {
+                Internal::DynamicTriangleDraw::Triangle &triangle = *const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTriangle();
+                triangle.vertices[0].position = positions[0];
+                triangle.vertices[0].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[0].coordinate = { 1.0, 0.0 };
 
-            triangle->vertices[2].position.x = 0.0;
-            triangle->vertices[2].position.y = 100.0;
-            triangle->vertices[2].position.z = 0.0;
-            triangle->vertices[2].color.x = 1.0;
-            triangle->vertices[2].color.y = 1.0;
-            triangle->vertices[2].color.z = 1.0;
-            triangle->vertices[2].color.w = 1.0;
-            triangle->vertices[2].coordinate.x = 0.0;
-            triangle->vertices[2].coordinate.y = 1.0;
+                triangle.vertices[1].position = positions[1];
+                triangle.vertices[1].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[1].coordinate = { 1.0, 1.0 };
 
-            triangle->setup( 1, current_camera->getPosition() );
+                triangle.vertices[2].position = positions[2];
+                triangle.vertices[2].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[2].coordinate = { 0.0, 1.0 };
+
+                triangle.setup( 1, current_camera->getPosition() );
+            }
+            {
+                Internal::DynamicTriangleDraw::Triangle &triangle = *const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTriangle();
+                triangle.vertices[0].position = positions[0];
+                triangle.vertices[0].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[0].coordinate = { 1.0, 0.0 };
+
+                triangle.vertices[1].position = positions[1];
+                triangle.vertices[1].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[1].coordinate = { 1.0, 1.0 };
+
+                triangle.vertices[2].position = positions[3];
+                triangle.vertices[2].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[2].coordinate = { 0.0, 1.0 };
+
+                triangle.setup( 1, current_camera->getPosition() );
+            }
+            {
+                Internal::DynamicTriangleDraw::Triangle &triangle = *const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTriangle();
+                triangle.vertices[0].position = positions[1];
+                triangle.vertices[0].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[0].coordinate = { 1.0, 0.0 };
+
+                triangle.vertices[1].position = positions[2];
+                triangle.vertices[1].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[1].coordinate = { 1.0, 1.0 };
+
+                triangle.vertices[2].position = positions[3];
+                triangle.vertices[2].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[2].coordinate = { 0.0, 1.0 };
+
+                triangle.setup( 1, current_camera->getPosition() );
+            }
+            {
+                Internal::DynamicTriangleDraw::Triangle &triangle = *const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTriangle();
+                triangle.vertices[0].position = positions[0];
+                triangle.vertices[0].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[0].coordinate = { 1.0, 0.0 };
+
+                triangle.vertices[1].position = positions[2];
+                triangle.vertices[1].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[1].coordinate = { 1.0, 1.0 };
+
+                triangle.vertices[2].position = positions[3];
+                triangle.vertices[2].color = { 1.0, 1.0, 1.0, 0.5 };
+                triangle.vertices[2].coordinate = { 0.0, 1.0 };
+
+                triangle.setup( 1, current_camera->getPosition() );
+            }
+
+            glDisable( GL_CULL_FACE );
 
             const_cast<Environment*>(this)->dynamic_triangle_draw_routine.draw( *current_camera, textures );
             const_cast<Environment*>(this)->dynamic_triangle_draw_routine.clearTriangles();
