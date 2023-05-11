@@ -91,12 +91,12 @@ void Utilities::ModelBuilder::TextureMaterial::bounds( const TextureMaterial &ma
     max.data.z = std::max( max.data.z, material.max.data.z );
 }
 
-Utilities::ModelBuilder::InvalidVertexComponentIndex::InvalidVertexComponentIndex( unsigned int offending_index, bool is_morph ) {
+Utilities::ModelBuilder::InvalidVertexComponentIndex::InvalidVertexComponentIndex( unsigned offending_index, bool is_morph ) {
     this->offending_index = offending_index;
     this->is_morph = is_morph;
 }
 
-Utilities::ModelBuilder::NonMatchingVertexComponentTypes::NonMatchingVertexComponentTypes( unsigned int vertex_component_index,
+Utilities::ModelBuilder::NonMatchingVertexComponentTypes::NonMatchingVertexComponentTypes( unsigned vertex_component_index,
                 Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::ComponentType param_component_type,
                 Utilities::DataTypes::Type type, Utilities::DataTypes::Type param_type ) {
     this->vertex_component_index = vertex_component_index;
@@ -114,7 +114,7 @@ Utilities::ModelBuilder::ModelBuilder( MeshPrimativeMode mode ) {
     is_model_finished = false;
     components_are_done = false;
     joint_amount = 0;
-    joint_inverse_frame = std::numeric_limits<unsigned int>::max();
+    joint_inverse_frame = std::numeric_limits<unsigned>::max();
 
     mesh_primative_mode = mode;
 }
@@ -137,11 +137,11 @@ Utilities::ModelBuilder::ModelBuilder( const ModelBuilder& to_copy ) :
 Utilities::ModelBuilder::~ModelBuilder() {
 }
 
-unsigned int Utilities::ModelBuilder::addVertexComponent( const std::string &name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized ) {
+unsigned Utilities::ModelBuilder::addVertexComponent( const std::string &name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized ) {
 	return addVertexComponent( name.c_str(), component_type, type, normalized );
 }
 
-unsigned int Utilities::ModelBuilder::addVertexComponent( const char *const name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized ) {
+unsigned Utilities::ModelBuilder::addVertexComponent( const char *const name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized ) {
     if( components_are_done )
         throw CannotAddVertexComponentAfterSetup();
     vertex_components.push_back( VertexComponent( name ) );
@@ -158,11 +158,11 @@ unsigned int Utilities::ModelBuilder::addVertexComponent( const char *const name
 
 }
 
-unsigned int Utilities::ModelBuilder::getNumVertexComponents() const {
+unsigned Utilities::ModelBuilder::getNumVertexComponents() const {
     return vertex_components.size();
 }
 
-bool Utilities::ModelBuilder::getVertexComponent(unsigned int vertex_component_index, VertexComponent& element) const
+bool Utilities::ModelBuilder::getVertexComponent(unsigned vertex_component_index, VertexComponent& element) const
 {
     if( vertex_component_index < vertex_components.size() ) {
         element = VertexComponent( vertex_components[ vertex_component_index ] );
@@ -174,7 +174,7 @@ bool Utilities::ModelBuilder::getVertexComponent(unsigned int vertex_component_i
 }
 
 
-unsigned int Utilities::ModelBuilder::setVertexComponentMorph( unsigned int vertex_component_index ) {
+unsigned Utilities::ModelBuilder::setVertexComponentMorph( unsigned vertex_component_index ) {
     if( components_are_done )
         throw CannotAddVertexComponentAfterSetup();
 
@@ -194,11 +194,11 @@ unsigned int Utilities::ModelBuilder::setVertexComponentMorph( unsigned int vert
         return -1;
 }
 
-unsigned int Utilities::ModelBuilder::getNumMorphVertexComponents() const {
+unsigned Utilities::ModelBuilder::getNumMorphVertexComponents() const {
     return vertex_morph_components.size();
 }
 
-bool Utilities::ModelBuilder::getMorphVertexComponent(unsigned int vertex_morph_component_index, VertexComponent& element) const
+bool Utilities::ModelBuilder::getMorphVertexComponent(unsigned vertex_morph_component_index, VertexComponent& element) const
 {
     if( vertex_morph_component_index < vertex_components.size() ) {
         element = VertexComponent( vertex_morph_components[ vertex_morph_component_index ] );
@@ -209,7 +209,7 @@ bool Utilities::ModelBuilder::getMorphVertexComponent(unsigned int vertex_morph_
         return false;
 }
 
-void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsigned int num_of_frames ) {
+void Utilities::ModelBuilder::allocateJoints( unsigned num_of_joints, unsigned num_of_frames ) {
     if( num_of_joints > 0 && num_of_frames > 0 )
     {
         // Clean up the original memory if possiable
@@ -220,7 +220,7 @@ void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsign
         
         // set the joint matrix frames.
         
-        joint_inverse_frame = std::numeric_limits<unsigned int>::max();
+        joint_inverse_frame = std::numeric_limits<unsigned>::max();
         
         joints.resize( num_of_joints );
         
@@ -231,11 +231,11 @@ void Utilities::ModelBuilder::allocateJoints( unsigned int num_of_joints, unsign
     }
 }
 
-unsigned int Utilities::ModelBuilder::getNumJoints() const {
+unsigned Utilities::ModelBuilder::getNumJoints() const {
     return joint_amount;
 }
 
-unsigned int Utilities::ModelBuilder::getNumJointFrames() const {
+unsigned Utilities::ModelBuilder::getNumJointFrames() const {
     if( joints.empty() )
         return 0;
     else
@@ -246,7 +246,7 @@ Utilities::ModelBuilder::MeshPrimativeMode Utilities::ModelBuilder::getPrimative
     return mesh_primative_mode;
 }
 
-glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsigned int joint_index ) const {
+glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned frame_index, unsigned joint_index ) const {
     if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
         auto matrix = glm::translate( glm::mat4( 1.0f ), joints.at(joint_index).position.at(frame_index) ) * glm::mat4_cast( joints.at(joint_index).rotation.at(frame_index) );
         
@@ -259,7 +259,7 @@ glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned int frame_index, unsi
         return glm::mat4();
 }
 
-bool Utilities::ModelBuilder::setJointParent( unsigned int joint_parent, unsigned joint_child ) {
+bool Utilities::ModelBuilder::setJointParent( unsigned joint_parent, unsigned joint_child ) {
     if( joint_parent != joint_child ) {
         joints.at( joint_child ).joint_r = &joints.at( joint_parent );
         joints.at( joint_child ).joint_index = joint_parent;
@@ -269,7 +269,7 @@ bool Utilities::ModelBuilder::setJointParent( unsigned int joint_parent, unsigne
         return false;
 }
 
-bool Utilities::ModelBuilder::setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation ) {
+bool Utilities::ModelBuilder::setJointFrame( unsigned frame_index, unsigned joint_index, const glm::vec3 &position, const glm::quat &rotation ) {
     if( getNumJoints() > joint_index && frame_index < getNumJointFrames() ) {
         joints.at(joint_index).position.at(frame_index) = position;
         joints.at(joint_index).rotation.at(frame_index) = rotation;
@@ -365,7 +365,7 @@ bool Utilities::ModelBuilder::checkForInvalidComponent( unsigned &begin, std::os
     return false; // Everything appears to be correct in accordance to the glTF standards.
 }
 
-bool Utilities::ModelBuilder::setupVertexComponents( unsigned int morph_frames ) {
+bool Utilities::ModelBuilder::setupVertexComponents( unsigned morph_frames ) {
     if( components_are_done )
         throw CannotAddVertexComponentAfterSetup();
 
@@ -397,13 +397,13 @@ bool Utilities::ModelBuilder::setupVertexComponents( unsigned int morph_frames )
         return false;
 }
 
-void Utilities::ModelBuilder::allocateVertices( unsigned int size ) {
+void Utilities::ModelBuilder::allocateVertices( unsigned size ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
     primary_buffer.resize( size * total_components_size );
 
-    for( unsigned int i = 0; i < morph_frame_buffers.size(); i++ ) {
+    for( unsigned i = 0; i < morph_frame_buffers.size(); i++ ) {
         morph_frame_buffers[i].resize( size * this->total_morph_components_size );
     }
 
@@ -423,7 +423,7 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
-        texture_materials.back().opeque_count = std::numeric_limits<unsigned int>::max();
+        texture_materials.back().opeque_count = std::numeric_limits<unsigned>::max();
         texture_materials.back().has_culling = culling_enabled;
         
         // Allocate morph_bounds.
@@ -439,12 +439,12 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         return false;
 }
 
-unsigned int Utilities::ModelBuilder::getNumMaterials() const
+unsigned Utilities::ModelBuilder::getNumMaterials() const
 {
     return texture_materials.size();
 }
 
-bool Utilities::ModelBuilder::getMaterial(unsigned int material_index, TextureMaterial& element) const
+bool Utilities::ModelBuilder::getMaterial(unsigned material_index, TextureMaterial& element) const
 {
     if( material_index < texture_materials.size() ) {
 
@@ -480,7 +480,7 @@ void Utilities::ModelBuilder::startVertex() {
     texture_materials.back().count++;
 }
 
-bool Utilities::ModelBuilder::setVertexIndex( unsigned int vertex_index ) {
+bool Utilities::ModelBuilder::setVertexIndex( unsigned vertex_index ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -493,7 +493,7 @@ bool Utilities::ModelBuilder::setVertexIndex( unsigned int vertex_index ) {
         return false;
 }
 
-void Utilities::ModelBuilder::setVertexData( unsigned int vertex_component_index, const Utilities::DataTypes::DataType &data ) {
+void Utilities::ModelBuilder::setVertexData( unsigned vertex_component_index, const Utilities::DataTypes::DataType &data ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -522,7 +522,7 @@ void Utilities::ModelBuilder::setVertexData( unsigned int vertex_component_index
     data.writeBuffer( primary_buffer.data() + cur_vertex_compare->begin + cur_vertex_compare->stride * (current_vertex_index - 1) );
 }
 
-void Utilities::ModelBuilder::addMorphVertexData( unsigned int morph_vertex_component_index, unsigned int morph_frame_index, const DataTypes::Vec3Type &original_value, const DataTypes::Vec3Type &data  ) {
+void Utilities::ModelBuilder::addMorphVertexData( unsigned morph_vertex_component_index, unsigned morph_frame_index, const DataTypes::Vec3Type &original_value, const DataTypes::Vec3Type &data  ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -550,21 +550,21 @@ void Utilities::ModelBuilder::addMorphVertexData( unsigned int morph_vertex_comp
     result.writeBuffer( morph_frame_buffers[morph_frame_index].data() + cur_vertex_compare->begin + cur_vertex_compare->stride * (current_vertex_index - 1) );
 }
 
-unsigned int Utilities::ModelBuilder::getNumVertices() const
+unsigned Utilities::ModelBuilder::getNumVertices() const
 {
     return vertex_amount;
 }
 
 
-void * Utilities::ModelBuilder::getBuffer( unsigned int &size ) {
+void * Utilities::ModelBuilder::getBuffer( unsigned &size ) {
     size = vertex_amount * total_components_size * sizeof( uint32_t );
     return primary_buffer.data();
 }
-unsigned int Utilities::ModelBuilder::getNumMorphFrames() const {
+unsigned Utilities::ModelBuilder::getNumMorphFrames() const {
     return morph_frame_buffers.size();
 }
 
-void * Utilities::ModelBuilder::getMorphBuffer( unsigned int morph_index, unsigned int &size ) {
+void * Utilities::ModelBuilder::getMorphBuffer( unsigned morph_index, unsigned &size ) {
     if( morph_frame_buffers.size() > morph_index )
     {
         size = morph_frame_buffers[ morph_index ].size() * sizeof( uint32_t );
@@ -591,8 +591,8 @@ bool Utilities::ModelBuilder::finish()
         return false;
 }
 
-bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
-    const unsigned int UNFOUND_INDEX = std::numeric_limits<unsigned int>::max();
+bool Utilities::ModelBuilder::applyJointTransforms( unsigned frame_index ) {
+    const unsigned UNFOUND_INDEX = std::numeric_limits<unsigned>::max();
     
     if( !is_model_finished )
         return false; // Transformations cannot be applied to an incomplete model.
@@ -603,13 +603,13 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
     {
         joint_inverse_frame = frame_index;
         
-        unsigned int position_index = UNFOUND_INDEX; // Find the position index.
-        unsigned int   normal_index = UNFOUND_INDEX; // Find the normal index if available.
-        unsigned int   joints_index = UNFOUND_INDEX; // Find the joints index.
-        unsigned int  weights_index = UNFOUND_INDEX; // Find the weights index.
+        unsigned position_index = UNFOUND_INDEX; // Find the position index.
+        unsigned   normal_index = UNFOUND_INDEX; // Find the normal index if available.
+        unsigned   joints_index = UNFOUND_INDEX; // Find the joints index.
+        unsigned  weights_index = UNFOUND_INDEX; // Find the weights index.
         
         for( auto i = vertex_components.begin(); i < vertex_components.end(); i++ ) {
-            const unsigned int INDEX = i - vertex_components.begin();
+            const unsigned INDEX = i - vertex_components.begin();
             
             if( POSITION_COMPONENT_NAME.compare( (*i).getName() ) == 0 )
                 position_index = INDEX;
@@ -637,7 +637,7 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
             (*t).max.data.y = -(*t).min.data.x;
             (*t).max.data.z = -(*t).min.data.x;
             
-            for( unsigned int i = (*t).starting_vertex_index; i < (*t).starting_vertex_index + (*t).count; i++ ) {
+            for( unsigned i = (*t).starting_vertex_index; i < (*t).starting_vertex_index + (*t).count; i++ ) {
                 uint32_t *position_values_r = primary_buffer.data() + i * vertex_components[ position_index ].stride + vertex_components[ position_index ].begin;
                 float *positions_3_r = reinterpret_cast<float*>( position_values_r );
                 
@@ -757,6 +757,10 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned int frame_index ) {
     }
 }
 
+int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned vertex_component_index, unsigned vertex_index, unsigned frame_index ) const {
+    return 0;
+}
+
 bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) const {
     std::ofstream resource;
 
@@ -779,9 +783,9 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     }
 
     // Buffers need to be referenced by the glTF file.
-    unsigned int total_binary_buffer_size = 0;
-    unsigned int morph_buffer_view_index = 0;
-    unsigned int bone_buffer_view_index = 0;
+    unsigned total_binary_buffer_size = 0;
+    unsigned morph_buffer_view_index = 0;
+    unsigned bone_buffer_view_index = 0;
 
     std::ofstream binary;
 
@@ -807,13 +811,13 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         // Write the primary buffer info to this file as well
         root["buffers"][0]["uri"] = binary_name;
 
-        unsigned int index = 0;
+        unsigned index = 0;
 
         for( auto i = vertex_components.begin(); i != vertex_components.end(); i++ ) {
             root["bufferViews"][index]["buffer"] = 0;
-            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>((vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t ));
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>((*i).begin * sizeof( uint32_t ));
-            root["bufferViews"][index]["byteStride"] = static_cast<unsigned int>((*i).stride * sizeof( uint32_t ));
+            root["bufferViews"][index]["byteLength"] = static_cast<unsigned>((vertex_amount * (*i).stride - (*i).stride + (*i).size) * sizeof( uint32_t ));
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>((*i).begin * sizeof( uint32_t ));
+            root["bufferViews"][index]["byteStride"] = static_cast<unsigned>((*i).stride * sizeof( uint32_t ));
             
             root["bufferViews"][index]["target"] = ARRAY_BUFFER;
 
@@ -840,7 +844,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             index++;
             
-            for( unsigned int a = 1; a < morph_frame_buffers.size(); a++ ) {
+            for( unsigned a = 1; a < morph_frame_buffers.size(); a++ ) {
                 byte_offset += BYTE_LENGTH;
                 
                 root["bufferViews"][index]["buffer"] = 0;
@@ -859,11 +863,11 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         
         if( !morph_frame_buffers.empty() ) {
             morph_buffer_view_index = index;
-            const unsigned int TIME_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 2);
+            const unsigned TIME_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 2);
             
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = TIME_BYTE_LENGTH;
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
             
             float frame;
             for( unsigned frame_index = 0; frame_index < morph_frame_buffers.size() + 2; frame_index++ ) {
@@ -872,11 +876,11 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             }
             
             index++;
-            const unsigned int MORPH_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 2) * morph_frame_buffers.size();
+            const unsigned MORPH_BYTE_LENGTH = sizeof( float ) * (morph_frame_buffers.size() + 2) * morph_frame_buffers.size();
             
             root["bufferViews"][index]["buffer"] = 0;
             root["bufferViews"][index]["byteLength"] = MORPH_BYTE_LENGTH;
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
             
             // Write all zeros for the first frame.
             frame = 0.0f;
@@ -910,12 +914,12 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             // This is the inverse buffer view.
             root["bufferViews"][index]["buffer"] = 0;
-            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>(sizeof( float ) * 4 * 4 * getNumJoints());
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["byteLength"] = static_cast<unsigned>(sizeof( float ) * 4 * 4 * getNumJoints());
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
             root["bufferViews"][index]["name"] = "inverse " + std::to_string( getNumJoints() );
             
             // Write down the inverse matrices from the joints.
-            for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+            for( unsigned joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
                 glm::mat4 matrix = getJointFrame( this->joint_inverse_frame, joint_index );
                 
                 matrix = glm::inverse( matrix );
@@ -926,49 +930,49 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             
             // This is the time between frame buffer view.
             root["bufferViews"][index]["buffer"] = 0;
-            root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>(sizeof( float ) * getNumJointFrames());
-            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+            root["bufferViews"][index]["byteLength"] = static_cast<unsigned>(sizeof( float ) * getNumJointFrames());
+            root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
             root["bufferViews"][index]["name"] = "time";
             
             float frame = 0.0f;
             
             // Write down the time line.
-            for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+            for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
                 frame = static_cast<float>( joint_frame ) * TIME_SPEED;
                 binary.write( reinterpret_cast<const char*>( &frame ), sizeof( float ));
             }
             index++;
             
             // From this point is where the animations start.
-            for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+            for( unsigned joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
                 root["bufferViews"][index]["buffer"] = 0;
-                root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>( 3 * sizeof( float ) * this->getNumJointFrames());
-                root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+                root["bufferViews"][index]["byteLength"] = static_cast<unsigned>( 3 * sizeof( float ) * this->getNumJointFrames());
+                root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
                 
-                for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+                for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
                     binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).position.at( joint_frame ).x ), 3 * sizeof( float ));
                 }
                 index++;
                 
                 root["bufferViews"][index]["buffer"] = 0;
-                root["bufferViews"][index]["byteLength"] = static_cast<unsigned int>( 4 * sizeof( float ) * this->getNumJointFrames());
-                root["bufferViews"][index]["byteOffset"] = static_cast<unsigned int>( binary.tellp() );
+                root["bufferViews"][index]["byteLength"] = static_cast<unsigned>( 4 * sizeof( float ) * this->getNumJointFrames());
+                root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
                 
-                for( unsigned int joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
+                for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
                     binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).x ), 4 * sizeof( float ));
                 }
                 index++;
             }
         }
         
-        root["buffers"][0]["byteLength"] = static_cast<unsigned int>( binary.tellp() );
+        root["buffers"][0]["byteLength"] = static_cast<unsigned>( binary.tellp() );
 
         // Then the file is now finished.
         binary.close();
     }
 
 
-    unsigned int accessors_amount = 0;
+    unsigned accessors_amount = 0;
 
     // Only one sampler necessary.
     root["samplers"][0]["magFilter"] = 9728;
@@ -977,7 +981,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     root["samplers"][0]["wrapT"] = 10497;
 
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
-        unsigned int position = i - texture_materials.begin();
+        unsigned position = i - texture_materials.begin();
         
         if( mesh_primative_mode != MeshPrimativeMode::TRIANGLES )
             root["meshes"][0]["primitives"][position]["mode"] = mesh_primative_mode;
@@ -1001,7 +1005,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["meshes"][0]["primitives"][position]["material"] = position;
         }
 
-        unsigned int vertex_component_index = 0;
+        unsigned vertex_component_index = 0;
 
         for( auto d = vertex_components.begin(); d != vertex_components.end(); d++ ) {
 
@@ -1009,7 +1013,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
             // Write the accessor
             root["accessors"][accessors_amount]["bufferView"] = vertex_component_index;
-            root["accessors"][accessors_amount]["byteOffset"] = static_cast<unsigned int>((*i).starting_vertex_index * (*d).stride * sizeof( uint32_t ));
+            root["accessors"][accessors_amount]["byteOffset"] = static_cast<unsigned>((*i).starting_vertex_index * (*d).stride * sizeof( uint32_t ));
             root["accessors"][accessors_amount]["componentType"] = (*d).component_type;
             root["accessors"][accessors_amount]["count"] = (*i).count;
             root["accessors"][accessors_amount]["type"] = typeToText((*d).type);
@@ -1028,15 +1032,15 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             vertex_component_index++;
         }
 
-        for( unsigned int b = 0; b < vertex_morph_components.size(); b++ ) {
-            for( unsigned int a = 0; a < morph_frame_buffers.size(); a++ ) {
+        for( unsigned b = 0; b < vertex_morph_components.size(); b++ ) {
+            for( unsigned a = 0; a < morph_frame_buffers.size(); a++ ) {
                 root["meshes"][0]["primitives"][position]["targets"][a][vertex_morph_components[b].getName()] = accessors_amount;
 
                 auto comp = vertex_morph_components.begin() + b;
 
                 // Write the accessor
                 root["accessors"][accessors_amount]["bufferView"] = vertex_component_index;
-                root["accessors"][accessors_amount]["byteOffset"] = static_cast<unsigned int>((*i).starting_vertex_index * (*comp).stride * sizeof( uint32_t ));
+                root["accessors"][accessors_amount]["byteOffset"] = static_cast<unsigned>((*i).starting_vertex_index * (*comp).stride * sizeof( uint32_t ));
                 root["accessors"][accessors_amount]["componentType"] = (*comp).component_type;
                 root["accessors"][accessors_amount]["count"] = (*i).count;
                 root["accessors"][accessors_amount]["type"] = typeToText((*comp).type);
@@ -1058,9 +1062,9 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     
     // Add morph animaitons.
     if( !this->morph_frame_buffers.empty() ) {
-        unsigned int morph_accessor_index = accessors_amount;
-        const unsigned int TIME_LENGTH = (morph_frame_buffers.size() + 2);
-        const unsigned int MORPH_LENGTH = (morph_frame_buffers.size() + 2) * morph_frame_buffers.size();
+        unsigned morph_accessor_index = accessors_amount;
+        const unsigned TIME_LENGTH = (morph_frame_buffers.size() + 2);
+        const unsigned MORPH_LENGTH = (morph_frame_buffers.size() + 2) * morph_frame_buffers.size();
         
         root["accessors"][accessors_amount]["bufferView"] = morph_buffer_view_index;
         root["accessors"][accessors_amount]["byteOffset"] = 0;
@@ -1095,7 +1099,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["type"] = "MAT4";
         accessors_amount++;
         
-        unsigned int time_accessor_index = accessors_amount;
+        unsigned time_accessor_index = accessors_amount;
         root["accessors"][accessors_amount]["bufferView"] = (bone_buffer_view_index + 1);
         root["accessors"][accessors_amount]["byteOffset"] = 0;
         root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
@@ -1105,20 +1109,20 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         root["accessors"][accessors_amount]["max"][0] = static_cast<float>( getNumJointFrames() - 1 ) * TIME_SPEED;
         accessors_amount++;
         
-        unsigned int joint_transform_index = accessors_amount;
+        unsigned joint_transform_index = accessors_amount;
         
-        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+        for( unsigned joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
             root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 2);
             root["accessors"][accessors_amount]["byteOffset"] = 0;
             root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
-            root["accessors"][accessors_amount]["count"] = static_cast<unsigned int>( this->joints.at( joint_index ).position.size() );
+            root["accessors"][accessors_amount]["count"] = static_cast<unsigned>( this->joints.at( joint_index ).position.size() );
             root["accessors"][accessors_amount]["type"] = "VEC3";
             accessors_amount++;
             
             root["accessors"][accessors_amount]["bufferView"] = ( 2 * joint_index + bone_buffer_view_index + 3);
             root["accessors"][accessors_amount]["byteOffset"] = 0;
             root["accessors"][accessors_amount]["componentType"] = Utilities::DataTypes::ComponentType::FLOAT;
-            root["accessors"][accessors_amount]["count"] = static_cast<unsigned int>( this->joints.at( joint_index ).rotation.size() );
+            root["accessors"][accessors_amount]["count"] = static_cast<unsigned>( this->joints.at( joint_index ).rotation.size() );
             root["accessors"][accessors_amount]["type"] = "VEC4";
             accessors_amount++;
         }
@@ -1126,7 +1130,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         //TODO This is an iffy implementation.
         root["nodes"][1]["children"][0] = 2;
         
-        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+        for( unsigned joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
             root["nodes"][joint_index + 2]["translation"][0] = this->joints.at( joint_index ).position.at( joint_inverse_frame ).x;
             root["nodes"][joint_index + 2]["translation"][1] = this->joints.at( joint_index ).position.at( joint_inverse_frame ).y;
             root["nodes"][joint_index + 2]["translation"][2] = this->joints.at( joint_index ).position.at( joint_inverse_frame ).z;
@@ -1137,7 +1141,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
             root["nodes"][joint_index + 2]["rotation"][3] = this->joints.at( joint_index ).rotation.at( joint_inverse_frame ).w;
         }
         
-        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+        for( unsigned joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
             if( this->joints.at( joint_index ).joint_r != nullptr )
                 root["nodes"][ this->joints.at( joint_index ).joint_index + 2 ]["children"].append( joint_index + 2 );
         }
@@ -1146,14 +1150,14 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         
         root["skins"][0]["inverseBindMatrices"] = bone_buffer_view_index;
         root["skins"][0]["skeleton"]  = 1;
-        for( unsigned int i = 0; i < getNumJoints(); i++ ) {
+        for( unsigned i = 0; i < getNumJoints(); i++ ) {
             root["skins"][0]["joints"][i] = i + 2;
         }
         root["nodes"][0]["skin"] = 0;
         
-        unsigned int current_channels = 0;
+        unsigned current_channels = 0;
         
-        for( unsigned int joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
+        for( unsigned joint_index = 0; joint_index < getNumJoints(); joint_index++ ) {
             root["animations"][ 0 ]["samplers"][ current_channels ]["input"] = (time_accessor_index);
             root["animations"][ 0 ]["samplers"][ current_channels ]["interpolation"] = "LINEAR";
             root["animations"][ 0 ]["samplers"][ current_channels ]["output"] = joint_transform_index;
@@ -1287,7 +1291,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
         
         // Size the new model for loading.
         {
-            unsigned int vertex_amount = 0;
+            unsigned vertex_amount = 0;
             
             // Count the vertex amount for each model
             for( auto it = models.begin(); it != models.end(); it++ ) {
@@ -1340,7 +1344,7 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
                 new_model->texture_materials.back().count++;
             }
 
-            if( (*it)->texture_materials.back().opeque_count != std::numeric_limits<unsigned int>::max() ) {
+            if( (*it)->texture_materials.back().opeque_count != std::numeric_limits<unsigned>::max() ) {
                 new_model->texture_materials.back().opeque_count = (*it)->texture_materials.back().opeque_count;
             }
         }

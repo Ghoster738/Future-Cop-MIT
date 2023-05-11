@@ -49,13 +49,13 @@ public:
     class VertexComponent {
     private:
         std::string name;
-        unsigned int bit_field;
+        unsigned bit_field;
     public:
         VertexComponent( const char *const name );
         VertexComponent( const VertexComponent &copy );
-        unsigned int begin; // This is where the first of the data begins.
-        unsigned int stride; // This is the amount of data to be skipped.
-        unsigned int size; // This is the size of the entire value.
+        unsigned begin; // This is where the first of the data begins.
+        unsigned stride; // This is the amount of data to be skipped.
+        unsigned size; // This is the size of the entire value.
         Utilities::DataTypes::Type type; // This states what kind of
         Utilities::DataTypes::ComponentType component_type; // The component type of the vertex type for example float int short ...
         const std::string& getName() const { return name; }
@@ -71,9 +71,9 @@ public:
 
         uint32_t cbmp_resource_id;
         std::string file_name; // The file is relative to the texture.
-        unsigned int starting_vertex_index; // The index of the starting vertices.
-        unsigned int count; // The amount of vertices that the texture material covers.
-        unsigned int opeque_count; // The amount of vertices that the texture material covers.
+        unsigned starting_vertex_index; // The index of the starting vertices.
+        unsigned count; // The amount of vertices that the texture material covers.
+        unsigned opeque_count; // The amount of vertices that the texture material covers.
         Utilities::DataTypes::Vec3Type min, max;
         bool has_culling;
         
@@ -86,7 +86,7 @@ public:
     public:
         Joint() : joint_r( nullptr ), joint_index( 0 ), position(), rotation() {}
         const Joint *joint_r; // The node offset to the joint.
-        unsigned int joint_index;
+        unsigned joint_index;
         std::vector<glm::vec3> position;
         std::vector<glm::quat> rotation;
     };
@@ -97,8 +97,8 @@ public:
     */
     class InvalidVertexComponentIndex {
         public:
-            InvalidVertexComponentIndex( unsigned int offending_index, bool is_morph );
-            unsigned int offending_index; // The index that goes beyond either vertex_components or vertex_morph_components
+            InvalidVertexComponentIndex( unsigned offending_index, bool is_morph );
+            unsigned offending_index; // The index that goes beyond either vertex_components or vertex_morph_components
             bool is_morph; // This is true if this exeception is called from
     };
     /**
@@ -107,10 +107,10 @@ public:
     */
     class NonMatchingVertexComponentTypes {
         public:
-            NonMatchingVertexComponentTypes( unsigned int vertex_component_index,
+            NonMatchingVertexComponentTypes( unsigned vertex_component_index,
                 Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::ComponentType param_component_type,
                 Utilities::DataTypes::Type type, Utilities::DataTypes::Type param_type );
-            unsigned int vertex_component_index;
+            unsigned vertex_component_index;
             Utilities::DataTypes::ComponentType component_type, param_component_type;
             Utilities::DataTypes::Type type, param_type;
     };
@@ -127,23 +127,23 @@ public:
 private:
     std::vector<uint32_t> primary_buffer;
     std::vector<VertexComponent> vertex_components;
-    unsigned int total_components_size; // The size in uint32_t per vertex of the primary_buffer.
+    unsigned total_components_size; // The size in uint32_t per vertex of the primary_buffer.
 
     std::vector<std::vector<uint32_t>> morph_frame_buffers;
     std::vector<VertexComponent> vertex_morph_components;
-    unsigned int total_morph_components_size; // The size in uint32_t per vertex of the morph_frame_buffers elements.
-    unsigned int vertex_morph_position_component_index;
+    unsigned total_morph_components_size; // The size in uint32_t per vertex of the morph_frame_buffers elements.
+    unsigned vertex_morph_position_component_index;
 
     std::vector<TextureMaterial> texture_materials;
 
-    unsigned int current_vertex_index;
-    unsigned int vertex_amount;
+    unsigned current_vertex_index;
+    unsigned vertex_amount;
 
     // This holds the bone transformations.
     // Its size indicates the number of frames avialable.
     std::vector<Joint> joints;
-    unsigned int joint_amount;
-    unsigned int joint_inverse_frame; // This value is greater than the joint_matrix_frames size then it was not set properly.
+    unsigned joint_amount;
+    unsigned joint_inverse_frame; // This value is greater than the joint_matrix_frames size then it was not set properly.
 
     bool is_model_finished; // This tells if the ModelBuilder should add more vertices.
     bool components_are_done; // This tells if the ModelBuilder should add more components.
@@ -162,7 +162,7 @@ public:
      * @return The index number of the vertex component.
      * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
      */
-    unsigned int addVertexComponent( const std::string &name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized = false );
+    unsigned addVertexComponent( const std::string &name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized = false );
 
     /**
      * @param name The name of the component type if this is not a *ComponentName listed in this class you should make this name begin with "_" with all caps.
@@ -172,13 +172,13 @@ public:
      * @return The index number of the vertex component.
      * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
      */
-    unsigned int addVertexComponent( const char *const name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized = false );
+    unsigned addVertexComponent( const char *const name, Utilities::DataTypes::ComponentType component_type, Utilities::DataTypes::Type type, bool normalized = false );
 
     /**
      * This gets the number of vertex components that had been decleared.
      * @return the number of vertex components that exist in this class.
      */
-    unsigned int getNumVertexComponents() const;
+    unsigned getNumVertexComponents() const;
 
     /**
      * This method gets the vertex component. It was created, so one could use it for graphics.
@@ -186,7 +186,7 @@ public:
      * @param element This gets a copy of all the parameters of the index.
      * @return If the parameter element has been written it will return true, so if it is out of bounds then it will return false.
      */
-    bool getVertexComponent( unsigned int vertex_component_index, VertexComponent &element ) const;
+    bool getVertexComponent( unsigned vertex_component_index, VertexComponent &element ) const;
 
     /**
      * This method sets the vertex component to be a morph target.
@@ -194,13 +194,13 @@ public:
      * @throw CannotAddVertexComponentAfterSetup If this method was called after setupVertexComponents.
      * @return An index to the std::vector<VertexType> vertex_morph_components NOT to be confussed with vertex_components!
      */
-    unsigned int setVertexComponentMorph( unsigned int vertex_component_index );
+    unsigned setVertexComponentMorph( unsigned vertex_component_index );
 
     /**
      * This gets the number of morph vertex components that had been decleared.
      * @return the number of morph vertex components that exist in this class.
      */
-    unsigned int getNumMorphVertexComponents() const;
+    unsigned getNumMorphVertexComponents() const;
 
     /**
      * This method gets the morph vertex component. It was created, so one could use it for graphics.
@@ -208,7 +208,7 @@ public:
      * @param element This gets a copy of all the parameters of the morph component.
      * @return If the parameter element has been written it will return true, so if it is out of bounds then it will return false.
      */
-    bool getMorphVertexComponent( unsigned int vertex_morph_component_index, VertexComponent &element ) const;
+    bool getMorphVertexComponent( unsigned vertex_morph_component_index, VertexComponent &element ) const;
     
     
     /**
@@ -216,17 +216,17 @@ public:
      * @param num_of_joints The amount of joints that this model will have.
      * @param num_of_frames The number of frames that this model will have. More specifically the number of frames for the skeletal animation.
     */
-    void allocateJoints( unsigned int num_of_joints, unsigned int num_of_frames );
+    void allocateJoints( unsigned num_of_joints, unsigned num_of_frames );
     
     /**
      * @return The number of joints that exists.
      */
-    unsigned int getNumJoints() const;
+    unsigned getNumJoints() const;
     
     /**
      * @return The number of frames for the skeletal animation that exists.
      */
-    unsigned int getNumJointFrames() const;
+    unsigned getNumJointFrames() const;
     
     MeshPrimativeMode getPrimativeMode() const;
     
@@ -235,11 +235,11 @@ public:
      * @param frame_index the frame index to the matrix joints.
      * @return either a direct pointer to the joint frames, or a nullptr if the frame_index is out of bounds or there are no joints.
      */
-    glm::mat4 getJointFrame( unsigned int frame_index, unsigned int joint_index ) const;
+    glm::mat4 getJointFrame( unsigned frame_index, unsigned joint_index ) const;
     
-    bool setJointParent( unsigned int joint_parent, unsigned joint_child );
+    bool setJointParent( unsigned joint_parent, unsigned joint_child );
     
-    bool setJointFrame( unsigned int frame_index, unsigned int joint_index, const glm::vec3 &position, const glm::quat &rotation );
+    bool setJointFrame( unsigned frame_index, unsigned joint_index, const glm::vec3 &position, const glm::quat &rotation );
 
     /**
      * This tests to see if the any of the vertex components are invalid in glTF standards.
@@ -257,7 +257,7 @@ public:
      * @return If there is no vertex components in this class it will return false.
      * @throw CannotAddVertexComponentAfterSetup If this method was called twice!
      */
-    bool setupVertexComponents( unsigned int morph_frames = 0 );
+    bool setupVertexComponents( unsigned morph_frames = 0 );
 
     /**
      * This method simply tells the class of how many vertices it will need.
@@ -265,7 +265,7 @@ public:
      * @param size The amount of vertices to preallocate.
      * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
      */
-    void allocateVertices( unsigned int size );
+    void allocateVertices( unsigned size );
 
     /**
      * This should be called when starting to write out the mesh or when the prievous material is done.
@@ -280,7 +280,7 @@ public:
      * This gets the number of materials for this class.
      * @return The number of materials in this class.
      */
-    unsigned int getNumMaterials() const;
+    unsigned getNumMaterials() const;
 
     /**
      * This gets the material from this class.
@@ -288,7 +288,7 @@ public:
      * @param element The element to be received.
      * @return True if the element has successfully been written
      */
-    bool getMaterial( unsigned int material_index, TextureMaterial &element ) const;
+    bool getMaterial( unsigned material_index, TextureMaterial &element ) const;
 
     /**
      * When done with the opeque part of the model then you can use semi transparency.
@@ -312,7 +312,7 @@ public:
      * @return true if the index is not out of bounds. If this returns false then the index is not set.
      * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
      */
-    bool setVertexIndex( unsigned int vertex_index );
+    bool setVertexIndex( unsigned vertex_index );
 
     /**
      * This adds the vertex data to the mesh.
@@ -324,7 +324,7 @@ public:
      *
      * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
      */
-    void setVertexData( unsigned int vertex_component_index, const Utilities::DataTypes::DataType &data );
+    void setVertexData( unsigned vertex_component_index, const Utilities::DataTypes::DataType &data );
 
     /**
      * This adds the vertex data to the mesh.
@@ -341,13 +341,13 @@ public:
      *
      * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
      */
-    void addMorphVertexData( unsigned int morph_vertex_component_index, unsigned int morph_frame_index, const DataTypes::Vec3Type &original_value, const DataTypes::Vec3Type &data );
+    void addMorphVertexData( unsigned morph_vertex_component_index, unsigned morph_frame_index, const DataTypes::Vec3Type &original_value, const DataTypes::Vec3Type &data );
 
     /**
      * This gets the total amount of vertices that exist in this class.
      * @return the number of vertices which should be the sum of the vertices of all materials.
      */
-    unsigned int getNumVertices() const;
+    unsigned getNumVertices() const;
 
     /**
      * This method gets the primary_buffer.
@@ -355,12 +355,12 @@ public:
      * @param size the size of this buffer in bytes.
      * @return A pointer to the primary_buffer.
      */
-    void * getBuffer( unsigned int &size );
+    void * getBuffer( unsigned &size );
     
     /**
      * @return The number of Morph Frames of the model.
      */
-    unsigned int getNumMorphFrames() const;
+    unsigned getNumMorphFrames() const;
 
     /**
      * This method gets the morph_frame_buffers[morph_index] to the static model.
@@ -369,7 +369,7 @@ public:
      * @param size the size of this buffer in bytes.
      * @return A pointer to the morph_frame_buffers[morph_index] or a nullptr.
      */
-    void * getMorphBuffer( unsigned int morph_index, unsigned int &size );
+    void * getMorphBuffer( unsigned morph_index, unsigned &size );
 
     /**
      * This sets the class to be in a finished state. Meaning that adding more vertices or morph frames is forbidden.
@@ -383,10 +383,21 @@ public:
      * This method is specialized for exporting bone animations.
      * This method transforms the position and normal vertices by the matrix.
      * This method also produces inverse matrices.
+     * @note For use of exporting.
      * @warning be sure that the model had been finished first before using this method.
-     * @return false if the model does not have the transformations. true if the model happens to have
+     * @return false if the model does not have the transformations or else true.
      */
-    bool applyJointTransforms( unsigned int frame_index );
+    bool applyJointTransforms( unsigned frame_index );
+
+    /**
+     * This method is to query the vertex information on the Model Builder after it had been built.
+     * @param attributes This gets the vertex info stored in the model builder.
+     * @param vertex_component_index This indicates gets the vertex component (positions, uv, colors, etc). If index does not exist then this function will return zero.
+     * @param vertex_index Indicates the index of the vertex that will be viewed.
+     * @param frame_index Indicates the frame index. If no frames exists then frame index 0 is the only one to make this method work.
+     * @return The number of the values filled in attributes. 0 for error.
+     */
+    int getTransformation( glm::vec4& attributes, unsigned vertex_component_index, unsigned vertex_index, unsigned frame_index = 0 ) const;
 
     /**
      * This writes a glTF file.
