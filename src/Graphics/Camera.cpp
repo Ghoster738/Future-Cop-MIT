@@ -168,7 +168,6 @@ glm::vec3 Graphics::Camera::getPosition() const {
      // TODO Verify, if this point is the actual distance.
     auto value = inverse * glm::vec4( 0, 0, 0, 1 );
     auto scale = 1.0f / value.w;
-    auto test_position = glm::vec3( value.x, value.y, value.z ) * scale;
 
     return glm::vec3( value.x, value.y, value.z ) * scale;
 }

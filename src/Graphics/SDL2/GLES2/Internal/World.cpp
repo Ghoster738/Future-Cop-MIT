@@ -231,8 +231,8 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, bool draw_opaque, const Utilities::GridBase2D<float> *const culling_info_r ) {
-    glm::mat4 projection_view, final_position;
+void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r, DynamicTriangleDraw *dynamic_triangles_r ) {
+    glm::mat4 projection_view, final_position, position_mat;
     
     // Use the map shader for the 3D map or the world.
     program.use();
@@ -251,6 +251,9 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
 
      const float TILE_SPAN = 0.5;
 
+     const auto camera_position = camera.getPosition();
+     const float squared_distance_culling = 32.0 * 32.0;
+
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
@@ -258,20 +261,29 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
             auto section = (*i).sections[d];
 
             if( culling_info_r == nullptr || culling_info_r->getValue( section.position.x, section.position.y ) >= -0.5 ) {
-                final_position = glm::translate( projection_view, glm::vec3( ((section.position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN), 0, ((section.position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) ) );
+                const glm::vec3 position = glm::vec3(
+                    ((section.position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN),
+                    0,
+                    ((section.position.y * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN) );
+
+                final_position = glm::translate( projection_view, position );
+
+                position_mat = glm::translate( glm::mat4(1), position );
 
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-                if( culling_info_r == nullptr || culling_info_r->getValue( section.position.x, section.position.y ) < 32 * 32 ) {
-                    if( draw_opaque )
-                        (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
-                    else
-                        (*i).mesh_p->drawTransparent( 0, texture_uniform_id );
+                if( culling_info_r != nullptr && culling_info_r->getValue( section.position.x, section.position.y ) < squared_distance_culling ) {
+                    (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
+
+                    if( dynamic_triangles_r != nullptr ) {
+                        (*i).mesh_p->addTransparentTriangles( camera_position, position_mat, *dynamic_triangles_r );
+                    }
                 }
                 else
-                if( draw_opaque )
                     (*i).mesh_p->draw( 0, texture_uniform_id );
+
+
             }
         }
     }

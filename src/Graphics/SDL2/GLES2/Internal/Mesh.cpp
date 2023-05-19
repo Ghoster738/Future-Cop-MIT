@@ -82,6 +82,8 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
     Utilities::ModelBuilder::TextureMaterial material;
 
+    GLsizei transparent_count = 0;
+
     for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
         model.getMaterial( a, material );
 
@@ -95,7 +97,72 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
         GLsizei opeque_count = std::min( material.count, material.opeque_count );
 
+        transparent_count += material.count - material.opeque_count;
+
         addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
+    }
+
+    transparent_triangles.reserve( transparent_count );
+
+    GLsizei material_count = 0;
+
+    for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
+        model.getMaterial( a, material );
+
+        uint32_t cbmp_id;
+
+        if( textures.find( material.cbmp_resource_id ) != textures.end() )
+            cbmp_id = material.cbmp_resource_id;
+        else if( !textures.empty() ) {
+            cbmp_id = textures.begin()->first;
+        }
+        else
+            cbmp_id = 0;
+
+        GLsizei opeque_count = std::min( material.count, material.opeque_count );
+
+        glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
+        glm::vec4      colors[3] = {glm::vec4(0, 0, 0, 1)};
+        glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+
+        // TODO This needs to be dynamic. There should not be assumptions. Cobj might not work if this is not fixed.
+        const auto   position_compenent_index = 0;
+        const auto      color_compenent_index = 2;
+        const auto coordinate_compenent_index = 3;
+        const unsigned vertex_per_triangle = 3;
+
+        for( GLsizei i = opeque_count; i < material.count; i += vertex_per_triangle ) {
+            DynamicTriangleDraw::Triangle triangle;
+
+            model.getTransformation(   positions[0],   position_compenent_index, material_count + i + 0 );
+            model.getTransformation(      colors[0],      color_compenent_index, material_count + i + 0 );
+            model.getTransformation( coordinates[0], coordinate_compenent_index, material_count + i + 0 );
+            model.getTransformation(   positions[1],   position_compenent_index, material_count + i + 1 );
+            model.getTransformation(      colors[1],      color_compenent_index, material_count + i + 1 );
+            model.getTransformation( coordinates[1], coordinate_compenent_index, material_count + i + 1 );
+            model.getTransformation(   positions[2],   position_compenent_index, material_count + i + 2 );
+            model.getTransformation(      colors[2],      color_compenent_index, material_count + i + 2 );
+            model.getTransformation( coordinates[2], coordinate_compenent_index, material_count + i + 2 );
+
+            triangle.vertices[0].position = { positions[0].x, positions[0].y, positions[0].z };
+            triangle.vertices[0].color = 2.0f * colors[0];
+            triangle.vertices[0].color.w = 1;
+            triangle.vertices[0].coordinate = coordinates[0];
+            triangle.vertices[1].position = { positions[1].x, positions[1].y, positions[1].z };
+            triangle.vertices[1].color = 2.0f * colors[1];
+            triangle.vertices[1].color.w = 1;
+            triangle.vertices[1].coordinate = coordinates[1];
+            triangle.vertices[2].position = { positions[2].x, positions[2].y, positions[2].z };
+            triangle.vertices[2].color = 2.0f * colors[2];
+            triangle.vertices[2].color.w = 1;
+            triangle.vertices[2].coordinate = coordinates[2];
+
+            triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+
+            transparent_triangles.push_back( triangle );
+        }
+
+        material_count += material.count;
     }
 }
 
@@ -163,6 +230,30 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint act
 
         if( err != GL_NO_ERROR )
             std::cout << "glDrawArrays could have a problem! " << err << std::endl;
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw &triangles_draw ) const {
+    for( auto current : transparent_triangles ) {
+        DynamicTriangleDraw::Triangle *draw_triangle_r = triangles_draw.getTriangle();
+
+        if( draw_triangle_r != nullptr ) {
+            *draw_triangle_r = current.addTriangle( camera_position );
+        }
+        else
+            break;
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw &triangles_draw ) const {
+    for( auto current : transparent_triangles ) {
+        DynamicTriangleDraw::Triangle *draw_triangle_r = triangles_draw.getTriangle();
+
+        if( draw_triangle_r != nullptr ) {
+            *draw_triangle_r = current.addTriangle( camera_position, matrix );
+        }
+        else
+            break;
     }
 }
 

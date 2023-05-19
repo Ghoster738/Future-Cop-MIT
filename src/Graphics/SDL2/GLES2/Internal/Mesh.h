@@ -5,6 +5,7 @@
 #include "Texture2D.h"
 #include "../../../../Utilities/ModelBuilder.h"
 #include "VertexAttributeArray.h"
+#include "DynamicTriangleDraw.h"
 #include <vector>
 
 namespace Graphics {
@@ -36,6 +37,8 @@ protected:
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
 
+    std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
+
     void addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r );
 public:
     Mesh( Program *program_r );
@@ -54,6 +57,9 @@ public:
     void draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
     void drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
     void drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+
+    void addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw &triangles_draw ) const;
+    void addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw &triangles_draw ) const;
 
     Program *getProgram() const { return program_r; }
 

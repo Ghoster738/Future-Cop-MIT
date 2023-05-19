@@ -1,8 +1,9 @@
 #ifndef GRAPHICS_GLES2_INTERNAL_DYNAMIC_TRIANGLE_DRAW_H
 #define GRAPHICS_GLES2_INTERNAL_DYNAMIC_TRIANGLE_DRAW_H
 
-#include "Mesh.h"
+#include <map>
 #include "../../../Camera.h"
+#include "Texture2D.h"
 #include "VertexAttributeArray.h"
 
 namespace Graphics {
@@ -34,6 +35,11 @@ public:
         Vertex vertices[3];
 
         void setup( uint32_t texture_id, const glm::vec3 &camera_position );
+
+        float genDistanceSq( const glm::vec3 &camera_position ) const;
+
+        Triangle addTriangle( const glm::vec3 &camera_position ) const;
+        Triangle addTriangle( const glm::vec3 &camera_position, const glm::mat4 &matrix ) const;
     };
 protected:
     Program program;

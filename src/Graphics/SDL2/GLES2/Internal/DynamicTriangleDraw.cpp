@@ -28,13 +28,42 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
     "}\n";
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position ) {
+    vertices[0].metadata.bitfield.texture_id = texture_id;
+    vertices[1].metadata.distance_from_camera = genDistanceSq( camera_position );
+}
+
+
+float Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::genDistanceSq( const glm::vec3 &camera_position ) const {
     glm::vec3 combine = vertices[0].position + vertices[1].position + vertices[2].position;
     combine *= 1.0 / 3.0;
 
     glm::vec3 status = combine - camera_position;
 
-    vertices[0].metadata.bitfield.texture_id = texture_id;
-    vertices[1].metadata.distance_from_camera = status.x * status.x + status.y * status.y + status.z * status.z;
+    return status.x * status.x + status.y * status.y + status.z * status.z;
+}
+
+Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addTriangle( const glm::vec3 &camera_position ) const {
+    Triangle triangle = *this;
+
+    triangle.vertices[1].metadata.distance_from_camera = triangle.genDistanceSq( camera_position );
+
+    return triangle;
+}
+
+Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addTriangle( const glm::vec3 &camera_position, const glm::mat4 &matrix ) const {
+    Triangle triangle = *this;
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        auto position = matrix * glm::vec4( triangle.vertices[i].position, 1 );
+
+        auto scale = 1.0f / position.w;
+
+        triangle.vertices[i].position = glm::vec3( position.x, position.y, position.z ) * scale;
+    }
+
+    triangle.vertices[1].metadata.distance_from_camera = triangle.genDistanceSq( camera_position );
+
+    return triangle;
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::deleteTriangles() {

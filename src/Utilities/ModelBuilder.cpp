@@ -782,16 +782,19 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
         switch( compenent.component_type ) {
             case DataTypes::UNSIGNED_BYTE:
                 normalizer = 1.0 / 256.0;
+                break;
             case DataTypes::BYTE:
                 normalizer *= 0.5;
                 break;
             case DataTypes::UNSIGNED_SHORT:
                 normalizer = 1.0 / 65536.0;
+                break;
             case DataTypes::SHORT:
                 normalizer *= 0.5;
                 break;
             case DataTypes::UNSIGNED_INT:
                 normalizer = 1.0 / 4294967296.0;
+                break;
             case DataTypes::INT:
                 normalizer *= 0.5;
                 break;
