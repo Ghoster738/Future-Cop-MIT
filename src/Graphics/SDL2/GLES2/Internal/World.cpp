@@ -252,7 +252,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
      const float TILE_SPAN = 0.5;
 
      const auto camera_position = camera.getPosition();
-     const float squared_distance_culling = 32.0 * 32.0;
+     const float squared_distance_culling = 128.0 * 128.0;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
