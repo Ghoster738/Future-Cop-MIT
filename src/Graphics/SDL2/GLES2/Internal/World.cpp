@@ -252,7 +252,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
      const float TILE_SPAN = 0.5;
 
      const auto camera_position = camera.getPosition();
-     const float squared_distance_culling = 64.0 * 64.0;
+     const float squared_distance_culling = 64.0 * 64.0; // This is squared because square rooting the distance on the triangles is slower.
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
@@ -279,11 +279,11 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
                     if( dynamic_triangles_r != nullptr ) {
                         (*i).mesh_p->addTransparentTriangles( camera_position, position_mat, *dynamic_triangles_r );
                     }
+                    else
+                        (*i).mesh_p->drawTransparent( 0, texture_uniform_id );
                 }
                 else
                     (*i).mesh_p->draw( 0, texture_uniform_id );
-
-
             }
         }
     }
