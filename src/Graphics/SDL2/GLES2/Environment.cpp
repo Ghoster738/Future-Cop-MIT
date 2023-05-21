@@ -165,7 +165,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     if( err != GL_NO_ERROR )
         std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
 
-    if( this->dynamic_triangle_draw_routine.allocateTriangles() == 0 )
+    if( this->dynamic_triangle_draw_routine.getTransparentTriangles().allocateBuffer() == 0 )
         std::cout << "Failed to allocate triangles"<< std::endl;
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
@@ -287,7 +287,7 @@ void Environment::drawFrame() const {
             const_cast<Environment*>(this)->skeletal_model_draw_routine.draw( *current_camera );
 
             const_cast<Environment*>(this)->dynamic_triangle_draw_routine.draw( *current_camera, textures );
-            const_cast<Environment*>(this)->dynamic_triangle_draw_routine.clearTriangles();
+            const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTransparentTriangles().reset();
 
             // Disable culling on the world map.
             glDisable( GL_CULL_FACE );

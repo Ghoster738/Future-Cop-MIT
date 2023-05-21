@@ -290,16 +290,9 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
     }
 }
 
-size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangles( size_t limit ) {
-    return transparent_triangles.allocateBuffer( limit );
-}
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {
-    transparent_triangles.reset();
-}
-
-size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTriangles( size_t number_of_triangles, Triangle** triangles_r ) {
-    return transparent_triangles.getTriangles( number_of_triangles, triangles_r );
+Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand& Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTransparentTriangles() {
+    return transparent_triangles;
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {

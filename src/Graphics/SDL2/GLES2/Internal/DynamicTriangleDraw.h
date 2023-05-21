@@ -147,29 +147,7 @@ public:
      */
     int compileProgram();
 
-    /**
-     * Allocate the triangles that this render rountine could handle
-     * @note 1 MiB would store 8738 Triangles with 16 bytes free
-     * @param limit The number of triangles that dynamic triangle draw would support.
-     * @return The number of triangles that where allocated.
-     */
-    size_t allocateTriangles( size_t limit = 8738 );
-
-    /**
-     * This method clears the array of triangles.
-     * @note O(1) basically sets a counter to zero.
-     */
-    void clearTriangles();
-    
-    /**
-     * Allocate and get a single triangle.
-     * @note This is not a const method for a reason. It adds a triangle to be drawn.
-     * @warning The triangle is added to the list, so be sure to set the triangle up before drawing it.
-     * @param number_of_triangles This contains the number of triangles to be allocated.
-     * @param triangles_r This is the return for the array. The pointer will be set to null if nothing is allocated.
-     * @return The number of triangles that where allocated.
-     */
-    size_t getTriangles( size_t number_of_triangles, Triangle** triangles_r );
+    DrawCommand& getTransparentTriangles();
 
     /**
      * This draws all the stored triangles.
