@@ -209,18 +209,23 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {
     transparent_triangles_amount = 0;
 }
 
-Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTriangle() {
-    if( transparent_triangles_p == nullptr )
-        return nullptr;
+size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTriangles( size_t number_of_triangles, Triangle** triangles_r ) {
+    if( transparent_triangles_p == nullptr && transparent_triangles_amount >= transparent_triangles_max ) {
+        *triangles_r = nullptr;
+        return 0;
+    }
 
-    if( transparent_triangles_amount >= transparent_triangles_max )
-        return nullptr;
+    *triangles_r = &transparent_triangles_p[ transparent_triangles_amount ];
 
-    auto item_r = &transparent_triangles_p[transparent_triangles_amount];
+    size_t clipped_triangle_number = number_of_triangles - std::min( number_of_triangles, transparent_triangles_max - transparent_triangles_amount );
 
-    transparent_triangles_amount++;
+    transparent_triangles_amount += number_of_triangles - clipped_triangle_number;
 
-    return item_r;
+    // If the number of triangles exceeds the normal size then crash.
+    // A segmentation fault would occur in this case anyways.
+    assert( transparent_triangles_max >= transparent_triangles_amount );
+
+    return number_of_triangles - clipped_triangle_number;
 }
 
 namespace {

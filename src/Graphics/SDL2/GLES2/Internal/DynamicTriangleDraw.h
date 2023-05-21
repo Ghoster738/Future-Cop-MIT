@@ -128,9 +128,11 @@ public:
      * Allocate and get a single triangle.
      * @note This is not a const method for a reason. It adds a triangle to be drawn.
      * @warning The triangle is added to the list, so be sure to set the triangle up before drawing it.
-     * @return A direct reference to the triangle if successful.
+     * @param number_of_triangles This contains the number of triangles to be allocated.
+     * @param triangles_r This is the return for the array. The pointer will be set to null if nothing is allocated.
+     * @return The number of triangles that where allocated.
      */
-    Triangle* getTriangle();
+    size_t getTriangles( size_t number_of_triangles, Triangle** triangles_r );
 
     /**
      * This draws all the stored triangles.
