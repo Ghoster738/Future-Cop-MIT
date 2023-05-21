@@ -41,6 +41,48 @@ public:
         Triangle addTriangle( const glm::vec3 &camera_position ) const;
         Triangle addTriangle( const glm::vec3 &camera_position, const glm::mat4 &matrix ) const;
     };
+    struct DrawCommand {
+        // This holds transparent triangles
+        GLuint    vertex_buffer_object;
+        Triangle *triangles_p;
+        size_t    triangles_max;
+        size_t    triangles_amount;
+
+        DrawCommand();
+
+        /**
+        * Allocate the triangles that this render rountine could handle
+        * @note 1 MiB would store 8738 Triangles with 16 bytes free
+        * @param limit The number of triangles that dynamic triangle draw would support.
+        * @return The number of triangles that where allocated.
+        */
+        size_t allocateBuffer( size_t limit = 8738 );
+
+        /**
+         * This method deletes the OpenGL allocations and resets the status of this struct.
+         */
+        void deleteBuffer();
+
+        /**
+        * This method clears the array of triangles.
+        * @note O(1) basically sets a counter to zero.
+        */
+        void reset();
+
+        /**
+        * Allocate and get a single triangle.
+        * @note This is not a const method for a reason. It adds a triangle to be drawn.
+        * @warning The triangle is added to the list, so be sure to set the triangle up before drawing it.
+        * @param number_of_triangles This contains the number of triangles to be allocated.
+        * @param triangles_r This is the return for the array. The pointer will be set to null if nothing is allocated.
+        * @return The number of triangles that where allocated.
+        */
+        size_t getTriangles( size_t number_of_triangles, Triangle** triangles_r );
+
+        // The following methods are for internal use only.
+        void sortTriangles();
+        void draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const;
+    };
 protected:
     Program program;
     std::vector<Shader::Attribute> attributes;
@@ -53,13 +95,8 @@ protected:
     
     VertexAttributeArray vertex_array;
 
-    // This holds transparent triangles
-    GLuint    vertex_buffer_object;
-    Triangle *transparent_triangles_p;
-    size_t    transparent_triangles_max;
-    size_t    transparent_triangles_amount;
+    DrawCommand transparent_triangles;
 
-    void deleteTriangles();
 public:
     DynamicTriangleDraw();
     virtual ~DynamicTriangleDraw();
@@ -119,7 +156,7 @@ public:
     size_t allocateTriangles( size_t limit = 8738 );
 
     /**
-     * This method clears the list of triangles.
+     * This method clears the array of triangles.
      * @note O(1) basically sets a counter to zero.
      */
     void clearTriangles();

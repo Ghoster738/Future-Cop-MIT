@@ -6,6 +6,128 @@
 #include <glm/mat4x4.hpp>
 #include "SDL.h"
 
+Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::DrawCommand() {
+    triangles_p = nullptr;
+}
+
+size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::allocateBuffer( size_t limit ) {
+    GLint size = 0;
+
+    if( limit == 0 )
+        return 0;
+
+    deleteBuffer();
+
+    glGenBuffers(1, &vertex_buffer_object);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+    glBufferData(GL_ARRAY_BUFFER, limit * sizeof(Triangle), nullptr, GL_DYNAMIC_DRAW);
+
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    if( size < sizeof(Triangle) ) {
+        return 0;
+    }
+
+    triangles_max = size / sizeof(Triangle);
+    triangles_amount = 0;
+    triangles_p = new Triangle [triangles_max];
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, limit * sizeof(Triangle), transparent_triangles_p);
+
+    return triangles_max;
+}
+
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::deleteBuffer() {
+    if( triangles_p != nullptr ) {
+        glDeleteBuffers(1, &vertex_buffer_object);
+
+        delete [] triangles_p;
+    }
+    triangles_p = nullptr;
+    triangles_max = 0;
+    triangles_amount = 0;
+    vertex_buffer_object = 0;
+}
+
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::reset() {
+    triangles_amount = 0;
+}
+
+size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::getTriangles( size_t number_of_triangles, Triangle** triangles_r ) {
+    if( triangles_p == nullptr && triangles_amount >= triangles_max ) {
+        *triangles_r = nullptr;
+        return 0;
+    }
+
+    *triangles_r = &triangles_p[ triangles_amount ];
+
+    size_t clipped_triangle_number = number_of_triangles - std::min( number_of_triangles, triangles_max - triangles_amount );
+
+    triangles_amount += number_of_triangles - clipped_triangle_number;
+
+    // If the number of triangles exceeds the normal size then crash.
+    // A segmentation fault would occur in this case anyways.
+    assert( triangles_max >= triangles_amount );
+
+    return number_of_triangles - clipped_triangle_number;
+}
+
+namespace {
+
+// This method sorts the traingles.
+bool compare( Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle a, Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle b ) {
+    return a.vertices[1].metadata.distance_from_camera > b.vertices[1].metadata.distance_from_camera;
+}
+
+}
+
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::sortTriangles() {
+    // Sort the trinagles from back to front for the transparent triangles.
+    std::sort( triangles_p, triangles_p + triangles_amount, compare );
+}
+
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const {
+
+    // Finally we can draw the triangles.
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+    vertex_array.bind();
+
+    uint32_t texture_id = 0;
+    Graphics::SDL2::GLES2::Internal::Texture2D* current_texture_r = nullptr;
+    if( textures.size() != 0 ) {
+        texture_id = textures.begin()->first;
+        current_texture_r = textures.begin()->second;
+
+        current_texture_r->bind( 0, diffusive_texture_uniform_id );
+    }
+
+    size_t t_last = 0;
+
+    for( size_t t = 0; t < triangles_amount; t++ ) {
+        if( texture_id != triangles_p[t].vertices[0].metadata.bitfield.texture_id ) {
+            texture_id = triangles_p[t].vertices[0].metadata.bitfield.texture_id;
+
+            auto item = textures.find( texture_id );
+
+            if( item != textures.end() ) {
+                current_texture_r = item->second;
+
+                if( t_last != t ) {
+                    glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (t - t_last) * sizeof(Triangle), &triangles_p[t_last] );
+                    glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
+
+                    t_last = t;
+                }
+
+                current_texture_r->bind( 0, diffusive_texture_uniform_id );
+            }
+        }
+    }
+
+    if( t_last < triangles_amount ) {
+        glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (triangles_amount - t_last) * sizeof(Triangle), &triangles_p[t_last] );
+        glDrawArrays( GL_TRIANGLES, t_last * 3, (triangles_amount - t_last) * 3 );
+    }
+}
+
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_vertex_shader =
     // Vertex shader uniforms
     "uniform mat4 Transform;\n" // projection * view * model.
@@ -66,21 +188,8 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
     return triangle;
 }
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::deleteTriangles() {
-    if( transparent_triangles_p != nullptr ) {
-        glDeleteBuffers(1, &vertex_buffer_object);
-
-        delete [] transparent_triangles_p;
-    }
-    transparent_triangles_p = nullptr;
-    transparent_triangles_max = 0;
-    transparent_triangles_amount = 0;
-    vertex_buffer_object = 0;
-}
-
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
-    transparent_triangles_p = nullptr;
-    deleteTriangles();
+    transparent_triangles.deleteBuffer();
 
     vertex_array.addAttribute( "POSITION",   3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, position) ) );
     vertex_array.addAttribute( "COLOR_0",    4, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, color) ) );
@@ -95,7 +204,7 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
 }
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::~DynamicTriangleDraw() {
-    deleteTriangles();
+    transparent_triangles.deleteBuffer();
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getDefaultVertexShader() {
@@ -182,63 +291,19 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
 }
 
 size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::allocateTriangles( size_t limit ) {
-    GLint size = 0;
-
-    if( limit == 0 )
-        return false;
-
-    deleteTriangles();
-
-    glGenBuffers(1, &vertex_buffer_object);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
-    glBufferData(GL_ARRAY_BUFFER, limit * sizeof(Triangle), nullptr, GL_DYNAMIC_DRAW);
-
-    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    if( size < sizeof(Triangle) ) {
-        return 0;
-    }
-
-    transparent_triangles_max = size / sizeof(Triangle);
-    transparent_triangles_p = new Triangle [transparent_triangles_max];
-    // glBufferSubData(GL_ARRAY_BUFFER, 0, limit * sizeof(Triangle), transparent_triangles_p);
-
-    return transparent_triangles_max;
+    return transparent_triangles.allocateBuffer( limit );
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::clearTriangles( ) {
-    transparent_triangles_amount = 0;
+    transparent_triangles.reset();
 }
 
 size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTriangles( size_t number_of_triangles, Triangle** triangles_r ) {
-    if( transparent_triangles_p == nullptr && transparent_triangles_amount >= transparent_triangles_max ) {
-        *triangles_r = nullptr;
-        return 0;
-    }
-
-    *triangles_r = &transparent_triangles_p[ transparent_triangles_amount ];
-
-    size_t clipped_triangle_number = number_of_triangles - std::min( number_of_triangles, transparent_triangles_max - transparent_triangles_amount );
-
-    transparent_triangles_amount += number_of_triangles - clipped_triangle_number;
-
-    // If the number of triangles exceeds the normal size then crash.
-    // A segmentation fault would occur in this case anyways.
-    assert( transparent_triangles_max >= transparent_triangles_amount );
-
-    return number_of_triangles - clipped_triangle_number;
-}
-
-namespace {
-
-// This method sorts the traingles physically.
-bool compare( Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle a, Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle b ) {
-    return a.vertices[1].metadata.distance_from_camera > b.vertices[1].metadata.distance_from_camera;
-}
-
+    return transparent_triangles.getTriangles( number_of_triangles, triangles_r );
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
-    if( transparent_triangles_amount == 0 )
+    if( transparent_triangles.triangles_amount == 0 )
         return; // There is no semi-transparent triangle to draw.
 
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
@@ -251,47 +316,6 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
     // We can now send the matrix to the program.
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );
 
-    // Sort the trinagles from back to front for the transparent triangles.
-    std::sort( transparent_triangles_p, transparent_triangles_p + transparent_triangles_amount, compare );
-
-    // Finally we can draw the triangles.
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
-    vertex_array.bind();
-
-    uint32_t texture_id = 0;
-    Graphics::SDL2::GLES2::Internal::Texture2D* current_texture_r = nullptr;
-    if( textures.size() != 0 ) {
-        texture_id = textures.begin()->first;
-        current_texture_r = textures.begin()->second;
-
-        current_texture_r->bind( 0, diffusive_texture_uniform_id );
-    }
-
-    size_t t_last = 0;
-
-    for( size_t t = 0; t < transparent_triangles_amount; t++ ) {
-        if( texture_id != transparent_triangles_p[t].vertices[0].metadata.bitfield.texture_id ) {
-            texture_id = transparent_triangles_p[t].vertices[0].metadata.bitfield.texture_id;
-
-            auto item = textures.find( texture_id );
-
-            if( item != textures.end() ) {
-                current_texture_r = item->second;
-
-                if( t_last != t ) {
-                    glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (t - t_last) * sizeof(Triangle), &transparent_triangles_p[t_last] );
-                    glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
-
-                    t_last = t;
-                }
-
-                current_texture_r->bind( 0, diffusive_texture_uniform_id );
-            }
-        }
-    }
-
-    if( t_last < transparent_triangles_amount ) {
-        glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (transparent_triangles_amount - t_last) * sizeof(Triangle), &transparent_triangles_p[t_last] );
-        glDrawArrays( GL_TRIANGLES, t_last * 3, (transparent_triangles_amount - t_last) * 3 );
-    }
+    transparent_triangles.sortTriangles();
+    transparent_triangles.draw( vertex_array, textures, diffusive_texture_uniform_id );
 }
