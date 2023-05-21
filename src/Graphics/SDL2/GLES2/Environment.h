@@ -45,7 +45,7 @@ public:
     virtual int setTilBlink( unsigned til_index, float seconds );
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
     virtual void setupFrame();
-    virtual void drawFrame() const;
+    virtual void drawFrame();
     virtual bool screenshot( Utilities::Image2D &image ) const;
     virtual void advanceTime( float seconds_passed );
 };

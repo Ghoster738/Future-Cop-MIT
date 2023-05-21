@@ -239,7 +239,7 @@ void Environment::setupFrame() {
     }
 }
 
-void Environment::drawFrame() const {
+void Environment::drawFrame() {
     auto window_r =  window_p;
     
     auto window_SDL_r = dynamic_cast<GLES2::Window*>( window_r );
@@ -278,16 +278,16 @@ void Environment::drawFrame() const {
                 if( current_camera->culling_info.getWidth() * current_camera->culling_info.getHeight() == 0 )
                     this->world_p->draw( *current_camera );
                 else
-                    this->world_p->draw( *current_camera, &current_camera->culling_info, &const_cast<Environment*>(this)->dynamic_triangle_draw_routine );
+                    this->world_p->draw( *current_camera, &current_camera->culling_info, &this->dynamic_triangle_draw_routine );
             }
 
             // TODO Find a way to make const draw.
-            const_cast<Environment*>(this)->static_model_draw_routine.draw(   *current_camera );
-            const_cast<Environment*>(this)->morph_model_draw_routine.draw(    *current_camera );
-            const_cast<Environment*>(this)->skeletal_model_draw_routine.draw( *current_camera );
+            this->static_model_draw_routine.draw(   *current_camera );
+            this->morph_model_draw_routine.draw(    *current_camera );
+            this->skeletal_model_draw_routine.draw( *current_camera );
 
-            const_cast<Environment*>(this)->dynamic_triangle_draw_routine.draw( *current_camera, textures );
-            const_cast<Environment*>(this)->dynamic_triangle_draw_routine.getTransparentTriangles().reset();
+            this->dynamic_triangle_draw_routine.draw( *current_camera, textures );
+            this->dynamic_triangle_draw_routine.getTransparentTriangles().reset();
 
             // Disable culling on the world map.
             glDisable( GL_CULL_FACE );

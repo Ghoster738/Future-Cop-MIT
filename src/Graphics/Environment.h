@@ -127,7 +127,7 @@ public:
     /**
      * Draw a single frame onto the main context.
      */
-    virtual void drawFrame() const = 0;
+    virtual void drawFrame() = 0;
 
     /**
      * This makes a screenshot of the Environment's rendering.
