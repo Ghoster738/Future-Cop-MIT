@@ -85,9 +85,9 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::sortTria
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const {
-
-    // Finally we can draw the triangles.
+    // Finally, we can draw the triangles.
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+    glBufferSubData( GL_ARRAY_BUFFER, 0, triangles_amount * sizeof(Triangle), triangles_p );
     vertex_array.bind();
 
     uint32_t texture_id = 0;
@@ -111,7 +111,6 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
                 current_texture_r = item->second;
 
                 if( t_last != t ) {
-                    glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (t - t_last) * sizeof(Triangle), &triangles_p[t_last] );
                     glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
 
                     t_last = t;
@@ -123,7 +122,6 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
     }
 
     if( t_last < triangles_amount ) {
-        glBufferSubData( GL_ARRAY_BUFFER, t_last * sizeof(Triangle), (triangles_amount - t_last) * sizeof(Triangle), &triangles_p[t_last] );
         glDrawArrays( GL_TRIANGLES, t_last * 3, (triangles_amount - t_last) * 3 );
     }
 }
