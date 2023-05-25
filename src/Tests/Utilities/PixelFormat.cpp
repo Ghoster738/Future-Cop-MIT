@@ -7,7 +7,7 @@
 #include "TestImage2D.h"
 #include "TestPalette.h"
 
-int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpolate ) {
+int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation interpolate ) {
     int problem = 0;
     
     Utilities::PixelFormatColor::GenericColor generic;
@@ -44,8 +44,10 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
         
         for( uint16_t w = 0; w <= 255; w++ )
         {
-            color[0].white = w;
             uint16_t a = 56;
+            
+            color[0].white = w;
+            color[0].alpha = a;
             
             generic = color[0].toGeneric( interpolate );
             color[1] = Utilities::PixelFormatColor_W8A8::Color( generic, interpolate );
@@ -66,6 +68,7 @@ int testColorProfiles( Utilities::PixelFormatColor::ChannelInterpolation interpo
         for( uint16_t a = 0; a <= 255; a++ )
         {
             uint16_t w = 80;
+            color[0].white = w;
             color[0].alpha = a;
             
             generic = color[0].toGeneric( interpolate );

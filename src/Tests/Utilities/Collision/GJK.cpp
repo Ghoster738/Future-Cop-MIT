@@ -306,7 +306,7 @@ int main( int argc, char* argv[] ) {
         unsigned number_of_threads = 0;
         std::mutex status_guard;
 
-        std::cout << "How Many threads do you want for this stress test. Enter 0 for all that is available in the system." << std::endl;
+        std::cout << "How many threads do you want for this stress test. Enter 0 for all that is available in the system." << std::endl;
 
         std::cout << "Threads: ";
         std::cin >> number_of_threads;
@@ -326,7 +326,7 @@ int main( int argc, char* argv[] ) {
 
         const auto starting_time = high_resolution_clock::now();
 
-        const auto system_time = std::chrono::system_clock::to_time_t(starting_time);
+        const auto system_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cout << "Started test at " << std::ctime(&system_time) << std::endl;
 
         if( tminutes == 0 ) {
@@ -368,7 +368,7 @@ int main( int argc, char* argv[] ) {
 
             std::cout << "Runs per second = " << runs_per_second << std::endl;
 
-            const auto end_system_time = std::chrono::system_clock::to_time_t(current_time);
+            const auto end_system_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
             std::cout << "Ended test at " << std::ctime(&end_system_time) << std::endl;
         }
         say_guard.unlock();
