@@ -106,6 +106,22 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
     GLsizei material_count = 0;
 
+    unsigned   position_compenent_index = model.getNumVertexComponents();
+    unsigned      color_compenent_index = position_compenent_index;
+    unsigned coordinate_compenent_index = position_compenent_index;
+
+    Utilities::ModelBuilder::VertexComponent element("EMPTY");
+    for( unsigned i = 0; model.getVertexComponent( i, element ); i++ ) {
+        auto name = element.getName();
+
+        if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
+            position_compenent_index = i;
+        if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
+            color_compenent_index = i;
+        if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
+            coordinate_compenent_index = i;
+    }
+
     for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
         model.getMaterial( a, material );
 
@@ -125,10 +141,6 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         glm::vec4      colors[3] = {glm::vec4(0, 0, 0, 1)};
         glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
 
-        // TODO This needs to be dynamic. There should not be assumptions. Cobj might not work if this is not fixed.
-        const auto   position_compenent_index = 0;
-        const auto      color_compenent_index = 2;
-        const auto coordinate_compenent_index = 3;
         const unsigned vertex_per_triangle = 3;
 
         for( GLsizei i = opeque_count; i < material.count; i += vertex_per_triangle ) {
