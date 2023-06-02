@@ -2,10 +2,13 @@
 #define UTILITIES_LOGGER_H
 
 #include <filesystem>
+#include <fstream>
+#include <memory>
 #include <mutex>
 #include <ostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 namespace Utilities {
 
@@ -16,7 +19,7 @@ namespace Utilities {
  */
 class Logger {
 public:
-    // These values are influnced directly from python
+    // These values are influnced directly from Python 3
     constexpr static unsigned CRITICAL = 0x50;
     constexpr static unsigned    ERROR = 0x40;
     constexpr static unsigned  WARNING = 0x30;
@@ -26,24 +29,38 @@ public:
     class Log {
     private:
         Logger *log_r;
+        unsigned level;
         
     public:
-        unsigned level;
+        std::stringstream output;
+
         Log( Logger *log_r, unsigned level );
         Log( const Log &copy );
         virtual ~Log();
-        
-        void operator<<( const std::ostream output );
     };
 protected:
     struct OutputStream {
-        std::ostream output;
         size_t memory_bytes_limit;
         unsigned lower;
-        unsigned higher;
+        unsigned upper;
+
+        virtual ~OutputStream() {}
+        virtual std::ostream* getOutputPtr() = 0;
+    };
+    struct OutputStreamNormal : OutputStream {
+        std::ostream *output_r;
+
+        virtual std::ostream* getOutputPtr();
+    };
+    struct OutputStreamFile : OutputStream {
+        std::shared_ptr<std::ofstream> output;
+
+        virtual ~OutputStreamFile();
+        virtual std::ostream* getOutputPtr();
     };
     
-    std::vector<OutputStream> outputs;
+    std::mutex outputs_lock;
+    std::vector<OutputStream*> outputs;
 
 public:
     Logger();
@@ -51,7 +68,7 @@ public:
     
     bool setOutputLog( std::string file_path, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
     bool setOutputLog( std::filesystem::path file, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
-    bool setOutputLog( std::ostream mode, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
+    bool setOutputLog( std::ostream *mode_r, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
     
     Log getLog( unsigned level = INFO );
 };
