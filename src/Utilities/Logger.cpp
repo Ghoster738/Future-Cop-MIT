@@ -13,14 +13,19 @@ Utilities::Logger::Log::~Log() {
 
     for( auto i : log_r->outputs ) {
         if( level >= i->lower && level <= i->upper ) {
-            *i->getOutputPtr() << output.str();
+            *i->getOutputPtr() << output.str() << "\n";
         }
     }
+}
+
+std::ostream* Utilities::Logger::OutputStreamNormal::getOutputPtr() {
+    return output_r;
 }
 
 Utilities::Logger::OutputStreamFile::~OutputStreamFile() {
     output.get()->close();
 }
+
 std::ostream* Utilities::Logger::OutputStreamFile::getOutputPtr() {
     return output.get();
 }

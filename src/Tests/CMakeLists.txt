@@ -63,6 +63,11 @@ add_executable(image_palette_2D_test Utilities/ImagePalette2D.cpp)
 target_link_libraries(image_palette_2D_test PRIVATE FC_IFF_IO)
 add_test( NAME image_palette_2D_test COMMAND $<TARGET_FILE:image_palette_2D_test> )
 
+# Test Logger Code
+add_executable(logger_test Utilities/Logger.cpp)
+target_link_libraries(logger_test PRIVATE FC_IFF_IO)
+add_test( NAME logger_test COMMAND $<TARGET_FILE:logger_test> )
+
 # Test Quite Okay Image Code
 add_executable(qoi_image_format_test Utilities/ImageFormat/QuiteOkImage.cpp)
 target_link_libraries(qoi_image_format_test PRIVATE FC_IFF_IO)
