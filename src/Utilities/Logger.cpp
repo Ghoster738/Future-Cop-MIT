@@ -1,5 +1,27 @@
 #include "Logger.h"
 
+std::string Utilities::Logger::getLevelName( unsigned level ) const {
+    switch( level ) {
+        case CRITICAL:
+            return "CRITICAL";
+            break;
+        case ERROR:
+            return "ERROR";
+            break;
+        case WARNING:
+            return "WARNING";
+            break;
+        case INFO:
+            return "INFO";
+            break;
+        case DEBUG:
+            return "DEBUG";
+            break;
+        default:
+            return std::string("LEVEL ") + std::to_string( level );
+    }
+}
+
 Utilities::Logger::Log::Log( Logger *log_r_param, unsigned level_param ) :
     log_r( log_r_param ), level( level_param ) {
 }
@@ -13,7 +35,7 @@ Utilities::Logger::Log::~Log() {
 
     for( auto i : log_r->outputs ) {
         if( level >= i->lower && level <= i->upper ) {
-            *i->getOutputPtr() << output.str() << "\n";
+            *i->getOutputPtr() << log_r->getLevelName(level) << ": " << output.str() << "\n";
         }
     }
 }
