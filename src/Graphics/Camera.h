@@ -8,6 +8,8 @@
 #include <glm/mat4x4.hpp>
 #include <vector>
 
+#include "SDL2/GLES2/Internal/DynamicTriangleDraw.h"
+
 namespace Graphics {
 
 class Camera {
@@ -26,9 +28,6 @@ protected:
     glm::u32vec2 origin;
     glm::u32vec2 dimensions; // x = width, y = height
 
-    // Hold the Text 2D Buffers.
-    std::vector<Text2DBuffer*> text_2d_buffers;
-
     /**
      * When projection3D or view3D had been changed, the PV3D needs to reflect this.
      * This multiplies projection3D and view3D, and stores the result in PV3D.
@@ -42,7 +41,9 @@ protected:
     void updatePV2D();
 
 public:
+    std::vector<Text2DBuffer*> text_2d_buffers;
     Utilities::GridBase2D<float> culling_info;
+    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand transparent_triangles;
 
     Camera();
     virtual ~Camera();
@@ -168,12 +169,14 @@ public:
     /**
      * This gets the 3D camera shape from the projection matrix.
      * @note This might actually be useful for gameplay purposes.
+     * @return the camera frustrum shape.
      */
     Utilities::Collision::GJKPolyhedron getProjection3DShape() const;
 
     /**
      * This gets the 3D camera shape from the projection matrix.
      * @note This might actually be useful for gameplay purposes.
+     * @return the camera position.
      */
     glm::vec3 getPosition() const;
 };

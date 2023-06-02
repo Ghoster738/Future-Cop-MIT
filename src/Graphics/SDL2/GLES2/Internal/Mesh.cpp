@@ -245,20 +245,20 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint act
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw &triangles_draw ) const {
+void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
     DynamicTriangleDraw::Triangle *draw_triangles_r;
 
-    size_t number_of_triangles = triangles_draw.getTransparentTriangles().getTriangles( transparent_triangles.size(), &draw_triangles_r );
+    size_t number_of_triangles = triangles_draw.getTriangles( transparent_triangles.size(), &draw_triangles_r );
 
     for( size_t i = 0; i < number_of_triangles; i++ ) {
         draw_triangles_r[ i ] = transparent_triangles[ i ].addTriangle( camera_position );
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw &triangles_draw ) const {
+void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
     DynamicTriangleDraw::Triangle *draw_triangles_r;
 
-    size_t number_of_triangles = triangles_draw.getTransparentTriangles().getTriangles( transparent_triangles.size(), &draw_triangles_r );
+    size_t number_of_triangles = triangles_draw.getTriangles( transparent_triangles.size(), &draw_triangles_r );
 
     for( size_t i = 0; i < number_of_triangles; i++ ) {
         draw_triangles_r[ i ] = transparent_triangles[ i ].addTriangle( camera_position, matrix );

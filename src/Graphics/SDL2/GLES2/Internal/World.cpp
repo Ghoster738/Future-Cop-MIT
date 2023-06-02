@@ -231,7 +231,7 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r, DynamicTriangleDraw *dynamic_triangles_r ) {
+void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r ) {
     glm::mat4 projection_view, final_position, position_mat;
     
     // Use the map shader for the 3D map or the world.
@@ -276,11 +276,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( const Graphics::Camera &camer
                 if( culling_info_r != nullptr && culling_info_r->getValue( section.position.x, section.position.y ) < squared_distance_culling ) {
                     (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
 
-                    if( dynamic_triangles_r != nullptr ) {
-                        (*i).mesh_p->addTransparentTriangles( camera_position, position_mat, *dynamic_triangles_r );
-                    }
-                    else
-                        (*i).mesh_p->drawTransparent( 0, texture_uniform_id );
+                    (*i).mesh_p->addTransparentTriangles( camera_position, position_mat, camera.transparent_triangles );
                 }
                 else
                     (*i).mesh_p->draw( 0, texture_uniform_id );

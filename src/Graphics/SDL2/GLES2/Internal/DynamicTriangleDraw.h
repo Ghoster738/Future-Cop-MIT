@@ -2,11 +2,13 @@
 #define GRAPHICS_GLES2_INTERNAL_DYNAMIC_TRIANGLE_DRAW_H
 
 #include <map>
-#include "../../../Camera.h"
 #include "Texture2D.h"
 #include "VertexAttributeArray.h"
 
 namespace Graphics {
+
+class Camera;
+
 namespace SDL2 {
 namespace GLES2 {
 
@@ -84,6 +86,7 @@ public:
         void draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const;
     };
 protected:
+
     Program program;
     std::vector<Shader::Attribute> attributes;
     std::vector<Shader::Varying>   varyings;
@@ -94,10 +97,8 @@ protected:
     GLuint matrix_uniform_id; // model * view * projection.
     
     VertexAttributeArray vertex_array;
-
-    DrawCommand transparent_triangles;
-
 public:
+
     DynamicTriangleDraw();
     virtual ~DynamicTriangleDraw();
 
@@ -147,15 +148,13 @@ public:
      */
     int compileProgram();
 
-    DrawCommand& getTransparentTriangles();
-
     /**
      * This draws all the stored triangles.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and allocateTriangles in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into this routine.
      * @param textures This is the camera data to be passed into this routine.
      */
-    void draw( const Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures );
+    void draw( Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures );
 
     /**
      * @return the program that this World uses.

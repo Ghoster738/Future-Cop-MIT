@@ -6,6 +6,8 @@
 #include <glm/mat4x4.hpp>
 #include "SDL.h"
 
+#include "../../../Camera.h"
+
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::DrawCommand() {
     triangles_p = nullptr;
 }
@@ -187,8 +189,6 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
 }
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
-    transparent_triangles.deleteBuffer();
-
     vertex_array.addAttribute( "POSITION",   3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, position) ) );
     vertex_array.addAttribute( "COLOR_0",    4, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, color) ) );
     vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, coordinate) ) );
@@ -202,7 +202,6 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
 }
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::~DynamicTriangleDraw() {
-    transparent_triangles.deleteBuffer();
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getDefaultVertexShader() {
@@ -288,13 +287,8 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
     }
 }
 
-
-Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand& Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::getTransparentTriangles() {
-    return transparent_triangles;
-}
-
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
-    if( transparent_triangles.triangles_amount == 0 )
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
+    if( camera.transparent_triangles.triangles_amount == 0 )
         return; // There is no semi-transparent triangle to draw.
 
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
@@ -307,6 +301,6 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( const Graphics:
     // We can now send the matrix to the program.
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );
 
-    transparent_triangles.sortTriangles();
-    transparent_triangles.draw( vertex_array, textures, diffusive_texture_uniform_id );
+    camera.transparent_triangles.sortTriangles();
+    camera.transparent_triangles.draw( vertex_array, textures, diffusive_texture_uniform_id );
 }

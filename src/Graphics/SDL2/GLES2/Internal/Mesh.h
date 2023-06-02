@@ -58,8 +58,8 @@ public:
     void drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
     void drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
 
-    void addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw &triangles_draw ) const;
-    void addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw &triangles_draw ) const;
+    void addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+    void addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
 
     Program *getProgram() const { return program_r; }
 

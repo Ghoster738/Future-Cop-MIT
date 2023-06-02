@@ -1,4 +1,5 @@
 #include "Camera.h" // Include the interface class
+#include <iostream>
 
 void Graphics::Camera::updatePV3D() {
     PV3D = projection3D * view3D;
@@ -15,6 +16,10 @@ Graphics::Camera::Camera() {
     projection2D = glm::mat4( 1.0f );
     view2D       = glm::mat4( 1.0f );
     PV2D         = glm::mat4( 1.0f );
+
+
+    if( this->transparent_triangles.allocateBuffer() == 0 )
+        std::cout << "Failed to allocate triangles"<< std::endl;
 }
 
 Graphics::Camera::~Camera() {
@@ -159,8 +164,6 @@ Utilities::Collision::GJKPolyhedron Graphics::Camera::getProjection3DShape() con
 
     return Utilities::Collision::GJKPolyhedron( projection );
 }
-
-#include <iostream>
 
 glm::vec3 Graphics::Camera::getPosition() const {
     glm::mat4 inverse = glm::inverse( view3D );

@@ -5,7 +5,6 @@
 
 #include "Internal/GLES2.h"
 
-#include "Internal/DynamicTriangleDraw.h"
 #include "Internal/MorphModelDraw.h"
 #include "Internal/Texture2D.h"
 #include "Internal/FontSystem.h"
