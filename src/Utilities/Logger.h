@@ -1,6 +1,7 @@
 #ifndef UTILITIES_LOGGER_H
 #define UTILITIES_LOGGER_H
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -65,9 +66,14 @@ protected:
     std::mutex outputs_lock;
     std::vector<OutputStream*> outputs;
 
+    bool has_time;
+    std::chrono::time_point<std::chrono::steady_clock> time_point;
+
 public:
     Logger();
     virtual ~Logger();
+
+    void setTimeStampMode( bool status );
     
     bool setOutputLog( std::string file_path, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
     bool setOutputLog( std::filesystem::path file, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );

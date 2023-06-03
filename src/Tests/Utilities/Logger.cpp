@@ -1,6 +1,8 @@
 #include "../../Utilities/Logger.h"
 #include <iostream>
 
+#include <thread>
+
 using Utilities::Logger;
 
 int main() {
@@ -15,6 +17,8 @@ int main() {
     logger.setOutputLog( &debug_log, 0, Logger::DEBUG, Logger::DEBUG );
     logger.setOutputLog( &info_log, 0, Logger::INFO, Logger::WARNING );
     logger.setOutputLog( &error_log, 0, Logger::ERROR );
+
+    logger.setTimeStampMode( true );
 
     // Indicate when the program had started logging.
     {
@@ -31,6 +35,7 @@ int main() {
 
         log.output << "This is the INFO log. This can be used to show information about the maps being loaded for example.";
     }
+    std::this_thread::sleep_for( std::chrono::milliseconds(500) );
     {
         auto log = logger.getLog( Logger::DEBUG );
         log.output << "This is the DEBUG log, and this is to be used for debug info that the user would most likely not care about.";

@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include <cmath>
+
 std::string Utilities::Logger::getLevelName( unsigned level ) const {
     switch( level ) {
         case CRITICAL:
@@ -34,11 +36,25 @@ Utilities::Logger::Log::Log( const Log &copy ) :
 }
 
 Utilities::Logger::Log::~Log() {
+    std::stringstream time_stream;
+
     std::lock_guard<std::mutex> guard( log_r->outputs_lock );
+
+    if( log_r->has_time ) {
+        auto time_point = std::chrono::steady_clock::now();
+
+        const std::chrono::duration<double, std::ratio<1>> seconds_duration = time_point - log_r->time_point;
+        const double seconds = seconds_duration.count();
+
+        time_stream << "(" << std::setfill('0') << std::setw(2) << static_cast<uint32_t>(seconds * (1./3600.)) << ":"
+            << std::setfill('0') << std::setw(2) << static_cast<uint32_t>(seconds * (1./60.)) << ":"
+            << std::setfill('0') << std::setw(2) << static_cast<uint32_t>(seconds) << ","
+            << std::setfill('0') << std::setw(3) << static_cast<uint32_t>(fmod(seconds, 1.0) * 1000.) << ")";
+    }
 
     for( auto i : log_r->outputs ) {
         if( level == 0 || (level >= i->lower && level <= i->upper) ) {
-            *i->getOutputPtr() << log_r->getLevelName(level) << ": " << output.str() << "\n";
+            *i->getOutputPtr() << log_r->getLevelName(level) << time_stream.str() << ": " << output.str() << "\n";
         }
     }
 }
@@ -56,6 +72,7 @@ std::ostream* Utilities::Logger::OutputStreamFile::getOutputPtr() {
 }
 
 Utilities::Logger::Logger() {
+    has_time = false;
 }
 
 Utilities::Logger::~Logger() {
@@ -63,6 +80,16 @@ Utilities::Logger::~Logger() {
 
     for( int i = 0; i < outputs.size(); i++ ) {
         delete outputs[i];
+    }
+}
+
+void Utilities::Logger::setTimeStampMode( bool status ) {
+    std::lock_guard<std::mutex> guard(outputs_lock);
+
+    has_time = status;
+
+    if( has_time ) {
+        time_point = std::chrono::steady_clock::now();
     }
 }
 
