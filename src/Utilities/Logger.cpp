@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iomanip>
 
+Utilities::Logger Utilities::logger;
+
 std::string Utilities::Logger::getLevelName( unsigned level ) const {
     switch( level ) {
         case CRITICAL:

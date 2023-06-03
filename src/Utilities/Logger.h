@@ -82,6 +82,9 @@ public:
     Log getLog( unsigned level = INFO );
 };
 
+// This global value can be used.
+extern Logger logger;
+
 }
 
 #endif // UTILITIES_LOGGER_H
