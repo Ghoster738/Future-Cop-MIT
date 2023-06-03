@@ -17,6 +17,9 @@ std::string Utilities::Logger::getLevelName( unsigned level ) const {
         case DEBUG:
             return "DEBUG";
             break;
+        case ALL:
+            return "ALL";
+            break;
         default:
             return std::string("LEVEL ") + std::to_string( level );
     }
@@ -34,7 +37,7 @@ Utilities::Logger::Log::~Log() {
     std::lock_guard<std::mutex> guard( log_r->outputs_lock );
 
     for( auto i : log_r->outputs ) {
-        if( level >= i->lower && level <= i->upper ) {
+        if( level == 0 || (level >= i->lower && level <= i->upper) ) {
             *i->getOutputPtr() << log_r->getLevelName(level) << ": " << output.str() << "\n";
         }
     }

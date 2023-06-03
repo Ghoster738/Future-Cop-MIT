@@ -25,6 +25,7 @@ public:
     constexpr static unsigned  WARNING = 0x30;
     constexpr static unsigned     INFO = 0x20;
     constexpr static unsigned    DEBUG = 0x10;
+    constexpr static unsigned      ALL = 0x00;
 
     std::string getLevelName( unsigned level ) const;
     
