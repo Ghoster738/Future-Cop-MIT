@@ -1,11 +1,11 @@
 #include "../../Utilities/Logger.h"
 #include <iostream>
 
-#include <thread>
-
 using Utilities::Logger;
 
 int main() {
+    int program_status = 0;
+
     // This would be in the logger header.
     Logger logger;
 
@@ -18,7 +18,13 @@ int main() {
     logger.setOutputLog( &info_log, 0, Logger::INFO, Logger::WARNING );
     logger.setOutputLog( &error_log, 0, Logger::ERROR );
 
-    logger.setTimeStampMode( true );
+    const std::string START = "Program had started at [TIME PLACEHOLDER].";
+    const std::string INFO = "This is the INFO log. This can be used to show information about the maps being loaded for example.";
+    const std::string DEBUG = "This is the DEBUG log, and this is to be used for debug info that the user would most likely not care about.";
+    const std::string WARNING = "This is the WARNING log. This should indicate unexpected values and other things.";
+    const std::string ERROR = "This is the ERROR log, and this should indicate that textures where not loaded for example.";
+    const std::string CRITICAL = "This is the CRITICAL log. This for irrecoverable errors that the program would have to exit.";
+    const std::string END = "Program had ended.";
 
     // Indicate when the program had started logging.
     {
@@ -26,36 +32,97 @@ int main() {
         auto log = logger.getLog( Logger::ALL );
 
         // Input to the log.
-        log.output << "Program had started.";
+        log.output << START;
 
         // When log gets deleted, the output would be applied to the logger.
     }
     {
         auto log = logger.getLog( Logger::INFO );
 
-        log.output << "This is the INFO log. This can be used to show information about the maps being loaded for example.";
+        log.output << INFO;
     }
-    std::this_thread::sleep_for( std::chrono::milliseconds(500) );
     {
         auto log = logger.getLog( Logger::DEBUG );
-        log.output << "This is the DEBUG log, and this is to be used for debug info that the user would most likely not care about.";
+        log.output << DEBUG;
     }
     {
         auto log = logger.getLog( Logger::WARNING );
-        log.output << "This is the WARNING log. This should indicate inconsistencies.";
+        log.output << WARNING;
     }
     {
         auto log = logger.getLog( Logger::ERROR );
-        log.output << "This is the ERROR log, and this should indicate that textures where not loaded for example.";
+        log.output << ERROR;
     }
     {
         auto log = logger.getLog( Logger::CRITICAL );
-        log.output << "This is the CRITICAL log. This is an irrecoverable error.";
+        log.output << CRITICAL;
+    }
+    {
+        auto log = logger.getLog( Logger::ALL );
+        log.output << END;
     }
 
-    std::cout << "DEBUGING stream\n"<< debug_log.str() << "\n";
-    std::cout << "INFORMATION stream\n"<<  info_log.str() << "\n";
-    std::cout << "ERRORS stream\n" << error_log.str() << std::endl;
+    {
+        if( debug_log.str().find( START ) == std::string::npos ) {
+            std::cout << "This is not in: " << START << "\n";
+            std::cout << "This: " << debug_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( debug_log.str().find( DEBUG ) == std::string::npos ) {
+            std::cout << "This is not in: " << DEBUG << "\n";
+            std::cout << "This: " << debug_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( debug_log.str().find( END ) == std::string::npos ) {
+            std::cout << "This is not in: " << END << "\n";
+            std::cout << "This: " << debug_log.str() << std::endl;
+            program_status = 1;
+        }
+    }
+    {
+        if( info_log.str().find( START ) == std::string::npos ) {
+            std::cout << "This is not in: " << START << "\n";
+            std::cout << "This: " << info_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( info_log.str().find( INFO ) == std::string::npos ) {
+            std::cout << "This is not in: " << INFO << "\n";
+            std::cout << "This: " << info_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( info_log.str().find( WARNING ) == std::string::npos ) {
+            std::cout << "This is not in: " << WARNING << "\n";
+            std::cout << "This: " << info_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( info_log.str().find( END ) == std::string::npos ) {
+            std::cout << "This is not in: " << END << "\n";
+            std::cout << "This: " << info_log.str() << std::endl;
+            program_status = 1;
+        }
+    }
+    {
+        if( error_log.str().find( START ) == std::string::npos ) {
+            std::cout << "This is not in: " << START << "\n";
+            std::cout << "This: " << error_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( error_log.str().find( ERROR ) == std::string::npos ) {
+            std::cout << "This is not in: " << ERROR << "\n";
+            std::cout << "This: " << error_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( error_log.str().find( CRITICAL ) == std::string::npos ) {
+            std::cout << "This is not in: " << CRITICAL << "\n";
+            std::cout << "This: " << error_log.str() << std::endl;
+            program_status = 1;
+        }
+        if( error_log.str().find( END ) == std::string::npos ) {
+            std::cout << "This is not in: " << END << "\n";
+            std::cout << "This: " << error_log.str() << std::endl;
+            program_status = 1;
+        }
+    }
 
-    return 0;
+    return program_status;
 }
