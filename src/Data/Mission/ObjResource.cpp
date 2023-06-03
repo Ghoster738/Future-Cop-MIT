@@ -2,6 +2,7 @@
 
 #include "IFF.h"
 
+#include <glm/gtc/constants.hpp>
 #include <glm/geometric.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <algorithm>
@@ -991,7 +992,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         
         glm::mat4 bone_matrix;
         
-        const float ANGLE_UNITS_TO_RADIANS = M_PI / 2048.0;
+        const float ANGLE_UNITS_TO_RADIANS = glm::pi<float>() / 2048.0;
         
         // Make joint relations.
         unsigned int childern[ max_bone_childern ];
