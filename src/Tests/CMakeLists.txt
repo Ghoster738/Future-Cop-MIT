@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.10)
 # Enable Testing
 enable_testing()
 
+# Test Logger Code
+add_executable(logger_test Utilities/Logger.cpp)
+target_link_libraries(logger_test PRIVATE FC_IFF_IO)
+add_test( NAME logger_test COMMAND $<TARGET_FILE:logger_test> )
+
 # Test Ray Code
 add_executable(ray_test Utilities/Collision/Ray.cpp)
 target_link_libraries(ray_test PRIVATE FC_IFF_IO)
