@@ -1,6 +1,7 @@
 #include "Logger.h"
 
 #include <cmath>
+#include <iomanip>
 
 std::string Utilities::Logger::getLevelName( unsigned level ) const {
     switch( level ) {
