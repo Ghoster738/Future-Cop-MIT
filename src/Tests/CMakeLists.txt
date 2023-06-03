@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.10)
 # Enable Testing
 enable_testing()
 
+# Test Logger Code
+add_executable(logger_test Utilities/Logger.cpp)
+target_link_libraries(logger_test PRIVATE FC_IFF_IO)
+add_test( NAME logger_test COMMAND $<TARGET_FILE:logger_test> )
+
 # Test Ray Code
 add_executable(ray_test Utilities/Collision/Ray.cpp)
 target_link_libraries(ray_test PRIVATE FC_IFF_IO)
@@ -62,11 +67,6 @@ add_test( NAME image_2d_test COMMAND $<TARGET_FILE:image_2d_test> )
 add_executable(image_palette_2D_test Utilities/ImagePalette2D.cpp)
 target_link_libraries(image_palette_2D_test PRIVATE FC_IFF_IO)
 add_test( NAME image_palette_2D_test COMMAND $<TARGET_FILE:image_palette_2D_test> )
-
-# Test Logger Code
-add_executable(logger_test Utilities/Logger.cpp)
-target_link_libraries(logger_test PRIVATE FC_IFF_IO)
-add_test( NAME logger_test COMMAND $<TARGET_FILE:logger_test> )
 
 # Test Quite Okay Image Code
 add_executable(qoi_image_format_test Utilities/ImageFormat/QuiteOkImage.cpp)
