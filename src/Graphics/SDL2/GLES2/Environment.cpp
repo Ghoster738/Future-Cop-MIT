@@ -1,6 +1,7 @@
 #include "../../Environment.h" // Include the interface class
 #include "Environment.h" // Include the internal class
 #include "Window.h"
+#include "Camera.h"
 #include "Text2DBuffer.h"
 #include "Internal/GLES2.h"
 #include <algorithm>
@@ -222,7 +223,7 @@ void Environment::setupFrame() {
     for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ )
     {
         // Setup the current camera.
-        auto current_camera_r = window_p->getCameras()->at( i );
+        auto current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(window_p->getCameras()->at( i ));
 
         if( current_camera_r != nullptr && this->world_p != nullptr )
         {
@@ -240,7 +241,7 @@ void Environment::drawFrame() {
     auto window_r =  window_p;
     
     auto window_SDL_r = dynamic_cast<GLES2::Window*>( window_r );
-    Camera* current_camera; // Used to store the camera.
+    GLES2::Camera* current_camera_r; // Used to store the camera.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
     // Clear the screen to black
@@ -250,12 +251,12 @@ void Environment::drawFrame() {
     for( unsigned int i = 0; i < window_r->getCameras()->size(); i++ )
     {
         // Setup the current camera.
-        current_camera = window_r->getCameras()->at( i );
+        current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(window_r->getCameras()->at( i ));
 
-        if( current_camera != nullptr )
+        if( current_camera_r != nullptr )
         {
             // Set the viewport
-            glViewport( current_camera->getViewportOrigin().x, current_camera->getViewportOrigin().y, current_camera->setViewportDimensions().x, current_camera->setViewportDimensions().y );
+            glViewport( current_camera_r->getViewportOrigin().x, current_camera_r->getViewportOrigin().y, current_camera_r->setViewportDimensions().x, current_camera_r->setViewportDimensions().y );
 
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
@@ -272,18 +273,18 @@ void Environment::drawFrame() {
             if( this->world_p != nullptr )
             {
                 // Draw the map.
-                if( current_camera->culling_info.getWidth() * current_camera->culling_info.getHeight() == 0 )
-                    this->world_p->draw( *current_camera );
+                if( current_camera_r->culling_info.getWidth() * current_camera_r->culling_info.getHeight() == 0 )
+                    this->world_p->draw( *current_camera_r );
                 else
-                    this->world_p->draw( *current_camera, &current_camera->culling_info );
+                    this->world_p->draw( *current_camera_r, &current_camera_r->culling_info );
             }
 
-            this->static_model_draw_routine.draw(   *current_camera );
-            this->morph_model_draw_routine.draw(    *current_camera );
-            this->skeletal_model_draw_routine.draw( *current_camera );
+            this->static_model_draw_routine.draw(   *current_camera_r );
+            this->morph_model_draw_routine.draw(    *current_camera_r );
+            this->skeletal_model_draw_routine.draw( *current_camera_r );
 
-            this->dynamic_triangle_draw_routine.draw( *current_camera, textures );
-            current_camera->transparent_triangles.reset();
+            this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
+            current_camera_r->transparent_triangles.reset();
 
             // Disable culling on the world map.
             glDisable( GL_CULL_FACE );
@@ -293,9 +294,9 @@ void Environment::drawFrame() {
             glEnable( GL_BLEND ); // Easier to implement blending here.
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            current_camera->getProjectionView2D( camera_3D_projection_view_model );
+            current_camera_r->getProjectionView2D( camera_3D_projection_view_model );
 
-            for( auto i = current_camera->getText2DBuffer()->begin(); i != current_camera->getText2DBuffer()->end(); i++ )
+            for( auto i = current_camera_r->getText2DBuffer()->begin(); i != current_camera_r->getText2DBuffer()->end(); i++ )
             {
                 // TODO Eventually remove this kind of upcasts. They are dangerious.
                 auto text_2d_draw_routine = dynamic_cast<Text2DBuffer*>( *i );

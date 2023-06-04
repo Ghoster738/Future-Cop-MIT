@@ -6,11 +6,10 @@
 #include "VertexAttributeArray.h"
 
 namespace Graphics {
-
-class Camera;
-
 namespace SDL2 {
 namespace GLES2 {
+
+class Camera;
 
 namespace Internal {
 
@@ -154,7 +153,7 @@ public:
      * @param camera This is the camera data to be passed into this routine.
      * @param textures This is the camera data to be passed into this routine.
      */
-    void draw( Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures );
+    void draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures );
 
     /**
      * @return the program that this World uses.

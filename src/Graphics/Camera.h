@@ -8,8 +8,6 @@
 #include <glm/mat4x4.hpp>
 #include <vector>
 
-#include "SDL2/GLES2/Internal/DynamicTriangleDraw.h"
-
 namespace Graphics {
 
 class Camera {
@@ -40,12 +38,11 @@ protected:
      */
     void updatePV2D();
 
-public:
-    std::vector<Text2DBuffer*> text_2d_buffers;
-    Utilities::GridBase2D<float> culling_info;
-    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand transparent_triangles;
-
     Camera();
+
+public:
+    static Graphics::Camera* alloc( Graphics::Environment &env_r );
+
     virtual ~Camera();
 
     /**
@@ -142,7 +139,7 @@ public:
     /**
      * Get the 2D Text buffers attached to the camera.
      */
-    const std::vector<Text2DBuffer*> *const getText2DBuffer() const;
+    virtual const std::vector<Text2DBuffer*> *const getText2DBuffer() const = 0;
 
     /**
      * @param origin the origin of the viewport.
@@ -158,13 +155,13 @@ public:
      * Attach the Text 2D Buffer.
      * @return 1 if the buffer gets attached.
      */
-    int attachText2DBuffer( Text2DBuffer& buffer_p );
+    virtual int attachText2DBuffer( Text2DBuffer& buffer_p ) = 0;
 
     /**
      * Delete the Text 2D Buffer.
      * @return true if the buffer is found and deleted.
      */
-    int removeText2DBuffer( Text2DBuffer* buffer_p );
+    virtual int removeText2DBuffer( Text2DBuffer* buffer_p ) = 0;
 
     /**
      * This gets the 3D camera shape from the projection matrix.

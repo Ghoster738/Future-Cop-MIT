@@ -2,7 +2,7 @@
 #define GRAPHICS_GLES2_INTERNAL_WORLD_H
 
 #include "Mesh.h"
-#include "../../../Camera.h"
+#include "../Camera.h"
 #include "../../../../Data/Mission/PTCResource.h"
 #include "../../../../Data/Mission/TilResource.h"
 #include "../../../../Utilities/Collision/GJKShape.h"
@@ -125,7 +125,7 @@ public:
      * @param camera This is the camera data to be passed into world.
      * @param culling_info The culling information that would affect the World.
      */
-    void draw( Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r = nullptr );
+    void draw( Graphics::SDL2::GLES2::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r = nullptr );
 
     /**
      * @return the program that this World uses.

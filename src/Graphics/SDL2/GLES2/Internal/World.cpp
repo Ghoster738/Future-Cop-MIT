@@ -231,7 +231,7 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r ) {
+void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r ) {
     glm::mat4 projection_view, final_position, position_mat;
     
     // Use the map shader for the 3D map or the world.

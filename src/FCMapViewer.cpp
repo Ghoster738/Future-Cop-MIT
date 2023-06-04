@@ -278,7 +278,7 @@ int main(int argc, char** argv)
     Graphics::Text2DBuffer *text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *environment_p );
 
     // Setup the camera
-    Graphics::Camera *first_person_r = new Graphics::Camera();
+    Graphics::Camera *first_person_r = Graphics::Camera::alloc( *environment_p );
     first_person_r->attachText2DBuffer( *text_2d_buffer_r );
     window_p->attachCamera( *first_person_r );
     first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );

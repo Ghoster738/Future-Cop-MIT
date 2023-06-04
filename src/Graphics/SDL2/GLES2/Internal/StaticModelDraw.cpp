@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath> // fmod()
-#include <iostream> // fmod()
+#include <iostream>
 #include "SDL.h"
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
@@ -176,7 +176,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
     return state;
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Camera &camera ) {
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.

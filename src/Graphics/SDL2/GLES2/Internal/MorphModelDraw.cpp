@@ -4,6 +4,8 @@
 #include <iostream>
 #include "SDL.h"
 
+#include "../Camera.h"
+
 namespace {
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
 }
@@ -81,7 +83,7 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( const Camera &camera ) {
+void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.

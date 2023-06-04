@@ -6,7 +6,7 @@
 #include <glm/mat4x4.hpp>
 #include "SDL.h"
 
-#include "../../../Camera.h"
+#include "../Camera.h"
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::DrawCommand() {
     triangles_p = nullptr;
@@ -287,7 +287,7 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
     if( camera.transparent_triangles.triangles_amount == 0 )
         return; // There is no semi-transparent triangle to draw.
 

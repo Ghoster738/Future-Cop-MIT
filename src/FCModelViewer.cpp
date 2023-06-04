@@ -229,17 +229,12 @@ int main(int argc, char** argv)
         return -39;
 
     // Declare a pointer to the Environment.
-    Graphics::Window *window_r = nullptr;
+    Graphics::Window *window_r = Graphics::Window::alloc( *environment_p );
     
-    {
-        window_r = Graphics::Window::alloc( *environment_p );
-        
-        if( window_r == nullptr ) {
-            delete environment_p;
-            return -40;
-        }
+    if( window_r == nullptr ) {
+        delete environment_p;
+        return -40;
     }
-    
     
     window_r->setWindowTitle( "Future Cop Individual Model Viewer" );
     window_r->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
@@ -292,7 +287,7 @@ int main(int argc, char** argv)
     }
 
     // Setup the camera
-    Graphics::Camera *first_person = new Graphics::Camera();
+    Graphics::Camera *first_person = Graphics::Camera::alloc( *environment_p );
     first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
     first_person->setViewportDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
     window_r->attachCamera( *first_person );

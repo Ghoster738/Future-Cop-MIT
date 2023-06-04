@@ -5,6 +5,8 @@
 #include "SDL.h"
 #include <iostream>
 
+#include "../Camera.h"
+
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames ) {
     this->num_bones = num_bones;
     
@@ -113,7 +115,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
     return ret;
 }
 
-void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( const Camera &camera ) {
+void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
