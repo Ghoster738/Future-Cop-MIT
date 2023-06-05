@@ -1147,15 +1147,22 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             else
                 specular = 0.0f;
 
-            if( triangle != previous_triangle &&
-                (*triangle).texture_quad_r != nullptr && (*previous_triangle).texture_quad_r != nullptr &&
-                (*triangle).texture_quad_r->bmp_id == (*previous_triangle).texture_quad_r->bmp_id )
-            {
-                if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
+            if( triangle != previous_triangle ) {
+                if( (*triangle).texture_quad_r != nullptr && (*previous_triangle).texture_quad_r != nullptr && // Memory safety.
+                    (*triangle).texture_quad_r->bmp_id == (*previous_triangle).texture_quad_r->bmp_id )
+                {
+                    if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
+                        model_output->beginSemiTransperency();
+                    else
+                    if( (*previous_triangle).getTransparency() == true  && (*triangle).getTransparency() == false )
+                        assert( false && "Sorting is wrong!" );
+                }
+                else if( (*triangle).getTransparency() ) {
                     model_output->beginSemiTransperency();
-                else
-                if( (*previous_triangle).getTransparency() == true  && (*triangle).getTransparency() == false )
-                    assert( false && "Sorting is wrong!" );
+                }
+            }
+            else if( (*triangle).getTransparency() ) {
+                model_output->beginSemiTransperency();
             }
 
             model_output->startVertex();
