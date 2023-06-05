@@ -13,11 +13,13 @@ namespace Mission {
 
 class ObjResource : public ModelResource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::string FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
 
     struct TextureQuad {
         unsigned int index; // This is the resource id of the BMPResource texture refernced.
+        bool ref_by_transparent_polys;
+        bool has_transparent_pixel;
 
         glm::u8vec2 coords[4];
 
@@ -26,17 +28,18 @@ public:
     struct FaceTriangle {
         bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.
         bool is_reflective;
-        TextureQuad *texture_quad_ref;
-        unsigned int v0, v1, v2;
-        unsigned int n0, n1, n2;
+        uint32_t     texture_quad_index;
+        TextureQuad *texture_quad_r;
+        int16_t v0, v1, v2;
+        int16_t n0, n1, n2;
 
-        bool isWithinBounds( size_t vertex_limit, size_t normal_limit, size_t texture_quad_limit, const TextureQuad *origin ) const;
+        bool isWithinBounds( size_t vertex_limit, size_t normal_limit, uint32_t texture_quad_limit ) const;
 
         bool operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const;
     };
     struct FaceQuad : public FaceTriangle {
-        unsigned int v3;
-        unsigned int n3;
+        int16_t v3;
+        int16_t n3;
 
         FaceTriangle firstTriangle() const;
         FaceTriangle secondTriangle() const;
@@ -78,19 +81,19 @@ public:
         std::string name;
     };
 private:
-    std::vector< glm::i16vec3 > vertex_positions;
-    std::vector< glm::i16vec3 > vertex_normals;
-    std::vector< TextureQuad >     texture_quads;
-    std::vector< FaceTriangle >    face_trinagles;
-    std::vector< FaceQuad >        face_quads;
-    std::vector< Bone >            bones;
-    unsigned int                   max_bone_childern; // Holds the maxium childern amount.
-    unsigned int                   bone_frames;
-    int16_t                       *bone_animation_data; // Where the animation data is stored.
-    unsigned int                   bone_animation_data_size;
+    std::vector<glm::i16vec3> vertex_positions;
+    std::vector<glm::i16vec3> vertex_normals;
+    std::vector<TextureQuad>  texture_quads;
+    std::vector<FaceTriangle> face_trinagles;
+    std::vector<FaceQuad>     face_quads;
+    std::vector<Bone>         bones;
+    unsigned int              max_bone_childern; // Holds the maxium childern amount.
+    unsigned int              bone_frames;
+    int16_t                  *bone_animation_data; // Where the animation data is stored.
+    unsigned int              bone_animation_data_size;
 
-    std::vector< std::vector< glm::i16vec3 > > vertex_anm_positions;
-    std::vector< std::vector< glm::i16vec3 > > vertex_anm_normals;
+    std::vector<std::vector<glm::i16vec3>> vertex_anm_positions;
+    std::vector<std::vector<glm::i16vec3>> vertex_anm_normals;
     
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;
