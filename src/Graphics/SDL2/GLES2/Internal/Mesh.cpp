@@ -138,7 +138,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         GLsizei opeque_count = std::min( material.count, material.opeque_count );
 
         glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
-        glm::vec4      colors[3] = {glm::vec4(0, 0, 0, 1)};
+        glm::vec4      colors[3] = {glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5)}; // Just in case if the mesh does not have vertex color information.
         glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
 
         const unsigned vertex_per_triangle = 3;
