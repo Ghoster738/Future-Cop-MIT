@@ -135,7 +135,7 @@ bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle &
         if( l_operand.texture_quad_r->bmp_id != r_operand.texture_quad_r->bmp_id )
             return (l_operand.texture_quad_r->bmp_id < r_operand.texture_quad_r->bmp_id);
         else
-        if( l_operand.getTransparency() == true && r_operand.getTransparency() == false )
+        if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
             return true;
         else
             return false;
