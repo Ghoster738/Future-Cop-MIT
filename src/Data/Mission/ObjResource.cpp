@@ -80,14 +80,14 @@ uint8_t reverse(uint8_t b) {
 }
 
 bool Data::Mission::ObjResource::TextureQuad::isWithinBounds( size_t texture_amount ) const {
-    if( index >= 0 )
+    if( bmp_id >= 0 )
     {
-        return (static_cast<size_t>(index) > texture_amount);
+        return (static_cast<size_t>(bmp_id) > texture_amount);
     }
     else
-    if( index < 0 )
+    if( bmp_id < 0 )
     {
-        return (static_cast<size_t>(-index - 1) > texture_amount);
+        return (static_cast<size_t>(-bmp_id - 1) > texture_amount);
     }
     else
         return false; // This statement should not be reached.
@@ -122,8 +122,8 @@ bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_lim
 
 bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
     if( l_operand.texture_quad_r != nullptr && r_operand.texture_quad_r != nullptr ) {
-        if( l_operand.texture_quad_r->index != r_operand.texture_quad_r->index )
-            return (l_operand.texture_quad_r->index < r_operand.texture_quad_r->index);
+        if( l_operand.texture_quad_r->bmp_id != r_operand.texture_quad_r->bmp_id )
+            return (l_operand.texture_quad_r->bmp_id < r_operand.texture_quad_r->bmp_id);
         else
         if( l_operand.texture_quad_r->ref_by_transparent_polys == true && r_operand.texture_quad_r->ref_by_transparent_polys == false )
             return true;
@@ -351,7 +351,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     
                     // For some reason the Slim's Windows English version has a 64th Cobj that goes beyond 10 textures.
                     
-                    texture_quads.back().index = reader3DTL.readU32( settings.endian );
+                    texture_quads.back().bmp_id = reader3DTL.readU32( settings.endian );
                 }
             }
             else
@@ -912,7 +912,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
         for( size_t i = 0; i < texture_quads.size(); i++ ) {
             
-            const auto RESOURCE_ID = texture_quads[ i ].index + 1;
+            const auto RESOURCE_ID = texture_quads[ i ].bmp_id + 1;
             
             if( resource_id_to_reference.count( RESOURCE_ID ) == 0 ) {
                 resource_id_to_reference[ RESOURCE_ID ].resource_id = RESOURCE_ID;
@@ -982,11 +982,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
-            int index = (*i).texture_quad_r->index;
+            uint32_t bmp_id = (*i).texture_quad_r->bmp_id;
 
-            if( triangle_buffer.begin() == i || last_texture_quad_index != index) {
+            if( triangle_buffer.begin() == i || last_texture_quad_index != bmp_id ) {
                 triangle_counts.push_back( 0 );
-                last_texture_quad_index = index;
+                last_texture_quad_index = bmp_id;
             }
             triangle_counts.back()++;
         }

@@ -17,7 +17,7 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
     struct TextureQuad {
-        unsigned int index; // This is the resource id of the BMPResource texture refernced.
+        unsigned int bmp_id; // This is the resource id of the BMPResource texture refernced.
         bool ref_by_transparent_polys;
         bool has_transparent_pixel;
 
