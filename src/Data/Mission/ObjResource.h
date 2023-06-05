@@ -18,8 +18,8 @@ public:
 
     struct TextureQuad {
         unsigned int bmp_id; // This is the resource id of the BMPResource texture refernced.
-        bool ref_by_transparent_polys;
-        bool has_transparent_pixel;
+        bool has_transparent_pixel_t0;
+        bool has_transparent_pixel_t1;
 
         glm::u8vec2 coords[4];
 
@@ -34,6 +34,8 @@ public:
         int16_t n0, n1, n2;
 
         bool isWithinBounds( size_t vertex_limit, size_t normal_limit, uint32_t texture_quad_limit ) const;
+
+        bool getTransparency() const;
 
         bool operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const;
     };

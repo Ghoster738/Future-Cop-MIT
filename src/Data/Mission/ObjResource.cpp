@@ -120,12 +120,22 @@ bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_lim
     return is_valid;
 }
 
+bool Data::Mission::ObjResource::FaceTriangle::getTransparency() const {
+    if( is_reflective || texture_quad_r == nullptr )
+        return false;
+    else
+    if( is_other_side )
+        return texture_quad_r->has_transparent_pixel_t1;
+    else
+        return texture_quad_r->has_transparent_pixel_t0;
+}
+
 bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
     if( l_operand.texture_quad_r != nullptr && r_operand.texture_quad_r != nullptr ) {
         if( l_operand.texture_quad_r->bmp_id != r_operand.texture_quad_r->bmp_id )
             return (l_operand.texture_quad_r->bmp_id < r_operand.texture_quad_r->bmp_id);
         else
-        if( l_operand.texture_quad_r->ref_by_transparent_polys == true && r_operand.texture_quad_r->ref_by_transparent_polys == false )
+        if( l_operand.getTransparency() == true && r_operand.getTransparency() == false )
             return true;
         else
             return false;
@@ -334,8 +344,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     texture_quads.push_back( TextureQuad() );
 
-                    texture_quads.back().ref_by_transparent_polys = false;
-                    texture_quads.back().has_transparent_pixel    = false;
+                    texture_quads.back().has_transparent_pixel_t0 = false;
+                    texture_quads.back().has_transparent_pixel_t1 = false;
 
                     texture_quads.back().coords[0].x = reader3DTL.readU8();
                     texture_quads.back().coords[0].y = reader3DTL.readU8();
@@ -839,9 +849,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         for( auto &triangle : this->face_trinagles ) {
             if( this->texture_quads.size() > triangle.texture_quad_index ) {
                 triangle.texture_quad_r = &this->texture_quads[ triangle.texture_quad_index ];
-
-                if( !triangle.is_reflective )
-                    triangle.texture_quad_r->ref_by_transparent_polys = true;
             }
             else
                 triangle.texture_quad_r = nullptr;
@@ -849,12 +856,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         for( auto &quad : this->face_quads ) {
             if( this->texture_quads.size() > quad.texture_quad_index ) {
                 quad.texture_quad_r = &this->texture_quads[ quad.texture_quad_index ];
-
-                if( !quad.is_reflective )
-                    quad.texture_quad_r->ref_by_transparent_polys = true;
             }
-            else
-                quad.texture_quad_r = nullptr;
         }
 
         return !file_is_not_valid;
@@ -939,21 +941,18 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
             if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                 auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 
-                if( this->texture_quads[ i ].ref_by_transparent_polys ) {
-                    points[0] = this->texture_quads[ i ].coords[0];
-                    points[1] = this->texture_quads[ i ].coords[1];
-                    points[2] = this->texture_quads[ i ].coords[2];
+                points[0] = this->texture_quads[ i ].coords[0];
+                points[1] = this->texture_quads[ i ].coords[1];
+                points[2] = this->texture_quads[ i ].coords[2];
 
-                    points[3] = this->texture_quads[ i ].coords[2];
-                    points[4] = this->texture_quads[ i ].coords[3];
-                    points[5] = this->texture_quads[ i ].coords[0];
+                points[3] = this->texture_quads[ i ].coords[2];
+                points[4] = this->texture_quads[ i ].coords[3];
+                points[5] = this->texture_quads[ i ].coords[0];
 
-                    if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[0] ) )
-                        this->texture_quads[ i ].has_transparent_pixel = true;
-                    else
-                    if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[3] ) )
-                        this->texture_quads[ i ].has_transparent_pixel = true;
-                }
+                if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[0] ) )
+                    this->texture_quads[ i ].has_transparent_pixel_t0 = true;
+                if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[3] ) )
+                    this->texture_quads[ i ].has_transparent_pixel_t1 = true;
             }
         }
 
@@ -1143,7 +1142,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             triangleToCoords( (*triangle), *(*triangle).texture_quad_r, coords );
             
             // if( (*triangle).is_reflective )
-            if( (*triangle).texture_quad_r != nullptr && (*triangle).texture_quad_r->has_transparent_pixel )
+            if( (*triangle).getTransparency() )
                 specular = 1.0f;
             else
                 specular = 0.0f;
