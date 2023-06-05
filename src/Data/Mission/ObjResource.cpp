@@ -907,6 +907,8 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
         std::map< uint32_t, BMPResource* > resource_id_to_bmp;
         std::map< uint32_t, TextureReference > resource_id_to_reference;
 
+        glm::vec2 points[6];
+
         for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
 
@@ -919,13 +921,39 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
                 if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
-                        resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID ) );
+                        auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
+
+                        resource_id_to_reference[ RESOURCE_ID ].name = bmp_reference_r->getImageFormat()->appendExtension( bmp_reference_r->getFullName( RESOURCE_ID ) );
                         
                         assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
                     }
                 }
                 else
                     valid = false;
+            }
+        }
+
+        for( size_t i = 0; i < texture_quads.size(); i++ ) {
+            const auto RESOURCE_ID = texture_quads[ i ].bmp_id + 1;
+
+            if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
+                auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
+
+                if( this->texture_quads[ i ].ref_by_transparent_polys ) {
+                    points[0] = this->texture_quads[ i ].coords[0];
+                    points[1] = this->texture_quads[ i ].coords[1];
+                    points[2] = this->texture_quads[ i ].coords[2];
+
+                    points[3] = this->texture_quads[ i ].coords[2];
+                    points[4] = this->texture_quads[ i ].coords[3];
+                    points[5] = this->texture_quads[ i ].coords[0];
+
+                    if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[0] ) )
+                        this->texture_quads[ i ].has_transparent_pixel = true;
+                    else
+                    if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[3] ) )
+                        this->texture_quads[ i ].has_transparent_pixel = true;
+                }
             }
         }
 
@@ -1115,7 +1143,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             triangleToCoords( (*triangle), *(*triangle).texture_quad_r, coords );
             
             // if( (*triangle).is_reflective )
-            if( (*triangle).texture_quad_r != nullptr && (*triangle).texture_quad_r->ref_by_transparent_polys )
+            if( (*triangle).texture_quad_r != nullptr && (*triangle).texture_quad_r->has_transparent_pixel )
                 specular = 1.0f;
             else
                 specular = 0.0f;
