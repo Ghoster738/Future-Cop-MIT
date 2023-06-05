@@ -976,7 +976,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     // This buffer will be used to store every triangle that the write function has.
     std::vector< FaceTriangle > triangle_buffer;
     std::vector<unsigned int> triangle_counts;
-    bool is_specular = true; // = false;
+    bool is_specular = false;
 
     {
         triangle_buffer.reserve( face_trinagles.size() + face_quads.size() * 2 );
@@ -1132,6 +1132,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     joints.x = joints.y = joints.z = joints.w = 0;
 
     auto triangle = triangle_buffer.begin();
+    auto previous_triangle = triangle_buffer.begin();
 
     for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
     {
@@ -1141,11 +1142,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         {
             triangleToCoords( (*triangle), *(*triangle).texture_quad_r, coords );
             
-            // if( (*triangle).is_reflective )
-            if( (*triangle).getTransparency() )
+            if( (*triangle).is_reflective )
                 specular = 1.0f;
             else
                 specular = 0.0f;
+
+            if( triangle != previous_triangle &&
+                (*triangle).texture_quad_r != nullptr && (*previous_triangle).texture_quad_r != nullptr &&
+                (*triangle).texture_quad_r->bmp_id == (*previous_triangle).texture_quad_r->bmp_id )
+            {
+                if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
+                    model_output->beginSemiTransperency();
+                else
+                if( (*previous_triangle).getTransparency() == true  && (*triangle).getTransparency() == false )
+                    assert( false && "Sorting is wrong!" );
+            }
 
             model_output->startVertex();
 
@@ -1274,6 +1285,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
 
             triangle++;
+            previous_triangle = triangle - 1;
         }
     }
     
