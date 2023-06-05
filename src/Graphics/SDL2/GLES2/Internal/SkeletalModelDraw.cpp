@@ -175,7 +175,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
                 glUniformMatrix4fv( mat4_array_uniform_id, animate_r->getNumBones(), GL_FALSE, glm::value_ptr( *animate_r->getFrames( current_frame, 0 ) ) );
 
-                mesh_r->draw( 0, diffusive_texture_uniform_id );
+                mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
             }
         }
     }

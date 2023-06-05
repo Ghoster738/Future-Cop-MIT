@@ -144,7 +144,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
 
             morph_attribute_array_last.bind( mesh_r->getMorphOffset( current_last_frame ) );
 
-            mesh_r->noPreBindDraw( 0, diffusive_texture_uniform_id );
+            mesh_r->noPreBindDrawOpaque( 0, diffusive_texture_uniform_id );
         }
     }
 }

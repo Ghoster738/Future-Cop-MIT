@@ -220,7 +220,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
             glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
 
             // Finally we can draw the mesh!
-            mesh_r->draw( 0, diffusive_texture_uniform_id );
+            mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
         }
     }
 }
