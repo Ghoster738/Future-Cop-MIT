@@ -194,7 +194,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
 
-                mesh_r->addTransparentTriangles( camera_position, camera_3D_model_transform, camera.transparent_triangles );
+                // mesh_r->addTransparentTriangles( camera_position, camera_3D_model_transform, camera.transparent_triangles );
             }
         }
     }

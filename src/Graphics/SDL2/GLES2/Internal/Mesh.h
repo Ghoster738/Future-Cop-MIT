@@ -28,6 +28,13 @@ public:
 
         virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const = 0;
     };
+    class DynamicNormal : public Mesh::DynamicTriangleTransform {
+    public:
+        glm::mat4 transform;
+        glm::vec3 camera_position;
+
+        virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+    };
 protected:
     Program *program_r;
     GLuint vertex_buffer_object;
@@ -44,10 +51,11 @@ protected:
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
 
-    std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
-
     void addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r );
 public:
+
+    std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
+
     Mesh( Program *program_r );
     virtual ~Mesh();
 
@@ -64,9 +72,6 @@ public:
     void draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
     void drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
     void drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
-
-    void addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
-    void addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
 
     Program *getProgram() const { return program_r; }
 

@@ -5,6 +5,16 @@
 Graphics::SDL2::GLES2::Internal::Mesh::DynamicTriangleTransform::~DynamicTriangleTransform() {
 }
 
+void Graphics::SDL2::GLES2::Internal::Mesh::DynamicNormal::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ].addTriangle( this->camera_position, transform );
+    }
+}
+
 Graphics::SDL2::GLES2::Internal::Mesh::Mesh( Program *program_r ) {
     this->program_r = program_r;
     draw_command_array_mode = GL_TRIANGLES;
@@ -233,26 +243,6 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint act
 
         if( err != GL_NO_ERROR )
             std::cout << "glDrawArrays could have a problem! " << err << std::endl;
-    }
-}
-
-void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
-    DynamicTriangleDraw::Triangle *draw_triangles_r;
-
-    size_t number_of_triangles = triangles_draw.getTriangles( transparent_triangles.size(), &draw_triangles_r );
-
-    for( size_t i = 0; i < number_of_triangles; i++ ) {
-        draw_triangles_r[ i ] = transparent_triangles[ i ].addTriangle( camera_position );
-    }
-}
-
-void Graphics::SDL2::GLES2::Internal::Mesh::addTransparentTriangles( const glm::vec3 &camera_position, const glm::mat4 &matrix, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
-    DynamicTriangleDraw::Triangle *draw_triangles_r;
-
-    size_t number_of_triangles = triangles_draw.getTriangles( transparent_triangles.size(), &draw_triangles_r );
-
-    for( size_t i = 0; i < number_of_triangles; i++ ) {
-        draw_triangles_r[ i ] = transparent_triangles[ i ].addTriangle( camera_position, matrix );
     }
 }
 

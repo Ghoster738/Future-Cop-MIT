@@ -32,6 +32,7 @@ public:
         float current; // [ -change_rate, change_rate ]
         std::vector<Section> sections;
     };
+
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 protected:

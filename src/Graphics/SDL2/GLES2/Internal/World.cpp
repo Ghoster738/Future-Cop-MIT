@@ -249,10 +249,12 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         glUniform1f( selected_tile_uniform_id, this->selected_tile );
     }
 
-     const float TILE_SPAN = 0.5;
+    const float TILE_SPAN = 0.5;
 
-     const auto camera_position = camera.getPosition();
-     const float squared_distance_culling = 64.0 * 64.0; // This is squared because square rooting the distance on the triangles is slower.
+    const float squared_distance_culling = 64.0 * 64.0; // This is squared because square rooting the distance on the triangles is slower.
+
+    Mesh::DynamicNormal dynamic;
+    dynamic.camera_position = camera.getPosition();
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
@@ -276,7 +278,8 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
                 if( culling_info_r != nullptr && culling_info_r->getValue( section.position.x, section.position.y ) < squared_distance_culling ) {
                     (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
 
-                    (*i).mesh_p->addTransparentTriangles( camera_position, position_mat, camera.transparent_triangles );
+                    dynamic.transform = position_mat;
+                    dynamic.addTriangles( (*i).mesh_p->transparent_triangles, camera.transparent_triangles );
                 }
                 else
                     (*i).mesh_p->draw( 0, texture_uniform_id );
