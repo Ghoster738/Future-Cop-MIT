@@ -53,9 +53,6 @@ protected:
 
     void addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r );
 public:
-
-    std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
-
     Mesh( Program *program_r );
     virtual ~Mesh();
 

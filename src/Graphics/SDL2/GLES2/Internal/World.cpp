@@ -146,6 +146,77 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
         (*i).mesh_p->setup( *model_p, textures );
 
+        Utilities::ModelBuilder::TextureMaterial material;
+        GLsizei transparent_count = 0;
+
+        for( unsigned int a = 0; a < model_p->getNumMaterials(); a++ ) {
+            model_p->getMaterial( a, material );
+            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+            transparent_count += material.count - material.opeque_count;
+        }
+        (*i).transparent_triangles.reserve( transparent_count );
+
+        GLsizei material_count = 0;
+
+        unsigned   position_compenent_index = model_p->getNumVertexComponents();
+        unsigned      color_compenent_index = position_compenent_index;
+        unsigned coordinate_compenent_index = position_compenent_index;
+
+        Utilities::ModelBuilder::VertexComponent element("EMPTY");
+        for( unsigned i = 0; model_p->getVertexComponent( i, element ); i++ ) {
+            auto name = element.getName();
+
+            if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
+                position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
+                color_compenent_index = i;
+            if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
+                coordinate_compenent_index = i;
+        }
+
+        for( unsigned int a = 0; a < model_p->getNumMaterials(); a++ ) {
+            model_p->getMaterial( a, material );
+
+            uint32_t cbmp_id;
+
+            if( textures.find( material.cbmp_resource_id ) != textures.end() )
+                cbmp_id = material.cbmp_resource_id;
+            else if( !textures.empty() ) {
+                cbmp_id = textures.begin()->first;
+            }
+            else
+                cbmp_id = 0;
+
+            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+
+            glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
+            glm::vec4      colors[3] = {glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5)}; // Just in case if the mesh does not have vertex color information.
+            glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+
+            const unsigned vertex_per_triangle = 3;
+
+            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+                DynamicTriangleDraw::Triangle triangle;
+
+                for( unsigned t = 0; t < 3; t++ ) {
+                    model_p->getTransformation(   positions[t],   position_compenent_index, material_count + m + t );
+                    model_p->getTransformation(      colors[t],      color_compenent_index, material_count + m + t );
+                    model_p->getTransformation( coordinates[t], coordinate_compenent_index, material_count + m + t );
+
+                    triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
+                    triangle.vertices[t].color = 2.0f * colors[t];
+                    triangle.vertices[t].color.w = 1;
+                    triangle.vertices[t].coordinate = coordinates[t];
+                }
+
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+
+                (*i).transparent_triangles.push_back( triangle );
+            }
+
+            material_count += material.count;
+        }
+
         delete model_p;
     }
 
@@ -279,7 +350,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
                     (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
 
                     dynamic.transform = position_mat;
-                    dynamic.addTriangles( (*i).mesh_p->transparent_triangles, camera.transparent_triangles );
+                    dynamic.addTriangles( (*i).transparent_triangles, camera.transparent_triangles );
                 }
                 else
                     (*i).mesh_p->draw( 0, texture_uniform_id );

@@ -27,6 +27,7 @@ public:
         };
 
         Mesh *mesh_p;
+        std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
         const Data::Mission::TilResource *til_resource_r;
         float change_rate;
         float current; // [ -change_rate, change_rate ]

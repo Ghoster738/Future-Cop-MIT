@@ -114,69 +114,6 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
         addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
     }
-
-    transparent_triangles.reserve( transparent_count );
-
-    GLsizei material_count = 0;
-
-    unsigned   position_compenent_index = model.getNumVertexComponents();
-    unsigned      color_compenent_index = position_compenent_index;
-    unsigned coordinate_compenent_index = position_compenent_index;
-
-    Utilities::ModelBuilder::VertexComponent element("EMPTY");
-    for( unsigned i = 0; model.getVertexComponent( i, element ); i++ ) {
-        auto name = element.getName();
-
-        if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
-            position_compenent_index = i;
-        if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
-            color_compenent_index = i;
-        if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
-            coordinate_compenent_index = i;
-    }
-
-    for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
-        model.getMaterial( a, material );
-
-        uint32_t cbmp_id;
-
-        if( textures.find( material.cbmp_resource_id ) != textures.end() )
-            cbmp_id = material.cbmp_resource_id;
-        else if( !textures.empty() ) {
-            cbmp_id = textures.begin()->first;
-        }
-        else
-            cbmp_id = 0;
-
-        GLsizei opeque_count = std::min( material.count, material.opeque_count );
-
-        glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
-        glm::vec4      colors[3] = {glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5)}; // Just in case if the mesh does not have vertex color information.
-        glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
-
-        const unsigned vertex_per_triangle = 3;
-
-        for( GLsizei i = opeque_count; i < material.count; i += vertex_per_triangle ) {
-            DynamicTriangleDraw::Triangle triangle;
-
-            for( unsigned t = 0; t < 3; t++ ) {
-                model.getTransformation(   positions[t],   position_compenent_index, material_count + i + t );
-                model.getTransformation(      colors[t],      color_compenent_index, material_count + i + t );
-                model.getTransformation( coordinates[t], coordinate_compenent_index, material_count + i + t );
-
-                triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
-                triangle.vertices[t].color = 2.0f * colors[t];
-                triangle.vertices[t].color.w = 1;
-                triangle.vertices[t].coordinate = coordinates[t];
-            }
-
-            triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
-
-            transparent_triangles.push_back( triangle );
-        }
-
-        material_count += material.count;
-    }
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {

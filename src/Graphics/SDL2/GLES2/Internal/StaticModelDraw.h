@@ -22,8 +22,8 @@ public:
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
+        std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
-
     };
 protected:
     Program program;
