@@ -149,28 +149,16 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         for( GLsizei i = opeque_count; i < material.count; i += vertex_per_triangle ) {
             DynamicTriangleDraw::Triangle triangle;
 
-            model.getTransformation(   positions[0],   position_compenent_index, material_count + i + 0 );
-            model.getTransformation(      colors[0],      color_compenent_index, material_count + i + 0 );
-            model.getTransformation( coordinates[0], coordinate_compenent_index, material_count + i + 0 );
-            model.getTransformation(   positions[1],   position_compenent_index, material_count + i + 1 );
-            model.getTransformation(      colors[1],      color_compenent_index, material_count + i + 1 );
-            model.getTransformation( coordinates[1], coordinate_compenent_index, material_count + i + 1 );
-            model.getTransformation(   positions[2],   position_compenent_index, material_count + i + 2 );
-            model.getTransformation(      colors[2],      color_compenent_index, material_count + i + 2 );
-            model.getTransformation( coordinates[2], coordinate_compenent_index, material_count + i + 2 );
+            for( unsigned t = 0; t < 3; t++ ) {
+                model.getTransformation(   positions[t],   position_compenent_index, material_count + i + t );
+                model.getTransformation(      colors[t],      color_compenent_index, material_count + i + t );
+                model.getTransformation( coordinates[t], coordinate_compenent_index, material_count + i + t );
 
-            triangle.vertices[0].position = { positions[0].x, positions[0].y, positions[0].z };
-            triangle.vertices[0].color = 2.0f * colors[0];
-            triangle.vertices[0].color.w = 1;
-            triangle.vertices[0].coordinate = coordinates[0];
-            triangle.vertices[1].position = { positions[1].x, positions[1].y, positions[1].z };
-            triangle.vertices[1].color = 2.0f * colors[1];
-            triangle.vertices[1].color.w = 1;
-            triangle.vertices[1].coordinate = coordinates[1];
-            triangle.vertices[2].position = { positions[2].x, positions[2].y, positions[2].z };
-            triangle.vertices[2].color = 2.0f * colors[2];
-            triangle.vertices[2].color.w = 1;
-            triangle.vertices[2].coordinate = coordinates[2];
+                triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
+                triangle.vertices[t].color = 2.0f * colors[t];
+                triangle.vertices[t].color.w = 1;
+                triangle.vertices[t].coordinate = coordinates[t];
+            }
 
             triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
 
