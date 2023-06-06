@@ -21,6 +21,13 @@ public:
         GLsizei count;
         const Texture2D *texture_r;
     };
+
+    class DynamicTriangleTransform {
+    public:
+        virtual ~DynamicTriangleTransform();
+
+        virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const = 0;
+    };
 protected:
     Program *program_r;
     GLuint vertex_buffer_object;

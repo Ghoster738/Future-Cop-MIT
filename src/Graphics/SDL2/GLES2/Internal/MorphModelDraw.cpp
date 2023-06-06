@@ -102,6 +102,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
     if( shiney_texture_r != nullptr )
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
+    const auto camera_position = camera.getPosition();
+
     // Traverse the models.
     for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
     {
@@ -145,6 +147,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
             morph_attribute_array_last.bind( mesh_r->getMorphOffset( current_last_frame ) );
 
             mesh_r->noPreBindDrawOpaque( 0, diffusive_texture_uniform_id );
+
+            mesh_r->addTransparentTriangles( camera_position, camera_3D_model_transform, camera.transparent_triangles );
         }
     }
 }

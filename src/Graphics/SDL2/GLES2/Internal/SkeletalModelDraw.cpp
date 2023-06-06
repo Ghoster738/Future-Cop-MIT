@@ -14,11 +14,26 @@ Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::SkeletalA
     bone_frames.resize( amount_of_frames * num_bones );
 }
 
-glm::mat4* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::getFrames( unsigned int current_frame, unsigned int current_bone ) {
+glm::mat4* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::getFrames( unsigned int current_frame ) {
     if( current_frame < bone_frames.size() )
-        return bone_frames.data() + current_frame * this->num_bones + current_bone;
+        return bone_frames.data() + current_frame * this->num_bones;
     else
         return nullptr;
+}
+
+void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dynamic::addTriangles(
+    const std::vector<DynamicTriangleDraw::Triangle> &triangles,
+    DynamicTriangleDraw::DrawCommand &triangles_draw ) const
+{
+    glm::mat4 *matrices_r = nullptr;
+
+    if( skeletal_info_r->num_bones == 0 )
+        return;
+
+    matrices_r = skeletal_info_r->getFrames( current_frame );
+
+    if( matrices_r == nullptr )
+        return;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
@@ -101,7 +116,7 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
 
         for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
         {
-            glm::mat4* frame_r = model_animation_p[ obj_identifier ]->getFrames( frame_index, 0 );
+            glm::mat4* frame_r = model_animation_p[ obj_identifier ]->getFrames( frame_index );
 
             for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
             {
@@ -133,6 +148,8 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
     // Check if there is even a shiney texture.
     if( shiney_texture_r != nullptr )
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
+
+    const auto camera_position = camera.getPosition();
 
     // Traverse the models.
     for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
@@ -173,9 +190,11 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                 assert( animate_r->getFrames( current_frame, 0 ) != nullptr );
                 assert( animate_r->getFrames( current_frame, animate_r->getNumBones() - 1 ) != nullptr );
 
-                glUniformMatrix4fv( mat4_array_uniform_id, animate_r->getNumBones(), GL_FALSE, glm::value_ptr( *animate_r->getFrames( current_frame, 0 ) ) );
+                glUniformMatrix4fv( mat4_array_uniform_id, animate_r->getNumBones(), GL_FALSE, glm::value_ptr( *animate_r->getFrames( current_frame ) ) );
 
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
+
+                mesh_r->addTransparentTriangles( camera_position, camera_3D_model_transform, camera.transparent_triangles );
             }
         }
     }

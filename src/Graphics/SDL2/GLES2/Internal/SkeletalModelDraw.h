@@ -21,9 +21,18 @@ protected:
         unsigned int num_bones;
         std::vector<glm::mat4> bone_frames;
     public:
+        class Dynamic : public Mesh::DynamicTriangleTransform {
+        public:
+            SkeletalAnimation *skeletal_info_r;
+            glm::vec3 camera_position;
+            unsigned int current_frame;
+
+            virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+        };
+
         SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames );
 
-        glm::mat4* getFrames( unsigned int current_frame, unsigned int starting_bone = 0 );
+        glm::mat4* getFrames( unsigned int current_frame );
 
         unsigned int getNumBones() const { return num_bones; }
     };

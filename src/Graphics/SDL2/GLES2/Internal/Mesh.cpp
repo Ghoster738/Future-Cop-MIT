@@ -2,6 +2,9 @@
 #include <cassert>
 #include <iostream>
 
+Graphics::SDL2::GLES2::Internal::Mesh::DynamicTriangleTransform::~DynamicTriangleTransform() {
+}
+
 Graphics::SDL2::GLES2::Internal::Mesh::Mesh( Program *program_r ) {
     this->program_r = program_r;
     draw_command_array_mode = GL_TRIANGLES;
