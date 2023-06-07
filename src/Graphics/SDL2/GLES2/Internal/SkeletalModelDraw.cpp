@@ -34,6 +34,28 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
     if( matrices_r == nullptr )
         return;
+
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ];
+
+        for( unsigned t = 0; t < 3; t++ ) {
+            auto position = matrices_r[ skeletal_info_r->triangle_weights[ i ].vertices[ t ] ] * glm::vec4( draw_triangles_r[ i ].vertices[ t ].position, 1);
+
+            position.w = 1;
+
+            position = transform * position;
+
+            draw_triangles_r[ i ].vertices[ t ].position.x = position.x * (1. / position.w);
+            draw_triangles_r[ i ].vertices[ t ].position.y = position.y * (1. / position.w);
+            draw_triangles_r[ i ].vertices[ t ].position.z = position.z * (1. / position.w);
+        }
+
+        draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position );
+    }
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
@@ -104,27 +126,73 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compileProgram() {
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type, obj_identifier, textures );
+int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj_identifier, textures );
     
     if( ret >= 0 )
     {
         if( model_animation_p[ obj_identifier ] != nullptr )
             delete model_animation_p[ obj_identifier ];
         
-        model_animation_p[ obj_identifier ] = new SkeletalAnimation( model_type->getNumJoints(), model_type->getNumJointFrames() );
+        model_animation_p[ obj_identifier ] = new SkeletalAnimation( model_type_r->getNumJoints(), model_type_r->getNumJointFrames() );
 
-        for( unsigned int frame_index = 0; frame_index < model_type->getNumJointFrames(); frame_index++ )
+        for( unsigned int frame_index = 0; frame_index < model_type_r->getNumJointFrames(); frame_index++ )
         {
             glm::mat4* frame_r = model_animation_p[ obj_identifier ]->getFrames( frame_index );
 
-            for( unsigned int bone_index = 0; bone_index < model_type->getNumJoints(); bone_index++ )
+            for( unsigned int bone_index = 0; bone_index < model_type_r->getNumJoints(); bone_index++ )
             {
-                frame_r[ bone_index ] = model_type->getJointFrame( frame_index, bone_index );
+                frame_r[ bone_index ] = model_type_r->getJointFrame( frame_index, bone_index );
             }
         }
 
-        models_p.at( obj_identifier )->mesh.setFrameAmount( model_type->getNumJointFrames() );
+        models_p.at( obj_identifier )->mesh.setFrameAmount( model_type_r->getNumJointFrames() );
+
+        // triangle_weights;
+        GLsizei transparent_count = 0;
+
+        auto accessor = models_p.find( obj_identifier );
+        if( accessor != models_p.end() )
+            transparent_count = (*accessor).second->transparent_triangles.size();
+
+        model_animation_p[ obj_identifier ]->triangle_weights.reserve( transparent_count );
+
+        GLsizei material_count = 0;
+
+        unsigned joint_compenent_index = model_type_r->getNumVertexComponents();
+
+        Utilities::ModelBuilder::VertexComponent element("EMPTY");
+        for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
+            auto name = element.getName();
+
+            if( name == Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME )
+                joint_compenent_index = i;
+        }
+
+        Utilities::ModelBuilder::TextureMaterial material;
+        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+            model_type_r->getMaterial( a, material );
+
+            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+
+            glm::vec4 joints = glm::vec4(0, 0, 0, 1);
+
+            const unsigned vertex_per_triangle = 3;
+
+            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+                SkeletalAnimation::TriangleIndex triangle;
+
+                for( unsigned t = 0; t < vertex_per_triangle; t++ ) {
+                    model_type_r->getTransformation( joints, joint_compenent_index, material_count + m + t );
+
+                    triangle.vertices[t] = joints.x;
+                }
+
+                model_animation_p[ obj_identifier ]->triangle_weights.push_back( triangle );
+            }
+
+            material_count += material.count;
+        }
     }
     
     return ret;
@@ -149,7 +217,8 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
     if( shiney_texture_r != nullptr )
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
-    const auto camera_position = camera.getPosition();
+    SkeletalAnimation::Dynamic dynamic;
+    dynamic.camera_position = camera.getPosition();
 
     // Traverse the models.
     for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
@@ -194,7 +263,10 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
 
-                // mesh_r->addTransparentTriangles( camera_position, camera_3D_model_transform, camera.transparent_triangles );
+                dynamic.transform = camera_3D_model_transform;
+                dynamic.skeletal_info_r = animate_r;
+                dynamic.current_frame = current_frame;
+                dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
         }
     }

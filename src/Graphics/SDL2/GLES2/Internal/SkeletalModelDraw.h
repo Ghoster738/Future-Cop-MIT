@@ -17,18 +17,24 @@ protected:
     GLuint mat4_array_uniform_id;
 
     class SkeletalAnimation {
-    private:
-        unsigned int num_bones;
-        std::vector<glm::mat4> bone_frames;
     public:
-        class Dynamic : public Mesh::DynamicTriangleTransform {
+        struct TriangleIndex {
+            uint_fast8_t vertices[3];
+        };
+        class Dynamic : public Mesh::DynamicNormal {
         public:
             SkeletalAnimation *skeletal_info_r;
-            glm::vec3 camera_position;
             unsigned int current_frame;
 
             virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
+
+    protected:
+        unsigned int num_bones;
+        std::vector<glm::mat4> bone_frames;
+
+    public:
+        std::vector<TriangleIndex> triangle_weights;
 
         SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames );
 

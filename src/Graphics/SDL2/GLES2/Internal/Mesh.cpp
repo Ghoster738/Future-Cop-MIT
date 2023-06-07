@@ -95,8 +95,6 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
     Utilities::ModelBuilder::TextureMaterial material;
 
-    GLsizei transparent_count = 0;
-
     for( unsigned int a = 0; a < model.getNumMaterials(); a++ ) {
         model.getMaterial( a, material );
 
@@ -109,8 +107,6 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         }
 
         GLsizei opeque_count = std::min( material.count, material.opeque_count );
-
-        transparent_count += material.count - material.opeque_count;
 
         addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
     }
