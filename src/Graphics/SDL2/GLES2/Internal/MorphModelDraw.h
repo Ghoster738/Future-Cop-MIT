@@ -12,6 +12,31 @@ namespace Internal {
 class MorphModelDraw : public StaticModelDraw {
 public:
     static const GLchar* default_vertex_shader;
+    
+    class Animation {
+    public:
+        
+        struct DeltaTriangle {
+            glm::vec3 vertices[3];
+        };
+        
+        class Dynamic : public Mesh::DynamicNormal {
+        public:
+            Animation *morph_info_r;
+            unsigned int frame_index;
+
+            virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+        };
+    protected:
+        
+        unsigned triangles_per_frame;
+        std::vector<DeltaTriangle> frame_data; // [Delta Frame 1], [Delta Frame 2], ..., [Delta Frame end]
+    public:
+        
+        Animation( Utilities::ModelBuilder *model_type_r, GLsizei transparent_count );
+        
+        const DeltaTriangle *const getFrame( unsigned frame_index ) const;
+    };
 protected:
     VertexAttributeArray morph_attribute_array_last;
     VertexAttributeArray morph_attribute_array_next;
@@ -19,6 +44,9 @@ protected:
     // uniforms are used for morpth attributes.
     GLuint sample_next_uniform_id;
     GLuint sample_last_uniform_id;
+    
+    std::map<uint32_t, Animation*> model_animation_p;
+    
 public:
     MorphModelDraw();
     virtual ~MorphModelDraw();
@@ -49,6 +77,14 @@ public:
      * @return false if one of the shaders are not loaded.
      */
     int compileProgram();
+    
+    /**
+     * This handles the loading of the models.
+     * @param These are the models to load.
+     * @param This is the amount of models to load.
+     * @return 1 for success, or -1 for failure.
+     */
+    int inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * This draws all of the models with the morph attribute.

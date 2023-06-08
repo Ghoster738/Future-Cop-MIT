@@ -10,6 +10,85 @@ namespace {
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
 }
 
+void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTriangles(
+            const std::vector<DynamicTriangleDraw::Triangle> &triangles,
+            DynamicTriangleDraw::DrawCommand &triangles_draw ) const
+{
+    const DeltaTriangle *const delta_triangle_r = morph_info_r->getFrame( frame_index );
+    
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ];
+        
+        if( delta_triangle_r != nullptr ) {
+            for( unsigned t = 0; t < 3; t++ ) {
+                draw_triangles_r[ i ].vertices[ t ].position += delta_triangle_r[ i ].vertices[ t ];
+            }
+        }
+        
+        draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
+    }
+}
+
+Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities::ModelBuilder *model_type_r, GLsizei transparent_count ) {
+    const auto frame_amount = model_type_r->getNumMorphFrames();
+    
+    this->triangles_per_frame = transparent_count;
+    this->frame_data.reserve( triangles_per_frame * frame_amount );
+
+    unsigned position_compenent_index = model_type_r->getNumVertexComponents();
+
+    Utilities::ModelBuilder::VertexComponent element("EMPTY");
+    for( unsigned i = 0; model_type_r->getMorphVertexComponent( i, element ); i++ ) {
+        auto name = element.getName();
+
+        if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
+            position_compenent_index = i;
+    }
+
+    Utilities::ModelBuilder::TextureMaterial material;
+    GLsizei material_count;
+    
+    for( auto f = 0; f < frame_amount; f++ ) {
+        material_count = 0;
+        
+        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+            model_type_r->getMaterial( a, material );
+            
+            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+            
+            glm::vec4 joints = glm::vec4(0, 0, 0, 1);
+            
+            const unsigned vertex_per_triangle = 3;
+            
+            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+                DeltaTriangle triangle;
+                
+                for( unsigned t = 0; t < vertex_per_triangle; t++ ) {
+                    model_type_r->getTransformation( joints, position_compenent_index, material_count + m + t, f );
+                    
+                    triangle.vertices[t].x = joints.x;
+                    triangle.vertices[t].y = joints.y;
+                    triangle.vertices[t].z = joints.z;
+                }
+                
+                this->frame_data.push_back( triangle );
+            }
+            
+            material_count += material.count;
+        }
+    }
+}
+
+const Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::DeltaTriangle *const Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::getFrame( unsigned frame_index ) const {
+    if( frame_index == 0 )
+        return nullptr;
+    return &frame_data.at( (frame_index - 1) * triangles_per_frame );
+}
+
 const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_shader =
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
@@ -83,6 +162,28 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
     }
 }
 
+int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj_identifier, textures );
+    
+    if( ret >= 0 )
+    {
+        GLsizei transparent_count = 0;
+
+        auto accessor = models_p.find( obj_identifier );
+        if( accessor != models_p.end() )
+            transparent_count = (*accessor).second->transparent_triangles.size();
+        
+        if( transparent_count != 0 ) {
+            if( model_animation_p[ obj_identifier ] != nullptr )
+                delete model_animation_p[ obj_identifier ];
+            
+            model_animation_p[ obj_identifier ] = new Animation( model_type_r, transparent_count );
+        }
+    }
+    
+    return ret;
+}
+
 void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
@@ -102,7 +203,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
     if( shiney_texture_r != nullptr )
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
-    const auto camera_position = camera.getPosition();
+    Animation::Dynamic dynamic;
+    dynamic.camera_position = camera.getPosition();
 
     // Traverse the models.
     for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
@@ -142,13 +244,17 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
             else
                 glUniform1f( sample_last_uniform_id, 1.0f );
 
-            // std::cout << "getTimeline = " << (*instance)->getTimeline() << ", " << current_last_frame << ", offset = " << mesh->getMorphOffset( current_last_frame ) << std::endl;
-
             morph_attribute_array_last.bind( mesh_r->getMorphOffset( current_last_frame ) );
 
             mesh_r->noPreBindDrawOpaque( 0, diffusive_texture_uniform_id );
-
-            // mesh_r->addTransparentTriangles( camera_position, camera_3D_model_transform, camera.transparent_triangles );
+            
+            auto accessor = model_animation_p.find( ( *d ).first );
+            if( accessor != model_animation_p.end() ) {
+                dynamic.transform = camera_3D_model_transform;
+                dynamic.morph_info_r = (*accessor).second;
+                dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
+                dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
+            }
         }
     }
 }

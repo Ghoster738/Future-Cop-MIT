@@ -757,15 +757,11 @@ bool Utilities::ModelBuilder::applyJointTransforms( unsigned frame_index ) {
     }
 }
 
-int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned vertex_component_index, unsigned vertex_index, unsigned frame_index ) const {
+int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned vertex_component_index, unsigned vertex_index ) const {
     if( vertex_amount <= vertex_index )
         return 0;
 
     if( vertex_components.size() <= vertex_component_index )
-        return 0;
-
-    // For now only one frame should be accounted for.
-    if( frame_index != 0 )
         return 0;
 
     const VertexComponent& compenent = vertex_components[ vertex_component_index ];
@@ -820,6 +816,141 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
     }
 
     const uint32_t *const base_address_r = primary_buffer.data() + compenent.begin + stride * vertex_index;
+    float *vec_array[4] = { &attributes.x, &attributes.y, &attributes.z, &attributes.w};
+
+    switch( compenent.component_type ) {
+        case DataTypes::UNSIGNED_BYTE:
+        {
+            auto cast_address_r = reinterpret_cast<const uint8_t *const>(base_address_r);
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = cast_address_r[ i ];
+                *vec_array[ i ] *= normalizer;
+            }
+        }
+        break;
+        case DataTypes::BYTE:
+        {
+            auto cast_address_r = reinterpret_cast<const int8_t *const>(base_address_r);
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = cast_address_r[ i ];
+                *vec_array[ i ] *= normalizer;
+            }
+        }
+        break;
+        case DataTypes::UNSIGNED_SHORT:
+        {
+            auto cast_address_r = reinterpret_cast<const uint16_t *const>(base_address_r);
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = cast_address_r[ i ];
+                *vec_array[ i ] *= normalizer;
+            }
+        }
+        break;
+        case DataTypes::SHORT:
+        {
+            auto cast_address_r = reinterpret_cast<const int16_t *const>(base_address_r);
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = cast_address_r[ i ];
+                *vec_array[ i ] *= normalizer;
+            }
+        }
+            break;
+        case DataTypes::UNSIGNED_INT:
+        {
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = base_address_r[ i ];
+                *vec_array[ i ] *= normalizer;
+            }
+        }
+            break;
+        case DataTypes::INT:
+        {
+            auto cast_address_r = reinterpret_cast<const int32_t *const>(base_address_r);
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = cast_address_r[ i ];
+                *vec_array[ i ] *= normalizer;
+            }
+        }
+            break;
+        case DataTypes::FLOAT:
+        {
+            auto cast_address_r = reinterpret_cast<const float *const>(base_address_r);
+            for( unsigned i = 0; i < element_amount; i++ ) {
+                *vec_array[ i ] = cast_address_r[ i ];
+            }
+        }
+            break;
+        default:
+            return 0;
+    }
+
+    return element_amount;
+}
+
+
+int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned vertex_morph_component_index, unsigned vertex_index, unsigned frame_index ) const {
+    if( vertex_amount <= vertex_index )
+        return 0;
+    
+    if( morph_frame_buffers.size() < frame_index )
+        return 0;
+
+    if( vertex_morph_components.size() <= vertex_morph_component_index )
+        return 0;
+
+    const VertexComponent& compenent = vertex_morph_components[ vertex_morph_component_index ];
+    
+
+    size_t stride = compenent.stride;
+
+    if( stride == 0 ) {
+        stride = 1; // The data is tighly packed.
+    }
+
+    double normalizer = 1.0;
+
+    if( compenent.isNormalized() ) {
+        switch( compenent.component_type ) {
+            case DataTypes::UNSIGNED_BYTE:
+                normalizer = 1.0 / 256.0;
+                break;
+            case DataTypes::BYTE:
+                normalizer *= 0.5;
+                break;
+            case DataTypes::UNSIGNED_SHORT:
+                normalizer = 1.0 / 65536.0;
+                break;
+            case DataTypes::SHORT:
+                normalizer *= 0.5;
+                break;
+            case DataTypes::UNSIGNED_INT:
+                normalizer = 1.0 / 4294967296.0;
+                break;
+            case DataTypes::INT:
+                normalizer *= 0.5;
+                break;
+            default:
+                normalizer = 1.0;
+        }
+    }
+
+    unsigned element_amount;
+
+    switch( compenent.type ) {
+        case DataTypes::Type::SCALAR:
+            element_amount = 1;
+            break;
+        case DataTypes::Type::VEC2:
+            element_amount = 2;
+            break;
+        case DataTypes::Type::VEC3:
+            element_amount = 3;
+            break;
+        default:
+            element_amount = 4;
+    }
+
+    const uint32_t *const base_address_r = morph_frame_buffers[ frame_index ].data() + compenent.begin + stride * vertex_index;
     float *vec_array[4] = { &attributes.x, &attributes.y, &attributes.z, &attributes.w};
 
     switch( compenent.component_type ) {

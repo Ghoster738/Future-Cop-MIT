@@ -394,10 +394,19 @@ public:
      * @param attributes This gets the vertex info stored in the model builder.
      * @param vertex_component_index This indicates gets the vertex component (positions, uv, colors, etc). If index does not exist then this function will return zero.
      * @param vertex_index Indicates the index of the vertex that will be viewed.
+     * @return The number of the values filled in attributes. 0 for error.
+     */
+    int getTransformation( glm::vec4& attributes, unsigned vertex_component_index, unsigned vertex_index ) const;
+    
+    /**
+     * This method is to query the vertex information on the Model Builder after it had been built.
+     * @param attributes This gets the vertex info stored in the model builder.
+     * @param vertex_component_index This indicates gets the vertex component (positions, uv, colors, etc). If index does not exist then this function will return zero.
+     * @param vertex_index Indicates the index of the vertex that will be viewed.
      * @param frame_index Indicates the frame index. If no frames exists then frame index 0 is the only one to make this method work.
      * @return The number of the values filled in attributes. 0 for error.
      */
-    int getTransformation( glm::vec4& attributes, unsigned vertex_component_index, unsigned vertex_index, unsigned frame_index = 0 ) const;
+    int getTransformation( glm::vec4& attributes, unsigned morph_vertex_component_index, unsigned vertex_index, unsigned frame_index ) const;
 
     /**
      * This writes a glTF file.
