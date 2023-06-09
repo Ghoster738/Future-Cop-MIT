@@ -21,7 +21,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
         if( selected_tile == mesh_draw_r->transparent_triangle_info[ i ] ) {
             for( unsigned t = 0; t < 3; t++ ) {
                 glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
-                draw_triangles_r[ i ].vertices[ t ].color = (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 4.0f * glow_time * inverse_color;
+                draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
                 draw_triangles_r[ i ].vertices[ t ].color.w = 1;
             }
         }
