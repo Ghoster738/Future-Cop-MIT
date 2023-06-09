@@ -7,6 +7,27 @@
 #include "SDL.h"
 #include <iostream>
 
+void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
+    const glm::vec4 frag_inv = glm::vec4( 1, 1, 1, 1 );
+    glm::vec3 inverse_color;
+
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ].addTriangle( this->camera_position, transform );
+
+        if( selected_tile == mesh_draw_r->transparent_triangle_info[ i ] ) {
+            for( unsigned t = 0; t < 3; t++ ) {
+                glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
+                draw_triangles_r[ i ].vertices[ t ].color = (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 4.0f * glow_time * inverse_color;
+                draw_triangles_r[ i ].vertices[ t ].color.w = 1;
+            }
+        }
+    }
+}
+
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
@@ -155,13 +176,16 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             GLsizei opeque_count = std::min( material.count, material.opeque_count );
             transparent_count += material.count - material.opeque_count;
         }
-        (*i).transparent_triangles.reserve( transparent_count );
+
+        (*i).transparent_triangles.reserve(     transparent_count );
+        (*i).transparent_triangle_info.reserve( transparent_count );
 
         GLsizei material_count = 0;
 
         unsigned   position_compenent_index = model_p->getNumVertexComponents();
         unsigned      color_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
+        unsigned  tile_type_compenent_index = position_compenent_index;
 
         Utilities::ModelBuilder::VertexComponent element("EMPTY");
         for( unsigned i = 0; model_p->getVertexComponent( i, element ); i++ ) {
@@ -173,6 +197,8 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                 color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
+            if( name == "_TileType" )
+                tile_type_compenent_index = i;
         }
 
         for( unsigned int a = 0; a < model_p->getNumMaterials(); a++ ) {
@@ -190,9 +216,10 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
             GLsizei opeque_count = std::min( material.count, material.opeque_count );
 
-            glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
-            glm::vec4      colors[3] = {glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5), glm::vec4(0.5, 0.5, 0.5, 0.5)}; // Just in case if the mesh does not have vertex color information.
-            glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+            glm::vec4   positions = glm::vec4(0, 0, 0, 1);
+            glm::vec4      colors = glm::vec4(0.5, 0.5, 0.5, 0.5); // Just in case if the mesh does not have vertex color information.
+            glm::vec4 coordinates = glm::vec4(0, 0, 0, 1);
+            glm::vec4   tile_type = glm::vec4(0, 0, 0, 1);
 
             const unsigned vertex_per_triangle = 3;
 
@@ -200,14 +227,18 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {
-                    model_p->getTransformation(   positions[t],   position_compenent_index, material_count + m + t );
-                    model_p->getTransformation(      colors[t],      color_compenent_index, material_count + m + t );
-                    model_p->getTransformation( coordinates[t], coordinate_compenent_index, material_count + m + t );
+                    model_p->getTransformation(   positions,   position_compenent_index, material_count + m + t );
+                    model_p->getTransformation(      colors,      color_compenent_index, material_count + m + t );
+                    model_p->getTransformation( coordinates, coordinate_compenent_index, material_count + m + t );
+                    model_p->getTransformation(   tile_type,  tile_type_compenent_index, material_count + m + t );
 
-                    triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
-                    triangle.vertices[t].color = 2.0f * colors[t];
+                    triangle.vertices[t].position = { positions.x, positions.y, positions.z };
+                    triangle.vertices[t].color = 2.0f * colors;
                     triangle.vertices[t].color.w = 1;
-                    triangle.vertices[t].coordinate = coordinates[t];
+                    triangle.vertices[t].coordinate = coordinates;
+
+                    if( t == 0 )
+                        (*i).transparent_triangle_info.push_back( tile_type.x );
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
@@ -310,14 +341,18 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     program.use();
 
     camera.getProjectionView3D( projection_view );
+
+    GLfloat filtered_glow_time;
     
     if( this->glow_time > 1.0f )
-        glUniform1f( glow_time_uniform_id, 2.0f - this->glow_time );
+        filtered_glow_time = 2.0f - this->glow_time;
     else
     if( this->glow_time < 0.0f )
-        glUniform1f( glow_time_uniform_id, 0 );
+        filtered_glow_time = 0;
     else
-        glUniform1f( glow_time_uniform_id, this->glow_time );
+        filtered_glow_time = this->glow_time;
+
+    glUniform1f( glow_time_uniform_id, filtered_glow_time );
     
     if( this->selected_tile != this->current_selected_tile ) {
         this->current_selected_tile = this->selected_tile;
@@ -328,8 +363,10 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
 
     const float squared_distance_culling = 64.0 * 64.0; // This is squared because square rooting the distance on the triangles is slower.
 
-    Mesh::DynamicNormal dynamic;
+    MeshDraw::Animation dynamic;
     dynamic.camera_position = camera.getPosition();
+    dynamic.selected_tile = this->selected_tile;
+    dynamic.glow_time = filtered_glow_time;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
@@ -354,6 +391,8 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
                     (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
 
                     dynamic.transform = position_mat;
+                    dynamic.mesh_draw_r = &(*i);
+
                     dynamic.addTriangles( (*i).transparent_triangles, camera.transparent_triangles );
                 }
                 else

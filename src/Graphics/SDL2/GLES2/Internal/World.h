@@ -26,8 +26,18 @@ public:
             glm::i32vec2 position;
         };
 
+        class Animation : public Mesh::DynamicNormal {
+        public:
+            MeshDraw *mesh_draw_r;
+            GLfloat selected_tile;
+            GLfloat glow_time;
+
+            void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+        };
+
         Mesh *mesh_p;
         std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
+        std::vector<int_fast8_t> transparent_triangle_info;
         const Data::Mission::TilResource *til_resource_r;
         float change_rate;
         float current; // [ -change_rate, change_rate ]
