@@ -256,8 +256,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
                 int current_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
 
-                assert( animate_r->getFrames( current_frame, 0 ) != nullptr );
-                assert( animate_r->getFrames( current_frame, animate_r->getNumBones() - 1 ) != nullptr );
+                assert( animate_r->getFrames( current_frame ) != nullptr );
 
                 glUniformMatrix4fv( mat4_array_uniform_id, animate_r->getNumBones(), GL_FALSE, glm::value_ptr( *animate_r->getFrames( current_frame ) ) );
 
