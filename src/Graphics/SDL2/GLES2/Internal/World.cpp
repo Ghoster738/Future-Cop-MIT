@@ -36,7 +36,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::World::World() {
-    glow_time = 0;
+    this->glow_time = 0;
+    this->current_selected_tile = 112;
+    this->selected_tile = this->current_selected_tile + 1;
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
@@ -312,6 +314,9 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     
     if( this->glow_time > 1.0f )
         glUniform1f( glow_time_uniform_id, 2.0f - this->glow_time );
+    else
+    if( this->glow_time < 0.0f )
+        glUniform1f( glow_time_uniform_id, 0 );
     else
         glUniform1f( glow_time_uniform_id, this->glow_time );
     
