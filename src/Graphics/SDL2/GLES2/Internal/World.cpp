@@ -13,17 +13,18 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
 
+    "const vec3 frag_inv = vec3(1,1,1);\n"
+
     "void main()\n"
     "{\n"
-    "   vertex_colors = COLOR_0;\n"
+    "   vec3 inverse_color = frag_inv - COLOR_0;\n"
+    "   float flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
+    "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
-    "   _flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "uniform sampler2D Texture;\n"
-
-    "const vec3 frag_inv = vec3(1,1,1);\n"
 
     "void main()\n"
     "{\n"
@@ -31,8 +32,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "   if( frag_color.a < 0.015625 )\n"
     "       discard;\n"
     "   vec3 normal_color = vertex_colors * frag_color.rgb * 2.0;\n"
-    "   vec3 inverse_color = frag_inv - normal_color;\n"
-    "   gl_FragColor = vec4( (1.0 - _flashing) * normal_color + _flashing * inverse_color, frag_color.a );\n"
+    "   gl_FragColor = vec4( normal_color, frag_color.a );\n"
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::World::World() {
@@ -47,7 +47,6 @@ Graphics::SDL2::GLES2::Internal::World::World() {
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "float _flashing" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
