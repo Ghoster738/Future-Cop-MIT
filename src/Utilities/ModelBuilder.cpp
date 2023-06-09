@@ -200,7 +200,7 @@ unsigned Utilities::ModelBuilder::getNumMorphVertexComponents() const {
 
 bool Utilities::ModelBuilder::getMorphVertexComponent(unsigned vertex_morph_component_index, VertexComponent& element) const
 {
-    if( vertex_morph_component_index < vertex_components.size() ) {
+    if( vertex_morph_component_index < vertex_morph_components.size() ) {
         element = VertexComponent( vertex_morph_components[ vertex_morph_component_index ] );
 
         return true;
