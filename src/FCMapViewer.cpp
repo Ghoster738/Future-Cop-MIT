@@ -267,9 +267,11 @@ int main(int argc, char** argv)
     if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
         std::cout << "Fonts missing!" << std::endl;
     }
+
+    std::vector<Data::Mission::TilResource*> til_resources;
     
     if( resource_r != nullptr ) {
-        auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
+        til_resources = Data::Mission::TilResource::getVector( *resource_r );
         environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
@@ -331,9 +333,6 @@ int main(int argc, char** argv)
     }
 
     bool update_culling = true;
-
-    if( update_culling )
-        environment_p->setupFrame();
     
     while(viewer_loop)
     {
