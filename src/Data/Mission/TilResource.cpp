@@ -298,7 +298,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     texture_cords.back().y = reader_sect.readU8();
                 }
 
-                for( unsigned i = 0; i < TEXTURE_NAMES_AMOUNT; i++ ) {
+                for( unsigned i = 0; i < TEXTURE_INFO_AMOUNT; i++ ) {
                     texture_info[ i ].is_semi_transparent.resize( texture_cordinates_amount, false );
 
                     for( auto m : mesh_tiles ) {
@@ -462,7 +462,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
         // Single texture models are to be generated first.
         std::vector<Utilities::ModelBuilder*> texture_models;
         
-        for( unsigned int i = 0; i < TEXTURE_NAMES_AMOUNT; i++ ) {
+        for( unsigned int i = 0; i < TEXTURE_INFO_AMOUNT; i++ ) {
             auto texture_model_p = createPartial( i, is_culled );
             
             if( texture_model_p != nullptr )
@@ -489,7 +489,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
 }
 
 Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, float x_offset, float y_offset ) const {
-    if( texture_index > TEXTURE_NAMES_AMOUNT + 1 )
+    if( texture_index > TEXTURE_INFO_AMOUNT + 1 )
         return nullptr;
     else {
         Utilities::ModelBuilder *model_output_p = new Utilities::ModelBuilder();
@@ -513,7 +513,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
         has_texture_displayed = false;
         
-        if( texture_index < TEXTURE_NAMES_AMOUNT )
+        if( texture_index < TEXTURE_INFO_AMOUNT )
             model_output_p->setMaterial( texture_info[ texture_index ].name, texture_index + 1, is_culled );
 
         for( unsigned int not_opaque = 0; not_opaque < 2; not_opaque++) {
@@ -555,7 +555,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                         Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                        if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_NAMES_AMOUNT ) {
+                        if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_INFO_AMOUNT ) {
                             current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                             if( current_tile_polygon_amount == 0 && display_unread ) {
