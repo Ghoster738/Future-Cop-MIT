@@ -33,7 +33,7 @@ void helpExit( std::ostream &stream ) {
     stream << "  FCModelViewer [-h|--help]" << "\n";
     stream << "                [--width <number>] [--height <number>]" << "\n";
     stream << "                [-w] [-m] [-p] [--id <id>]" << "\n";
-    stream << "                [--model-export-path <path>] [--type ??] [--start <number>]" << "\n";
+    stream << "                [--model-export-path <path>] [--type ??] [--model-id <number>]" << "\n";
     stream << "                [--global <path>] [--path <path>]" << "\n";
     stream << "\n";
     stream << "Options:" << "\n";
@@ -47,10 +47,10 @@ void helpExit( std::ostream &stream ) {
     stream << "    -m              Load Macintosh game data from './Data/Platform/Macintosh'" << "\n";
     stream << "    -p              Load PlayStation game data from './Data/Platform/Playstation'" << "\n";
     stream << "    --id <id>       Load the specified mission ID. Type in an invalid id to get a listing of valid IDs." << "\n";
+    stream << "    --model-id      The resource id of the model to look at when the program starts up" <<"\n";
     stream << "  Export options:" << "\n";
     stream << "    --model-export-path <path>  Where to export the models, must point to an existing directory" <<"\n";
     stream << "    --type               ??" <<"\n";
-    stream << "    --start              The index of the model to look at when the program starts up" <<"\n";
     stream << "  Maps:" << "\n";
     stream << "    --global <path>  Path to the global file which every map uses." << "\n";
     stream << "    --path <path>    Path to the mission file which contains the rest of the data like the map." << "\n";
