@@ -21,7 +21,6 @@
 #include "Controls/StandardInputSet.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
-#include "Utilities/Random.h"
 
 #include "ConfigureInput.h"
 #include "SplashScreens.h"
@@ -333,19 +332,6 @@ int main(int argc, char** argv)
 
     bool update_culling = false;
     
-    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
-    
-    std::vector<Graphics::ModelInstance*> model_instances_p;
-    {
-        Utilities::Random random( 3748394 );
-        auto generator = random.getGenerator();
-        
-        for( int i = 0; i < 200; i++ ) {
-            glm::vec3 position( generator.nextFloat( 208, 0 ), 3.0f, generator.nextFloat( 240, 0 ) );
-            model_instances_p.push_back( Graphics::ModelInstance::alloc( *environment_p, 21, position ) );
-        }
-    }
-    
     while(viewer_loop)
     {
         // Get the time
@@ -574,10 +560,6 @@ int main(int argc, char** argv)
             std::this_thread::sleep_for( std::chrono::microseconds(17) - delta );
 
         last_time = this_time;
-    }
-    
-    for( unsigned i = 0; i < model_instances_p.size(); i++ ){
-        delete model_instances_p[i];
     }
 
     delete control_system_p;
