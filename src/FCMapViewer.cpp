@@ -330,7 +330,10 @@ int main(int argc, char** argv)
         return -4;
     }
 
-    bool update_culling = false;
+    bool update_culling = true;
+
+    if( update_culling )
+        environment_p->setupFrame();
     
     while(viewer_loop)
     {
