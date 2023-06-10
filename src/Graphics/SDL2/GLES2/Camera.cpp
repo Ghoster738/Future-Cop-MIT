@@ -13,7 +13,7 @@ Graphics::SDL2::GLES2::Camera::~Camera() {
 }
 
 
-bool Graphics::SDL2::GLES2::Camera::isVisable( const Graphics::ModelInstance &instance ) const {
+bool Graphics::SDL2::GLES2::Camera::isVisible( const Graphics::ModelInstance &instance ) const {
     glm::vec3 position( 0, 0, 0 );
     float radius = 1.0;
     glm::vec2 bb[2];
@@ -26,10 +26,10 @@ bool Graphics::SDL2::GLES2::Camera::isVisable( const Graphics::ModelInstance &in
     bb[0] = { position.x - radius, position.z - radius };
     bb[1] = { position.x + radius, position.z + radius };
     
-    return isVisable( bb[0], bb[1] );
+    return isVisible( bb[0], bb[1] );
 }
 
-bool Graphics::SDL2::GLES2::Camera::isVisable( glm::vec2 bb0, glm::vec2 bb1 ) const {
+bool Graphics::SDL2::GLES2::Camera::isVisible( glm::vec2 bb0, glm::vec2 bb1 ) const {
     if( culling_info.getWidth() == 0 && culling_info.getHeight() == 0 )
         return true; // If culling data is not available then do not cull at all.
     
