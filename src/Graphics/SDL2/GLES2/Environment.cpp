@@ -230,9 +230,7 @@ void Environment::setupFrame() {
             if( current_camera_r->culling_info.getWidth() * current_camera_r->culling_info.getHeight() == 0 )
                 current_camera_r->culling_info.setDimensions( this->map_section_width, this->map_section_height );
 
-            auto projection_shape = current_camera_r->getProjection3DShape();
-
-            this->world_p->updateCulling( current_camera_r->culling_info, projection_shape, current_camera_r->getPosition() );
+            this->world_p->updateCulling( *current_camera_r );
         }
     }
 }

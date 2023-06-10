@@ -292,10 +292,13 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 }
 
-bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection, const glm::vec3 &position ) const {
-    if( culling_info.getWidth() * culling_info.getHeight() == 0 ) {
+bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Graphics::SDL2::GLES2::Camera &camera ) const {
+    if( camera.culling_info.getWidth() * camera.culling_info.getHeight() == 0 ) {
         return false;
     }
+
+    auto position = camera.getPosition();
+    auto projection = camera.getProjection3DShape();
 
     std::vector<glm::vec3> section_data( 8, glm::vec3() );
     const glm::vec3 MIN = glm::vec3(0, Data::Mission::TilResource::MAX_HEIGHT, 0);
@@ -321,12 +324,12 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
             Utilities::Collision::GJKPolyhedron section_shape( section_data );
 
             if( Utilities::Collision::GJK::hasCollision( projection, section_shape ) == Utilities::Collision::GJK::NO_COLLISION ) {
-                culling_info.setValue( s.position.x, s.position.y, -1.0f );
+                camera.culling_info.setValue( s.position.x, s.position.y, -1.0f );
             }
             else {
                 const auto distance_2 = (adjusted_position.x - position.x) * (adjusted_position.x - position.x) + (adjusted_position.z - position.z) * (adjusted_position.z - position.z);
 
-                culling_info.setValue( s.position.x, s.position.y, distance_2 );
+                camera.culling_info.setValue( s.position.x, s.position.y, distance_2 );
             }
         }
     }

@@ -122,14 +122,11 @@ public:
     void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
-     * Update Culling for the camera.
-     * @note This will change the parameter culling_info.
-     * @param culling_info The boolean vector that will hold culling information for the World.
-     * @param projection The projection shape to make the culling info from.
-     * @param position The position of the camera for distance culling.
+     * Update the culling meta data for the camera.
+     * @param camera This camera also holds culling information for the World.
      * @return true if culling has successfully been setup.
      */
-    bool updateCulling( Utilities::GridBase2D<float> &culling_info, const Utilities::Collision::GJKShape &projection, const glm::vec3 &position ) const;
+    bool updateCulling( Graphics::SDL2::GLES2::Camera &camera ) const;
 
     /**
      * This draws the entire map.
