@@ -777,25 +777,23 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
     if( compenent.isNormalized() ) {
         switch( compenent.component_type ) {
             case DataTypes::UNSIGNED_BYTE:
-                normalizer = 1.0 / 256.0;
+                normalizer = 1.0 / (std::numeric_limits<uint8_t>().max());
                 break;
             case DataTypes::BYTE:
-                normalizer *= 0.5;
+                normalizer = 1.0 / (std::numeric_limits<int8_t>().max());
                 break;
             case DataTypes::UNSIGNED_SHORT:
-                normalizer = 1.0 / 65536.0;
+                normalizer = 1.0 / (std::numeric_limits<uint16_t>().max());
                 break;
             case DataTypes::SHORT:
-                normalizer *= 0.5;
+                normalizer = 1.0 / (std::numeric_limits<int16_t>().max());
                 break;
             case DataTypes::UNSIGNED_INT:
-                normalizer = 1.0 / 4294967296.0;
+                normalizer = 1.0 / (std::numeric_limits<uint32_t>().max());
                 break;
             case DataTypes::INT:
-                normalizer *= 0.5;
+                normalizer = 1.0 / (std::numeric_limits<int32_t>().max());
                 break;
-            default:
-                normalizer = 1.0;
         }
     }
 
@@ -912,25 +910,23 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
     if( compenent.isNormalized() ) {
         switch( compenent.component_type ) {
             case DataTypes::UNSIGNED_BYTE:
-                normalizer = 1.0 / 256.0;
+                normalizer = 1.0 / (std::numeric_limits<uint8_t>().max());
                 break;
             case DataTypes::BYTE:
-                normalizer *= 0.5;
+                normalizer = 1.0 / (std::numeric_limits<int8_t>().max());
                 break;
             case DataTypes::UNSIGNED_SHORT:
-                normalizer = 1.0 / 65536.0;
+                normalizer = 1.0 / (std::numeric_limits<uint16_t>().max());
                 break;
             case DataTypes::SHORT:
-                normalizer *= 0.5;
+                normalizer = 1.0 / (std::numeric_limits<int16_t>().max());
                 break;
             case DataTypes::UNSIGNED_INT:
-                normalizer = 1.0 / 4294967296.0;
+                normalizer = 1.0 / (std::numeric_limits<uint32_t>().max());
                 break;
             case DataTypes::INT:
-                normalizer *= 0.5;
+                normalizer = 1.0 / (std::numeric_limits<int32_t>().max());
                 break;
-            default:
-                normalizer = 1.0;
         }
     }
 
