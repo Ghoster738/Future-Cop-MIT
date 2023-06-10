@@ -1,6 +1,8 @@
 #include "../../../Utilities/Image2D.h"
 #include "../../../Utilities/ImageFormat/PortableNetworkGraphics.h"
 
+#include "../../../Config.h"
+
 #include <glm/vec2.hpp>
 #include <iostream>
 
@@ -52,6 +54,7 @@ int testColorSpace( const Utilities::PixelFormatColor &color_r ) {
 }
 
 int main() {
+#ifdef BUILD_WITH_LIBPNG
     int error_state = 0;
     
     error_state |= testColorSpace( Utilities::PixelFormatColor_W8() );
@@ -62,4 +65,8 @@ int main() {
     error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8() );
     
     return error_state;
+#else
+    std::cout << "Error LIBPNG is required for this test." << std::endl;
+    return 1;
+#endif
 }
