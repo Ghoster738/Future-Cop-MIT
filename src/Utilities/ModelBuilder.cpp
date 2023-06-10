@@ -794,6 +794,8 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
             case DataTypes::INT:
                 normalizer = 1.0 / (std::numeric_limits<int32_t>().max());
                 break;
+            default: // Do nothing.
+                break;
         }
     }
 
@@ -926,6 +928,8 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
                 break;
             case DataTypes::INT:
                 normalizer = 1.0 / (std::numeric_limits<int32_t>().max());
+                break;
+            default: // Do nothing.
                 break;
         }
     }
