@@ -273,10 +273,7 @@ void Environment::drawFrame() {
             if( this->world_p != nullptr )
             {
                 // Draw the map.
-                if( current_camera_r->culling_info.getWidth() * current_camera_r->culling_info.getHeight() == 0 )
-                    this->world_p->draw( *current_camera_r );
-                else
-                    this->world_p->draw( *current_camera_r, &current_camera_r->culling_info );
+                this->world_p->draw( *current_camera_r );
             }
 
             this->static_model_draw_routine.draw(   *current_camera_r );

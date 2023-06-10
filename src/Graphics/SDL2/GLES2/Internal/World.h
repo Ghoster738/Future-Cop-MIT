@@ -135,9 +135,8 @@ public:
      * This draws the entire map.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into world.
-     * @param culling_info The culling information that would affect the World.
      */
-    void draw( Graphics::SDL2::GLES2::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r = nullptr );
+    void draw( Graphics::SDL2::GLES2::Camera &camera );
 
     /**
      * @return the program that this World uses.

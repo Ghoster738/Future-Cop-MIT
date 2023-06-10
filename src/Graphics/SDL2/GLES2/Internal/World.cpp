@@ -334,7 +334,7 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Utilities::GridBase2
     return true;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera &camera, const Utilities::GridBase2D<float> *const culling_info_r ) {
+void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 projection_view, final_position, position_mat;
     
     // Use the map shader for the 3D map or the world.
@@ -363,6 +363,8 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
 
     const float squared_distance_culling = 64.0 * 64.0; // This is squared because square rooting the distance on the triangles is slower.
 
+    const bool is_culling_there = camera.culling_info.getWidth() * camera.culling_info.getHeight() != 0;
+
     MeshDraw::Animation dynamic;
     dynamic.camera_position = camera.getPosition();
     dynamic.selected_tile = this->selected_tile;
@@ -374,7 +376,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
 
             auto section = (*i).sections[d];
 
-            if( culling_info_r == nullptr || culling_info_r->getValue( section.position.x, section.position.y ) >= -0.5 ) {
+            if( !is_culling_there || camera.culling_info.getValue( section.position.x, section.position.y ) >= -0.5 ) {
                 const glm::vec3 position = glm::vec3(
                     ((section.position.x * Data::Mission::TilResource::AMOUNT_OF_TILES + Data::Mission::TilResource::SPAN_OF_TIL) + TILE_SPAN),
                     0,
@@ -387,7 +389,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &final_position[0][0] ) );
 
-                if( culling_info_r != nullptr && culling_info_r->getValue( section.position.x, section.position.y ) < squared_distance_culling ) {
+                if( is_culling_there && camera.culling_info.getValue( section.position.x, section.position.y ) < squared_distance_culling ) {
                     (*i).mesh_p->drawOpaque( 0, texture_uniform_id );
 
                     dynamic.transform = position_mat;
