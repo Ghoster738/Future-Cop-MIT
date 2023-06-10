@@ -21,6 +21,8 @@ bool Graphics::SDL2::GLES2::Camera::isVisable( const Graphics::ModelInstance &in
     if( !instance.getBoundingSphere( position, radius ) )
         return true; // Render unconfirmed sphere by default.
     
+    position += instance.getPosition();
+    
     bb[0] = { position.x - radius, position.z - radius };
     bb[1] = { position.x + radius, position.z + radius };
     
@@ -39,15 +41,18 @@ bool Graphics::SDL2::GLES2::Camera::isVisable( glm::vec2 bb0, glm::vec2 bb1 ) co
     max.x = std::max( bb0.x, bb1.x ) * (1.f / Data::Mission::TilResource::AMOUNT_OF_TILES);
     max.y = std::max( bb0.y, bb1.y ) * (1.f / Data::Mission::TilResource::AMOUNT_OF_TILES);
     
-    // Make sure that there will be no buffer overflows.
-    min.x = std::min( min.x, 0.f );
-    min.y = std::min( min.y, 0.f );
-    max.x = std::min( max.x, static_cast<float>( culling_info.getWidth() ) );
-    max.y = std::min( max.y, static_cast<float>( culling_info.getHeight() ) );
+    if( min.x < 0.f )
+        return true;
+    if( min.y < 0.f )
+        return true;
+    if( max.x >= culling_info.getWidth() )
+        return true;
+    if( max.y >= culling_info.getHeight() )
+        return true;
     
     //
-    for( unsigned x = min.x; x < static_cast<unsigned>( max.x ); x++ ) {
-        for( unsigned y = min.y; y < static_cast<unsigned>( max.y ); y++ ) {
+    for( unsigned x = min.x; x <= static_cast<unsigned>( max.x ); x++ ) {
+        for( unsigned y = min.y; y <= static_cast<unsigned>( max.y ); y++ ) {
             if( culling_info.getValue( x, y ) >= 0.f )
                 return true;
         }
