@@ -3,6 +3,8 @@
 
 #include "../../Camera.h"
 
+#include "../../ModelInstance.h"
+
 #include "Text2DBuffer.h"
 #include "../../../Utilities/Collision/GJKPolyhedron.h"
 #include "Internal/DynamicTriangleDraw.h"
@@ -19,6 +21,9 @@ public:
 
     Camera();
     virtual ~Camera();
+    
+    bool isVisable( const Graphics::ModelInstance &instance ) const;
+    bool isVisable( glm::vec2 bb0, glm::vec2 bb1 ) const;
 
     virtual const std::vector<Graphics::Text2DBuffer*> *const getText2DBuffer() const;
     virtual int attachText2DBuffer( Graphics::Text2DBuffer& buffer_p );

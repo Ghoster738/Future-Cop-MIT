@@ -273,26 +273,28 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
         // Go through every instance that refers to this mesh.
         for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
-            // Get the position and rotation of the model.
-            // Multiply them into one matrix which will hold the entire model transformation.
-            camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
-
-            // Then multiply it to the projection, and view to get projection, view, and model matrix.
-            camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
-
-            // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
-
-            model_view = view * camera_3D_model_transform;
-            model_view_inv = glm::inverse( model_view );
-            glUniformMatrix4fv( view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
-            glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
-
-            // Finally we can draw the mesh!
-            mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
-
-            dynamic.transform = camera_3D_model_transform;
-            dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
+            if( camera.isVisable( *(*instance) ) ) {
+                // Get the position and rotation of the model.
+                // Multiply them into one matrix which will hold the entire model transformation.
+                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
+                
+                // Then multiply it to the projection, and view to get projection, view, and model matrix.
+                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
+                
+                // We can now send the matrix to the program.
+                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
+                
+                model_view = view * camera_3D_model_transform;
+                model_view_inv = glm::inverse( model_view );
+                glUniformMatrix4fv( view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
+                
+                // Finally we can draw the mesh!
+                mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
+                
+                dynamic.transform = camera_3D_model_transform;
+                dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
+            }
         }
     }
 }
