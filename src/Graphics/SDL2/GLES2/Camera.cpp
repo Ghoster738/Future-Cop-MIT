@@ -41,6 +41,7 @@ bool Graphics::SDL2::GLES2::Camera::isVisable( glm::vec2 bb0, glm::vec2 bb1 ) co
     max.x = std::max( bb0.x, bb1.x ) * (1.f / Data::Mission::TilResource::AMOUNT_OF_TILES);
     max.y = std::max( bb0.y, bb1.y ) * (1.f / Data::Mission::TilResource::AMOUNT_OF_TILES);
     
+    // Outside the map is drawn by default.
     if( min.x < 0.f )
         return true;
     if( min.y < 0.f )
@@ -50,7 +51,7 @@ bool Graphics::SDL2::GLES2::Camera::isVisable( glm::vec2 bb0, glm::vec2 bb1 ) co
     if( max.y >= culling_info.getHeight() )
         return true;
     
-    //
+    // Check the bounding box for collisions.
     for( unsigned x = min.x; x <= static_cast<unsigned>( max.x ); x++ ) {
         for( unsigned y = min.y; y <= static_cast<unsigned>( max.y ); y++ ) {
             if( culling_info.getValue( x, y ) >= 0.f )
