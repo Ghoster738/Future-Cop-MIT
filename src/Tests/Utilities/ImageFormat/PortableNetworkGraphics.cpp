@@ -1,7 +1,7 @@
 #include "../../../Utilities/Image2D.h"
 #include "../../../Utilities/ImageFormat/PortableNetworkGraphics.h"
 
-#include "../../../Config.h"
+#include "Config.h"
 
 #include <glm/vec2.hpp>
 #include <iostream>
