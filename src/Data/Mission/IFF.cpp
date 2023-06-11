@@ -172,7 +172,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         file.seekg(0, std::ios::beg);
 
         Data::Mission::Resource::ParseSettings default_settings = Data::Mission::Resource::ParseSettings();
-        default_settings.is_opposite_endian = false; // Does the cpu have the opposite endian type as the file that is being read.
 
         // it is set like this in default because it has not found the header yet.
         // since this is a do while loop the loop would only run once if it did not find the header.
@@ -207,7 +206,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     this->type = FILE_IS_LITTLE_ENDIAN;
                     std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
-                    default_settings.is_opposite_endian = Utilities::Buffer::IS_CPU_BIG_ENDIAN; // TODO Remove this
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
@@ -215,7 +213,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     this->type = FILE_IS_BIG_ENDIAN;
                     std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Macintosh;
-                    default_settings.is_opposite_endian = Utilities::Buffer::IS_CPU_LITTLE_ENDIAN;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
                 else

@@ -143,6 +143,9 @@ std::mutex say_guard;
 std::random_device random_device;
 std::mutex random_device_guard;
 
+std::mutex nondetermined_guard;
+uint64_t nondetermined_amount;
+
 void sayProblem( int width, int height, glm::vec3 position_of_camera, glm::vec2 rotation, float distance_away ) {
     say_guard.lock();
 
@@ -159,16 +162,7 @@ void sayProblem( int width, int height, glm::vec3 position_of_camera, glm::vec2 
 int stressTest( Random::Generator &general ) {
     int status = SUCCESS;
 
-    std::vector<glm::vec3> camera_data(8);
-
-    camera_data[0] = glm::vec3( 127.6480636596679688, 3.1758630275726318, 60.8731765747070312 );
-    camera_data[1] = glm::vec3( 127.5414276123046875, 3.1758630275726318, 60.7715873718261719 );
-    camera_data[2] = glm::vec3( 127.6340255737304688, 3.2561616897583008, 60.8879165649414062 );
-    camera_data[3] = glm::vec3( 127.5273895263671875, 3.2561612129211426, 60.7863273620605469 );
-    camera_data[4] = glm::vec3( 114.6178359985351562, -126.2063064575195312, 287.9737854003906250 );
-    camera_data[5] = glm::vec3( -98.6433944702148438, -126.2067489624023438, 84.7968063354492188 );
-    camera_data[6] = glm::vec3( 86.5334472656250000, 34.3913993835449219, 317.4512329101562500 );
-    camera_data[7] = glm::vec3( -126.7258300781250000, 34.3909606933593750, 114.2761077880859375 );
+    std::vector<glm::vec3> camera_data = generateCubeData( glm::vec3( 1, 1, 1 ), glm::vec3( 0, 0, 0 ) );
 
     int width;
     int height;
@@ -176,7 +170,6 @@ int stressTest( Random::Generator &general ) {
     glm::vec2 rotation;
     float distance_away;
 
-    /*
     glm::mat4 projection_matrix;
     glm::mat4 extra_matrix_0;
     glm::mat4 extra_matrix_1;
@@ -203,8 +196,9 @@ int stressTest( Random::Generator &general ) {
     extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
     extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
-    glm::mat4 inverse = glm::inverse( projection_matrix * extra_matrix_2 );*/
-    auto camera_shape = GJKPolyhedron( camera_data );
+    glm::mat4 inverse = glm::inverse( projection_matrix * extra_matrix_2 );
+
+    auto camera_shape = GJKPolyhedron( cube_shape, inverse );
 
     for( int x = 0; x < 14 && status != FAILURE; x++ ) {
         for( int y = 0; y < 16 && status != FAILURE; y++ ) {
@@ -227,7 +221,10 @@ int stressTest( Random::Generator &general ) {
             // Its status is not important. Just detect if it got stuck.
             if( GJK::hasCollision(camera_shape, section_shape, 128) == GJK::NOT_DETERMINED ) {
                 sayProblem( width, height, position_of_camera, rotation, distance_away );
-                status = FAILURE;
+
+                nondetermined_guard.lock();
+                nondetermined_amount++;
+                nondetermined_guard.unlock();
             }
         }
     }
@@ -306,7 +303,7 @@ int main( int argc, char* argv[] ) {
         unsigned number_of_threads = 0;
         std::mutex status_guard;
 
-        std::cout << "How Many threads do you want for this stress test. Enter 0 for all that is available in the system." << std::endl;
+        std::cout << "How many threads do you want for this stress test. Enter 0 for all that is available in the system." << std::endl;
 
         std::cout << "Threads: ";
         std::cin >> number_of_threads;
@@ -326,12 +323,16 @@ int main( int argc, char* argv[] ) {
 
         const auto starting_time = high_resolution_clock::now();
 
-        const auto system_time = std::chrono::system_clock::to_time_t(starting_time);
+        const auto system_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cout << "Started test at " << std::ctime(&system_time) << std::endl;
 
         if( tminutes == 0 ) {
             return 0; // Exit the program.
         }
+
+        nondetermined_guard.lock();
+        nondetermined_amount = 0;
+        nondetermined_guard.unlock();
 
         for( size_t i = 0; i < number_of_threads; i++ ) {
             threads.push_back( std::thread( [&status, &status_guard, &map_views, tminutes, i]
@@ -358,6 +359,10 @@ int main( int argc, char* argv[] ) {
         const auto min_ran = duration_cast<minutes>(current_time - starting_time).count();
 
         if( min_ran != 0 ) {
+            nondetermined_guard.lock();
+            std::cout << "Nondetermined collisions = " << nondetermined_amount << std::endl;
+            nondetermined_guard.unlock();
+
             std::cout << "Minutes run = " << min_ran << std::endl;
 
             const auto runs_per_minute = total_times_on_threads / min_ran;
@@ -368,7 +373,7 @@ int main( int argc, char* argv[] ) {
 
             std::cout << "Runs per second = " << runs_per_second << std::endl;
 
-            const auto end_system_time = std::chrono::system_clock::to_time_t(current_time);
+            const auto end_system_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
             std::cout << "Ended test at " << std::ctime(&end_system_time) << std::endl;
         }
         say_guard.unlock();

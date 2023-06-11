@@ -2,7 +2,7 @@
 #define GRAPHICS_GLES2_INTERNAL_WORLD_H
 
 #include "Mesh.h"
-#include "../../../Camera.h"
+#include "../Camera.h"
 #include "../../../../Data/Mission/PTCResource.h"
 #include "../../../../Data/Mission/TilResource.h"
 #include "../../../../Utilities/Collision/GJKShape.h"
@@ -24,15 +24,26 @@ public:
     struct MeshDraw {
         struct Section {
             glm::i32vec2 position;
-            uint32_t camera_visable_index;
+        };
+
+        class Animation : public Mesh::DynamicNormal {
+        public:
+            MeshDraw *mesh_draw_r;
+            GLfloat selected_tile;
+            GLfloat glow_time;
+
+            void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
 
         Mesh *mesh_p;
+        std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
+        std::vector<int_fast8_t> transparent_triangle_info;
         const Data::Mission::TilResource *til_resource_r;
         float change_rate;
         float current; // [ -change_rate, change_rate ]
         std::vector<Section> sections;
     };
+
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 protected:
@@ -46,7 +57,6 @@ protected:
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
-    uint32_t valid_sections;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
@@ -112,26 +122,18 @@ public:
     void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
-     * @return The number of drawable sections in this world.
-     */
-    uint32_t getNumberSections() const { return valid_sections; }
-
-    /**
-     * Update Culling for the camera.
-     * @note This will change the parameter culling_info.
-     * @param culling_info The boolean vector that will hold culling information for the World.
-     * @param projection The projection shape to make the culling info from.
+     * Update the culling meta data for the camera.
+     * @param camera This camera also holds culling information for the World.
      * @return true if culling has successfully been setup.
      */
-    bool updateCulling( std::vector<float> &culling_info, const Utilities::Collision::GJKShape &projection ) const;
+    bool updateCulling( Graphics::SDL2::GLES2::Camera &camera ) const;
 
     /**
      * This draws the entire map.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into world.
-     * @param culling_info The culling information that would affect the World.
      */
-    void draw( const Camera &camera, const std::vector<float> *const culling_info_r = nullptr );
+    void draw( Graphics::SDL2::GLES2::Camera &camera );
 
     /**
      * @return the program that this World uses.

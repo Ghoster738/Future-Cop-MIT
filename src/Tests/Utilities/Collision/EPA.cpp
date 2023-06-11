@@ -54,12 +54,12 @@ int main() {
 
     if( depth.has_collision ) {
 
-        cube_position += depth.normal * depth.depth;
+        cube_position -= depth.normal * depth.depth;
         auto mod_data = generateCubeData( glm::vec3( 0.2, 0.2, 0.2 ), cube_position );
 
         GJKPolyhedron cube_moved( mod_data );
 
-        if( GJK::hasCollision( platform, cube_moved ) ) {
+        if( GJK::hasCollision( platform, cube_moved ) == GJK::COLLISION ) {
             status = FAILURE;
             std::cout << "Bad Collision depth = " << depth.depth << std::endl;
             displayVec3( "  normal", depth.normal, std::cout );

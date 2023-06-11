@@ -93,6 +93,11 @@ add_executable(anm_resource_test Data/Mission/ANMResource.cpp)
 target_link_libraries(anm_resource_test PRIVATE FC_IFF_IO)
 add_test( NAME anm_resource_test COMMAND $<TARGET_FILE:anm_resource_test> )
 
+# Test CBMPResource Code
+add_executable(cbmp_resource_test Data/Mission/CBMPResource.cpp)
+target_link_libraries(cbmp_resource_test PRIVATE FC_IFF_IO)
+add_test( NAME cbmp_resource_test COMMAND $<TARGET_FILE:cbmp_resource_test> )
+
 # Test FontResource Code
 add_executable(fnt_resource_test Data/Mission/FontResource.cpp)
 target_link_libraries(fnt_resource_test PRIVATE FC_IFF_IO)

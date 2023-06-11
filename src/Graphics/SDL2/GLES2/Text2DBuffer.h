@@ -3,15 +3,16 @@
 
 #include "../../Text2DBuffer.h"
 
-#include "Environment.h"
-
 // Implementation includes.
 #include "Internal/GLES2.h"
 #include "Internal/FontSystem.h"
 
 namespace Graphics {
+
 namespace SDL2 {
 namespace GLES2 {
+
+class Environment;
 
 class Text2DBuffer : public Graphics::Text2DBuffer {
 private:

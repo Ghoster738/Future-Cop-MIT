@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath> // fmod()
-#include <iostream> // fmod()
+#include <iostream>
 #include "SDL.h"
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
@@ -169,6 +169,72 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         models_p[ obj_identifier ] = new ModelArray( &program );
         models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures );
         state =  1;
+
+        Utilities::ModelBuilder::TextureMaterial material;
+        GLsizei transparent_count = 0;
+
+        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+            model_type_r->getMaterial( a, material );
+            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+            transparent_count += material.count - material.opeque_count;
+        }
+        models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
+
+        GLsizei material_count = 0;
+
+        unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
+        unsigned coordinate_compenent_index = position_compenent_index;
+
+        Utilities::ModelBuilder::VertexComponent element("EMPTY");
+        for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
+            auto name = element.getName();
+
+            if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
+                position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
+                coordinate_compenent_index = i;
+        }
+
+        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+            model_type_r->getMaterial( a, material );
+
+            uint32_t cbmp_id;
+
+            if( textures.find( material.cbmp_resource_id ) != textures.end() )
+                cbmp_id = material.cbmp_resource_id;
+            else if( !textures.empty() ) {
+                cbmp_id = textures.begin()->first;
+            }
+            else
+                cbmp_id = 0;
+
+            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+
+            glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
+            glm::vec4      color     =  glm::vec4(1, 1, 1, 1);
+            glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+
+            const unsigned vertex_per_triangle = 3;
+
+            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+                DynamicTriangleDraw::Triangle triangle;
+
+                for( unsigned t = 0; t < 3; t++ ) {
+                    model_type_r->getTransformation(   positions[t],   position_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation( coordinates[t], coordinate_compenent_index, material_count + m + t );
+
+                    triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
+                    triangle.vertices[t].color = color;
+                    triangle.vertices[t].coordinate = coordinates[t];
+                }
+
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+
+                models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
+            }
+
+            material_count += material.count;
+        }
     }
     else
         state = -1;
@@ -176,7 +242,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
     return state;
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Camera &camera ) {
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
@@ -195,6 +261,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
     if( shiney_texture_r != nullptr )
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
+    Mesh::DynamicNormal dynamic;
+    dynamic.camera_position = camera.getPosition();
+
     // Traverse the models.
     for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
     {
@@ -204,23 +273,28 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( const Graphics::Cam
         // Go through every instance that refers to this mesh.
         for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
-            // Get the position and rotation of the model.
-            // Multiply them into one matrix which will hold the entire model transformation.
-            camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
-
-            // Then multiply it to the projection, and view to get projection, view, and model matrix.
-            camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
-
-            // We can now send the matrix to the program.
-            glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
-
-            model_view = view * camera_3D_model_transform;
-            model_view_inv = glm::inverse( model_view );
-            glUniformMatrix4fv( view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
-            glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
-
-            // Finally we can draw the mesh!
-            mesh_r->draw( 0, diffusive_texture_uniform_id );
+            if( camera.isVisible( *(*instance) ) ) {
+                // Get the position and rotation of the model.
+                // Multiply them into one matrix which will hold the entire model transformation.
+                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
+                
+                // Then multiply it to the projection, and view to get projection, view, and model matrix.
+                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
+                
+                // We can now send the matrix to the program.
+                glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
+                
+                model_view = view * camera_3D_model_transform;
+                model_view_inv = glm::inverse( model_view );
+                glUniformMatrix4fv( view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+                glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
+                
+                // Finally we can draw the mesh!
+                mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
+                
+                dynamic.transform = camera_3D_model_transform;
+                dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
+            }
         }
     }
 }

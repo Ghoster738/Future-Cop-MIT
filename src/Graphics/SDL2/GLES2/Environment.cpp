@@ -1,6 +1,7 @@
 #include "../../Environment.h" // Include the interface class
 #include "Environment.h" // Include the internal class
 #include "Window.h"
+#include "Camera.h"
 #include "Text2DBuffer.h"
 #include "Internal/GLES2.h"
 #include <algorithm>
@@ -105,6 +106,9 @@ void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vect
     this->world_p->setVertexShader();
     this->world_p->setFragmentShader();
     this->world_p->compilieProgram();
+
+    this->map_section_width  = ptc.getWidth();
+    this->map_section_height = ptc.getHeight();
     
     // Turn the map into a world.
     this->world_p->setWorld( ptc, tiles, this->textures );
@@ -153,6 +157,15 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     if( err != GL_NO_ERROR )
         std::cout << "Skeletal Model shader is broken!: " << err << std::endl;
     
+    this->dynamic_triangle_draw_routine.setVertexShader();
+    this->dynamic_triangle_draw_routine.setFragmentShader();
+    this->dynamic_triangle_draw_routine.compileProgram();
+
+    err = glGetError();
+
+    if( err != GL_NO_ERROR )
+        std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
+
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )
         {
@@ -210,25 +223,23 @@ void Environment::setupFrame() {
     for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ )
     {
         // Setup the current camera.
-        auto current_camera_r = window_p->getCameras()->at( i );
+        auto current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(window_p->getCameras()->at( i ));
 
         if( current_camera_r != nullptr && this->world_p != nullptr )
         {
-            if( current_camera_r->culling_info.empty() )
-                current_camera_r->culling_info = std::vector<float>( this->world_p->getNumberSections(), 1 );
+            if( current_camera_r->culling_info.getWidth() * current_camera_r->culling_info.getHeight() == 0 )
+                current_camera_r->culling_info.setDimensions( this->map_section_width, this->map_section_height );
 
-            auto projection_shape = current_camera_r->getProjection3DShape();
-
-            this->world_p->updateCulling( current_camera_r->culling_info, projection_shape );
+            this->world_p->updateCulling( *current_camera_r );
         }
     }
 }
 
-void Environment::drawFrame() const {
+void Environment::drawFrame() {
     auto window_r =  window_p;
     
     auto window_SDL_r = dynamic_cast<GLES2::Window*>( window_r );
-    Camera* current_camera; // Used to store the camera.
+    GLES2::Camera* current_camera_r; // Used to store the camera.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
     // Clear the screen to black
@@ -238,16 +249,16 @@ void Environment::drawFrame() const {
     for( unsigned int i = 0; i < window_r->getCameras()->size(); i++ )
     {
         // Setup the current camera.
-        current_camera = window_r->getCameras()->at( i );
+        current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(window_r->getCameras()->at( i ));
 
-        if( current_camera != nullptr )
+        if( current_camera_r != nullptr )
         {
             // Set the viewport
-            glViewport( current_camera->getViewportOrigin().x, current_camera->getViewportOrigin().y, current_camera->setViewportDimensions().x, current_camera->setViewportDimensions().y );
+            glViewport( current_camera_r->getViewportOrigin().x, current_camera_r->getViewportOrigin().y, current_camera_r->setViewportDimensions().x, current_camera_r->setViewportDimensions().y );
 
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
-            
+
             // This is very crude blending.
             glEnable( GL_BLEND );
             glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
@@ -260,17 +271,15 @@ void Environment::drawFrame() const {
             if( this->world_p != nullptr )
             {
                 // Draw the map.
-                if( current_camera->culling_info.empty() )
-                    this->world_p->draw( *current_camera );
-                else
-                    this->world_p->draw( *current_camera, &current_camera->culling_info );
+                this->world_p->draw( *current_camera_r );
             }
 
-            // TODO Find a way to make const draw.
-            const_cast<Environment*>(this)->static_model_draw_routine.draw(   *current_camera );
-            const_cast<Environment*>(this)->morph_model_draw_routine.draw(    *current_camera );
-            const_cast<Environment*>(this)->skeletal_model_draw_routine.draw( *current_camera );
+            this->static_model_draw_routine.draw(   *current_camera_r );
+            this->morph_model_draw_routine.draw(    *current_camera_r );
+            this->skeletal_model_draw_routine.draw( *current_camera_r );
 
+            this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
+            current_camera_r->transparent_triangles.reset();
 
             // Disable culling on the world map.
             glDisable( GL_CULL_FACE );
@@ -280,9 +289,9 @@ void Environment::drawFrame() const {
             glEnable( GL_BLEND ); // Easier to implement blending here.
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            current_camera->getProjectionView2D( camera_3D_projection_view_model );
+            current_camera_r->getProjectionView2D( camera_3D_projection_view_model );
 
-            for( auto i = current_camera->getText2DBuffer()->begin(); i != current_camera->getText2DBuffer()->end(); i++ )
+            for( auto i = current_camera_r->getText2DBuffer()->begin(); i != current_camera_r->getText2DBuffer()->end(); i++ )
             {
                 // TODO Eventually remove this kind of upcasts. They are dangerious.
                 auto text_2d_draw_routine = dynamic_cast<Text2DBuffer*>( *i );

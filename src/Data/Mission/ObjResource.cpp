@@ -43,19 +43,19 @@ namespace {
 
     const auto INTEGER_FACTOR = 1.0 / 256.0;
 
-    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, glm::u8vec2 *cords )
+    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, const Data::Mission::ObjResource::TextureQuad &texture_quad, glm::u8vec2 *cords )
     {
         if( !triangle.is_other_side )
         {
-            cords[0] = triangle.texture_quad_ref->coords[0];
-            cords[1] = triangle.texture_quad_ref->coords[1];
-            cords[2] = triangle.texture_quad_ref->coords[2];
+            cords[0] = texture_quad.coords[0];
+            cords[1] = texture_quad.coords[1];
+            cords[2] = texture_quad.coords[2];
         }
         else
         {
-            cords[0] = triangle.texture_quad_ref->coords[2];
-            cords[1] = triangle.texture_quad_ref->coords[3];
-            cords[2] = triangle.texture_quad_ref->coords[0];
+            cords[0] = texture_quad.coords[2];
+            cords[1] = texture_quad.coords[3];
+            cords[2] = texture_quad.coords[0];
         }
     }
 
@@ -80,23 +80,23 @@ uint8_t reverse(uint8_t b) {
 }
 
 bool Data::Mission::ObjResource::TextureQuad::isWithinBounds( size_t texture_amount ) const {
-    if( index >= 0 )
+    if( bmp_id >= 0 )
     {
-        return (static_cast<size_t>(index) > texture_amount);
+        return (static_cast<size_t>(bmp_id) > texture_amount);
     }
     else
-    if( index < 0 )
+    if( bmp_id < 0 )
     {
-        return (static_cast<size_t>(-index - 1) > texture_amount);
+        return (static_cast<size_t>(-bmp_id - 1) > texture_amount);
     }
     else
         return false; // This statement should not be reached.
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_limit, size_t normal_limit, size_t texture_quad_limit, const TextureQuad *origin ) const {
+bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_limit, size_t normal_limit, uint32_t texture_quad_limit ) const {
     bool is_valid = true;
 
-    if( static_cast<unsigned int>(texture_quad_ref - origin) >= texture_quad_limit )
+    if( texture_quad_index >= texture_quad_limit )
         is_valid = false;
     else
     if( this->v0 >= vertex_limit )
@@ -120,46 +120,65 @@ bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_lim
     return is_valid;
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
-    if( l_operand.texture_quad_ref != nullptr && r_operand.texture_quad_ref != nullptr )
-        return (l_operand.texture_quad_ref->index < r_operand.texture_quad_ref->index);
+bool Data::Mission::ObjResource::FaceTriangle::getTransparency() const {
+    if( is_reflective || texture_quad_r == nullptr )
+        return false;
     else
-    if( l_operand.texture_quad_ref != nullptr )
+    if( is_other_side )
+        return texture_quad_r->has_transparent_pixel_t1;
+    else
+        return texture_quad_r->has_transparent_pixel_t0;
+}
+
+bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
+    if( l_operand.texture_quad_r != nullptr && r_operand.texture_quad_r != nullptr ) {
+        if( l_operand.texture_quad_r->bmp_id != r_operand.texture_quad_r->bmp_id )
+            return (l_operand.texture_quad_r->bmp_id < r_operand.texture_quad_r->bmp_id);
+        else
+        if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
+            return true;
+        else
+            return false;
+    }
+    else
+    if( l_operand.texture_quad_r != nullptr )
         return false;
     else
         return true;
 }
 
 Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::firstTriangle() const {
-    FaceTriangle newTri;
+    FaceTriangle new_tri;
 
-    newTri.is_other_side = false;
-    newTri.is_reflective = is_reflective;
-    newTri.texture_quad_ref = texture_quad_ref;
-    newTri.v0 = v0;
-    newTri.v1 = v1;
-    newTri.v2 = v2;
-    newTri.n0 = n0;
-    newTri.n1 = n1;
-    newTri.n2 = n2;
+    new_tri.is_other_side = false;
+    new_tri.is_reflective = is_reflective;
+    new_tri.texture_quad_index = texture_quad_index;
+    new_tri.texture_quad_r = texture_quad_r;
+    new_tri.v0 = v0;
+    new_tri.v1 = v1;
+    new_tri.v2 = v2;
+    new_tri.n0 = n0;
+    new_tri.n1 = n1;
+    new_tri.n2 = n2;
 
-    return newTri;
+    return new_tri;
 }
 
 Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::secondTriangle() const {
-    FaceTriangle newTri;
+    FaceTriangle new_tri;
 
-    newTri.is_other_side = true;
-    newTri.is_reflective = is_reflective;
-    newTri.texture_quad_ref = texture_quad_ref;
-    newTri.v0 = v2;
-    newTri.v1 = v3;
-    newTri.v2 = v0;
-    newTri.n0 = n2;
-    newTri.n1 = n3;
-    newTri.n2 = n0;
+    new_tri.is_other_side = true;
+    new_tri.is_reflective = is_reflective;
+    new_tri.texture_quad_index = texture_quad_index;
+    new_tri.texture_quad_r = texture_quad_r;
+    new_tri.v0 = v2;
+    new_tri.v1 = v3;
+    new_tri.v2 = v0;
+    new_tri.n0 = n2;
+    new_tri.n1 = n3;
+    new_tri.n2 = n0;
 
-    return newTri;
+    return new_tri;
 
 }
 
@@ -325,6 +344,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     texture_quads.push_back( TextureQuad() );
 
+                    texture_quads.back().has_transparent_pixel_t0 = false;
+                    texture_quads.back().has_transparent_pixel_t1 = false;
+
                     texture_quads.back().coords[0].x = reader3DTL.readU8();
                     texture_quads.back().coords[0].y = reader3DTL.readU8();
 
@@ -339,7 +361,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     
                     // For some reason the Slim's Windows English version has a 64th Cobj that goes beyond 10 textures.
                     
-                    texture_quads.back().index = reader3DTL.readU32( settings.endian );
+                    texture_quads.back().bmp_id = reader3DTL.readU32( settings.endian );
                 }
             }
             else
@@ -364,19 +386,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     assert(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 ));
                     auto face_type_2 = reader3DQL.readU8();
 
-                    const size_t triangle_quad_index = reader3DQL.readU16( settings.endian ) / 0x10;
+                    const size_t texture_quad_index = reader3DQL.readU16( settings.endian ) / 0x10;
 
-                    TextureQuad* texture_quad_r = nullptr;
-
-                    if( !texture_quads.empty() )
-                        texture_quad_r = &texture_quads.at(triangle_quad_index % texture_quads.size()); // TODO Investigate workaround.
-
-                    /*
-                    // Add to the indexes of this texture to the list when it is not contained in the data base.
-                    if( !std::binary_search( texture_dependences.begin(), texture_dependences.end(), FaceTriangle() ) && texture_quad_r - texture_quads.data() > texture_quads.size() ) {
-                        texture_dependences.push_back( texture_quad_r->index );
-                        std::sort( texture_dependences.begin(), texture_dependences.end() );
-                    }*/
                     bool reflect = ((face_type_2 & 0xF0) == 0x80);
                     
                     // Data::Mission::Resource::ParseSettings::Macintosh
@@ -384,7 +395,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if( (face_type & 0x07) == 4 ) {
                         face_quads.push_back( FaceQuad() );
 
-                        face_quads.back().texture_quad_ref = texture_quad_r;
+                        face_quads.back().texture_quad_index = texture_quad_index;
                         // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
                         // 0x07 Appears to be its own face type
                         face_quads.back().is_reflective = reflect;
@@ -403,7 +414,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         face_trinagles.push_back( FaceTriangle() );
 
                         face_trinagles.back().is_other_side = false;
-                        face_trinagles.back().texture_quad_ref = texture_quad_r;
+                        face_trinagles.back().texture_quad_index = texture_quad_index;
                         // (face_type & 0x08) seems to be the effect bit.
                         // (face_type & 0x28) seems to be the tranlucent bit.
                         face_trinagles.back().is_reflective = reflect;
@@ -835,6 +846,19 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             assert( bounding_box_frames == 1 );
         }
 
+        for( auto &triangle : this->face_trinagles ) {
+            if( this->texture_quads.size() > triangle.texture_quad_index ) {
+                triangle.texture_quad_r = &this->texture_quads[ triangle.texture_quad_index ];
+            }
+            else
+                triangle.texture_quad_r = nullptr;
+        }
+        for( auto &quad : this->face_quads ) {
+            if( this->texture_quads.size() > quad.texture_quad_index ) {
+                quad.texture_quad_r = &this->texture_quads[ quad.texture_quad_index ];
+            }
+        }
+
         return !file_is_not_valid;
     }
     else
@@ -885,25 +909,50 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
         std::map< uint32_t, BMPResource* > resource_id_to_bmp;
         std::map< uint32_t, TextureReference > resource_id_to_reference;
 
+        glm::vec2 points[6];
+
         for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
 
         for( size_t i = 0; i < texture_quads.size(); i++ ) {
             
-            const auto RESOURCE_ID = texture_quads[ i ].index + 1;
+            const auto RESOURCE_ID = texture_quads[ i ].bmp_id + 1;
             
             if( resource_id_to_reference.count( RESOURCE_ID ) == 0 ) {
                 resource_id_to_reference[ RESOURCE_ID ].resource_id = RESOURCE_ID;
 
                 if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
-                        resource_id_to_reference[ RESOURCE_ID ].name = resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat()->appendExtension( resource_id_to_bmp[ RESOURCE_ID ]->getFullName( RESOURCE_ID ) );
+                        auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
+
+                        resource_id_to_reference[ RESOURCE_ID ].name = bmp_reference_r->getImageFormat()->appendExtension( bmp_reference_r->getFullName( RESOURCE_ID ) );
                         
                         assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
                     }
                 }
                 else
                     valid = false;
+            }
+        }
+
+        for( size_t i = 0; i < texture_quads.size(); i++ ) {
+            const auto RESOURCE_ID = texture_quads[ i ].bmp_id + 1;
+
+            if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
+                auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
+
+                points[0] = this->texture_quads[ i ].coords[0];
+                points[1] = this->texture_quads[ i ].coords[1];
+                points[2] = this->texture_quads[ i ].coords[2];
+
+                points[3] = this->texture_quads[ i ].coords[2];
+                points[4] = this->texture_quads[ i ].coords[3];
+                points[5] = this->texture_quads[ i ].coords[0];
+
+                if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[0] ) )
+                    this->texture_quads[ i ].has_transparent_pixel_t0 = true;
+                if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[3] ) )
+                    this->texture_quads[ i ].has_transparent_pixel_t1 = true;
             }
         }
 
@@ -934,7 +983,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( auto i = face_trinagles.begin(); i != face_trinagles.end(); i++ ) {
             is_specular |= (*i).is_reflective;
-            if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size(), texture_quads.size(), texture_quads.data() ) )
+            if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size(), texture_quads.size() ) )
             {
                 triangle_buffer.push_back( (*i) );
             }
@@ -942,12 +991,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
             is_specular |= (*i).is_reflective;
-            if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size(), texture_quads.size(), texture_quads.data() ) )
+            if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size(), texture_quads.size() ) )
             {
                 triangle_buffer.push_back( (*i).firstTriangle() );
             }
 
-            if( (*i).secondTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size(), texture_quads.size(), texture_quads.data() ) )
+            if( (*i).secondTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size(), texture_quads.size() ) )
             {
                 triangle_buffer.push_back( (*i).secondTriangle() );
             }
@@ -960,11 +1009,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
-            int index = (*i).texture_quad_ref->index;
+            uint32_t bmp_id = (*i).texture_quad_r->bmp_id;
 
-            if( triangle_buffer.begin() == i || last_texture_quad_index != index) {
+            if( triangle_buffer.begin() == i || last_texture_quad_index != bmp_id ) {
                 triangle_counts.push_back( 0 );
-                last_texture_quad_index = index;
+                last_texture_quad_index = bmp_id;
             }
             triangle_counts.back()++;
         }
@@ -1083,6 +1132,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     joints.x = joints.y = joints.z = joints.w = 0;
 
     auto triangle = triangle_buffer.begin();
+    auto previous_triangle = triangle_buffer.begin();
 
     for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
     {
@@ -1090,12 +1140,30 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
         {
-            triangleToCoords( (*triangle), coords );
+            triangleToCoords( (*triangle), *(*triangle).texture_quad_r, coords );
             
             if( (*triangle).is_reflective )
                 specular = 1.0f;
             else
                 specular = 0.0f;
+
+            if( triangle != previous_triangle ) {
+                if( (*triangle).texture_quad_r != nullptr && (*previous_triangle).texture_quad_r != nullptr && // Memory safety.
+                    (*triangle).texture_quad_r->bmp_id == (*previous_triangle).texture_quad_r->bmp_id )
+                {
+                    if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
+                        model_output->beginSemiTransperency();
+                    else
+                    if( (*previous_triangle).getTransparency() == true  && (*triangle).getTransparency() == false )
+                        assert( false && "Sorting is wrong!" );
+                }
+                else if( (*triangle).getTransparency() ) {
+                    model_output->beginSemiTransperency();
+                }
+            }
+            else if( (*triangle).getTransparency() ) {
+                model_output->beginSemiTransperency();
+            }
 
             model_output->startVertex();
 
@@ -1109,10 +1177,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
             
             model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[2] ) );
+
             if( is_specular )
-            {
                 model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-            }
+
             for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
             {
                 handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v2 );
@@ -1224,6 +1292,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
 
             triangle++;
+            previous_triangle = triangle - 1;
         }
     }
     

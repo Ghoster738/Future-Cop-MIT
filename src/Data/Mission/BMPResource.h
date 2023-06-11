@@ -6,6 +6,8 @@
 #include "../../Utilities/ImagePalette2D.h"
 #include "../../Utilities/ImageFormat/ImageFormat.h"
 
+#include <glm/vec2.hpp>
+
 namespace Data {
 
 namespace Mission {
@@ -51,6 +53,9 @@ public:
 
     static std::vector<BMPResource*> getVector( IFF &mission_file );
     static const std::vector<BMPResource*> getVector( const IFF &mission_file );
+
+    static bool isSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[3] );
+    static bool isAreaSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[2] );
 };
 
 }

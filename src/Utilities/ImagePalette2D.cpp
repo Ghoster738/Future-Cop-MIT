@@ -177,17 +177,30 @@ Utilities::Image2D Utilities::ImagePalette2D::toColorImage() const
 {
     Utilities::Image2D image( getWidth(), getHeight(), *getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
     
-    // TODO Find a faster algorithm for the case that the placement order is the same.
-    
     for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
     {
         for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
         {
-            image.writePixel( current_x, current_y, readPixel( current_x, current_y ) );
+            image.writePixel( current_x, current_y, color_palette_p->getIndex( getPixelIndex( current_x, current_y ) ) );
         }
     }
         
     return image;
+}
+
+
+void Utilities::ImagePalette2D::inscribeColorImage( Image2D &image, const ColorPalette *const palette_r ) const {
+    const ColorPalette * selected_palette_r = palette_r;
+
+    // TODO Find a faster algorithm for the case that the placement order is the same.
+
+    for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
+    {
+        for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
+        {
+            image.writePixel( current_x, current_y, selected_palette_r->getIndex( getPixelIndex( current_x, current_y ) ) );
+        }
+    }
 }
 
 Utilities::ImageMorbin2D Utilities::ImagePalette2D::toColorMorbinImage() const
@@ -359,17 +372,26 @@ Utilities::Image2D Utilities::ImagePaletteMorbin2D::toColorImage() const
 {
     Utilities::Image2D image( getWidth(), getHeight(), *getColorPalette()->getColorFormat(), getColorPalette()->getEndian() );
     
+    inscribeColorImage( image );
+        
+    return image;
+}
+
+void Utilities::ImagePaletteMorbin2D::inscribeColorImage( Image2D &image, const ColorPalette *const palette_r ) const {
+    const ColorPalette * selected_palette_r = color_palette_p;
+
+    if( palette_r != nullptr )
+        selected_palette_r = palette_r;
+
     // TODO Find a faster algorithm for the case that the placement order is the same.
-    
+
     for( grid_2d_unit current_x = 0; current_x < getWidth(); current_x++ )
     {
         for( grid_2d_unit current_y = 0; current_y < getHeight(); current_y++ )
         {
-            image.writePixel( current_x, current_y, readPixel( current_x, current_y ) );
+            image.writePixel( current_x, current_y, selected_palette_r->getIndex( getPixelIndex( current_x, current_y ) ) );
         }
     }
-        
-    return image;
 }
 
 Utilities::ImageMorbin2D Utilities::ImagePaletteMorbin2D::toColorMorbinImage() const

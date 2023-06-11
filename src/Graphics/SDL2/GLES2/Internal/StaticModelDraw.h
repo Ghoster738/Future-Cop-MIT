@@ -3,7 +3,7 @@
 
 #include "Mesh.h"
 #include "../../../../Data/Mission/ObjResource.h"
-#include "../../../Camera.h"
+#include "../Camera.h"
 #include <set>
 
 namespace Graphics {
@@ -22,8 +22,8 @@ public:
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
+        std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
-
     };
 protected:
     Program program;
@@ -124,7 +124,7 @@ public:
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
      * @param This is the camera data to be passed into world.
      */
-    void draw( const Camera &camera );
+    void draw( Graphics::SDL2::GLES2::Camera &camera );
 
     int allocateObjModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
 

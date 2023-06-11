@@ -156,11 +156,15 @@ private:
     
     uint32_t slfx_bitfield;
     
-    std::string texture_names[8]; // There can only be 2*2*2 or 8 texture names;
+    struct TextureInfo {
+        std::string name;
+        std::vector<bool> is_semi_transparent;
+    };
+    TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture names;
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
 public:
-    static constexpr size_t TEXTURE_NAMES_AMOUNT = sizeof( texture_names ) / sizeof( texture_names[0] );
+    static constexpr size_t TEXTURE_INFO_AMOUNT = sizeof( texture_info ) / sizeof( texture_info[0] );
     
     TilResource();
     TilResource( const TilResource &obj );

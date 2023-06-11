@@ -17,13 +17,28 @@ protected:
     GLuint mat4_array_uniform_id;
 
     class SkeletalAnimation {
-    private:
+    public:
+        struct TriangleIndex {
+            uint_fast8_t vertices[3];
+        };
+        class Dynamic : public Mesh::DynamicNormal {
+        public:
+            SkeletalAnimation *skeletal_info_r;
+            unsigned int current_frame;
+
+            virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+        };
+
+    protected:
         unsigned int num_bones;
         std::vector<glm::mat4> bone_frames;
+
     public:
+        std::vector<TriangleIndex> triangle_weights;
+
         SkeletalAnimation( unsigned int num_bones, unsigned int amount_of_frames );
 
-        glm::mat4* getFrames( unsigned int current_frame, unsigned int starting_bone = 0 );
+        glm::mat4* getFrames( unsigned int current_frame );
 
         unsigned int getNumBones() const { return num_bones; }
     };
@@ -71,9 +86,9 @@ public:
     /**
      * This draws all of the models with the morph attribute.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
-     * @param This is the camera data to be passed into world.
+     * @param camera This is the camera data to be passed into world.
      */
-    void draw( const Camera &camera );
+    void draw( Graphics::SDL2::GLES2::Camera &camera );
     
     virtual void advanceTime( float seconds_passed );
 };

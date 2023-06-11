@@ -24,6 +24,9 @@ protected:
      * This declares the environment.
      */
     Environment();
+
+    unsigned map_section_width;
+    unsigned map_section_height;
 public:
     static const std::string SDL2_WITH_GLES_2;
 
@@ -124,7 +127,7 @@ public:
     /**
      * Draw a single frame onto the main context.
      */
-    virtual void drawFrame() const = 0;
+    virtual void drawFrame() = 0;
 
     /**
      * This makes a screenshot of the Environment's rendering.

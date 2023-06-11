@@ -2,6 +2,19 @@
 #include <cassert>
 #include <iostream>
 
+Graphics::SDL2::GLES2::Internal::Mesh::DynamicTriangleTransform::~DynamicTriangleTransform() {
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::DynamicNormal::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ].addTriangle( this->camera_position, transform );
+    }
+}
+
 Graphics::SDL2::GLES2::Internal::Mesh::Mesh( Program *program_r ) {
     this->program_r = program_r;
     draw_command_array_mode = GL_TRIANGLES;
@@ -12,9 +25,10 @@ Graphics::SDL2::GLES2::Internal::Mesh::~Mesh() {
     glDeleteBuffers( 1, &vertex_buffer_object );
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei count, const Texture2D *texture_r ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r ) {
     draw_command.push_back( DrawCommand() );
     draw_command.back().first = first;
+    draw_command.back().opeque_count = opeque_count;
     draw_command.back().count = count;
     draw_command.back().texture_r = texture_r;
 }
@@ -91,14 +105,26 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         else if( !textures.empty() ) {
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
-            
-        addCommand( material.starting_vertex_index, material.count, texture_2d_r );
+
+        GLsizei opeque_count = std::min( material.count, material.opeque_count );
+
+        addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
     }
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
     bindArray();
     noPreBindDraw( active_switch_texture, texture_switch_uniform );
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    bindArray();
+    noPreBindDrawOpaque( active_switch_texture, texture_switch_uniform );
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    bindArray();
+    noPreBindDrawTransparent( active_switch_texture, texture_switch_uniform );
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
@@ -118,6 +144,34 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
         glDrawArrays( draw_command_array_mode, (*i).first, (*i).count );
+        auto err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "glDrawArrays could have a problem! " << err << std::endl;
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    {
+        if( (*i).texture_r != nullptr )
+            (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
+
+        glDrawArrays( draw_command_array_mode, (*i).first, (*i).opeque_count );
+        auto err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "glDrawArrays could have a problem! " << err << std::endl;
+    }
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
+    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    {
+        if( (*i).texture_r != nullptr )
+            (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
+
+        glDrawArrays( draw_command_array_mode, (*i).first + (*i).opeque_count, (*i).count - (*i).opeque_count );
         auto err = glGetError();
 
         if( err != GL_NO_ERROR )

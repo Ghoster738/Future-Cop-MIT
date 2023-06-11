@@ -84,6 +84,22 @@ const Utilities::ImagePalette2D* Data::Mission::ANMResource::Video::getImage() {
     return &image;
 }
 
+Utilities::Image2D Data::Mission::ANMResource::Video::generateImage( Utilities::PixelFormatColor &format_color ) const {
+    return Utilities::Image2D( Video::WIDTH, Video::HEIGHT, format_color );
+}
+
+Utilities::ImagePalette2D Data::Mission::ANMResource::Video::generatePalettedImage( Utilities::ColorPalette &format_color ) const {
+    return Utilities::ImagePalette2D( Video::WIDTH, Video::HEIGHT, format_color );
+}
+
+void Data::Mission::ANMResource::Video::setImage(  Utilities::Image2D& image, const Utilities::ColorPalette* const color_palette_r ) const {
+    getImage()->inscribeColorImage( image, color_palette_r );
+}
+
+void Data::Mission::ANMResource::Video::setImage( Utilities::ImagePalette2D& image ) const {
+    image.inscribeSubImage( 0, 0, *getImage() );
+}
+
 const std::string Data::Mission::ANMResource::FILE_EXTENSION = "anm";
 const uint32_t Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
 
@@ -226,18 +242,8 @@ Utilities::ImagePalette2D* Data::Mission::ANMResource::generateAnimationSheet( u
         auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
         Utilities::ColorPalette rgba_palette( rgba_color );
         
-        rgba_palette.setAmount( static_cast<uint16_t>(palette.getLastIndex()) + 1 );
-        
-        for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
-            auto color =  palette.getIndex( i );
-            
-            if( color.alpha < 0.75)
-                color.alpha = 1;
-            else
-                color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
-            
-            rgba_palette.setIndex( i, color );
-        }
+        setColorPalette( rgba_palette );
+
         animation_sheet_p = new Utilities::ImagePalette2D( dimensions.x, dimensions.y, rgba_palette );
     }
     else
@@ -265,6 +271,21 @@ Utilities::ImagePalette2D* Data::Mission::ANMResource::generateAnimationSheet( u
     return animation_sheet_p;
 }
 
+void Data::Mission::ANMResource::setColorPalette( Utilities::ColorPalette &rgba_palette ) const {
+    rgba_palette.setAmount( 0x100 );
+
+    for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
+        auto color = palette.getIndex( i );
+
+        if( i == 0 )
+            color.alpha = 0.0;
+        else
+            color.alpha = 1.0;
+
+        rgba_palette.setIndex( i, color );
+    }
+}
+
 int Data::Mission::ANMResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
@@ -279,18 +300,7 @@ int Data::Mission::ANMResource::write( const std::string& file_path, const Data:
         auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
         Utilities::ColorPalette rgba_palette( rgba_color );
         
-        rgba_palette.setAmount( 0x100 );
-        
-        for( unsigned int i = 0; i <= palette.getLastIndex(); i++ ) {
-            auto color =  palette.getIndex( i );
-            
-            if( color.alpha < 0.75)
-                color.alpha = 1;
-            else
-                color.alpha = 0.75; // Not transparent enough to be hidden but to be visiable.
-            
-            rgba_palette.setIndex( i, color );
-        }
+        setColorPalette( rgba_palette );
         
         // This contains a list of frames of this file format.
         Utilities::ImagePalette2D image_sheet( Video::WIDTH, Video::HEIGHT * video_frames, rgba_palette );

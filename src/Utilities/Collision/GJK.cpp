@@ -361,55 +361,56 @@ GJK::Depth GJK::getDepth( const GJKShape &shape_1, const GJKShape &shape_0, unsi
         support = shape_0.getSupport( minimum_normal ) - shape_1.getSupport( -minimum_normal );
         support_distance = glm::dot( minimum_normal, support );
 
-        if( std::abs(support_distance - minimum_distance) > 0.001f )
-            support_distance = std::numeric_limits<float>::max();
+        if( std::abs(support_distance - minimum_distance) > 0.001f ) {
+            minimum_distance = std::numeric_limits<float>::max();
 
-        std::vector<Edge> unique_edges;
+            std::vector<Edge> unique_edges;
 
-        for( size_t i = 0; i < face_normals.direction.size(); i++ ) {
-            if( glm::dot( face_normals.direction[i].normal, support ) > 0 ) {
-                size_t f = i * 3;
+            for( size_t i = 0; i < face_normals.direction.size(); i++ ) {
+                if( glm::dot( face_normals.direction[i].normal, support ) > 0 ) {
+                    size_t f = i * 3;
 
-                addUniqueEdge( unique_edges, faces, f + 0, f + 1 );
-                addUniqueEdge( unique_edges, faces, f + 1, f + 2 );
-                addUniqueEdge( unique_edges, faces, f + 2, f + 0 );
+                    addUniqueEdge( unique_edges, faces, f + 0, f + 1 );
+                    addUniqueEdge( unique_edges, faces, f + 1, f + 2 );
+                    addUniqueEdge( unique_edges, faces, f + 2, f + 0 );
 
-                faces[f + 2] = faces.back(); faces.pop_back();
-                faces[f + 1] = faces.back(); faces.pop_back();
-                faces[f + 0] = faces.back(); faces.pop_back();
+                    faces[f + 2] = faces.back(); faces.pop_back();
+                    faces[f + 1] = faces.back(); faces.pop_back();
+                    faces[f + 0] = faces.back(); faces.pop_back();
 
-                face_normals.direction[i] = face_normals.direction.back(); face_normals.direction.pop_back();
+                    face_normals.direction[i] = face_normals.direction.back(); face_normals.direction.pop_back();
 
-                i--;
+                    i--;
+                }
             }
-        }
 
-        std::vector<size_t> new_faces;
-        for( auto edge : unique_edges ) {
-            new_faces.push_back( edge.first );
-            new_faces.push_back( edge.second );
-            new_faces.push_back( ploytype.size() );
-        }
-
-        ploytype.push_back(support);
-
-        FaceNormals new_face_normals = getFaceNormals( ploytype, new_faces );
-
-        float old_minimum_distance = std::numeric_limits<float>::max();
-        for( auto i = face_normals.direction.begin(); i < face_normals.direction.end(); i++ ) {
-            if( (*i).distance < old_minimum_distance ) {
-                old_minimum_distance = (*i).distance;
-                new_face_normals.minimum_triangle = i - face_normals.direction.begin();
+            std::vector<uint_fast16_t> new_faces;
+            for( auto edge : unique_edges ) {
+                new_faces.push_back( edge.first );
+                new_faces.push_back( edge.second );
+                new_faces.push_back( ploytype.size() );
             }
+
+            ploytype.push_back(support);
+
+            FaceNormals new_face_normals = getFaceNormals( ploytype, new_faces );
+
+            float old_minimum_distance = std::numeric_limits<float>::max();
+            for( auto i = face_normals.direction.begin(); i < face_normals.direction.end(); i++ ) {
+                if( (*i).distance < old_minimum_distance ) {
+                    old_minimum_distance = (*i).distance;
+                    new_face_normals.minimum_triangle = i - face_normals.direction.begin();
+                }
+            }
+
+            if( new_face_normals.direction[ new_face_normals.minimum_triangle ].distance < old_minimum_distance ) {
+                face_normals.minimum_triangle = new_face_normals.minimum_triangle + face_normals.direction.size();
+            }
+
+            faces.insert( faces.end(), new_faces.begin(), new_faces.end() );
+
+            face_normals.direction.insert( face_normals.direction.end(), new_face_normals.direction.begin(), new_face_normals.direction.end() );
         }
-
-        if( new_face_normals.direction[ new_face_normals.minimum_triangle ].distance < old_minimum_distance ) {
-            face_normals.minimum_triangle = new_face_normals.minimum_triangle + face_normals.direction.size();
-        }
-
-        faces.insert( faces.end(), new_faces.begin(), new_faces.end() );
-
-        face_normals.direction.insert( face_normals.direction.end(), new_face_normals.direction.begin(), new_face_normals.direction.end() );
     }
 
     depth.normal = minimum_normal;

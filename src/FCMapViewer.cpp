@@ -267,9 +267,11 @@ int main(int argc, char** argv)
     if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
         std::cout << "Fonts missing!" << std::endl;
     }
+
+    std::vector<Data::Mission::TilResource*> til_resources;
     
     if( resource_r != nullptr ) {
-        auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
+        til_resources = Data::Mission::TilResource::getVector( *resource_r );
         environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
     }
 
@@ -278,7 +280,7 @@ int main(int argc, char** argv)
     Graphics::Text2DBuffer *text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *environment_p );
 
     // Setup the camera
-    Graphics::Camera *first_person_r = new Graphics::Camera();
+    Graphics::Camera *first_person_r = Graphics::Camera::alloc( *environment_p );
     first_person_r->attachText2DBuffer( *text_2d_buffer_r );
     window_p->attachCamera( *first_person_r );
     first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
@@ -330,9 +332,7 @@ int main(int argc, char** argv)
         return -4;
     }
 
-    bool update_culling = false;
-    
-    auto til_resources = Data::Mission::TilResource::getVector( *resource_r );
+    bool update_culling = true;
     
     while(viewer_loop)
     {

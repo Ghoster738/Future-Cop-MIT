@@ -26,9 +26,6 @@ protected:
     glm::u32vec2 origin;
     glm::u32vec2 dimensions; // x = width, y = height
 
-    // Hold the Text 2D Buffers.
-    std::vector<Text2DBuffer*> text_2d_buffers;
-
     /**
      * When projection3D or view3D had been changed, the PV3D needs to reflect this.
      * This multiplies projection3D and view3D, and stores the result in PV3D.
@@ -41,10 +38,11 @@ protected:
      */
     void updatePV2D();
 
-public:
-    std::vector<float> culling_info; // Only graphic
-
     Camera();
+
+public:
+    static Graphics::Camera* alloc( Graphics::Environment &env_r );
+
     virtual ~Camera();
 
     /**
@@ -141,7 +139,7 @@ public:
     /**
      * Get the 2D Text buffers attached to the camera.
      */
-    const std::vector<Text2DBuffer*> *const getText2DBuffer() const;
+    virtual const std::vector<Text2DBuffer*> *const getText2DBuffer() const = 0;
 
     /**
      * @param origin the origin of the viewport.
@@ -157,19 +155,27 @@ public:
      * Attach the Text 2D Buffer.
      * @return 1 if the buffer gets attached.
      */
-    int attachText2DBuffer( Text2DBuffer& buffer_p );
+    virtual int attachText2DBuffer( Text2DBuffer& buffer_p ) = 0;
 
     /**
      * Delete the Text 2D Buffer.
      * @return true if the buffer is found and deleted.
      */
-    int removeText2DBuffer( Text2DBuffer* buffer_p );
+    virtual int removeText2DBuffer( Text2DBuffer* buffer_p ) = 0;
 
     /**
      * This gets the 3D camera shape from the projection matrix.
      * @note This might actually be useful for gameplay purposes.
+     * @return the camera frustrum shape.
      */
     Utilities::Collision::GJKPolyhedron getProjection3DShape() const;
+
+    /**
+     * This gets the 3D camera shape from the projection matrix.
+     * @note This might actually be useful for gameplay purposes.
+     * @return the camera position.
+     */
+    glm::vec3 getPosition() const;
 };
 
 }

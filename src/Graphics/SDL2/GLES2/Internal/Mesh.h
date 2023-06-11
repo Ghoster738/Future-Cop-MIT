@@ -5,6 +5,7 @@
 #include "Texture2D.h"
 #include "../../../../Utilities/ModelBuilder.h"
 #include "VertexAttributeArray.h"
+#include "DynamicTriangleDraw.h"
 #include <vector>
 
 namespace Graphics {
@@ -16,8 +17,23 @@ class Mesh {
 public:
     struct DrawCommand {
         GLint first;
+        GLsizei opeque_count;
         GLsizei count;
         const Texture2D *texture_r;
+    };
+
+    class DynamicTriangleTransform {
+    public:
+        virtual ~DynamicTriangleTransform();
+
+        virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const = 0;
+    };
+    class DynamicNormal : public Mesh::DynamicTriangleTransform {
+    public:
+        glm::mat4 transform;
+        glm::vec3 camera_position;
+
+        virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
     };
 protected:
     Program *program_r;
@@ -35,7 +51,7 @@ protected:
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
 
-    void addCommand( GLint first, GLsizei count, const Texture2D *texture_ref );
+    void addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r );
 public:
     Mesh( Program *program_r );
     virtual ~Mesh();
@@ -47,8 +63,12 @@ public:
     void bindArray() const;
 
     void noPreBindDraw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void noPreBindDrawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void noPreBindDrawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
 
     void draw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void drawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
+    void drawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const;
 
     Program *getProgram() const { return program_r; }
 

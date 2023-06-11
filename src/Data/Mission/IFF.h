@@ -1,6 +1,7 @@
 #ifndef MISSION_FILE_HEADER
 #define MISSION_FILE_HEADER
 
+#include <cstdint>
 #include <map>
 #include <vector>
 #include <string>
