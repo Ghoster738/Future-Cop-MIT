@@ -3,10 +3,11 @@
 #include <chrono>
 #include <thread>
 
+#include "ConfigureInput.h"
+#include "SplashScreens.h"
 #include "Config.h"
 
 #include "Data/Manager.h"
-
 #include "Data/Mission/IFF.h"
 #include "Data/Mission/ObjResource.h"
 #include "Data/Mission/BMPResource.h"
@@ -14,14 +15,14 @@
 
 #include "Graphics/Environment.h"
 #include "Graphics/Text2DBuffer.h"
+
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
+#include "Utilities/Logger.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
-
-#include "ConfigureInput.h"
-#include "SplashScreens.h"
 
 namespace {
 void helpExit( std::ostream &stream ) {
@@ -66,8 +67,8 @@ glm::mat4 placeView( float angle, float distance, glm::vec3 position ) {
 
 int main(int argc, char** argv)
 {
-    int WIDTH = 0;
-    int HEIGHT = 0;
+    int width = 0;
+    int height = 0;
 
     std::string type = Data::Mission::ObjResource::FILE_EXTENSION;
     std::string iff_mission_id = "pa_urban_jungle";
@@ -145,19 +146,27 @@ int main(int argc, char** argv)
             }
             else
             if( variable_name.find( "--width") == 0 )
-                WIDTH = std::stoi(input);
+                width = std::stoi(input);
             else
             if( variable_name.find( "--height") == 0 )
-                HEIGHT = std::stoi(input);
+                height = std::stoi(input);
             
             variable_name = "";
         }
     }
+
+    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::WARNING );
+
+    {
+        auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
+        initialize_log.output << "FCModelViewer started at ";
+    }
+    Utilities::logger.setTimeStampMode( true );
     
-    if( WIDTH <= 0 )
-        WIDTH = 640;
-    if( HEIGHT <= 0 )
-        HEIGHT = 480;
+    if( width <= 0 )
+        width = 640;
+    if( height <= 0 )
+        height = 480;
 
     Data::Manager manager;
 
@@ -191,55 +200,89 @@ int main(int argc, char** argv)
     auto entry = manager.getIFFEntry( iff_mission_id );
     entry.importance = Data::Manager::Importance::NEEDED;
 
-    if( !manager.setIFFEntry( iff_mission_id, entry ) )
+    if( !manager.setIFFEntry( iff_mission_id, entry ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "Set IFF Entry has failed for \"" << iff_mission_id << "\".";
+
         return -2;
+    }
 
     // manager.togglePlatform( Data::Manager::Platform::ALL, true );
     manager.togglePlatform( platform, true );
 
-    if( manager.setLoad( Data::Manager::Importance::NEEDED ) < 2 )
+    auto number_of_iffs = manager.setLoad( Data::Manager::Importance::NEEDED );
+
+    if( number_of_iffs < 2 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The number IFF " << number_of_iffs << " is not enough.";
+
         return -3;
+    }
     
     std::vector<Data::Mission::IFF*> loaded_IFFs;
     
     Data::Mission::IFF *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
     if( global_r != nullptr )
         loaded_IFFs.push_back( global_r );
-    else
-        std::cout << "The global IFF " << global_id << " did not load." << std::endl;
+    else {
+        auto log = Utilities::logger.getLog( Utilities::Logger::WARNING );
+        log.output << "The global IFF " << global_id << " did not load.";
+    }
 
     Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
     if( resource_r != nullptr )
         loaded_IFFs.push_back( resource_r );
-    else
-        std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
+    else {
+        auto log = Utilities::logger.getLog( Utilities::Logger::WARNING );
+        log.output << "The mission IFF " << iff_mission_id << " did not load.";
+    }
 
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
-    if( graphics_identifiers.size() == 0 )
-        return -37;
+    if( graphics_identifiers.size() == 0 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "Graphics has no available identifiers.";
+        return -4;
+    }
     
-    if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
-        return -38;
+    if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics identifier \"" << graphics_identifiers[0] << "\" is not an identifer.";
+        return -5;
+    }
 
     Graphics::Environment::initSystem( graphics_identifiers[0] );
     
     Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
-    if( environment_p == nullptr )
-        return -39;
-
-    // Declare a pointer to the Environment.
-    Graphics::Window *window_r = Graphics::Window::alloc( *environment_p );
-    
-    if( window_r == nullptr ) {
-        delete environment_p;
-        return -40;
+    if( environment_p == nullptr ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics environment has failed to allocate.";
+        return -6;
     }
-    
-    window_r->setWindowTitle( "Future Cop Individual Model Viewer" );
-    window_r->setDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
-    
-    window_r->attach();
+
+    // Declare a pointer
+    Graphics::Window *window_r = Graphics::Window::alloc( *environment_p );
+
+    if( window_r == nullptr ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics window has failed to allocate.";
+        delete environment_p;
+        return -7;
+    }
+
+    std::string title = "Future Cop Model Viewer";
+
+    window_r->setWindowTitle( title );
+    window_r->setDimensions( glm::u32vec2( width, height ) );
+    window_r->setFullScreen( false );
+
+    if( window_r->attach() != 1 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics window has failed to attach.";
+
+        delete environment_p;
+        return -8;
+    }
 
     // First get the model textures from the resource file.
     if( resource_r != nullptr ) {
@@ -247,8 +290,10 @@ int main(int argc, char** argv)
 
         int status = environment_p->setupTextures( cbmp_resources );
 
-        if( status < 0 )
-            std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;
+        if( status < 0 ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
+        }
     }
 
 	bool viewer_loop = true;
@@ -283,24 +328,25 @@ int main(int argc, char** argv)
     // Get the font from the resource file.
     if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 )
     {
-        std::cout << "Fonts missing!" << std::endl;
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "Fonts are missing.";
     }
 
     // Setup the camera
     Graphics::Camera *first_person = Graphics::Camera::alloc( *environment_p );
     first_person->setViewportOrigin( glm::u32vec2( 0, 0 ) );
-    first_person->setViewportDimensions( glm::u32vec2( WIDTH, HEIGHT ) );
+    first_person->setViewportDimensions( glm::u32vec2( width, height ) );
     window_r->attachCamera( *first_person );
     glm::mat4 extra_matrix_0;
 
     // Setup the font
     Graphics::Text2DBuffer *text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *environment_p );
-    extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(WIDTH), -static_cast<float>(HEIGHT), 0.0f, -1.0f, 1.0f );
+    extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>(width), -static_cast<float>(height), 0.0f, -1.0f, 1.0f );
     
     first_person->attachText2DBuffer( *text_2d_buffer_r );
     first_person->setProjection2D( extra_matrix_0 );
 
-    extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(WIDTH) / static_cast<float>(HEIGHT), 0.1f, 100.0f );
+    extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f );
     first_person->setProjection3D( extra_matrix_0 );
 
     // Setup the timer
@@ -315,6 +361,11 @@ int main(int argc, char** argv)
 
     // This is the method used to convert time to floats.
     using time_unit = std::chrono::duration<float, std::ratio<1>>;
+
+    if( window_r->center() != 1 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::WARNING );
+        log.output << "The graphics window has failed to center.";
+    }
 
     // If there is an error detected it is time to show it.
     while( is_error )
@@ -342,7 +393,7 @@ int main(int argc, char** argv)
         display_game_files_missing( control_system_p, environment_p, text_2d_buffer_r, &manager, iff_mission_id, platform );
         delete control_system_p;
         delete environment_p;
-        return -4;
+        return -9;
     }
     
     auto obj_vector = Data::Mission::ObjResource::getVector( *resource_r );
@@ -442,9 +493,10 @@ int main(int argc, char** argv)
                 if( Graphics::ModelInstance::exists( *environment_p, obj_vector.at(cobj_index)->getResourceID() ) ) {
                     displayed_instance_p = Graphics::ModelInstance::alloc( *environment_p, obj_vector.at(cobj_index)->getResourceID(), glm::vec3(0,0,0) );
                     
-                    std::cout << "Sphere result is "<< displayed_instance_p->getBoundingSphere( position, radius ) << std::endl;
-                    std::cout << " position is (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-                    std::cout << " radius is "<< radius << std::endl;
+                    auto log = Utilities::logger.getLog( Utilities::Logger::INFO );
+                    log.output << "Sphere result is " << displayed_instance_p->getBoundingSphere( position, radius ) << "\n";
+                    log.output << "position is (" << position.x << ", " << position.y << ", " << position.z << ")\n";
+                    log.output << "radius is " << radius;
                     
                     first_person->setView3D( placeView( glm::pi<float>() / 4.0f, radius + 4.0f, position ) );
                 }
