@@ -4,7 +4,6 @@
 #include "ACT/Unknown.h"
 
 #include <fstream>
-#include <cassert>
 
 #include <json/json.h>
 
@@ -79,6 +78,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 }
 
 uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
     // std::cout << std::hex;
 
     // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
@@ -117,15 +118,15 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
-        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
-            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        if( dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
         }
         
         bool processed = readACTType( act_type, reader_act, endian );
         assert( processed == true );
         
-        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
-            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        if( dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
         }
         
         return chunk_size;

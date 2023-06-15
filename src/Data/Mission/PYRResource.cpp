@@ -121,6 +121,9 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
 }
 
 bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
         {
         auto reader = this->data_p->getReader();
@@ -213,8 +216,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             }
             else
             {
-                if( settings.output_level >= 1 )
-                    *settings.output_ref << "PYR Tag Error, 0x" << std::hex << identifier << std::dec << std::endl;
+                error_log.output << "PYR Tag Error, 0x" << std::hex << identifier << "\n";
                 reader.setPosition( tag_data_size, Utilities::Buffer::CURRENT );
             }
         }
@@ -232,8 +234,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                     uint16_t first_zero = readerPYPL.readU16( settings.endian );
                     uint16_t id = readerPYPL.readU16( settings.endian );
 
-                    if( settings.output_level >= 2 )
-                        *settings.output_ref << "PYPL ID: " << id << std::endl;
+                    error_log.output << "PYPL ID: " << std::dec << id << "\n";
 
                     if( id == particles.at( i ).getID() )
                     {
@@ -247,8 +248,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                     }
                     else
                     {
-                        if( settings.output_level >= 1 )
-                            *settings.output_ref << "PYPL Error: id, " << id << ", != " << particles.at( i ).getID() << std::endl;
+                        error_log.output << "PYPL Error: ID, " << std::hex << id << ", != " << particles.at( i ).getID() << "\n";
                         i = amount_of_tiles; // Cancel the reading.
                     }
                 }

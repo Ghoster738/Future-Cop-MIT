@@ -153,6 +153,11 @@ void Data::Mission::TilResource::makeEmpty() {
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
+    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
+    info_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
         
@@ -172,13 +177,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 auto color_amount = reader_sect.readU16( settings.endian );
                 auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
                 
-                if( settings.output_level >= 1 )
-                {
-                    *settings.output_ref << "Mission::TilResource::load() id = " << getIndexNumber() << std::endl;
-                    *settings.output_ref << "Mission::TilResource::load() loc = 0x" << std::hex << getOffset() << std::dec << std::endl;
-                    *settings.output_ref << "Color amount = " << color_amount << std::endl;
-                    *settings.output_ref << "texture_cordinates_amount = " << texture_cordinates_amount << std::endl;
-                }
+                info_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n";
+                info_log.output << "Color amount = " << color_amount << "\n";
+                info_log.output << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
                 
                 // setup the point_cloud_3_channel.
                 point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
@@ -223,8 +224,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 auto what1 = reader_sect.readU16( settings.endian );
                 
                 // Modifiying this to be other than what it is will cause an error?
-                if( what1 != 0 && settings.output_level >= 1 )
-                    *settings.output_ref << "Error expected zero in the Til resource." << (unsigned)what1 << std::endl;
+                if( what1 != 0 )
+                    warning_log.output << "Expected zero in the Til resource." << (unsigned)what1 << "\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
                 
@@ -262,12 +263,12 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     actual_polygon_tile_amount++;
                 }
 
-                if( actual_polygon_tile_amount != PREDICTED_POLYGON_TILE_AMOUNT && settings.output_level >= 1  ) {
-                    *settings.output_ref << "\n"
-                    << "The resource id " << this->getResourceID() << " has mispredicted the polygon tile amount." << "\n"
+                if( actual_polygon_tile_amount != PREDICTED_POLYGON_TILE_AMOUNT ) {
+                    warning_log.output << "\n"
+                    << "This resource has mispredicted the polygon tile amount.\n"
                     << " mesh_library_size is 0x" << std::hex << this->mesh_library_size << std::dec << "\n"
                     << " The predicted polygons to be there are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n"
-                    << " The amount of polygons that exist are  " << actual_polygon_tile_amount << std::endl;
+                    << " The amount of polygons that exist are  " << actual_polygon_tile_amount << "\n";
                 }
                 
                 bool skipped_space = false;
@@ -279,13 +280,13 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Undo the read after the bytes are skipped.
                 reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
 
-                if( skipped_space && settings.output_level >= 3 )
+                if( skipped_space )
                 {
-                    *settings.output_ref << std::endl
-                    << "The resource number " << this->getResourceID() << " has " << skipped_space << " skipped." << std::endl
+                    warning_log.output << "\n"
+                    << "The resource number " << std::dec << this->getResourceID() << " has " << skipped_space << " skipped.\n"
                     << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
-                    << " or 0x" << (this->mesh_library_size >> 4)
-                    << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << std::endl;
+                    << " or 0x" << std::hex << (this->mesh_library_size >> 4)
+                    << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
                 }
 
                 // Read the UV's
@@ -345,13 +346,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             }
             else
             {
-                if( settings.output_level >= 0 ) {
-                    *settings.output_ref << "Mission::TilResource::load() " << identifier << " not recognized" << std::endl;
-                }
+                warning_log.output << "Identifier 0x" << std::hex << identifier << " not recognized.\n";
                 
                 reader.setPosition( data_size, Utilities::Buffer::CURRENT );
-                
-                assert( false );
             }
         }
         

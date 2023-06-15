@@ -38,7 +38,6 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     auto gl_environment_r = dynamic_cast<Graphics::SDL2::GLES2::Environment*>(&environment);
 
     assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
-
     
     if( gl_environment_r->text_draw_routine_p != nullptr )
         delete gl_environment_r->text_draw_routine_p;
@@ -67,15 +66,15 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
 
     // If no fonts are found then add one.
     if( !has_resource_id_1 ) {
-        fonts_r.push_back( Data::Mission::FontResource::getPlaystation( &std::cout, 2 ) );
+        fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
         has_del_symbol = true;
     }
     if( !has_resource_id_2 ) {
-        fonts_r.push_back( Data::Mission::FontResource::getWindows( &std::cout, 2 ) );
+        fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
         has_del_symbol = true;
     }
     if( !has_del_symbol ) {
-        auto font_p = Data::Mission::FontResource::getWindows( &std::cout, 2 );
+        auto font_p = Data::Mission::FontResource::getWindows( Utilities::logger );
         font_p->setResourceID( 0 );
         fonts_r.push_back( font_p );
         has_del_symbol = true;

@@ -6,10 +6,10 @@
 
 const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PARSE_SETTINGS = Data::Mission::Resource::ParseSettings();
 
-Data::Mission::Resource::ParseSettings::ParseSettings() {
-    type = Unidentified; // We do not know what is being loaded.
-    output_level = 0;
-    output_ref = &std::cout; // The console is the default output.
+Data::Mission::Resource::ParseSettings::ParseSettings() :
+    type( OperatingSystem::Unidentified ),
+    endian( Utilities::Buffer::Endian::NO_SWAP ),
+    logger_r( &Utilities::logger ) {
 }
 
 Data::Mission::Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ) {

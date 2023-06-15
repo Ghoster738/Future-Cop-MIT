@@ -13,6 +13,11 @@ namespace {
 }
 
 bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
+    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
+    info_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
         
@@ -63,26 +68,21 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                     
                     setAudioStream( reader );
 
-                    if( settings.output_level >= 3 )
-                        *settings.output_ref << "This is a wav file." << std::endl;
+                    info_log.output << "This is a wav file." << std::endl;
                     
                     return true;
                 }
                 else {
-                    if( settings.output_level >= 1 )
-                        *settings.output_ref << "Potential buffer overflow attempt detected. Please at least scan it for viruses if you got this one from the internet!" << std::endl;
+                    error_log.output << "Potential buffer overflow attempt detected. Please at least scan it for viruses if you got this one from the internet!\n";
                     return false;
                 }
             }
             else
             {
-                if( settings.output_level >= 1 )
-                {
-                    if( size_of_chunk_1 == 16 )
-                        *settings.output_ref << "This is not a wav file." << std::endl;
-                    else
-                        *settings.output_ref << "This pariticalar wav file's format is not supported." << std::endl;
-                }
+                if( size_of_chunk_1 == 16 )
+                    error_log.output << "This is not a wav file.\n";
+                else
+                    error_log.output << "This pariticalar wav file's format is not supported.\n" ;
                 return false;
             }
         }

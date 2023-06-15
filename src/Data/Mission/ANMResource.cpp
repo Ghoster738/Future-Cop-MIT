@@ -140,15 +140,17 @@ bool Data::Mission::ANMResource::noResourceID() const {
 }
 
 bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
 
         size_t buffer_size = 0;
         bool file_is_not_valid = false;
-
-        if( settings.output_level >= 1 )
-            *settings.output_ref << "ANM: " << getIndexNumber() << std::endl;
 
         const auto FRAMES = reader.readU32( settings.endian );
 
@@ -182,22 +184,20 @@ bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
                     }
                     else
                     {
-                        *settings.output_ref << "Failed to allocate for ANM data!" << std::endl;
+                        error_log.output << " ANM Failed to allocate for data!";
                         return false;
                     }
                 }
                 else
                 {
-                    if( settings.output_level >= 1 )
-                        *settings.output_ref << "Unexpected error: Image data not big enough!" << std::endl;
+                    error_log.output << " ANM Image data not big enough!";
                     return false;
                 }
             }
         }
         else
         {
-            if( settings.output_level >= 1 )
-                *settings.output_ref << "This file is not valid!" << std::endl;
+            error_log.output << " This ANM resource file is not valid!";
             return false;
         }
 
