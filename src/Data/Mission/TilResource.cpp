@@ -155,6 +155,8 @@ void Data::Mission::TilResource::makeEmpty() {
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
     info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -227,9 +229,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 // Modifiying this to be other than what it is will cause an error?
                 if( unk_byte_0 != 0 )
-                    warning_log.output << "Expected zero in unk_byte_0 the Til resource rather than " << (unsigned)unk_byte_0 << "\n";
+                    debug_log.output << "Expected zero in unk_byte_0 rather than " << (unsigned)unk_byte_0 << ".\n";
                 if( unk_byte_1 != 0 )
-                    warning_log.output << "Expected zero in unk_byte_1 the Til resource rather than " << (unsigned)unk_byte_1 << "\n";
+                    debug_log.output << "Expected zero in unk_byte_1 rather than " << (unsigned)unk_byte_1 << ".\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
                 
