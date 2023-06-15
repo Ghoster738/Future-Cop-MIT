@@ -141,9 +141,9 @@ bool Data::Mission::ANMResource::noResourceID() const {
 
 bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
-    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr )
     {

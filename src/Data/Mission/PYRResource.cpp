@@ -121,8 +121,10 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
 }
 
 bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
+    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
+    info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr )
         {
@@ -234,7 +236,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                     uint16_t first_zero = readerPYPL.readU16( settings.endian );
                     uint16_t id = readerPYPL.readU16( settings.endian );
 
-                    error_log.output << "PYPL ID: " << std::dec << id << "\n";
+                    info_log.output << "PYPL ID: " << std::dec << id << "\n";
 
                     if( id == particles.at( i ).getID() )
                     {

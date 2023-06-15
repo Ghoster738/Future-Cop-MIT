@@ -79,7 +79,7 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 
 uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
-    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     // std::cout << std::hex;
 
     // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;

@@ -14,9 +14,9 @@ namespace {
 
 bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
     auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();

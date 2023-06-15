@@ -36,6 +36,7 @@ public:
         unsigned level;
         
     public:
+        std::stringstream info;
         std::stringstream output;
 
         Log( Logger *log_r, unsigned level );

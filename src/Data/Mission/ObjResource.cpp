@@ -221,11 +221,11 @@ uint32_t Data::Mission::ObjResource::getResourceTagID() const {
 
 bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
     auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
-    warning_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-    error_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr )
     {
@@ -537,7 +537,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
 
-                warning_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
+                info_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
                 
                 for( int d = 0; d < frames_gen_3DHS; d++ )
                 {
@@ -680,7 +680,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 if( bounding_box_per_frame >= 1 )
                 {
                     // Numbers 1, 2, 3, 4, 5, 6, 7 appears throughout the English version of Future Cop on the ps1, Mac, and Windows.
-                    if( bounding_box_per_frame <= 7 )
+                    if( bounding_box_per_frame > 7 && bounding_box_per_frame == 0 )
                         warning_log.output << "bounding_box_per_frame = " << std::dec << bounding_box_per_frame << "\n";
                     
                     const auto bounding_box_amount = reader3DBB.readU32( settings.endian );

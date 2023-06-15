@@ -39,6 +39,9 @@ Utilities::Logger::Log::Log( const Log &copy ) :
 }
 
 Utilities::Logger::Log::~Log() {
+    if( output.str().empty() )
+        return;
+
     std::stringstream time_stream;
 
     std::lock_guard<std::mutex> guard( log_r->outputs_lock );
@@ -57,7 +60,7 @@ Utilities::Logger::Log::~Log() {
 
     for( auto i : log_r->outputs ) {
         if( level == 0 || (level >= i->lower && level <= i->upper) ) {
-            *i->getOutputPtr() << log_r->getLevelName(level) << time_stream.str() << ": " << output.str() << "\n";
+            *i->getOutputPtr() << log_r->getLevelName(level) << time_stream.str() << ": " << info.str() << output.str() << "\n";
         }
     }
 }
