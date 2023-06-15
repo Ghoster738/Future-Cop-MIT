@@ -221,11 +221,15 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
                 readCullingTile( culling_bottom_right, reader_sect, settings.endian );
                 
-                auto what1 = reader_sect.readU16( settings.endian );
+                // These are most likely bytes.
+                auto unk_byte_0 = reader_sect.readU8();
+                auto unk_byte_1 = reader_sect.readU8();
                 
                 // Modifiying this to be other than what it is will cause an error?
-                if( what1 != 0 )
-                    warning_log.output << "Expected zero in the Til resource rather than " << (unsigned)what1 << "\n";
+                if( unk_byte_0 != 0 )
+                    warning_log.output << "Expected zero in unk_byte_0 the Til resource rather than " << (unsigned)unk_byte_0 << "\n";
+                if( unk_byte_1 != 0 )
+                    warning_log.output << "Expected zero in unk_byte_1 the Til resource rather than " << (unsigned)unk_byte_1 << "\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
                 
