@@ -4,7 +4,6 @@
 #include "ACT/Unknown.h"
 
 #include <fstream>
-#include <cassert>
 
 #include <json/json.h>
 
@@ -79,24 +78,25 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 }
 
 uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
-    // std::cout << std::hex;
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << " ACT Chunk\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << " ACT Chunk\n";
 
-    // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
+    debug_log.output << "ACT_CHUNK_ID = 0x" << ACT_CHUNK_ID << std::endl;
 
     if( !data_reader.empty() && ACT_CHUNK_ID == data_reader.readU32( endian ) ) // 0
     {
         uint32_t chunk_size = data_reader.readU32( endian ); // 4
 
-        // std::cout << "chunk_size = " << chunk_size << std::endl;
+        debug_log.output << "chunk_size = " << chunk_size << std::endl;
 
         this->matching_number = data_reader.readU32( endian );  // 8
 
-        // std::cout << "matching_number = " << matching_number << std::endl;
+        debug_log.output << "matching_number = " << matching_number << std::endl;
 
         const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
         const uint_fast8_t act_type = data_reader.readU8(); // 12
-        
-        // std::cout << std::dec;
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
         data_reader.readU8(); // 13
@@ -117,15 +117,15 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
-        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
-            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        if( dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
         }
         
-        bool processed = readACTType( act_type, reader_act, endian );
-        assert( processed == true );
+        if( !readACTType( act_type, reader_act, endian ) )
+            error_log.output << getTypeIDName() << " ACT Type failed to parse.\n";
         
-        if( settings.output_level >= 3 && dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
-            *settings.output_ref << getTypeIDName() << "; Resource ID: " << getResourceID() << "; Size: " << ACT_SIZE << std::endl;
+        if( dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
         }
         
         return chunk_size;
@@ -134,13 +134,17 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << " RSL Chunk\n";
+
     if( RSL_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
 
         uint32_t matching_number = data_reader.readU32( endian );
 
-        assert( this->matching_number == matching_number );
+        if( this->matching_number != matching_number )
+            warning_log.output << "this->matching number (" << std::dec << this->matching_number << ") is not equal to matching number (" << matching_number << ").\n";
 
         uint32_t rsl_data_size = chunk_size - sizeof( uint32_t ) * 3;
         uint32_t rsl_entry_amount = rsl_data_size / (sizeof( uint32_t ) * 2);
@@ -162,18 +166,22 @@ uint32_t Data::Mission::ACTResource::readRSLChunk( Utilities::Buffer::Reader &da
 }
 
 uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << " SAC Chunk\n";
+
     if( !data_reader.ended() && SAC_CHUNK_ID == data_reader.readU32( endian ) )
     {
         uint32_t chunk_size = data_reader.readU32( endian );
 
         uint32_t matching_number = data_reader.readU32( endian );
 
-        assert( this->matching_number == matching_number );
+        if( this->matching_number != matching_number )
+            warning_log.output << "this->matching number (" << std::dec << this->matching_number << ") is not equal to matching number (" << matching_number << ").\n";
 
-        // TODO Find out how to read the raw data from the tSAC chunk.
         uint32_t sac_size  = chunk_size - sizeof( uint32_t ) * 3;
 
-        assert( sac_size == 0x24 );
+        if( sac_size != 0x24 )
+            warning_log.output << "sac_size is (" << std::dec << sac_size << ") is not equal to " << 0x24 << ".\n";
 
         auto sac_reader = data_reader.getReader( sac_size );
 
@@ -183,6 +191,7 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
 
             tSAC.game_ticks  = sac_reader.readI16( endian );
             tSAC.spawn_limit = sac_reader.readU16( endian );
+            // TODO Figure out the rest from the raw data from the tSAC chunk.
             tSAC.unk_2 = sac_reader.readU16( endian );
             tSAC.unk_3 = sac_reader.readU16( endian );
         }
@@ -190,10 +199,16 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         // Somehow these bytes are NEVER used!
         // Do not ask me why this is because I do not know too.
         // Fun fact: since tSAC is always 0x30 bytes, and the 4 uint16's are useful that means that the overhead is 83.3 percent.
-        assert( sac_reader.readU64() == 0 ); // 0x08-0x10
-        assert( sac_reader.readU64() == 0 ); // 0x10-0x18
-        assert( sac_reader.readU64() == 0 ); // 0x18-0x20
-        assert( sac_reader.readU32() == 0 ); // 0x20-0x24
+        // 0x08-0x24
+        for( unsigned i = 0; i < 7; i++ ) {
+            auto zero = sac_reader.readU32();
+
+            if( zero != 0 ) {
+                warning_log.output << "zero is actually 0x" << std::hex << zero << "\n.";
+
+                i = 7;
+            }
+        }
 
         return chunk_size;
     }
@@ -202,15 +217,27 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
 }
 
 bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
     {
         auto data_reader = this->data_p->getReader();
 
-        assert( data_reader.totalSize() != 0 );
+        if( data_reader.totalSize() == 0 ) {
+            error_log.output << "data_reader.totalSize() should not be 0.\n";
+            return false;
+        }
 
         if( readACTChunk( data_reader, settings.endian, settings ) ) {
             if( readRSLChunk( data_reader, settings.endian, settings ) ) {
-                assert( checkRSL() );
+
+                if( !checkRSL() ) {
+                    warning_log.output << "Display RSL:\n" << displayRSL() << "\n";
+                }
+
                 if( readSACChunk( data_reader, settings.endian, settings ) ) {
                     return true;
                 }

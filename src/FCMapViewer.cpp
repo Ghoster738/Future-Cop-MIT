@@ -20,6 +20,7 @@
 #include "Controls/System.h"
 #include "Controls/StandardInputSet.h"
 
+#include "Utilities/Logger.h"
 #include "Utilities/ImageFormat/Chooser.h"
 
 #include "ConfigureInput.h"
@@ -133,6 +134,14 @@ int main(int argc, char** argv)
             variable_name = "";
         }
     }
+
+    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::INFO );
+
+    {
+        auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
+        initialize_log.output << "FCMapViewer started at ";
+    }
+    Utilities::logger.setTimeStampMode( true );
     
     if( width <= 0 )
         width = 640;
@@ -141,41 +150,54 @@ int main(int argc, char** argv)
 
     auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
     
-    if( graphics_identifiers.size() == 0 )
-        return -37;
+    if( graphics_identifiers.size() == 0 ) {
+
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "Graphics has no available identifiers.";
+        return -1;
+    }
     
-    if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
-        return -38;
+    if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics identifier \"" << graphics_identifiers[0] << "\" is not an identifer.";
+        return -2;
+    }
 
     Graphics::Environment::initSystem( graphics_identifiers[0] );
     
     Graphics::Environment *environment_p = Graphics::Environment::alloc( graphics_identifiers[0] );
-    if( environment_p == nullptr )
-        return -39;
-    
+    if( environment_p == nullptr ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics environment has failed to allocate.";
+        return -3;
+    }
     
     // Declare a pointer
-    Graphics::Window *window_p = nullptr;
-    
-    {
-        window_p = Graphics::Window::alloc( *environment_p );
+    Graphics::Window *window_r = Graphics::Window::alloc( *environment_p );
         
-        if( window_p == nullptr ) {
-            delete environment_p;
-            return -40;
-        }
+    if( window_r == nullptr ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics window has failed to allocate.";
+        delete environment_p;
+        return -4;
     }
+
     std::string title = "Future Cop Map Viewer";
 
-    window_p->setWindowTitle( title );
-    if( window_p->center() != 1 )
-        std::cout << "The window had failed to center! " << window_p->center() << std::endl;
-    window_p->setDimensions( glm::u32vec2( width, height ) );
-    window_p->setFullScreen( true );
+    window_r->setWindowTitle( title );
+    if( window_r->center() != 1 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::WARNING );
+        log.output << "The graphics window has failed to center.";
+    }
+    window_r->setDimensions( glm::u32vec2( width, height ) );
+    window_r->setFullScreen( false );
     
-    if( window_p->attach() != 1 ) {
+    if( window_r->attach() != 1 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The graphics window has failed to attach.";
+
         delete environment_p;
-        return -40;
+        return -5;
     }
     
     Data::Manager manager;
@@ -203,17 +225,23 @@ int main(int argc, char** argv)
     }
 
     if( !manager.hasEntry( iff_mission_id ) ) {
+
+        // Cout is fine for this case because it always needs to be shown in a terminal.
         Data::Manager::listIDs( std::cout );
+
         delete environment_p;
-        return -1;
+        return -6;
     }
 
     auto entry = manager.getIFFEntry( iff_mission_id );
     entry.importance = Data::Manager::Importance::NEEDED;
 
     if( !manager.setIFFEntry( iff_mission_id, entry ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "Set IFF Entry has failed for \"" << iff_mission_id << "\".";
+
         delete environment_p;
-        return -2;
+        return -7;
     }
     
     manager.togglePlatform( platform, true );
@@ -224,9 +252,11 @@ int main(int argc, char** argv)
     auto number_of_iffs = manager.setLoad( load_all );
 
     if( number_of_iffs < 2 ) {
-        std::cout << "The number IFF " << number_of_iffs << " is not enough." << std::endl;
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << "The number IFF " << number_of_iffs << " is not enough.";
+
         delete environment_p;
-        return -3;
+        return -8;
     }
     
     std::vector<Data::Mission::IFF*> loaded_IFFs;
@@ -234,14 +264,18 @@ int main(int argc, char** argv)
     Data::Mission::IFF *global_r = manager.getIFFEntry( global_id ).getIFF( platform );
     if( global_r != nullptr )
         loaded_IFFs.push_back( global_r );
-    else
-        std::cout << "The global IFF " << global_id << " did not load." << std::endl;
+    else {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The global IFF " << global_id << " did not load.";
+    }
 
     Data::Mission::IFF *resource_r = manager.getIFFEntry( iff_mission_id ).getIFF( platform );
     if( resource_r != nullptr )
         loaded_IFFs.push_back( resource_r );
-    else
-        std::cout << "The mission IFF " << iff_mission_id << " did not load." << std::endl;
+    else {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The mission IFF " << iff_mission_id << " did not load.";
+    }
 
     // First get the model textures from the resource file.
     if( resource_r != nullptr ) {
@@ -249,8 +283,10 @@ int main(int argc, char** argv)
 
         int status = environment_p->setupTextures( cbmp_resources );
 
-        if( status < 0 )
-            std::cout << (-status) << " general textures had failed to load out of " << cbmp_resources.size() << std::endl;
+        if( status < 0 ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
+        }
     }
 
     // Load all the 3D meshes from the resource as well.
@@ -259,13 +295,16 @@ int main(int argc, char** argv)
 
         int status = environment_p->setModelTypes( cobj_resources );
 
-        if( status < 0 )
-            std::cout << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size() << std::endl;
+        if( status < 0 ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
+        }
     }
     
     // Get the font from the resource file.
     if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
-        std::cout << "Fonts missing!" << std::endl;
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "Fonts are missing.";
     }
 
     std::vector<Data::Mission::TilResource*> til_resources;
@@ -282,7 +321,7 @@ int main(int argc, char** argv)
     // Setup the camera
     Graphics::Camera *first_person_r = Graphics::Camera::alloc( *environment_p );
     first_person_r->attachText2DBuffer( *text_2d_buffer_r );
-    window_p->attachCamera( *first_person_r );
+    window_r->attachCamera( *first_person_r );
     first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
     first_person_r->setViewportDimensions( glm::u32vec2( width, height ) );
     glm::mat4 extra_matrix_0;
@@ -312,8 +351,10 @@ int main(int argc, char** argv)
     double distance_away = -10;
     bool is_camera_moving = false;
 
-    if( window_p->center() != 1 )
-        std::cout << "The window had failed to center! " << window_p->center() << std::endl;
+    if( window_r->center() != 1 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The window had failed to center.";
+    }
 
     // Setup the controls
     auto control_system_p = Controls::System::getSingleton(); // create the new system for controls

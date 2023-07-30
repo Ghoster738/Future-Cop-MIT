@@ -4,6 +4,7 @@
 #include "IFF.h"
 #include "IFFOptions.h"
 #include "../../Utilities/Buffer.h"
+#include "../../Utilities/Logger.h"
 
 #include <ostream>
 #include <vector>
@@ -20,8 +21,7 @@ public:
         enum OperatingSystem { Macintosh, Windows, Playstation, Unidentified };
         OperatingSystem type; // What type of operating system file type is this loader loading.
         Utilities::Buffer::Endian endian;
-        int output_level; // 0 means no output, 1 means only error, 2 means expressive, 3 maxinum output.
-        std::ostream *output_ref;
+        Utilities::Logger *logger_r;
         
         ParseSettings();
     };

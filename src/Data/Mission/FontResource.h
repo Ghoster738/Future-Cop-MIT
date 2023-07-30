@@ -93,8 +93,8 @@ public:
     static std::vector<FontResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<FontResource*> getVector( const Data::Mission::IFF &mission_file );
 
-    static FontResource* getWindows( std::ostream *stream = nullptr, int output_level = 0 );
-    static FontResource* getPlaystation( std::ostream *stream = nullptr, int output_level = 0 );
+    static FontResource* getWindows( Utilities::Logger &logger = Utilities::logger );
+    static FontResource* getPlaystation( Utilities::Logger &logger = Utilities::logger );
 };
 
 }

@@ -2,7 +2,6 @@
 
 #include <string.h>
 #include <fstream>
-#include <iostream>
 
 namespace {
     uint32_t TAG_CHUNK_ID = 0x52494646; // which is { 0x52, 0x49, 0x46, 0x46 } or { 'R', 'I', 'F', 'F' } or "RIFF"
@@ -13,6 +12,11 @@ namespace {
 }
 
 bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
         
@@ -63,26 +67,21 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                     
                     setAudioStream( reader );
 
-                    if( settings.output_level >= 3 )
-                        *settings.output_ref << "This is a wav file." << std::endl;
+                    debug_log.output << "This is a wav file." << std::endl;
                     
                     return true;
                 }
                 else {
-                    if( settings.output_level >= 1 )
-                        *settings.output_ref << "Potential buffer overflow attempt detected. Please at least scan it for viruses if you got this one from the internet!" << std::endl;
+                    error_log.output << "Potential buffer overflow attempt detected. Please at least scan it for viruses if you got this one from the internet!\n";
                     return false;
                 }
             }
             else
             {
-                if( settings.output_level >= 1 )
-                {
-                    if( size_of_chunk_1 == 16 )
-                        *settings.output_ref << "This is not a wav file." << std::endl;
-                    else
-                        *settings.output_ref << "This pariticalar wav file's format is not supported." << std::endl;
-                }
+                if( size_of_chunk_1 == 16 )
+                    error_log.output << "This is not a wav file.\n";
+                else
+                    error_log.output << "This pariticalar wav file's format is not supported.\n" ;
                 return false;
             }
         }

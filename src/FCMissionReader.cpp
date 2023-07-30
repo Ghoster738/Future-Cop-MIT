@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Data/Mission/BMPResource.h"
 #include "Data/Mission/Til/Mesh.h"
+#include "Utilities/Logger.h"
 
 namespace {
     std::string INPUT_OPERATION = "-i";
@@ -35,7 +36,13 @@ namespace {
 }
 
 int main( int argc, char *argv[] ) {
-    // Data::Mission::Til::Mesh::loadMeshScript( "./tile_set.json", nullptr );
+    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::WARNING );
+
+    {
+        auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
+        initialize_log.output << "FCMissionReader started at ";
+    }
+    Utilities::logger.setTimeStampMode( true );
 
     Data::Mission::IFF mission_file[2]; // Two mission files at a time for now.
     std::string output_folder_path = "./output/";
@@ -58,7 +65,8 @@ int main( int argc, char *argv[] ) {
                     mission_file[ number_of_inputs++ ].open( argv[++i] );
                 else
                 {
-                    std::cout << "Input Error: you exceeded the limit of two input Mission files." << std::endl;
+                    auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                    log.output << "You exceeded the limit of two input Mission files.";
                     i = argc;
                 }
             else
@@ -91,7 +99,8 @@ int main( int argc, char *argv[] ) {
             else
             if( COMPARE_OUTPUT_OPERATION.compare( input ) == 0 ) {
                 if( number_of_inputs < 2 ) {
-                    std::cout << "Input Error: only two inputs are allowed not three more." << std::endl;
+                    auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                    log.output << "Only two inputs are allowed not three more.";
                     i = argc;
                 }
                 else

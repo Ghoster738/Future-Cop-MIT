@@ -3,7 +3,6 @@
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <string.h>
 #include <fstream>
-#include <cassert>
 
 namespace {
     const uint32_t TAG_PYDT = 0x50594454; // which is { 0x50, 0x59, 0x44, 0x54 } or { 'P', 'Y', 'D', 'T' } or "PYDT"
@@ -19,9 +18,9 @@ Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reade
     this->num_sprites = reader.readU8();
     this->sprite_size = reader.readU8(); // Power of two size
 
-    assert( this->num_sprites != 0 ); // This should not crash at all.
+    // assert( this->num_sprites != 0 ); // This should not crash at all.
     // This should not crash at all.
-    assert( (sprite_size == 0x80) | (sprite_size == 0x40) | (sprite_size == 0x20) | (sprite_size == 0x10) );
+    // assert( (sprite_size == 0x80) | (sprite_size == 0x40) | (sprite_size == 0x20) | (sprite_size == 0x10) );
 
     this->textures.reserve( this->num_sprites );
 
@@ -70,9 +69,9 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     if( u4 == 1 )
         this->location.y = this->location.y | 256;
 
-    //assert( u4 == 0 ); // This will crash on PS1 not PC
-    assert( (u4 == 0) | (u4 == 1) ); // This will not crash on any platform.
-    assert( u5 == 0 ); // This will crash on PS1 not PC
+    // assert( u4 == 0 ); // This will crash on PS1 not PC
+    // assert( (u4 == 0) | (u4 == 1) ); // This will not crash on any platform.
+    // assert( u5 == 0 ); // This will crash on PS1 not PC
 }
 
 glm::u16vec2 Data::Mission::PYRResource::Particle::Texture::getLocation() const {
@@ -121,6 +120,11 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
 }
 
 bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
         {
         auto reader = this->data_p->getReader();
@@ -213,8 +217,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
             }
             else
             {
-                if( settings.output_level >= 1 )
-                    *settings.output_ref << "PYR Tag Error, 0x" << std::hex << identifier << std::dec << std::endl;
+                error_log.output << "PYR Tag Error, 0x" << std::hex << identifier << "\n";
                 reader.setPosition( tag_data_size, Utilities::Buffer::CURRENT );
             }
         }
@@ -232,8 +235,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                     uint16_t first_zero = readerPYPL.readU16( settings.endian );
                     uint16_t id = readerPYPL.readU16( settings.endian );
 
-                    if( settings.output_level >= 2 )
-                        *settings.output_ref << "PYPL ID: " << id << std::endl;
+                    debug_log.output << "PYPL ID: " << std::dec << id << "\n";
 
                     if( id == particles.at( i ).getID() )
                     {
@@ -247,8 +249,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                     }
                     else
                     {
-                        if( settings.output_level >= 1 )
-                            *settings.output_ref << "PYPL Error: id, " << id << ", != " << particles.at( i ).getID() << std::endl;
+                        error_log.output << "PYPL Error: ID, " << std::hex << id << ", != " << particles.at( i ).getID() << "\n";
                         i = amount_of_tiles; // Cancel the reading.
                     }
                 }

@@ -22,7 +22,7 @@ public:
     ACTManager();
     virtual ~ACTManager();
 
-    void addACT( ACTResource *act_r );
+    bool addACT( ACTResource *act_r );
 
     std::vector<ACTResource*> getACTs( uint_fast8_t type );
     const std::vector<ACTResource*> getACTs( uint_fast8_t type ) const;

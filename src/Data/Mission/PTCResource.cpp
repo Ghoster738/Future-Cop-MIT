@@ -4,7 +4,6 @@
 #include "../../Utilities/ModelBuilder.h"
 #include <string>
 #include <algorithm>
-#include <iostream>
 
 namespace {
     const uint32_t GRDB_TAG = 0x47524442; // which is { 0x47, 0x52, 0x44, 0x42 } or { 'G', 'R', 'D', 'B' } or "GRDB"

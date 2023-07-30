@@ -1,7 +1,6 @@
 #include "NetResource.h"
 
 #include <fstream>
-#include <cassert>
 
 #include <json/json.h>
 
@@ -82,6 +81,9 @@ uint32_t Data::Mission::NetResource::getResourceTagID() const {
 }
 
 bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -105,7 +107,7 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
             return true;
         }
         else {
-            assert( false );
+            error_log.output << "The NET resource did not parse!.\n";
             return false;
         }
     }

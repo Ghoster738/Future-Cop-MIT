@@ -4,7 +4,6 @@
 #include "../../Utilities/ImagePalette2D.h"
 #include <string.h>
 #include <fstream>
-#include <cassert>
 #include <stdexcept>
 
 namespace {
@@ -116,6 +115,11 @@ Data::Mission::FontResource::FilterStatus Data::Mission::FontResource::filterTex
 }
 
 bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -124,12 +128,16 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
         if( reader.totalSize() > HEADER_SIZE )
         {
-            if( getResourceID() == 0 )
-                throw std::runtime_error( "Error: Resource ID of zero for FontResource is reserved only for use inside this program. Never in the IFF files." );
+            if( getResourceID() == 0 ) {
+                std::string message = "Error Resource ID of zero for FontResource is reserved only for use inside this program. Never in the IFF files.";
 
-            if( settings.output_level >= 1 ) {
-                *settings.output_ref << "Loading FNT " << getResourceID() << "!" << std::endl;
+                auto critical_log = settings.logger_r->getLog( Utilities::Logger::CRITICAL );
+                critical_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n" << message;
+                throw std::runtime_error( message );
             }
+
+            debug_log.output << "Loading FNT " << getResourceID() << "!\n";
+
             // Get the data first
             auto header   = reader.readU32( settings.endian );
             auto tag_size = reader.readU32( settings.endian );
@@ -144,16 +152,14 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
             auto u32_0 = reader.readU32( settings.endian );
             auto offset_to_image_header = reader.readU32( settings.endian );
 
-            if( settings.output_level >= 2 ) {
-                *settings.output_ref << "  Header = 0x" << std::hex << header << std::dec << "\n";
-                *settings.output_ref << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n";
-                *settings.output_ref << "  u16_100 = " << u16_100 << "\n";
-                *settings.output_ref << "  number_of_glyphs = " << number_of_glyphs << "\n";
-                *settings.output_ref << "  platform = " << platform << "\n";
-                *settings.output_ref << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n";
-                *settings.output_ref << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n";
-                *settings.output_ref << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n" << std::endl;
-            }
+            debug_log.output << "  Header = 0x" << std::hex << header << std::dec << "\n"
+                << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n"
+                << "  u16_100 = " << u16_100 << "\n"
+                << "  number_of_glyphs = " << number_of_glyphs << "\n"
+                << "  platform = " << platform << "\n"
+                << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n"
+                << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n"
+                << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n";
 
             // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
             // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
@@ -166,9 +172,8 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
             if( !file_is_not_valid )
             {
-                if( settings.output_level >= 2 ) {
-                    *settings.output_ref << "  FNT Header is valid!" << std::endl;
-                }
+                debug_log.output << "FNT Header is valid!" << "\n";
+
                 reader.setPosition( offset_to_glyphs, Utilities::Buffer::BEGIN );
 
                 auto readerGlyphs = reader.getReader( number_of_glyphs * GLYPH_SIZE );
@@ -185,9 +190,8 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 for( auto i = this->glyphs.cbegin(); i < this->glyphs.cend(); i++ ) {
                     const uint32_t wrapped_character = (*i).glyphID % MAX_GLYPHS;
 
-                    if( settings.output_level >= 3 ) {
-                        *settings.output_ref << "  glyphs[" << (i - this->glyphs.cbegin()) << "] = " << wrapped_character << std::endl;
-                    }
+                    debug_log.output << "  glyphs[" << (i - this->glyphs.cbegin()) << "] = " << wrapped_character << "\n";
+
                     font_glyphs_r[ wrapped_character ] = this->glyphs.data() + (i - this->glyphs.cbegin());
                 }
 
@@ -197,16 +201,15 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
                 const auto font_image_identifier = readerImageHeader.readU8();
 
-                assert( font_image_identifier == '@' );
+                if( font_image_identifier != '@' )
+                    warning_log.output << "font_image_identifier is not @.\n";
 
                 readerImageHeader.setPosition( 0x4, Utilities::Buffer::BEGIN );
                 auto width  = readerImageHeader.readU16( settings.endian );
                 auto height = readerImageHeader.readU16( settings.endian );
 
-                if( settings.output_level >= 2 ) {
-                    *settings.output_ref << "  width = " << width << "\n";
-                    *settings.output_ref << "  height = " << height << "\n" << std::endl;
-                }
+                debug_log.output << "width = " << width << ", height = " << height << "\n";
+
 
                 // The pixels are compressed with 4 bit color palettes.
                 // Playstation did not support 1 bit, so their best option is 4 bit.
@@ -227,9 +230,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image_palette.getWidth() / 2) * image_palette.getHeight()) > reader.totalSize() );
 
                 if( !file_is_not_valid ) {
-                    if( settings.output_level >= 1 ) {
-                        *settings.output_ref << "  FNT image is valid\n" << std::endl;
-                    }
+                    debug_log.output << "FNT image is valid.\n";
 
                     auto reader_image = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
                     
@@ -244,8 +245,8 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                     
                     image_p = new Utilities::Image2D( backup );
 
-                    if( image_p == nullptr && settings.output_level >= 1 ) {
-                        *settings.output_ref << "  FNT image failed\n" << std::endl;
+                    if( image_p == nullptr ) {
+                        debug_log.output << "  FNT image failed\n" << std::endl;
                     }
 
 
@@ -254,9 +255,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 }
                 else
                 {
-                    if( settings.output_level >= 1 ) {
-                        *settings.output_ref << "  FNT image is invalid\n" << std::endl;
-                    }
+                    debug_log.output << "  FNT image is invalid\n" << std::endl;
                     return false;
                 }
             }
@@ -346,7 +345,7 @@ const std::vector<Data::Mission::FontResource*> Data::Mission::FontResource::get
     return Data::Mission::FontResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
 }
 
-Data::Mission::FontResource* Data::Mission::FontResource::getWindows( std::ostream *stream, int output_level ) {
+Data::Mission::FontResource* Data::Mission::FontResource::getWindows( Utilities::Logger &logger ) {
     Data::Mission::FontResource* windows_font_p = new Data::Mission::FontResource;
 
     windows_font_p->setIndexNumber( 0 );
@@ -360,8 +359,7 @@ Data::Mission::FontResource* Data::Mission::FontResource::getWindows( std::ostre
     Data::Mission::Resource::ParseSettings parse_settings;
     parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
-    parse_settings.output_level = output_level;
-    parse_settings.output_ref = stream;
+    parse_settings.logger_r = &logger;
 
     if( !windows_font_p->parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The internal Windows font has failed to parse!");
@@ -373,7 +371,7 @@ Data::Mission::FontResource* Data::Mission::FontResource::getWindows( std::ostre
     return windows_font_p;
 }
 
-Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( std::ostream *stream, int output_level ) {
+Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( Utilities::Logger &logger ) {
     Data::Mission::FontResource* playstation_font_p = new Data::Mission::FontResource;
 
     playstation_font_p->setIndexNumber( 0 );
@@ -387,8 +385,7 @@ Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( std::o
     Data::Mission::Resource::ParseSettings parse_settings;
     parse_settings.type = Data::Mission::Resource::ParseSettings::Playstation;
     parse_settings.endian = Utilities::Buffer::LITTLE;
-    parse_settings.output_level = output_level;
-    parse_settings.output_ref = stream;
+    parse_settings.logger_r = &logger;
 
     if( !playstation_font_p->parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The internal Playstation font has failed to parse!");

@@ -1,19 +1,20 @@
 #include "ACTManager.h"
 
-#include <cassert>
-
 Data::Mission::ACTManager::ACTManager() {}
 
 Data::Mission::ACTManager::~ACTManager() {}
 
-void Data::Mission::ACTManager::addACT( Data::Mission::ACTResource *act_r ) {
-    assert( act_r != nullptr );
+bool Data::Mission::ACTManager::addACT( Data::Mission::ACTResource *act_r ) {
+    if( act_r == nullptr )
+        return false;
+    if( act_type_map.find( act_r->getID() ) != act_type_map.end() )
+        return false;
 
     act_type_map[ act_r->getTypeID() ].push_back( act_r );
 
-    assert( act_type_map.find( act_r->getID() ) == act_type_map.end() );
-
     act_id_map[ act_r->getID() ] = act_r;
+
+    return true;
 }
 
 std::vector<Data::Mission::ACTResource*> Data::Mission::ACTManager::getACTs( uint_fast8_t type ) {

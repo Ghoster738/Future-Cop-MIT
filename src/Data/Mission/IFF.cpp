@@ -23,8 +23,7 @@
 
 #include <fstream>
 #include <algorithm>
-#include <cstring> // std::strerror
-#include <cassert> // std::strerror
+#include <cstring>
 #include <iostream>
 #include <unordered_set>
 
@@ -158,8 +157,17 @@ namespace {
 
 int Data::Mission::IFF::open( const std::string &file_path ) {
     std::unordered_set<std::string> filenames; // Check for potential conflicts.
-    
+    Utilities::Logger &logger = Utilities::logger;
     std::fstream file;
+
+    auto info_log = logger.getLog( Utilities::Logger::INFO );
+    info_log.info << "IFF: " << file_path << "\n";
+    auto debug_log = logger.getLog( Utilities::Logger::DEBUG );
+    debug_log.info << "IFF: " << file_path << "\n";
+    auto warning_log = logger.getLog( Utilities::Logger::WARNING );
+    warning_log.info << "IFF: " << file_path << "\n";
+    auto error_log = logger.getLog( Utilities::Logger::ERROR );
+    error_log.info << "IFF: " << file_path << "\n";
 
     this->setName( file_path );
 
@@ -193,6 +201,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer *msic_data_p;
 
         {
+            auto info_log = logger.getLog( Utilities::Logger::INFO );
+            info_log.info << "IFF: " << file_path << "\n";
+
             type_writer.write( file, type_reader.totalSize() );
 
             const uint32_t TYPE_ID = type_reader.readU32( Utilities::Buffer::Endian::NO_SWAP );
@@ -204,14 +215,14 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     this->type = FILE_IS_LITTLE_ENDIAN;
-                    std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
+                    info_log.output << "This IFF file is little endian (Windows/Playstation) formated.\n";
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
                 if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     this->type = FILE_IS_BIG_ENDIAN;
-                    std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
+                    info_log.output << "This IFF file is big endian (Macintosh) formated.\n";
                     default_settings.type = Resource::ParseSettings::Macintosh;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
@@ -246,7 +257,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 const uint32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
                 if( TYPE_ID == FILL_TAG ) {
-                    //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                    debug_log.output << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
 
                     // This tag does not have any useable information. This might have been used to demiout certain files.
 
@@ -261,7 +272,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     // Check if the buffer is too high.
                     if( DATA_SIZE > data_reader.totalSize() ) {
                         // data_buffer.allocate( DATA_SIZE - data_reader.totalSize() );
-                        std::cout << std::hex << " Error: The limit of 0x" << data_reader.totalSize() << std::dec  << " for this reader has been reached" << std::endl;
+                        error_log.output << std::hex << " The limit of 0x" << data_reader.totalSize() << " for this reader has been reached" << std::endl;
                         error_in_read = true;
                     }
 
@@ -270,7 +281,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                     // Finally read the buffer.
                     auto amount_written = data_writer.write( file, DATA_SIZE );
-                    assert( amount_written == DATA_SIZE );
+                    if( amount_written != DATA_SIZE )
+                        warning_log.output << "amount_written is 0x" << std::hex << amount_written << " while \nDATA_SIZE is 0x" << DATA_SIZE << ".\n";
 
                     data_reader.setPosition( 8 );
 
@@ -286,9 +298,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 // These are the tag sizes to be expected.
                                 // Subtract them by 20 and we would get the header size.
                                 // The smallest DATA_SIZE is 52, and the biggest data size is 120.
-                                assert( (DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
-                                        (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
-                                        (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120) );
+                                if( !((DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
+                                      (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
+                                      (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120)) )
+                                    warning_log.output << "DATA_SIZE has an unexpected size of " << DATA_SIZE << ".\n";
 
                                 data_reader.setPosition( 16 );
 
@@ -312,13 +325,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 12), DATA_SIZE - 12 );
                         }
                         else
-                            std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
+                            error_log.output << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
 
-                        // std::cout << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        debug_log.output << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                     }
                     else
                     if( TYPE_ID == MSIC_TAG ) {
-                        //std::cout << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        debug_log.output << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                         if( msic_p == nullptr ) {
                             msic_p = new MSICResource();
                             msic_p->setIndexNumber( 0 );
@@ -334,57 +347,59 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     }
                     else
                     if( TYPE_ID == SWVR_TAG ) {
-                        // The data size is always 28.
-                        assert( DATA_SIZE == 28 );
-                        assert( DATA_SIZE < data_reader.totalSize() );
-                        assert( amount_written == DATA_SIZE );
+                        if( DATA_SIZE != 28 || DATA_SIZE >= data_reader.totalSize() || amount_written != DATA_SIZE )
+                            error_log.output << "SWVR chunk: DATA_SIZE = " << std::dec << DATA_SIZE << "amount_written is " << amount_written << "\n";
+                        else {
+                            name_swvr = "";
 
-                        name_swvr = "";
+                            data_reader.setPosition( 8 );
 
-                        data_reader.setPosition( 8 );
-                        assert( data_reader.readU32( default_settings.endian ) == 0x46494c45 );
-                        data_reader.setPosition( 12 );
+                            const auto file_identifier = data_reader.readU32( default_settings.endian );
 
-                        int8_t some_char = '1';
-                        
-                        size_t dot_position = DATA_SIZE;
-                        const size_t STRING_LIMIT = DATA_SIZE - 12;
+                            if( file_identifier != 0x46494c45 )
+                                warning_log.output << "SWVR chunk: file_identifier is not FILE!\n";
 
-                        for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
-                        {
-                            some_char = data_reader.readI8();
+                            int8_t some_char = '1';
 
-                            if(some_char == '.')
-                                dot_position = i;
-                            
-                            if(some_char != '\0')
-                                name_swvr += some_char;
-                        }
-                        
-                        // Now, the swvr name must be cleaned up.
-                        
-                        // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
-                        if( name_swvr.length() > dot_position )
-                        {
-                            // Get the ".stream" ending cut out of the swvr name.
-                            
-                            const std::string ending = name_swvr.substr( dot_position );
-                            const std::string expecting = std::string(".stream").substr( 0, ending.length() );
-                            
-                            if( ending.compare(expecting) != 0 ) {
-                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
-                                std::cout << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n";
-                                std::cout << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop." << std::endl;
+                            size_t dot_position = DATA_SIZE;
+                            const size_t STRING_LIMIT = DATA_SIZE - 12;
+
+                            for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
+                            {
+                                some_char = data_reader.readI8();
+
+                                if(some_char == '.')
+                                    dot_position = i;
+
+                                if(some_char != '\0')
+                                    name_swvr += some_char;
                             }
-                            else {
-                                name_swvr = name_swvr.substr( 0, dot_position );
+
+                            // Now, the swvr name must be cleaned up.
+
+                            // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
+                            if( name_swvr.length() > dot_position )
+                            {
+                                // Get the ".stream" ending cut out of the swvr name.
+
+                                const std::string ending = name_swvr.substr( dot_position );
+                                const std::string expecting = std::string(".stream").substr( 0, ending.length() );
+
+                                if( ending.compare(expecting) != 0 ) {
+                                    warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                        << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n"
+                                        << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
+                                }
+                                else {
+                                    name_swvr = name_swvr.substr( 0, dot_position );
+                                }
                             }
-                        }
-                        else
-                        {
-                            if( name_swvr.length() != STRING_LIMIT - 1 ) {
-                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
-                                std::cout << "  SWVR name \"" << name_swvr << "\" probably invalid." << std::endl;
+                            else
+                            {
+                                if( name_swvr.length() != STRING_LIMIT - 1 ) {
+                                    warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                        << "  SWVR name \"" << name_swvr << "\" probably invalid.\n";
+                                }
                             }
                         }
                     }
@@ -401,7 +416,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         // TODO Read in this case.
                     }
                     else
-                        std::cout << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        warning_log.output << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << ".\n";
                 }
                 else
                     error_in_read = true;
@@ -414,20 +429,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( errno != 0 )
         {
             if( ( readstate & std::ifstream::failbit ) != 0 ) {
-                std::cout << "There is a logical error detected with the reading of the IFF or Mission File. Please report this to the developer!" << std::endl;
-                std::cout << "Error: " << std::strerror(errno) << std::endl;
+                error_log.output << "There is a logical error detected with the reading of the IFF or Mission File. Please report this to the developer!\n"
+                    << "Error: " << std::strerror(errno) << "\n";
             }
             if( ( readstate & std::ifstream::badbit ) != 0 ) {
-                std::cout << "There is a input error detected with the reading of the IFF or Mission File." << std::endl;
+                error_log.output << "There is a input error detected with the reading of the IFF or Mission File.\n";
             }
         }
 
         // We are done reading the IFF file.
         file.close();
-
-        //if( !is_confirmend_iff_file ) {
-        //    std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
-        //}
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
@@ -461,8 +472,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             // Check for naming conflicts
             const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
             
-            // std::cout << "Resource Name = " << file_name << std::endl;
-            assert( filenames.find( file_name ) == filenames.end() );
+            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
+
+            if( filenames.find( file_name ) != filenames.end() )
+                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
+
             filenames.emplace( file_name );
 
             addResource( new_resource_p );
@@ -484,12 +498,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( pyr_pointer_r.size() != 0 ) {
             if( !pyr_pointer_r[0]->makeTiles( Data::Mission::TilResource::getVector( *this ) ) )
             {
-                std::cerr << "Error: PYR resource is found, but there are no Til resources." << std::endl;
+                error_log.output << "PYR resource is found, but there are no Til resources.\n";
             }
         }
         else
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr )
-            std::cerr << "Error: PYR resource is not found, but the Til resources are in the file." << std::endl;
+            error_log.output << "PYR resource is not found, but the Til resources are in the file.\n";
 
         if( getResource( Data::Mission::ObjResource::IDENTIFIER_TAG ) != nullptr ) {
             std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
@@ -510,11 +524,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             // TODO add optional global file.
             // textures.insert( textures.end(), textures.begin(), textures.end() );
 
-            std::vector<Data::Mission::TilResource*> objects = Data::Mission::TilResource::getVector( *this );
+            std::vector<Data::Mission::TilResource*> sections = Data::Mission::TilResource::getVector( *this );
 
-            for( auto it = objects.begin(); it != objects.end(); it++ ) {
-                bool valid_texture_til = (*it)->loadTextures( textures_from_prime );
-                assert(valid_texture_til);
+            for( auto section = sections.begin(); section != sections.end(); section++ ) {
+                if( !(*section)->loadTextures( textures_from_prime ) )
+                    error_log.output << "Section/CTil ID: " << std::dec << (*section)->getResourceID() << " had failed to load the textures!.\n";
             }
         }
 

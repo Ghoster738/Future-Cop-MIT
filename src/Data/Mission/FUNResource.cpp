@@ -1,6 +1,5 @@
 #include "FUNResource.h"
 #include <limits>
-#include <cassert>
 
 const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
@@ -28,11 +27,12 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     // which is { 0x74, 0x46, 0x55, 0x4e } or { 't', 'F', 'U', 'N' } or "tFUN"
     const uint32_t TAG_tEXT = 0x74455854;
     // which is { 0x74, 0x45, 0x58, 0x54 } or { 't', 'E', 'X', 'T' } or "tEXT"
+
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
     
     uint32_t data_id;
     Function fun_struct;
-    
-    // std::cout << "FUNResource 0x" << std::hex << getOffset() << std::endl;
     
     if( this->data_p != nullptr )
     {
@@ -46,7 +46,8 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 auto reader_tfun = reader.getReader( size - TAG_HEADER_SIZE );
                 
                 data_id = reader_tfun.readU32( settings.endian );
-                assert( data_id == 1 );
+                if( data_id != 1 )
+                    debug_log.output << "Difference: data_id is " << data_id << ".\n";
                 
                 while( !reader_tfun.ended() ) {
                     fun_struct.faction    = reader_tfun.readI32( settings.endian );
@@ -55,14 +56,22 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     fun_struct.start_parameter_offset = reader_tfun.readU32( settings.endian );
                     fun_struct.start_code_offset      = reader_tfun.readU32( settings.endian );
                     
-                    assert( ( fun_struct.faction == 1 ) | ( fun_struct.faction == -1 ) | (fun_struct.faction == 0 ) | ( fun_struct.faction == 25 ) | ( fun_struct.faction == 9999 ) );
-                    assert( fun_struct.zero == 0 );
-                    assert( fun_struct.start_parameter_offset < fun_struct.start_code_offset );
+                    if( !(( fun_struct.faction == 1 ) | ( fun_struct.faction == -1 ) | (fun_struct.faction == 0 ) | ( fun_struct.faction == 25 ) | ( fun_struct.faction == 9999 )) ) {
+                        debug_log.output << "Difference: fun_struct.fraction is " << fun_struct.faction << ".\n";
+                    }
+                    if( fun_struct.zero != 0 ) {
+                        debug_log.output << "Difference: fun_struct.zero is " << fun_struct.zero << " not zero.\n";
+                    }
+                    if( fun_struct.start_parameter_offset >= fun_struct.start_code_offset ) {
+                        debug_log.output << "Difference: fun_struct.start_parameter_offset (" << fun_struct.start_parameter_offset << ") < fun_struct.start_code_offset (" << fun_struct.start_code_offset << ").\n";
+                    }
                     
                     functions.push_back( fun_struct );
                 }
                 
-                assert( functions.size() != 0 );
+                if( functions.size() == 0 ) {
+                    debug_log.output << "Difference: functions.size() is " << functions.size() << ".\n";
+                }
                 
                 auto header    = reader.readU32( settings.endian );
                 auto size      = reader.readU32( settings.endian );
@@ -71,13 +80,17 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     auto reader_ext = reader.getReader( size - TAG_HEADER_SIZE );
                     
                     data_id = reader_ext.readU32( settings.endian );
-                    assert( data_id == 1 );
+                    if( data_id != 1 )
+                        debug_log.output << "Difference: data_id is " << data_id << ".\n";
                     
                     ext_bytes = reader_ext.getBytes();
                     
-                    assert( ext_bytes.size() != 0 );
-                    assert( ext_bytes.size() > functions.back().start_code_offset );
-                    assert( reader.ended() );
+                    if( ext_bytes.size() == 0 )
+                        debug_log.output << "Difference: ext_bytes.size() is " << ext_bytes.size() << ".\n";
+                    if( ext_bytes.size() <= functions.back().start_code_offset )
+                        debug_log.output << "Difference: ext_bytes.size() (" << ext_bytes.size() << ") <= functions.back().start_code_offset (" << functions.back().start_code_offset << ").\n";
+                    if( !reader.ended() )
+                        debug_log.output << "Difference: Reader is not done.\n";
                     
                     while( ext_bytes.back() != 0 ){
                         last_ext.insert( last_ext.begin(), ext_bytes.back() );
@@ -88,26 +101,26 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto parameters = getFunctionParameters( i );
                         auto code = getFunctionCode( i );
                         
-                        if( settings.output_level >= 3 ) {
-                            *settings.output_ref << "i[" << std::dec << i  << "], ";
-                            *settings.output_ref << "f[" << functions.at( i ).faction << "], ";
-                            *settings.output_ref << "id[" << functions.at( i ).identifier << "], ";
-                            *settings.output_ref << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
-                            
-                            *settings.output_ref << std::hex << "Parameters = ";
-                            for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
-                                *settings.output_ref << "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                            }
-                            for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
-                                assert( (*f) != 0 );
-                            }
-                            *settings.output_ref << std::endl;
-                            *settings.output_ref << std::hex << "Code = ";
-                            for( auto f = code.begin(); f < code.end(); f++ ) {
-                                *settings.output_ref<< "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                            }
-                            *settings.output_ref << std::dec << "\n" << std::endl;
+                        debug_log.output << "i[" << std::dec << i  << "], ";
+                        debug_log.output << "f[" << functions.at( i ).faction << "], ";
+                        debug_log.output << "id[" << functions.at( i ).identifier << "], ";
+                        debug_log.output << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+
+                        debug_log.output << std::hex << "Parameters = ";
+                        for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
+                            debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
+                        for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
+                            if( (*f) == 0 ) {
+                                debug_log.output << "Difference: (*f) == 0.\n";
+                            }
+                        }
+                        debug_log.output << std::endl;
+                        debug_log.output << std::hex << "Code = ";
+                        for( auto f = code.begin(); f < code.end(); f++ ) {
+                            debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                        }
+                        debug_log.output << std::dec << "\n";
                         
                         // faction = 1, identifier = 5 Probably means initialization!
                         // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
@@ -116,16 +129,24 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         // JOKE/SLIM has faction 1 and identifier 5, and it appears to be something else. I can deduce no pattern in this sequence.
                         // However, I have enough knowedge to write an inaccurate parser.
                         
-                        assert( parameters.size() > 1 );
-                        assert( code.size() > 1 );
-                        assert( parameters.back() == 0 );
-                        assert( code.back() == 0 );
+                        if( parameters.size() <= 1 ) {
+                            debug_log.output << "Difference: parameters.size() > 1 false. parameters.size() = " << parameters.size() << "\n";
+                        }
+                        if( code.size() <= 1 ) {
+                            debug_log.output << "Difference: code.size() > 1 false. code.size() = " << code.size() << "\n";
+                        }
+                        if( parameters.back() != 0 ) {
+                            debug_log.output << "Difference: parameters.back() = " << parameters.back() << ". It is not zero.\n";
+                        }
+                        if( code.back() != 0 ) {
+                            debug_log.output << "Difference: code.back() = " << code.back() << ". It is not zero.\n";
+                        }
                     }
-                    /* std::cout << std::hex << "Last tEXT = ";
+                    debug_log.output << std::hex << "Last tEXT = ";
                     for( auto f = last_ext.begin(); f < last_ext.end(); f++ ){
-                        std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                        debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                     }
-                    std::cout << std::dec << "\n" << std::endl; */
+                    debug_log.output << "\n";
                     
                     return true;
                 }
@@ -133,7 +154,8 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
         }
     }
     
-    assert( 0 );
+    debug_log.output << "parsing had failed.\n";
+
     return false;
 }
 
