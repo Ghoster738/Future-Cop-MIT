@@ -36,8 +36,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     uint32_t data_id;
     Function fun_struct;
     
-    // std::cout << "FUNResource 0x" << std::hex << getOffset() << std::endl;
-    
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -146,11 +144,11 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                             debug_log.output << "Difference: code.back() = " << code.back() << ". It is not zero.\n";
                         }
                     }
-                    /* std::cout << std::hex << "Last tEXT = ";
+                    debug_log.output << std::hex << "Last tEXT = ";
                     for( auto f = last_ext.begin(); f < last_ext.end(); f++ ){
-                        std::cout << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                        debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                     }
-                    std::cout << std::dec << "\n" << std::endl; */
+                    debug_log.output << "\n";
                     
                     return true;
                 }

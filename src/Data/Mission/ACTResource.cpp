@@ -80,24 +80,21 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
-    // std::cout << std::hex;
 
-    // std::cout << "ACT_CHUNK_ID = " << ACT_CHUNK_ID << std::endl;
+    debug_log.output << "ACT_CHUNK_ID = 0x" << ACT_CHUNK_ID << std::endl;
 
     if( !data_reader.empty() && ACT_CHUNK_ID == data_reader.readU32( endian ) ) // 0
     {
         uint32_t chunk_size = data_reader.readU32( endian ); // 4
 
-        // std::cout << "chunk_size = " << chunk_size << std::endl;
+        debug_log.output << "chunk_size = " << chunk_size << std::endl;
 
         this->matching_number = data_reader.readU32( endian );  // 8
 
-        // std::cout << "matching_number = " << matching_number << std::endl;
+        debug_log.output << "matching_number = " << matching_number << std::endl;
 
         const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
         const uint_fast8_t act_type = data_reader.readU8(); // 12
-        
-        // std::cout << std::dec;
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
         data_reader.readU8(); // 13

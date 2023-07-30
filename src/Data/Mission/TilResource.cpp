@@ -181,9 +181,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 auto color_amount = reader_sect.readU16( settings.endian );
                 auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
 
-                info_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n";
-                info_log.output << "Color amount = " << color_amount << "\n";
-                info_log.output << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
+                info_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
+                    << "Color amount = " << color_amount << "\n"
+                    << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
                 
                 // setup the point_cloud_3_channel.
                 point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
@@ -270,9 +270,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 if( this->mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
                     warning_log.output << "\n"
-                    << "This custom resource detected, and it is probably not an issue.\n"
-                    << " The amount of polygons are " << std::dec << this->mesh_library_size << "\n"
-                    << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
+                        << "This custom resource detected, and it is probably not an issue.\n"
+                        << " The amount of polygons are " << std::dec << this->mesh_library_size << "\n"
+                        << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
                 }
                 
                 bool skipped_space = false;
@@ -287,10 +287,10 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 if( skipped_space )
                 {
                     warning_log.output << "\n"
-                    << "The resource number " << std::dec << this->getResourceID() << " has " << skipped_space << " skipped.\n"
-                    << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
-                    << " or 0x" << std::hex << (this->mesh_library_size >> 4)
-                    << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
+                        << "The resource number " << std::dec << this->getResourceID() << " has " << skipped_space << " skipped.\n"
+                        << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
+                        << " or 0x" << (this->mesh_library_size >> 4)
+                        << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
                 }
 
                 // Read the UV's
@@ -455,7 +455,10 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culled ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culled, Utilities::Logger &logger ) const {
+    auto error_log = logger.getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( !mesh_tiles.empty() ) // Make sure there is no out of bounds error.
     {
         // Single texture models are to be generated first.
@@ -472,8 +475,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
         Utilities::ModelBuilder* model_output_p = Utilities::ModelBuilder::combine( texture_models, status );
         
         if( status != 1 ) {
-            std::cout << "Data::Mission::TilResource::createModel has a problem" << std::endl;
-            std::cout << "  combine has resulted in status " << status << std::endl;
+            error_log.output << "Data::Mission::TilResource::createModel has a problem\n"
+                << "  combine has resulted in status " << std::dec << status << "\n";
         }
         
         // Delete the other models.
@@ -487,12 +490,14 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
         return nullptr;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, float x_offset, float y_offset ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, float x_offset, float y_offset, Utilities::Logger &logger ) const {
+    auto error_log = logger.getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( texture_index > TEXTURE_INFO_AMOUNT + 1 )
         return nullptr;
     else {
         Utilities::ModelBuilder *model_output_p = new Utilities::ModelBuilder();
-        bool display_unread = false;
         bool has_displayed = false;
         bool has_texture_displayed = false;
         
@@ -559,18 +564,13 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         if( tile_graphics.texture_index == texture_index || texture_index == TEXTURE_INFO_AMOUNT ) {
                             current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
-                            if( current_tile_polygon_amount == 0 && display_unread ) {
-                                if( !has_displayed ) {
-                                    std::cout << "Starting error log for " << this->getIndexNumber() << std::endl;
-                                    has_displayed = true;
-                                }
-
+                            if( current_tile_polygon_amount == 0 ) {
                                 if( !has_texture_displayed ) {
-                                    std::cout << "For texture index of " << texture_index << std::endl;
+                                    error_log.output << "For texture index of " << texture_index << std::endl;
                                     has_texture_displayed = true;
                                 }
 
-                                std::cout << "Unknown tile at (" << x << "," << y << ") for " << current_tile.mesh_type << std::endl;
+                                error_log.output << "Unknown tile at (" << x << ", " << y << ") for " << current_tile.mesh_type << std::endl;
                             }
 
                             for( unsigned int i = 0; i < current_tile_polygon_amount; i++ ) {
