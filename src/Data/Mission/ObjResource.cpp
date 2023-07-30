@@ -7,7 +7,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <fstream>
 #include <cassert>
 
@@ -342,11 +341,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( size_t i = 0; i < texture_ref_amount; i++ )
                 {
-                    /*if( DataHandler::read_u8( start_data ) != 2 )
-                        std::cout << "expected 2 at uv not " << std::dec
-                                  << (static_cast<uint32_t>(DataHandler::read_u8( start_data )) & 0xFF)
-                                  << std::hex << std::endl;*/
-                    
                     reader3DTL.readU32( settings.endian ); // Skip unknown bytes
 
                     texture_quads.push_back( TextureQuad() );
@@ -441,16 +435,16 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == TAG_3DRF ) {
-                // std::cout << "3DRF" << std::endl;
+                info_log.output << "3DRF" << std::endl;
                 auto reader3DRF = reader.getReader( data_tag_size );
                 
-                // std::cout << "Index " << getIndexNumber() << std::endl;
-                // std::cout << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << std::endl;
+                info_log.output << "Index " << getIndexNumber() << std::endl;
+                info_log.output << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << std::endl;
                 // assert( reader3DRF.totalSize() == 0x10 );
             }
             else
             if( identifier == TAG_3DRL ) {
-                // std::cout << "3DRL" << std::endl;
+                info_log.output << "3DRL" << std::endl;
                 auto reader3DRL = reader.getReader( data_tag_size );
             }
             else
