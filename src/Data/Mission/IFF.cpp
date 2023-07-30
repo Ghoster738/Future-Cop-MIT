@@ -23,8 +23,8 @@
 
 #include <fstream>
 #include <algorithm>
-#include <cstring> // std::strerror
-#include <cassert> // std::strerror
+#include <cstring>
+#include <cassert>
 #include <iostream>
 #include <unordered_set>
 
@@ -158,8 +158,17 @@ namespace {
 
 int Data::Mission::IFF::open( const std::string &file_path ) {
     std::unordered_set<std::string> filenames; // Check for potential conflicts.
-    
+    Utilities::Logger &logger = Utilities::logger;
     std::fstream file;
+
+    auto info_log = logger.getLog( Utilities::Logger::INFO );
+    info_log.info << "IFF: " << file_path << "\n";
+    auto debug_log = logger.getLog( Utilities::Logger::DEBUG );
+    debug_log.info << "IFF: " << file_path << "\n";
+    auto warning_log = logger.getLog( Utilities::Logger::WARNING );
+    warning_log.info << "IFF: " << file_path << "\n";
+    auto error_log = logger.getLog( Utilities::Logger::ERROR );
+    error_log.info << "IFF: " << file_path << "\n";
 
     this->setName( file_path );
 
@@ -204,14 +213,14 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     this->type = FILE_IS_LITTLE_ENDIAN;
-                    std::cout << "\"" << file_path << "\" is a little endian mission file" << std::endl;
+                    info_log.output << "\"" << file_path << "\" is a little endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
                 if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     this->type = FILE_IS_BIG_ENDIAN;
-                    std::cout << "\"" << file_path << "\" is a big endian mission file" << std::endl;
+                    info_log.output << "\"" << file_path << "\" is a big endian mission file" << std::endl;
                     default_settings.type = Resource::ParseSettings::Macintosh;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
@@ -246,7 +255,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 const uint32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
                 if( TYPE_ID == FILL_TAG ) {
-                    //std::cout << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                    debug_log.output << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
 
                     // This tag does not have any useable information. This might have been used to demiout certain files.
 
@@ -261,7 +270,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     // Check if the buffer is too high.
                     if( DATA_SIZE > data_reader.totalSize() ) {
                         // data_buffer.allocate( DATA_SIZE - data_reader.totalSize() );
-                        std::cout << std::hex << " Error: The limit of 0x" << data_reader.totalSize() << std::dec  << " for this reader has been reached" << std::endl;
+                        error_log.output << std::hex << " The limit of 0x" << data_reader.totalSize() << " for this reader has been reached" << std::endl;
                         error_in_read = true;
                     }
 
@@ -312,13 +321,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 12), DATA_SIZE - 12 );
                         }
                         else
-                            std::cout << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
+                            error_log.output << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
 
-                        // std::cout << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        debug_log.output << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                     }
                     else
                     if( TYPE_ID == MSIC_TAG ) {
-                        //std::cout << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        debug_log.output << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                         if( msic_p == nullptr ) {
                             msic_p = new MSICResource();
                             msic_p->setIndexNumber( 0 );
@@ -372,9 +381,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             const std::string expecting = std::string(".stream").substr( 0, ending.length() );
                             
                             if( ending.compare(expecting) != 0 ) {
-                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
-                                std::cout << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n";
-                                std::cout << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop." << std::endl;
+                                warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                    << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n"
+                                    << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
                             }
                             else {
                                 name_swvr = name_swvr.substr( 0, dot_position );
@@ -383,8 +392,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         else
                         {
                             if( name_swvr.length() != STRING_LIMIT - 1 ) {
-                                std::cout << "Offset = 0x" << std::hex << file_offset << std::dec << ".\n";
-                                std::cout << "  SWVR name \"" << name_swvr << "\" probably invalid." << std::endl;
+                                warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                    << "  SWVR name \"" << name_swvr << "\" probably invalid.\n";
                             }
                         }
                     }
@@ -401,7 +410,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         // TODO Read in this case.
                     }
                     else
-                        std::cout << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                        warning_log.output << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << ".\n";
                 }
                 else
                     error_in_read = true;
@@ -414,20 +423,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( errno != 0 )
         {
             if( ( readstate & std::ifstream::failbit ) != 0 ) {
-                std::cout << "There is a logical error detected with the reading of the IFF or Mission File. Please report this to the developer!" << std::endl;
-                std::cout << "Error: " << std::strerror(errno) << std::endl;
+                error_log.output << "There is a logical error detected with the reading of the IFF or Mission File. Please report this to the developer!\n"
+                    << "Error: " << std::strerror(errno) << "\n";
             }
             if( ( readstate & std::ifstream::badbit ) != 0 ) {
-                std::cout << "There is a input error detected with the reading of the IFF or Mission File." << std::endl;
+                error_log.output << "There is a input error detected with the reading of the IFF or Mission File.\n";
             }
         }
 
         // We are done reading the IFF file.
         file.close();
-
-        //if( !is_confirmend_iff_file ) {
-        //    std::cout << "This file is not a little endian iff file or big endian iff file." << std::endl;
-        //}
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
@@ -461,7 +466,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             // Check for naming conflicts
             const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
             
-            // std::cout << "Resource Name = " << file_name << std::endl;
+            info_log.output << "Resource Name = \"" << file_name << "\".\n";
             assert( filenames.find( file_name ) == filenames.end() );
             filenames.emplace( file_name );
 
@@ -484,12 +489,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( pyr_pointer_r.size() != 0 ) {
             if( !pyr_pointer_r[0]->makeTiles( Data::Mission::TilResource::getVector( *this ) ) )
             {
-                std::cerr << "Error: PYR resource is found, but there are no Til resources." << std::endl;
+                error_log.output << "PYR resource is found, but there are no Til resources.\n";
             }
         }
         else
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr )
-            std::cerr << "Error: PYR resource is not found, but the Til resources are in the file." << std::endl;
+            error_log.output << "PYR resource is not found, but the Til resources are in the file.\n";
 
         if( getResource( Data::Mission::ObjResource::IDENTIFIER_TAG ) != nullptr ) {
             std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
