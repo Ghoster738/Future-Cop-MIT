@@ -466,7 +466,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             // Check for naming conflicts
             const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
             
-            info_log.output << "Resource Name = \"" << file_name << "\".\n";
+            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
             assert( filenames.find( file_name ) == filenames.end() );
             filenames.emplace( file_name );
 

@@ -153,8 +153,6 @@ void Data::Mission::TilResource::makeEmpty() {
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
-    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
@@ -180,7 +178,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 auto color_amount = reader_sect.readU16( settings.endian );
                 auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
 
-                info_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
+                debug_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
                     << "Color amount = " << color_amount << "\n"
                     << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
                 

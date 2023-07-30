@@ -28,8 +28,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     const uint32_t TAG_tEXT = 0x74455854;
     // which is { 0x74, 0x45, 0x58, 0x54 } or { 't', 'E', 'X', 'T' } or "tEXT"
 
-    auto  info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
     
@@ -103,26 +101,26 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         auto parameters = getFunctionParameters( i );
                         auto code = getFunctionCode( i );
                         
-                        info_log.output << "i[" << std::dec << i  << "], ";
-                        info_log.output << "f[" << functions.at( i ).faction << "], ";
-                        info_log.output << "id[" << functions.at( i ).identifier << "], ";
-                        info_log.output << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                        debug_log.output << "i[" << std::dec << i  << "], ";
+                        debug_log.output << "f[" << functions.at( i ).faction << "], ";
+                        debug_log.output << "id[" << functions.at( i ).identifier << "], ";
+                        debug_log.output << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
 
-                        info_log.output << std::hex << "Parameters = ";
+                        debug_log.output << std::hex << "Parameters = ";
                         for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
-                            info_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                            debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
                         for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
                             if( (*f) == 0 ) {
                                 debug_log.output << "Difference: (*f) == 0.\n";
                             }
                         }
-                        info_log.output << std::endl;
-                        info_log.output << std::hex << "Code = ";
+                        debug_log.output << std::endl;
+                        debug_log.output << std::hex << "Code = ";
                         for( auto f = code.begin(); f < code.end(); f++ ) {
-                            info_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+                            debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
-                        info_log.output << std::dec << "\n";
+                        debug_log.output << std::dec << "\n";
                         
                         // faction = 1, identifier = 5 Probably means initialization!
                         // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }

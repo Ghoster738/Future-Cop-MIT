@@ -155,7 +155,7 @@ int main(int argc, char** argv)
         }
     }
 
-    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::WARNING );
+    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::INFO );
 
     {
         auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );

@@ -116,8 +116,6 @@ Data::Mission::FontResource::FilterStatus Data::Mission::FontResource::filterTex
 }
 
 bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
-    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -137,7 +135,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 throw std::runtime_error( message );
             }
 
-            info_log.output << "Loading FNT " << getResourceID() << "!";
+            debug_log.output << "Loading FNT " << getResourceID() << "!";
 
             // Get the data first
             auto header   = reader.readU32( settings.endian );
@@ -153,14 +151,14 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
             auto u32_0 = reader.readU32( settings.endian );
             auto offset_to_image_header = reader.readU32( settings.endian );
 
-            info_log.output << "  Header = 0x" << std::hex << header << std::dec << "\n";
-            info_log.output << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n";
-            info_log.output << "  u16_100 = " << u16_100 << "\n";
-            info_log.output << "  number_of_glyphs = " << number_of_glyphs << "\n";
-            info_log.output << "  platform = " << platform << "\n";
-            info_log.output << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n";
-            info_log.output << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n";
-            info_log.output << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n";
+            debug_log.output << "  Header = 0x" << std::hex << header << std::dec << "\n";
+            debug_log.output << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n";
+            debug_log.output << "  u16_100 = " << u16_100 << "\n";
+            debug_log.output << "  number_of_glyphs = " << number_of_glyphs << "\n";
+            debug_log.output << "  platform = " << platform << "\n";
+            debug_log.output << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n";
+            debug_log.output << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n";
+            debug_log.output << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n";
 
             // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
             // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
@@ -173,7 +171,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
             if( !file_is_not_valid )
             {
-                info_log.output << "FNT Header is valid!" << "\n";
+                debug_log.output << "FNT Header is valid!" << "\n";
 
                 reader.setPosition( offset_to_glyphs, Utilities::Buffer::BEGIN );
 
@@ -191,7 +189,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 for( auto i = this->glyphs.cbegin(); i < this->glyphs.cend(); i++ ) {
                     const uint32_t wrapped_character = (*i).glyphID % MAX_GLYPHS;
 
-                    info_log.output << "  glyphs[" << (i - this->glyphs.cbegin()) << "] = " << wrapped_character << "\n";
+                    debug_log.output << "  glyphs[" << (i - this->glyphs.cbegin()) << "] = " << wrapped_character << "\n";
 
                     font_glyphs_r[ wrapped_character ] = this->glyphs.data() + (i - this->glyphs.cbegin());
                 }
@@ -208,7 +206,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 auto width  = readerImageHeader.readU16( settings.endian );
                 auto height = readerImageHeader.readU16( settings.endian );
 
-                info_log.output << "width = " << width << ", height = " << height << "\n";
+                debug_log.output << "width = " << width << ", height = " << height << "\n";
 
 
                 // The pixels are compressed with 4 bit color palettes.
@@ -230,7 +228,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 file_is_not_valid |= ( (IMAGE_HEADER_SIZE + offset_to_image_header + (image_palette.getWidth() / 2) * image_palette.getHeight()) > reader.totalSize() );
 
                 if( !file_is_not_valid ) {
-                    info_log.output << "FNT image is valid.\n";
+                    debug_log.output << "FNT image is valid.\n";
 
                     auto reader_image = reader.getReader( reader.totalSize() - (IMAGE_HEADER_SIZE + offset_to_image_header) );
                     
@@ -246,7 +244,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                     image_p = new Utilities::Image2D( backup );
 
                     if( image_p == nullptr ) {
-                        info_log.output << "  FNT image failed\n" << std::endl;
+                        debug_log.output << "  FNT image failed\n" << std::endl;
                     }
 
 
@@ -255,7 +253,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 }
                 else
                 {
-                    info_log.output << "  FNT image is invalid\n" << std::endl;
+                    debug_log.output << "  FNT image is invalid\n" << std::endl;
                     return false;
                 }
             }

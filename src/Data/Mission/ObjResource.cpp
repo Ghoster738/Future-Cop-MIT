@@ -219,8 +219,8 @@ uint32_t Data::Mission::ObjResource::getResourceTagID() const {
 }
 
 bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
-    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
@@ -256,7 +256,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 }
                 else
                 {
-                    info_log.output << "4DGI at location 0x" << std::hex << this->getOffset() << "\n";
+                    debug_log.output << "4DGI at location 0x" << std::hex << this->getOffset() << "\n";
 
                     auto un1 = reader4DGI.readU32( settings.endian );
                     if( un1 != 1 ) // Always 1 for Mac, Playstation, and Windows
@@ -337,7 +337,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 }
 
                 size_t texture_ref_amount = (reader3DTL.totalSize() - reader3DTL.getPosition()) / 0x10;
-                info_log.output << "triangle amount " << std::dec << texture_ref_amount << "\n";
+                debug_log.output << "triangle amount " << std::dec << texture_ref_amount << "\n";
 
                 for( size_t i = 0; i < texture_ref_amount; i++ )
                 {
@@ -379,7 +379,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 if( number_of_faces == 0 ) // Each model has one or more faces.
                     warning_log.output << "3DQL the number of faces is missing.\n";
 
-                info_log.output << "3DQL has 0x" << std::hex << number_of_faces << " faces\n";
+                debug_log.output << "3DQL has 0x" << std::hex << number_of_faces << " faces\n";
 
                 for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
@@ -435,16 +435,16 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == TAG_3DRF ) {
-                info_log.output << "3DRF" << std::endl;
+                debug_log.output << "3DRF" << std::endl;
                 auto reader3DRF = reader.getReader( data_tag_size );
                 
-                info_log.output << "Index " << getIndexNumber() << std::endl;
-                info_log.output << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << std::endl;
+                debug_log.output << "Index " << getIndexNumber() << std::endl;
+                debug_log.output << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << std::endl;
                 // assert( reader3DRF.totalSize() == 0x10 );
             }
             else
             if( identifier == TAG_3DRL ) {
-                info_log.output << "3DRL" << std::endl;
+                debug_log.output << "3DRL" << std::endl;
                 auto reader3DRL = reader.getReader( data_tag_size );
             }
             else
@@ -461,7 +461,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 const auto bones_space = reader3DHY.totalSize() - reader3DHY.getPosition();
                 const auto amount_of_bones = bones_space / 0x14;
 
-                info_log.output << "3DHY: size = " << std::dec << amount_of_bones << "\n";
+                debug_log.output << "3DHY: size = " << std::dec << amount_of_bones << "\n";
 
                 if( (bones_space % 0x14) != 0 )
                     warning_log.output << "3DHY bones are not right!\n";
@@ -504,9 +504,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     
                     this->max_bone_childern = std::max( bones.at(i).parent_amount, this->max_bone_childern );
                     
-                    info_log.output << "bone: ";
+                    debug_log.output << "bone: ";
 
-                    info_log.output
+                    debug_log.output
                         << "parent index: 0x" << std::hex << bones.at(i).parent_amount << ", "
                         << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
                         << "0x" <<    bones.at(i).vertex_start << " with 0x" <<  bones.at(i).vertex_stride << " vertices, "
@@ -517,7 +517,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 // The bytes_per_frame_3DMI might not actually hold true.
                 // I found out that the position and the rotation contains the index to 3DMI.
-                info_log.output << "bytes_per_frame_3DMI = 0x" << std::hex << bytes_per_frame_3DMI << "\n";
+                debug_log.output << "bytes_per_frame_3DMI = 0x" << std::hex << bytes_per_frame_3DMI << "\n";
             }
             else
             if( identifier == TAG_3DHS ) {
@@ -531,7 +531,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
 
-                info_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
+                debug_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
                 
                 for( int d = 0; d < frames_gen_3DHS; d++ )
                 {
@@ -550,7 +550,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reader3DMI = reader.getReader( data_tag_size );
                 
                 if( reader3DMI.readU32( settings.endian ) != 1 )
-                    warning_log.output << "3DMI unexpected number at beginning!\n";
+                    debug_log.output << "3DMI unexpected number at beginning!\n";
                 
                 this->bone_animation_data_size = (reader3DMI.totalSize() - reader3DMI.getPosition()) / sizeof( uint16_t );
                 
@@ -566,13 +566,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DTA ) {
                 auto reader3DTA = reader.getReader( data_tag_size );
                 
-                info_log.output << "3DTA is not handled yet.\n";
+                debug_log.output << "3DTA is not handled yet.\n";
             }
             else
             if( identifier == TAG_3DAL ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
                 
-                info_log.output << "3DAL is not handled yet.\n";
+                debug_log.output << "3DAL is not handled yet.\n";
             }
             else
             if( identifier == TAG_4DVL ) {
@@ -581,7 +581,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto start_number = reader4DVL.readU32( settings.endian );
                 auto amount_of_vertices = reader4DVL.readU32( settings.endian );
                 
-                info_log.output << "4DVL has 0x" << std::hex << amount_of_vertices << " vertices.\n";
+                debug_log.output << "4DVL has 0x" << std::hex << amount_of_vertices << " vertices.\n";
 
                 auto positions_pointer = &vertex_positions;
 
@@ -608,7 +608,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto start_number = reader4DNL.readU32( settings.endian );
                 auto amount_of_normals = reader4DNL.readU32( settings.endian );
 
-                info_log.output << "4DNL has 0x" << std::hex << amount_of_normals << " normals.\n";
+                debug_log.output << "4DNL has 0x" << std::hex << amount_of_normals << " normals.\n";
 
                 auto normals_pointer = &vertex_normals;
 
@@ -638,7 +638,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto data_size = readerAnmD.totalSize() - readerAnmD.getPosition();
                 const auto TRACK_AMOUNT = data_size / 0x10;
 
-                info_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
+                debug_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
 
                 unsigned int start = 0xFFFF, end = 0x0;
                 
@@ -660,7 +660,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     end = std::max( end, static_cast<unsigned int>( from_frame ) );
                     end = std::max( end, static_cast<unsigned int>( to_frame ) );
 
-                    info_log.output << std::dec << "f: " << from_frame << " t: " << to_frame << " f.d: " << frame_duration << ".\n";
+                    debug_log.output << std::dec << "f: " << from_frame << " t: " << to_frame << " f.d: " << frame_duration << ".\n";
                 }
                 
                 frames_gen_AnmD = end - start + 1;

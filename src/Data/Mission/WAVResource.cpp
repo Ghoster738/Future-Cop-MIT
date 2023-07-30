@@ -12,8 +12,8 @@ namespace {
 }
 
 bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
-    auto info_log = settings.logger_r->getLog( Utilities::Logger::INFO );
-    info_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -67,7 +67,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                     
                     setAudioStream( reader );
 
-                    info_log.output << "This is a wav file." << std::endl;
+                    debug_log.output << "This is a wav file." << std::endl;
                     
                     return true;
                 }
