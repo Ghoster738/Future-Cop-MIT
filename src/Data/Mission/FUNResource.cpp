@@ -89,7 +89,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         debug_log.output << "Difference: ext_bytes.size() is " << ext_bytes.size() << ".\n";
                     if( ext_bytes.size() <= functions.back().start_code_offset )
                         debug_log.output << "Difference: ext_bytes.size() (" << ext_bytes.size() << ") <= functions.back().start_code_offset (" << functions.back().start_code_offset << ").\n";
-                    if( !reader.ended() );
+                    if( !reader.ended() )
                         debug_log.output << "Difference: Reader is not done.\n";
                     
                     while( ext_bytes.back() != 0 ){
