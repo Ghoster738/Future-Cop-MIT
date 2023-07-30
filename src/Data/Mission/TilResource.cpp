@@ -12,9 +12,9 @@
 #include <set>
 
 namespace {
-uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect";
-uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX";
-uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Unknown, but it is significantly bigger than SLFX
+uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect"; // The most important data is stored here.
+uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX"; // Vertex Color Animations.
+uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Vertex UV Animation frames.
 
 void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
     tile.top_left = reader.readU16( endian );
@@ -136,7 +136,8 @@ void Data::Mission::TilResource::makeEmpty() {
     
     flat.shading = 127;
     flat.texture_index = 0;
-    flat.unknown_0 = 0;
+    flat.animated = 0;
+    flat.semi_transparent = 0;
     flat.rectangle = 1; // This is a rectangle.
     flat.type = 0; // Make a pure flat
     
@@ -168,7 +169,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
         while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
             const auto identifier = reader.readU32( settings.endian );
             const auto tag_size   = reader.readU32( settings.endian );
-            auto data_size        = 0;
+
+            auto data_size = 0;
             
             if( tag_size > 2 * sizeof( tag_size ) )
                 data_size = tag_size - 2 * sizeof( tag_size );
@@ -178,7 +180,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 auto color_amount = reader_sect.readU16( settings.endian );
                 auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
-                
+
                 info_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n";
                 info_log.output << "Color amount = " << color_amount << "\n";
                 info_log.output << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
@@ -217,7 +219,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 this->culling_bottom_right.primary = reader_sect.readU16( settings.endian );
                 // Padding?
                 reader_sect.readU16(); // Skip 2 bytes
-                
+
                 readCullingTile( culling_top_left,     reader_sect, settings.endian );
                 readCullingTile( culling_top_right,    reader_sect, settings.endian );
                 readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
@@ -226,7 +228,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // These are most likely bytes.
                 auto unk_byte_0 = reader_sect.readU8();
                 auto unk_byte_1 = reader_sect.readU8();
-                
+
                 // Modifiying this to be other than what it is will cause an error?
                 if( unk_byte_0 != 0 )
                     debug_log.output << "Expected zero in unk_byte_0 rather than " << (unsigned)unk_byte_0 << ".\n";
@@ -234,47 +236,43 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     debug_log.output << "Expected zero in unk_byte_1 rather than " << (unsigned)unk_byte_1 << ".\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
+
+                this->mesh_library_size = 0;
                 
                 for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
                     for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
                         mesh_reference_grid[x][y].set( reader_sect.readU16( settings.endian ) );
+
+                        this->mesh_library_size += mesh_reference_grid[x][y].tile_amount;
                     }
                 }
-                
-                this->mesh_library_size = reader_sect.readU16( settings.endian );
-                
-                // Skip 2 bytes
-                reader_sect.readU16( settings.endian );
                 
                 // It turned out that Future Cop: LAPD does not care about this value.
                 // Since, every original map that I encounted seemed to have this value,
                 // my program would just pay attention to this value and use it for predicting
                 // the size of the mesh_tiles for the vector.
-                const size_t PREDICTED_POLYGON_TILE_AMOUNT = this->mesh_library_size >> 6;
+                auto predicted_mesh_library_size = reader_sect.readU16( settings.endian );
+                const size_t PREDICTED_POLYGON_TILE_AMOUNT = predicted_mesh_library_size >> 6;
                 
-                mesh_tiles.reserve( PREDICTED_POLYGON_TILE_AMOUNT );
+                // Skip 2 bytes
+                reader_sect.readU16( settings.endian );
+                
+                mesh_tiles.reserve( this->mesh_library_size );
                 
                 std::set<uint16_t> seen_graphics_tiles;
-
-                size_t actual_polygon_tile_amount = 0;
                 
-                for( size_t i = 0; i < AMOUNT_OF_TILES * AMOUNT_OF_TILES; ) {
+                for( size_t i = 0; i < this->mesh_library_size; i++ ) {
 
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
 
                     seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
-
-                    if( mesh_tiles.back().end_column )
-                        i++;
-                    actual_polygon_tile_amount++;
                 }
 
-                if( actual_polygon_tile_amount != PREDICTED_POLYGON_TILE_AMOUNT ) {
+                if( this->mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
                     warning_log.output << "\n"
-                    << "This resource has mispredicted the polygon tile amount.\n"
-                    << " mesh_library_size is 0x" << std::hex << this->mesh_library_size << std::dec << "\n"
-                    << " The predicted polygons to be there are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n"
-                    << " The amount of polygons that exist are  " << actual_polygon_tile_amount << "\n";
+                    << "This custom resource detected, and it is probably not an issue.\n"
+                    << " The amount of polygons are " << std::dec << this->mesh_library_size << "\n"
+                    << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
                 }
                 
                 bool skipped_space = false;
@@ -304,30 +302,14 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     texture_cords.back().x = reader_sect.readU8();
                     texture_cords.back().y = reader_sect.readU8();
                 }
-
-                for( unsigned i = 0; i < TEXTURE_INFO_AMOUNT; i++ ) {
-                    texture_info[ i ].is_semi_transparent.resize( texture_cordinates_amount, false );
-
-                    for( auto m : mesh_tiles ) {
-                        texture_info[ i ].is_semi_transparent[ m.texture_cord_index % texture_cordinates_amount ] = true;
-                    }
-                }
                 
                 Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );
-                
+
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
                     const auto data = reader_sect.readU16( settings.endian );
-                    
-                    tile_graphics_bitfield.push_back( { data } );
-                    
-                    const auto tile_graphics = TileGraphics( data );
-                    
-                    if( tile_graphics.type == 3 ) {
-                        if( seen_graphics_tiles.find( tile_graphics_bitfield.size() - 1 ) != seen_graphics_tiles.end() ) {
-                            // assert( tile_graphics.shading >= 0 && tile_graphics.shading <= 3 );
-                        }
-                    }
+
+                    tile_graphics_bitfield.push_back( data );
                 }
                 
                 // Create the physics cells for this Til.
@@ -347,8 +329,32 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_ScTA ) {
                 auto reader_scta = reader.getReader( data_size );
-                
-                // TODO Find out what this does later. Known sizes 36, 44, 84, 100, 132, 164, and 204
+
+                uint32_t number_of_animations = reader_scta.readU32( settings.endian );
+
+                for( uint32_t i = 0; i < number_of_animations; i++ ) {
+                    uint8_t number_of_frames = reader_scta.readU8();
+                    uint8_t single_zero = reader_scta.readU8();
+                    uint8_t one = reader_scta.readU8();
+                    uint8_t nine8 = reader_scta.readU8();
+                    uint16_t duration = reader_scta.readU16( settings.endian );
+                    uint16_t zeros = reader_scta.readU16( settings.endian );
+                    uint32_t frame_offset = reader_scta.readU32( settings.endian );
+                    uint32_t override_offset = reader_scta.readU32( settings.endian );
+                }
+
+                uint32_t frame_amount = 0;
+
+                while( reader_scta.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
+                    glm::u8vec2 texture_cordinates[4];
+
+                    for( unsigned i = 0; i < 4; i++ ) {
+                        texture_cordinates[ i ].x = reader_scta.readI8();
+                        texture_cordinates[ i ].y = reader_scta.readI8();
+                    }
+
+                    frame_amount++;
+                }
             }
             else
             {
@@ -380,16 +386,6 @@ bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::
         if( offset < TEXTURE_LIMIT ) {
             if( (*cur)->getImageFormat() != nullptr ) {
                 texture_info[ offset ].name = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
-
-                for( size_t i = 0; i < this->texture_cords.size(); i++ ) {
-                    if( this->texture_info[ offset ].is_semi_transparent[ i ] ) {
-                        points[0] = this->texture_cords[ i ];
-                        points[1] = this->texture_cords[ (i + 1) % this->texture_cords.size() ];
-                        points[2] = this->texture_cords[ (i + 2) % this->texture_cords.size() ];
-
-                        this->texture_info[ offset ].is_semi_transparent[ i ] = (*cur)->isSemiTransparent( *(*cur)->getImage(), points );
-                    }
-                }
             }
         }
     }
@@ -504,7 +500,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         unsigned int normal_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int tex_coord_0_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( "_TileType", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::SCALAR, false );
+        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( "_TILE_TYPE", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC2, false );
 
         model_output_p->setupVertexComponents();
 
@@ -531,7 +527,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                     {
                         unsigned int current_tile_polygon_amount = 0;
 
-                        const Tile current_tile = mesh_tiles.at( (t + mesh_reference_grid[x][y].tiles_start) % mesh_tiles.size() );
+                        const Tile current_tile = this->mesh_tiles.at( (t + mesh_reference_grid[x][y].tiles_start) % mesh_tiles.size() );
 
                         Data::Mission::Til::Mesh::Input input;
                         input.pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
@@ -556,9 +552,11 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         input_color.position.y = y;
                         input_color.position.z = 0;
 
+                        const auto tile_graphics = TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) );
+
                         Data::Mission::Til::Colorizer::setSquareColors( input_color, input.colors );
 
-                        if( TileGraphics( this->tile_graphics_bitfield.at( input_color.tile_index ) ).texture_index == texture_index || texture_index == TEXTURE_INFO_AMOUNT ) {
+                        if( tile_graphics.texture_index == texture_index || texture_index == TEXTURE_INFO_AMOUNT ) {
                             current_tile_polygon_amount = createTile( input, vertex_data, current_tile.mesh_type );
 
                             if( current_tile_polygon_amount == 0 && display_unread ) {
@@ -638,9 +636,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                 }
                             }
 
-                            bool is_semi_transparent = texture_info[ texture_index ].is_semi_transparent[ current_tile.texture_cord_index ];
-
-                            if( not_opaque == is_semi_transparent ) {
+                            if( not_opaque == tile_graphics.semi_transparent ) {
                                 if( back ) {
                                     // This writes the forward side of the tile data.
                                     for( unsigned int p = 0; p < current_tile_polygon_amount; p++ )
@@ -651,7 +647,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUByteType( current_tile.mesh_type ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec2UByteType( glm::u8vec2( current_tile.mesh_type, tile_graphics.animated ) ) );
                                     }
                                 }
 
@@ -665,7 +661,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::ScalarUIntType( current_tile.mesh_type ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec2UByteType( glm::u8vec2(  current_tile.mesh_type, tile_graphics.animated ) ) );
                                     }
                                 }
                             }

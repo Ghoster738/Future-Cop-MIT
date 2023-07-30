@@ -31,13 +31,19 @@ public:
             MeshDraw *mesh_draw_r;
             GLfloat selected_tile;
             GLfloat glow_time;
+            glm::vec2 animated_uv_destination;
 
             void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
 
+        struct Info {
+            int_fast8_t type;
+            int_fast8_t animated;
+        };
+
         Mesh *mesh_p;
         std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
-        std::vector<int_fast8_t> transparent_triangle_info;
+        std::vector<Info> transparent_triangle_info;
         const Data::Mission::TilResource *til_resource_r;
         float change_rate;
         float current; // [ -change_rate, change_rate ]
@@ -54,12 +60,15 @@ protected:
     Shader fragment_shader;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
+    GLuint animated_uv_destination_id;
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
+    glm::vec2 animated_uv_destination;
+    float     animated_uv_time;
     GLfloat scale;
     GLfloat glow_time;
 public:

@@ -138,41 +138,43 @@ int main() {
         Data::Mission::TilResource::TileGraphics tile_graphics;
         
         tile_graphics.set( 0b0000000010010111 );
-        if( tile_graphics.shading   != 0b10010111 || tile_graphics.texture_index != 0 ||
-            tile_graphics.unknown_0 != 0          || tile_graphics.rectangle     != 0 ||
-            tile_graphics.type      != 0 ) {
+        if( tile_graphics.shading   != 0b10010111 || tile_graphics.texture_index     != 0 ||
+            tile_graphics.animated  != 0          || tile_graphics.semi_transparent  != 0 || tile_graphics.rectangle != 0          || tile_graphics.type      != 0 ) {
             std::cout << "Error: the TileGraphics bitfield regarding shading is flawed!" << std::endl;
             is_not_success = true;
         }
 
         tile_graphics.set( 0b00000011100000000 );
-        if( tile_graphics.shading   != 0 || tile_graphics.texture_index != 0b111 ||
-            tile_graphics.unknown_0 != 0 || tile_graphics.rectangle     != 0 ||
-            tile_graphics.type      != 0 ) {
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index    != 0b111 ||
+            tile_graphics.animated  != 0 || tile_graphics.semi_transparent != 0     || tile_graphics.rectangle != 0 || tile_graphics.type             != 0 ) {
             std::cout << "Error: the TileGraphics bitfield regarding texture_index is flawed!" << std::endl;
             is_not_success = true;
         }
 
-        tile_graphics.set( 0b0001100000000000 );
-        if( tile_graphics.shading   != 0    || tile_graphics.texture_index != 0 ||
-            tile_graphics.unknown_0 != 0b11 || tile_graphics.rectangle     != 0 ||
-            tile_graphics.type      != 0 ) {
-            std::cout << "Error: the TileGraphics bitfield regarding unknown_0 is flawed!" << std::endl;
+        tile_graphics.set( 0b0001000000000000 );
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index    != 0 ||
+            tile_graphics.animated  != 0 || tile_graphics.semi_transparent != 1 || tile_graphics.rectangle != 0 || tile_graphics.type             != 0 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding semi_transparent is flawed!" << std::endl;
+            is_not_success = true;
+        }
+
+        tile_graphics.set( 0b0000100000000000 );
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index    != 0 ||
+            tile_graphics.animated  != 1 || tile_graphics.semi_transparent != 0 || tile_graphics.rectangle != 0 || tile_graphics.type             != 0 ) {
+            std::cout << "Error: the TileGraphics bitfield regarding animated is flawed!" << std::endl;
             is_not_success = true;
         }
         
         tile_graphics.set( 0b0010000000000000 );
-        if( tile_graphics.shading   != 0 || tile_graphics.texture_index != 0 ||
-            tile_graphics.unknown_0 != 0 || tile_graphics.rectangle     != 1 ||
-            tile_graphics.type      != 0 ) {
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index    != 0 ||
+            tile_graphics.animated  != 0 || tile_graphics.semi_transparent != 0 || tile_graphics.rectangle != 1 || tile_graphics.type             != 0 ) {
             std::cout << "Error: the TileGraphics bitfield regarding rectangle is flawed!" << std::endl;
             is_not_success = true;
         }
         
         tile_graphics.set( 0b1100000000000000 );
-        if( tile_graphics.shading   != 0 || tile_graphics.texture_index != 0 ||
-            tile_graphics.unknown_0 != 0 || tile_graphics.rectangle     != 0 ||
-            tile_graphics.type      != 3 ) {
+        if( tile_graphics.shading   != 0 || tile_graphics.texture_index    != 0 ||
+            tile_graphics.animated  != 0 || tile_graphics.semi_transparent != 0 || tile_graphics.rectangle != 0 || tile_graphics.type             != 3 ) {
             std::cout << "Error: the TileGraphics bitfield regarding type is flawed!" << std::endl;
             is_not_success = true;
         }

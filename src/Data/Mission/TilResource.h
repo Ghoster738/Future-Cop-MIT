@@ -104,7 +104,8 @@ public:
     struct TileGraphics {
         uint16_t shading : 8; // Lighting information, but they do change meaning depending type bitfield
         uint16_t texture_index : 3; // Holds the index of the texture the tile references.
-        uint16_t unknown_0 : 2;
+        uint16_t animated : 1;
+        uint16_t semi_transparent : 1;
         uint16_t rectangle : 1; // Indicates rectangle/square?
         uint16_t type : 2; // Tells how the tile will be drawn.
         
@@ -114,17 +115,19 @@ public:
         }
         
         void set( const uint16_t bitfield ) {
-            shading        = (bitfield >>  0) & ((1 << 8) - 1);
-            texture_index  = (bitfield >>  8) & ((1 << 3) - 1);
-            unknown_0      = (bitfield >> 11) & ((1 << 2) - 1);
-            rectangle      = (bitfield >> 13) & ((1 << 1) - 1);
-            type           = (bitfield >> 14) & ((1 << 2) - 1);
+            shading          = (bitfield >>  0) & ((1 << 8) - 1);
+            texture_index    = (bitfield >>  8) & ((1 << 3) - 1);
+            animated         = (bitfield >> 11) & ((1 << 1) - 1);
+            semi_transparent = (bitfield >> 12) & ((1 << 1) - 1);
+            rectangle        = (bitfield >> 13) & ((1 << 1) - 1);
+            type             = (bitfield >> 14) & ((1 << 2) - 1);
         }
         
         uint16_t get() const {
             return ((uint16_t)shading << 0) |
                 ((uint16_t)texture_index << 8) |
-                ((uint16_t)unknown_0 << 11) |
+                ((uint16_t)animated << 11) |
+                ((uint16_t)semi_transparent << 12) |
                 ((uint16_t)rectangle << 13) |
                 ((uint16_t)type << 14);
         }
@@ -144,10 +147,10 @@ private:
     CullingTile culling_bottom_left;
     CullingTile culling_bottom_right;
 
-    uint16_t texture_reference; // This is an unknown number, but it affects all the textures in the file. One change might mess up the tiles.
+    uint16_t texture_reference; // This is an unknown number, but it affects all the textures in the resource. One change will mess up the tiles.
     Floor mesh_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 
-    uint16_t mesh_library_size; // This is the number of unknown numbers but 4 times bigger for some reason.
+    uint16_t mesh_library_size;
     std::vector<Tile> mesh_tiles; // These are descriptions of tiles that are used to make up the map format. The 32 bit numbers are packed with information
 
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
@@ -158,9 +161,8 @@ private:
     
     struct TextureInfo {
         std::string name;
-        std::vector<bool> is_semi_transparent;
     };
-    TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture names;
+    TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture resource IDs.
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
 public:

@@ -10,6 +10,7 @@
 void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
     const glm::vec4 frag_inv = glm::vec4( 1, 1, 1, 1 );
     glm::vec3 inverse_color;
+    double unused;
 
     DynamicTriangleDraw::Triangle *draw_triangles_r;
 
@@ -18,11 +19,22 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
     for( size_t i = 0; i < number_of_triangles; i++ ) {
         draw_triangles_r[ i ] = triangles[ i ].addTriangle( this->camera_position, transform );
 
-        if( selected_tile == mesh_draw_r->transparent_triangle_info[ i ] ) {
+        const auto info = mesh_draw_r->transparent_triangle_info[ i ];
+
+        if( selected_tile == info.type ) {
             for( unsigned t = 0; t < 3; t++ ) {
                 glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
                 draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
                 draw_triangles_r[ i ].vertices[ t ].color.w = 1;
+            }
+        }
+
+        if( info.animated ) {
+            for( unsigned t = 0; t < 3; t++ ) {
+                draw_triangles_r[ i ].vertices[ t ].coordinate += animated_uv_destination;
+
+                draw_triangles_r[ i ].vertices[ t ].coordinate.x = modf( draw_triangles_r[ i ].vertices[ t ].coordinate.x, &unused );
+                draw_triangles_r[ i ].vertices[ t ].coordinate.y = modf( draw_triangles_r[ i ].vertices[ t ].coordinate.y, &unused );
             }
         }
     }
@@ -31,6 +43,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
+    "uniform vec2  AnimatedUVDestination;\n"
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
 
@@ -39,9 +52,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "void main()\n"
     "{\n"
     "   vec3 inverse_color = frag_inv - COLOR_0;\n"
-    "   float flashing = GlowTime * float(SelectedTile > _TileType - 0.5 && SelectedTile < _TileType + 0.5);\n"
+    "   float flashing = GlowTime * float(SelectedTile > _TILE_TYPE.x - 0.5 && SelectedTile < _TILE_TYPE.x + 0.5);\n"
     "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
-    "   texture_coord_1 = TEXCOORD_0;\n"
+    "   texture_coord_1 = fract( TEXCOORD_0 + AnimatedUVDestination * _TILE_TYPE.y );\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
@@ -53,18 +66,19 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "   if( frag_color.a < 0.015625 )\n"
     "       discard;\n"
     "   vec3 normal_color = vertex_colors * frag_color.rgb * 2.0;\n"
-    "   gl_FragColor = vec4( normal_color, frag_color.a );\n"
+    "   gl_FragColor = vec4( normal_color, 1.0 );\n"
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     this->glow_time = 0;
+    this->animated_uv_destination = glm::vec2( 0, 0 );
     this->current_selected_tile = 112;
     this->selected_tile = this->current_selected_tile + 1;
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 COLOR_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "float _TileType" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 _TILE_TYPE" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
@@ -120,15 +134,16 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
         else
         {
             // Setup the uniforms for the map.
-            texture_uniform_id       = program.getUniform( "Texture",   &std::cout, &uniform_failed );
-            matrix_uniform_id        = program.getUniform( "Transform", &std::cout, &uniform_failed );
-            glow_time_uniform_id     = program.getUniform( "GlowTime",  &std::cout, &uniform_failed );
-            selected_tile_uniform_id = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
+            texture_uniform_id         = program.getUniform( "Texture",               &std::cout, &uniform_failed );
+            matrix_uniform_id          = program.getUniform( "Transform",             &std::cout, &uniform_failed );
+            animated_uv_destination_id = program.getUniform( "AnimatedUVDestination", &std::cout, &uniform_failed );
+            glow_time_uniform_id       = program.getUniform( "GlowTime",      &std::cout, &uniform_failed );
+            selected_tile_uniform_id   = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
             
             attribute_failed |= !program.isAttribute( "POSITION",   &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
             attribute_failed |= !program.isAttribute( "COLOR_0",    &std::cout );
-            attribute_failed |= !program.isAttribute( "_TileType",  &std::cout );
+            attribute_failed |= !program.isAttribute( "_TILE_TYPE", &std::cout );
         }
         
         if( !link_success || uniform_failed || attribute_failed )
@@ -197,7 +212,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                 color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
-            if( name == "_TileType" )
+            if( name == "_TILE_TYPE" )
                 tile_type_compenent_index = i;
         }
 
@@ -237,8 +252,14 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     triangle.vertices[t].color.w = 1;
                     triangle.vertices[t].coordinate = coordinates;
 
-                    if( t == 0 )
-                        (*i).transparent_triangle_info.push_back( tile_type.x );
+                    if( t == 0 ) {
+                        MeshDraw::Info info;
+
+                        info.type     = tile_type.x;
+                        info.animated = tile_type.y;
+
+                        (*i).transparent_triangle_info.push_back( info );
+                    }
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
@@ -361,6 +382,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         this->current_selected_tile = this->selected_tile;
         glUniform1f( selected_tile_uniform_id, this->selected_tile );
     }
+    glUniform2f( animated_uv_destination_id, this->animated_uv_destination.x, this->animated_uv_destination.y );
 
     const float TILE_SPAN = 0.5;
 
@@ -372,6 +394,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     dynamic.camera_position = camera.getPosition();
     dynamic.selected_tile = this->selected_tile;
     dynamic.glow_time = filtered_glow_time;
+    dynamic.animated_uv_destination = this->animated_uv_destination;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         if( (*i).current >= 0.0 )
@@ -423,6 +446,14 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
     
     if( this->glow_time > 2.0f )
         this->glow_time = 0.0f;
+
+    // Update glow time.
+    this->animated_uv_time += seconds_passed * (1./5.95);
+
+    if( this->animated_uv_time > 1.0f )
+        this->animated_uv_time -= 1.0f;
+
+    this->animated_uv_destination = glm::vec2( 1.0 / 256.0 * 27.0, 0 ) * this->animated_uv_time;
 }
 
 size_t Graphics::SDL2::GLES2::Internal::World::getTilAmount() const {

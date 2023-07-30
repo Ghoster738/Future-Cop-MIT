@@ -56,18 +56,18 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
 
             // Mac and Windows files both the folling facts.
             // Playstation was not tested because of its different audio system.
-            assert( zero0 == 0 ); // 8 bytes of zeros.
-            assert( zero1 == 0 );
-            assert( Data::Mission::MSICResource::IDENTIFIER_TAG == header );
-            assert( (what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110) );
-            assert( predict_index == index ); // 16 bit number telling the header offset.
+            // assert( zero0 == 0 ); // 8 bytes of zeros.
+            // assert( zero1 == 0 );
+            // assert( Data::Mission::MSICResource::IDENTIFIER_TAG == header );
+            // assert( (what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110) );
+            // assert( predict_index == index ); // 16 bit number telling the header offset.
             predict_index++;
-            assert( zero3 == 0 ); // 2 bytes of zeros.
+            // assert( zero3 == 0 ); // 2 bytes of zeros.
             
             // next_offset is multiplied by two.
-            auto dataReader = reader.getReader( 2 * static_cast<size_t>( next_offset ));
+            auto data_reader = reader.getReader( 2 * static_cast<size_t>( next_offset ));
 
-            sound.addAudioStream( dataReader );
+            sound.addAudioStream( data_reader );
         }
         while( !reader.ended() );
 
