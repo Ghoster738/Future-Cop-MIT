@@ -6,8 +6,6 @@
 #include "../Skycaptin.h"
 #include "../Prop.h"
 
-#include <iostream>
-
 namespace {
 
 class Declaration {

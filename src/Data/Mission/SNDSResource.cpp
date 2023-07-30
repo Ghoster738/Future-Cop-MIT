@@ -1,7 +1,5 @@
 #include "SNDSResource.h"
 
-#include <iostream>
-
 const std::string Data::Mission::SNDSResource::FILE_EXTENSION = "snds";
 const uint32_t Data::Mission::SNDSResource::IDENTIFIER_TAG = 0x736E6473; // which is { 0x73, 0x6E, 0x64, 0x73 } or { 's', 'n', 'd', 's' } or "snds"
 

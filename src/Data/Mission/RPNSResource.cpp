@@ -2,8 +2,6 @@
 #include <limits>
 #include <cassert>
 
-#include <iostream>
-
 const std::string Data::Mission::RPNSResource::FILE_EXTENSION = "rpns";
 // which is { 0x52, 0x50, 0x4E, 0x53 } or { 'R', 'P', 'N', 'S' } or "RPNS"
 const uint32_t Data::Mission::RPNSResource::IDENTIFIER_TAG = 0x52504E53;

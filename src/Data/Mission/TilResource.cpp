@@ -7,7 +7,6 @@
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 #include <cassert>
 #include <set>
 

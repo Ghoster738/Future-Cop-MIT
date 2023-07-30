@@ -2,7 +2,6 @@
 
 #include <string.h>
 #include <fstream>
-#include <iostream>
 
 namespace {
     uint32_t TAG_CHUNK_ID = 0x52494646; // which is { 0x52, 0x49, 0x46, 0x46 } or { 'R', 'I', 'F', 'F' } or "RIFF"
