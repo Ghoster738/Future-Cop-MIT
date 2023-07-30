@@ -435,12 +435,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
             else
             if( identifier == TAG_3DRF ) {
-                debug_log.output << "3DRF" << std::endl;
                 auto reader3DRF = reader.getReader( data_tag_size );
                 
-                debug_log.output << "Index " << getIndexNumber() << std::endl;
-                debug_log.output << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << std::endl;
-                // assert( reader3DRF.totalSize() == 0x10 );
+                debug_log.output << "3DRF" << std::hex << "\n"
+                    << "Index " << getIndexNumber() << "\n"
+                    << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << "\n";
+
+                if( reader3DRF.totalSize() != 0x10 )
+                    warning_log.output << "reader3DRF.totalSize() is not 0x10, but 0x" << std::hex << reader3DRF.totalSize() << ".\n";
             }
             else
             if( identifier == TAG_3DRL ) {
@@ -746,8 +748,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
         }
         
-        // This assertion statement tells that there are only two options for
-        // Animation either morphing or bone animation.
+        // This warning tells that there are only two options for animations either morphing or bone animation.
         if( !( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_anm_positions.size() > 0 )) ) )
             warning_log.output << "Both animation systems are used. This might be a problem because normal Future Cop models do not have both bone and morph animations.\n";
         

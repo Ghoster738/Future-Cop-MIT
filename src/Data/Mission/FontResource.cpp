@@ -4,7 +4,6 @@
 #include "../../Utilities/ImagePalette2D.h"
 #include <string.h>
 #include <fstream>
-#include <cassert>
 #include <stdexcept>
 
 namespace {
@@ -117,7 +116,9 @@ Data::Mission::FontResource::FilterStatus Data::Mission::FontResource::filterTex
 
 bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
-    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr )
     {
@@ -135,7 +136,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
                 throw std::runtime_error( message );
             }
 
-            debug_log.output << "Loading FNT " << getResourceID() << "!";
+            debug_log.output << "Loading FNT " << getResourceID() << "!\n";
 
             // Get the data first
             auto header   = reader.readU32( settings.endian );
@@ -151,14 +152,14 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
             auto u32_0 = reader.readU32( settings.endian );
             auto offset_to_image_header = reader.readU32( settings.endian );
 
-            debug_log.output << "  Header = 0x" << std::hex << header << std::dec << "\n";
-            debug_log.output << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n";
-            debug_log.output << "  u16_100 = " << u16_100 << "\n";
-            debug_log.output << "  number_of_glyphs = " << number_of_glyphs << "\n";
-            debug_log.output << "  platform = " << platform << "\n";
-            debug_log.output << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n";
-            debug_log.output << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n";
-            debug_log.output << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n";
+            debug_log.output << "  Header = 0x" << std::hex << header << std::dec << "\n"
+                << "  Tag Size = 0x" << std::hex << tag_size << std::dec << "\n"
+                << "  u16_100 = " << u16_100 << "\n"
+                << "  number_of_glyphs = " << number_of_glyphs << "\n"
+                << "  platform = " << platform << "\n"
+                << "  unk_u8 height? = " << static_cast<uint32_t>( unk_u8 ) << "\n"
+                << "  offset_to_glyphs = 0x" << std::hex << offset_to_glyphs << std::dec << "\n"
+                << "  offset_to_image_header = 0x" << std::hex << offset_to_image_header << std::dec << "\n";
 
             // assert( platform == 9 ); // This statement will not crash on Playstation 1 files.
             // assert( platform == 8 ); // This statement will not crash on Mac or Windows files.
@@ -200,7 +201,8 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
                 const auto font_image_identifier = readerImageHeader.readU8();
 
-                assert( font_image_identifier == '@' );
+                if( font_image_identifier != '@' )
+                    warning_log.output << "font_image_identifier is not @.\n";
 
                 readerImageHeader.setPosition( 0x4, Utilities::Buffer::BEGIN );
                 auto width  = readerImageHeader.readU16( settings.endian );

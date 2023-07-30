@@ -46,7 +46,9 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
 
 bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
-    assert(data_reader.totalSize() == this->getSize());
+
+    if(data_reader.totalSize() != this->getSize())
+        return false;
     
     internal.rotation = data_reader.readU32( endian );
     internal.uint16_0 = data_reader.readU16( endian );

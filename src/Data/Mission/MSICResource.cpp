@@ -1,7 +1,5 @@
 #include "MSICResource.h"
 
-#include <cassert>
-
 namespace {
     const size_t SIZE_OF_HEADERS = 0x0014;
     const size_t SIZE_OF_DATA    = 0x5FC0;
@@ -32,6 +30,9 @@ bool Data::Mission::MSICResource::noResourceID() const {
 }
 
 bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     bool file_is_not_valid = false;
 
     if( this->data_p != nullptr )
@@ -56,13 +57,19 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
 
             // Mac and Windows files both the folling facts.
             // Playstation was not tested because of its different audio system.
-            // assert( zero0 == 0 ); // 8 bytes of zeros.
-            // assert( zero1 == 0 );
-            // assert( Data::Mission::MSICResource::IDENTIFIER_TAG == header );
-            // assert( (what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110) );
-            // assert( predict_index == index ); // 16 bit number telling the header offset.
+            if( zero0 != 0 ) // 8 bytes of zeros.
+                warning_log.output << "zero0 is actually " << std::dec << zero0 << ".\n";
+            if( zero1 != 0 )
+                warning_log.output << "zero1 is actually " << std::dec << zero1 << ".\n";
+            if( Data::Mission::MSICResource::IDENTIFIER_TAG != header )
+                warning_log.output << "header is actually 0x" << std::hex << header << ".\n";
+            if( !((what == 0x4e) || (what == 0x50) || (what == 0x51) || (what == 0x55) || (what == 0x58) || (what == 0x59) || (what == 0x60) || (what == 0x62) || (what == 0x65) || (what == 0x66) || (what == 0x70) || (what == 0x110)) )
+                warning_log.output << "what is actually 0x" << std::hex << what << ".\n";
+            if( predict_index != index ) // 16 bit number telling the header offset.
+                warning_log.output << "index is actually 0x" << std::hex << index << " not what is predicted " << predict_index << ".\n";
             predict_index++;
-            // assert( zero3 == 0 ); // 2 bytes of zeros.
+            if( zero3 != 0 )
+                warning_log.output << "zero3 is actually " << std::dec << zero3 << ".\n";
             
             // next_offset is multiplied by two.
             auto data_reader = reader.getReader( 2 * static_cast<size_t>( next_offset ));

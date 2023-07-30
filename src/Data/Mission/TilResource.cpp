@@ -433,7 +433,6 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
 
         if( iff_options.til.enable_til_backface_culling ) {
             model_output_p = createCulledModel();
-            assert( model_output_p != nullptr );
         }
 
         if( model_output_p == nullptr )

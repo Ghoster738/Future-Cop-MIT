@@ -1,7 +1,6 @@
 #include "Resource.h"
 
 #include <fstream>
-#include <cassert>
 
 const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PARSE_SETTINGS = Data::Mission::Resource::ParseSettings();
 
@@ -98,6 +97,9 @@ Data::Mission::Resource* Data::Mission::Resource::genResourceByType( const Utili
 }
 
 void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << getFileExtension() << ": " << getResourceID() << " process header.\n";
+
     auto reader = header_p->getReader();
     
     auto unk_0  = reader.readU32( settings.endian ); // 0x00
@@ -106,12 +108,15 @@ void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
     auto unk_3  = reader.readU32( settings.endian ); // 0x0C
     auto unk_4  = reader.readU32( settings.endian ); // 0x10
     // For Mac and Windows these are the values.
-    // assert( (unk_4 ==  1) || (unk_4 ==  2) || (unk_4 ==  3) || (unk_4 ==  4) || (unk_4 ==  5) || (unk_4 ==  6) || (unk_4 ==  7) ||
-    //         (unk_4 == 10) || (unk_4 == 11) || (unk_4 == 12) || (unk_4 == 13) || (unk_4 == 15) || (unk_4 == 19) || (unk_4 == 20) ||
-    //         (unk_4 == 21) || (unk_4 == 22) || (unk_4 == 23) || (unk_4 == 25) || (unk_4 == 31) || (unk_4 == 39) || (unk_4 == 43) ||
-    //         (unk_4 == 55) );
+    if( !((unk_4 ==  1) || (unk_4 ==  2) || (unk_4 ==  3) || (unk_4 ==  4) || (unk_4 ==  5) || (unk_4 ==  6) || (unk_4 ==  7) ||
+          (unk_4 == 10) || (unk_4 == 11) || (unk_4 == 12) || (unk_4 == 13) || (unk_4 == 15) || (unk_4 == 19) || (unk_4 == 20) ||
+          (unk_4 == 21) || (unk_4 == 22) || (unk_4 == 23) || (unk_4 == 25) || (unk_4 == 31) || (unk_4 == 39) || (unk_4 == 43) ||
+          (unk_4 == 55)) )
+        warning_log.output << std::dec << "unk_4 is " << unk_4 << ".\n";
     auto unk_5 = reader.readU8(); // 0x14
-    assert( (unk_5 == 0) || (unk_5 == 0x81) || (unk_5 == 0x82) || (unk_5 == 0x83) || (unk_5 == 0x89) || (unk_5 == 0x8a) || (unk_5 == 0x8b) || (unk_5 == 0x8c) );
+    if( !((unk_5 == 0) || (unk_5 == 0x81) || (unk_5 == 0x82) || (unk_5 == 0x83) || (unk_5 == 0x89) || (unk_5 == 0x8a) ||
+          (unk_5 == 0x8b) || (unk_5 == 0x8c)) )
+        warning_log.output << std::dec << "unk_5 is " << unk_5 << ".\n";
     auto unk_6 = reader.readU8(); // 0x16
     // I gave up on unk_6 for this assertion test run.
     // assert( (unk_6 == 0) || (unk_6 == 2) || (unk_6 == 16) || (unk_6 == 129) || (unk_6 == 130) || (unk_6 == 135) || (unk_6 == 151) || (unk_6 == 170) || (unk_6 == 207) );
@@ -159,7 +164,7 @@ int Data::Mission::Resource::read( const char *const file_path ) {
         
         data_p = new Utilities::Buffer();
 
-        // To make these operations faster expand the raw_data, so it does not have to reallocate data.
+        // TODO make these operations faster expand the raw_data, so it does not have to reallocate data.
         data_p->reserve( size );
 
         // This will store the byte.

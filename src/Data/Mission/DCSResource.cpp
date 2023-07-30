@@ -1,5 +1,4 @@
 #include "DCSResource.h"
-#include <cassert>
 
 const std::string Data::Mission::DCSResource::FILE_EXTENSION = "dcs";
 const uint32_t    Data::Mission::DCSResource::IDENTIFIER_TAG = 0x43646373; // which is { 0x43, 0x64, 0x63, 0x73 } or { 'C', 'd', 'c', 's' } or "Cdcs"
@@ -19,6 +18,9 @@ uint32_t Data::Mission::DCSResource::getResourceTagID() const {
 }
 
 bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     const size_t  TAG_HEADER_SIZE = 2 * sizeof(uint32_t);
     const size_t NUM_ENTRIES_SIZE = sizeof(uint32_t);
     const size_t       ENTRY_SIZE = 8 * sizeof(uint8_t);
@@ -46,11 +48,15 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
 
                     auto pad0 = reader.readU8();
                     auto pad1 = reader.readU8();
+
                     element.back().unk_5 = reader.readU8();
                     
-                    assert( pad0 == 0 );
-                    assert( pad1 == 0 );
-                    //assert( element.back().unk_5 == i + 1 );
+                    if( pad0 != 0 )
+                        warning_log.output << i << " pad0 is not zero, but " << std::dec << (unsigned)pad0 << ".\n";
+                    if( pad1 != 0 )
+                        warning_log.output << i << " pad1 is not zero, but " << std::dec << (unsigned)pad1 << ".\n";
+                    if( element.back().unk_5 != i + 1 )
+                        warning_log.output << i << " element.back().unk_5 is not " << std::dec << (i + 1) << ", but " << (unsigned)element.back().unk_5 << ".\n";
                 }
 
                 return true;

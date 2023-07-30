@@ -24,7 +24,6 @@
 #include <fstream>
 #include <algorithm>
 #include <cstring>
-#include <cassert>
 #include <iostream>
 #include <unordered_set>
 
@@ -282,7 +281,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                     // Finally read the buffer.
                     auto amount_written = data_writer.write( file, DATA_SIZE );
-                    assert( amount_written == DATA_SIZE );
+                    if( amount_written != DATA_SIZE )
+                        warning_log.output << "amount_written is 0x" << std::hex << amount_written << " while \nDATA_SIZE is 0x" << DATA_SIZE << ".\n";
 
                     data_reader.setPosition( 8 );
 
@@ -298,9 +298,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 // These are the tag sizes to be expected.
                                 // Subtract them by 20 and we would get the header size.
                                 // The smallest DATA_SIZE is 52, and the biggest data size is 120.
-                                assert( (DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
-                                        (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
-                                        (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120) );
+                                if( !((DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
+                                      (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
+                                      (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120)) )
+                                    warning_log.output << "DATA_SIZE has an unexpected size of " << DATA_SIZE << ".\n";
 
                                 data_reader.setPosition( 16 );
 
@@ -346,57 +347,59 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     }
                     else
                     if( TYPE_ID == SWVR_TAG ) {
-                        // The data size is always 28.
-                        assert( DATA_SIZE == 28 );
-                        assert( DATA_SIZE < data_reader.totalSize() );
-                        assert( amount_written == DATA_SIZE );
+                        if( DATA_SIZE != 28 || DATA_SIZE >= data_reader.totalSize() || amount_written != DATA_SIZE )
+                            error_log.output << "SWVR chunk: DATA_SIZE = " << std::dec << DATA_SIZE << "amount_written is " << amount_written << "\n";
+                        else {
+                            name_swvr = "";
 
-                        name_swvr = "";
+                            data_reader.setPosition( 8 );
 
-                        data_reader.setPosition( 8 );
-                        assert( data_reader.readU32( default_settings.endian ) == 0x46494c45 );
-                        data_reader.setPosition( 12 );
+                            const auto file_identifier = data_reader.readU32( default_settings.endian );
 
-                        int8_t some_char = '1';
-                        
-                        size_t dot_position = DATA_SIZE;
-                        const size_t STRING_LIMIT = DATA_SIZE - 12;
+                            if( file_identifier != 0x46494c45 )
+                                warning_log.output << "SWVR chunk: file_identifier is not FILE!\n";
 
-                        for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
-                        {
-                            some_char = data_reader.readI8();
+                            int8_t some_char = '1';
 
-                            if(some_char == '.')
-                                dot_position = i;
-                            
-                            if(some_char != '\0')
-                                name_swvr += some_char;
-                        }
-                        
-                        // Now, the swvr name must be cleaned up.
-                        
-                        // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
-                        if( name_swvr.length() > dot_position )
-                        {
-                            // Get the ".stream" ending cut out of the swvr name.
-                            
-                            const std::string ending = name_swvr.substr( dot_position );
-                            const std::string expecting = std::string(".stream").substr( 0, ending.length() );
-                            
-                            if( ending.compare(expecting) != 0 ) {
-                                warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
-                                    << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n"
-                                    << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
+                            size_t dot_position = DATA_SIZE;
+                            const size_t STRING_LIMIT = DATA_SIZE - 12;
+
+                            for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
+                            {
+                                some_char = data_reader.readI8();
+
+                                if(some_char == '.')
+                                    dot_position = i;
+
+                                if(some_char != '\0')
+                                    name_swvr += some_char;
                             }
-                            else {
-                                name_swvr = name_swvr.substr( 0, dot_position );
+
+                            // Now, the swvr name must be cleaned up.
+
+                            // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
+                            if( name_swvr.length() > dot_position )
+                            {
+                                // Get the ".stream" ending cut out of the swvr name.
+
+                                const std::string ending = name_swvr.substr( dot_position );
+                                const std::string expecting = std::string(".stream").substr( 0, ending.length() );
+
+                                if( ending.compare(expecting) != 0 ) {
+                                    warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                        << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n"
+                                        << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
+                                }
+                                else {
+                                    name_swvr = name_swvr.substr( 0, dot_position );
+                                }
                             }
-                        }
-                        else
-                        {
-                            if( name_swvr.length() != STRING_LIMIT - 1 ) {
-                                warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
-                                    << "  SWVR name \"" << name_swvr << "\" probably invalid.\n";
+                            else
+                            {
+                                if( name_swvr.length() != STRING_LIMIT - 1 ) {
+                                    warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                        << "  SWVR name \"" << name_swvr << "\" probably invalid.\n";
+                                }
                             }
                         }
                     }
@@ -470,7 +473,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
             
             debug_log.output << "Resource Name = \"" << file_name << "\".\n";
-            assert( filenames.find( file_name ) == filenames.end() );
+
+            if( filenames.find( file_name ) != filenames.end() )
+                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
+
             filenames.emplace( file_name );
 
             addResource( new_resource_p );
@@ -518,11 +524,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             // TODO add optional global file.
             // textures.insert( textures.end(), textures.begin(), textures.end() );
 
-            std::vector<Data::Mission::TilResource*> objects = Data::Mission::TilResource::getVector( *this );
+            std::vector<Data::Mission::TilResource*> sections = Data::Mission::TilResource::getVector( *this );
 
-            for( auto it = objects.begin(); it != objects.end(); it++ ) {
-                bool valid_texture_til = (*it)->loadTextures( textures_from_prime );
-                assert(valid_texture_til);
+            for( auto section = sections.begin(); section != sections.end(); section++ ) {
+                if( !(*section)->loadTextures( textures_from_prime ) )
+                    error_log.output << "Section/CTil ID: " << std::dec << (*section)->getResourceID() << " had failed to load the textures!.\n";
             }
         }
 

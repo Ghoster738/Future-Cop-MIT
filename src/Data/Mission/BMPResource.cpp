@@ -3,8 +3,8 @@
 #include <cmath>
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
-#include <fstream>
 #include <cassert>
+#include <fstream>
 
 namespace {
 // All three versions have this for this is the header for the texture.
@@ -69,6 +69,11 @@ uint32_t Data::Mission::BMPResource::getResourceTagID() const {
 }
 
 bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     bool file_is_not_valid = false;
     
     if( this->data_p != nullptr )
@@ -86,40 +91,54 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( identifier == CCB_TAG ) {
                 auto cbb_reader = reader.getReader( tag_size - sizeof( uint32_t ) * 2 );
+
+                uint32_t zeros[9];
+                uint32_t bitcodes[4];
                 
                 // Zero data 0x0-0xC.
                 // 0x4
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[0] = cbb_reader.readU32( settings.endian );
                 // 0x8
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[1] = cbb_reader.readU32( settings.endian );
                 // 0xC = 12
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[2] = cbb_reader.readU32( settings.endian );
                 
                 // Address 0x10 is always 0x01000000
-                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                bitcodes[0] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[3] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                bitcodes[1] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                bitcodes[2] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[4] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0x01000000 );
+                bitcodes[3] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 8 );
+                auto number_eight = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU16( settings.endian ) == 0 );
+                zeros[5] = cbb_reader.readU16( settings.endian );
                 
                 cbb_reader.setPosition( 0x2A, Utilities::Buffer::BEGIN );
                 auto bitfield_byte = cbb_reader.readU8();
                 
-                assert( cbb_reader.readU8() == 0 );
+                zeros[6] = cbb_reader.readU8();
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[7] = cbb_reader.readU32( settings.endian );
                 
-                assert( cbb_reader.readU32( settings.endian ) == 0 );
+                zeros[8] = cbb_reader.readU32( settings.endian );
+
+                for( unsigned i = 0; i < 9; i++ )
+                    if( zeros[i] != 0 )
+                        warning_log.output << "CCB: Zero # " << i << " is actually " << zeros[i] << ".\n";
+
+                for( unsigned i = 0; i < 4; i++ )
+                    if( bitcodes[i] != 0x01000000 )
+                        warning_log.output << "CCB: Bitcodes # " << i << " is actually " << bitcodes[i] << ".\n";
+
+                if( number_eight != 8 )
+                        warning_log.output << "CCB: number_eight is actually " << number_eight << ".\n";
                 
                 cbb_reader.setPosition( 0x34, Utilities::Buffer::BEGIN );
                 auto first_u32 = cbb_reader.readU32( settings.endian );
@@ -229,19 +248,23 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 auto image = this->image_palette_p->toColorImage();
                 
                 this->image_p = new Utilities::Image2D( image );
-                
-                assert( this->image_p != nullptr );
             }
         }
         
         Utilities::ImageFormat::Chooser chooser;
         
-        assert( this->image_p != nullptr );
+        if( this->image_p == nullptr ) {
+            file_is_not_valid = true;
+            error_log.output << "image_p should be allocated. The texture parsing has failed.\n";
+        }
         
         Utilities::PixelFormatColor_R8G8B8A8 rgba8;
         this->format_p = chooser.getWriterCopy( rgba8 );
 
-        assert( this->format_p != nullptr );
+        if( this->format_p == nullptr ) {
+            file_is_not_valid = true;
+            error_log.output << "format_p should be allocated. The texture parsing has failed.\n";
+        }
 
         return !file_is_not_valid;
     }

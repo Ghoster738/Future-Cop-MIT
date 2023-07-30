@@ -54,7 +54,9 @@ Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
 
 bool Data::Mission::ACT::Aircraft::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
-    assert(data_reader.totalSize() == this->getSize());
+
+    if( data_reader.totalSize() != this->getSize() )
+        return false;
     
     // TODO See if this is acurate information.
     internal.rotation = data_reader.readU32( endian );

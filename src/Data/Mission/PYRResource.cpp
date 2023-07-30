@@ -3,7 +3,6 @@
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <string.h>
 #include <fstream>
-#include <cassert>
 
 namespace {
     const uint32_t TAG_PYDT = 0x50594454; // which is { 0x50, 0x59, 0x44, 0x54 } or { 'P', 'Y', 'D', 'T' } or "PYDT"
@@ -19,9 +18,9 @@ Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reade
     this->num_sprites = reader.readU8();
     this->sprite_size = reader.readU8(); // Power of two size
 
-    assert( this->num_sprites != 0 ); // This should not crash at all.
+    // assert( this->num_sprites != 0 ); // This should not crash at all.
     // This should not crash at all.
-    assert( (sprite_size == 0x80) | (sprite_size == 0x40) | (sprite_size == 0x20) | (sprite_size == 0x10) );
+    // assert( (sprite_size == 0x80) | (sprite_size == 0x40) | (sprite_size == 0x20) | (sprite_size == 0x10) );
 
     this->textures.reserve( this->num_sprites );
 
@@ -70,9 +69,9 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     if( u4 == 1 )
         this->location.y = this->location.y | 256;
 
-    //assert( u4 == 0 ); // This will crash on PS1 not PC
-    assert( (u4 == 0) | (u4 == 1) ); // This will not crash on any platform.
-    assert( u5 == 0 ); // This will crash on PS1 not PC
+    // assert( u4 == 0 ); // This will crash on PS1 not PC
+    // assert( (u4 == 0) | (u4 == 1) ); // This will not crash on any platform.
+    // assert( u5 == 0 ); // This will crash on PS1 not PC
 }
 
 glm::u16vec2 Data::Mission::PYRResource::Particle::Texture::getLocation() const {
