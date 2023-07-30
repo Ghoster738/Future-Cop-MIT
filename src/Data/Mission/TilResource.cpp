@@ -284,10 +284,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 if( skipped_space )
                 {
                     warning_log.output << "\n"
-                        << "The resource number " << std::dec << this->getResourceID() << " has " << skipped_space << " skipped.\n"
-                        << "mesh_library_size is 0x" << std::hex << this->mesh_library_size
-                        << " or 0x" << (this->mesh_library_size >> 4)
-                        << " or " << std::dec << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
+                        << "This resource has " << skipped_space << " skipped.\n"
+                        << "mesh_library_size is 0x" << std::hex << this->mesh_library_size << "\n";
                 }
 
                 // Read the UV's

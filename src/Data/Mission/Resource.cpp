@@ -72,8 +72,6 @@ uint32_t Data::Mission::Resource::getResourceID() const {
     if( !noResourceID() )
         return resource_id;
     
-    assert( resource_id == 1 );
-    
     return resource_id + getIndexNumber();
 }
 
