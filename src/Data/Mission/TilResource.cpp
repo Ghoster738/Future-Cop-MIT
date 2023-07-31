@@ -7,6 +7,7 @@
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <cassert>
 #include <set>
 
@@ -223,14 +224,14 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 readCullingTile( culling_bottom_right, reader_sect, settings.endian );
                 
                 // These are most likely bytes.
-                auto unk_byte_0 = reader_sect.readU8();
-                auto unk_byte_1 = reader_sect.readU8();
+                uv_animation.x = std::abs( reader_sect.readI8() );
+                uv_animation.y = std::abs( reader_sect.readI8() );
 
                 // Modifiying this to be other than what it is will cause an error?
-                if( unk_byte_0 != 0 )
-                    debug_log.output << "Expected zero in unk_byte_0 rather than " << (unsigned)unk_byte_0 << ".\n";
-                if( unk_byte_1 != 0 )
-                    debug_log.output << "Expected zero in unk_byte_1 rather than " << (unsigned)unk_byte_1 << ".\n";
+                if( uv_animation.x != 0 )
+                    warning_log.output << "Expected zero in uv_animation.x rather than " << (unsigned)uv_animation.x << ".\n";
+                if( uv_animation.y != 0 )
+                    warning_log.output << "Expected zero in uv_animation.y rather than " << (unsigned)uv_animation.y << ".\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
 

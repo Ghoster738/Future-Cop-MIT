@@ -448,12 +448,17 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
         this->glow_time = 0.0f;
 
     // Update glow time.
-    this->animated_uv_time += seconds_passed * (1./5.95);
+    this->animated_uv_time.x += seconds_passed * (1./5.95) * 8.0;
 
-    if( this->animated_uv_time > 1.0f )
-        this->animated_uv_time -= 1.0f;
+    if( this->animated_uv_time.x > 1.0f )
+        this->animated_uv_time.x -= 1.0f;
 
-    this->animated_uv_destination = glm::vec2( 1.0 / 256.0 * 27.0, 0 ) * this->animated_uv_time;
+    this->animated_uv_time.y += seconds_passed * (1./5.95) * 1.0;
+
+    if( this->animated_uv_time.y  > 1.0f )
+        this->animated_uv_time.y -= 1.0f;
+
+    this->animated_uv_destination = glm::vec2( 1.0 / 256.0 * 27.0, 1.0 / 256.0 * 27.0 ) * this->animated_uv_time;
 }
 
 size_t Graphics::SDL2::GLES2::Internal::World::getTilAmount() const {

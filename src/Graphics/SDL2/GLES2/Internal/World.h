@@ -68,7 +68,7 @@ protected:
     GLfloat selected_tile;
     GLfloat current_selected_tile;
     glm::vec2 animated_uv_destination;
-    float     animated_uv_time;
+    glm::vec2 animated_uv_time;
     GLfloat scale;
     GLfloat glow_time;
 public:

@@ -147,6 +147,8 @@ private:
     CullingTile culling_bottom_left;
     CullingTile culling_bottom_right;
 
+    glm::i8vec2 uv_animation;
+
     uint16_t texture_reference; // This is an unknown number, but it affects all the textures in the resource. One change will mess up the tiles.
     Floor mesh_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 
@@ -176,6 +178,8 @@ public:
     virtual uint32_t getResourceTagID() const;
 
     Utilities::Image2D getImage() const;
+
+    glm::i8vec2 getUVAnimation() const { return uv_animation; }
     
     void makeEmpty();
 
