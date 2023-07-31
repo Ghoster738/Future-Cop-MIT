@@ -229,9 +229,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 // Modifiying this to be other than what it is will cause an error?
                 if( uv_animation.x != 0 )
-                    warning_log.output << "Expected zero in uv_animation.x rather than " << (unsigned)uv_animation.x << ".\n";
+                    debug_log.output << "uv_animation.x has " << (unsigned)uv_animation.x << ".\n";
                 if( uv_animation.y != 0 )
-                    warning_log.output << "Expected zero in uv_animation.y rather than " << (unsigned)uv_animation.y << ".\n";
+                    debug_log.output << "uv_animation.y has " << (unsigned)uv_animation.y << ".\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
 
