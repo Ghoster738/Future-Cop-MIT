@@ -31,7 +31,6 @@ public:
             MeshDraw *mesh_draw_r;
             GLfloat selected_tile;
             GLfloat glow_time;
-            glm::vec2 animated_uv_destination;
 
             void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
@@ -48,6 +47,10 @@ public:
         float change_rate;
         float current; // [ -change_rate, change_rate ]
         std::vector<Section> sections;
+
+        glm::vec2 animated_uv_factor;
+        glm::vec2 animated_uv_destination;
+        glm::vec2 animated_uv_time;
     };
 
     static const GLchar* default_vertex_shader;
@@ -67,8 +70,6 @@ protected:
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
-    glm::vec2 animated_uv_destination;
-    glm::vec2 animated_uv_time;
     GLfloat scale;
     GLfloat glow_time;
 public:

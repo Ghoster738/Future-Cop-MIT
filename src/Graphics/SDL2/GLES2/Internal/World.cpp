@@ -31,7 +31,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
         if( info.animated ) {
             for( unsigned t = 0; t < 3; t++ ) {
-                draw_triangles_r[ i ].vertices[ t ].coordinate += animated_uv_destination;
+                draw_triangles_r[ i ].vertices[ t ].coordinate += mesh_draw_r->animated_uv_destination;
 
                 draw_triangles_r[ i ].vertices[ t ].coordinate.x = modf( draw_triangles_r[ i ].vertices[ t ].coordinate.x, &unused );
                 draw_triangles_r[ i ].vertices[ t ].coordinate.y = modf( draw_triangles_r[ i ].vertices[ t ].coordinate.y, &unused );
@@ -71,7 +71,6 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     this->glow_time = 0;
-    this->animated_uv_destination = glm::vec2( 0, 0 );
     this->current_selected_tile = 112;
     this->selected_tile = this->current_selected_tile + 1;
 
@@ -180,6 +179,10 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         (*i).til_resource_r = data;
         (*i).change_rate = -1.0;
         (*i).current = 0.0;
+
+        (*i).animated_uv_factor = data->getUVAnimation();
+        (*i).animated_uv_destination = glm::vec2( 0, 0 );
+        (*i).animated_uv_time = glm::vec2( 0, 0 );
 
         (*i).mesh_p->setup( *model_p, textures );
 
@@ -382,7 +385,6 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         this->current_selected_tile = this->selected_tile;
         glUniform1f( selected_tile_uniform_id, this->selected_tile );
     }
-    glUniform2f( animated_uv_destination_id, this->animated_uv_destination.x, this->animated_uv_destination.y );
 
     const float TILE_SPAN = 0.5;
 
@@ -394,9 +396,10 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     dynamic.camera_position = camera.getPosition();
     dynamic.selected_tile = this->selected_tile;
     dynamic.glow_time = filtered_glow_time;
-    dynamic.animated_uv_destination = this->animated_uv_destination;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
+        glUniform2f( animated_uv_destination_id, (*i).animated_uv_destination.x, (*i).animated_uv_destination.y );
+
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
 
@@ -439,6 +442,21 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
             if( (*i).current > (*i).change_rate )
                 (*i).current -= (*i).change_rate * 2.0;
         }
+
+        const auto frame_time_ratio = (1./5.95); // 5.95 is the amount of secounds that one unit of time.
+        const auto max_displacement = 1.0 / 256.0 * 27.0;
+
+        (*i).animated_uv_time.x += seconds_passed * frame_time_ratio * (*i).animated_uv_factor.x;
+
+        if( (*i).animated_uv_time.x > 1.0f )
+            (*i).animated_uv_time.x -= 1.0f;
+
+        (*i).animated_uv_time.y += seconds_passed * frame_time_ratio * (*i).animated_uv_factor.y;
+
+        if( (*i).animated_uv_time.y  > 1.0f )
+            (*i).animated_uv_time.y -= 1.0f;
+
+        (*i).animated_uv_destination = glm::vec2( max_displacement, max_displacement ) * (*i).animated_uv_time;
     }
     
     // Update glow time.
@@ -446,19 +464,6 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
     
     if( this->glow_time > 2.0f )
         this->glow_time = 0.0f;
-
-    // Update glow time.
-    this->animated_uv_time.x += seconds_passed * (1./5.95) * 8.0;
-
-    if( this->animated_uv_time.x > 1.0f )
-        this->animated_uv_time.x -= 1.0f;
-
-    this->animated_uv_time.y += seconds_passed * (1./5.95) * 1.0;
-
-    if( this->animated_uv_time.y  > 1.0f )
-        this->animated_uv_time.y -= 1.0f;
-
-    this->animated_uv_destination = glm::vec2( 1.0 / 256.0 * 27.0, 1.0 / 256.0 * 27.0 ) * this->animated_uv_time;
 }
 
 size_t Graphics::SDL2::GLES2::Internal::World::getTilAmount() const {
