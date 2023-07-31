@@ -443,20 +443,22 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
                 (*i).current -= (*i).change_rate * 2.0;
         }
 
-        const auto frame_time_ratio = (1./5.95); // 5.95 is the amount of secounds that one unit of time.
-        const auto max_displacement = 1.0 / 256.0 * 27.0;
+        const auto frame_time_inverse = (1./5.95); // 5.95 is the amount of secounds that one unit of time.
+        const auto pixel_amount = 27.0;
+        const auto image_ratio  = 1.0 / 256.0; // A single Cbmp texture resource has the resolution of 256 pixels.
+        const auto uv_destination = image_ratio * pixel_amount;
 
-        (*i).animated_uv_time.x += seconds_passed * frame_time_ratio * (*i).animated_uv_factor.x;
+        (*i).animated_uv_time.x += seconds_passed * frame_time_inverse * (*i).animated_uv_factor.x;
 
         if( (*i).animated_uv_time.x > 1.0f )
             (*i).animated_uv_time.x -= 1.0f;
 
-        (*i).animated_uv_time.y += seconds_passed * frame_time_ratio * (*i).animated_uv_factor.y;
+        (*i).animated_uv_time.y += seconds_passed * frame_time_inverse * (*i).animated_uv_factor.y;
 
         if( (*i).animated_uv_time.y  > 1.0f )
             (*i).animated_uv_time.y -= 1.0f;
 
-        (*i).animated_uv_destination = glm::vec2( max_displacement, max_displacement ) * (*i).animated_uv_time;
+        (*i).animated_uv_destination = glm::vec2( uv_destination, uv_destination ) * (*i).animated_uv_time;
     }
     
     // Update glow time.
