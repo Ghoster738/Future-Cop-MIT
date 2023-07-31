@@ -31,6 +31,22 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 }
 }
 
+std::string Data::Mission::TilResource::InfoSCTA::getString() const {
+    std::stringstream stream;
+
+    stream << "InfoSCTA:\n";
+    stream << "  Values:\n";
+    stream << "    frame_count        = " << frame_count        << "\n";
+    stream << "    duration_per_frame = " << duration_per_frame << "\n";
+    stream << "    animated_uv_offset = " << animated_uv_offset << "\n";
+    stream << "    source_uv_offset   = " << source_uv_offset   << "\n";
+    stream << "  Translated Values:\n";
+    stream << "    Total Animation Time = " << getSecondsPerCycle() << " seconds\n";
+    stream << "    Seconds Per Frame    = " << getSecondsPerFrame() << " seconds\n";
+
+    return stream.str();
+}
+
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
 
@@ -328,26 +344,36 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 uint32_t number_of_animations = reader_scta.readU32( settings.endian );
 
+                this->SCTA_info.resize( number_of_animations );
+
                 for( uint32_t i = 0; i < number_of_animations; i++ ) {
                     uint8_t number_of_frames = reader_scta.readU8();
                     uint8_t single_zero = reader_scta.readU8();
                     uint8_t one = reader_scta.readU8();
                     uint8_t nine8 = reader_scta.readU8();
-                    uint16_t duration = reader_scta.readU16( settings.endian );
+                    uint16_t duration_per_frame = reader_scta.readU16( settings.endian );
                     uint16_t zeros = reader_scta.readU16( settings.endian );
-                    uint32_t frame_offset = reader_scta.readU32( settings.endian );
-                    uint32_t override_offset = reader_scta.readU32( settings.endian );
+                    uint32_t animated_uv_offset = reader_scta.readU32( settings.endian );
+                    uint32_t source_uv_offset = reader_scta.readU32( settings.endian );
+
+                    this->SCTA_info[i].frame_count        = number_of_frames;
+                    this->SCTA_info[i].duration_per_frame = duration_per_frame;
+                    this->SCTA_info[i].animated_uv_offset = animated_uv_offset;
+                    this->SCTA_info[i].source_uv_offset   = source_uv_offset;
+
+                    warning_log.output << this->SCTA_info[i].getString();
                 }
 
                 uint32_t frame_amount = 0;
 
-                while( reader_scta.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                    glm::u8vec2 texture_cordinates[4];
+                this->scta_texture_cords.reserve( reader_scta.getPosition( Utilities::Buffer::END ) / sizeof(uint16_t) );
 
-                    for( unsigned i = 0; i < 4; i++ ) {
-                        texture_cordinates[ i ].x = reader_scta.readI8();
-                        texture_cordinates[ i ].y = reader_scta.readI8();
-                    }
+                while( reader_scta.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
+                    glm::u8vec2 texture_cordinates;
+
+                    texture_cordinates.x = reader_scta.readI8();
+                    texture_cordinates.y = reader_scta.readI8();
+                    scta_texture_cords.push_back( texture_cordinates );
 
                     frame_amount++;
                 }

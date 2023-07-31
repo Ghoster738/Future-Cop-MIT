@@ -132,6 +132,20 @@ public:
                 ((uint16_t)type << 14);
         }
     };
+    struct InfoSCTA {
+        static constexpr float units_to_seconds = 1. / 300.;
+        static constexpr float seconds_to_units = 300.;
+
+        uint_fast32_t frame_count;
+        uint_fast32_t duration_per_frame;
+        uint_fast32_t animated_uv_offset;
+        uint_fast32_t source_uv_offset;
+
+        std::string getString() const;
+
+        float getSecondsPerFrame() const { return duration_per_frame * units_to_seconds; }
+        float getSecondsPerCycle() const { return getSecondsPerFrame() * frame_count; }
+    };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
     static constexpr float  SPAN_OF_TIL = AMOUNT_OF_TILES / 2;
@@ -158,6 +172,9 @@ private:
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<Utilities::PixelFormatColor::GenericColor> colors;
     std::vector<uint16_t> tile_graphics_bitfield;
+
+    std::vector<InfoSCTA> SCTA_info;
+    std::vector<glm::u8vec2> scta_texture_cords;
     
     uint32_t slfx_bitfield;
     
