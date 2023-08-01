@@ -36,6 +36,7 @@ namespace Mesh {
         glm::vec3 *position;
         glm::u8vec2 *coords;
         glm::vec3 *colors;
+        unsigned *stca_animation_index; // 0 means normal, 1 and above is index - 1.
         unsigned int element_start;
         unsigned int element_amount; // This describes the structual limit position and coords.
     };
@@ -46,6 +47,7 @@ namespace Mesh {
         unsigned int coord_index;
         unsigned int coord_index_limit;
         const glm::u8vec2 *coord_data; // This is the data that holds the coordinates.
+        const std::vector<TilResource::InfoSCTA> *SCTA_info_r;
     };
 
     /**

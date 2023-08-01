@@ -52,7 +52,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "void main()\n"
     "{\n"
     "   vec3 inverse_color = frag_inv - COLOR_0;\n"
-    "   float flashing = GlowTime * float(SelectedTile > _TILE_TYPE.x - 0.5 && SelectedTile < _TILE_TYPE.x + 0.5);\n"
+    "   float flashing = GlowTime * float(SelectedTile > _TILE_TYPE.z - 0.5 && SelectedTile < _TILE_TYPE.z + 0.5);\n"
     "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
     "   texture_coord_1 = fract( TEXCOORD_0 + AnimatedUVDestination * _TILE_TYPE.y );\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
@@ -77,7 +77,7 @@ Graphics::SDL2::GLES2::Internal::World::World() {
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 " + Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );

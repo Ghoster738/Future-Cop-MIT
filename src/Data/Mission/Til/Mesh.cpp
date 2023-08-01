@@ -48,6 +48,17 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
             result.coords[ result.element_start ].x = input.coord_data[ INDEX ].x;
             result.coords[ result.element_start ].y = input.coord_data[ INDEX ].y;
 
+            result.stca_animation_index[ result.element_start ] = 0;
+
+            for( unsigned scta_index = 0; scta_index < input.SCTA_info_r->size(); scta_index++ ) {
+                const TilResource::InfoSCTA &info_scta = input.SCTA_info_r->at( scta_index );
+
+                if( info_scta.isMemorySafe() && info_scta.source_uv_offset / 2 <= INDEX && info_scta.source_uv_offset / 2 + 4 > INDEX) {
+                    result.stca_animation_index[ result.element_start ] = 1 + scta_index;
+                    // result.stca_animation_index[ result.element_start ] = 1 + 4 * scta_index + INDEX_TABLE[ flipped ][ i ];
+                }
+            }
+
             result.element_start++;
         }
 

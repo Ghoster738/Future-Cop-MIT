@@ -191,7 +191,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
@@ -550,7 +550,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         unsigned int normal_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int tex_coord_0_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( TILE_TYPE_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC2, false );
+        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( TILE_TYPE_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC3, false );
 
         model_output_p->setupVertexComponents();
 
@@ -559,6 +559,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         glm::vec3   normal[6];
         glm::vec3   color[6];
         glm::u8vec2 coord[6];
+        unsigned stca_animation_index[6];
 
         has_texture_displayed = false;
         
@@ -587,11 +588,13 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         input.coord_index = current_tile.texture_cord_index;
                         input.coord_index_limit = this->texture_cords.size();
                         input.coord_data = this->texture_cords.data();
+                        input.SCTA_info_r = &this->SCTA_info;
 
                         Data::Mission::Til::Mesh::VertexData vertex_data;
                         vertex_data.position = position;
                         vertex_data.coords = coord;
                         vertex_data.colors = color;
+                        vertex_data.stca_animation_index = stca_animation_index;
                         vertex_data.element_amount = 6;
                         vertex_data.element_start = 0;
 
@@ -692,7 +695,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec2UByteType( glm::u8vec2( current_tile.mesh_type, tile_graphics.animated ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec3UByteType( glm::u8vec3( current_tile.mesh_type, tile_graphics.animated, stca_animation_index[p] ) ) );
                                     }
                                 }
 
@@ -706,7 +709,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec2UByteType( glm::u8vec2(  current_tile.mesh_type, tile_graphics.animated ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec3UByteType( glm::u8vec3(  current_tile.mesh_type, tile_graphics.animated, stca_animation_index[p] ) ) );
                                     }
                                 }
                             }
@@ -738,6 +741,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         glm::vec3 position[6];
         glm::u8vec2 cord[6];
         glm::vec3 color[6];
+        unsigned stca_animation_index[6];
         Tile current_tile;
         Data::Mission::Til::Mesh::Input input;
         Data::Mission::Til::Mesh::VertexData vertex_data;
@@ -750,9 +754,11 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         vertex_data.position = position;
         vertex_data.coords = cord;
         vertex_data.colors = color;
+        vertex_data.stca_animation_index = stca_animation_index;
         
         input.coord_index_limit = this->texture_cords.size();
         input.coord_data = this->texture_cords.data();
+        input.SCTA_info_r = &this->SCTA_info;
         
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
             
@@ -762,6 +768,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
             
             vertex_data.element_amount = 6;
             vertex_data.element_start = 0;
+            vertex_data.stca_animation_index = stca_animation_index;
             
             auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
             
