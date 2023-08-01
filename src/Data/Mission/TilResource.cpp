@@ -41,10 +41,6 @@ std::string Data::Mission::TilResource::InfoSCTA::getString() const {
     stream << "    animated_uv_offset = " << animated_uv_offset << "\n";
     stream << "    source_uv_offset   = " << source_uv_offset   << "\n";
     stream << "  Translated Values:\n";
-    if( isMemorySafe() )
-        stream << "    This is memory safe\n";
-    else
-        stream << "    This is not memory safe\n";
     stream << "    Total Animation Time = " << getSecondsPerCycle() << " seconds\n";
     stream << "    Seconds Per Frame    = " << getSecondsPerFrame() << " seconds\n";
 
@@ -191,6 +187,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr ) {
@@ -396,8 +394,10 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 // Bounds check the SCTA
                 for( auto i = SCTA_info.begin(); i != SCTA_info.end(); i++ ) {
-                    (*i).setMemorySafe( texture_cords.size(), scta_texture_cords.size() );
-                    warning_log.output << (*i).getString();
+                    if( !(*i).setMemorySafe( texture_cords.size(), scta_texture_cords.size() ) )
+                        error_log.output << "Not bounds safe " << (*i).getString();
+                    else
+                        warning_log.output << (*i).getString();
                 }
             }
             else
