@@ -146,6 +146,7 @@ public:
         int_fast32_t getFrameCount() const { return std::abs( frame_count ); }
         float getSecondsPerFrame() const { return duration_per_frame * units_to_seconds; }
         float getSecondsPerCycle() const { return getSecondsPerFrame() * getFrameCount(); }
+        float getDurationToSeconds() const { return seconds_to_units / duration_per_frame; }
 
         bool isMemorySafe() const { return frame_count >= 0; }
 

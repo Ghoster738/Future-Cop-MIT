@@ -504,7 +504,7 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
 
                 last_time = (*i).times[ info_index ];
 
-                (*i).times[ info_index ] += seconds_passed * 1. / info.getSecondsPerFrame();
+                (*i).times[ info_index ] += seconds_passed * info.getDurationToSeconds();
 
                 if( (*i).times[ info_index ] >= info.getFrameCount() )
                     (*i).times[ info_index ] -= info.getFrameCount();
