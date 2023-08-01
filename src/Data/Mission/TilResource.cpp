@@ -709,7 +709,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec3UByteType( glm::u8vec3(  current_tile.mesh_type, tile_graphics.animated, stca_animation_index[p] ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec3UByteType( glm::u8vec3(  current_tile.mesh_type, tile_graphics.animated, stca_animation_index[p - 1] ) ) );
                                     }
                                 }
                             }

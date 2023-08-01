@@ -46,22 +46,26 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "uniform vec2  AnimatedUVDestination;\n"
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
+    "uniform vec2  ScTAPositions[16 * 4];\n"
 
     "const vec3 frag_inv = vec3(1,1,1);\n"
 
-    "void main()\n"
-    "{\n"
+    "void main() {\n"
+    "   float SELECT_SPECIFIER = _TILE_TYPE.x;\n"
+    "   float DISPLACEMENT     = _TILE_TYPE.y;\n"
+    "   float FRAME_BY_FRAME   = _TILE_TYPE.z;\n"
+
     "   vec3 inverse_color = frag_inv - COLOR_0;\n"
-    "   float flashing = GlowTime * float(SelectedTile > _TILE_TYPE.z - 0.5 && SelectedTile < _TILE_TYPE.z + 0.5);\n"
+    "   float flashing = GlowTime * float(SelectedTile > SELECT_SPECIFIER - 0.5 && SelectedTile < SELECT_SPECIFIER + 0.5);\n"
     "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
-    "   texture_coord_1 = fract( TEXCOORD_0 + AnimatedUVDestination * _TILE_TYPE.y );\n"
+    "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME < 1. );\n"
+    "   texture_coord_1 = fract( tex_coord_pos + AnimatedUVDestination * DISPLACEMENT );\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "uniform sampler2D Texture;\n"
 
-    "void main()\n"
-    "{\n"
+    "void main() {\n"
     "   vec4 frag_color = texture2D(Texture, texture_coord_1);\n"
     "   if( frag_color.a < 0.015625 )\n"
     "       discard;\n"

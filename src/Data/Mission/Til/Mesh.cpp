@@ -54,8 +54,8 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
                 const TilResource::InfoSCTA &info_scta = input.SCTA_info_r->at( scta_index );
 
                 if( info_scta.isMemorySafe() && info_scta.source_uv_offset / 2 <= INDEX && info_scta.source_uv_offset / 2 + 4 > INDEX) {
-                    result.stca_animation_index[ result.element_start ] = 1 + scta_index;
-                    // result.stca_animation_index[ result.element_start ] = 1 + 4 * scta_index + INDEX_TABLE[ flipped ][ i ];
+                    // result.stca_animation_index[ result.element_start ] = 1 + scta_index;
+                    result.stca_animation_index[ result.element_start ] = 1 + 4 * scta_index + INDEX_TABLE[ flipped ][ i ];
                 }
             }
 
