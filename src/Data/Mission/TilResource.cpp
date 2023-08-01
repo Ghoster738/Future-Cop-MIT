@@ -36,15 +36,33 @@ std::string Data::Mission::TilResource::InfoSCTA::getString() const {
 
     stream << "InfoSCTA:\n";
     stream << "  Values:\n";
-    stream << "    frame_count        = " << frame_count        << "\n";
+    stream << "    frame_count        = " << getFrameCount()    << "\n";
     stream << "    duration_per_frame = " << duration_per_frame << "\n";
     stream << "    animated_uv_offset = " << animated_uv_offset << "\n";
     stream << "    source_uv_offset   = " << source_uv_offset   << "\n";
     stream << "  Translated Values:\n";
+    if( isMemorySafe() )
+        stream << "    This is memory safe\n";
+    else
+        stream << "    This is not memory safe\n";
     stream << "    Total Animation Time = " << getSecondsPerCycle() << " seconds\n";
     stream << "    Seconds Per Frame    = " << getSecondsPerFrame() << " seconds\n";
 
     return stream.str();
+}
+
+bool Data::Mission::TilResource::InfoSCTA::setMemorySafe( size_t source_size, size_t animated_size ) {
+    bool is_unsafe = false;
+
+    if( animated_uv_offset / 2 + 4 * frame_count > animated_size )
+        is_unsafe = true;
+    if( source_uv_offset / 2   + 4 > source_size )
+        is_unsafe = true;
+
+    if( is_unsafe && frame_count > 0 )
+        frame_count = -frame_count;
+
+    return !is_unsafe;
 }
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
@@ -360,8 +378,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     this->SCTA_info[i].duration_per_frame = duration_per_frame;
                     this->SCTA_info[i].animated_uv_offset = animated_uv_offset;
                     this->SCTA_info[i].source_uv_offset   = source_uv_offset;
-
-                    warning_log.output << this->SCTA_info[i].getString();
                 }
 
                 uint32_t frame_amount = 0;
@@ -376,6 +392,12 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     scta_texture_cords.push_back( texture_cordinates );
 
                     frame_amount++;
+                }
+
+                // Bounds check the SCTA
+                for( auto i = SCTA_info.begin(); i != SCTA_info.end(); i++ ) {
+                    (*i).setMemorySafe( texture_cords.size(), scta_texture_cords.size() );
+                    warning_log.output << (*i).getString();
                 }
             }
             else

@@ -136,15 +136,24 @@ public:
         static constexpr float units_to_seconds = 1. / 300.;
         static constexpr float seconds_to_units = 300.;
 
-        uint_fast32_t frame_count;
+        int_fast32_t  frame_count;
         uint_fast32_t duration_per_frame;
         uint_fast32_t animated_uv_offset;
         uint_fast32_t source_uv_offset;
 
         std::string getString() const;
 
+        int_fast32_t getFrameCount() const { return std::abs( frame_count ); }
         float getSecondsPerFrame() const { return duration_per_frame * units_to_seconds; }
-        float getSecondsPerCycle() const { return getSecondsPerFrame() * frame_count; }
+        float getSecondsPerCycle() const { return getSecondsPerFrame() * getFrameCount(); }
+
+        bool isMemorySafe() const { return frame_count >= 0; }
+
+        /**
+         * This method sets the variables inside the struct to be memory safe.
+         * @return false if an element is found to be unstable.
+         */
+        bool setMemorySafe( size_t source_size, size_t animated_size );
     };
     
     static constexpr size_t AMOUNT_OF_TILES = 16;
@@ -195,8 +204,6 @@ public:
     virtual uint32_t getResourceTagID() const;
 
     Utilities::Image2D getImage() const;
-
-    glm::i8vec2 getUVAnimation() const { return uv_animation; }
     
     void makeEmpty();
 
@@ -224,6 +231,10 @@ public:
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;
     
+    glm::i8vec2 getUVAnimation() const { return uv_animation; }
+    const std::vector<InfoSCTA>& getInfoSCTA() const { return SCTA_info; }
+    const std::vector<glm::u8vec2>& getSCTATextureCords() const { return scta_texture_cords; }
+
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );
 };
