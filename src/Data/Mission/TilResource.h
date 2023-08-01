@@ -156,6 +156,7 @@ public:
         bool setMemorySafe( size_t source_size, size_t animated_size );
     };
     
+    static const std::string TILE_TYPE_COMPONENT_NAME;
     static constexpr size_t AMOUNT_OF_TILES = 16;
     static constexpr float  SPAN_OF_TIL = AMOUNT_OF_TILES / 2;
     static constexpr float MAX_HEIGHT = 6.0f; // The highest value is actually MAX_HEIGHT - SAMPLE_HEIGHT due to the span of the pixels being [127, -128].

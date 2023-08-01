@@ -64,6 +64,8 @@ bool Data::Mission::TilResource::InfoSCTA::setMemorySafe( size_t source_size, si
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
 
+const std::string Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME = "_TILE_TYPE";
+
 Data::Mission::TilResource::TilResource() {
 
 }
@@ -548,7 +550,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         unsigned int normal_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int tex_coord_0_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( "_TILE_TYPE", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC2, false );
+        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( TILE_TYPE_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC2, false );
 
         model_output_p->setupVertexComponents();
 

@@ -74,10 +74,10 @@ Graphics::SDL2::GLES2::Internal::World::World() {
     this->current_selected_tile = 112;
     this->selected_tile = this->current_selected_tile + 1;
 
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 COLOR_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 _TILE_TYPE" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 " + Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
@@ -139,10 +139,10 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
             glow_time_uniform_id       = program.getUniform( "GlowTime",      &std::cout, &uniform_failed );
             selected_tile_uniform_id   = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
             
-            attribute_failed |= !program.isAttribute( "POSITION",   &std::cout );
-            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute( "COLOR_0",    &std::cout );
-            attribute_failed |= !program.isAttribute( "_TILE_TYPE", &std::cout );
+            attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::POSITION_COMPONENT_NAME,     &std::cout );
+            attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME,     &std::cout );
+            attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME,  &std::cout );
+            attribute_failed |= !program.isAttribute( Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME, &std::cout );
         }
         
         if( !link_success || uniform_failed || attribute_failed )
@@ -215,7 +215,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                 color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
-            if( name == "_TILE_TYPE" )
+            if( name == Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME )
                 tile_type_compenent_index = i;
         }
 
