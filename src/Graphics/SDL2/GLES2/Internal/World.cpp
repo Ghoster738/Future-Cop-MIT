@@ -201,9 +201,10 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
             if( info.isMemorySafe() ) {
                 const auto factor = glm::vec2( 1. / 256., 1. / 256. );
+                const unsigned frame_index = 0 * 4;
 
                 for( unsigned a = 0; a < 4; a++ ) {
-                    (*i).current_uv_frames[ info_index * 4 + a ] = glm::vec2( uv_frames[ info_index * 4 + a ].x, uv_frames[ info_index * 4 + a ].y ) * factor;
+                    (*i).current_uv_frames[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;
                 }
             }
         }
