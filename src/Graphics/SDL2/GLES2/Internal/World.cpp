@@ -190,6 +190,23 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         (*i).animated_uv_destination = glm::vec2( 0, 0 );
         (*i).animated_uv_time = glm::vec2( 0, 0 );
 
+        const std::vector<Data::Mission::TilResource::InfoSCTA> &scta_infos = (*i).til_resource_r->getInfoSCTA();
+        const std::vector<glm::u8vec2> &uv_frames = (*i).til_resource_r->getSCTATextureCords();
+
+        (*i).times.resize( scta_infos.size(), 0 );
+        (*i).current_uv_frames.resize( scta_infos.size() * 4 );
+
+        for( unsigned info_index = 0; info_index < scta_infos.size(); info_index++ ) {
+            const Data::Mission::TilResource::InfoSCTA &info = scta_infos[ info_index ];
+
+            if( info.isMemorySafe() ) {
+                (*i).current_uv_frames[ info_index * 4 + 0 ] = glm::vec2( 0, 0 );
+                (*i).current_uv_frames[ info_index * 4 + 1 ] = glm::vec2( 0.5, 0 );
+                (*i).current_uv_frames[ info_index * 4 + 2 ] = glm::vec2( 0.5, 0.5 );
+                (*i).current_uv_frames[ info_index * 4 + 3 ] = glm::vec2( 0, 0.5 );
+            }
+        }
+
         (*i).mesh_p->setup( *model_p, textures );
 
         Utilities::ModelBuilder::TextureMaterial material;
@@ -367,8 +384,6 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Graphics::SDL2::GLES
     return true;
 }
 
-std::vector<glm::vec2> box = { {0, 0}, {0.5, 0}, {0.5, 0.5}, {0, 0.5} };
-
 void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 projection_view, final_position, position_mat;
     
@@ -405,10 +420,11 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     dynamic.selected_tile = this->selected_tile;
     dynamic.glow_time = filtered_glow_time;
 
-    glUniform2fv( animated_uv_frames_id, box.size(), reinterpret_cast<float*>(box.data()) );
-
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         glUniform2f( animated_uv_destination_id, (*i).animated_uv_destination.x, (*i).animated_uv_destination.y );
+
+        if( (*i).current_uv_frames.size() != 0 )
+            glUniform2fv( animated_uv_frames_id, (*i).current_uv_frames.size(), reinterpret_cast<float*>((*i).current_uv_frames.data()) );
 
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
