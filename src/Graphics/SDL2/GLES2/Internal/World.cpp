@@ -200,10 +200,11 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             const Data::Mission::TilResource::InfoSCTA &info = scta_infos[ info_index ];
 
             if( info.isMemorySafe() ) {
-                (*i).current_uv_frames[ info_index * 4 + 0 ] = glm::vec2( 0, 0 );
-                (*i).current_uv_frames[ info_index * 4 + 1 ] = glm::vec2( 0.5, 0 );
-                (*i).current_uv_frames[ info_index * 4 + 2 ] = glm::vec2( 0.5, 0.5 );
-                (*i).current_uv_frames[ info_index * 4 + 3 ] = glm::vec2( 0, 0.5 );
+                const auto factor = glm::vec2( 1. / 256., 1. / 256. );
+
+                for( unsigned a = 0; a < 4; a++ ) {
+                    (*i).current_uv_frames[ info_index * 4 + a ] = glm::vec2( uv_frames[ info_index * 4 + a ].x, uv_frames[ info_index * 4 + a ].y ) * factor;
+                }
             }
         }
 
