@@ -46,19 +46,20 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "uniform vec2  AnimatedUVDestination;\n"
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
-    "uniform vec2  ScTAPositions[16 * 4];\n"
+    "uniform vec2  AnimatedUVFrames[ 16 * 4 ];\n"
 
     "const vec3 frag_inv = vec3(1,1,1);\n"
 
     "void main() {\n"
-    "   float SELECT_SPECIFIER = _TILE_TYPE.x;\n"
-    "   float DISPLACEMENT     = _TILE_TYPE.y;\n"
-    "   float FRAME_BY_FRAME   = _TILE_TYPE.z;\n"
+    "   float SELECT_SPECIFIER   = _TILE_TYPE.x;\n"
+    "   float DISPLACEMENT       = _TILE_TYPE.y;\n"
+    "   highp int FRAME_BY_FRAME = int( _TILE_TYPE.z );\n"
 
     "   vec3 inverse_color = frag_inv - COLOR_0;\n"
     "   float flashing = GlowTime * float(SelectedTile > SELECT_SPECIFIER - 0.5 && SelectedTile < SELECT_SPECIFIER + 0.5);\n"
     "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
-    "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME < 1. );\n"
+    "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0 );\n"
+    "   tex_coord_pos += AnimatedUVFrames[ clamp( FRAME_BY_FRAME - 1, 0, 16 * 4 ) ] * float( FRAME_BY_FRAME != 0 );\n"
     "   texture_coord_1 = fract( tex_coord_pos + AnimatedUVDestination * DISPLACEMENT );\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
@@ -140,6 +141,7 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
             texture_uniform_id         = program.getUniform( "Texture",               &std::cout, &uniform_failed );
             matrix_uniform_id          = program.getUniform( "Transform",             &std::cout, &uniform_failed );
             animated_uv_destination_id = program.getUniform( "AnimatedUVDestination", &std::cout, &uniform_failed );
+            animated_uv_frames_id      = program.getUniform( "AnimatedUVFrames",      &std::cout, &uniform_failed );
             glow_time_uniform_id       = program.getUniform( "GlowTime",      &std::cout, &uniform_failed );
             selected_tile_uniform_id   = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
             
@@ -365,6 +367,8 @@ bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Graphics::SDL2::GLES
     return true;
 }
 
+std::vector<glm::vec2> box = { {0, 0}, {0.5, 0}, {0.5, 0.5}, {0, 0.5} };
+
 void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera &camera ) {
     glm::mat4 projection_view, final_position, position_mat;
     
@@ -400,6 +404,8 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     dynamic.camera_position = camera.getPosition();
     dynamic.selected_tile = this->selected_tile;
     dynamic.glow_time = filtered_glow_time;
+
+    glUniform2fv( animated_uv_frames_id, box.size(), reinterpret_cast<float*>(box.data()) );
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         glUniform2f( animated_uv_destination_id, (*i).animated_uv_destination.x, (*i).animated_uv_destination.y );

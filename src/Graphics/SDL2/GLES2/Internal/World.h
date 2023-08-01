@@ -48,9 +48,14 @@ public:
         float current; // [ -change_rate, change_rate ]
         std::vector<Section> sections;
 
+        // UV displacement animations.
         glm::vec2 animated_uv_factor;
         glm::vec2 animated_uv_destination;
         glm::vec2 animated_uv_time;
+
+        // UV frame by frame animations.
+        std::vector<float>     times;
+        std::vector<glm::vec2> current_uv_frames;
     };
 
     static const GLchar* default_vertex_shader;
@@ -64,6 +69,7 @@ protected:
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
     GLuint animated_uv_destination_id;
+    GLuint animated_uv_frames_id;
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
