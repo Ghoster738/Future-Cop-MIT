@@ -21,7 +21,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
         const auto info = mesh_draw_r->transparent_triangle_info[ i ];
 
-        if( selected_tile == info.type ) {
+        if( selected_tile == info.bitfield.type ) {
             for( unsigned t = 0; t < 3; t++ ) {
                 glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
                 draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
@@ -29,13 +29,13 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
             }
         }
 
-        if( info.animation.frame_by_frame != 0 ) {
+        if( info.frame_by_frame[0] != 0 ) {
             for( unsigned t = 0; t < 3; t++ ) {
-                draw_triangles_r[ i ].vertices[ t ].coordinate = mesh_draw_r->current_frame_uvs[ (unsigned(info.animation.frame_by_frame) - 1) % mesh_draw_r->current_frame_uvs.size() ];
+                draw_triangles_r[ i ].vertices[ t ].coordinate = mesh_draw_r->current_frame_uvs[ (unsigned(info.frame_by_frame[t]) - 1) % mesh_draw_r->current_frame_uvs.size() ];
             }
         }
 
-        if( info.animation.displacement ) {
+        if( info.bitfield.displacement ) {
             for( unsigned t = 0; t < 3; t++ ) {
                 draw_triangles_r[ i ].vertices[ t ].coordinate += mesh_draw_r->displacement_uv_destination;
 
@@ -289,13 +289,13 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     if( t == 0 ) {
                         MeshDraw::Info info;
 
-                        info.type = tile_type.x;
-
-                        info.animation.displacement   = tile_type.y;
-                        info.animation.frame_by_frame = tile_type.z;
+                        info.bitfield.type = tile_type.x;
+                        info.bitfield.displacement  = tile_type.y;
 
                         (*i).transparent_triangle_info.push_back( info );
                     }
+
+                    (*i).transparent_triangle_info.back().frame_by_frame[t] = tile_type.z;
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );

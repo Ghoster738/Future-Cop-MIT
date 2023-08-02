@@ -32,11 +32,12 @@ public:
         };
 
         struct Info {
-            int_fast8_t type;
             struct {
                 uint_fast8_t displacement   : 1;
-                uint_fast8_t frame_by_frame : 7;
-            } animation;
+                uint_fast8_t type           : 7;
+            } bitfield;
+
+            uint_fast8_t frame_by_frame[3];
         };
 
         Mesh *mesh_p;
