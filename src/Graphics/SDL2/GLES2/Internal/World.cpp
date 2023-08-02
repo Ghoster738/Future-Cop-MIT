@@ -31,7 +31,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
         if( info.animated ) {
             for( unsigned t = 0; t < 3; t++ ) {
-                draw_triangles_r[ i ].vertices[ t ].coordinate += mesh_draw_r->animated_uv_destination;
+                draw_triangles_r[ i ].vertices[ t ].coordinate += mesh_draw_r->displacement_uv_destination;
 
                 draw_triangles_r[ i ].vertices[ t ].coordinate.x = modf( draw_triangles_r[ i ].vertices[ t ].coordinate.x, &unused );
                 draw_triangles_r[ i ].vertices[ t ].coordinate.y = modf( draw_triangles_r[ i ].vertices[ t ].coordinate.y, &unused );
@@ -138,12 +138,12 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
         else
         {
             // Setup the uniforms for the map.
-            texture_uniform_id         = program.getUniform( "Texture",               &std::cout, &uniform_failed );
-            matrix_uniform_id          = program.getUniform( "Transform",             &std::cout, &uniform_failed );
-            animated_uv_destination_id = program.getUniform( "AnimatedUVDestination", &std::cout, &uniform_failed );
-            animated_uv_frames_id      = program.getUniform( "AnimatedUVFrames",      &std::cout, &uniform_failed );
-            glow_time_uniform_id       = program.getUniform( "GlowTime",      &std::cout, &uniform_failed );
-            selected_tile_uniform_id   = program.getUniform( "SelectedTile",  &std::cout, &uniform_failed );
+            texture_uniform_id       = program.getUniform( "Texture",          &std::cout, &uniform_failed );
+            matrix_uniform_id        = program.getUniform( "Transform",        &std::cout, &uniform_failed );
+            displacement_uv_destination_id = program.getUniform( "AnimatedUVDestination", &std::cout, &uniform_failed );
+            frame_uv_id              = program.getUniform( "AnimatedUVFrames", &std::cout, &uniform_failed );
+            glow_time_uniform_id     = program.getUniform( "GlowTime",         &std::cout, &uniform_failed );
+            selected_tile_uniform_id = program.getUniform( "SelectedTile",     &std::cout, &uniform_failed );
             
             attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::POSITION_COMPONENT_NAME,     &std::cout );
             attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME,     &std::cout );
@@ -186,15 +186,15 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         (*i).change_rate = -1.0;
         (*i).current = 0.0;
 
-        (*i).animated_uv_factor = data->getUVAnimation();
-        (*i).animated_uv_destination = glm::vec2( 0, 0 );
-        (*i).animated_uv_time = glm::vec2( 0, 0 );
+        (*i).displacement_uv_factor = data->getUVAnimation();
+        (*i).displacement_uv_destination = glm::vec2( 0, 0 );
+        (*i).displacement_uv_time = glm::vec2( 0, 0 );
 
         const std::vector<Data::Mission::TilResource::InfoSCTA> &scta_infos = (*i).til_resource_r->getInfoSCTA();
         const std::vector<glm::u8vec2> &uv_frames = (*i).til_resource_r->getSCTATextureCords();
 
-        (*i).times.resize( scta_infos.size(), 0 );
-        (*i).current_uv_frames.resize( scta_infos.size() * 4 );
+        (*i).frame_uv_times.resize( scta_infos.size(), 0 );
+        (*i).current_frame_uvs.resize( scta_infos.size() * 4 );
 
         for( unsigned info_index = 0; info_index < scta_infos.size(); info_index++ ) {
             const Data::Mission::TilResource::InfoSCTA &info = scta_infos[ info_index ];
@@ -204,7 +204,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                 const unsigned frame_index = 0 * 4;
 
                 for( unsigned a = 0; a < 4; a++ ) {
-                    (*i).current_uv_frames[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;
+                    (*i).current_frame_uvs[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;
                 }
             }
         }
@@ -423,10 +423,10 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     dynamic.glow_time = filtered_glow_time;
 
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        glUniform2f( animated_uv_destination_id, (*i).animated_uv_destination.x, (*i).animated_uv_destination.y );
+        glUniform2f( displacement_uv_destination_id, (*i).displacement_uv_destination.x, (*i).displacement_uv_destination.y );
 
-        if( (*i).current_uv_frames.size() != 0 )
-            glUniform2fv( animated_uv_frames_id, (*i).current_uv_frames.size(), reinterpret_cast<float*>((*i).current_uv_frames.data()) );
+        if( (*i).current_frame_uvs.size() != 0 )
+            glUniform2fv( frame_uv_id, (*i).current_frame_uvs.size(), reinterpret_cast<float*>((*i).current_frame_uvs.data()) );
 
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
@@ -476,23 +476,20 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
         const auto image_ratio  = 1.0 / 256.0; // A single Cbmp texture resource has the resolution of 256 pixels.
         const auto uv_destination = image_ratio * pixel_amount;
 
-        (*i).animated_uv_time.x += seconds_passed * frame_time_inverse * (*i).animated_uv_factor.x;
+        (*i).displacement_uv_time.x += seconds_passed * frame_time_inverse * (*i).displacement_uv_factor.x;
 
-        if( (*i).animated_uv_time.x > 1.0f )
-            (*i).animated_uv_time.x -= 1.0f;
+        if( (*i).displacement_uv_time.x > 1.0f )
+            (*i).displacement_uv_time.x -= 1.0f;
 
-        (*i).animated_uv_time.y += seconds_passed * frame_time_inverse * (*i).animated_uv_factor.y;
+        (*i).displacement_uv_time.y += seconds_passed * frame_time_inverse * (*i).displacement_uv_factor.y;
 
-        if( (*i).animated_uv_time.y  > 1.0f )
-            (*i).animated_uv_time.y -= 1.0f;
+        if( (*i).displacement_uv_time.y  > 1.0f )
+            (*i).displacement_uv_time.y -= 1.0f;
 
-        (*i).animated_uv_destination = glm::vec2( uv_destination, uv_destination ) * (*i).animated_uv_time;
+        (*i).displacement_uv_destination = glm::vec2( uv_destination, uv_destination ) * (*i).displacement_uv_time;
 
         const std::vector<Data::Mission::TilResource::InfoSCTA> &scta_infos = (*i).til_resource_r->getInfoSCTA();
         const std::vector<glm::u8vec2> &uv_frames = (*i).til_resource_r->getSCTATextureCords();
-
-        // (*i).times.resize( scta_infos.size(), 0 );
-        // (*i).current_uv_frames.resize( scta_infos.size() * 4 );
 
         float last_time;
         const auto factor = glm::vec2( 1. / 256., 1. / 256. );
@@ -502,18 +499,18 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
 
             if( info.isMemorySafe() ) {
 
-                last_time = (*i).times[ info_index ];
+                last_time = (*i).frame_uv_times[ info_index ];
 
-                (*i).times[ info_index ] += seconds_passed * info.getDurationToSeconds();
+                (*i).frame_uv_times[ info_index ] += seconds_passed * info.getDurationToSeconds();
 
-                if( (*i).times[ info_index ] >= info.getFrameCount() )
-                    (*i).times[ info_index ] -= info.getFrameCount();
+                if( (*i).frame_uv_times[ info_index ] >= info.getFrameCount() )
+                    (*i).frame_uv_times[ info_index ] -= info.getFrameCount();
 
-                if( int(last_time) != int( (*i).times[ info_index ] ) ) {
-                    const unsigned frame_index = unsigned( (*i).times[ info_index ] ) * 4;
+                if( int(last_time) != int( (*i).frame_uv_times[ info_index ] ) ) {
+                    const unsigned frame_index = unsigned( (*i).frame_uv_times[ info_index ] ) * 4;
 
                     for( unsigned a = 0; a < 4; a++ ) {
-                        (*i).current_uv_frames[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;
+                        (*i).current_frame_uvs[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;
                     }
                 }
             }

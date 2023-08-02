@@ -14,10 +14,6 @@ namespace Internal {
 
 /**
  * This handles everything the world will draw and handle.
- * 
- * Draws every tile of the world map.
- * I might world on occulusion culling in the future, but
- * for now this is good enough.
  */
 class World {
 public:
@@ -49,13 +45,13 @@ public:
         std::vector<Section> sections;
 
         // UV displacement animations.
-        glm::vec2 animated_uv_factor;
-        glm::vec2 animated_uv_destination;
-        glm::vec2 animated_uv_time;
+        glm::vec2 displacement_uv_factor;
+        glm::vec2 displacement_uv_destination;
+        glm::vec2 displacement_uv_time;
 
         // UV frame by frame animations.
-        std::vector<float>     times;
-        std::vector<glm::vec2> current_uv_frames;
+        std::vector<float>     frame_uv_times;
+        std::vector<glm::vec2> current_frame_uvs;
     };
 
     static const GLchar* default_vertex_shader;
@@ -68,8 +64,8 @@ protected:
     Shader fragment_shader;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
-    GLuint animated_uv_destination_id;
-    GLuint animated_uv_frames_id;
+    GLuint displacement_uv_destination_id;
+    GLuint frame_uv_id;
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
     std::vector<MeshDraw> tiles;
