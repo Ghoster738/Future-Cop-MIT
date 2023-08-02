@@ -396,6 +396,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 // Bounds check the SCTA
                 for( auto i = SCTA_info.begin(); i != SCTA_info.end(); i++ ) {
+
+                    // setMemorySafe is here for memory safety. This program will not handle these kind of animations.
                     if( !(*i).setMemorySafe( texture_cords.size(), scta_texture_cords.size() ) )
                         error_log.output << "Not bounds safe " << (*i).getString();
                     else
