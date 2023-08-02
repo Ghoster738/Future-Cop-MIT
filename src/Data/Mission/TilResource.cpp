@@ -337,11 +337,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                    auto data = TileGraphics( reader_sect.readU16( settings.endian ) );
+                    const auto data = reader_sect.readU16( settings.endian );
 
-                    data.semi_transparent = true;
-
-                    tile_graphics_bitfield.push_back( data.get() );
+                    tile_graphics_bitfield.push_back( data );
                 }
                 
                 // Create the physics cells for this Til.
