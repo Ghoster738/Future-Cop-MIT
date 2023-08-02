@@ -29,7 +29,13 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
             }
         }
 
-        if( info.animated ) {
+        if( info.animation.frame_by_frame != 0 ) {
+            for( unsigned t = 0; t < 3; t++ ) {
+                draw_triangles_r[ i ].vertices[ t ].coordinate = mesh_draw_r->current_frame_uvs[ (unsigned(info.animation.frame_by_frame) - 1) % mesh_draw_r->current_frame_uvs.size() ];
+            }
+        }
+
+        if( info.animation.displacement ) {
             for( unsigned t = 0; t < 3; t++ ) {
                 draw_triangles_r[ i ].vertices[ t ].coordinate += mesh_draw_r->displacement_uv_destination;
 
@@ -283,8 +289,10 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     if( t == 0 ) {
                         MeshDraw::Info info;
 
-                        info.type     = tile_type.x;
-                        info.animated = tile_type.y;
+                        info.type = tile_type.x;
+
+                        info.animation.displacement   = tile_type.y;
+                        info.animation.frame_by_frame = tile_type.z;
 
                         (*i).transparent_triangle_info.push_back( info );
                     }

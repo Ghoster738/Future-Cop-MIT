@@ -33,7 +33,10 @@ public:
 
         struct Info {
             int_fast8_t type;
-            int_fast8_t animated;
+            struct {
+                uint_fast8_t displacement   : 1;
+                uint_fast8_t frame_by_frame : 7;
+            } animation;
         };
 
         Mesh *mesh_p;
