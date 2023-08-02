@@ -117,9 +117,9 @@ public:
         void set( const uint16_t bitfield ) {
             shading          = (bitfield >>  0) & ((1 << 8) - 1);
             texture_index    = (bitfield >>  8) & ((1 << 3) - 1);
-            animated         = (bitfield >> 11) & ((1 << 1) - 1);
-            semi_transparent = (bitfield >> 12) & ((1 << 1) - 1);
-            rectangle        = (bitfield >> 13) & ((1 << 1) - 1);
+            animated         = (bitfield >> 11) & 1;
+            semi_transparent = (bitfield >> 12) & 1;
+            rectangle        = (bitfield >> 13) & 1;
             type             = (bitfield >> 14) & ((1 << 2) - 1);
         }
         
