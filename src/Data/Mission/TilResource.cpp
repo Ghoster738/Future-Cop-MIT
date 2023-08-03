@@ -213,7 +213,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 auto color_amount = reader_sect.readU16( settings.endian );
                 auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
 
-                error_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
+                debug_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
                     << "Color amount = " << color_amount << "\n"
                     << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
                 
