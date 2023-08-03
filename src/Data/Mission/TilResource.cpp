@@ -213,7 +213,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 auto color_amount = reader_sect.readU16( settings.endian );
                 auto texture_cordinates_amount = reader_sect.readU16( settings.endian );
 
-                debug_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
+                error_log.output << "loc = 0x" << std::hex << getOffset() << std::dec << "\n"
                     << "Color amount = " << color_amount << "\n"
                     << "texture_cordinates_amount = " << texture_cordinates_amount << "\n";
                 
@@ -271,8 +271,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 this->mesh_library_size = 0;
                 
-                for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-                    for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
+                for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                    for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
                         mesh_reference_grid[x][y].set( reader_sect.readU16( settings.endian ) );
 
                         this->mesh_library_size += mesh_reference_grid[x][y].tile_amount;
@@ -291,13 +291,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 mesh_tiles.reserve( this->mesh_library_size );
                 
-                std::set<uint16_t> seen_graphics_tiles;
-                
                 for( size_t i = 0; i < this->mesh_library_size; i++ ) {
 
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
-
-                    seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
                 }
 
                 if( this->mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
@@ -327,10 +323,12 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 texture_cords.reserve( texture_cordinates_amount );
                 
                 for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
-                    texture_cords.push_back( glm::u8vec2() );
-                    
-                    texture_cords.back().x = reader_sect.readU8();
-                    texture_cords.back().y = reader_sect.readU8();
+                    glm::u8vec2 texture_coordinate;
+
+                    texture_coordinate.x = reader_sect.readU8();
+                    texture_coordinate.y = reader_sect.readU8();
+
+                    texture_cords.push_back( texture_coordinate );
                 }
                 
                 Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );

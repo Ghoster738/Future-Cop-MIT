@@ -66,7 +66,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
     "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0 );\n"
     "   tex_coord_pos += AnimatedUVFrames[ clamp( FRAME_BY_FRAME - 1, 0, 16 * 4 ) ] * float( FRAME_BY_FRAME != 0 );\n"
-    "   texture_coord_1 = fract( tex_coord_pos + AnimatedUVDestination * DISPLACEMENT );\n"
+    "   texture_coord_1 = tex_coord_pos + AnimatedUVDestination * DISPLACEMENT;\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
