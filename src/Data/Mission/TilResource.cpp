@@ -31,6 +31,91 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
 }
 }
 
+std::string Data::Mission::TilResource::InfoSLFX::getString() const {
+    std::stringstream stream;
+
+    stream << "InfoSLFX:\n";
+    stream << "  Values:\n";
+    stream << "    is_disabled: " << (unsigned)is_disabled << "\n";
+    if( activate_noise ) {
+        stream << "    TYPE: NOISE\n";
+        stream << "    unused_2:   " << (unsigned)data.noise.unused_2   << "\n";
+        stream << "    brightness: " << (unsigned)data.noise.brightness << "\n";
+        stream << "    unused_1:   " << (unsigned)data.noise.unused_1   << "\n";
+        stream << "    unknown_0:  " << (unsigned)data.noise.unknown_0  << "\n";
+        stream << "    unused_0:   " << (unsigned)data.noise.unused_0   << "\n";
+        stream << "    reducer:    " << (unsigned)data.noise.reducer    << "\n";
+    }
+    else {
+        stream << "    TYPE: DIAGONAL WAVES\n";
+        stream << "    apply_level:       " << (unsigned)data.wave.apply_level       << "\n";
+        stream << "    is_forever_bright: " << (unsigned)data.wave.is_forever_bright << "\n";
+        stream << "    rate:              " << (unsigned)data.wave.rate              << "\n";
+        stream << "    default_level:     " << (unsigned)data.wave.default_level     << "\n";
+        stream << "    other_wave:        " << (unsigned)data.wave.other_wave        << "\n";
+        stream << "    speed:             " << (unsigned)data.wave.speed             << "\n";
+        stream << "    unknown_0:         " << (unsigned)data.wave.unknown_0         << "\n";
+    }
+
+    return stream.str();
+
+}
+
+uint32_t Data::Mission::TilResource::InfoSLFX::get() const {
+    uint32_t bitfield =
+        ((uint32_t)is_disabled       << 31) |
+        ((uint32_t)unknown_0         << 29) |
+        ((uint32_t)activate_noise    << 28) |
+        ((uint32_t)activate_diagonal << 24);
+
+    if( activate_noise ) {
+        bitfield |=
+            ((uint32_t)data.noise.unused_2   << 16) |
+            ((uint32_t)data.noise.brightness <<  8) |
+            ((uint32_t)data.noise.unused_1   <<  7) |
+            ((uint32_t)data.noise.unknown_0  <<  6) |
+            ((uint32_t)data.noise.unused_0   <<  2) |
+            ((uint32_t)data.noise.reducer    <<  0);
+    }
+    else {
+        bitfield |=
+            ((uint32_t)data.wave.apply_level       << 20) |
+            ((uint32_t)data.wave.is_forever_bright << 19) |
+            ((uint32_t)data.wave.rate              << 16) |
+            ((uint32_t)data.wave.default_level     << 12) |
+            ((uint32_t)data.wave.other_wave        <<  8) |
+            ((uint32_t)data.wave.speed             <<  4) |
+            ((uint32_t)data.wave.unknown_0        <<   0);
+    }
+
+    return bitfield;
+}
+
+void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
+    is_disabled       = (bitfield >> 31) & 1;
+    unknown_0         = (bitfield >> 29) & ((1 << 2) - 1);
+    activate_noise    = (bitfield >> 28) & 1;
+    activate_diagonal = (bitfield >> 24) & ((1 << 4) - 1);
+
+    if( activate_noise ) {
+        data.noise.unused_2   = (bitfield >> 16) & ((1 << 8) - 1);
+        data.noise.brightness = (bitfield >>  8) & ((1 << 8) - 1);
+        data.noise.unused_1   = (bitfield >>  7) & 1;
+        data.noise.unknown_0  = (bitfield >>  6) & 1;
+        data.noise.unused_0   = (bitfield >>  2) & ((1 << 4) - 1);
+        data.noise.reducer    = (bitfield >>  0) & ((1 << 2) - 1);
+    }
+    else {
+        data.wave.apply_level       = (bitfield >> 20) & ((1 << 4) - 1);
+        data.wave.is_forever_bright = (bitfield >> 19) & 1;
+        data.wave.rate              = (bitfield >> 16) & ((1 << 3) - 1);
+        data.wave.default_level     = (bitfield >> 12) & ((1 << 4) - 1);
+        data.wave.other_wave        = (bitfield >>  8) & ((1 << 4) - 1);
+        data.wave.speed             = (bitfield >>  4) & ((1 << 4) - 1);
+        data.wave.unknown_0         = (bitfield >>  0) & ((1 << 4) - 1);
+    }
+}
+
 std::string Data::Mission::TilResource::InfoSCTA::getString() const {
     std::stringstream stream;
 
@@ -193,6 +278,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
+    int position_data = 0;
+
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
         
@@ -333,6 +420,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );
 
+                position_data = reader_sect.getPosition( Utilities::Buffer::BEGIN );
+
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
                     const auto data = reader_sect.readU16( settings.endian );
@@ -353,6 +442,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 // Read this bitfield!
                 this->slfx_bitfield = reader_slfx.readU32( settings.endian );
+
+                error_log.output << "SLFX is 0x" << std::hex << this->slfx_bitfield << ".\n";
+                error_log.output << InfoSLFX( this->slfx_bitfield ).getString() << "\n";
             }
             else
             if( identifier == TAG_ScTA ) {

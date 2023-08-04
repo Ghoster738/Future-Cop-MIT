@@ -132,6 +132,52 @@ public:
                 ((uint16_t)type << 14);
         }
     };
+    struct InfoSLFX {
+        union Data {
+            struct Wave {
+                // byte 1
+                uint32_t unknown_0:         4;
+                uint32_t speed:             4;
+
+                // byte 2
+                uint32_t other_wave:        4;
+                uint32_t default_level:     4;
+
+                // byte 3
+                uint32_t rate:              3; // Clear rate?
+                uint32_t is_forever_bright: 1;
+                uint32_t apply_level:       4; // Light value
+            } wave;
+            struct Noise {
+                // byte 1
+                uint32_t reducer:    2; // The more tends to decrease the effect. Maybe a rightshift specifier.
+                uint32_t unused_0:   4;
+                uint32_t unknown_0:  1; // This does not seem to affect anything.
+                uint32_t unused_1:   1;
+
+                // byte 2
+                uint32_t brightness: 8; // The more this value the brighter the animations become.
+
+                // byte 3
+                uint32_t unused_2:   8;
+            } noise;
+        } data;
+
+        // byte 4
+        uint32_t activate_diagonal: 4; // Looks like diagonal waves.
+        uint32_t activate_noise:    1; // Looks like perlin noise. This bit overpowers activate_diagonal.
+        uint32_t unknown_0:         2;
+        uint32_t is_disabled:       1; // Enabling this would disable the animations.
+
+        InfoSLFX() {}
+        InfoSLFX( const uint32_t bitfield ) {
+            set( bitfield );
+        }
+
+        std::string getString() const;
+        uint32_t get() const;
+        void     set( const uint32_t bitfield );
+    };
     struct InfoSCTA {
         static constexpr float units_to_seconds = 1. / 300.;
         static constexpr float seconds_to_units = 300.;
