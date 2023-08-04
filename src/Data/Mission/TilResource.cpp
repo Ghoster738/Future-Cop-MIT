@@ -55,6 +55,7 @@ std::string Data::Mission::TilResource::InfoSLFX::getString() const {
         stream << "    other_wave:        " << (unsigned)data.wave.other_wave        << "\n";
         stream << "    speed:             " << (unsigned)data.wave.speed             << "\n";
         stream << "    unknown_0:         " << (unsigned)data.wave.unknown_0         << "\n";
+        stream << "    unused_0:          " << (unsigned)data.wave.unused_0          << "\n";
     }
 
     return stream.str();
@@ -85,7 +86,8 @@ uint32_t Data::Mission::TilResource::InfoSLFX::get() const {
             ((uint32_t)data.wave.default_level     << 12) |
             ((uint32_t)data.wave.other_wave        <<  8) |
             ((uint32_t)data.wave.speed             <<  4) |
-            ((uint32_t)data.wave.unknown_0        <<   0);
+            ((uint32_t)data.wave.unknown_0         <<  3) |
+            ((uint32_t)data.wave.unused_0          <<  0);
     }
 
     return bitfield;
@@ -112,7 +114,8 @@ void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
         data.wave.default_level     = (bitfield >> 12) & ((1 << 4) - 1);
         data.wave.other_wave        = (bitfield >>  8) & ((1 << 4) - 1);
         data.wave.speed             = (bitfield >>  4) & ((1 << 4) - 1);
-        data.wave.unknown_0         = (bitfield >>  0) & ((1 << 4) - 1);
+        data.wave.unknown_0         = (bitfield >>  3) & 1;
+        data.wave.unused_0          = (bitfield >>  0) & ((1 << 3) - 1);
     }
 }
 

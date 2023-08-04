@@ -136,7 +136,8 @@ public:
         union Data {
             struct Wave {
                 // byte 1
-                uint32_t unknown_0:         4;
+                uint32_t unused_0:          3;
+                uint32_t unknown_0:         1;
                 uint32_t speed:             4;
 
                 // byte 2
