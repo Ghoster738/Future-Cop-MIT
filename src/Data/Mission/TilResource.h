@@ -6,6 +6,7 @@
 #include "../../Utilities/GridBase2D.h"
 #include "../../Utilities/Collision/Ray.h"
 #include "../../Utilities/Collision/Triangle.h"
+#include "../../Utilities/Random.h"
 
 namespace Data {
 
@@ -178,6 +179,9 @@ public:
         std::string getString() const;
         uint32_t get() const;
         void     set( const uint32_t bitfield );
+
+        Utilities::Image2D* getImage() const;
+        void setImage( Utilities::Random &random, float &time, Utilities::Image2D &image ) const;
     };
     struct InfoSCTA {
         static constexpr float units_to_seconds = 1. / 300.;

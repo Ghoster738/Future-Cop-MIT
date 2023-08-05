@@ -29,6 +29,8 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
     tile.bottom_right = reader.readU16( endian );
     reader.readU16(); // Skip Unknown data.
 }
+
+const Utilities::PixelFormatColor_W8 SLFX_COLOR;
 }
 
 std::string Data::Mission::TilResource::InfoSLFX::getString() const {
@@ -116,6 +118,48 @@ void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
         data.wave.speed             = (bitfield >>  4) & ((1 << 4) - 1);
         data.wave.unknown_0         = (bitfield >>  3) & 1;
         data.wave.unused_0          = (bitfield >>  0) & ((1 << 3) - 1);
+    }
+}
+
+Utilities::Image2D* Data::Mission::TilResource::InfoSLFX::getImage() const {
+    return new Utilities::Image2D( AMOUNT_OF_TILES, AMOUNT_OF_TILES, SLFX_COLOR );
+}
+
+void Data::Mission::TilResource::InfoSLFX::setImage( Utilities::Random &random, float &time, Utilities::Image2D &image  ) const {
+    while( time > 1.0 ) {
+        // random.getGenerator();
+
+        time -= 1.0;
+    }
+
+    if( activate_noise ) {
+        bool flip = false;
+
+        if( (int)(time + 0.5) == 1 ) {
+            flip = true;
+        }
+
+        for( unsigned y = 0; y < image.getHeight(); y++ ) {
+            for( unsigned x = 0; x < image.getWidth(); x++ ) {
+                if( flip )
+                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
+                else
+                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
+
+                flip = !flip;
+            }
+        }
+    }
+    else {
+        for( unsigned y = 1; y < image.getHeight(); y++ ) {
+            for( unsigned x = 0; x < image.getWidth(); x++ ) {
+                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
+            }
+
+            unsigned medium = static_cast<unsigned>(image.getWidth() * time + y) % image.getWidth();
+
+            image.writePixel( medium, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
+        }
     }
 }
 
