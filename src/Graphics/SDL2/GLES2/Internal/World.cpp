@@ -54,6 +54,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "uniform float SelectedTile;\n"
     "uniform vec2  AnimatedUVFrames[ 16 * 4 ];\n"
 
+    "uniform sampler2D Texture;\n"
+
     "const vec3 frag_inv = vec3(1,1,1);\n"
 
     "void main() {\n"
@@ -64,7 +66,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
 
     "   vec3 normal_color = COLOR_0;\n"
 
-    "   normal_color += vec3( 1, 1, 1 ) * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
+    "   normal_color += texture2D(Texture, POSITION.xz * (vec2(0.5, 0.5) + POSITION.xz) * vec2(1./16., 1./16.) + vec2(0.5, 0.5)).rgb * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
 
     "   vec3 inverse_color = frag_inv - normal_color;\n"
     "   float flashing = GlowTime * float(SelectedTile > SELECT_SPECIFIER - 0.5 && SelectedTile < SELECT_SPECIFIER + 0.5);\n"
@@ -100,12 +102,21 @@ Graphics::SDL2::GLES2::Internal::World::World() {
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
+
+    Data::Mission::TilResource::InfoSLFX info_slfx( 0x10008200 );
+    Data::Mission::TilResource::AnimationSLFX animation_slfx( info_slfx );
+
+    vertex_animation_p = animation_slfx.getImage();
+    animation_slfx.setImage( *vertex_animation_p );
 }
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         delete (*i).mesh_p;
     }
+
+    if( vertex_animation_p != nullptr )
+        delete vertex_animation_p;
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
@@ -152,12 +163,13 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
         else
         {
             // Setup the uniforms for the map.
-            texture_uniform_id       = program.getUniform( "Texture",          &std::cout, &uniform_failed );
-            matrix_uniform_id        = program.getUniform( "Transform",        &std::cout, &uniform_failed );
+            texture_uniform_id          = program.getUniform( "Texture",          &std::cout, &uniform_failed );
+            matrix_uniform_id           = program.getUniform( "Transform",        &std::cout, &uniform_failed );
             displacement_uv_destination_id = program.getUniform( "AnimatedUVDestination", &std::cout, &uniform_failed );
-            frame_uv_id              = program.getUniform( "AnimatedUVFrames", &std::cout, &uniform_failed );
-            glow_time_uniform_id     = program.getUniform( "GlowTime",         &std::cout, &uniform_failed );
-            selected_tile_uniform_id = program.getUniform( "SelectedTile",     &std::cout, &uniform_failed );
+            frame_uv_id                 = program.getUniform( "AnimatedUVFrames", &std::cout, &uniform_failed );
+            glow_time_uniform_id        = program.getUniform( "GlowTime",         &std::cout, &uniform_failed );
+            selected_tile_uniform_id    = program.getUniform( "SelectedTile",     &std::cout, &uniform_failed );
+            vertex_animation_uniform_id = program.getUniform( "VertexAnimation",  &std::cout, &uniform_failed );
             
             attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::POSITION_COMPONENT_NAME,     &std::cout );
             attribute_failed |= !program.isAttribute( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME,     &std::cout );

@@ -72,7 +72,10 @@ protected:
     GLuint frame_uv_id;
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
+    GLuint vertex_animation_uniform_id;
     std::vector<MeshDraw> tiles;
+
+    Utilities::Image2D *vertex_animation_p;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
