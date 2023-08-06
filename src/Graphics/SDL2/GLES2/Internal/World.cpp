@@ -59,11 +59,16 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "void main() {\n"
     "   float SELECT_SPECIFIER   = _TILE_TYPE.x;\n"
     "   float DISPLACEMENT       = _TILE_TYPE.y;\n"
-    "   highp int FRAME_BY_FRAME = int( _TILE_TYPE.z );\n"
+    "   int FRAME_BY_FRAME       = int( _TILE_TYPE.z );\n"
+    "   float VERTEX_ANIMATION_ENABLE = _TILE_TYPE.w;\n"
 
-    "   vec3 inverse_color = frag_inv - COLOR_0;\n"
+    "   vec3 normal_color = COLOR_0;\n"
+
+    "   normal_color += vec3( 1, 1, 1 ) * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
+
+    "   vec3 inverse_color = frag_inv - normal_color;\n"
     "   float flashing = GlowTime * float(SelectedTile > SELECT_SPECIFIER - 0.5 && SelectedTile < SELECT_SPECIFIER + 0.5);\n"
-    "   vertex_colors = (1.0 - flashing) * COLOR_0 + 2.0 * flashing * inverse_color;\n"
+    "   vertex_colors = (1.0 - flashing) * normal_color + 2.0 * flashing * inverse_color;\n"
 
     "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0 );\n"
     "   tex_coord_pos += AnimatedUVFrames[ clamp( FRAME_BY_FRAME - 1, 0, 16 * 4 ) ] * float( FRAME_BY_FRAME != 0 );\n"
@@ -91,7 +96,7 @@ Graphics::SDL2::GLES2::Internal::World::World() {
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 " + Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
