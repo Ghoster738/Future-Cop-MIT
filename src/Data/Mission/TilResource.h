@@ -133,7 +133,8 @@ public:
                 ((uint16_t)type << 14);
         }
     };
-    struct InfoSLFX {
+    class InfoSLFX {
+    public:
         union Data {
             struct Wave {
                 // byte 1
@@ -171,6 +172,7 @@ public:
         uint32_t unknown_0:         2;
         uint32_t is_disabled:       1; // Enabling this would disable the animations.
 
+    public:
         InfoSLFX() {}
         InfoSLFX( const uint32_t bitfield ) {
             set( bitfield );
@@ -179,10 +181,28 @@ public:
         std::string getString() const;
         uint32_t get() const;
         void     set( const uint32_t bitfield );
+    };
+
+    class AnimationSLFX {
+    public:
+        InfoSLFX info_slfx;
+
+    private:
+        Utilities::Random random;
+        float cycle;
+        float speed;
+
+    public:
+        AnimationSLFX( InfoSLFX info_slfx );
+
+        void setInfo( InfoSLFX info_slfx );
+
+        void advanceTime( float delta_seconds );
 
         Utilities::Image2D* getImage() const;
-        void setImage( Utilities::Random &random, float &time, Utilities::Image2D &image ) const;
+        void setImage( Utilities::Image2D &image ) const;
     };
+
     struct InfoSCTA {
         static constexpr float units_to_seconds = 1. / 300.;
         static constexpr float seconds_to_units = 300.;

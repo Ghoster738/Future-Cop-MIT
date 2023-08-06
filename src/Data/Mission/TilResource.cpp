@@ -121,21 +121,39 @@ void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
     }
 }
 
-Utilities::Image2D* Data::Mission::TilResource::InfoSLFX::getImage() const {
-    return new Utilities::Image2D( AMOUNT_OF_TILES, AMOUNT_OF_TILES, SLFX_COLOR );
+Data::Mission::TilResource::AnimationSLFX::AnimationSLFX( InfoSLFX info_slfx ) {
+    setInfo( info_slfx );
 }
 
-void Data::Mission::TilResource::InfoSLFX::setImage( Utilities::Random &random, float &time, Utilities::Image2D &image  ) const {
-    while( time > 1.0 ) {
-        // random.getGenerator();
+void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
+    this->info_slfx = info_slfx;
 
-        time -= 1.0;
+    this->cycle = 0.0;
+
+    if( info_slfx.activate_noise )
+        this->speed = 1.0;
+    else
+        this->speed = 1.0 / 16.0;
+
+    this->random.setSeeder( 0x43A7BEAF2363 );
+}
+
+void Data::Mission::TilResource::AnimationSLFX::advanceTime( float delta_seconds ) {
+    cycle += speed * delta_seconds;
+
+    while( cycle >= 1.0 ) {
+        cycle -= 1.0;
+        random.getGenerator();
     }
+}
 
-    if( activate_noise ) {
+void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &image  ) const {
+    if( info_slfx.is_disabled ) {
+    }
+    else if( info_slfx.activate_noise ) {
         bool flip = false;
 
-        if( (int)(time + 0.5) == 1 ) {
+        if( (int)(cycle + 0.5) == 1 ) {
             flip = true;
         }
 
@@ -150,17 +168,21 @@ void Data::Mission::TilResource::InfoSLFX::setImage( Utilities::Random &random, 
             }
         }
     }
-    else {
+    else if( info_slfx.activate_diagonal != 0 ) {
         for( unsigned y = 1; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
                 image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
             }
 
-            unsigned medium = static_cast<unsigned>(image.getWidth() * time + y) % image.getWidth();
+            unsigned medium = static_cast<unsigned>(image.getWidth() * cycle + y) % image.getWidth();
 
             image.writePixel( medium, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
         }
     }
+}
+
+Utilities::Image2D* Data::Mission::TilResource::AnimationSLFX::getImage() const {
+    return new Utilities::Image2D( AMOUNT_OF_TILES, AMOUNT_OF_TILES, SLFX_COLOR );
 }
 
 std::string Data::Mission::TilResource::InfoSCTA::getString() const {
