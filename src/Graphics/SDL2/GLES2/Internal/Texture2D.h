@@ -53,13 +53,25 @@ public:
      * @param border This is the boarder of the image.
      * @param format This is the format of a texel.
      * @param type The data type of the texel
-     * @param data The pointer to the raw pixels of the texture.
+     * @param data_r The pointer to the raw pixels of the texture.
      */
-    void setImage( GLuint active_texture, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void * data );
+    void setImage( GLuint active_texture, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void * data_r );
 
     /**
-     * This binds the texture when a uniform is used.
-     * This is mostly useful for drawing the texture.
+     * This updates the image.
+     * @note http://docs.gl/es2/glTexSubImage2D could explain what the parameters would do.
+     * @param active_texture This is the active texture slot.
+     * @param level The texture level of the image.
+     * @param width This is the width of the texture. Values must be a power of 2 factor.
+     * @param height This is the height of the texture. Values must be a power of 2 factor.
+     * @param format This is the format of a texel.
+     * @param type The data type of the texel
+     * @param data_r The pointer to the raw pixels of the texture.
+     */
+    void updateImage( GLuint active_texture, GLint level, GLsizei width, GLsizei height, GLenum format, GLenum type, const void * data_r );
+
+    /**
+     * This binds the texture when a uniform is used in a shader.
      * @param active_texture The texture slot to be used.
      * @param texture_uniform_id uniform location of the texture.
      */
