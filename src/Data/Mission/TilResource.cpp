@@ -131,7 +131,7 @@ void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
     this->cycle = 0.0;
 
     if( info_slfx.activate_noise )
-        this->speed = 1.0;
+        this->speed = 0.03125;
     else
         this->speed = 1.0 / 16.0;
 
@@ -154,7 +154,7 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         bool flip = false;
 
         if( (int)(cycle + 0.5) == 1 ) {
-            flip = true;
+            flip = !flip;
         }
 
         for( unsigned y = 0; y < image.getHeight(); y++ ) {
@@ -166,6 +166,7 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
 
                 flip = !flip;
             }
+            flip = !flip;
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
@@ -721,6 +722,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         glm::vec3   color[6];
         glm::u8vec2 coord[6];
         unsigned stca_animation_index[6];
+        unsigned uv_positions[6];
 
         has_texture_displayed = false;
         
@@ -746,6 +748,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         input.pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( y + 1, x + 0 );
                         input.pixels[  BACK_RIGHT ] = point_cloud_3_channel.getRef( y + 1, x + 1 );
                         input.pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( y + 0, x + 1 );
+                        input.x = x;
+                        input.y = y;
                         input.coord_index = current_tile.texture_cord_index;
                         input.coord_index_limit = this->texture_cords.size();
                         input.coord_data = this->texture_cords.data();
@@ -756,6 +760,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         vertex_data.coords = coord;
                         vertex_data.colors = color;
                         vertex_data.stca_animation_index = stca_animation_index;
+                        vertex_data.uv_positions = uv_positions;
                         vertex_data.element_amount = 6;
                         vertex_data.element_start = 0;
 
@@ -829,7 +834,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                             if( is_culled ) {
                                 if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
-                                    if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
+                                    if( Data::Mission::Til::Mesh::isFlipped( current_tile.mesh_type ) ) {
                                         front = current_tile.front;
                                         back  = current_tile.back;
                                     }
@@ -856,7 +861,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p], (x % 16) + 16 * (y % 16) ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p], uv_positions[p] ) ) );
                                     }
                                 }
 
@@ -870,7 +875,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p - 1], (x % 16) + 16 * (y % 16) ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p - 1], uv_positions[p - 1] ) ) );
                                     }
                                 }
                             }
@@ -903,6 +908,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         glm::u8vec2 cord[6];
         glm::vec3 color[6];
         unsigned stca_animation_index[6];
+        unsigned uv_positions[6];
         Tile current_tile;
         Data::Mission::Til::Mesh::Input input;
         Data::Mission::Til::Mesh::VertexData vertex_data;
@@ -916,6 +922,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         vertex_data.coords = cord;
         vertex_data.colors = color;
         vertex_data.stca_animation_index = stca_animation_index;
+        vertex_data.uv_positions = uv_positions;
         
         input.coord_index_limit = this->texture_cords.size();
         input.coord_data = this->texture_cords.data();

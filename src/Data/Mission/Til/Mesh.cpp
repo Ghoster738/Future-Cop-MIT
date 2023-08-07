@@ -48,6 +48,11 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
             result.coords[ result.element_start ].x = input.coord_data[ INDEX ].x;
             result.coords[ result.element_start ].y = input.coord_data[ INDEX ].y;
 
+            const unsigned x = ((triangle.points[ i ].facing_direction & FRONT_RIGHT) != 0) + input.x;
+            const unsigned y = ((triangle.points[ i ].facing_direction & BACK_LEFT)   != 0) + input.y;
+
+            result.uv_positions[ result.element_start ] = (x % 16) + 16 * (y % 16);
+
             result.stca_animation_index[ result.element_start ] = 0;
 
             for( unsigned scta_index = 0; scta_index < input.SCTA_info_r->size(); scta_index++ ) {
@@ -190,7 +195,7 @@ bool Data::Mission::Til::Mesh::isSlope( unsigned int tile_type ) {
 }
 
 
-bool Data::Mission::Til::Mesh::isFliped( unsigned int tile_type ) {
+bool Data::Mission::Til::Mesh::isFlipped( unsigned int tile_type ) {
     // Buffer overflow check.
     if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
         return false;

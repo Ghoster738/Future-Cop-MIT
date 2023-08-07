@@ -61,6 +61,7 @@ public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 protected:
+    Data::Mission::TilResource::AnimationSLFX animation_slfx;
     Program program;
     std::vector<Shader::Attribute> attributes;
     std::vector<Shader::Varying>   varyings;
