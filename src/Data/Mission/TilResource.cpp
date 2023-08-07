@@ -856,7 +856,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type, tile_graphics.animated, stca_animation_index[p], tile_graphics.type == 3 ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p], (x % 16) + 16 * (y % 16) ) ) );
                                     }
                                 }
 
@@ -870,7 +870,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(  current_tile.mesh_type, tile_graphics.animated, stca_animation_index[p - 1], tile_graphics.type == 3 ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p - 1], (x % 16) + 16 * (y % 16) ) ) );
                                     }
                                 }
                             }

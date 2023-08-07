@@ -54,19 +54,23 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "uniform float SelectedTile;\n"
     "uniform vec2  AnimatedUVFrames[ 16 * 4 ];\n"
 
-    "uniform sampler2D Texture;\n"
+    "uniform sampler2D VertexAnimation;\n"
 
     "const vec3 frag_inv = vec3(1,1,1);\n"
 
     "void main() {\n"
-    "   float SELECT_SPECIFIER   = _TILE_TYPE.x;\n"
+    "   float SELECT_SPECIFIER   = _TILE_TYPE.x - float( _TILE_TYPE.x >= 128. ) * 128.;\n"
     "   float DISPLACEMENT       = _TILE_TYPE.y;\n"
     "   int FRAME_BY_FRAME       = int( _TILE_TYPE.z );\n"
-    "   float VERTEX_ANIMATION_ENABLE = _TILE_TYPE.w;\n"
+    "   float VERTEX_ANIMATION_ENABLE = float( _TILE_TYPE.x >= 128. );\n"
+
+    "   vec2 vertex_animation;\n"
+    "   vertex_animation.x = mod( _TILE_TYPE.w, 16. ) * (1. / 16.);\n"
+    "   vertex_animation.y = float( int( _TILE_TYPE.w ) / 16 );\n"
 
     "   vec3 normal_color = COLOR_0;\n"
 
-    "   normal_color += texture2D(Texture, POSITION.xz * (vec2(0.5, 0.5) + POSITION.xz) * vec2(1./16., 1./16.) + vec2(0.5, 0.5)).rgb * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
+    "   normal_color += texture2D(VertexAnimation, vertex_animation).rgb * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
 
     "   vec3 inverse_color = frag_inv - normal_color;\n"
     "   float flashing = GlowTime * float(SelectedTile > SELECT_SPECIFIER - 0.5 && SelectedTile < SELECT_SPECIFIER + 0.5);\n"
@@ -103,7 +107,10 @@ Graphics::SDL2::GLES2::Internal::World::World() {
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
 
-    Data::Mission::TilResource::InfoSLFX info_slfx( 0x10008200 );
+    Data::Mission::TilResource::InfoSLFX info_slfx( 0x0 );
+    info_slfx.activate_noise = 1;
+    info_slfx.data.noise.brightness = 0x60;
+
     Data::Mission::TilResource::AnimationSLFX animation_slfx( info_slfx );
 
     vertex_animation_p = animation_slfx.getImage();
@@ -367,6 +374,9 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         }
     }
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
+
+    vertex_animation_texture.setFilters( 1, GL_NEAREST, GL_NEAREST );
+    vertex_animation_texture.setImage( 1, 0, GL_LUMINANCE, vertex_animation_p->getWidth(), vertex_animation_p->getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, vertex_animation_p->getDirectGridData()  );
 }
 
 bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Graphics::SDL2::GLES2::Camera &camera ) const {
@@ -455,6 +465,8 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
 
         if( (*i).current_frame_uvs.size() != 0 )
             glUniform2fv( frame_uv_id, (*i).current_frame_uvs.size(), reinterpret_cast<float*>((*i).current_frame_uvs.data()) );
+
+        vertex_animation_texture.bind( 1, vertex_animation_uniform_id );
 
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {

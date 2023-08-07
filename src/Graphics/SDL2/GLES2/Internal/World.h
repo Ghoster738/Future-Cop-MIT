@@ -76,6 +76,7 @@ protected:
     std::vector<MeshDraw> tiles;
 
     Utilities::Image2D *vertex_animation_p;
+    Texture2D vertex_animation_texture;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
