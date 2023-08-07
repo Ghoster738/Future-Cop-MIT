@@ -194,6 +194,7 @@ public:
         float speed;
 
     public:
+        AnimationSLFX();
         AnimationSLFX( InfoSLFX info_slfx );
 
         void setInfo( InfoSLFX info_slfx );
@@ -308,6 +309,8 @@ public:
     glm::i8vec2 getUVAnimation() const { return uv_animation; }
     const std::vector<InfoSCTA>& getInfoSCTA() const { return SCTA_info; }
     const std::vector<glm::u8vec2>& getSCTATextureCords() const { return scta_texture_cords; }
+
+    const InfoSLFX getInfoSLFX() const { return InfoSLFX( slfx_bitfield ); }
 
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );

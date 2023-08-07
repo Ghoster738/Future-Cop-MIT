@@ -121,6 +121,10 @@ void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
     }
 }
 
+Data::Mission::TilResource::AnimationSLFX::AnimationSLFX() : info_slfx( 0 ), last( 1 ), next( 2 ) {
+    setInfo( 0 );
+}
+
 Data::Mission::TilResource::AnimationSLFX::AnimationSLFX( InfoSLFX info_slfx ) : info_slfx( 0 ), last( 1 ), next( 2 ) {
     setInfo( info_slfx );
 }
@@ -131,7 +135,7 @@ void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
     this->cycle = 0.0;
 
     if( info_slfx.activate_noise )
-        this->speed = 0.03125;
+        this->speed = 2.0;
     else
         this->speed = 1.0 / 16.0;
 

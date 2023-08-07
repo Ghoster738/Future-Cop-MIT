@@ -91,7 +91,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "   gl_FragColor = vec4( normal_color, 1.0 );\n"
     "}\n";
 
-Graphics::SDL2::GLES2::Internal::World::World() : animation_slfx( 0x0 ) {
+Graphics::SDL2::GLES2::Internal::World::World() {
     this->glow_time = 0;
     this->current_selected_tile = 112;
     this->selected_tile = this->current_selected_tile + 1;
@@ -104,14 +104,7 @@ Graphics::SDL2::GLES2::Internal::World::World() : animation_slfx( 0x0 ) {
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
 
-    Data::Mission::TilResource::InfoSLFX info_slfx( 0x0 );
-    info_slfx.activate_noise = 1;
-    info_slfx.data.noise.brightness = 0x60;
-
-    animation_slfx.setInfo( info_slfx );
-
-    vertex_animation_p = animation_slfx.getImage();
-    animation_slfx.setImage( *vertex_animation_p );
+    vertex_animation_p = nullptr;
 }
 
 Graphics::SDL2::GLES2::Internal::World::~World() {
@@ -238,6 +231,11 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                 }
             }
         }
+
+        (*i).animation_slfx.setInfo( data->getInfoSLFX() );
+
+        if( vertex_animation_p == nullptr)
+            vertex_animation_p = (*i).animation_slfx.getImage();
 
         (*i).mesh_p->setup( *model_p, textures );
 
@@ -373,7 +371,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     // This algorithm is 2*O(n^2) + 3*O(n) = O(n^2).
 
     vertex_animation_texture.setFilters( 1, GL_NEAREST, GL_NEAREST );
-    vertex_animation_texture.setImage( 1, 0, GL_LUMINANCE, vertex_animation_p->getWidth() * vertex_animation_p->getHeight(), 1, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, vertex_animation_p->getDirectGridData()  );
+    vertex_animation_texture.setImage( 1, 0, GL_LUMINANCE, vertex_animation_p->getWidth() * vertex_animation_p->getHeight(), 1, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, vertex_animation_p->getDirectGridData() );
 }
 
 bool Graphics::SDL2::GLES2::Internal::World::updateCulling( Graphics::SDL2::GLES2::Camera &camera ) const {
@@ -463,9 +461,11 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         if( (*i).current_frame_uvs.size() != 0 )
             glUniform2fv( frame_uv_id, (*i).current_frame_uvs.size(), reinterpret_cast<float*>((*i).current_frame_uvs.data()) );
 
-        animation_slfx.setImage( *vertex_animation_p );
-        vertex_animation_texture.updateImage( 1, 0, vertex_animation_p->getWidth() * vertex_animation_p->getHeight(), 1, GL_LUMINANCE, GL_UNSIGNED_BYTE, vertex_animation_p->getDirectGridData() );
-        vertex_animation_texture.bind( 1, vertex_animation_uniform_id );
+        if( vertex_animation_p != nullptr ) {
+            (*i).animation_slfx.setImage( *vertex_animation_p );
+            vertex_animation_texture.updateImage( 1, 0, vertex_animation_p->getWidth() * vertex_animation_p->getHeight(), 1, GL_LUMINANCE, GL_UNSIGNED_BYTE, vertex_animation_p->getDirectGridData() );
+            vertex_animation_texture.bind( 1, vertex_animation_uniform_id );
+        }
 
         if( (*i).current >= 0.0 )
         for( unsigned int d = 0; d < (*i).sections.size(); d++ ) {
@@ -503,6 +503,9 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
 
 void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed ) {
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
+
+        tiles[ i - tiles.begin() ].animation_slfx.advanceTime( seconds_passed );
+
         if( (*i).change_rate > 0.0 )
         {
             (*i).current += seconds_passed;
@@ -554,8 +557,6 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
                 }
             }
         }
-
-        animation_slfx.advanceTime( seconds_passed );
     }
     
     // Update glow time.

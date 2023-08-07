@@ -58,23 +58,15 @@ void Random::setSeeder( uint64_t seeder ) {
     if( seeder == 0 )
         seeder = 1;
 
-    guard.lock();
-
     current_seeder = seeder;
-
-    guard.unlock();
 }
 
 Random::Generator Random::getGenerator() {
-    guard.lock();
-
     auto generator = Generator( reverseBits( current_seeder ) );
 
     current_seeder++;
     if( current_seeder == 0 )
         current_seeder = 1;
-
-    guard.unlock();
 
     return generator;
 }

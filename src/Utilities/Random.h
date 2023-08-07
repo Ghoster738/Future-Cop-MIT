@@ -53,7 +53,6 @@ public:
     };
 private:
     uint64_t current_seeder;
-    std::mutex guard;
 
 public:
     Random( uint64_t current_seeder = 1 );
