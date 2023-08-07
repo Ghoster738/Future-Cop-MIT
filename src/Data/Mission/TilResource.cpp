@@ -175,7 +175,7 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
-        for( unsigned y = 1; y < image.getHeight(); y++ ) {
+        for( unsigned y = 0; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
                 image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
             }

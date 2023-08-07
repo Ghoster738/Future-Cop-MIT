@@ -23,9 +23,27 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
         if( selected_tile == info.bitfield.type ) {
             for( unsigned t = 0; t < 3; t++ ) {
+
                 glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
                 draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
                 draw_triangles_r[ i ].vertices[ t ].color.w = 1;
+            }
+        }
+
+        if( info.bitfield.vertex_animation ) {
+            if( vertex_animation_p == nullptr ) {
+                for( unsigned t = 0; t < 3; t++ ) {
+                    draw_triangles_r[ i ].vertices[ t ].color += glm::vec4(1,1,1,0);
+                }
+            }
+            else {
+                for( unsigned t = 0; t < 3; t++ ) {
+                    auto byte = vertex_animation_p->getDirectGridData()[ info.vertex_animation_index[ t ] ];
+
+                    float light_level = (float)byte * 1. / 256.;
+
+                    draw_triangles_r[ i ].vertices[ t ].color += glm::vec4(light_level, light_level, light_level, 0);
+                }
             }
         }
 
@@ -311,13 +329,22 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     if( t == 0 ) {
                         MeshDraw::Info info;
 
-                        info.bitfield.type = tile_type.x;
+                        if( tile_type.x < 128.) {
+                            info.bitfield.type = tile_type.x;
+                            info.bitfield.vertex_animation = 0;
+                        }
+                        else {
+                            info.bitfield.type = tile_type.x - 128;
+                            info.bitfield.vertex_animation = 1;
+                        }
+
                         info.bitfield.displacement  = tile_type.y;
 
                         (*i).transparent_triangle_info.push_back( info );
                     }
 
                     (*i).transparent_triangle_info.back().frame_by_frame[t] = tile_type.z;
+                    (*i).transparent_triangle_info.back().vertex_animation_index[t] = tile_type.w;
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
@@ -451,6 +478,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
     const bool is_culling_there = camera.culling_info.getWidth() * camera.culling_info.getHeight() != 0;
 
     MeshDraw::Animation dynamic;
+    dynamic.vertex_animation_p = vertex_animation_p;
     dynamic.camera_position = camera.getPosition();
     dynamic.selected_tile = this->selected_tile;
     dynamic.glow_time = filtered_glow_time;

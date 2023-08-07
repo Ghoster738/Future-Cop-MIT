@@ -25,6 +25,7 @@ public:
         class Animation : public Mesh::DynamicNormal {
         public:
             MeshDraw *mesh_draw_r;
+            Utilities::Image2D *vertex_animation_p;
             GLfloat selected_tile;
             GLfloat glow_time;
 
@@ -33,11 +34,13 @@ public:
 
         struct Info {
             struct {
-                uint_fast8_t displacement   : 1;
-                uint_fast8_t type           : 7;
+                uint_fast16_t vertex_animation : 1;
+                uint_fast16_t displacement     : 1;
+                uint_fast16_t type             : 7;
             } bitfield;
 
             uint_fast8_t frame_by_frame[3];
+            uint_fast8_t vertex_animation_index[3];
         };
 
         Mesh *mesh_p;
