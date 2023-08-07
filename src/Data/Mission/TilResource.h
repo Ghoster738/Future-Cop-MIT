@@ -197,6 +197,8 @@ public:
         AnimationSLFX();
         AnimationSLFX( InfoSLFX info_slfx );
 
+        InfoSLFX getInfo() const { return info_slfx; }
+
         void setInfo( InfoSLFX info_slfx );
 
         void advanceTime( float delta_seconds );

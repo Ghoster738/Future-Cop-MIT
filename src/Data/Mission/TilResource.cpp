@@ -227,7 +227,9 @@ const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which
 const std::string Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME = "_TILE_TYPE";
 
 Data::Mission::TilResource::TilResource() {
-
+    InfoSLFX info_slfx( 0 );
+    info_slfx.is_disabled = true;
+    this->slfx_bitfield = info_slfx.get();
 }
 
 Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ) {
@@ -266,6 +268,10 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
 }
 
 void Data::Mission::TilResource::makeEmpty() {
+    InfoSLFX info_slfx( 0 );
+    info_slfx.is_disabled = true;
+    this->slfx_bitfield = info_slfx.get();
+
     point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
     
     for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {

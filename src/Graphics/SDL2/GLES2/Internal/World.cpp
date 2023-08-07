@@ -489,7 +489,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         if( (*i).current_frame_uvs.size() != 0 )
             glUniform2fv( frame_uv_id, (*i).current_frame_uvs.size(), reinterpret_cast<float*>((*i).current_frame_uvs.data()) );
 
-        if( vertex_animation_p != nullptr ) {
+        if( vertex_animation_p != nullptr && !(*i).animation_slfx.getInfo().is_disabled ) {
             (*i).animation_slfx.setImage( *vertex_animation_p );
             vertex_animation_texture.updateImage( 1, 0, vertex_animation_p->getWidth() * vertex_animation_p->getHeight(), 1, GL_LUMINANCE, GL_UNSIGNED_BYTE, vertex_animation_p->getDirectGridData() );
             vertex_animation_texture.bind( 1, vertex_animation_uniform_id );
