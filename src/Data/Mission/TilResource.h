@@ -188,6 +188,7 @@ public:
         InfoSLFX info_slfx;
 
     private:
+        Utilities::Random::Generator last, next;
         Utilities::Random random;
         float cycle;
         float speed;

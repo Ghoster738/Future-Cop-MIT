@@ -121,7 +121,7 @@ void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
     }
 }
 
-Data::Mission::TilResource::AnimationSLFX::AnimationSLFX( InfoSLFX info_slfx ) {
+Data::Mission::TilResource::AnimationSLFX::AnimationSLFX( InfoSLFX info_slfx ) : info_slfx( 0 ), last( 1 ), next( 2 ) {
     setInfo( info_slfx );
 }
 
@@ -136,6 +136,8 @@ void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
         this->speed = 1.0 / 16.0;
 
     this->random.setSeeder( 0x43A7BEAF2363 );
+    this->last = this->random.getGenerator();
+    this->next = this->random.getGenerator();
 }
 
 void Data::Mission::TilResource::AnimationSLFX::advanceTime( float delta_seconds ) {
@@ -143,7 +145,9 @@ void Data::Mission::TilResource::AnimationSLFX::advanceTime( float delta_seconds
 
     while( cycle >= 1.0 ) {
         cycle -= 1.0;
-        random.getGenerator();
+
+        this->last = this->next;
+        this->next = random.getGenerator();
     }
 }
 
@@ -151,26 +155,19 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
     if( info_slfx.is_disabled ) {
     }
     else if( info_slfx.activate_noise ) {
-        bool flip = false;
+        Utilities::Random::Generator
+            last = this->last,
+            next = this->next;
 
         for( unsigned y = 0; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
-                float pos_unit = 2.0 * cycle;
-                float neg_unit = 2.0 * (0.5 - cycle);
+                float current_value = last.nextFloat();
+                float next_value    = next.nextFloat();
 
-                if( (int)(cycle + 0.5) == 1 ) {
-                    pos_unit = 2.0 * (1.0 - cycle);
-                    neg_unit = 2.0 * (cycle - 0.5);
-                }
+                float mix = current_value * ( 1.0 - cycle ) + next_value * cycle;
 
-                if( flip )
-                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( pos_unit, pos_unit, pos_unit, 1.0 ) );
-                else
-                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( neg_unit, neg_unit, neg_unit, 1.0 ) );
-
-                flip = !flip;
+                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( mix, mix, mix, 1.0 ) );
             }
-            flip = !flip;
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
