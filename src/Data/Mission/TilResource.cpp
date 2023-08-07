@@ -153,16 +153,20 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
     else if( info_slfx.activate_noise ) {
         bool flip = false;
 
-        if( (int)(cycle + 0.5) == 1 ) {
-            flip = !flip;
-        }
-
         for( unsigned y = 0; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
+                float pos_unit = 2.0 * cycle;
+                float neg_unit = 2.0 * (0.5 - cycle);
+
+                if( (int)(cycle + 0.5) == 1 ) {
+                    pos_unit = 2.0 * (1.0 - cycle);
+                    neg_unit = 2.0 * (cycle - 0.5);
+                }
+
                 if( flip )
-                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
+                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( pos_unit, pos_unit, pos_unit, 1.0 ) );
                 else
-                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
+                    image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( neg_unit, neg_unit, neg_unit, 1.0 ) );
 
                 flip = !flip;
             }
