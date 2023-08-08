@@ -79,7 +79,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "void main() {\n"
     "   float SELECT_SPECIFIER   = _TILE_TYPE.x - float( _TILE_TYPE.x >= 128. ) * 128.;\n"
     "   float DISPLACEMENT       = _TILE_TYPE.y;\n"
-    "   int FRAME_BY_FRAME       = int( _TILE_TYPE.z );\n"
+    "   float FRAME_BY_FRAME     = _TILE_TYPE.z;\n"
     "   float VERTEX_ANIMATION_ENABLE = float( _TILE_TYPE.x >= 128. );\n"
 
     "   vec3 normal_color = COLOR_0;\n"
@@ -90,8 +90,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   float flashing = GlowTime * float(SelectedTile > SELECT_SPECIFIER - 0.5 && SelectedTile < SELECT_SPECIFIER + 0.5);\n"
     "   vertex_colors = (1.0 - flashing) * normal_color + 2.0 * flashing * inverse_color;\n"
 
-    "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0 );\n"
-    "   tex_coord_pos += AnimatedUVFrames[ clamp( FRAME_BY_FRAME - 1, 0, 16 * 4 ) ] * float( FRAME_BY_FRAME != 0 );\n"
+    "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0. );\n"
+    "   tex_coord_pos += AnimatedUVFrames[ int( clamp( FRAME_BY_FRAME - 1., 0., 16. * 4. ) ) ] * float( FRAME_BY_FRAME != 0. );\n"
     "   texture_coord_1 = tex_coord_pos + AnimatedUVDestination * DISPLACEMENT;\n"
     "   texture_coord_1 = fract( texture_coord_1 ) + vec2( float( texture_coord_1.x == 1. ), float( texture_coord_1.y == 1. ) );\n"
 
