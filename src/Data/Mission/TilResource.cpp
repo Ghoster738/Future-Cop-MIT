@@ -163,14 +163,22 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
             last = this->last,
             next = this->next;
 
+        const float reduce[4] = { 1., 0.5, 0.25, 0.125 };
+        float current_value, next_value, value;
+
         for( unsigned y = 0; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
-                float current_value = last.nextFloat();
-                float next_value    = next.nextFloat();
+                current_value = last.nextFloat();
+                next_value    = next.nextFloat();
 
-                float mix = current_value * ( 1.0 - cycle ) + next_value * cycle;
+                value = current_value * ( 1.0 - cycle ) + next_value * cycle;
+                value *= reduce[ info_slfx.data.noise.reducer ];
+                value += info_slfx.data.noise.brightness * 1. / 256.;
 
-                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( mix, mix, mix, 1.0 ) );
+                value = std::min(1.0f, value);
+                value = std::max(0.0f, value);
+
+                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
             }
         }
     }

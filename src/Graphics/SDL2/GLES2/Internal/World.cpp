@@ -33,7 +33,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
         if( info.bitfield.vertex_animation ) {
             if( vertex_animation_p == nullptr ) {
                 for( unsigned t = 0; t < 3; t++ ) {
-                    draw_triangles_r[ i ].vertices[ t ].color += glm::vec4(1,1,1,0);
+                    draw_triangles_r[ i ].vertices[ t ].color += 2.0f * glm::vec4(1,1,1,0);
                 }
             }
             else {
