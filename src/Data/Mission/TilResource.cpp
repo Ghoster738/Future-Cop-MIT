@@ -137,7 +137,7 @@ void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
     if( info_slfx.activate_noise )
         this->speed = 2.0;
     else
-        this->speed = 1.0 / 16.0;
+        this->speed = 1.0 / 8.0;
 
     this->random.setSeeder( 0x43A7BEAF2363 );
     this->last = this->random.getGenerator();
@@ -185,12 +185,17 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
     else if( info_slfx.activate_diagonal != 0 ) {
         for( unsigned y = 0; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
-                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
+                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
             }
 
-            unsigned medium = static_cast<unsigned>(image.getWidth() * cycle + (image.getHeight() - y - 1)) % image.getWidth();
+            float g1 = std::fmod(image.getWidth() * cycle + (image.getHeight() - y - 1), image.getWidth());
+            float g2 = std::fmod(image.getWidth() * cycle + (image.getHeight() - y - 0), image.getWidth());
 
-            image.writePixel( medium, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
+            float inv_value = std::fmod( g1, 1.0f );
+            float value = 1.0f - inv_value;
+
+            image.writePixel( g1,  y, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
+            image.writePixel( g2, y, Utilities::PixelFormatColor::GenericColor( inv_value, inv_value, inv_value, 1.0 ) );
         }
     }
 }
