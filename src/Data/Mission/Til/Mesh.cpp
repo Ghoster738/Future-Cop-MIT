@@ -31,10 +31,10 @@ unsigned int Data::Mission::Til::Mesh::getNeighboor( unsigned int index, int nex
     return index;
 }
 
-unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped ) {
+unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, unsigned offset ) {
     const unsigned int ELEMENT_AMOUNT = 3;
 
-    static const unsigned INDEX_TABLE[2][3] = { { 0, 1, 2 }, { 2, 3, 0 } };
+    static const unsigned INDEX_TABLE[3][3] = { {0, 1, 2}, { 0, 1, 3 }, { 1, 2, 3 } };
     
     if( result.element_amount >= ELEMENT_AMOUNT + result.element_start )
     {
@@ -44,7 +44,7 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
             result.position[ result.element_start ].y = static_cast<float>(input.pixels[ triangle.points[ i ].facing_direction ]->channel[ triangle.points[ i ].heightmap_channel ]) * TilResource::SAMPLE_HEIGHT;
             result.position[ result.element_start ].z = TILE_CORNER_POSITION_Z[ triangle.points[ i ].facing_direction ];
             
-            const unsigned int INDEX = (input.coord_index + INDEX_TABLE[ flipped ][ i ] ) % input.coord_index_limit;
+            const unsigned int INDEX = (input.coord_index + INDEX_TABLE[ offset ][ i ] ) % input.coord_index_limit;
             result.coords[ result.element_start ].x = input.coord_data[ INDEX ].x;
             result.coords[ result.element_start ].y = input.coord_data[ INDEX ].y;
 
@@ -60,7 +60,7 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
 
                 if( info_scta.isMemorySafe() && info_scta.source_uv_offset / 2 <= INDEX && info_scta.source_uv_offset / 2 + 4 > INDEX) {
                     // result.stca_animation_index[ result.element_start ] = 1 + scta_index;
-                    result.stca_animation_index[ result.element_start ] = 1 + 4 * scta_index + INDEX_TABLE[ flipped ][ i ];
+                    result.stca_animation_index[ result.element_start ] = 1 + 4 * scta_index + INDEX_TABLE[ offset ][ i ];
                 }
             }
 
@@ -76,14 +76,18 @@ unsigned int Data::Mission::Til::Mesh::BuildTriangle( const Input &input, const 
 unsigned int Data::Mission::Til::Mesh::BuildQuad( const Input &input, const Polygon &quad, VertexData &result ) {
     unsigned int number_of_written_vertices = 0;
 
-    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, quad, result );
-
     Polygon other_triangle;
-    other_triangle.points[0] = quad.points[2];
-    other_triangle.points[1] = quad.points[3];
-    other_triangle.points[2] = quad.points[0];
+    other_triangle.points[0] = quad.points[0];
+    other_triangle.points[1] = quad.points[1];
+    other_triangle.points[2] = quad.points[3];
 
-    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result, true );
+    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result, 1 );
+
+    other_triangle.points[0] = quad.points[1];
+    other_triangle.points[1] = quad.points[2];
+    other_triangle.points[2] = quad.points[3];
+
+    number_of_written_vertices += Data::Mission::Til::Mesh::BuildTriangle( input, other_triangle, result, 2 );
 
     return number_of_written_vertices;
 }
@@ -104,9 +108,12 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
             number_of_written_vertices += BuildTriangle( input, tile_polygon, vertex_data );
         else
         {
-            vertex_data.colors[ 3 ] = input.colors[ 2 ];
-            vertex_data.colors[ 4 ] = input.colors[ 3 ];
-            vertex_data.colors[ 5 ] = input.colors[ 0 ];
+            vertex_data.colors[ 0 ] = input.colors[ 0 ];
+            vertex_data.colors[ 1 ] = input.colors[ 1 ];
+            vertex_data.colors[ 2 ] = input.colors[ 3 ];
+            vertex_data.colors[ 3 ] = input.colors[ 1 ];
+            vertex_data.colors[ 4 ] = input.colors[ 2 ];
+            vertex_data.colors[ 5 ] = input.colors[ 3 ];
             number_of_written_vertices += BuildQuad( input, tile_polygon, vertex_data );
         }
     }

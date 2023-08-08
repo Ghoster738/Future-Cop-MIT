@@ -60,7 +60,7 @@ namespace Mesh {
      */
     unsigned getNeighboor( unsigned index, int next_amount );
 
-    unsigned BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, bool flipped = false );
+    unsigned BuildTriangle( const Input &input, const Polygon &triangle, VertexData &result, unsigned offset = 0 );
     unsigned BuildQuad( const Input &input, const Polygon &quad, VertexData &result );
 
     unsigned createTile( const Input &input, VertexData &result, unsigned tileType );
