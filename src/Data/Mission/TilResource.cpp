@@ -188,7 +188,7 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
                 image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 1.0, 1.0, 1.0, 1.0 ) );
             }
 
-            unsigned medium = static_cast<unsigned>(image.getWidth() * cycle + y) % image.getWidth();
+            unsigned medium = static_cast<unsigned>(image.getWidth() * cycle + (image.getHeight() - y - 1)) % image.getWidth();
 
             image.writePixel( medium, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
         }
