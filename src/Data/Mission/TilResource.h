@@ -138,18 +138,14 @@ public:
         union Data {
             struct Wave {
                 // byte 1
-                uint32_t unused_0:          3;
-                uint32_t unknown_0:         1;
-                uint32_t speed:             4;
+                uint32_t speed:                  8; // This is the speed of the gradient.
 
                 // byte 2
-                uint32_t other_wave:        4;
-                uint32_t default_level:     4;
+                uint32_t background_light_level: 8;
 
                 // byte 3
-                uint32_t rate:              3; // Clear rate?
-                uint32_t is_forever_bright: 1;
-                uint32_t apply_level:       4; // Light value
+                uint32_t gradient_width:         4; // This subtracts the width of the gradient. 0x0 smoothest. 0x2 perfect. 0x3 narrow. 0xF so narrow that no animation is seen.
+                uint32_t gradient_light_level:   4; // The Light and Dark Levels of the gradient.
             } wave;
             struct Noise {
                 // byte 1

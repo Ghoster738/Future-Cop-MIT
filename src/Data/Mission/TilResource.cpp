@@ -50,14 +50,10 @@ std::string Data::Mission::TilResource::InfoSLFX::getString() const {
     }
     else {
         stream << "    TYPE: DIAGONAL WAVES\n";
-        stream << "    apply_level:       " << (unsigned)data.wave.apply_level       << "\n";
-        stream << "    is_forever_bright: " << (unsigned)data.wave.is_forever_bright << "\n";
-        stream << "    rate:              " << (unsigned)data.wave.rate              << "\n";
-        stream << "    default_level:     " << (unsigned)data.wave.default_level     << "\n";
-        stream << "    other_wave:        " << (unsigned)data.wave.other_wave        << "\n";
-        stream << "    speed:             " << (unsigned)data.wave.speed             << "\n";
-        stream << "    unknown_0:         " << (unsigned)data.wave.unknown_0         << "\n";
-        stream << "    unused_0:          " << (unsigned)data.wave.unused_0          << "\n";
+        stream << "    gradient_light_level:   " << (unsigned)data.wave.gradient_light_level   << "\n";
+        stream << "    gradient_width:         " << (unsigned)data.wave.gradient_width         << "\n";
+        stream << "    background_light_level: " << (unsigned)data.wave.background_light_level << "\n";
+        stream << "    speed:                  " << (unsigned)data.wave.speed                  << "\n";
     }
 
     return stream.str();
@@ -82,14 +78,10 @@ uint32_t Data::Mission::TilResource::InfoSLFX::get() const {
     }
     else {
         bitfield |=
-            ((uint32_t)data.wave.apply_level       << 20) |
-            ((uint32_t)data.wave.is_forever_bright << 19) |
-            ((uint32_t)data.wave.rate              << 16) |
-            ((uint32_t)data.wave.default_level     << 12) |
-            ((uint32_t)data.wave.other_wave        <<  8) |
-            ((uint32_t)data.wave.speed             <<  4) |
-            ((uint32_t)data.wave.unknown_0         <<  3) |
-            ((uint32_t)data.wave.unused_0          <<  0);
+            ((uint32_t)data.wave.gradient_light_level   << 20) |
+            ((uint32_t)data.wave.gradient_width         << 16) |
+            ((uint32_t)data.wave.background_light_level <<  8) |
+            ((uint32_t)data.wave.speed                  <<  0);
     }
 
     return bitfield;
@@ -110,14 +102,10 @@ void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
         data.noise.reducer    = (bitfield >>  0) & ((1 << 2) - 1);
     }
     else {
-        data.wave.apply_level       = (bitfield >> 20) & ((1 << 4) - 1);
-        data.wave.is_forever_bright = (bitfield >> 19) & 1;
-        data.wave.rate              = (bitfield >> 16) & ((1 << 3) - 1);
-        data.wave.default_level     = (bitfield >> 12) & ((1 << 4) - 1);
-        data.wave.other_wave        = (bitfield >>  8) & ((1 << 4) - 1);
-        data.wave.speed             = (bitfield >>  4) & ((1 << 4) - 1);
-        data.wave.unknown_0         = (bitfield >>  3) & 1;
-        data.wave.unused_0          = (bitfield >>  0) & ((1 << 3) - 1);
+        data.wave.gradient_light_level   = (bitfield >> 20) & ((1 << 4) - 1);
+        data.wave.gradient_width         = (bitfield >> 16) & ((1 << 4) - 1);
+        data.wave.background_light_level = (bitfield >>  8) & ((1 << 8) - 1);
+        data.wave.speed                  = (bitfield >>  0) & ((1 << 8) - 1);
     }
 }
 
