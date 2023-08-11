@@ -187,9 +187,10 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         image.writePixel( g2, 0, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
 
         for( unsigned y = 1; y < image.getHeight(); y++ ) {
-            for( unsigned x = 0; x < image.getWidth(); x++ ) {
-                image.writePixel( x, y, image.readPixel( (x + 1) % image.getWidth(), y - 1 ) );
+            for( unsigned x = 0; x < image.getWidth() - 1; x++ ) {
+                image.writePixel( x, y, image.readPixel( x + 1, y - 1 ) );
             }
+            image.writePixel( image.getWidth() - 1, y, image.readPixel( 0, y - 1 ) );
         }
     }
 }
