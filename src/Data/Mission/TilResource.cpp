@@ -171,21 +171,25 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
-        float light_level = static_cast<double>( info_slfx.data.wave.background_light_level ) * 1. / 256. * 0;
+        float light_level = static_cast<double>( info_slfx.data.wave.background_light_level ) * 1. / 256.;
 
-        for( unsigned y = 0; y < image.getHeight(); y++ ) {
+        for( unsigned x = 0; x < image.getWidth(); x++ ) {
+            image.writePixel( x, 0, Utilities::PixelFormatColor::GenericColor( light_level, light_level, light_level, 1.0 ) );
+        }
+
+        float g1 = std::fmod(image.getWidth() * cycle + (image.getHeight() - 1), image.getWidth());
+        float g2 = std::fmod(image.getWidth() * cycle + (image.getHeight() - 0), image.getWidth());
+
+        float value = std::fmod( g1, 1.0f );
+        float inv_value = 1.0f - value;
+
+        image.writePixel( g1, 0, Utilities::PixelFormatColor::GenericColor( inv_value, inv_value, inv_value, 1.0 ) );
+        image.writePixel( g2, 0, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
+
+        for( unsigned y = 1; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
-                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( light_level, light_level, light_level, 1.0 ) );
+                image.writePixel( x, y, image.readPixel( (x + 1) % image.getWidth(), y - 1 ) );
             }
-
-            float g1 = std::fmod(image.getWidth() * cycle + (image.getHeight() - y - 1), image.getWidth());
-            float g2 = std::fmod(image.getWidth() * cycle + (image.getHeight() - y - 0), image.getWidth());
-
-            float inv_value = std::fmod( g1, 1.0f );
-            float value = 1.0f - inv_value;
-
-            image.writePixel( g1,  y, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
-            image.writePixel( g2, y, Utilities::PixelFormatColor::GenericColor( inv_value, inv_value, inv_value, 1.0 ) );
         }
     }
 }
