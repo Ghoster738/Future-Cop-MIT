@@ -171,9 +171,11 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
+        float light_level = static_cast<double>( info_slfx.data.wave.background_light_level ) * 1. / 256. * 0;
+
         for( unsigned y = 0; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth(); x++ ) {
-                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( 0.0, 0.0, 0.0, 1.0 ) );
+                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( light_level, light_level, light_level, 1.0 ) );
             }
 
             float g1 = std::fmod(image.getWidth() * cycle + (image.getHeight() - y - 1), image.getWidth());
