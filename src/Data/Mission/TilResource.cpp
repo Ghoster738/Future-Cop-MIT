@@ -178,12 +178,13 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         float start = image.getWidth() * cycle;
         float end   = start + width;
         const float gradient_light_factor = ((0x20 >> info_slfx.data.wave.gradient_light_level) * 1. / 32.);
+        const float fraction = 1.0f - std::fmod(start, 1.f);
 
         for( unsigned x = 0; x < image.getWidth(); x++ ) {
             value = light_level;
 
-            if( x < width )
-                value += std::cos( glm::pi<float>() * (x / (1. * width)) ) * gradient_light_factor;
+            if( (x + fraction) < width )
+                value += std::sin( glm::pi<float>() * ((x + fraction) / (0.5 * width) + 1) ) * gradient_light_factor;
 
             value = std::min(1.0f, value);
             value = std::max(0.0f, value);
