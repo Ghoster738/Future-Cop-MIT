@@ -125,7 +125,7 @@ void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
     if( info_slfx.activate_noise )
         this->speed = 2.0;
     else
-        this->speed = 1.0 / 8.0;
+        this->speed = static_cast<double>( info_slfx.data.wave.speed ) / std::pow( 2., info_slfx.data.wave.gradient_width ) * 45. / 616.;
 
     this->random.setSeeder( 0x43A7BEAF2363 );
     this->last = this->random.getGenerator();
