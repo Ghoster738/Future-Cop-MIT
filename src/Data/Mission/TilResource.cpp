@@ -171,20 +171,27 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
-        float light_level = static_cast<double>( info_slfx.data.wave.background_light_level ) * 1. / 256.;
+        float light_level = 0.5;
+
+        float start = image.getWidth() * cycle;
+        float end   = start + image.getWidth() / (1 << info_slfx.data.wave.gradient_width);
+
+        float value;
+
+        const float width = image.getWidth() / (1 << info_slfx.data.wave.gradient_width);
+        const float gradient_light_factor = ((0x20 >> info_slfx.data.wave.gradient_light_level) * 1. / 32.);
 
         for( unsigned x = 0; x < image.getWidth(); x++ ) {
-            image.writePixel( x, 0, Utilities::PixelFormatColor::GenericColor( light_level, light_level, light_level, 1.0 ) );
+            value = light_level;
+
+            if( x < width )
+                value = std::cos( glm::pi<float>() * ((x + std::fmod(start, 1.f)) / (1. * width)) );// * gradient_light_factor;
+
+            value = std::min(1.0f, value);
+            value = std::max(0.0f, value);
+
+            image.writePixel( static_cast<unsigned>(start + x) % image.getWidth(), 0, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
         }
-
-        float g1 = std::fmod(image.getWidth() * cycle + (image.getHeight() - 1), image.getWidth());
-        float g2 = std::fmod(image.getWidth() * cycle + (image.getHeight() - 0), image.getWidth());
-
-        float value = std::fmod( g1, 1.0f );
-        float inv_value = 1.0f - value;
-
-        image.writePixel( g1, 0, Utilities::PixelFormatColor::GenericColor( inv_value, inv_value, inv_value, 1.0 ) );
-        image.writePixel( g2, 0, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
 
         for( unsigned y = 1; y < image.getHeight(); y++ ) {
             for( unsigned x = 0; x < image.getWidth() - 1; x++ ) {
