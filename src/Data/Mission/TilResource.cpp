@@ -7,6 +7,7 @@
 #include "../../Utilities/ImageFormat/Chooser.h"
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <cassert>
 #include <set>
 
@@ -28,13 +29,220 @@ void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::
     tile.bottom_right = reader.readU16( endian );
     reader.readU16(); // Skip Unknown data.
 }
+
+const Utilities::PixelFormatColor_W8 SLFX_COLOR;
+}
+
+std::string Data::Mission::TilResource::InfoSLFX::getString() const {
+    std::stringstream stream;
+
+    stream << "InfoSLFX:\n";
+    stream << "  Values:\n";
+    stream << "    is_disabled: " << (unsigned)is_disabled << "\n";
+    if( activate_noise ) {
+        stream << "    TYPE: NOISE\n";
+        stream << "    unused_2:   " << (unsigned)data.noise.unused_2   << "\n";
+        stream << "    brightness: " << (unsigned)data.noise.brightness << "\n";
+        stream << "    unused_1:   " << (unsigned)data.noise.unused_1   << "\n";
+        stream << "    unknown_0:  " << (unsigned)data.noise.unknown_0  << "\n";
+        stream << "    unused_0:   " << (unsigned)data.noise.unused_0   << "\n";
+        stream << "    reducer:    " << (unsigned)data.noise.reducer    << "\n";
+    }
+    else {
+        stream << "    TYPE: DIAGONAL WAVES\n";
+        stream << "    gradient_light_level:   " << (unsigned)data.wave.gradient_light_level   << "\n";
+        stream << "    gradient_width:         " << (unsigned)data.wave.gradient_width         << "\n";
+        stream << "    background_light_level: " << (unsigned)data.wave.background_light_level << "\n";
+        stream << "    speed:                  " << (unsigned)data.wave.speed                  << "\n";
+    }
+
+    return stream.str();
+
+}
+
+uint32_t Data::Mission::TilResource::InfoSLFX::get() const {
+    uint32_t bitfield =
+        ((uint32_t)is_disabled       << 31) |
+        ((uint32_t)unknown_0         << 29) |
+        ((uint32_t)activate_noise    << 28) |
+        ((uint32_t)activate_diagonal << 24);
+
+    if( activate_noise ) {
+        bitfield |=
+            ((uint32_t)data.noise.unused_2   << 16) |
+            ((uint32_t)data.noise.brightness <<  8) |
+            ((uint32_t)data.noise.unused_1   <<  7) |
+            ((uint32_t)data.noise.unknown_0  <<  6) |
+            ((uint32_t)data.noise.unused_0   <<  2) |
+            ((uint32_t)data.noise.reducer    <<  0);
+    }
+    else {
+        bitfield |=
+            ((uint32_t)data.wave.gradient_light_level   << 20) |
+            ((uint32_t)data.wave.gradient_width         << 16) |
+            ((uint32_t)data.wave.background_light_level <<  8) |
+            ((uint32_t)data.wave.speed                  <<  0);
+    }
+
+    return bitfield;
+}
+
+void Data::Mission::TilResource::InfoSLFX::set( const uint32_t bitfield ) {
+    is_disabled       = (bitfield >> 31) & 1;
+    unknown_0         = (bitfield >> 29) & ((1 << 2) - 1);
+    activate_noise    = (bitfield >> 28) & 1;
+    activate_diagonal = (bitfield >> 24) & ((1 << 4) - 1);
+
+    if( activate_noise ) {
+        data.noise.unused_2   = (bitfield >> 16) & ((1 << 8) - 1);
+        data.noise.brightness = (bitfield >>  8) & ((1 << 8) - 1);
+        data.noise.unused_1   = (bitfield >>  7) & 1;
+        data.noise.unknown_0  = (bitfield >>  6) & 1;
+        data.noise.unused_0   = (bitfield >>  2) & ((1 << 4) - 1);
+        data.noise.reducer    = (bitfield >>  0) & ((1 << 2) - 1);
+    }
+    else {
+        data.wave.gradient_light_level   = (bitfield >> 20) & ((1 << 4) - 1);
+        data.wave.gradient_width         = (bitfield >> 16) & ((1 << 4) - 1);
+        data.wave.background_light_level = (bitfield >>  8) & ((1 << 8) - 1);
+        data.wave.speed                  = (bitfield >>  0) & ((1 << 8) - 1);
+    }
+}
+
+Data::Mission::TilResource::AnimationSLFX::AnimationSLFX() : info_slfx( 0 ), last( 1 ), next( 2 ) {
+    setInfo( 0 );
+}
+
+Data::Mission::TilResource::AnimationSLFX::AnimationSLFX( InfoSLFX info_slfx ) : info_slfx( 0 ), last( 1 ), next( 2 ) {
+    setInfo( info_slfx );
+}
+
+void Data::Mission::TilResource::AnimationSLFX::setInfo( InfoSLFX info_slfx ) {
+    this->info_slfx = info_slfx;
+
+    this->cycle = 0.0;
+
+    if( info_slfx.activate_noise )
+        this->speed = 2.0;
+    else
+        this->speed = static_cast<double>( info_slfx.data.wave.speed ) / std::pow( 2., info_slfx.data.wave.gradient_width ) * 45. / 616.;
+
+    this->random.setSeeder( 0x43A7BEAF2363 );
+    this->last = this->random.getGenerator();
+    this->next = this->random.getGenerator();
+}
+
+void Data::Mission::TilResource::AnimationSLFX::advanceTime( float delta_seconds ) {
+    cycle += speed * delta_seconds;
+
+    while( cycle >= 1.0 ) {
+        cycle -= 1.0;
+
+        this->last = this->next;
+        this->next = random.getGenerator();
+    }
+}
+
+void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &image  ) const {
+    if( info_slfx.is_disabled ) {
+    }
+    else if( info_slfx.activate_noise ) {
+        Utilities::Random::Generator
+            last = this->last,
+            next = this->next;
+
+        const float reduce[4] = { 1.00, 0.75, 0.50, 0.25 };
+        float current_value, next_value, value;
+
+        for( unsigned y = 0; y < image.getHeight(); y++ ) {
+            for( unsigned x = 0; x < image.getWidth(); x++ ) {
+                current_value = last.nextFloat();
+                next_value    = next.nextFloat();
+
+                value = current_value * ( 1.0 - cycle ) + next_value * cycle;
+                value *= reduce[ info_slfx.data.noise.reducer ];
+                value += info_slfx.data.noise.brightness * 1. / 256.;
+
+                value = std::min(1.0f, value);
+                value = std::max(0.0f, value);
+
+                image.writePixel( x, y, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
+            }
+        }
+    }
+    else if( info_slfx.activate_diagonal != 0 ) {
+        const float width = image.getWidth() / (1 << info_slfx.data.wave.gradient_width);
+        const float start = image.getWidth() * cycle;
+        const float gradient_light_factor = ((0x20 >> info_slfx.data.wave.gradient_light_level) * 1. / 16.);
+        const float fraction = 1.0f - std::fmod(start, 1.f);
+        const float light_level = info_slfx.data.wave.background_light_level * 1. / 256.;
+
+        float value;
+
+        for( unsigned x = 0; x < image.getWidth(); x++ ) {
+            value = light_level;
+
+            if( (x + fraction) < width )
+                value += std::sin( glm::pi<float>() * ((x + fraction) / (0.5 * width) + 1) ) * gradient_light_factor;
+
+            value = std::min(1.0f, value);
+            value = std::max(0.0f, value);
+
+            image.writePixel( static_cast<unsigned>(start + x) % image.getWidth(), 0, Utilities::PixelFormatColor::GenericColor( value, value, value, 1.0 ) );
+        }
+
+        for( unsigned y = 1; y < image.getHeight(); y++ ) {
+            for( unsigned x = 0; x < image.getWidth() - 1; x++ ) {
+                image.writePixel( x, y, image.readPixel( x + 1, y - 1 ) );
+            }
+            image.writePixel( image.getWidth() - 1, y, image.readPixel( 0, y - 1 ) );
+        }
+    }
+}
+
+Utilities::Image2D* Data::Mission::TilResource::AnimationSLFX::getImage() const {
+    return new Utilities::Image2D( AMOUNT_OF_TILES, AMOUNT_OF_TILES, SLFX_COLOR );
+}
+
+std::string Data::Mission::TilResource::InfoSCTA::getString() const {
+    std::stringstream stream;
+
+    stream << "InfoSCTA:\n";
+    stream << "  Values:\n";
+    stream << "    frame_count        = " << getFrameCount()    << "\n";
+    stream << "    duration_per_frame = " << duration_per_frame << "\n";
+    stream << "    animated_uv_offset = " << animated_uv_offset << "\n";
+    stream << "    source_uv_offset   = " << source_uv_offset   << "\n";
+    stream << "  Translated Values:\n";
+    stream << "    Total Animation Time = " << getSecondsPerCycle() << " seconds\n";
+    stream << "    Seconds Per Frame    = " << getSecondsPerFrame() << " seconds\n";
+
+    return stream.str();
+}
+
+bool Data::Mission::TilResource::InfoSCTA::setMemorySafe( size_t source_size, size_t animated_size ) {
+    bool is_unsafe = false;
+
+    if( animated_uv_offset / 2 + 4 * frame_count > animated_size )
+        is_unsafe = true;
+    if( source_uv_offset / 2   + 4 > source_size )
+        is_unsafe = true;
+
+    if( is_unsafe && frame_count > 0 )
+        frame_count = -frame_count;
+
+    return !is_unsafe;
 }
 
 const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
 
-Data::Mission::TilResource::TilResource() {
+const std::string Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME = "_TILE_TYPE";
 
+Data::Mission::TilResource::TilResource() {
+    InfoSLFX info_slfx( 0 );
+    info_slfx.is_disabled = true;
+    this->slfx_bitfield = info_slfx.get();
 }
 
 Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ) {
@@ -73,6 +281,10 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
 }
 
 void Data::Mission::TilResource::makeEmpty() {
+    InfoSLFX info_slfx( 0 );
+    info_slfx.is_disabled = true;
+    this->slfx_bitfield = info_slfx.get();
+
     point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
     
     for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
@@ -157,6 +369,10 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
+    int position_data = 0;
 
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
@@ -223,21 +439,21 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 readCullingTile( culling_bottom_right, reader_sect, settings.endian );
                 
                 // These are most likely bytes.
-                auto unk_byte_0 = reader_sect.readU8();
-                auto unk_byte_1 = reader_sect.readU8();
+                uv_animation.x = std::abs( reader_sect.readI8() );
+                uv_animation.y = std::abs( reader_sect.readI8() );
 
                 // Modifiying this to be other than what it is will cause an error?
-                if( unk_byte_0 != 0 )
-                    debug_log.output << "Expected zero in unk_byte_0 rather than " << (unsigned)unk_byte_0 << ".\n";
-                if( unk_byte_1 != 0 )
-                    debug_log.output << "Expected zero in unk_byte_1 rather than " << (unsigned)unk_byte_1 << ".\n";
+                if( uv_animation.x != 0 )
+                    debug_log.output << "uv_animation.x has " << (unsigned)uv_animation.x << ".\n";
+                if( uv_animation.y != 0 )
+                    debug_log.output << "uv_animation.y has " << (unsigned)uv_animation.y << ".\n";
                 
                 this->texture_reference = reader_sect.readU16( settings.endian );
 
                 this->mesh_library_size = 0;
                 
-                for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-                    for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
+                for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
+                    for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
                         mesh_reference_grid[x][y].set( reader_sect.readU16( settings.endian ) );
 
                         this->mesh_library_size += mesh_reference_grid[x][y].tile_amount;
@@ -256,13 +472,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 mesh_tiles.reserve( this->mesh_library_size );
                 
-                std::set<uint16_t> seen_graphics_tiles;
-                
                 for( size_t i = 0; i < this->mesh_library_size; i++ ) {
 
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
-
-                    seen_graphics_tiles.insert( mesh_tiles.back().graphics_type_index );
                 }
 
                 if( this->mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
@@ -292,13 +504,17 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 texture_cords.reserve( texture_cordinates_amount );
                 
                 for( size_t i = 0; i < texture_cordinates_amount; i++ ) {
-                    texture_cords.push_back( glm::u8vec2() );
-                    
-                    texture_cords.back().x = reader_sect.readU8();
-                    texture_cords.back().y = reader_sect.readU8();
+                    glm::u8vec2 texture_coordinate;
+
+                    texture_coordinate.x = reader_sect.readU8();
+                    texture_coordinate.y = reader_sect.readU8();
+
+                    texture_cords.push_back( texture_coordinate );
                 }
                 
                 Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );
+
+                position_data = reader_sect.getPosition( Utilities::Buffer::BEGIN );
 
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
@@ -320,6 +536,9 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 // Read this bitfield!
                 this->slfx_bitfield = reader_slfx.readU32( settings.endian );
+
+                debug_log.output << "SLFX is 0x" << std::hex << this->slfx_bitfield << ".\n";
+                debug_log.output << InfoSLFX( this->slfx_bitfield ).getString() << "\n";
             }
             else
             if( identifier == TAG_ScTA ) {
@@ -327,28 +546,46 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 uint32_t number_of_animations = reader_scta.readU32( settings.endian );
 
+                this->SCTA_info.resize( number_of_animations );
+
                 for( uint32_t i = 0; i < number_of_animations; i++ ) {
                     uint8_t number_of_frames = reader_scta.readU8();
                     uint8_t single_zero = reader_scta.readU8();
                     uint8_t one = reader_scta.readU8();
                     uint8_t nine8 = reader_scta.readU8();
-                    uint16_t duration = reader_scta.readU16( settings.endian );
+                    uint16_t duration_per_frame = reader_scta.readU16( settings.endian );
                     uint16_t zeros = reader_scta.readU16( settings.endian );
-                    uint32_t frame_offset = reader_scta.readU32( settings.endian );
-                    uint32_t override_offset = reader_scta.readU32( settings.endian );
+                    uint32_t animated_uv_offset = reader_scta.readU32( settings.endian );
+                    uint32_t source_uv_offset = reader_scta.readU32( settings.endian );
+
+                    this->SCTA_info[i].frame_count        = number_of_frames;
+                    this->SCTA_info[i].duration_per_frame = duration_per_frame;
+                    this->SCTA_info[i].animated_uv_offset = animated_uv_offset;
+                    this->SCTA_info[i].source_uv_offset   = source_uv_offset;
                 }
 
                 uint32_t frame_amount = 0;
 
-                while( reader_scta.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
-                    glm::u8vec2 texture_cordinates[4];
+                this->scta_texture_cords.reserve( reader_scta.getPosition( Utilities::Buffer::END ) / sizeof(uint16_t) );
 
-                    for( unsigned i = 0; i < 4; i++ ) {
-                        texture_cordinates[ i ].x = reader_scta.readI8();
-                        texture_cordinates[ i ].y = reader_scta.readI8();
-                    }
+                while( reader_scta.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
+                    glm::u8vec2 texture_cordinates;
+
+                    texture_cordinates.x = reader_scta.readI8();
+                    texture_cordinates.y = reader_scta.readI8();
+                    scta_texture_cords.push_back( texture_cordinates );
 
                     frame_amount++;
+                }
+
+                // Bounds check the SCTA
+                for( auto i = SCTA_info.begin(); i != SCTA_info.end(); i++ ) {
+
+                    // setMemorySafe is here for memory safety. This program will not handle these kind of animations.
+                    if( !(*i).setMemorySafe( texture_cords.size(), scta_texture_cords.size() ) )
+                        error_log.output << "Not bounds safe " << (*i).getString();
+                    else
+                        debug_log.output << (*i).getString();
                 }
             }
             else
@@ -499,7 +736,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         unsigned int normal_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int tex_coord_0_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( "_TILE_TYPE", Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC2, false );
+        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( TILE_TYPE_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC4, false );
 
         model_output_p->setupVertexComponents();
 
@@ -508,6 +745,8 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         glm::vec3   normal[6];
         glm::vec3   color[6];
         glm::u8vec2 coord[6];
+        unsigned stca_animation_index[6];
+        unsigned uv_positions[6];
 
         has_texture_displayed = false;
         
@@ -533,14 +772,19 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         input.pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( y + 1, x + 0 );
                         input.pixels[  BACK_RIGHT ] = point_cloud_3_channel.getRef( y + 1, x + 1 );
                         input.pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( y + 0, x + 1 );
+                        input.x = x;
+                        input.y = y;
                         input.coord_index = current_tile.texture_cord_index;
                         input.coord_index_limit = this->texture_cords.size();
                         input.coord_data = this->texture_cords.data();
+                        input.SCTA_info_r = &this->SCTA_info;
 
                         Data::Mission::Til::Mesh::VertexData vertex_data;
                         vertex_data.position = position;
                         vertex_data.coords = coord;
                         vertex_data.colors = color;
+                        vertex_data.stca_animation_index = stca_animation_index;
+                        vertex_data.uv_positions = uv_positions;
                         vertex_data.element_amount = 6;
                         vertex_data.element_start = 0;
 
@@ -614,7 +858,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
 
                             if( is_culled ) {
                                 if( Data::Mission::Til::Mesh::isSlope( current_tile.mesh_type ) ||  Data::Mission::Til::Mesh::isWall( current_tile.mesh_type ) ) {
-                                    if( Data::Mission::Til::Mesh::isFliped( current_tile.mesh_type ) ) {
+                                    if( Data::Mission::Til::Mesh::isFlipped( current_tile.mesh_type ) ) {
                                         front = current_tile.front;
                                         back  = current_tile.back;
                                     }
@@ -641,7 +885,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec2UByteType( glm::u8vec2( current_tile.mesh_type, tile_graphics.animated ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p], uv_positions[p] ) ) );
                                     }
                                 }
 
@@ -655,7 +899,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec2UByteType( glm::u8vec2(  current_tile.mesh_type, tile_graphics.animated ) ) );
+                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p - 1], uv_positions[p - 1] ) ) );
                                     }
                                 }
                             }
@@ -687,6 +931,8 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         glm::vec3 position[6];
         glm::u8vec2 cord[6];
         glm::vec3 color[6];
+        unsigned stca_animation_index[6];
+        unsigned uv_positions[6];
         Tile current_tile;
         Data::Mission::Til::Mesh::Input input;
         Data::Mission::Til::Mesh::VertexData vertex_data;
@@ -699,9 +945,12 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         vertex_data.position = position;
         vertex_data.coords = cord;
         vertex_data.colors = color;
+        vertex_data.stca_animation_index = stca_animation_index;
+        vertex_data.uv_positions = uv_positions;
         
         input.coord_index_limit = this->texture_cords.size();
         input.coord_data = this->texture_cords.data();
+        input.SCTA_info_r = &this->SCTA_info;
         
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
             
@@ -711,6 +960,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
             
             vertex_data.element_amount = 6;
             vertex_data.element_start = 0;
+            vertex_data.stca_animation_index = stca_animation_index;
             
             auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
             

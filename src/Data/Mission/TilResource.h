@@ -6,6 +6,7 @@
 #include "../../Utilities/GridBase2D.h"
 #include "../../Utilities/Collision/Ray.h"
 #include "../../Utilities/Collision/Triangle.h"
+#include "../../Utilities/Random.h"
 
 namespace Data {
 
@@ -117,9 +118,9 @@ public:
         void set( const uint16_t bitfield ) {
             shading          = (bitfield >>  0) & ((1 << 8) - 1);
             texture_index    = (bitfield >>  8) & ((1 << 3) - 1);
-            animated         = (bitfield >> 11) & ((1 << 1) - 1);
-            semi_transparent = (bitfield >> 12) & ((1 << 1) - 1);
-            rectangle        = (bitfield >> 13) & ((1 << 1) - 1);
+            animated         = (bitfield >> 11) & 1;
+            semi_transparent = (bitfield >> 12) & 1;
+            rectangle        = (bitfield >> 13) & 1;
             type             = (bitfield >> 14) & ((1 << 2) - 1);
         }
         
@@ -132,7 +133,102 @@ public:
                 ((uint16_t)type << 14);
         }
     };
+    class InfoSLFX {
+    public:
+        union Data {
+            struct Wave {
+                // byte 1
+                uint32_t speed:                  8; // This is the speed of the gradient.
+
+                // byte 2
+                uint32_t background_light_level: 8;
+
+                // byte 3
+                uint32_t gradient_width:         4; // This subtracts the width of the gradient. 0x0 smoothest. 0x2 perfect. 0x3 narrow. 0xF so narrow that no animation is seen.
+                uint32_t gradient_light_level:   4; // The Light and Dark Levels of the gradient.
+            } wave;
+            struct Noise {
+                // byte 1
+                uint32_t reducer:    2; // The more tends to decrease the effect. Maybe a rightshift specifier.
+                uint32_t unused_0:   4;
+                uint32_t unknown_0:  1; // This does not seem to affect anything.
+                uint32_t unused_1:   1;
+
+                // byte 2
+                uint32_t brightness: 8; // The more this value the brighter the animations become.
+
+                // byte 3
+                uint32_t unused_2:   8;
+            } noise;
+        } data;
+
+        // byte 4
+        uint32_t activate_diagonal: 4; // Looks like diagonal waves.
+        uint32_t activate_noise:    1; // Looks like perlin noise. This bit overpowers activate_diagonal.
+        uint32_t unknown_0:         2;
+        uint32_t is_disabled:       1; // Enabling this would disable the animations.
+
+    public:
+        InfoSLFX() {}
+        InfoSLFX( const uint32_t bitfield ) {
+            set( bitfield );
+        }
+
+        std::string getString() const;
+        uint32_t get() const;
+        void     set( const uint32_t bitfield );
+    };
+
+    class AnimationSLFX {
+    public:
+        InfoSLFX info_slfx;
+
+    private:
+        Utilities::Random::Generator last, next;
+        Utilities::Random random;
+        float cycle;
+        float speed;
+
+    public:
+        AnimationSLFX();
+        AnimationSLFX( InfoSLFX info_slfx );
+
+        InfoSLFX getInfo() const { return info_slfx; }
+
+        void setInfo( InfoSLFX info_slfx );
+
+        void advanceTime( float delta_seconds );
+
+        Utilities::Image2D* getImage() const;
+        void setImage( Utilities::Image2D &image ) const;
+    };
+
+    struct InfoSCTA {
+        static constexpr float units_to_seconds = 1. / 300.;
+        static constexpr float seconds_to_units = 300.;
+
+        int_fast32_t  frame_count;
+        uint_fast32_t duration_per_frame;
+        uint_fast32_t animated_uv_offset;
+        uint_fast32_t source_uv_offset;
+
+        std::string getString() const;
+
+        int_fast32_t getFrameCount() const { return std::abs( frame_count ); }
+        float getSecondsPerFrame() const { return duration_per_frame * units_to_seconds; }
+        float getSecondsPerCycle() const { return getSecondsPerFrame() * getFrameCount(); }
+        float getDurationToSeconds() const { return seconds_to_units / duration_per_frame; }
+
+        bool isMemorySafe() const { return frame_count >= 0; }
+
+        /**
+         * This method sets the variables inside the struct to be memory safe.
+         * @return false if an element is found to be unstable.
+         */
+        bool setMemorySafe( size_t source_size, size_t animated_size );
+    };
     
+    static const std::string TILE_TYPE_COMPONENT_NAME;
     static constexpr size_t AMOUNT_OF_TILES = 16;
     static constexpr float  SPAN_OF_TIL = AMOUNT_OF_TILES / 2;
     static constexpr float MAX_HEIGHT = 6.0f; // The highest value is actually MAX_HEIGHT - SAMPLE_HEIGHT due to the span of the pixels being [127, -128].
@@ -147,6 +243,8 @@ private:
     CullingTile culling_bottom_left;
     CullingTile culling_bottom_right;
 
+    glm::i8vec2 uv_animation;
+
     uint16_t texture_reference; // This is an unknown number, but it affects all the textures in the resource. One change will mess up the tiles.
     Floor mesh_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 
@@ -156,6 +254,9 @@ private:
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
     std::vector<Utilities::PixelFormatColor::GenericColor> colors;
     std::vector<uint16_t> tile_graphics_bitfield;
+
+    std::vector<InfoSCTA> SCTA_info;
+    std::vector<glm::u8vec2> scta_texture_cords;
     
     uint32_t slfx_bitfield;
     
@@ -203,6 +304,12 @@ public:
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;
     
+    glm::i8vec2 getUVAnimation() const { return uv_animation; }
+    const std::vector<InfoSCTA>& getInfoSCTA() const { return SCTA_info; }
+    const std::vector<glm::u8vec2>& getSCTATextureCords() const { return scta_texture_cords; }
+
+    const InfoSLFX getInfoSLFX() const { return InfoSLFX( slfx_bitfield ); }
+
     static std::vector<TilResource*> getVector( IFF &mission_file );
     static const std::vector<TilResource*> getVector( const IFF &mission_file );
 };

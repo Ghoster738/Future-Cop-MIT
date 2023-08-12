@@ -108,9 +108,9 @@ unsigned int Data::Mission::Til::Colorizer::setSquareColors( const Input &input,
                     result_r[0].x = static_cast<double>(primary.shading) * SINGLE_SCALE;
                     result_r[0].y = result_r[0].x;
                     result_r[0].z = result_r[0].x;
-                    result_r[1] = glm::vec3(1.0, 1.0, 1.0) - result_r[0];
-                    result_r[2] = result_r[1];
-                    result_r[3] = result_r[1];
+                    result_r[1] = result_r[0];
+                    result_r[2] = result_r[0];
+                    result_r[3] = result_r[0];
                 }
                 break;
         }

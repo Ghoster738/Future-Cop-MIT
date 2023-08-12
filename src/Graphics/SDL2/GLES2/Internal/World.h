@@ -14,10 +14,6 @@ namespace Internal {
 
 /**
  * This handles everything the world will draw and handle.
- * 
- * Draws every tile of the world map.
- * I might world on occulusion culling in the future, but
- * for now this is good enough.
  */
 class World {
 public:
@@ -29,16 +25,22 @@ public:
         class Animation : public Mesh::DynamicNormal {
         public:
             MeshDraw *mesh_draw_r;
+            Utilities::Image2D *vertex_animation_p;
             GLfloat selected_tile;
             GLfloat glow_time;
-            glm::vec2 animated_uv_destination;
 
             void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
 
         struct Info {
-            int_fast8_t type;
-            int_fast8_t animated;
+            struct {
+                uint_fast16_t vertex_animation : 1;
+                uint_fast16_t displacement     : 1;
+                uint_fast16_t type             : 7;
+            } bitfield;
+
+            uint_fast8_t frame_by_frame[3];
+            uint_fast8_t vertex_animation_index[3];
         };
 
         Mesh *mesh_p;
@@ -48,6 +50,18 @@ public:
         float change_rate;
         float current; // [ -change_rate, change_rate ]
         std::vector<Section> sections;
+
+        // UV displacement animations.
+        glm::vec2 displacement_uv_factor;
+        glm::vec2 displacement_uv_destination;
+        glm::vec2 displacement_uv_time;
+
+        // UV frame by frame animations.
+        std::vector<float>     frame_uv_times;
+        std::vector<glm::vec2> current_frame_uvs;
+
+        //
+        Data::Mission::TilResource::AnimationSLFX animation_slfx;
     };
 
     static const GLchar* default_vertex_shader;
@@ -60,15 +74,18 @@ protected:
     Shader fragment_shader;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
-    GLuint animated_uv_destination_id;
+    GLuint displacement_uv_destination_id;
+    GLuint frame_uv_id;
     GLuint glow_time_uniform_id;
     GLuint selected_tile_uniform_id;
+    GLuint vertex_animation_uniform_id;
     std::vector<MeshDraw> tiles;
+
+    Utilities::Image2D *vertex_animation_p;
+    Texture2D vertex_animation_texture;
     
     GLfloat selected_tile;
     GLfloat current_selected_tile;
-    glm::vec2 animated_uv_destination;
-    float     animated_uv_time;
     GLfloat scale;
     GLfloat glow_time;
 public:
