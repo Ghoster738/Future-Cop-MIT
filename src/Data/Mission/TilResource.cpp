@@ -171,14 +171,13 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
         }
     }
     else if( info_slfx.activate_diagonal != 0 ) {
-        float light_level = 0.5;
         float value;
 
         const float width = image.getWidth() / (1 << info_slfx.data.wave.gradient_width);
-        float start = image.getWidth() * cycle;
-        float end   = start + width;
+        const float start = image.getWidth() * cycle;
         const float gradient_light_factor = ((0x20 >> info_slfx.data.wave.gradient_light_level) * 1. / 32.);
         const float fraction = 1.0f - std::fmod(start, 1.f);
+        const float light_level = info_slfx.data.wave.background_light_level * 1. / 256.;
 
         for( unsigned x = 0; x < image.getWidth(); x++ ) {
             value = light_level;
