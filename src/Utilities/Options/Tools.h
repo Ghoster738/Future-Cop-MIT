@@ -1,5 +1,5 @@
-#ifndef FC_TOOLS_H
-#define FC_TOOLS_H
+#ifndef UTILITIES_OPTIONS_TOOLS_H
+#define UTILITIES_OPTIONS_TOOLS_H
 
 #include <filesystem>
 #include <string>
@@ -38,4 +38,4 @@ public:
     };
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_TOOLS_H

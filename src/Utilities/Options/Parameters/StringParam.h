@@ -2,8 +2,8 @@
  * Single parameter definition - string
  */
 
-#ifndef FC_STRING_PARAM_H
-#define FC_STRING_PARAM_H
+#ifndef UTILITIES_OPTIONS_STRING_PARAM_H
+#define UTILITIES_OPTIONS_STRING_PARAM_H
 
 class StringParam {
 public:
@@ -17,5 +17,5 @@ private:
     std::string value = "";
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_STRING_PARAM_H
 

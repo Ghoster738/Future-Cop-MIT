@@ -1,5 +1,5 @@
-#ifndef FC_CONFIGURATION_H
-#define FC_CONFIGURATION_H
+#ifndef UTILITIES_OPTIONS_CONFIGURATION_H
+#define UTILITIES_OPTIONS_CONFIGURATION_H
 
 #include <optional>
 #include "Parameters.h"
@@ -18,5 +18,5 @@ public:
     Options&  options;
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_CONFIGURATION_H
 

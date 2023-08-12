@@ -2,8 +2,8 @@
  * Single parameter definition - boolean
  */
 
-#ifndef FC_BOOL_PARAM_H
-#define FC_BOOL_PARAM_H
+#ifndef UTILITIES_OPTIONS_BOOL_PARAM_H
+#define UTILITIES_OPTIONS_BOOL_PARAM_H
 
 class BoolParam {
 public:
@@ -17,5 +17,5 @@ private:
     bool value    = false;
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_BOOL_PARAM_H
 

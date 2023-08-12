@@ -2,8 +2,8 @@
  * Single parameter definition - integer
  */
 
-#ifndef FC_INT_PARAM_H
-#define FC_INT_PARAM_H
+#ifndef UTILITIES_OPTIONS_INT_PARAM_H
+#define UTILITIES_OPTIONS_INT_PARAM_H
 
 class IntParam {
 public:
@@ -17,4 +17,4 @@ private:
     int  value    = 0;
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_INT_PARAM_H

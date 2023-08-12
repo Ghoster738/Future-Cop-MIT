@@ -1,5 +1,5 @@
-#ifndef FC_OPTIONS_H
-#define FC_OPTIONS_H
+#ifndef UTILITIES_OPTIONS_OPTIONS_H
+#define UTILITIES_OPTIONS_OPTIONS_H
 
 #include "Paths.h"
 #include "Parameters.h"
@@ -99,4 +99,4 @@ private:
     }
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_OPTIONS_H

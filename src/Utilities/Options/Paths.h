@@ -1,5 +1,5 @@
-#ifndef FC_PATHS_H
-#define FC_PATHS_H
+#ifndef UTILITIES_OPTIONS_PATHS_H
+#define UTILITIES_OPTIONS_PATHS_H
 
 /**
  * Supported platforms are:
@@ -73,5 +73,5 @@ private:
     };
 };
 
-#endif /* FC_PATHS_H */
+#endif // UTILITIES_OPTIONS_PATHS_H
 

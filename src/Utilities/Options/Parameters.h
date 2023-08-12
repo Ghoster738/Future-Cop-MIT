@@ -1,5 +1,5 @@
-#ifndef FC_PARAMETERS_H
-#define FC_PARAMETERS_H
+#ifndef UTILITIES_OPTIONS_PARAMETERS_H
+#define UTILITIES_OPTIONS_PARAMETERS_H
 
 #include <iostream>
 #include <string.h>
@@ -104,6 +104,6 @@ private:
     };
 };
 
-#endif
+#endif // UTILITIES_OPTIONS_PARAMETERS_H
 
 
