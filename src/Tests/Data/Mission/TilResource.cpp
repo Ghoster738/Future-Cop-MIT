@@ -179,6 +179,70 @@ int main() {
             is_not_success = true;
         }
     }
+
+    {
+        Data::Mission::TilResource::InfoSLFX info_slfx;
+
+        // Test the diagonal vertex data.
+        {
+            const uint32_t code = 0x01710080;
+
+            info_slfx.set( code );
+            if( info_slfx.data.wave.gradient_light_level   != 7    || info_slfx.data.wave.gradient_width != 1 ||
+                info_slfx.data.wave.background_light_level != 0x00 || info_slfx.data.wave.speed != 0x80 ||
+                info_slfx.activate_noise != 0 || info_slfx.activate_diagonal != 1 || info_slfx.is_disabled != 0 ||
+                info_slfx.get() != code ) {
+                std::cout << "Error: the InfoSLFX bitfield regarding type is flawed!\n";
+                std::cout << "Code = 0x" << std::hex << code << " which is also should be 0x" << info_slfx.get() << "\n";
+                std::cout << info_slfx.getString() << std::endl;
+                is_not_success = true;
+            }
+        }
+
+        {
+            const uint32_t code = 0x81826603;
+
+            info_slfx.set( code );
+            if( info_slfx.data.wave.gradient_light_level   != 8    || info_slfx.data.wave.gradient_width != 2 ||
+                info_slfx.data.wave.background_light_level != 0x66 || info_slfx.data.wave.speed != 0x03 ||
+                info_slfx.activate_noise != 0 || info_slfx.activate_diagonal != 1 || info_slfx.is_disabled != 1 ||
+                info_slfx.get() != code ) {
+                std::cout << "Error: the InfoSLFX bitfield regarding type is flawed!\n";
+                std::cout << "Code = 0x" << std::hex << code << " which is also should be 0x" << info_slfx.get() << "\n";
+                std::cout << info_slfx.getString() << std::endl;
+                is_not_success = true;
+            }
+        }
+
+        // Test the noise vertex animation data.
+        {
+            const uint32_t code = 0x10000101;
+
+            info_slfx.set( code );
+            if( info_slfx.data.noise.brightness != 1 || info_slfx.data.noise.unknown_0 != 0 || info_slfx.data.noise.reducer != 1 ||
+                info_slfx.activate_noise != 1 || info_slfx.activate_diagonal != 0 || info_slfx.is_disabled != 0 ||
+                info_slfx.get() != code ) {
+                std::cout << "Error: the InfoSLFX bitfield regarding type is flawed!\n";
+                std::cout << "Code = 0x" << std::hex << code << " which is also should be 0x" << info_slfx.get() << "\n";
+                std::cout << info_slfx.getString() << std::endl;
+                is_not_success = true;
+            }
+        }
+
+        {
+            const uint32_t code = 0x90008042;
+
+            info_slfx.set( code );
+            if( info_slfx.data.noise.brightness != 0x80 || info_slfx.data.noise.unknown_0 != 1 || info_slfx.data.noise.reducer != 2 ||
+                info_slfx.activate_noise != 1 || info_slfx.activate_diagonal != 0 || info_slfx.is_disabled != 1 ||
+                info_slfx.get() != code ) {
+                std::cout << "Error: the InfoSLFX bitfield regarding type is flawed!\n";
+                std::cout << "Code = 0x" << std::hex << code << " which is also should be 0x" << info_slfx.get() << "\n";
+                std::cout << info_slfx.getString() << std::endl;
+                is_not_success = true;
+            }
+        }
+    }
     
     {
         // This resource will be created
