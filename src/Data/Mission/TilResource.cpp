@@ -175,7 +175,7 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
 
         const float width = image.getWidth() / (1 << info_slfx.data.wave.gradient_width);
         const float start = image.getWidth() * cycle;
-        const float gradient_light_factor = ((0x20 >> info_slfx.data.wave.gradient_light_level) * 1. / 32.);
+        const float gradient_light_factor = ((0x20 >> info_slfx.data.wave.gradient_light_level) * 1. / 16.);
         const float fraction = 1.0f - std::fmod(start, 1.f);
         const float light_level = info_slfx.data.wave.background_light_level * 1. / 256.;
 
