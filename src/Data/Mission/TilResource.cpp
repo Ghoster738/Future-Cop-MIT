@@ -537,8 +537,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Read this bitfield!
                 this->slfx_bitfield = reader_slfx.readU32( settings.endian );
 
-                error_log.output << "SLFX is 0x" << std::hex << this->slfx_bitfield << ".\n";
-                error_log.output << InfoSLFX( this->slfx_bitfield ).getString() << "\n";
+                debug_log.output << "SLFX is 0x" << std::hex << this->slfx_bitfield << ".\n";
+                debug_log.output << InfoSLFX( this->slfx_bitfield ).getString() << "\n";
             }
             else
             if( identifier == TAG_ScTA ) {
