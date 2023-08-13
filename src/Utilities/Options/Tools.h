@@ -4,6 +4,9 @@
 #include <filesystem>
 #include <string>
 
+namespace Utilities {
+namespace Options {
+
 // Library of tools and snippets
 class Tools {
 public:
@@ -37,5 +40,8 @@ public:
         return result;
     };
 };
+
+}
+}
 
 #endif // UTILITIES_OPTIONS_TOOLS_H

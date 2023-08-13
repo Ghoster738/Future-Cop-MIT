@@ -3,7 +3,10 @@
 
 #include "Paths.h"
 #include "Parameters.h"
-#include <mini/ini.h> // mINI 0.9.04 https://github.com/pulzed/mINI
+#include <mini/ini.h>
+
+namespace Utilities {
+namespace Options {
 
 // Handles loading and saving options from the configuration file
 class Options {
@@ -98,5 +101,8 @@ private:
         }
     }
 };
+
+}
+}
 
 #endif // UTILITIES_OPTIONS_OPTIONS_H

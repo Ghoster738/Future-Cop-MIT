@@ -4,9 +4,9 @@
 #include <iostream>
 #include <string.h>
 #include <getopt.h>
-#include "Parameters/BoolParam.h"
-#include "Parameters/IntParam.h"
-#include "Parameters/StringParam.h"
+
+namespace Utilities {
+namespace Options {
 
 /**
  * Handle CLI parameters parsing and basic validation
@@ -14,8 +14,50 @@
  * Note: object is intended to be immutable one instantiated
  */
 class Parameters {
-
 public:
+    /**
+     * Single parameter definition - boolean
+     */
+    class BoolParam {
+    public:
+        bool wasModified() const {return modified;}
+        bool getValue()    const {return value;   }
+
+        BoolParam()               {/* empty */};
+        BoolParam(bool initValue) {value = initValue; modified = true;}
+    private:
+        bool modified = false;
+        bool value    = false;
+    };
+    /**
+     * Single parameter definition - integer
+     */
+    class IntParam {
+    public:
+        bool wasModified() const {return modified;}
+        int  getValue()    const {return value;   }
+
+        IntParam()              {};
+        IntParam(int initValue) {value = initValue; modified = true;}
+    private:
+        bool modified = false;
+        int  value    = 0;
+    };
+    /**
+     * Single parameter definition - string
+     */
+    class StringParam {
+    public:
+        bool        wasModified() const {return modified;}
+        std::string getValue()    const {return value;   }
+
+        StringParam()                      {};
+        StringParam(std::string initValue) {value = initValue; modified = true;}
+    private:
+        bool modified     = false;
+        std::string value = "";
+    };
+
     // These should be "read only public members", if the code is correct
     const BoolParam&   help       = pHelp;       // Help screen
     const BoolParam&   fullScreen = pFullScreen; // If the game should run in full-screen mode
@@ -103,6 +145,9 @@ private:
         {0, 0, 0, 0} // Required as last option
     };
 };
+
+}
+}
 
 #endif // UTILITIES_OPTIONS_PARAMETERS_H
 

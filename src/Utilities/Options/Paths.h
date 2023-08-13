@@ -18,6 +18,8 @@
 #include "Tools.h"
 #include "Parameters.h"
 
+namespace Utilities {
+namespace Options {
 
 // Finding the config, user and data paths in a cross-platform (hopefully) compliant manner
 class Paths {
@@ -72,6 +74,9 @@ private:
         std::string subDir;  // Associated subdir
     };
 };
+
+}
+}
 
 #endif // UTILITIES_OPTIONS_PATHS_H
 

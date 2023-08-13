@@ -6,7 +6,7 @@
 #include "Parameters.h"
 #include "Config.h"
 
-Parameters::Parameters(int argc, char *argv[]) {
+Utilities::Options::Parameters::Parameters(int argc, char *argv[]) {
     // Determine binary name for the help screen
     std::filesystem::path binaryPath(argv[0]);
     binaryName = binaryPath.filename();
@@ -29,7 +29,7 @@ Parameters::Parameters(int argc, char *argv[]) {
     }
 }
 
-void Parameters::printHelp() {
+void Utilities::Options::Parameters::printHelp() {
     // Padding for binary name length variations
     std::string padding = std::string(binaryName.length(),' ');
             
@@ -61,7 +61,7 @@ void Parameters::printHelp() {
     std::cout << "\n";
 }
 
-void Parameters::parseOptions(int argc, char* argv[]) {
+void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
     // Suppress getopt errors, we'll handle them ourselves
     opterr = 0;
     
@@ -107,12 +107,12 @@ void Parameters::parseOptions(int argc, char* argv[]) {
     }
 }
 
-void Parameters::parseHelp() {
+void Utilities::Options::Parameters::parseHelp() {
     // We'll allow for multiple help parameters in the commandline
     pHelp = BoolParam(true);
 }
 
-void Parameters::parseFullscreen() {
+void Utilities::Options::Parameters::parseFullscreen() {
     if (pFullScreen.wasModified()) {
         storeError("multiple fullscreen and/or window mode parameters specified in commandline");
         return;
@@ -121,7 +121,7 @@ void Parameters::parseFullscreen() {
     pFullScreen = BoolParam(true);
 }
 
-void Parameters::parseWindow() {
+void Utilities::Options::Parameters::parseWindow() {
     if (pFullScreen.wasModified()) {
         storeError("multiple fullscreen and/or window mode parameters specified in commandline");
         return;
@@ -130,7 +130,7 @@ void Parameters::parseWindow() {
     pFullScreen = BoolParam(false);
 }
 
-void Parameters::parseWidth(const char* param) {
+void Utilities::Options::Parameters::parseWidth(const char* param) {
     if (pResWidth.wasModified()) {
         storeError("multiple width/resolution parameters specified in commandline");
         return;
@@ -152,7 +152,7 @@ void Parameters::parseWidth(const char* param) {
     pResWidth = IntParam(value);
 }
 
-void Parameters::parseHeight(const char* param) {
+void Utilities::Options::Parameters::parseHeight(const char* param) {
     if (pResHeight.wasModified()) {
         storeError("multiple height/resolution parameters specified in commandline");
         return;
@@ -174,7 +174,7 @@ void Parameters::parseHeight(const char* param) {
     pResHeight = IntParam(value);
 }
 
-void Parameters::parseRes(const char* param) {
+void Utilities::Options::Parameters::parseRes(const char* param) {
     // Parameter format should be <width>x<height>
     const std::string format = "^([0-9]+)x([0-9]+)$";
     
@@ -190,7 +190,7 @@ void Parameters::parseRes(const char* param) {
     parseHeight(matches[2].str().c_str());
 }
 
-void Parameters::parseConfigPath(const char* path) {
+void Utilities::Options::Parameters::parseConfigPath(const char* path) {
     if (pConfigPath.wasModified()) {
         storeError("multiple config path parameters specified in commandline");
         return;
@@ -221,7 +221,7 @@ void Parameters::parseConfigPath(const char* path) {
     storeError("invalid config path specified in commandline");
 }
 
-void Parameters::parseUserDir(const char* directory) {
+void Utilities::Options::Parameters::parseUserDir(const char* directory) {
     if (pUserDir.wasModified()) {
         storeError("multiple user data directory parameters specified in commandline");
         return;
@@ -252,7 +252,7 @@ void Parameters::parseUserDir(const char* directory) {
     storeError("non-directory user data path specified in commandline");
 }
 
-void Parameters::parseDataDir(const char* directory) {
+void Utilities::Options::Parameters::parseDataDir(const char* directory) {
     if (pDataDir.wasModified()) {
         storeError("multiple game data directory parameters specified in commandline");
         return;

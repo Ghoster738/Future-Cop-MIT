@@ -3,7 +3,7 @@
 #include "Paths.h"
 
 // Retrieve the configuration file path
-std::string Paths::getConfigFilePath()
+std::string Utilities::Options::Paths::getConfigFilePath()
 {
     if (pathConfig.empty()) {
         pathConfig = findConfigPath();
@@ -12,7 +12,7 @@ std::string Paths::getConfigFilePath()
     return pathConfig;
 }
 
-std::string Paths::findConfigPath()
+std::string Utilities::Options::Paths::findConfigPath()
 {
     // Work with the user-supplied value, if any
     std::string configPath = parameters.configPath.getValue();
@@ -114,7 +114,7 @@ std::string Paths::findConfigPath()
     throw std::logic_error("failed to find or create a configuration file path");
 }
 
-std::string Paths::getUserDirPath(userDirectory type)
+std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
 {
     //
     switch (type) {
@@ -141,7 +141,7 @@ std::string Paths::getUserDirPath(userDirectory type)
     }
 }
 
-std::string Paths::findUserDirPath(std::string subType)
+std::string Utilities::Options::Paths::findUserDirPath(std::string subType)
 {
     // Work with the user-supplied value, if any
     std::string userPath = parameters.userDir.getValue();
@@ -228,7 +228,7 @@ std::string Paths::findUserDirPath(std::string subType)
     throw std::logic_error("failed to find or create a user directory path of type: " + subType);
 }
 
-std::string Paths::getDataDirPath()
+std::string Utilities::Options::Paths::getDataDirPath()
 {
     if (pathGameData.empty()) {
         pathGameData = findDataDirPath();
@@ -237,7 +237,7 @@ std::string Paths::getDataDirPath()
     return pathGameData;
 }
 
-std::string Paths::findDataDirPath()
+std::string Utilities::Options::Paths::findDataDirPath()
 {
     // Work with the user-supplied value, if any
     std::string dataPath = parameters.dataDir.getValue();

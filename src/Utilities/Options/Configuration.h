@@ -6,6 +6,9 @@
 #include "Paths.h"
 #include "Options.h"
 
+namespace Utilities {
+namespace Options {
+
 // Handles all configuration options - header only class
 class Configuration {
     
@@ -17,6 +20,9 @@ public:
     Paths& paths;
     Options&  options;
 };
+
+}
+}
 
 #endif // UTILITIES_OPTIONS_CONFIGURATION_H
 
