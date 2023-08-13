@@ -11,9 +11,13 @@ Utilities::Options::Parameters::Parameters(int argc, char *argv[]) : is_initiali
 }
 
 bool Utilities::Options::Parameters::getParameters( int argc, char *argv[], std::ostream &output ) {
-    // Determine binary name for the help screen
-    std::filesystem::path binaryPath(argv[0]);
-    binaryName = binaryPath.filename().string();
+    if( argc != 0 ) {
+        // Determine binary name for the help screen
+        std::filesystem::path binaryPath(argv[0]);
+        binaryName = binaryPath.filename().string();
+    }
+    else
+        binaryName = "FilenameMissing";
 
     // Process options
     parseOptions(argc, argv);

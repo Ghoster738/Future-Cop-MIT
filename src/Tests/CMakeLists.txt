@@ -88,6 +88,11 @@ add_executable(iff_options_test Data/Mission/IFFOptions.cpp)
 target_link_libraries(iff_options_test PRIVATE FC_IFF_IO)
 add_test( NAME iff_options_test COMMAND $<TARGET_FILE:iff_options_test> )
 
+# Test kkmic's Parameter Code
+add_executable(game_parameter_test Utilities/Options/Parameters.cpp)
+target_link_libraries(game_parameter_test PRIVATE FC_IFF_IO)
+add_test( NAME game_parameter_test COMMAND $<TARGET_FILE:game_parameter_test> )
+
 # Test ANMResource Code
 add_executable(anm_resource_test Data/Mission/ANMResource.cpp)
 target_link_libraries(anm_resource_test PRIVATE FC_IFF_IO)
