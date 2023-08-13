@@ -6,27 +6,32 @@
 #include "Parameters.h"
 #include "Config.h"
 
-Utilities::Options::Parameters::Parameters(int argc, char *argv[]) {
+Utilities::Options::Parameters::Parameters(int argc, char *argv[]) : is_initialized(false) {
+    getParameters( argc, argv, std::cout );
+}
+
+bool Utilities::Options::Parameters::getParameters( int argc, char *argv[], std::ostream &output ) {
     // Determine binary name for the help screen
     std::filesystem::path binaryPath(argv[0]);
     binaryName = binaryPath.filename().string();
-    
+
     // Process options
     parseOptions(argc, argv);
-    
+
     // Show the help screen if requested - this is a high priority action
     // Also silence any errors, if any, as the user specifically
     // asked for help, so the sensible thing to do is to show them
     // the help screen, not an error message
     if (pHelp.getValue()) {
         printHelp();
-        return;
+        return true; // Yes, display help.
     }
-    
+
     // Throw error, if any
     if (!errorMessage.empty()) {
         throw std::invalid_argument(errorMessage);
     }
+    return false; // Do not display help.
 }
 
 void Utilities::Options::Parameters::printHelp() {
@@ -64,6 +69,11 @@ void Utilities::Options::Parameters::printHelp() {
 void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
     // Suppress getopt errors, we'll handle them ourselves
     opterr = 0;
+
+    if( is_initialized )
+        throw std::runtime_error("Parameters must be called only once.");
+
+    is_initialized = true;
     
     while (true) {
         const auto opt = getopt_long(argc, argv, shortOptions, longOptions, nullptr);

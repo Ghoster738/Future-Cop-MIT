@@ -69,6 +69,8 @@ public:
 
 // Internal stuff
 private:
+    bool is_initialized;
+
     BoolParam   pHelp;       // Help screen
     BoolParam   pFullScreen; // If the game should run in full-screen mode
     IntParam    pResWidth;   // Display resolution width
@@ -114,8 +116,21 @@ private:
     }
 
 public:
+    Parameters() : is_initialized(false) {}
     Parameters(int argc, char *argv[]);
-    ~Parameters() { /* empty */ };
+    ~Parameters() { /* empty */ }
+
+    /**
+     * This gathers the parameters that the user wants.
+     * @warning do not call this when the class is either initialized with arguments or with getParameters already called.
+     * @throws std::invalid_argument if an invalid arguement was found.
+     * @throws std::runtime_error if the parameters are read more than once.
+     * @param argc This is the number of arguments.
+     * @param argv The pointers to the arguements.
+     * @param output The help dialogs place.
+     * @return True if help is requested, false if help is not requested.
+     */
+    bool getParameters( int argc, char *argv[], std::ostream &output );
 
 private:
     // getopt configuration
