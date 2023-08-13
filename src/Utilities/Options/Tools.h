@@ -11,7 +11,7 @@ namespace Options {
 class Tools {
 public:
     // Check that a path points to an real directory (traverses symlinks)
-    static bool isDir(std::string path)
+    static bool isDir(std::filesystem::path path)
     {
         return std::filesystem::is_symlink(path)
             ? isDir(std::filesystem::read_symlink(path))
@@ -19,7 +19,7 @@ public:
     };
 
     // Check that a path points to an real file (traverses symlinks)
-    static bool isFile(std::string path)
+    static bool isFile(std::filesystem::path path)
     {
         return std::filesystem::is_symlink(path)
             ? isFile(std::filesystem::read_symlink(path))

@@ -9,7 +9,7 @@
 Utilities::Options::Parameters::Parameters(int argc, char *argv[]) {
     // Determine binary name for the help screen
     std::filesystem::path binaryPath(argv[0]);
-    binaryName = binaryPath.filename();
+    binaryName = binaryPath.filename().string();
     
     // Process options
     parseOptions(argc, argv);
