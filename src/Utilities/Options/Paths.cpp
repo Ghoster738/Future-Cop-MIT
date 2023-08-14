@@ -290,6 +290,14 @@ std::string Utilities::Options::Paths::findDataDirPath()
 
     #elif defined(_WIN32)
 
+    /*
+    // Future Cop Locations on windows.
+    #if defined(_WIN64)
+    std::getenv("CSIDL_PROGRAM_FILESX86") ?: "", "Electronic Arts/Future Cop"
+    #else
+    std::getenv("CSIDL_PROGRAM_FILES") ?: "", "Electronic Arts/Future Cop"
+    #endif
+    */
     pathsMap.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
     #endif
