@@ -13,8 +13,8 @@ class Options {
 public:
     // Constructor
     Options (Paths& paths, Parameters& parameters) : paths(paths), parameters(parameters) {
-        iniFile = new mINI::INIFile(paths.getConfigFilePath());
-        iniFile->read(iniData);
+        ini_file_p = new mINI::INIFile(paths.getConfigFilePath());
+        ini_file_p->read(ini_data);
 
         // Default values
         init("video","width", "800");
@@ -26,12 +26,12 @@ public:
 
     // Save changes to the file - public so that it can be manually called if needed
     void saveOptions() {
-        iniFile->write(iniData, true); // Pretty print
+        ini_file_p->write(ini_data, true); // Pretty print
     }
 
     ~Options() {
         saveOptions();
-        delete iniFile;
+        delete ini_file_p;
     };
 
 // Supported options
@@ -63,17 +63,17 @@ private:
     Paths& paths;
     Parameters& parameters;
 
-    mINI::INIStructure iniData;
-    mINI::INIFile* iniFile;
+    mINI::INIStructure ini_data;
+    mINI::INIFile* ini_file_p;
 
     // Data is always set and retrieved as string
     std::string getString(std::string section, std::string key) {
-        return std::string(iniData[section.c_str()][key]);
+        return std::string(ini_data[section.c_str()][key]);
     }
 
     // Data is always set and retrieved as string
     void setString(std::string section, std::string key, std::string value) {
-        iniData[section][key] = value;
+        ini_data[section][key] = value;
     }
 
     // Boolean helper methods
@@ -96,8 +96,8 @@ private:
 
     // Used to init default values
     void init(std::string section, std::string key, std::string value) {
-        if (!iniData.has(section) || !iniData[section].has(key)) {
-            iniData[section][key] = value;
+        if (!ini_data.has(section) || !ini_data[section].has(key)) {
+            ini_data[section][key] = value;
         }
     }
 };
