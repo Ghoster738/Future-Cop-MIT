@@ -258,9 +258,9 @@ void Utilities::Options::Parameters::parseConfigPath( std::string path ) {
     
     // Check symlinks
     if (std::filesystem::is_symlink(path)) {
-        std::filesystem::path realPath = std::filesystem::read_symlink(path);
+        std::filesystem::path real_path = std::filesystem::read_symlink(path);
         
-        if (std::filesystem::is_regular_file(realPath) || std::filesystem::is_directory(realPath)) {
+        if (std::filesystem::is_regular_file(real_path) || std::filesystem::is_directory(real_path)) {
             p_config_path = StringParam(path);
             return;
         }
@@ -289,9 +289,9 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
     }
     
     if (std::filesystem::is_symlink(directory)) {
-        std::filesystem::path realPath = std::filesystem::read_symlink(directory);
+        std::filesystem::path real_path = std::filesystem::read_symlink(directory);
         
-        if (std::filesystem::is_directory(realPath)) {
+        if (std::filesystem::is_directory(real_path)) {
             p_user_dir = StringParam(directory);
             return;
         }
@@ -320,9 +320,9 @@ void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
     }
 
     if (std::filesystem::is_symlink(directory)) {
-        std::filesystem::path realPath = std::filesystem::read_symlink(directory);
+        std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
-        if (std::filesystem::is_directory(realPath)) {
+        if (std::filesystem::is_directory(real_path)) {
             p_data_dir = StringParam(directory);
             return;
         }
