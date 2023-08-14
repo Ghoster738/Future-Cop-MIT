@@ -234,8 +234,8 @@ void Utilities::Options::Parameters::parseRes( std::string param ) {
         return;
     }
     
-    parseWidth(matches[1].str().c_str());
-    parseHeight(matches[2].str().c_str());
+    parseWidth(  matches[1].str() );
+    parseHeight( matches[2].str() );
 }
 
 void Utilities::Options::Parameters::parseConfigPath( std::string path ) {
