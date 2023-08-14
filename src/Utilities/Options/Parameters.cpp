@@ -118,7 +118,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
         const auto opt = getopt_long(argc, argv, short_options, long_options, &index);
         
         // No more arguments to process
-        if (-1 == opt) {
+        if (opt == -1) {
             break;
         }
         switch (opt) {
@@ -192,8 +192,8 @@ void Utilities::Options::Parameters::parseWidth( std::string param ) {
     
     int value = std::stoi(param);
     
-    if (value < 320) {
-        storeError("resolution width must be at least 320 not " + param );
+    if (value < RES_WIDTH_LIMIT) {
+        storeError("resolution width must be at least " + std::to_string(RES_WIDTH_LIMIT) + " not " + param );
         return;
     }
     
@@ -214,8 +214,8 @@ void Utilities::Options::Parameters::parseHeight( std::string param ) {
     
     int value = std::stoi(param);
     
-    if (value < 240) {
-        storeError("resolution height must be at least 240 not " + param );
+    if (value < RES_HEIGHT_LIMIT) {
+        storeError("resolution height must be at least " + std::to_string(RES_HEIGHT_LIMIT) + " not " + param );
         return;
     }
     
