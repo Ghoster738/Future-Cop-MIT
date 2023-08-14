@@ -55,7 +55,7 @@ public:
             ? parameters.full_screen.getValue()
             : getBool("video", "fullscreen");
     }
-    void setVideoFullscreen(bool value) { setBool("video", "height", value); }
+    void setVideoFullscreen(bool value) { setBool("video", "fullscreen", value); }
 
 
 
