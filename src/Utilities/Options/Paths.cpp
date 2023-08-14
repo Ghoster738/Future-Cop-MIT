@@ -52,7 +52,7 @@ std::string Utilities::Options::Paths::findConfigPath()
 
     // Potential locations for the configuration file:
     // * Not all env vars are defined, use an empty string as fallback
-    // * Priority is FIFO in pathsMap
+    // * Priority is FIFO in paths_map
     std::vector<pathData> pathsMap;
 
     #if defined(__linux__)
@@ -239,70 +239,73 @@ std::string Utilities::Options::Paths::getDataDirPath()
 
 std::string Utilities::Options::Paths::findDataDirPath()
 {
-    // Work with the user-supplied value, if any
-    std::string dataPath = parameters.data_dir.getValue();
+    const std::string CSIDL_PROGRAM_FILESX86 = "CSIDL_PROGRAM_FILESX86";
+    const std::string CSIDL_PROGRAM_FILES = "CSIDL_PROGRAM_FILES";
 
-    if (!dataPath.empty()) {
-        return dataPath;
+    // Work with the user-supplied value, if any
+    std::string data_path = parameters.data_dir.getValue();
+
+    if (!data_path.empty()) {
+        return data_path;
     }
 
     // No path was specified by the user, search the local directory first
-    dataPath = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
+    data_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
 
     // If it points to a directory path, return it
-    if (Tools::isDir(dataPath)) {
-        return dataPath;
+    if (Tools::isDir(data_path)) {
+        return data_path;
     }
 
     // Paths map
-    std::vector<pathData> pathsMap;
+    std::vector<pathData> paths_map;
 
     #if defined(__linux__)
 
-    pathsMap.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", ".local/share/futurecopmit/Data/Platform"} );
+    paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", ".local/share/futurecopmit/Data/Platform"} );
 
     std::string xdgDataDirs = std::getenv("XDG_DATA_DIRS") ?: "";
 
     if (!xdgDataDirs.empty()) {
         for (auto xdgDataDir: Tools::split(xdgDataDirs, ':')) {
-            pathsMap.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
+            paths_map.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
         }
     }
 
-    pathsMap.push_back( {"usr", "local/share/futurecopmit/Data/Platform"} );
-    pathsMap.push_back( {"usr", "share/futurecopmit/Data/Platform"} );
+    paths_map.push_back( {"usr", "local/share/futurecopmit/Data/Platform"} );
+    paths_map.push_back( {"usr", "share/futurecopmit/Data/Platform"} );
 
     #elif defined(__APPLE__)
 
-    pathsMap.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
+    paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
 
     std::string xdgDataDirs = std::getenv("XDG_DATA_DIRS") ?: "";
 
     if (!xdgDataDirs.empty()) {
         for (auto xdgDataDir: split(xdgDataDirs, ':')) {
-            pathsMap.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
+            paths_map.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
         }
     }
 
-    pathsMap.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT/Data/Platform"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", ".futurecopmit/Data/Platform"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT/Data/Platform"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", ".futurecopmit/Data/Platform"} );
 
     #elif defined(_WIN32)
 
     // Future Cop Locations on Windows.
     #if defined(_WIN64)
-    pathsMap.push_back( {std::getenv("CSIDL_PROGRAM_FILESX86") ?: "", "Electronic Arts/Future Cop"} );
+    paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILESX86) ?: "", "Electronic Arts/Future Cop"} );
     #else
-    pathsMap.push_back( {std::getenv("CSIDL_PROGRAM_FILES") ?: "", "Electronic Arts/Future Cop"} );
+    paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILES) ?: "", "Electronic Arts/Future Cop"} );
     #endif
 
-    pathsMap.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT\\Data\\Platform"} );
+    paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT\\Data\\Platform"} );
 
     #endif
 
     // Step one - search for an existing dir
-    for (pathData pathMap : pathsMap) {
+    for (pathData pathMap : paths_map) {
         // Skip empty env vars
         if (pathMap.rootDir.empty()) {
             continue;
@@ -316,22 +319,24 @@ std::string Utilities::Options::Paths::findDataDirPath()
     }
 
     // Add current directory to the last position for "creation" step
-    pathsMap.push_back( {".", ""} );
+    paths_map.push_back( {".", ""} );
 
     // Step two - try to create the directory
-    for (pathData pathMap : pathsMap) {
+    for (pathData pathMap : paths_map) {
         // Skip empty env vars
         if (pathMap.rootDir.empty()) {
             continue;
         }
 
-        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
+        if( pathMap.rootDir != CSIDL_PROGRAM_FILESX86 && pathMap.rootDir != CSIDL_PROGRAM_FILES ) {
+            std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
 
-        if (!std::filesystem::create_directories(subDirectory)) {
-            continue;
+            if (!std::filesystem::create_directories(subDirectory)) {
+                continue;
+            }
+
+            return subDirectory;
         }
-
-         return subDirectory;
     }
 
 
