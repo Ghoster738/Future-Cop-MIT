@@ -285,6 +285,99 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
         }
     }
+
+    {
+        std::string test_name = "--config valid";
+        std::string path = "./";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--config" );
+        parameters.addArgument( path ); // In linux this will always be valid.
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.configPath.wasModified() && default_parameters.configPath.getValue() != path ) {
+            std::cout << "Error: ConfigPath was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
+
+    {
+        std::string test_name = "--user valid";
+        std::string path = "./";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--user" );
+        parameters.addArgument( path ); // In linux this will always be valid.
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.userDir.wasModified() && default_parameters.userDir.getValue() != path ) {
+            std::cout << "Error: UserDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
+
+    {
+        std::string test_name = "--data valid";
+        std::string path = "./";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--data" );
+        parameters.addArgument( path ); // In linux this will always be valid.
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.dataDir.wasModified() && default_parameters.dataDir.getValue() != path ) {
+            std::cout << "Error: DataDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
     
     return problem;
 }
