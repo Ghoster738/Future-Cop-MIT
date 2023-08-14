@@ -15,7 +15,7 @@ std::string Utilities::Options::Paths::getConfigFilePath()
 std::string Utilities::Options::Paths::findConfigPath()
 {
     // Work with the user-supplied value, if any
-    std::string configPath = parameters.configPath.getValue();
+    std::string configPath = parameters.config_path.getValue();
 
     if (!configPath.empty()) {
         // If it is a file path, just return it as-is
@@ -144,7 +144,7 @@ std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
 std::string Utilities::Options::Paths::findUserDirPath(std::string subType)
 {
     // Work with the user-supplied value, if any
-    std::string userPath = parameters.userDir.getValue();
+    std::string userPath = parameters.user_dir.getValue();
 
     if (!userPath.empty()) {
         // Add the directory separator if not in the provided path
@@ -240,7 +240,7 @@ std::string Utilities::Options::Paths::getDataDirPath()
 std::string Utilities::Options::Paths::findDataDirPath()
 {
     // Work with the user-supplied value, if any
-    std::string dataPath = parameters.dataDir.getValue();
+    std::string dataPath = parameters.data_dir.getValue();
 
     if (!dataPath.empty()) {
         return dataPath;

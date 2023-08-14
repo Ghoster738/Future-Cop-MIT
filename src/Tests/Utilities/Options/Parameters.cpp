@@ -1,6 +1,7 @@
 #include "../../../Utilities/Options/Parameters.h"
 #include <vector>
 #include <string>
+#include <iostream>
 
 namespace {
 
@@ -50,12 +51,12 @@ public:
 
 void displayParameters( const Utilities::Options::Parameters &parameters, std::ostream &output ) {
     output << "help       =  " << parameters.help.getValue()       << ", modified = " << parameters.help.wasModified() << "\n";
-    output << "fullScreen =  " << parameters.fullScreen.getValue() << ", modified = " << parameters.fullScreen.wasModified() << "\n";
-    output << "resWidth   =  " << parameters.resWidth.getValue()   << ", modified = " << parameters.resWidth.wasModified() << "\n";
-    output << "resHeight  =  " << parameters.resHeight.getValue()  << ", modified = " << parameters.resHeight.wasModified() << "\n";
-    output << "configPath =  " << parameters.configPath.getValue() << ", modified = " << parameters.configPath.wasModified() << "\n";
-    output << "userDir    =  " << parameters.userDir.getValue()    << ", modified = " << parameters.userDir.wasModified() << "\n";
-    output << "dataDir    =  " << parameters.dataDir.getValue()    << ", modified = " << parameters.dataDir.wasModified() << std::endl;
+    output << "full_screen =  " << parameters.full_screen.getValue() << ", modified = " << parameters.full_screen.wasModified() << "\n";
+    output << "res_width   =  " << parameters.res_width.getValue()   << ", modified = " << parameters.res_width.wasModified() << "\n";
+    output << "res_height  =  " << parameters.res_height.getValue()  << ", modified = " << parameters.res_height.wasModified() << "\n";
+    output << "config_path =  " << parameters.config_path.getValue() << ", modified = " << parameters.config_path.wasModified() << "\n";
+    output << "user_dir    =  " << parameters.user_dir.getValue()    << ", modified = " << parameters.user_dir.wasModified() << "\n";
+    output << "data_dir    =  " << parameters.data_dir.getValue()    << ", modified = " << parameters.data_dir.wasModified() << std::endl;
 }
 
 template<class I>
@@ -119,12 +120,12 @@ int main( int argc, char *argv[] ) {
         int found_problem = 0;
 
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -144,17 +145,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() != true) {
+        if( found_problem == 0 && default_parameters.full_screen.wasModified() && default_parameters.full_screen.getValue() != true) {
             std::cout << "Error: FullScreen was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -174,17 +175,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() != false) {
+        if( found_problem == 0 && default_parameters.full_screen.wasModified() && default_parameters.full_screen.getValue() != false) {
             std::cout << "Error: FullScreen was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -204,17 +205,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() != 720) {
+        if( found_problem == 0 && default_parameters.res_width.wasModified() && default_parameters.res_width.getValue() != 720) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -234,17 +235,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() != 480) {
+        if( found_problem == 0 && default_parameters.res_height.wasModified() && default_parameters.res_height.getValue() != 480) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -264,21 +265,21 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() != 720) {
+        if( found_problem == 0 && default_parameters.res_width.wasModified() && default_parameters.res_width.getValue() != 720) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
-        if( found_problem == 0 && default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() != 480) {
+        if( found_problem == 0 && default_parameters.res_height.wasModified() && default_parameters.res_height.getValue() != 480) {
             std::cout << "Error: Height was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -293,31 +294,31 @@ int main( int argc, char *argv[] ) {
         parameters.addArgument( program_name );
         parameters.addArgument( "--res" );
         parameters.addArgument( "720x480" );
-        parameters.addArgument( "--window" );
+        parameters.addArgument( "--fullscreen" );
 
         Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() != 720) {
+        if( found_problem == 0 && default_parameters.res_width.wasModified() && default_parameters.res_width.getValue() != 720) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
-        if( found_problem == 0 && default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() != 480) {
+        if( found_problem == 0 && default_parameters.res_height.wasModified() && default_parameters.res_height.getValue() != 480) {
             std::cout << "Error: Height was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
-        if( found_problem == 0 && default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() != true) {
+        if( found_problem == 0 && default_parameters.full_screen.wasModified() && default_parameters.full_screen.getValue() != true) {
             std::cout << "Error: FullScreen was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -338,17 +339,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.configPath.wasModified() && default_parameters.configPath.getValue() != path ) {
+        if( found_problem == 0 && default_parameters.config_path.wasModified() && default_parameters.config_path.getValue() != path ) {
             std::cout << "Error: ConfigPath was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -369,17 +370,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.userDir.wasModified() && default_parameters.userDir.getValue() != path ) {
+        if( found_problem == 0 && default_parameters.user_dir.wasModified() && default_parameters.user_dir.getValue() != path ) {
             std::cout << "Error: UserDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -400,17 +401,17 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.dataDir.wasModified() && default_parameters.dataDir.getValue() != path ) {
+        if( found_problem == 0 && default_parameters.data_dir.wasModified() && default_parameters.data_dir.getValue() != path ) {
             std::cout << "Error: DataDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.resHeight,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );

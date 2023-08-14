@@ -6,6 +6,37 @@
 #include "Parameters.h"
 #include "Config.h"
 
+#include <iostream>
+
+namespace {
+// getopt configuration
+const int OPT_HELP            = 'h';
+const int OPT_FULLSCREEN      = 'f';
+const int OPT_WINDOW          = 'w';
+const int OPT_RES_WIDTH       = 'W';
+const int OPT_RES_HEIGHT      = 'H';
+const int OPT_RES             = 'r';
+const int OPT_CONFIG_DIR      = 'c';
+const int OPT_USER_DIR        = 'u';
+const int OPT_DATA_DIR        = 'd';
+
+const char* const short_options = "h"; // The only short option is for the help parameter
+
+const option long_options[] = {
+    {"help",         no_argument,       nullptr, OPT_HELP      },
+    {"width",        required_argument, nullptr, OPT_RES_WIDTH },
+    {"height",       required_argument, nullptr, OPT_RES_HEIGHT},
+    {"res",          required_argument, nullptr, OPT_RES       },
+    {"fullscreen",   no_argument,       nullptr, OPT_FULLSCREEN},
+    {"window",       no_argument,       nullptr, OPT_WINDOW    },
+    {"config",       required_argument, nullptr, OPT_CONFIG_DIR},
+    {"user",         required_argument, nullptr, OPT_USER_DIR  },
+    {"data",         required_argument, nullptr, OPT_DATA_DIR  },
+
+    {0, 0, 0, 0} // Required as last option
+};
+}
+
 Utilities::Options::Parameters::Parameters(int argc, char *argv[]) : is_initialized(false) {
     getParameters( argc, argv, std::cout );
 }
@@ -14,10 +45,10 @@ bool Utilities::Options::Parameters::getParameters( int argc, char *argv[], std:
     if( argc != 0 ) {
         // Determine binary name for the help screen
         std::filesystem::path binaryPath(argv[0]);
-        binaryName = binaryPath.filename().string();
+        binary_name = binaryPath.filename().string();
     }
     else
-        binaryName = "FilenameMissing";
+        binary_name = "FilenameMissing";
 
     // Process options
     parseOptions(argc, argv);
@@ -26,21 +57,21 @@ bool Utilities::Options::Parameters::getParameters( int argc, char *argv[], std:
     // Also silence any errors, if any, as the user specifically
     // asked for help, so the sensible thing to do is to show them
     // the help screen, not an error message
-    if (pHelp.getValue()) {
+    if (p_help.getValue()) {
         printHelp();
         return true; // Yes, display help.
     }
 
     // Throw error, if any
-    if (!errorMessage.empty()) {
-        throw std::invalid_argument(errorMessage);
+    if (!error_message.empty()) {
+        throw std::invalid_argument(error_message);
     }
     return false; // Do not display help.
 }
 
 void Utilities::Options::Parameters::printHelp() {
     // Padding for binary name length variations
-    std::string padding = std::string(binaryName.length(),' ');
+    std::string padding = std::string(binary_name.length(),' ');
             
     std::cout << "\n";
     std::cout << "Future Cop: MIT "  << FUTURE_COP_MIT_VERSION << "\n";
@@ -48,11 +79,11 @@ void Utilities::Options::Parameters::printHelp() {
     std::cout << "" << "\n";
     std::cout << "\n";
     std::cout << "Usage " << "\n";
-    std::cout << "  " << binaryName << " [-h|--help]" << "\n";
-    std::cout << "  " << padding    << " [--width <number>] [--height <number>]" << "\n";
-    std::cout << "  " << padding    << " [--res <number>x<number>]" << "\n";
-    std::cout << "  " << padding    << " [--fullscreen|--window]" << "\n";
-    std::cout << "  " << padding    << " [--config <path>] [--save <path>]" << "\n";
+    std::cout << "  " << binary_name << " [-h|--help]" << "\n";
+    std::cout << "  " << padding     << " [--width <number>] [--height <number>]" << "\n";
+    std::cout << "  " << padding     << " [--res <number>x<number>]" << "\n";
+    std::cout << "  " << padding     << " [--fullscreen|--window]" << "\n";
+    std::cout << "  " << padding     << " [--config <path>] [--save <path>]" << "\n";
     std::cout << "\n";
     std::cout << "Parameters" << "\n";
     std::cout << "  General:" << "\n";
@@ -84,7 +115,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
     while (true) {
         int index = -1;
 
-        const auto opt = getopt_long(argc, argv, shortOptions, longOptions, &index);
+        const auto opt = getopt_long(argc, argv, short_options, long_options, &index);
         
         // No more arguments to process
         if (-1 == opt) {
@@ -126,29 +157,29 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
 
 void Utilities::Options::Parameters::parseHelp() {
     // We'll allow for multiple help parameters in the commandline
-    pHelp = BoolParam(true);
+    p_help = BoolParam(true);
 }
 
 void Utilities::Options::Parameters::parseFullscreen() {
-    if (pFullScreen.wasModified()) {
+    if (p_full_screen.wasModified()) {
         storeError("multiple fullscreen and/or window mode parameters specified in commandline");
         return;
     }
     
-    pFullScreen = BoolParam(true);
+    p_full_screen = BoolParam(true);
 }
 
 void Utilities::Options::Parameters::parseWindow() {
-    if (pFullScreen.wasModified()) {
+    if (p_full_screen.wasModified()) {
         storeError("multiple fullscreen and/or window mode parameters specified in commandline");
         return;
     }
     
-    pFullScreen = BoolParam(false);
+    p_full_screen = BoolParam(false);
 }
 
 void Utilities::Options::Parameters::parseWidth(const char* param) {
-    if (pResWidth.wasModified()) {
+    if (p_res_width.wasModified()) {
         storeError("multiple width/resolution parameters specified in commandline");
         return;
     }
@@ -166,11 +197,11 @@ void Utilities::Options::Parameters::parseWidth(const char* param) {
         return;
     }
     
-    pResWidth = IntParam(value);
+    p_res_width = IntParam(value);
 }
 
 void Utilities::Options::Parameters::parseHeight(const char* param) {
-    if (pResHeight.wasModified()) {
+    if (p_res_height.wasModified()) {
         storeError("multiple height/resolution parameters specified in commandline");
         return;
     }
@@ -188,7 +219,7 @@ void Utilities::Options::Parameters::parseHeight(const char* param) {
         return;
     }
     
-    pResHeight = IntParam(value);
+    p_res_height = IntParam(value);
 }
 
 void Utilities::Options::Parameters::parseRes(const char* param) {
@@ -208,7 +239,7 @@ void Utilities::Options::Parameters::parseRes(const char* param) {
 }
 
 void Utilities::Options::Parameters::parseConfigPath(const char* path) {
-    if (pConfigPath.wasModified()) {
+    if (p_config_path.wasModified()) {
         storeError("multiple config path parameters specified in commandline");
         return;
     }
@@ -221,7 +252,7 @@ void Utilities::Options::Parameters::parseConfigPath(const char* path) {
     
     // Nothing more to do if it is a regular file or directory
     if (std::filesystem::is_regular_file(path) || std::filesystem::is_directory(path)) {
-        pConfigPath = StringParam(path);
+        p_config_path = StringParam(path);
         return;
     }
     
@@ -230,7 +261,7 @@ void Utilities::Options::Parameters::parseConfigPath(const char* path) {
         std::filesystem::path realPath = std::filesystem::read_symlink(path);
         
         if (std::filesystem::is_regular_file(realPath) || std::filesystem::is_directory(realPath)) {
-            pConfigPath = StringParam(path);
+            p_config_path = StringParam(path);
             return;
         }
     }
@@ -239,7 +270,7 @@ void Utilities::Options::Parameters::parseConfigPath(const char* path) {
 }
 
 void Utilities::Options::Parameters::parseUserDir(const char* directory) {
-    if (pUserDir.wasModified()) {
+    if (p_user_dir.wasModified()) {
         storeError("multiple user data directory parameters specified in commandline");
         return;
     }
@@ -253,7 +284,7 @@ void Utilities::Options::Parameters::parseUserDir(const char* directory) {
     
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        pUserDir = StringParam(directory);
+        p_user_dir = StringParam(directory);
         return;
     }
     
@@ -261,7 +292,7 @@ void Utilities::Options::Parameters::parseUserDir(const char* directory) {
         std::filesystem::path realPath = std::filesystem::read_symlink(directory);
         
         if (std::filesystem::is_directory(realPath)) {
-            pUserDir = StringParam(directory);
+            p_user_dir = StringParam(directory);
             return;
         }
     }
@@ -270,7 +301,7 @@ void Utilities::Options::Parameters::parseUserDir(const char* directory) {
 }
 
 void Utilities::Options::Parameters::parseDataDir(const char* directory) {
-    if (pDataDir.wasModified()) {
+    if (p_data_dir.wasModified()) {
         storeError("multiple game data directory parameters specified in commandline");
         return;
     }
@@ -284,7 +315,7 @@ void Utilities::Options::Parameters::parseDataDir(const char* directory) {
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        pDataDir = StringParam(directory);
+        p_data_dir = StringParam(directory);
         return;
     }
 
@@ -292,7 +323,7 @@ void Utilities::Options::Parameters::parseDataDir(const char* directory) {
         std::filesystem::path realPath = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(realPath)) {
-            pDataDir = StringParam(directory);
+            p_data_dir = StringParam(directory);
             return;
         }
     }

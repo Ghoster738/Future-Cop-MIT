@@ -1,9 +1,8 @@
 #ifndef UTILITIES_OPTIONS_PARAMETERS_H
 #define UTILITIES_OPTIONS_PARAMETERS_H
 
-#include <iostream>
+#include <ostream>
 #include <string.h>
-#include <getopt.h>
 
 namespace Utilities {
 namespace Options {
@@ -59,28 +58,28 @@ public:
     };
 
     // These should be "read only public members", if the code is correct
-    const BoolParam&   help       = pHelp;       // Help screen
-    const BoolParam&   fullScreen = pFullScreen; // If the game should run in full-screen mode
-    const IntParam&    resWidth   = pResWidth;   // Display resolution width
-    const IntParam&    resHeight  = pResHeight;  // Display resolution height
-    const StringParam& configPath = pConfigPath; // Game configuration directory/file
-    const StringParam& userDir    = pUserDir;    // User directory (mods, screenshots, etc)
-    const StringParam& dataDir    = pDataDir;    // Game data directory (original Future Cop LAPD game data)
+    const BoolParam&   help        = p_help;       // Help screen
+    const BoolParam&   full_screen = p_full_screen; // If the game should run in full-screen mode
+    const IntParam&    res_width   = p_res_width;   // Display resolution width
+    const IntParam&    res_height  = p_res_height;  // Display resolution height
+    const StringParam& config_path = p_config_path; // Game configuration directory/file
+    const StringParam& user_dir    = p_user_dir;    // User directory (mods, screenshots, etc)
+    const StringParam& data_dir    = p_data_dir;    // Game data directory (original Future Cop LAPD game data)
 
 // Internal stuff
 private:
     bool is_initialized;
 
-    BoolParam   pHelp;       // Help screen
-    BoolParam   pFullScreen; // If the game should run in full-screen mode
-    IntParam    pResWidth;   // Display resolution width
-    IntParam    pResHeight;  // Display resolution height
-    StringParam pConfigPath; // Game configuration directory
-    StringParam pUserDir;    // User directory (mods, screenshots, etc)
-    StringParam pDataDir;    // Game data directory (original Future Cop LAPD game data)
+    BoolParam   p_help;       // Help screen
+    BoolParam   p_full_screen; // If the game should run in full-screen mode
+    IntParam    p_res_width;   // Display resolution width
+    IntParam    p_res_height;  // Display resolution height
+    StringParam p_config_path; // Game configuration directory
+    StringParam p_user_dir;    // User directory (mods, screenshots, etc)
+    StringParam p_data_dir;    // Game data directory (original Future Cop LAPD game data)
 
     // Help
-    std::string binaryName;
+    std::string binary_name;
     virtual void printHelp();
 
     // Options parsing
@@ -97,22 +96,27 @@ private:
     virtual void parseDataDir(const char* directory);
 
     // Errors management
-    std::string errorMessage;
+    std::string error_message;
     void storeError(std::string error) {
         // Store only the first encountered error
-        if (errorMessage.empty()) {
-            errorMessage = error;
+        if (error_message.empty()) {
+            error_message = error;
         }
     }
 
     /**
      * Check if a string represents an integer
      *
-     * @param str The string
-     * @return The test result
+     * @warning Whitespace on both ends will make it invalid.
+     * @param str The string that will be tested.
+     * @return if str represents an integer.
      */
     bool isPint(const std::string &str) {
-        return( strspn( str.c_str(), "0123456789" ) == str.size() );
+        for( auto ch : str ) {
+            if( ch < '0' || ch > '9' )
+                return false;
+        }
+        return true;
     }
 
 public:
@@ -131,34 +135,6 @@ public:
      * @return True if help is requested, false if help is not requested.
      */
     bool getParameters( int argc, char *argv[], std::ostream &output );
-
-private:
-    // getopt configuration
-    static constexpr int OPT_HELP            = 'h';
-    static constexpr int OPT_FULLSCREEN      = 'f';
-    static constexpr int OPT_WINDOW          = 'w';
-    static constexpr int OPT_RES_WIDTH       = 'W';
-    static constexpr int OPT_RES_HEIGHT      = 'H';
-    static constexpr int OPT_RES             = 'r';
-    static constexpr int OPT_CONFIG_DIR      = 'c';
-    static constexpr int OPT_USER_DIR        = 'u';
-    static constexpr int OPT_DATA_DIR        = 'd';
-
-    const char* const shortOptions = "h"; // The only short option is for the help parameter
-
-    static constexpr option longOptions[] = {
-        {"help",         no_argument,       nullptr, OPT_HELP      },
-        {"width",        required_argument, nullptr, OPT_RES_WIDTH },
-        {"height",       required_argument, nullptr, OPT_RES_HEIGHT},
-        {"res",          required_argument, nullptr, OPT_RES       },
-        {"fullscreen",   no_argument,       nullptr, OPT_FULLSCREEN},
-        {"window",       no_argument,       nullptr, OPT_WINDOW    },
-        {"config",       required_argument, nullptr, OPT_CONFIG_DIR},
-        {"user",         required_argument, nullptr, OPT_USER_DIR  },
-        {"data",         required_argument, nullptr, OPT_DATA_DIR  },
-
-        {0, 0, 0, 0} // Required as last option
-    };
 };
 
 }
