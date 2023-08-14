@@ -30,6 +30,11 @@ public:
         screenshots,
         mods
     };
+    enum DataDirectory {
+        WINDOWS,
+        MACINTOSH,
+        PLAYSTATION
+    };
 
     Paths(Parameters &params) : parameters(params) { /* empty */ };
     ~Paths() { /* empty */ };
@@ -57,9 +62,9 @@ private:
     std::string pathGameData = "";
 
     // Path calculations
-    std::string findConfigPath();
-    std::string findUserDirPath(std::string subType);
-    std::string findDataDirPath();
+    std::string findConfigPath() const;
+    std::string findUserDirPath(std::string subType) const;
+    std::string findDataDirPath( DataDirectory type = WINDOWS ) const;
 
     // Path separator
     #ifdef _WIN32

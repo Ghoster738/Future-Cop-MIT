@@ -12,7 +12,7 @@ std::string Utilities::Options::Paths::getConfigFilePath()
     return pathConfig;
 }
 
-std::string Utilities::Options::Paths::findConfigPath()
+std::string Utilities::Options::Paths::findConfigPath() const
 {
     // Work with the user-supplied value, if any
     std::string configPath = parameters.config_path.getValue();
@@ -141,7 +141,7 @@ std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
     }
 }
 
-std::string Utilities::Options::Paths::findUserDirPath(std::string subType)
+std::string Utilities::Options::Paths::findUserDirPath(std::string subType) const
 {
     // Work with the user-supplied value, if any
     std::string userPath = parameters.user_dir.getValue();
@@ -237,7 +237,7 @@ std::string Utilities::Options::Paths::getDataDirPath()
     return pathGameData;
 }
 
-std::string Utilities::Options::Paths::findDataDirPath()
+std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
 {
     const std::string CSIDL_PROGRAM_FILESX86 = "CSIDL_PROGRAM_FILESX86";
     const std::string CSIDL_PROGRAM_FILES = "CSIDL_PROGRAM_FILES";
@@ -311,7 +311,7 @@ std::string Utilities::Options::Paths::findDataDirPath()
             continue;
         }
 
-        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR;
+        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
 
         if (Tools::isDir(subDirectory)) {
             return subDirectory;
