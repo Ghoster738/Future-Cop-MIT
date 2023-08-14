@@ -145,7 +145,7 @@ int main( int argc, char *argv[] ) {
         int found_problem = 0;
 
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        if( found_problem == 0 && !default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() == true) {
+        if( found_problem == 0 && default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() != true) {
             std::cout << "Error: FullScreen was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
@@ -175,7 +175,7 @@ int main( int argc, char *argv[] ) {
         int found_problem = 0;
 
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        if( found_problem == 0 && !default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() == false) {
+        if( found_problem == 0 && default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() != false) {
             std::cout << "Error: FullScreen was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
@@ -206,7 +206,7 @@ int main( int argc, char *argv[] ) {
 
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        if( found_problem == 0 && !default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() == 720) {
+        if( found_problem == 0 && default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() != 720) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
@@ -237,7 +237,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.resWidth,   "Width",      test_name, std::cout );
-        if( found_problem == 0 && !default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() == 480) {
+        if( found_problem == 0 && default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() != 480) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
@@ -266,12 +266,12 @@ int main( int argc, char *argv[] ) {
 
         found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.fullScreen, "FullScreen", test_name, std::cout );
-        if( found_problem == 0 && !default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() == 720) {
+        if( found_problem == 0 && default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() != 720) {
             std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
-        if( found_problem == 0 && !default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() == 480) {
+        if( found_problem == 0 && default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() != 480) {
             std::cout << "Error: Height was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;

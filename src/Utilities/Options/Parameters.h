@@ -146,7 +146,7 @@ private:
 
     const char* const shortOptions = "h"; // The only short option is for the help parameter
 
-    const option longOptions[10] = {
+    static constexpr option longOptions[] = {
         {"help",         no_argument,       nullptr, OPT_HELP      },
         {"width",        required_argument, nullptr, OPT_RES_WIDTH },
         {"height",       required_argument, nullptr, OPT_RES_HEIGHT},

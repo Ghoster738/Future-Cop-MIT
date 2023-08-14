@@ -78,15 +78,18 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
         throw std::runtime_error("Parameters must be called only once.");
 
     is_initialized = true;
-    
+
+    optind = 1;
+
     while (true) {
-        const auto opt = getopt_long(argc, argv, shortOptions, longOptions, nullptr);
+        int index = -1;
+
+        const auto opt = getopt_long(argc, argv, shortOptions, longOptions, &index);
         
         // No more arguments to process
         if (-1 == opt) {
             break;
         }
-
         switch (opt) {
             case OPT_HELP:            parseHelp();            break;
             case OPT_FULLSCREEN:      parseFullscreen();      break;
