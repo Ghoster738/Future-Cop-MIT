@@ -23,7 +23,7 @@ public:
         bool getValue()    const {return value;   }
 
         BoolParam()               {/* empty */};
-        BoolParam(bool initValue) {value = initValue; modified = true;}
+        BoolParam(bool init_value) {value = init_value; modified = true;}
     private:
         bool modified = false;
         bool value    = false;
@@ -37,7 +37,7 @@ public:
         int  getValue()    const {return value;   }
 
         IntParam()              {};
-        IntParam(int initValue) {value = initValue; modified = true;}
+        IntParam(int init_value) {value = init_value; modified = true;}
     private:
         bool modified = false;
         int  value    = 0;
@@ -51,7 +51,7 @@ public:
         std::string getValue()    const {return value;   }
 
         StringParam()                      {};
-        StringParam(std::string initValue) {value = initValue; modified = true;}
+        StringParam(std::string init_value) {value = init_value; modified = true;}
     private:
         bool modified     = false;
         std::string value = "";
