@@ -287,6 +287,45 @@ int main( int argc, char *argv[] ) {
     }
 
     {
+        std::string test_name = "--res valid test";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--res" );
+        parameters.addArgument( "720x480" );
+        parameters.addArgument( "--window" );
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.resWidth.wasModified() && default_parameters.resWidth.getValue() != 720) {
+            std::cout << "Error: Width was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        if( found_problem == 0 && default_parameters.resHeight.wasModified() && default_parameters.resHeight.getValue() != 480) {
+            std::cout << "Error: Height was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        if( found_problem == 0 && default_parameters.fullScreen.wasModified() && default_parameters.fullScreen.getValue() != true) {
+            std::cout << "Error: FullScreen was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.configPath, "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.userDir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.dataDir,    "DataDir",    test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
+
+    {
         std::string test_name = "--config valid";
         std::string path = "./";
         ParametersGiven parameters;
