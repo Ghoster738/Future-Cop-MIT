@@ -37,22 +37,22 @@ public:
 // Supported options
 public:
     int getVideoWidth() {
-        return parameters.resWidth.wasModified()
-            ? parameters.resWidth.getValue()
+        return parameters.res_width.wasModified()
+            ? parameters.res_width.getValue()
             : getInt("video", "width");
     }
     void setVideoWidth(int value) { setInt("video", "width", value); }
 
     int getVideoHeight() {
-        return parameters.resHeight.wasModified()
-            ? parameters.resHeight.getValue()
+        return parameters.res_height.wasModified()
+            ? parameters.res_height.getValue()
             : getInt("video", "height");
     }
     void setVideoHeight(int value) { setInt("video", "height", value); }
 
     bool getVideoFullscreen() {
-        return parameters.fullScreen.wasModified()
-            ? parameters.fullScreen.getValue()
+        return parameters.full_screen.wasModified()
+            ? parameters.full_screen.getValue()
             : getBool("video", "fullscreen");
     }
     void setVideoFullscreen(bool value) { setBool("video", "height", value); }
