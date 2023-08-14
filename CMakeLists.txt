@@ -136,28 +136,28 @@ add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES
 
 add_executable( FCModelViewer WIN32 src/FCModelViewer.cpp )
 add_executable( FCMapViewer   WIN32 src/FCMapViewer.cpp   )
-add_executable( FCopRBGE      WIN32 src/FCopRBGE.cpp )
+add_executable( FCopMIT       WIN32 src/FCopMIT.cpp )
 
 if( TARGET SDL2::SDL2main )
   target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2main)
   target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2main)
-  target_link_libraries (FCopRBGE PRIVATE SDL2::SDL2main)
+  target_link_libraries (FCopMIT PRIVATE SDL2::SDL2main)
 endif()
 target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
 
 target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2)
 target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2)
-target_link_libraries (FCopRBGE PRIVATE SDL2::SDL2)
+target_link_libraries (FCopMIT PRIVATE SDL2::SDL2)
 
 target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
 target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
 target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
 target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCopRBGE PRIVATE FC_IFF_IO)
+target_link_libraries (FCopMIT PRIVATE FC_IFF_IO)
 
 target_link_libraries (FCModelViewer PRIVATE FC_Engine)
 target_link_libraries (FCMapViewer PRIVATE FC_Engine)
-target_link_libraries (FCopRBGE PRIVATE FC_Engine)
+target_link_libraries (FCopMIT PRIVATE FC_Engine)
 
 if (SDL2_FOUND)
     mark_as_advanced(SDL2_DIR)
