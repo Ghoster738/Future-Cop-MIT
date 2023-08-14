@@ -43,7 +43,7 @@ void Utilities::Options::Parameters::printHelp() {
     std::string padding = std::string(binaryName.length(),' ');
             
     std::cout << "\n";
-    std::cout << "Future Cop: MIT v"  << FUTURE_COP_MIT_VERSION << "\n";
+    std::cout << "Future Cop: MIT "  << FUTURE_COP_MIT_VERSION << "\n";
     std::cout << "  Open source re-implementation of the Future Cop L.A.P.D. game" << "\n";
     std::cout << "" << "\n";
     std::cout << "\n";

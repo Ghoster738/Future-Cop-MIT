@@ -378,6 +378,292 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
         }
     }
+
+    {
+        std::string test_name = "missing name case";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--missingname" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "unsupported option specified in commandline, use --help to list valid options" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi fullscreen";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--fullscreen" );
+        parameters.addArgument( "--fullscreen" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi window";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--window" );
+        parameters.addArgument( "--window" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi fullscreen to window";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--fullscreen" );
+        parameters.addArgument( "--window" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi window to fullscreen";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--window" );
+        parameters.addArgument( "--fullscreen" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "lesser width";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--width" );
+        parameters.addArgument( "10" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ).find( "resolution width must be at least" ) != 0 ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi width";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--width" );
+        parameters.addArgument( "600" );
+        parameters.addArgument( "--width" );
+        parameters.addArgument( "600" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ).find( "multiple width/resolution parameters specified in commandline" ) != 0 ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "bad width";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--width" );
+        parameters.addArgument( "10$" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "invalid width value specified in commandline" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "lesser height";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--height" );
+        parameters.addArgument( "10" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ).find( "resolution height must be at least" ) != 0 ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi height";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--height" );
+        parameters.addArgument( "600" );
+        parameters.addArgument( "--height" );
+        parameters.addArgument( "600" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ).find( "multiple height/resolution parameters specified in commandline" ) != 0 ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "bad height";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--height" );
+        parameters.addArgument( "10$" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument arg )
+        {
+            if( std::string( arg.what() ) != "invalid height value specified in commandline" ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string header_test_name = "bad dim ";
+
+        std::vector<std::string> combo = { "A720x600", "720Ax600", "720xA600", "720x600A", "720X600"};
+
+        for( auto i : combo ) {
+            std::string test_name = header_test_name + i;
+
+            ParametersGiven parameters;
+
+            parameters.addArgument( program_name );
+            parameters.addArgument( "--res" );
+            parameters.addArgument( i );
+
+            try {
+                Utilities::Options::Parameters default_parameters;
+                default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+                problem |= 1;
+                std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+            }
+            catch( std::invalid_argument arg )
+            {
+                if( std::string( arg.what() ) != "invalid resolution parameter specified in commandline" ) {
+                    std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                    problem |= 1;
+                }
+            }
+        }
+    }
     
     return problem;
 }
