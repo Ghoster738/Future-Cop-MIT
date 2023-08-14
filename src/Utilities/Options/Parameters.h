@@ -88,12 +88,12 @@ private:
     virtual void parseHelp();
     virtual void parseFullscreen();
     virtual void parseWindow();
-    virtual void parseWidth(const char* value);
-    virtual void parseHeight(const char* value);
-    virtual void parseRes(const char* value);
-    virtual void parseConfigPath(const char* path);
-    virtual void parseUserDir(const char* directory);
-    virtual void parseDataDir(const char* directory);
+    virtual void parseWidth(std::string value);
+    virtual void parseHeight(std::string value);
+    virtual void parseRes(std::string value);
+    virtual void parseConfigPath(std::string path);
+    virtual void parseUserDir(std::string directory);
+    virtual void parseDataDir(std::string directory);
 
     // Errors management
     std::string error_message;
