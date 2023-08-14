@@ -186,14 +186,14 @@ void Utilities::Options::Parameters::parseWidth( std::string param ) {
     
     // Is it a positive integer?
     if (!isPint(param)) {
-        storeError("invalid width value specified in commandline");
+        storeError("invalid width value \"" + param + "\" specified in commandline");
         return;
     }
     
     int value = std::stoi(param);
     
     if (value < 320) {
-        storeError("resolution width must be at least 320");
+        storeError("resolution width must be at least 320 not " + param );
         return;
     }
     
@@ -208,14 +208,14 @@ void Utilities::Options::Parameters::parseHeight( std::string param ) {
     
     // Is it a positive integer?
     if (!isPint(param)) {
-        storeError("invalid height value specified in commandline");
+        storeError("invalid height value \"" + param + "\" specified in commandline");
         return;
     }
     
     int value = std::stoi(param);
     
     if (value < 240) {
-        storeError("resolution height must be at least 240");
+        storeError("resolution height must be at least 240 not " + param );
         return;
     }
     
@@ -246,7 +246,7 @@ void Utilities::Options::Parameters::parseConfigPath( std::string path ) {
     
     // Path needs to exist if manually specified
     if (!std::filesystem::exists(path)) {
-        storeError("cannot access config path specified in commandline");
+        storeError("cannot access config path \"" + path + "\" specified in commandline");
         return;
     }
     
@@ -276,7 +276,7 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
     }
     
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access user data directory path specified in commandline");
+        storeError("cannot access user data directory path \"" + directory + "\" specified in commandline");
         return;
     }
     
@@ -307,7 +307,7 @@ void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
     }
 
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access user data directory path specified in commandline");
+        storeError("cannot access user data directory path \"" + directory + "\" specified in commandline");
         return;
     }
 

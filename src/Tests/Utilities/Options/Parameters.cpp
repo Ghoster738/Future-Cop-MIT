@@ -50,7 +50,7 @@ public:
 };
 
 void displayParameters( const Utilities::Options::Parameters &parameters, std::ostream &output ) {
-    output << "help       =  " << parameters.help.getValue()       << ", modified = " << parameters.help.wasModified() << "\n";
+    output << "help        =  " << parameters.help.getValue()        << ", modified = " << parameters.help.wasModified() << "\n";
     output << "full_screen =  " << parameters.full_screen.getValue() << ", modified = " << parameters.full_screen.wasModified() << "\n";
     output << "res_width   =  " << parameters.res_width.getValue()   << ", modified = " << parameters.res_width.wasModified() << "\n";
     output << "res_height  =  " << parameters.res_height.getValue()  << ", modified = " << parameters.res_height.wasModified() << "\n";
@@ -585,9 +585,11 @@ int main( int argc, char *argv[] ) {
         std::string test_name = "bad width";
         ParametersGiven parameters;
 
+        std::string parameter_value = "10$";
+
         parameters.addArgument( program_name );
         parameters.addArgument( "--width" );
-        parameters.addArgument( "10$" );
+        parameters.addArgument( parameter_value );
 
         try {
             Utilities::Options::Parameters default_parameters;
@@ -597,7 +599,7 @@ int main( int argc, char *argv[] ) {
         }
         catch( std::invalid_argument arg )
         {
-            if( std::string( arg.what() ) != "invalid width value specified in commandline" ) {
+            if( std::string( arg.what() ) != "invalid width value \"" + parameter_value + "\" specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
                 problem |= 1;
             }
@@ -656,9 +658,11 @@ int main( int argc, char *argv[] ) {
         std::string test_name = "bad height";
         ParametersGiven parameters;
 
+        std::string parameter_value = "10$";
+
         parameters.addArgument( program_name );
         parameters.addArgument( "--height" );
-        parameters.addArgument( "10$" );
+        parameters.addArgument( parameter_value );
 
         try {
             Utilities::Options::Parameters default_parameters;
@@ -668,7 +672,7 @@ int main( int argc, char *argv[] ) {
         }
         catch( std::invalid_argument arg )
         {
-            if( std::string( arg.what() ) != "invalid height value specified in commandline" ) {
+            if( std::string( arg.what() ) != "invalid height value \"" + parameter_value + "\" specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
                 problem |= 1;
             }
