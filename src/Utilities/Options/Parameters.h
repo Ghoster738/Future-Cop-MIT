@@ -10,7 +10,7 @@ namespace Options {
 /**
  * Handle CLI parameters parsing and basic validation
  *
- * Note: object is intended to be immutable one instantiated
+ * Note: object is intended to be immutable once the parameters gets loaded.
  */
 class Parameters {
 public:
@@ -70,7 +70,7 @@ public:
 private:
     bool is_initialized;
 
-    BoolParam   p_help;       // Help screen
+    BoolParam   p_help;        // Help screen
     BoolParam   p_full_screen; // If the game should run in full-screen mode
     IntParam    p_res_width;   // Display resolution width
     IntParam    p_res_height;  // Display resolution height
@@ -128,7 +128,7 @@ public:
      * This gathers the parameters that the user wants.
      * @warning do not call this when the class is either initialized with arguments or with getParameters already called.
      * @throws std::invalid_argument if an invalid arguement was found.
-     * @throws std::runtime_error if the parameters are read more than once.
+     * @throws std::runtime_error if the parameters are read twice or more.
      * @param argc This is the number of arguments.
      * @param argv The pointers to the arguements.
      * @param output The help dialogs place.
