@@ -242,6 +242,22 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     const std::string CSIDL_PROGRAM_FILESX86 = "CSIDL_PROGRAM_FILESX86";
     const std::string CSIDL_PROGRAM_FILES = "CSIDL_PROGRAM_FILES";
 
+    // Platform
+    std::string platform;
+    switch( type ) {
+    case WINDOWS:
+        platform = "Windows";
+        break;
+    case MACINTOSH:
+        platform = "Macintosh";
+        break;
+    case PLAYSTATION:
+        platform = "Playstation";
+        break;
+    default:
+        platform = "Error";
+    }
+
     // Work with the user-supplied value, if any
     std::string data_path = parameters.data_dir.getValue();
 
@@ -250,7 +266,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     }
 
     // No path was specified by the user, search the local directory first
-    data_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
+    data_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
     // If it points to a directory path, return it
     if (Tools::isDir(data_path)) {
@@ -294,11 +310,13 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     #elif defined(_WIN32)
 
     // Future Cop Locations on Windows.
-    #if defined(_WIN64)
-    paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILESX86) ?: "", "Electronic Arts/Future Cop"} );
-    #else
-    paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILES) ?: "", "Electronic Arts/Future Cop"} );
-    #endif
+    if( type == WINDOWS ) {
+        #if defined(_WIN64)
+        paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILESX86) ?: "", "Electronic Arts/Future Cop"} );
+        #else
+        paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILES) ?: "", "Electronic Arts/Future Cop"} );
+        #endif
+    }
 
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT\\Data\\Platform"} );
 
@@ -311,7 +329,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
             continue;
         }
 
-        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
+        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
         if (Tools::isDir(subDirectory)) {
             return subDirectory;
@@ -329,7 +347,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
         }
 
         if( pathMap.rootDir != CSIDL_PROGRAM_FILESX86 && pathMap.rootDir != CSIDL_PROGRAM_FILES ) {
-            std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + "Windows" + PATH_SEPARATOR;
+            std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
             if (!std::filesystem::create_directories(subDirectory)) {
                 continue;
