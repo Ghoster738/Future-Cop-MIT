@@ -58,7 +58,7 @@ bool Utilities::Options::Parameters::getParameters( int argc, char *argv[], std:
     // asked for help, so the sensible thing to do is to show them
     // the help screen, not an error message
     if (p_help.getValue()) {
-        printHelp();
+        printHelp( output );
         return true; // Yes, display help.
     }
 
@@ -69,36 +69,36 @@ bool Utilities::Options::Parameters::getParameters( int argc, char *argv[], std:
     return false; // Do not display help.
 }
 
-void Utilities::Options::Parameters::printHelp() {
+void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
     // Padding for binary name length variations
     std::string padding = std::string(binary_name.length(),' ');
             
-    std::cout << "\n";
-    std::cout << "Future Cop: MIT "  << FUTURE_COP_MIT_VERSION << "\n";
-    std::cout << "  Open source re-implementation of the Future Cop L.A.P.D. game" << "\n";
-    std::cout << "" << "\n";
-    std::cout << "\n";
-    std::cout << "Usage " << "\n";
-    std::cout << "  " << binary_name << " [-h|--help]" << "\n";
-    std::cout << "  " << padding     << " [--width <number>] [--height <number>]" << "\n";
-    std::cout << "  " << padding     << " [--res <number>x<number>]" << "\n";
-    std::cout << "  " << padding     << " [--fullscreen|--window]" << "\n";
-    std::cout << "  " << padding     << " [--config <path>] [--save <path>]" << "\n";
-    std::cout << "\n";
-    std::cout << "Parameters" << "\n";
-    std::cout << "  General:" << "\n";
-    std::cout << "    -h|--help  Display this help screen and exit" << "\n";
-    std::cout << "  Interface:" << "\n";
-    std::cout << "    --width <number>         Window width, in pixels" << "\n";
-    std::cout << "    --height <number>        Window height, in pixels" << "\n";
-    std::cout << "    --res <number>x<number>  Window width and height in pixels, as a single parameter" << "\n";
-    std::cout << "    --fullscreen             Full screen mode" << "\n";
-    std::cout << "    --window                 Window mode" << "\n";
-    std::cout << "  Paths:" << "\n";
-    std::cout << "    --config <path>  Path to game configuration directory/file" << "\n";
-    std::cout << "    --user <path>    Path to directory - savegames, screenshots, mods" << "\n";
-    std::cout << "    --data <path>    Path to directory - Future Cop LAPD original data" << "\n";
-    std::cout << "\n";
+    output << "\n"
+        << "Future Cop: MIT "  << FUTURE_COP_MIT_VERSION << "\n"
+        << "  Open source re-implementation of the Future Cop L.A.P.D. game" << "\n"
+        << "" << "\n"
+        << "\n"
+        << "Usage " << "\n"
+        << "  " << binary_name << " [-h|--help]" << "\n"
+        << "  " << padding     << " [--width <number>] [--height <number>]" << "\n"
+        << "  " << padding     << " [--res <number>x<number>]" << "\n"
+        << "  " << padding     << " [--fullscreen|--window]" << "\n"
+        << "  " << padding     << " [--config <path>] [--save <path>]" << "\n"
+        << "\n"
+        << "Parameters" << "\n"
+        << "  General:" << "\n"
+        << "    -h|--help  Display this help screen and exit" << "\n"
+        << "  Interface:" << "\n"
+        << "    --width <number>         Window width, in pixels" << "\n"
+        << "    --height <number>        Window height, in pixels" << "\n"
+        << "    --res <number>x<number>  Window width and height in pixels, as a single parameter" << "\n"
+        << "    --fullscreen             Full screen mode" << "\n"
+        << "    --window                 Window mode" << "\n"
+        << "  Paths:" << "\n"
+        << "    --config <path>  Path to game configuration directory/file" << "\n"
+        << "    --user <path>    Path to directory - savegames, screenshots, mods" << "\n"
+        << "    --data <path>    Path to directory - Future Cop LAPD original data" << "\n"
+        << "\n";
 }
 
 void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {

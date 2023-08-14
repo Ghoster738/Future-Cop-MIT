@@ -80,7 +80,7 @@ private:
 
     // Help
     std::string binary_name;
-    virtual void printHelp();
+    virtual void printHelp( std::ostream &output ) const;
 
     // Options parsing
     virtual void parseOptions(int argc, char *argv[]);
