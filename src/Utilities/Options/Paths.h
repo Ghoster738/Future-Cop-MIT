@@ -59,7 +59,9 @@ private:
     std::string pathUserSavedgames = "";
     std::string pathUserScreenshots = "";
     std::string pathUserMods = "";
-    std::string pathGameData = "";
+    std::string path_win_game_data = "";
+    std::string path_mac_game_data = "";
+    std::string path_psx_game_data = "";
 
     // Path calculations
     std::string findConfigPath() const;

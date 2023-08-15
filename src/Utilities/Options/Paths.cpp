@@ -229,11 +229,28 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string subType) cons
 
 std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
 {
-    if (pathGameData.empty()) {
-        pathGameData = findDataDirPath( type );
+    switch( type ) {
+    case WINDOWS:
+        if( path_win_game_data.empty() ) {
+            path_win_game_data = findDataDirPath( type );
+            return path_win_game_data;
+        }
+        break;
+    case MACINTOSH:
+        if( path_mac_game_data.empty() ) {
+            path_mac_game_data = findDataDirPath( type );
+            return path_mac_game_data;
+        }
+        break;
+    case PLAYSTATION:
+        if( path_psx_game_data.empty() ) {
+            path_psx_game_data = findDataDirPath( type );
+            return path_psx_game_data;
+        }
+        break;
+    default:
+        throw std::runtime_error("DataDirectory had a value that is not supported!");
     }
-
-    return pathGameData;
 }
 
 std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
