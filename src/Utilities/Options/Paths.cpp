@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <string>
-#include <iostream>
 #include "Paths.h"
 
 // Retrieve the configuration file path
@@ -16,25 +15,25 @@ std::string Utilities::Options::Paths::getConfigFilePath()
 std::string Utilities::Options::Paths::findConfigPath() const
 {
     // Work with the user-supplied value, if any
-    std::string configPath = parameters.config_path.getValue();
+    std::string config_path = parameters.config_path.getValue();
 
-    if (!configPath.empty()) {
+    if (!config_path.empty()) {
         // If it is a file path, just return it as-is
-        if (Tools::isFile(configPath)) {
-            return configPath;
+        if (Tools::isFile(config_path)) {
+            return config_path;
         }
 
         // If it is a directory, append the default name of the config file to it
-        if (Tools::isDir(configPath)) {
+        if (Tools::isDir(config_path)) {
             // Add the directory separator if not in the provided path
-            if (0 != configPath.compare(configPath.size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR)) {
-                configPath += PATH_SEPARATOR;
+            if (0 != config_path.compare(config_path.size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR)) {
+                config_path += PATH_SEPARATOR;
             }
 
             // ... and the actual filename
-            configPath += CONFIG_FILE_NAME;
+            config_path += CONFIG_FILE_NAME;
 
-            return configPath;
+            return config_path;
         }
 
         // Hard fail - just in case
@@ -44,71 +43,71 @@ std::string Utilities::Options::Paths::findConfigPath() const
     // The user didn't specify a value, search for the default configuration file in the local directory first
     // on any platform, as a local configuration has the highest priority when searching for existing configuration files
     // (and the least priority when creating an empty configuration file - see below)
-    configPath = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + CONFIG_FILE_NAME;
+    config_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + CONFIG_FILE_NAME;
 
     // If it points to a file path, return it
-    if (Tools::isFile(configPath)) {
-        return configPath;
+    if (Tools::isFile(config_path)) {
+        return config_path;
     }
 
     // Potential locations for the configuration file:
     // * Not all env vars are defined, use an empty string as fallback
     // * Priority is FIFO in paths_map
-    std::vector<pathData> pathsMap;
+    std::vector<pathData> paths_map;
 
     #if defined(__linux__)
 
-    pathsMap.push_back( {std::getenv("XDG_CONFIG_HOME") ?: "", "futurecopmit"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", ".config/futurecopmit"} );
+    paths_map.push_back( {std::getenv("XDG_CONFIG_HOME") ?: "", "futurecopmit"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", ".config/futurecopmit"} );
 
     #elif defined(__APPLE__)
 
-    pathsMap.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT/" });
-    pathsMap.push_back( {std::getenv("HOME") ?: "", ".futurecopmit"} );
+    paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT/" });
+    paths_map.push_back( {std::getenv("HOME") ?: "", ".futurecopmit"} );
 
     #elif defined(_WIN32)
 
     //wchar_t szFolderPath[MAX_PATH_STD] = {0};
     //SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_DEFAULT, szFolderPath); // or _wgetenv("USERPROFILE")
-    pathsMap.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
+    paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
     #endif
 
     // Step one: search for a config file
-    for (pathData pathMap : pathsMap) {
+    for (pathData path_map : paths_map) {
         // Skip empty env vars
-        if (pathMap.rootDir.empty()) {
+        if (path_map.rootDir.empty()) {
             continue;
         }
 
-        configPath = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + CONFIG_FILE_NAME;
+        config_path = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + CONFIG_FILE_NAME;
 
         // If it exists in this location, return it
-        if (Tools::isFile(configPath)) {
-            return configPath;
+        if (Tools::isFile(config_path)) {
+            return config_path;
         }
     }
 
      // Add current directory to the last position for "creation" step
-    pathsMap.push_back( {".", ""} );
+    paths_map.push_back( {".", ""} );
 
     // Step two: attempt to create one
-    for (pathData pathMap : pathsMap) {
+    for (pathData path_map : paths_map) {
         // Skip empty/bad env vars
-        if (pathMap.rootDir.empty() || !Tools::isDir(pathMap.rootDir)) {
+        if (path_map.rootDir.empty() || !Tools::isDir(path_map.rootDir)) {
             continue;
         }
 
         // Try and create the directory
-        std::string configDir = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir;
+        std::string config_dir = path_map.rootDir + PATH_SEPARATOR + path_map.subDir;
 
-        if (!Tools::isDir(configDir) && !std::filesystem::create_directories(configDir)) {
+        if (!Tools::isDir(config_dir) && !std::filesystem::create_directories(config_dir)) {
             continue;
         }
 
         // Append the file name and we're good to go
-        return configDir + PATH_SEPARATOR + CONFIG_FILE_NAME;
+        return config_dir + PATH_SEPARATOR + CONFIG_FILE_NAME;
     }
 
     // Step three: hard fail - just in case we cannot work with anything
@@ -141,91 +140,91 @@ std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
     }
 }
 
-std::string Utilities::Options::Paths::findUserDirPath(std::string subType) const
+std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) const
 {
     // Work with the user-supplied value, if any
-    std::string userPath = parameters.user_dir.getValue();
+    std::string user_path = parameters.user_dir.getValue();
 
-    if (!userPath.empty()) {
+    if (!user_path.empty()) {
         // Add the directory separator if not in the provided path
-        if (0 != userPath.compare(userPath.size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR)) {
-                userPath += PATH_SEPARATOR;
+        if (0 != user_path.compare(user_path.size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR)) {
+                user_path += PATH_SEPARATOR;
         }
 
         // Create the subdirectory
-        std::string subDirectory = userPath + subType;
+        std::string sub_directory = user_path + sub_type;
 
-        if (!std::filesystem::create_directories(subDirectory)) {
-            throw std::invalid_argument("cannot create user directory '" + subDirectory + "'");
+        if (!std::filesystem::create_directories(sub_directory)) {
+            throw std::invalid_argument("cannot create user directory '" + sub_directory + "'");
         }
 
-        return subDirectory;
+        return sub_directory;
     }
 
     // No path was specified by the user, search the local directory first
-    userPath = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + subType + PATH_SEPARATOR;
+    user_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
     // If it points to a directory path, return it
-    if (Tools::isDir(userPath)) {
-        return userPath;
+    if (Tools::isDir(user_path)) {
+        return user_path;
     }
 
     // Paths map
-    std::vector<pathData> pathsMap;
+    std::vector<pathData> paths_map;
 
     #if defined(__linux__)
 
-    pathsMap.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", ".local/share/futurecopmit"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", "futurecopmit"} );
+    paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", ".local/share/futurecopmit"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", "futurecopmit"} );
 
     #elif defined(__APPLE__)
 
-    pathsMap.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT"} );
-    pathsMap.push_back( {std::getenv("HOME") ?: "", ".futurecopmit"} );
+    paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT"} );
+    paths_map.push_back( {std::getenv("HOME") ?: "", ".futurecopmit"} );
 
     #elif defined(_WIN32)
 
-    pathsMap.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
+    paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
     #endif
 
     // Step one - search for an existing dir
-    for (pathData pathMap : pathsMap) {
+    for (pathData path_map : paths_map) {
         // Skip empty env vars
-        if (pathMap.rootDir.empty()) {
+        if (path_map.rootDir.empty()) {
             continue;
         }
 
-        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + subType + PATH_SEPARATOR;
+        std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
-        if (Tools::isDir(subDirectory)) {
-            return subDirectory;
+        if (Tools::isDir(sub_directory)) {
+            return sub_directory;
         }
     }
 
      // Add current directory to the last position for "creation" step
-    pathsMap.push_back( {".", ""} );
+    paths_map.push_back( {".", ""} );
 
     // Step two - try to create the directory
-    for (pathData pathMap : pathsMap) {
+    for (pathData path_map : paths_map) {
         // Skip empty env vars
-        if (pathMap.rootDir.empty()) {
+        if (path_map.rootDir.empty()) {
             continue;
         }
 
-        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + subType + PATH_SEPARATOR;
+        std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
-        if (!std::filesystem::create_directories(subDirectory)) {
+        if (!std::filesystem::create_directories(sub_directory)) {
             continue;
         }
 
-         return subDirectory;
+         return sub_directory;
     }
 
     // Step three: hard fail - just in case we cannot work with anything
-    throw std::logic_error("failed to find or create a user directory path of type: " + subType);
+    throw std::logic_error("failed to find or create a user directory path of type: " + sub_type);
 }
 
 std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
@@ -250,7 +249,7 @@ std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
         return path_psx_game_data;
         break;
     default:
-        throw std::runtime_error("DataDirectory had a value that is not supported!");
+        throw std::logic_error("unhandled data directory type for path calculation");
     }
 }
 
@@ -300,10 +299,10 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
     paths_map.push_back( {std::getenv("HOME") ?: "", ".local/share/futurecopmit/Data/Platform"} );
 
-    std::string xdgDataDirs = std::getenv("XDG_DATA_DIRS") ?: "";
+    std::string xdg_data_dirs = std::getenv("XDG_DATA_DIRS") ?: "";
 
-    if (!xdgDataDirs.empty()) {
-        for (auto xdgDataDir: Tools::split(xdgDataDirs, ':')) {
+    if (!xdg_data_dirs.empty()) {
+        for (auto xdgDataDir: Tools::split(xdg_data_dirs, ':')) {
             paths_map.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
         }
     }
@@ -315,10 +314,10 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
 
     paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
 
-    std::string xdgDataDirs = std::getenv("XDG_DATA_DIRS") ?: "";
+    std::string xdg_data_dirs = std::getenv("XDG_DATA_DIRS") ?: "";
 
-    if (!xdgDataDirs.empty()) {
-        for (auto xdgDataDir: split(xdgDataDirs, ':')) {
+    if (!xdg_data_dirs.empty()) {
+        for (auto xdgDataDir: split(xdg_data_dirs, ':')) {
             paths_map.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
         }
     }
@@ -342,18 +341,16 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     #endif
 
     // Step one - search for an existing dir
-    for (pathData pathMap : paths_map) {
+    for (pathData path_map : paths_map) {
         // Skip empty env vars
-        if (pathMap.rootDir.empty()) {
+        if (path_map.rootDir.empty()) {
             continue;
         }
 
-        std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+        std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
-        std::cout << "Data sub " << platform << " = " << subDirectory << std::endl;
-
-        if (Tools::isDir(subDirectory)) {
-            return subDirectory;
+        if (Tools::isDir(sub_directory)) {
+            return sub_directory;
         }
     }
 
@@ -361,20 +358,20 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     paths_map.push_back( {".", ""} );
 
     // Step two - try to create the directory
-    for (pathData pathMap : paths_map) {
+    for (pathData path_map : paths_map) {
         // Skip empty env vars
-        if (pathMap.rootDir.empty()) {
+        if( path_map.rootDir.empty() ) {
             continue;
         }
 
-        if( pathMap.rootDir != CSIDL_PROGRAM_FILESX86 && pathMap.rootDir != CSIDL_PROGRAM_FILES ) {
-            std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+        if( path_map.rootDir != CSIDL_PROGRAM_FILESX86 && path_map.rootDir != CSIDL_PROGRAM_FILES ) {
+            std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
-            if (!std::filesystem::create_directories(subDirectory)) {
+            if (!std::filesystem::create_directories(sub_directory)) {
                 continue;
             }
 
-            return subDirectory;
+            return sub_directory;
         }
     }
 
