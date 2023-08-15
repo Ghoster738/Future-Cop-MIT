@@ -307,8 +307,8 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
         }
     }
 
-    paths_map.push_back( {"usr", "local/share/futurecopmit/Data/Platform"} );
-    paths_map.push_back( {"usr", "share/futurecopmit/Data/Platform"} );
+    paths_map.push_back( {"/usr", "local/share/futurecopmit/Data/Platform"} );
+    paths_map.push_back( {"/usr", "share/futurecopmit/Data/Platform"} );
 
     #elif defined(__APPLE__)
 
