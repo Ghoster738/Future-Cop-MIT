@@ -251,6 +251,7 @@ std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
     default:
         throw std::runtime_error("DataDirectory had a value that is not supported!");
     }
+    return "";
 }
 
 std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
