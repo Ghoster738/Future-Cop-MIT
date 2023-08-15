@@ -21,7 +21,9 @@ public:
         init("video","height", "600");
         init("video","fullscreen", "false");
 
-        init("directories","data", paths.getDataDirPath());
+        init("directories","windows_data",     paths.getDataDirPath( Paths::WINDOWS ));
+        init("directories","macintosh_data",   paths.getDataDirPath( Paths::MACINTOSH ));
+        init("directories","playstation_data", paths.getDataDirPath( Paths::PLAYSTATION ));
     };
 
     // Save changes to the file - public so that it can be manually called if needed

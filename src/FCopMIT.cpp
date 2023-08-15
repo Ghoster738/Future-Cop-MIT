@@ -41,13 +41,19 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        std::cout << "Using config file: " << paths.getConfigFilePath() << "\n";
-        std::cout << "Video width (read): " << options.getVideoWidth() << "\n";
+        std::cout << "Using config file:           " << paths.getConfigFilePath() << "\n\n";
+        std::cout << "Using data WINDOWS file:     " << paths.getDataDirPath( Utilities::Options::Paths::WINDOWS ) << "\n";
+        std::cout << "Using data MACINTOSH file:   " << paths.getDataDirPath( Utilities::Options::Paths::MACINTOSH ) << "\n";
+        std::cout << "Using data PLAYSTATION file: " << paths.getDataDirPath( Utilities::Options::Paths::PLAYSTATION ) << "\n\n";
+        std::cout << "Using user savedgames file:  " << paths.getUserDirPath( Utilities::Options::Paths::savedgames ) << "\n";
+        std::cout << "Using user screenshots file: " << paths.getUserDirPath( Utilities::Options::Paths::screenshots ) << "\n";
+        std::cout << "Using user mods file:        " << paths.getUserDirPath( Utilities::Options::Paths::mods ) << "\n";
+        /*std::cout << "Video width (read):          " << options.getVideoWidth() << "\n";
 
         int choosen_res = 340;
 
         std::cout << "Video width (choosen_res): " << choosen_res << "\n";
-        options.setVideoWidth(choosen_res);
+        options.setVideoWidth(choosen_res);*/
 
 
     } catch(std::invalid_argument exc) {

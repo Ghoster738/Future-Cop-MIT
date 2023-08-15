@@ -79,25 +79,29 @@ public:
     };
 
     // These should be "read only public members", if the code is correct
-    const BoolParam&   help        = p_help;       // Help screen
-    const BoolParam&   full_screen = p_full_screen; // If the game should run in full-screen mode
-    const IntParam&    res_width   = p_res_width;   // Display resolution width
-    const IntParam&    res_height  = p_res_height;  // Display resolution height
-    const StringParam& config_path = p_config_path; // Game configuration directory/file
-    const StringParam& user_dir    = p_user_dir;    // User directory (mods, screenshots, etc)
-    const StringParam& data_dir    = p_data_dir;    // Game data directory (original Future Cop LAPD game data)
+    const BoolParam&   help         = p_help;         // Help screen
+    const BoolParam&   full_screen  = p_full_screen;  // If the game should run in full-screen mode
+    const IntParam&    res_width    = p_res_width;    // Display resolution width
+    const IntParam&    res_height   = p_res_height;   // Display resolution height
+    const StringParam& config_path  = p_config_path;  // Game configuration directory/file
+    const StringParam& user_dir     = p_user_dir;     // User directory (mods, screenshots, etc)
+    const StringParam& win_data_dir = p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
+    const StringParam& mac_data_dir = p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
+    const StringParam& psx_data_dir = p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
 
 // Internal stuff
 private:
     bool is_initialized;
 
-    BoolParam   p_help;        // Help screen
-    BoolParam   p_full_screen; // If the game should run in full-screen mode
-    IntParam    p_res_width;   // Display resolution width
-    IntParam    p_res_height;  // Display resolution height
-    StringParam p_config_path; // Game configuration directory
-    StringParam p_user_dir;    // User directory (mods, screenshots, etc)
-    StringParam p_data_dir;    // Game data directory (original Future Cop LAPD game data)
+    BoolParam   p_help;         // Help screen
+    BoolParam   p_full_screen;  // If the game should run in full-screen mode
+    IntParam    p_res_width;    // Display resolution width
+    IntParam    p_res_height;   // Display resolution height
+    StringParam p_config_path;  // Game configuration directory
+    StringParam p_user_dir;     // User directory (mods, screenshots, etc)
+    StringParam p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
+    StringParam p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
+    StringParam p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
 
     // Help
     std::string binary_name;

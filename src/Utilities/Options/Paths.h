@@ -44,7 +44,7 @@ public:
     // Calculates the user directory path, based on user input (if any)
     std::string getUserDirPath(userDirectory type);
     // Calculate the data directory path, based on user input (if any)
-    std::string getDataDirPath();
+    std::string getDataDirPath( DataDirectory type );
 
 
 private:

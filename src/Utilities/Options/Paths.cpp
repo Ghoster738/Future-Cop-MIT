@@ -228,10 +228,10 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string subType) cons
     throw std::logic_error("failed to find or create a user directory path of type: " + subType);
 }
 
-std::string Utilities::Options::Paths::getDataDirPath()
+std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
 {
     if (pathGameData.empty()) {
-        pathGameData = findDataDirPath();
+        pathGameData = findDataDirPath( type );
     }
 
     return pathGameData;
@@ -259,7 +259,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     }
 
     // Work with the user-supplied value, if any
-    std::string data_path = parameters.data_dir.getValue();
+    std::string data_path = parameters.win_data_dir.getValue();
 
     if (!data_path.empty()) {
         return data_path;

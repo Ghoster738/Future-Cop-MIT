@@ -50,13 +50,15 @@ public:
 };
 
 void displayParameters( const Utilities::Options::Parameters &parameters, std::ostream &output ) {
-    output << "help        =  " << parameters.help.getValue()        << ", modified = " << parameters.help.wasModified() << "\n";
-    output << "full_screen =  " << parameters.full_screen.getValue() << ", modified = " << parameters.full_screen.wasModified() << "\n";
-    output << "res_width   =  " << parameters.res_width.getValue()   << ", modified = " << parameters.res_width.wasModified() << "\n";
-    output << "res_height  =  " << parameters.res_height.getValue()  << ", modified = " << parameters.res_height.wasModified() << "\n";
-    output << "config_path =  " << parameters.config_path.getValue() << ", modified = " << parameters.config_path.wasModified() << "\n";
-    output << "user_dir    =  " << parameters.user_dir.getValue()    << ", modified = " << parameters.user_dir.wasModified() << "\n";
-    output << "data_dir    =  " << parameters.data_dir.getValue()    << ", modified = " << parameters.data_dir.wasModified() << std::endl;
+    output << "help         = " << parameters.help.getValue()         << ", modified = " << parameters.help.wasModified() << "\n";
+    output << "full_screen  = " << parameters.full_screen.getValue()  << ", modified = " << parameters.full_screen.wasModified() << "\n";
+    output << "res_width    = " << parameters.res_width.getValue()    << ", modified = " << parameters.res_width.wasModified() << "\n";
+    output << "res_height   = " << parameters.res_height.getValue()   << ", modified = " << parameters.res_height.wasModified() << "\n";
+    output << "config_path  = " << parameters.config_path.getValue()  << ", modified = " << parameters.config_path.wasModified() << "\n";
+    output << "user_dir     = " << parameters.user_dir.getValue()     << ", modified = " << parameters.user_dir.wasModified() << "\n";
+    output << "win_data_dir = " << parameters.win_data_dir.getValue() << ", modified = " << parameters.win_data_dir.wasModified() << "\n";
+    output << "mac_data_dir = " << parameters.mac_data_dir.getValue() << ", modified = " << parameters.mac_data_dir.wasModified() << "\n";
+    output << "psx_data_dir = " << parameters.psx_data_dir.getValue() << ", modified = " << parameters.psx_data_dir.wasModified() << std::endl;
 }
 
 template<class I>
@@ -119,13 +121,15 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -150,12 +154,14 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -180,12 +186,14 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -210,12 +218,14 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -240,12 +250,14 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -275,11 +287,13 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -315,10 +329,12 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -344,12 +360,14 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -375,12 +393,14 @@ int main( int argc, char *argv[] ) {
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.data_dir,    "DataDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -401,17 +421,19 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        if( found_problem == 0 && default_parameters.data_dir.wasModified() && default_parameters.data_dir.getValue() != path ) {
-            std::cout << "Error: DataDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+        if( found_problem == 0 && default_parameters.win_data_dir.wasModified() && default_parameters.win_data_dir.getValue() != path ) {
+            std::cout << "Error: WinDataDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
 
             found_problem |= 1;
         }
-        found_problem |= testModParam( found_problem, default_parameters.help,       "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen, "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,   "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,  "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_path, "ConfigPath", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,    "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );

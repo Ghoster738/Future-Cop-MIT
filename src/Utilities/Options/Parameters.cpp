@@ -301,7 +301,7 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
 }
 
 void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
-    if (p_data_dir.wasModified()) {
+    if (p_win_data_dir.wasModified()) {
         storeError("multiple game data directory parameters specified in commandline");
         return;
     }
@@ -315,7 +315,7 @@ void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_data_dir = StringParam(directory);
+        p_win_data_dir = StringParam(directory);
         return;
     }
 
@@ -323,7 +323,7 @@ void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_data_dir = StringParam(directory);
+            p_win_data_dir = StringParam(directory);
             return;
         }
     }
