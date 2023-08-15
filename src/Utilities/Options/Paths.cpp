@@ -116,7 +116,6 @@ std::string Utilities::Options::Paths::findConfigPath() const
 
 std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
 {
-    //
     switch (type) {
         case userDirectory::savedgames:
             if (pathUserSavedgames.empty()) {
@@ -125,10 +124,10 @@ std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
             return pathUserSavedgames;
 
         case userDirectory::screenshots:
-            if (pathUserMods.empty()) {
-                pathUserMods = findUserDirPath("screenshots");
+            if (pathUserScreenshots.empty()) {
+                pathUserScreenshots = findUserDirPath("screenshots");
             }
-            return pathUserMods;
+            return pathUserScreenshots;
 
         case userDirectory::mods:
             if (pathUserMods.empty()) {
@@ -244,22 +243,24 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
 
     // Platform
     std::string platform;
+    std::string data_path;
     switch( type ) {
     case WINDOWS:
         platform = "Windows";
+        data_path = parameters.win_data_dir.getValue();
         break;
     case MACINTOSH:
         platform = "Macintosh";
+        data_path = parameters.mac_data_dir.getValue();
         break;
     case PLAYSTATION:
         platform = "Playstation";
+        data_path = parameters.psx_data_dir.getValue();
         break;
     default:
         platform = "Error";
+        data_path = "Error";
     }
-
-    // Work with the user-supplied value, if any
-    std::string data_path = parameters.win_data_dir.getValue();
 
     if (!data_path.empty()) {
         return data_path;
