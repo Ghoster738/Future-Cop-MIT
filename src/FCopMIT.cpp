@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 
         std::cout << "Using user savedgames file:  " << options.getSaveDirectory()        << "\n";
         std::cout << "Using user screenshots file: " << options.getScreenshotsDirectory() << "\n";
-        std::cout << "Using user mods file:        " << options.getModsDirectory()        << "\n";
+        // std::cout << "Using user mods file:        " << options.getModsDirectory()        << "\n";
         /*std::cout << "Video width (read):          " << options.getVideoWidth() << "\n";
 
         int choosen_res = 340;

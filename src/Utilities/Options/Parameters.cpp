@@ -100,7 +100,7 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --window                 Window mode" << "\n"
         << "  Paths:" << "\n"
         << "    --config   <path> Path to game configuration directory/file" << "\n"
-        << "    --user     <path> Path to directory - savegames, screenshots, mods" << "\n"
+        << "    --user     <path> Path to directory - savegames and screenshots" << "\n"
         << "    --win_data <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
         << "    --mac_data <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
         << "    --psx_data <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"

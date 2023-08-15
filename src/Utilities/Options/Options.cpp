@@ -30,7 +30,7 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
 
     init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ));
     init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ));
-    init( DIRECTORIES, DIRECTORIES_MODS,        paths.getUserDirPath( Paths::MODS ));
+    // init( DIRECTORIES, DIRECTORIES_MODS,        paths.getUserDirPath( Paths::MODS ));
 
     init( DIRECTORIES, DIRECTORIES_WIN_DATA, paths.getDataDirPath( Paths::WINDOWS ));
     init( DIRECTORIES, DIRECTORIES_MAC_DATA, paths.getDataDirPath( Paths::MACINTOSH ));
@@ -77,10 +77,12 @@ std::string Options::getScreenshotsDirectory() {
 }
 void Options::setScreenshotsDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_SCREENSHOTS, value); }
 
+/*
 std::string Options::getModsDirectory() {
     return getString( DIRECTORIES, DIRECTORIES_MODS);
 }
 void Options::setModsDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_MODS, value); }
+*/
 
 std::string Options::getWindowsDataDirectory() {
     return parameters.win_data_dir.wasModified()

@@ -36,8 +36,8 @@ public:
     std::string getScreenshotsDirectory();
     void setScreenshotsDirectory( std::string value );
 
-    std::string getModsDirectory();
-    void setModsDirectory( std::string value );
+    // std::string getModsDirectory();
+    // void setModsDirectory( std::string value );
 
     std::string getWindowsDataDirectory();
     void setWindowsDataDirectory( std::string value );
