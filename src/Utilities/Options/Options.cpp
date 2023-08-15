@@ -90,15 +90,15 @@ std::string Options::getWindowsDataDirectory() {
 void Options::setWindowsDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_WIN_DATA, value); }
 
 std::string Options::getMacintoshDataDirectory() {
-    return parameters.win_data_dir.wasModified()
-        ? parameters.win_data_dir.getValue()
+    return parameters.mac_data_dir.wasModified()
+        ? parameters.mac_data_dir.getValue()
         : getString( DIRECTORIES, DIRECTORIES_MAC_DATA);
 }
 void Options::setMacintoshDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_MAC_DATA, value); }
 
 std::string Options::getPlaystationDataDirectory() {
-    return parameters.win_data_dir.wasModified()
-        ? parameters.win_data_dir.getValue()
+    return parameters.psx_data_dir.wasModified()
+        ? parameters.psx_data_dir.getValue()
         : getString( DIRECTORIES, DIRECTORIES_PSX_DATA);
 }
 void Options::setPlaystationDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_PSX_DATA, value); }
