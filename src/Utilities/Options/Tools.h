@@ -2,44 +2,25 @@
 #define UTILITIES_OPTIONS_TOOLS_H
 
 #include <filesystem>
+#include <vector>
 #include <string>
 
 namespace Utilities {
 namespace Options {
 
 // Library of tools and snippets
-class Tools {
-public:
-    // Check that a path points to an real directory (traverses symlinks)
-    static bool isDir(std::filesystem::path path)
-    {
-        return std::filesystem::is_symlink(path)
-            ? isDir(std::filesystem::read_symlink(path))
-            : std::filesystem::is_directory(path);
-    };
+namespace Tools {
 
-    // Check that a path points to an real file (traverses symlinks)
-    static bool isFile(std::filesystem::path path)
-    {
-        return std::filesystem::is_symlink(path)
-            ? isFile(std::filesystem::read_symlink(path))
-            : std::filesystem::is_regular_file(path);
-    }
+// Check that a path points to an real directory (traverses symlinks)
+bool isDir( std::filesystem::path path );
 
-    // Split a string into a vector of strings by the specified delimiter
-    static std::vector<std::string> split (std::string string, char delimiter)
-    {
-        std::vector<std::string> result;
-        std::string fragment;
-        std::stringstream ss(string);
+// Check that a path points to an real file (traverses symlinks)
+bool isFile( std::filesystem::path path );
 
-        while(getline(ss, fragment, delimiter)){
-            result.push_back(fragment);
-        }
+// Split a string into a vector of strings by the specified delimiter
+std::vector<std::string> split( std::string string, char delimiter );
 
-        return result;
-    };
-};
+}
 
 }
 }
