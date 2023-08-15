@@ -11,23 +11,26 @@ namespace Options {
 // Handles loading and saving options from the configuration file
 class Options {
 public:
+    static constexpr char VIDEO[] = "video";
+    static constexpr char DIRECTORIES[] = "directories";
+
     // Constructor
     Options (Paths& paths, Parameters& parameters) : paths(paths), parameters(parameters) {
         ini_file_p = new mINI::INIFile(paths.getConfigFilePath());
         ini_file_p->read(ini_data);
 
         // Default values
-        init("video","width", "800");
-        init("video","height", "600");
-        init("video","fullscreen", "false");
+        init( VIDEO, "width", "800");
+        init( VIDEO, "height", "600");
+        init( VIDEO, "fullscreen", "false");
 
-        init("directories","user_saved_games", paths.getUserDirPath( Paths::savedgames ));
-        init("directories","user_screenshots", paths.getUserDirPath( Paths::screenshots ));
-        init("directories","user_mods",        paths.getUserDirPath( Paths::mods ));
+        init( DIRECTORIES, "user_saved_games", paths.getUserDirPath( Paths::savedgames ));
+        init( DIRECTORIES, "user_screenshots", paths.getUserDirPath( Paths::screenshots ));
+        init( DIRECTORIES, "user_mods",        paths.getUserDirPath( Paths::mods ));
 
-        init("directories","windows_data",     paths.getDataDirPath( Paths::WINDOWS ));
-        init("directories","macintosh_data",   paths.getDataDirPath( Paths::MACINTOSH ));
-        init("directories","playstation_data", paths.getDataDirPath( Paths::PLAYSTATION ));
+        init( DIRECTORIES, "windows_data",     paths.getDataDirPath( Paths::WINDOWS ));
+        init( DIRECTORIES, "macintosh_data",   paths.getDataDirPath( Paths::MACINTOSH ));
+        init( DIRECTORIES, "playstation_data", paths.getDataDirPath( Paths::PLAYSTATION ));
     };
 
     // Save changes to the file - public so that it can be manually called if needed
@@ -45,25 +48,59 @@ public:
     int getVideoWidth() {
         return parameters.res_width.wasModified()
             ? parameters.res_width.getValue()
-            : getInt("video", "width");
+            : getInt( VIDEO, "width");
     }
-    void setVideoWidth(int value) { setInt("video", "width", value); }
+    void setVideoWidth(int value) { setInt( VIDEO, "width", value); }
 
     int getVideoHeight() {
         return parameters.res_height.wasModified()
             ? parameters.res_height.getValue()
-            : getInt("video", "height");
+            : getInt( VIDEO, "height");
     }
-    void setVideoHeight(int value) { setInt("video", "height", value); }
+    void setVideoHeight(int value) { setInt( VIDEO, "height", value); }
 
     bool getVideoFullscreen() {
         return parameters.full_screen.wasModified()
             ? parameters.full_screen.getValue()
-            : getBool("video", "fullscreen");
+            : getBool( VIDEO, "fullscreen");
     }
     void setVideoFullscreen(bool value) { setBool("video", "fullscreen", value); }
 
+    std::string getSaveDirectory() {
+        return getString( DIRECTORIES, "user_saved_games");
+    }
+    void setSaveDirectory( std::string value ) { setString( DIRECTORIES, "user_saved_games", value); }
 
+    std::string getScreenshotsDirectory() {
+        return getString( DIRECTORIES, "user_screenshots");
+    }
+    void setScreenshotsDirectory( std::string value ) { setString( DIRECTORIES, "user_screenshots", value); }
+
+    std::string getModsDirectory() {
+        return getString( DIRECTORIES, "user_mods");
+    }
+    void setModsDirectory( std::string value ) { setString( DIRECTORIES, "user_mods", value); }
+
+    std::string getWindowsDataDirectory() {
+        return parameters.win_data_dir.wasModified()
+            ? parameters.win_data_dir.getValue()
+            : getString( DIRECTORIES, "windows_data");
+    }
+    void setWindowsDataDirectory( std::string value ) { setString( DIRECTORIES, "windows_data", value); }
+
+    std::string getMacintoshDataDirectory() {
+        return parameters.win_data_dir.wasModified()
+            ? parameters.win_data_dir.getValue()
+            : getString( DIRECTORIES, "macintosh_data");
+    }
+    void setMacintoshDataDirectory( std::string value ) { setString( DIRECTORIES, "macintosh_data", value); }
+
+    std::string getPlaystationDataDirectory() {
+        return parameters.win_data_dir.wasModified()
+            ? parameters.win_data_dir.getValue()
+            : getString( DIRECTORIES, "playstation_data");
+    }
+    void setPlaystationDataDirectory( std::string value ) { setString( DIRECTORIES, "playstation_data", value); }
 
 private:
     Paths& paths;

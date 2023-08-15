@@ -41,13 +41,15 @@ int main(int argc, char** argv)
             return 0;
         }
 
-        std::cout << "Using config file:           " << paths.getConfigFilePath() << "\n\n";
-        std::cout << "Using data WINDOWS file:     " << paths.getDataDirPath( Utilities::Options::Paths::WINDOWS ) << "\n";
-        std::cout << "Using data MACINTOSH file:   " << paths.getDataDirPath( Utilities::Options::Paths::MACINTOSH ) << "\n";
-        std::cout << "Using data PLAYSTATION file: " << paths.getDataDirPath( Utilities::Options::Paths::PLAYSTATION ) << "\n\n";
-        std::cout << "Using user savedgames file:  " << paths.getUserDirPath( Utilities::Options::Paths::savedgames ) << "\n";
-        std::cout << "Using user screenshots file: " << paths.getUserDirPath( Utilities::Options::Paths::screenshots ) << "\n";
-        std::cout << "Using user mods file:        " << paths.getUserDirPath( Utilities::Options::Paths::mods ) << "\n";
+        std::cout << "Using config file:           " << paths.getConfigFilePath()  << "\n\n";
+
+        std::cout << "Using data WINDOWS file:     " << options.getWindowsDataDirectory()     << "\n";
+        std::cout << "Using data MACINTOSH file:   " << options.getMacintoshDataDirectory()   << "\n";
+        std::cout << "Using data PLAYSTATION file: " << options.getPlaystationDataDirectory() << "\n\n";
+
+        std::cout << "Using user savedgames file:  " << options.getSaveDirectory()        << "\n";
+        std::cout << "Using user screenshots file: " << options.getScreenshotsDirectory() << "\n";
+        std::cout << "Using user mods file:        " << options.getModsDirectory()        << "\n";
         /*std::cout << "Video width (read):          " << options.getVideoWidth() << "\n";
 
         int choosen_res = 340;
