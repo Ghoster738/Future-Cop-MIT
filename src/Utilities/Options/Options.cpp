@@ -42,8 +42,8 @@ void Options::saveOptions() {
 }
 
 Options::~Options() {
-    saveOptions();
-    delete ini_file_p;
+    if( ini_file_p != nullptr )
+        delete ini_file_p;
 };
 
 int Options::getVideoWidth() {
