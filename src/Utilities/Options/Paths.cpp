@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <string>
+#include <iostream>
 #include "Paths.h"
 
 // Retrieve the configuration file path
@@ -348,6 +349,8 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
         }
 
         std::string subDirectory = pathMap.rootDir + PATH_SEPARATOR + pathMap.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+
+        std::cout << "Data sub " << platform << " = " << subDirectory << std::endl;
 
         if (Tools::isDir(subDirectory)) {
             return subDirectory;
