@@ -57,6 +57,7 @@ int main(int argc, char** argv)
         std::cout << "Video width (choosen_res): " << choosen_res << "\n";
         options.setVideoWidth(choosen_res);*/
 
+        options.saveOptions();
 
     } catch(std::invalid_argument exc) {
         std::cout << "Error: " << exc.what() << "\n";
