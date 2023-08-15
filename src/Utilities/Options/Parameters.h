@@ -118,7 +118,9 @@ private:
     virtual void parseRes(std::string value);
     virtual void parseConfigPath(std::string path);
     virtual void parseUserDir(std::string directory);
-    virtual void parseDataDir(std::string directory);
+    virtual void parseWindowsDataDir(std::string directory);
+    virtual void parseMacintoshDataDir(std::string directory);
+    virtual void parsePlaystationDataDir(std::string directory);
 
     // Errors management
     std::string error_message;

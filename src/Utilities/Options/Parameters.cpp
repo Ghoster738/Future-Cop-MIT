@@ -18,20 +18,24 @@ const int OPT_RES_HEIGHT      = 'H';
 const int OPT_RES             = 'r';
 const int OPT_CONFIG_DIR      = 'c';
 const int OPT_USER_DIR        = 'u';
-const int OPT_DATA_DIR        = 'd';
+const int OPT_WIN_DATA_DIR    = 'd';
+const int OPT_MAC_DATA_DIR    = 'm';
+const int OPT_PSX_DATA_DIR    = 'p';
 
 const char* const short_options = "h"; // The only short option is for the help parameter
 
 const option long_options[] = {
-    {"help",         no_argument,       nullptr, OPT_HELP      },
-    {"width",        required_argument, nullptr, OPT_RES_WIDTH },
-    {"height",       required_argument, nullptr, OPT_RES_HEIGHT},
-    {"res",          required_argument, nullptr, OPT_RES       },
-    {"fullscreen",   no_argument,       nullptr, OPT_FULLSCREEN},
-    {"window",       no_argument,       nullptr, OPT_WINDOW    },
-    {"config",       required_argument, nullptr, OPT_CONFIG_DIR},
-    {"user",         required_argument, nullptr, OPT_USER_DIR  },
-    {"data",         required_argument, nullptr, OPT_DATA_DIR  },
+    {"help",         no_argument,       nullptr, OPT_HELP         },
+    {"width",        required_argument, nullptr, OPT_RES_WIDTH    },
+    {"height",       required_argument, nullptr, OPT_RES_HEIGHT   },
+    {"res",          required_argument, nullptr, OPT_RES          },
+    {"fullscreen",   no_argument,       nullptr, OPT_FULLSCREEN   },
+    {"window",       no_argument,       nullptr, OPT_WINDOW       },
+    {"config",       required_argument, nullptr, OPT_CONFIG_DIR   },
+    {"user",         required_argument, nullptr, OPT_USER_DIR     },
+    {"win_data",     required_argument, nullptr, OPT_WIN_DATA_DIR },
+    {"mac_data",     required_argument, nullptr, OPT_MAC_DATA_DIR },
+    {"psx_data",     required_argument, nullptr, OPT_PSX_DATA_DIR },
 
     {0, 0, 0, 0} // Required as last option
 };
@@ -95,9 +99,11 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --fullscreen             Full screen mode" << "\n"
         << "    --window                 Window mode" << "\n"
         << "  Paths:" << "\n"
-        << "    --config <path>  Path to game configuration directory/file" << "\n"
-        << "    --user <path>    Path to directory - savegames, screenshots, mods" << "\n"
-        << "    --data <path>    Path to directory - Future Cop LAPD original data" << "\n"
+        << "    --config   <path> Path to game configuration directory/file" << "\n"
+        << "    --user     <path> Path to directory - savegames, screenshots, mods" << "\n"
+        << "    --win_data <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
+        << "    --mac_data <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
+        << "    --psx_data <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
         << "\n";
 }
 
@@ -122,27 +128,31 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             break;
         }
         switch (opt) {
-            case OPT_HELP:            parseHelp();            break;
-            case OPT_FULLSCREEN:      parseFullscreen();      break;
-            case OPT_WINDOW:          parseWindow();          break;
-            case OPT_RES_WIDTH:       parseWidth(optarg);     break;
-            case OPT_RES_HEIGHT:      parseHeight(optarg);    break;
-            case OPT_RES:             parseRes(optarg);       break;
-            case OPT_CONFIG_DIR:      parseConfigPath(optarg); break;
-            case OPT_USER_DIR:        parseUserDir(optarg);   break;
-            case OPT_DATA_DIR:        parseDataDir(optarg);   break;
+            case OPT_HELP:            parseHelp();                     break;
+            case OPT_FULLSCREEN:      parseFullscreen();               break;
+            case OPT_WINDOW:          parseWindow();                   break;
+            case OPT_RES_WIDTH:       parseWidth(optarg);              break;
+            case OPT_RES_HEIGHT:      parseHeight(optarg);             break;
+            case OPT_RES:             parseRes(optarg);                break;
+            case OPT_CONFIG_DIR:      parseConfigPath(optarg);         break;
+            case OPT_USER_DIR:        parseUserDir(optarg);            break;
+            case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
+            case OPT_MAC_DATA_DIR:    parseMacintoshDataDir(optarg);   break;
+            case OPT_PSX_DATA_DIR:    parsePlaystationDataDir(optarg); break;
                 
             case '?':
             case ':':
                 // Handle missing arguments or unknown options
                 switch (optopt) {
-                    case OPT_RES_WIDTH:  storeError("resolution width not specified in commandline");              break;
-                    case OPT_RES_HEIGHT: storeError("resolution height not specified in commandline");             break;
-                    case OPT_RES:        storeError("resolution (width and height) not specified in commandline"); break;
-                    case OPT_CONFIG_DIR: storeError("configuration directory not specified in commandline");       break;
-                    case OPT_USER_DIR:   storeError("user data directory not specified in commandline");           break;
-                    case OPT_DATA_DIR:   storeError("game data directory not specified in commandline");           break;
-                    default:             storeError("unsupported option specified in commandline, use --help to list valid options");
+                    case OPT_RES_WIDTH:    storeError("resolution width not specified in commandline");                break;
+                    case OPT_RES_HEIGHT:   storeError("resolution height not specified in commandline");               break;
+                    case OPT_RES:          storeError("resolution (width and height) not specified in commandline");   break;
+                    case OPT_CONFIG_DIR:   storeError("configuration directory not specified in commandline");         break;
+                    case OPT_USER_DIR:     storeError("user data directory not specified in commandline");             break;
+                    case OPT_WIN_DATA_DIR: storeError("Windows game data directory not specified in commandline");     break;
+                    case OPT_MAC_DATA_DIR: storeError("Macintosh game data directory not specified in commandline");   break;
+                    case OPT_PSX_DATA_DIR: storeError("Playstation game data directory not specified in commandline"); break;
+                    default:               storeError("unsupported option specified in commandline, use --help to list valid options");
                 }
                 
                 break;
@@ -300,14 +310,14 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
     storeError("non-directory user data path specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
+void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory ) {
     if (p_win_data_dir.wasModified()) {
-        storeError("multiple game data directory parameters specified in commandline");
+        storeError("multiple Windows game data directory parameters specified in commandline");
         return;
     }
 
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access user data directory path \"" + directory + "\" specified in commandline");
+        storeError("cannot access Windows game data directory path \"" + directory + "\" specified in commandline");
         return;
     }
 
@@ -328,5 +338,67 @@ void Utilities::Options::Parameters::parseDataDir( std::string directory ) {
         }
     }
 
-    storeError("non-directory user data path specified in commandline");
+    storeError("non-directory Windows game data path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parseMacintoshDataDir( std::string directory ) {
+    if (p_mac_data_dir.wasModified()) {
+        storeError("multiple Macintosh game data directory parameters specified in commandline");
+        return;
+    }
+
+    if (!std::filesystem::exists(directory)) {
+        storeError("cannot access Macintosh game data directory path \"" + directory + "\" specified in commandline");
+        return;
+    }
+
+    // TODO: Refactor below, check if the directory it is writable
+
+    // Nothing more to do if it is a directory
+    if (std::filesystem::is_directory(directory)) {
+        p_mac_data_dir = StringParam(directory);
+        return;
+    }
+
+    if (std::filesystem::is_symlink(directory)) {
+        std::filesystem::path real_path = std::filesystem::read_symlink(directory);
+
+        if (std::filesystem::is_directory(real_path)) {
+            p_mac_data_dir = StringParam(directory);
+            return;
+        }
+    }
+
+    storeError("non-directory Macintosh game data path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parsePlaystationDataDir( std::string directory ) {
+    if (p_psx_data_dir.wasModified()) {
+        storeError("multiple Playstation game data directory parameters specified in commandline");
+        return;
+    }
+
+    if (!std::filesystem::exists(directory)) {
+        storeError("cannot access Playstation game data directory path \"" + directory + "\" specified in commandline");
+        return;
+    }
+
+    // TODO: Refactor below, check if the directory it is writable
+
+    // Nothing more to do if it is a directory
+    if (std::filesystem::is_directory(directory)) {
+        p_psx_data_dir = StringParam(directory);
+        return;
+    }
+
+    if (std::filesystem::is_symlink(directory)) {
+        std::filesystem::path real_path = std::filesystem::read_symlink(directory);
+
+        if (std::filesystem::is_directory(real_path)) {
+            p_psx_data_dir = StringParam(directory);
+            return;
+        }
+    }
+
+    storeError("non-directory Playstation game data path specified in commandline");
 }
