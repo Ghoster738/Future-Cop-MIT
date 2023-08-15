@@ -5,11 +5,11 @@
 // Retrieve the configuration file path
 std::string Utilities::Options::Paths::getConfigFilePath()
 {
-    if (pathConfig.empty()) {
-        pathConfig = findConfigPath();
+    if( path_config.empty() ) {
+        path_config = findConfigPath();
     }
 
-    return pathConfig;
+    return path_config;
 }
 
 std::string Utilities::Options::Paths::findConfigPath() const
@@ -53,7 +53,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
     // Potential locations for the configuration file:
     // * Not all env vars are defined, use an empty string as fallback
     // * Priority is FIFO in paths_map
-    std::vector<pathData> paths_map;
+    std::vector<PathData> paths_map;
 
     #if defined(__linux__)
 
@@ -75,7 +75,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
     #endif
 
     // Step one: search for a config file
-    for (pathData path_map : paths_map) {
+    for (PathData path_map : paths_map) {
         // Skip empty env vars
         if (path_map.rootDir.empty()) {
             continue;
@@ -93,7 +93,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
     paths_map.push_back( {".", ""} );
 
     // Step two: attempt to create one
-    for (pathData path_map : paths_map) {
+    for (PathData path_map : paths_map) {
         // Skip empty/bad env vars
         if (path_map.rootDir.empty() || !Tools::isDir(path_map.rootDir)) {
             continue;
@@ -114,26 +114,26 @@ std::string Utilities::Options::Paths::findConfigPath() const
     throw std::logic_error("failed to find or create a configuration file path");
 }
 
-std::string Utilities::Options::Paths::getUserDirPath(userDirectory type)
+std::string Utilities::Options::Paths::getUserDirPath( UserDirectory type)
 {
     switch (type) {
-        case userDirectory::savedgames:
-            if (pathUserSavedgames.empty()) {
-                pathUserSavedgames = findUserDirPath("savedgames");
+        case UserDirectory::SAVED_GAMES:
+            if (path_user_savedgames.empty()) {
+                path_user_savedgames = findUserDirPath("saves");
             }
-            return pathUserSavedgames;
+            return path_user_savedgames;
 
-        case userDirectory::screenshots:
-            if (pathUserScreenshots.empty()) {
-                pathUserScreenshots = findUserDirPath("screenshots");
+        case UserDirectory::SCREENSHOTS:
+            if( path_user_screenshots.empty() ) {
+                path_user_screenshots = findUserDirPath("screenshots");
             }
-            return pathUserScreenshots;
+            return path_user_screenshots;
 
-        case userDirectory::mods:
-            if (pathUserMods.empty()) {
-                pathUserMods = findUserDirPath("mods");
+        case UserDirectory::MODS:
+            if( path_user_mods.empty() ) {
+                path_user_mods = findUserDirPath("mods");
             }
-            return pathUserMods;
+            return path_user_mods;
 
         default:
             throw std::logic_error("unhandled user directory type for path calculation");
@@ -170,7 +170,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     }
 
     // Paths map
-    std::vector<pathData> paths_map;
+    std::vector<PathData> paths_map;
 
     #if defined(__linux__)
 
@@ -191,7 +191,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     #endif
 
     // Step one - search for an existing dir
-    for (pathData path_map : paths_map) {
+    for (PathData path_map : paths_map) {
         // Skip empty env vars
         if (path_map.rootDir.empty()) {
             continue;
@@ -208,7 +208,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     paths_map.push_back( {".", ""} );
 
     // Step two - try to create the directory
-    for (pathData path_map : paths_map) {
+    for (PathData path_map : paths_map) {
         // Skip empty env vars
         if (path_map.rootDir.empty()) {
             continue;
@@ -292,7 +292,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     }
 
     // Paths map
-    std::vector<pathData> paths_map;
+    std::vector<PathData> paths_map;
 
     #if defined(__linux__)
 
@@ -341,7 +341,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     #endif
 
     // Step one - search for an existing dir
-    for (pathData path_map : paths_map) {
+    for (PathData path_map : paths_map) {
         // Skip empty env vars
         if (path_map.rootDir.empty()) {
             continue;
@@ -358,7 +358,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     paths_map.push_back( {".", ""} );
 
     // Step two - try to create the directory
-    for (pathData path_map : paths_map) {
+    for (PathData path_map : paths_map) {
         // Skip empty env vars
         if( path_map.rootDir.empty() ) {
             continue;

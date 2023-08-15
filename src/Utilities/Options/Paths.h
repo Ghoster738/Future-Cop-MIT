@@ -25,10 +25,10 @@ namespace Options {
 class Paths {
 public:
     // User directory types, for path disambiguation
-    enum userDirectory {
-        savedgames,
-        screenshots,
-        mods
+    enum UserDirectory {
+        SAVED_GAMES,
+        SCREENSHOTS,
+        MODS
     };
     enum DataDirectory {
         WINDOWS,
@@ -42,7 +42,7 @@ public:
     // Calculates the configuration file path, based on user input (if any), points to a file
     std::string getConfigFilePath();
     // Calculates the user directory path, based on user input (if any)
-    std::string getUserDirPath(userDirectory type);
+    std::string getUserDirPath( UserDirectory type );
     // Calculate the data directory path, based on user input (if any)
     std::string getDataDirPath( DataDirectory type );
 
@@ -55,18 +55,18 @@ private:
     Parameters &parameters;
 
     // Paths cache
-    std::string pathConfig = "";
-    std::string pathUserSavedgames = "";
-    std::string pathUserScreenshots = "";
-    std::string pathUserMods = "";
+    std::string path_config = "";
+    std::string path_user_savedgames = "";
+    std::string path_user_screenshots = "";
+    std::string path_user_mods = "";
     std::string path_win_game_data = "";
     std::string path_mac_game_data = "";
     std::string path_psx_game_data = "";
 
     // Path calculations
     std::string findConfigPath() const;
-    std::string findUserDirPath(std::string subType) const;
-    std::string findDataDirPath( DataDirectory type = WINDOWS ) const;
+    std::string findUserDirPath( std::string sub_type ) const;
+    std::string findDataDirPath( DataDirectory type ) const;
 
     // Path separator
     #ifdef _WIN32
@@ -76,7 +76,7 @@ private:
     #endif
 
     // Path data structure
-    struct pathData {
+    struct PathData {
         std::string rootDir; // Usually some env variable value
         std::string subDir;  // Associated subdir
     };

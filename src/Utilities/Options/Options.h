@@ -24,9 +24,9 @@ public:
         init( VIDEO, "height", "600");
         init( VIDEO, "fullscreen", "false");
 
-        init( DIRECTORIES, "user_saved_games", paths.getUserDirPath( Paths::savedgames ));
-        init( DIRECTORIES, "user_screenshots", paths.getUserDirPath( Paths::screenshots ));
-        init( DIRECTORIES, "user_mods",        paths.getUserDirPath( Paths::mods ));
+        init( DIRECTORIES, "user_saved_games", paths.getUserDirPath( Paths::SAVED_GAMES ));
+        init( DIRECTORIES, "user_screenshots", paths.getUserDirPath( Paths::SCREENSHOTS ));
+        init( DIRECTORIES, "user_mods",        paths.getUserDirPath( Paths::MODS ));
 
         init( DIRECTORIES, "windows_data",     paths.getDataDirPath( Paths::WINDOWS ));
         init( DIRECTORIES, "macintosh_data",   paths.getDataDirPath( Paths::MACINTOSH ));
