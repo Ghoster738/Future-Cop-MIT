@@ -109,5 +109,19 @@ can be located in any of the searched directories.
   * `/usr/local/share/futurecopmit/Data/Platform/Windows`
   * `/usr/share/futurecopmit/Data/Platform/Windows`
   * `./Data/Platform/Windows` (in the curent directory)
+* Macintosh Data Directory:
+  * `$XDG_DATA_HOME/futurecopmit/Data/Platform/Macintosh` (if `$XDG_DATA_HOME` is defined)
+  * `$HOME/.local/share/futurecopmit/Data/Platform/Macintosh` (default if `$XDG_DATA_HOME` is not defined)
+  * `$XDG_DATA_DIRS/futurecopmit/Data/Platform/Macintosh` (for each directory in `$XDG_DATA_DIRS` if `$XDG_DATA_DIRS` is defined)
+  * `/usr/local/share/futurecopmit/Data/Platform/Macintosh`
+  * `/usr/share/futurecopmit/Data/Platform/Macintosh`
+  * `./Data/Platform/Macintosh` (in the curent directory)
+* Playstation Data Directory:
+  * `$XDG_DATA_HOME/futurecopmit/Data/Platform/Playstation` (if `$XDG_DATA_HOME` is defined)
+  * `$HOME/.local/share/futurecopmit/Data/Platform/Playstation` (default if `$XDG_DATA_HOME` is not defined)
+  * `$XDG_DATA_DIRS/futurecopmit/Data/Platform/Playstation` (for each directory in `$XDG_DATA_DIRS` if `$XDG_DATA_DIRS` is defined)
+  * `/usr/local/share/futurecopmit/Data/Platform/Playstation`
+  * `/usr/share/futurecopmit/Data/Platform/Playstation`
+  * `./Data/Platform/Playstation` (in the curent directory)
 
 
