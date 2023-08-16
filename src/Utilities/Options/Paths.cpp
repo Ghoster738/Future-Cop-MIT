@@ -4,6 +4,10 @@
 
 #include "Config.h"
 
+#ifdef FCOption_RELATIVE_PATHS_ONLY
+#define USE_ONLY_RELATIVE_PATHS
+#endif
+
 /**
  * Supported platforms are:
  * __linux__
@@ -11,11 +15,12 @@
  * _WIN32
  */
 
-#ifndef FCOption_RELATIVE_PATHS_ONLY
-
 // Do a quick check here for supported platforms
+#ifndef USE_ONLY_RELATIVE_PATHS
+
 #if !defined(__linux__) && !defined(__APPLE__) && !defined(_WIN32)
 #warning Unsupported platform, so the program will only use relative paths.
+#define USE_ONLY_RELATIVE_PATHS
 #endif
 
 #endif
@@ -73,7 +78,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
     // * Priority is FIFO in paths_map
     std::vector<PathData> paths_map;
 
-    #ifndef FCOption_RELATIVE_PATHS_ONLY
+    #ifndef USE_ONLY_RELATIVE_PATHS
     #if defined(__linux__)
 
     paths_map.push_back( {std::getenv("XDG_CONFIG_HOME") ?: "", "futurecopmit"} );
@@ -87,8 +92,6 @@ std::string Utilities::Options::Paths::findConfigPath() const
 
     #elif defined(_WIN32)
 
-    //wchar_t szFolderPath[MAX_PATH_STD] = {0};
-    //SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_DEFAULT, szFolderPath); // or _wgetenv("USERPROFILE")
     paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
@@ -128,16 +131,19 @@ std::string Utilities::Options::Paths::findConfigPath() const
         }
 
         // Append the file name and we're good to go
-        return config_dir + PATH_SEPARATOR + CONFIG_FILE_NAME;
+        if( !path_map.sub_dir.empty() )
+            return config_dir + PATH_SEPARATOR + CONFIG_FILE_NAME;
+        else
+            return config_dir + CONFIG_FILE_NAME;
     }
 
     // Step three: hard fail - just in case we cannot work with anything
     throw std::logic_error("failed to find or create a configuration file path");
 }
 
-std::string Utilities::Options::Paths::getUserDirPath( UserDirectory type)
+std::string Utilities::Options::Paths::getUserDirPath( UserDirectory type )
 {
-    switch (type) {
+    switch( type ) {
         case UserDirectory::SAVED_GAMES:
             if (path_user_savedgames.empty()) {
                 path_user_savedgames = findUserDirPath("saves");
@@ -182,6 +188,21 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
         return sub_directory;
     }
 
+    #ifdef USE_ONLY_RELATIVE_PATHS
+
+    // No path was specified by the user, search the local directory first
+    user_path = "." + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+
+    // If it points to a directory path, return it
+    if (Tools::isDir(user_path)) {
+        return user_path;
+    }
+
+    if( std::filesystem::create_directories(user_path) )
+        return user_path;
+
+    #else
+
     // No path was specified by the user, search the local directory first
     user_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
@@ -193,7 +214,6 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     // Paths map
     std::vector<PathData> paths_map;
 
-    #ifndef FCOption_RELATIVE_PATHS_ONLY
     #if defined(__linux__)
 
     paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
@@ -211,7 +231,6 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
-    #endif
     #endif
 
     // Step one - search for an existing dir
@@ -238,7 +257,13 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
             continue;
         }
 
-        std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+        std::string sub_directory;
+
+        if( !path_map.sub_dir.empty() )
+            sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+        else
+            sub_directory = path_map.root_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+
 
         if (!std::filesystem::create_directories(sub_directory)) {
             continue;
@@ -246,6 +271,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
 
          return sub_directory;
     }
+    #endif
 
     // Step three: hard fail - just in case we cannot work with anything
     throw std::logic_error("failed to find or create a user directory path of type: " + sub_type);
@@ -308,6 +334,20 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     }
 
     // No path was specified by the user, search the local directory first
+    #ifdef USE_ONLY_RELATIVE_PATHS
+
+    data_path = "." + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+
+    // If it points to a directory path, return it
+    if (Tools::isDir(data_path)) {
+        return data_path;
+    }
+
+    if( std::filesystem::create_directories(data_path) )
+        return data_path;
+
+    #else
+
     data_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
     // If it points to a directory path, return it
@@ -318,7 +358,6 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     // Paths map
     std::vector<PathData> paths_map;
 
-    #ifndef FCOption_RELATIVE_PATHS_ONLY
     #if defined(__linux__)
 
     paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
@@ -365,7 +404,6 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT\\Data\\Platform"} );
 
     #endif
-    #endif
 
     // Step one - search for an existing dir
     for (PathData path_map : paths_map) {
@@ -376,7 +414,8 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
 
         std::string sub_directory;
 
-        if( path_map.root_dir == std::getenv(PROGRAM_FILES_X86.c_str()) || path_map.root_dir == std::getenv(PROGRAM_FILES.c_str()) )
+        if( (std::getenv(PROGRAM_FILES_X86.c_str()) != nullptr && path_map.root_dir == std::getenv(PROGRAM_FILES_X86.c_str())) ||
+            (std::getenv(PROGRAM_FILES.c_str())     != nullptr && path_map.root_dir == std::getenv(PROGRAM_FILES.c_str())) )
             sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
         else
             sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
@@ -396,7 +435,8 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
             continue;
         }
 
-        if( path_map.root_dir != std::getenv(PROGRAM_FILES_X86.c_str()) && path_map.root_dir != std::getenv(PROGRAM_FILES.c_str()) ) {
+        if( (std::getenv(PROGRAM_FILES_X86.c_str()) == nullptr || path_map.root_dir != std::getenv(PROGRAM_FILES_X86.c_str())) &&
+            (std::getenv(PROGRAM_FILES.c_str())     == nullptr || path_map.root_dir != std::getenv(PROGRAM_FILES.c_str())) ) {
             std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
             if (!std::filesystem::create_directories(sub_directory)) {
@@ -407,8 +447,12 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
         }
     }
 
+    #endif
 
     // Step three: hard fail - just in case we cannot work with anything
-    throw std::logic_error("failed to find or create the data directory path");
+    throw std::logic_error("failed to find or create the data directory path for " + platform);
 }
 
+#ifdef USE_ONLY_RELATIVE_PATHS
+#undef USE_ONLY_RELATIVE_PATHS
+#endif
