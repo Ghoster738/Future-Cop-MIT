@@ -20,6 +20,8 @@ bool isFile( std::filesystem::path path );
 // Split a string into a vector of strings by the specified delimiter
 std::vector<std::string> split( std::string string, char delimiter );
 
+bool createDirectories( const std::filesystem::path& path );
+
 }
 
 }

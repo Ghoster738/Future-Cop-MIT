@@ -62,7 +62,7 @@ can be located in any of the searched directories.
 #### Mac OS
 
 * Config Directory:
-  * `$XDG_DATA_HOME/futurecopmit/` (if `$XDG_DATA_HOME` is defined)
+  * `$XDG_CONFIG_HOME/futurecopmit/` (if `$XDG_CONFIG_HOME` is defined)
   * `$HOME/Library/Application Support/FutureCopMIT/` (default)
   * `$HOME/.futurecopmit/`
   * `./` (in the curent directory)

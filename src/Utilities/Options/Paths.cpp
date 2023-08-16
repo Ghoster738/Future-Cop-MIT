@@ -95,7 +95,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
 
     #elif defined(__APPLE__)
 
-    paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
+    paths_map.push_back( {std::getenv("XDG_CONFIG_HOME") ?: "", "futurecopmit"} );
     paths_map.push_back( {std::getenv("HOME") ?: "", "Library/Application Support/FutureCopMIT/" });
     paths_map.push_back( {std::getenv("HOME") ?: "", ".futurecopmit"} );
 
@@ -135,7 +135,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
         // Try and create the directory
         std::string config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir;
 
-        if (!Tools::isDir(config_dir) && !std::filesystem::create_directories(config_dir)) {
+        if( !Tools::createDirectories( config_dir ) ) {
             continue;
         }
 
@@ -190,7 +190,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
         // Create the subdirectory
         std::string sub_directory = user_path + sub_type;
 
-        if (!std::filesystem::create_directories(sub_directory)) {
+        if( !Tools::createDirectories( sub_directory ) ) {
             throw std::invalid_argument("cannot create user directory '" + sub_directory + "'");
         }
 
@@ -203,11 +203,11 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     user_path = "." + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
     // If it points to a directory path, return it
-    if (Tools::isDir(user_path)) {
+    if( Tools::isDir(user_path) ) {
         return user_path;
     }
 
-    if( std::filesystem::create_directories(user_path) )
+    if( Tools::createDirectories( user_path ) )
         return user_path;
 
     #else
@@ -274,7 +274,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
             sub_directory = path_map.root_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
 
-        if (!std::filesystem::create_directories(sub_directory)) {
+        if( !Tools::createDirectories( sub_directory ) ) {
             continue;
         }
 
@@ -348,11 +348,11 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     data_path = "." + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
     // If it points to a directory path, return it
-    if (Tools::isDir(data_path)) {
+    if( Tools::isDir( data_path ) ) {
         return data_path;
     }
 
-    if( std::filesystem::create_directories(data_path) )
+    if( Tools::createDirectories( data_path ) )
         return data_path;
 
     #else
@@ -390,7 +390,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     std::string xdg_data_dirs = std::getenv("XDG_DATA_DIRS") ?: "";
 
     if (!xdg_data_dirs.empty()) {
-        for (auto xdgDataDir: split(xdg_data_dirs, ':')) {
+        for (auto xdgDataDir: Tools::split(xdg_data_dirs, ':')) {
             paths_map.push_back( {xdgDataDir, "futurecopmit/Data/Platform"} );
         }
     }
@@ -446,7 +446,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
         if( !path_map.no_end ) {
             std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
-            if (!std::filesystem::create_directories(sub_directory)) {
+            if( !Tools::createDirectories( sub_directory ) ) {
                 continue;
             }
 
