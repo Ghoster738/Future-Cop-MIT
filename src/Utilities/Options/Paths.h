@@ -12,6 +12,12 @@ namespace Options {
 // Finding the config, user and data paths in a cross-platform (hopefully) compliant manner
 class Paths {
 public:
+    // Path separator
+    static const std::string PATH_SEPARATOR;
+
+    // Default config file name
+    static const std::string CONFIG_FILE_NAME;
+
     // User directory types, for path disambiguation
     enum UserDirectory {
         SAVED_GAMES,
@@ -36,9 +42,6 @@ public:
 
 
 private:
-    // Default config file name
-    const std::string CONFIG_FILE_NAME = "futurecop.ini";
-
     // User data
     Parameters &parameters;
 
@@ -55,13 +58,6 @@ private:
     std::string findConfigPath() const;
     std::string findUserDirPath( std::string sub_type ) const;
     std::string findDataDirPath( DataDirectory type ) const;
-
-    // Path separator
-    #ifdef _WIN32
-    const std::string PATH_SEPARATOR = "\\";
-    #else
-    const std::string PATH_SEPARATOR = "/";
-    #endif
 
     // Path data structure
     struct PathData {

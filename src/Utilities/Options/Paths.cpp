@@ -25,6 +25,15 @@
 
 #endif
 
+// Path separator
+#ifdef _WIN32
+const std::string Utilities::Options::Paths::PATH_SEPARATOR = "\\";
+#else
+const std::string Utilities::Options::Paths::PATH_SEPARATOR = "/";
+#endif
+
+const std::string Utilities::Options::Paths::CONFIG_FILE_NAME = "futurecop.ini";
+
 // Retrieve the configuration file path
 std::string Utilities::Options::Paths::getConfigFilePath()
 {
