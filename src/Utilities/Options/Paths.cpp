@@ -394,9 +394,9 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     // Future Cop Locations on Windows.
     if( type == WINDOWS ) {
         #if defined(_WIN64)
-        paths_map.push_back( {std::getenv(PROGRAM_FILES_X86.c_str()) ?: "", "Electronic Arts\\Future Cop"} );
+        paths_map.push_back( {std::getenv(PROGRAM_FILES_X86.c_str()) ?: "", "Electronic Arts\\Future Cop", true} );
         #else
-        paths_map.push_back( {std::getenv(PROGRAM_FILES.c_str()) ?: "", "Electronic Arts\\Future Cop"} );
+        paths_map.push_back( {std::getenv(PROGRAM_FILES.c_str()) ?: "", "Electronic Arts\\Future Cop", true} );
         #endif
     }
 
@@ -414,8 +414,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
 
         std::string sub_directory;
 
-        if( (std::getenv(PROGRAM_FILES_X86.c_str()) != nullptr && path_map.root_dir == std::getenv(PROGRAM_FILES_X86.c_str())) ||
-            (std::getenv(PROGRAM_FILES.c_str())     != nullptr && path_map.root_dir == std::getenv(PROGRAM_FILES.c_str())) )
+        if( path_map.no_end )
             sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
         else
             sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
@@ -435,8 +434,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
             continue;
         }
 
-        if( (std::getenv(PROGRAM_FILES_X86.c_str()) == nullptr || path_map.root_dir != std::getenv(PROGRAM_FILES_X86.c_str())) &&
-            (std::getenv(PROGRAM_FILES.c_str())     == nullptr || path_map.root_dir != std::getenv(PROGRAM_FILES.c_str())) ) {
+        if( !path_map.no_end ) {
             std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
             if (!std::filesystem::create_directories(sub_directory)) {

@@ -24,7 +24,7 @@ public:
         PLAYSTATION
     };
 
-    Paths(Parameters &params) : parameters(params) { /* empty */ };
+    Paths( Parameters &params ) : parameters( params ) { /* empty */ };
     ~Paths() { /* empty */ };
 
     // Calculates the configuration file path, based on user input (if any), points to a file
@@ -67,6 +67,7 @@ private:
     struct PathData {
         std::string root_dir; // Usually some env variable value
         std::string sub_dir;  // Associated subdir
+        bool no_end = false;
     };
 };
 
