@@ -155,19 +155,19 @@ std::string Utilities::Options::Paths::getUserDirPath( UserDirectory type )
     switch( type ) {
         case UserDirectory::SAVED_GAMES:
             if (path_user_savedgames.empty()) {
-                path_user_savedgames = findUserDirPath("saves");
+                path_user_savedgames = findUserDirPath("Saves");
             }
             return path_user_savedgames;
 
         case UserDirectory::SCREENSHOTS:
             if( path_user_screenshots.empty() ) {
-                path_user_screenshots = findUserDirPath("screenshots");
+                path_user_screenshots = findUserDirPath("Screenshots");
             }
             return path_user_screenshots;
 
         case UserDirectory::MODS:
             if( path_user_mods.empty() ) {
-                path_user_mods = findUserDirPath("mods");
+                path_user_mods = findUserDirPath("Mods");
             }
             return path_user_mods;
 
