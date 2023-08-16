@@ -70,6 +70,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
 
     //wchar_t szFolderPath[MAX_PATH_STD] = {0};
     //SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_DEFAULT, szFolderPath); // or _wgetenv("USERPROFILE")
+    paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
     #endif
@@ -186,6 +187,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
 
     #elif defined(_WIN32)
 
+    paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
     #endif
@@ -336,6 +338,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
         #endif
     }
 
+    paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT\\Data\\Platform"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT\\Data\\Platform"} );
 
     #endif
