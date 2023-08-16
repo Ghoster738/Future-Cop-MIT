@@ -33,9 +33,9 @@ const option long_options[] = {
     {"window",       no_argument,       nullptr, OPT_WINDOW       },
     {"config",       required_argument, nullptr, OPT_CONFIG_DIR   },
     {"user",         required_argument, nullptr, OPT_USER_DIR     },
-    {"win_data",     required_argument, nullptr, OPT_WIN_DATA_DIR },
-    {"mac_data",     required_argument, nullptr, OPT_MAC_DATA_DIR },
-    {"psx_data",     required_argument, nullptr, OPT_PSX_DATA_DIR },
+    {"win-data",     required_argument, nullptr, OPT_WIN_DATA_DIR },
+    {"mac-data",     required_argument, nullptr, OPT_MAC_DATA_DIR },
+    {"psx-data",     required_argument, nullptr, OPT_PSX_DATA_DIR },
 
     {0, 0, 0, 0} // Required as last option
 };
@@ -101,22 +101,22 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "  Paths:" << "\n"
         << "    --config   <path> Path to game configuration directory/file" << "\n"
         << "    --user     <path> Path to directory - savegames and screenshots" << "\n"
-        << "    --win_data <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
-        << "    --mac_data <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
-        << "    --psx_data <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
+        << "    --win-data <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
+        << "    --mac-data <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
+        << "    --psx-data <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
         << "\n";
 }
 
 void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
     // Suppress getopt errors, we'll handle them ourselves
     opterr = 0;
+    // Reset optind.
+    optind = 1;
 
     if( is_initialized )
         throw std::runtime_error("Parameters must be called only once.");
 
     is_initialized = true;
-
-    optind = 1;
 
     while (true) {
         int index = -1;
@@ -152,7 +152,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
                     case OPT_WIN_DATA_DIR: storeError("Windows game data directory not specified in commandline");     break;
                     case OPT_MAC_DATA_DIR: storeError("Macintosh game data directory not specified in commandline");   break;
                     case OPT_PSX_DATA_DIR: storeError("Playstation game data directory not specified in commandline"); break;
-                    default:               storeError("unsupported option specified in commandline, use --help to list valid options");
+                    default:               storeError("unsupported option \"" + std::string( argv[ (optind - 1) % argc ] ) + "\" specified in commandline, use --help to list valid options");
                 }
                 
                 break;

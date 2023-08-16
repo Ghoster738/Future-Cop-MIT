@@ -414,7 +414,7 @@ int main( int argc, char *argv[] ) {
         ParametersGiven parameters;
 
         parameters.addArgument( program_name );
-        parameters.addArgument( "--data" );
+        parameters.addArgument( "--win-data" );
         parameters.addArgument( path ); // In linux this will always be valid.
 
         Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
@@ -442,11 +442,79 @@ int main( int argc, char *argv[] ) {
     }
 
     {
-        std::string test_name = "missing name case";
+        std::string test_name = "--data valid";
+        std::string path = "./";
         ParametersGiven parameters;
 
         parameters.addArgument( program_name );
-        parameters.addArgument( "--missingname" );
+        parameters.addArgument( "--mac-data" );
+        parameters.addArgument( path ); // In linux this will always be valid.
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.mac_data_dir.wasModified() && default_parameters.mac_data_dir.getValue() != path ) {
+            std::cout << "Error: MacDataDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
+
+    {
+        std::string test_name = "--data valid";
+        std::string path = "./";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--psx-data" );
+        parameters.addArgument( path ); // In linux this will always be valid.
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.psx_data_dir.wasModified() && default_parameters.psx_data_dir.getValue() != path ) {
+            std::cout << "Error: PSXDataDir was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_path,  "ConfigPath", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
+
+    {
+        std::string test_name = "missing name case";
+        ParametersGiven parameters;
+
+        std::string missing_name = "--missingname";
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( missing_name );
 
         try {
             Utilities::Options::Parameters default_parameters;
@@ -456,7 +524,7 @@ int main( int argc, char *argv[] ) {
         }
         catch( std::invalid_argument arg )
         {
-            if( std::string( arg.what() ) != "unsupported option specified in commandline, use --help to list valid options" ) {
+            if( std::string( arg.what() ) != "unsupported option \"" + missing_name + "\" specified in commandline, use --help to list valid options" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
                 problem |= 1;
             }
