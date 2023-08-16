@@ -2,7 +2,7 @@
 
 ## Data directories
 
-Future Cop MIT uses three types of data directories, for various data types:
+Future Cop MIT uses five types of data directories, for various data types:
 
 | Data Type  | Description                     |
 |------------|---------------------------------|
@@ -12,7 +12,7 @@ Future Cop MIT uses three types of data directories, for various data types:
 | `mac-data` | Original Macintosh game data.   |
 | `psx-data` | Original Playstation game data. |
 
-Note only one game data directory need to run the program.
+Note: Only one game data directory is needed to run this software.
 
 For each data type, several directories are searched automatically, and the
 first matching one will be used.
@@ -37,68 +37,72 @@ can be located in any of the searched directories.
 
 #### Windows
 
-* Config directory:
+* Config Directory:
   * `%APPDATA%\FutureCopMIT\` (default)
   * `%USERPROFILE%\FutureCopMIT\`
   * `.\` (in the curent directory)
-* User directory:
+* User Directory:
   * `%APPDATA%\FutureCopMIT\` (default)
   * `%USERPROFILE%\FutureCopMIT\`
   * `.\` (in the curent directory)
-* Windows Data directory:
+* Windows Data Directory:
   * `%PROGRAM_FILES_X86%\Electronic Arts\Future Cop\` (default)
   * `%APPDATA%\FutureCopMIT\data\windows\`
   * `%USERPROFILE%\FutureCopMIT\data\windows\`
-  * `.\data\platfrom\windows` (in the curent directory)
-* Macintosh Data directory:
-  * `%APPDATA%\FutureCopMIT\data\platfrom\macintosh\` (default)
-  * `%USERPROFILE%\FutureCopMIT\data\platfrom\macintosh\`
-  * `.\data\platfrom\macintosh\` (in the curent directory)
+  * `.\data\platform\windows` (in the curent directory)
+* Macintosh Data Directory:
+  * `%APPDATA%\FutureCopMIT\data\platform\macintosh\` (default)
+  * `%USERPROFILE%\FutureCopMIT\data\platform\macintosh\`
+  * `.\data\platform\macintosh\` (in the curent directory)
+* Playstation Data Directory:
+  * `%APPDATA%\FutureCopMIT\data\platform\playstation\` (default)
+  * `%USERPROFILE%\FutureCopMIT\data\platform\playstation\`
+  * `.\data\platform\playstation\` (in the curent directory)
 
 #### Mac OS
 
-* Config directory:
+* Config Directory:
   * `$XDG_DATA_HOME/futurecopmit/` (if `$XDG_DATA_HOME` is defined)
   * `$HOME/Library/Application Support/FutureCopMIT/` (default)
   * `$HOME/.futurecopmit/`
   * `./` (in the curent directory)
-* User directory:
+* User Directory:
   * `$XDG_DATA_HOME/futurecopmit/` (if `$XDG_DATA_HOME` is defined)
   * `$HOME/Library/Application Support/FutureCopMIT/` (default)
   * `$HOME/.futurecopmit/`
   * `./` (in the curent directory)
-* Windows Data directory:
+* Windows Data Directory:
   * `$XDG_DATA_HOME/futurecopmit/Data/Platform/Windows/` (if `$XDG_DATA_HOME` is defined)
   * `$XDG_DATA_DIRS/futurecopmit/Data/Platform/Windows/` (for each directory in `$XDG_DATA_DIRS` if `$XDG_DATA_DIRS` is defined)
   * `$HOME/Library/Application Support/FutureCopMIT/Data/Platform/Windows/`
   * `$HOME/.futurecopmit/Data/Platform/Windows/`
   * `./Data/Platform/Windows/` (in the curent directory)
-* Macintosh Data directory:
+* Macintosh Data Directory:
   * `$XDG_DATA_HOME/futurecopmit/Data/Platform/Macintosh/` (if `$XDG_DATA_HOME` is defined)
   * `$XDG_DATA_DIRS/futurecopmit/Data/Platform/Macintosh/` (for each directory in `$XDG_DATA_DIRS` if `$XDG_DATA_DIRS` is defined)
   * `$HOME/Library/Application Support/FutureCopMIT/Data/Platform/Macintosh/`
   * `$HOME/.futurecopmit/Data/Platform/Macintosh/`
   * `./Data/Platform/Macintosh/` (in the curent directory)
-* Playstation Data directory:
-  * `./Data/Platform/Playstation/` (in the curent directory)
+* Playstation Data Directory:
   * `$XDG_DATA_HOME/futurecopmit/Data/Platform/Playstation/` (if `$XDG_DATA_HOME` is defined)
   * `$XDG_DATA_DIRS/futurecopmit/Data/Platform/Playstation/` (for each directory in `$XDG_DATA_DIRS` if `$XDG_DATA_DIRS` is defined)
   * `$HOME/Library/Application Support/FutureCopMIT/Data/Platform/Playstation/`
   * `$HOME/.futurecopmit/Data/Platform/Playstation/`
+  * `./Data/Platform/Playstation/` (in the curent directory)
 
   
 #### Linux
 
-* Config directory:
-  * `./` (in the curent directory)
+* Config Directory:
   * `$XDG_CONFIG_HOME/futurecopmit/` (if `$XDG_CONFIG_HOME` is defined)
   * `$HOME/.config/futurecopmit/` (default)
-* User directory:
+  * `./` (in the curent directory)
+* User Directory:
   * `$XDG_DATA_HOME/futurecopmit/` (if `$XDG_DATA_HOME` is defined)
   * `$HOME/.local/share/futurecopmit/`
   * `$HOME/futurecopmit/`
   * `./` (in the curent directory)
-* Windows Data directory:
+* Windows Data Directory:
   * `$XDG_DATA_HOME/futurecopmit/Data/Platform/Windows` (if `$XDG_DATA_HOME` is defined)
   * `$HOME/.local/share/futurecopmit/Data/Platform/Windows` (default if `$XDG_DATA_HOME` is not defined)
   * `$XDG_DATA_DIRS/futurecopmit/Data/Platform/Windows` (for each directory in `$XDG_DATA_DIRS` if `$XDG_DATA_DIRS` is defined)
