@@ -19,7 +19,7 @@
 #ifndef USE_ONLY_RELATIVE_PATHS
 
 #if !defined(__linux__) && !defined(__APPLE__) && !defined(_WIN32)
-#warning Unsupported platform, so the program will only use relative paths.
+#warning Unsupported platform for non relative paths, so the program will only use relative paths.
 #define USE_ONLY_RELATIVE_PATHS
 #endif
 
