@@ -255,8 +255,8 @@ std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
 
 std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
 {
-    const std::string CSIDL_PROGRAM_FILESX86 = "CSIDL_PROGRAM_FILESX86";
-    const std::string CSIDL_PROGRAM_FILES = "CSIDL_PROGRAM_FILES";
+    const std::string PROGRAM_FILES_X86 = "PROGRAMFILES(X86)";
+    const std::string PROGRAM_FILES = "PROGRAMFILES";
 
     // Platform
     std::string platform;
@@ -330,9 +330,9 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     // Future Cop Locations on Windows.
     if( type == WINDOWS ) {
         #if defined(_WIN64)
-        paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILESX86) ?: "", "Electronic Arts/Future Cop"} );
+        paths_map.push_back( {std::getenv(PROGRAM_FILES_X86.c_str()) ?: "", "Electronic Arts\\Future Cop"} );
         #else
-        paths_map.push_back( {std::getenv(CSIDL_PROGRAM_FILES) ?: "", "Electronic Arts/Future Cop"} );
+        paths_map.push_back( {std::getenv(PROGRAM_FILES.c_str()) ?: "", "Electronic Arts\\Future Cop"} );
         #endif
     }
 
@@ -347,7 +347,12 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
             continue;
         }
 
-        std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+        std::string sub_directory;
+
+        if( path_map.rootDir == std::getenv(PROGRAM_FILES_X86.c_str()) || path_map.rootDir == std::getenv(PROGRAM_FILES.c_str()) )
+            sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR;
+        else
+            sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
         if (Tools::isDir(sub_directory)) {
             return sub_directory;
@@ -364,7 +369,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
             continue;
         }
 
-        if( path_map.rootDir != CSIDL_PROGRAM_FILESX86 && path_map.rootDir != CSIDL_PROGRAM_FILES ) {
+        if( path_map.rootDir != std::getenv(PROGRAM_FILES_X86.c_str()) && path_map.rootDir != std::getenv(PROGRAM_FILES.c_str()) ) {
             std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
             if (!std::filesystem::create_directories(sub_directory)) {
