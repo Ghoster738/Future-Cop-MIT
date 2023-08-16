@@ -1,18 +1,6 @@
 #ifndef UTILITIES_OPTIONS_PATHS_H
 #define UTILITIES_OPTIONS_PATHS_H
 
-/**
- * Supported platforms are:
- * __linux__
- * __APPLE__
- * _WIN32
- */
-
-// Do a quick check here for supported platforms
-#if !defined(__linux__) && !defined(__APPLE__) && !defined(_WIN32)
-    #error Unsupported platform.
-#endif
-
 #include <vector>
 #include <string>
 #include "Tools.h"
@@ -77,8 +65,8 @@ private:
 
     // Path data structure
     struct PathData {
-        std::string rootDir; // Usually some env variable value
-        std::string subDir;  // Associated subdir
+        std::string root_dir; // Usually some env variable value
+        std::string sub_dir;  // Associated subdir
     };
 };
 

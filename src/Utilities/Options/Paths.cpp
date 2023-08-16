@@ -2,6 +2,20 @@
 #include <string>
 #include "Paths.h"
 
+#include "Config.h"
+
+/**
+ * Supported platforms are:
+ * __linux__
+ * __APPLE__
+ * _WIN32
+ */
+
+// Do a quick check here for supported platforms
+#if !defined(__linux__) && !defined(__APPLE__) && !defined(_WIN32)
+#warning Unsupported platform, so the program will only use relative paths.
+#endif
+
 // Retrieve the configuration file path
 std::string Utilities::Options::Paths::getConfigFilePath()
 {
@@ -78,11 +92,11 @@ std::string Utilities::Options::Paths::findConfigPath() const
     // Step one: search for a config file
     for (PathData path_map : paths_map) {
         // Skip empty env vars
-        if (path_map.rootDir.empty()) {
+        if (path_map.root_dir.empty()) {
             continue;
         }
 
-        config_path = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + CONFIG_FILE_NAME;
+        config_path = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + CONFIG_FILE_NAME;
 
         // If it exists in this location, return it
         if (Tools::isFile(config_path)) {
@@ -96,12 +110,12 @@ std::string Utilities::Options::Paths::findConfigPath() const
     // Step two: attempt to create one
     for (PathData path_map : paths_map) {
         // Skip empty/bad env vars
-        if (path_map.rootDir.empty() || !Tools::isDir(path_map.rootDir)) {
+        if (path_map.root_dir.empty() || !Tools::isDir(path_map.root_dir)) {
             continue;
         }
 
         // Try and create the directory
-        std::string config_dir = path_map.rootDir + PATH_SEPARATOR + path_map.subDir;
+        std::string config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir;
 
         if (!Tools::isDir(config_dir) && !std::filesystem::create_directories(config_dir)) {
             continue;
@@ -195,11 +209,11 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     // Step one - search for an existing dir
     for (PathData path_map : paths_map) {
         // Skip empty env vars
-        if (path_map.rootDir.empty()) {
+        if (path_map.root_dir.empty()) {
             continue;
         }
 
-        std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+        std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
         if (Tools::isDir(sub_directory)) {
             return sub_directory;
@@ -212,11 +226,11 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     // Step two - try to create the directory
     for (PathData path_map : paths_map) {
         // Skip empty env vars
-        if (path_map.rootDir.empty()) {
+        if (path_map.root_dir.empty()) {
             continue;
         }
 
-        std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+        std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
 
         if (!std::filesystem::create_directories(sub_directory)) {
             continue;
@@ -346,16 +360,16 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     // Step one - search for an existing dir
     for (PathData path_map : paths_map) {
         // Skip empty env vars
-        if (path_map.rootDir.empty()) {
+        if (path_map.root_dir.empty()) {
             continue;
         }
 
         std::string sub_directory;
 
-        if( path_map.rootDir == std::getenv(PROGRAM_FILES_X86.c_str()) || path_map.rootDir == std::getenv(PROGRAM_FILES.c_str()) )
-            sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR;
+        if( path_map.root_dir == std::getenv(PROGRAM_FILES_X86.c_str()) || path_map.root_dir == std::getenv(PROGRAM_FILES.c_str()) )
+            sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
         else
-            sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+            sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
         if (Tools::isDir(sub_directory)) {
             return sub_directory;
@@ -368,12 +382,12 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     // Step two - try to create the directory
     for (PathData path_map : paths_map) {
         // Skip empty env vars
-        if( path_map.rootDir.empty() ) {
+        if( path_map.root_dir.empty() ) {
             continue;
         }
 
-        if( path_map.rootDir != std::getenv(PROGRAM_FILES_X86.c_str()) && path_map.rootDir != std::getenv(PROGRAM_FILES.c_str()) ) {
-            std::string sub_directory = path_map.rootDir + PATH_SEPARATOR + path_map.subDir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+        if( path_map.root_dir != std::getenv(PROGRAM_FILES_X86.c_str()) && path_map.root_dir != std::getenv(PROGRAM_FILES.c_str()) ) {
+            std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
 
             if (!std::filesystem::create_directories(sub_directory)) {
                 continue;
