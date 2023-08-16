@@ -13,6 +13,7 @@ option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Ma
 # "Warning: Enabling this would mess with the locations where the program would normally compile to. Use jsoncpp vendored library. Make sure the submodule is there before using this option."
 set(FCOption_JSONCPP_VENDORED OFF)
 option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodule is there before using this option. Zlib is not needed, but it would be nice to have for PNG export support." OFF)
+option(FCOption_RELATIVE_PATHS_ONLY "This disables the complex file searchs inside the file structure of the operating system. Use this if you are making a headless version of this engine." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 

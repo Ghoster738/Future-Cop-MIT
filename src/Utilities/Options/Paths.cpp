@@ -11,9 +11,13 @@
  * _WIN32
  */
 
+#ifndef FCOption_RELATIVE_PATHS_ONLY
+
 // Do a quick check here for supported platforms
 #if !defined(__linux__) && !defined(__APPLE__) && !defined(_WIN32)
 #warning Unsupported platform, so the program will only use relative paths.
+#endif
+
 #endif
 
 // Retrieve the configuration file path
@@ -69,6 +73,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
     // * Priority is FIFO in paths_map
     std::vector<PathData> paths_map;
 
+    #ifndef FCOption_RELATIVE_PATHS_ONLY
     #if defined(__linux__)
 
     paths_map.push_back( {std::getenv("XDG_CONFIG_HOME") ?: "", "futurecopmit"} );
@@ -87,6 +92,7 @@ std::string Utilities::Options::Paths::findConfigPath() const
     paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
+    #endif
     #endif
 
     // Step one: search for a config file
@@ -187,6 +193,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     // Paths map
     std::vector<PathData> paths_map;
 
+    #ifndef FCOption_RELATIVE_PATHS_ONLY
     #if defined(__linux__)
 
     paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit"} );
@@ -204,6 +211,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT"} );
 
+    #endif
     #endif
 
     // Step one - search for an existing dir
@@ -310,6 +318,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     // Paths map
     std::vector<PathData> paths_map;
 
+    #ifndef FCOption_RELATIVE_PATHS_ONLY
     #if defined(__linux__)
 
     paths_map.push_back( {std::getenv("XDG_DATA_HOME") ?: "", "futurecopmit/Data/Platform"} );
@@ -355,6 +364,7 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     paths_map.push_back( {std::getenv("APPDATA") ?: "", "FutureCopMIT\\Data\\Platform"} );
     paths_map.push_back( {std::getenv("USERPROFILE") ?: "", "FutureCopMIT\\Data\\Platform"} );
 
+    #endif
     #endif
 
     // Step one - search for an existing dir
