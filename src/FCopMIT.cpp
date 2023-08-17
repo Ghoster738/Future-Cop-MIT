@@ -40,10 +40,12 @@ protected:
 
     Data::Manager manager;
     Data::Manager::Platform platform;
+    std::string resource_identifier;
     Data::Mission::IFF *global_r;
     Data::Mission::IFF *resource_r;
 
     //
+    std::string graphics_identifier;
     Graphics::Environment *environment_p;
     Controls::System *control_system_p;
 
@@ -56,24 +58,227 @@ public:
         this->environment_p    = nullptr;
         this->control_system_p = nullptr;
 
-        // Get the program name first.
-        if( argc == 0 )
-            this->program_name = "ErrorNoParameters";
-        else
-            this->program_name = argv[ 0 ];
+        if( parameters.help.getValue() ) {
+            return;
+        }
 
+        this->resource_identifier = Data::Manager::pa_hollywood_keys;
+        this->platform = Data::Manager::Platform::WINDOWS;
+
+        setupLogging();
+        initGraphics();
+        setupGraphics();
+        loadResources();
+        loadGraphics();
+    }
+
+    virtual ~MainProgram() {
+        cleanup();
+    }
+
+private:
+    void setupLogging() {
         // Setup the professional logger next.
         Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::INFO );
 
         {
             auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
-            initialize_log.output << program_name << " started at ";
+            initialize_log.output << parameters.getBinaryName() << " started at ";
         }
 
         Utilities::logger.setTimeStampMode( true );
+
+        // Export some info.
+        {
+            auto info_log = Utilities::logger.getLog( Utilities::Logger::INFO );
+            info_log.output << "Using config file: " << paths.getConfigFilePath()  << "\n";
+        }
+        {
+            auto debug_log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
+            debug_log.output << "\nData directories\n"
+                             << "  Windows directory:     " << options.getWindowsDataDirectory()     << "\n"
+                             << "  Macintosh directory:   " << options.getMacintoshDataDirectory()   << "\n"
+                             << "  Playstation directory: " << options.getPlaystationDataDirectory() << "\n"
+                             << "\nUser directories\n"
+                             << "  Savedgames directory:  " << options.getSaveDirectory()            << "\n"
+                             << "  Screenshots directory: " << options.getScreenshotsDirectory()     << "\n";
+        }
+    }
+    void initGraphics() {
+        auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
+
+        if( graphics_identifiers.empty() ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                log.output << "Graphics has no available identifiers.";
+            }
+
+            cleanup();
+
+            throw std::runtime_error( "Graphics has no available identifiers. Therefore there is nothing for the game to render to." );
+        }
+
+        if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                log.output << "The graphics identifier \"" << graphics_identifiers[0] << "\" is not an identifer.";
+            }
+
+            cleanup();
+
+            throw std::runtime_error( "The graphics identifier \"" + graphics_identifiers[0] + "\" is not an identifer." );
+        }
+
+        this->graphics_identifier = graphics_identifiers[0];
+
+        Graphics::Environment::initSystem( this->graphics_identifier );
     }
 
-    virtual ~MainProgram() {
+    void setupGraphics() {
+        this->environment_p = Graphics::Environment::alloc( this->graphics_identifier );
+
+        if( this->environment_p == nullptr ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                log.output << "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " << this->graphics_identifier;
+            }
+
+            cleanup();
+
+            throw std::runtime_error( "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " + this->graphics_identifier );
+        }
+
+        // Declare a pointer
+        Graphics::Window *window_r = Graphics::Window::alloc( *this->environment_p );
+
+        if( window_r == nullptr ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                log.output << "The graphics window has failed to allocate.";
+            }
+
+            cleanup();
+
+            throw std::runtime_error( "The graphics window has failed to allocate." );
+        }
+
+        std::string title = "Future Cop M.I.T.";
+
+        window_r->setWindowTitle( title );
+        if( window_r->center() != 1 ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::WARNING );
+            log.output << "The graphics window has failed to center.";
+        }
+        window_r->setDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
+        window_r->setFullScreen( options.getVideoFullscreen() );
+
+        if( window_r->attach() != 1 ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                log.output << "The graphics window has failed to attach.";
+            }
+
+            cleanup();
+
+            throw std::runtime_error( "The graphics window has failed to attach." );
+        }
+    }
+
+    void loadResources() {
+        manager.autoSetEntries( options.getWindowsDataDirectory(),     Data::Manager::Platform::WINDOWS );
+        manager.autoSetEntries( options.getMacintoshDataDirectory(),   Data::Manager::Platform::MACINTOSH );
+        manager.autoSetEntries( options.getPlaystationDataDirectory(), Data::Manager::Platform::PLAYSTATION );
+
+        // TODO If the global path is specified then use a specified path.
+        /* if( global_path.compare("") != 0 ) {
+            Data::Manager::IFFEntry entry = manager.getIFFEntry( Data::Manager::global );
+            // Just in case if this was not set on global id.
+            entry.importance = Data::Manager::Importance::NEEDED;
+            // Overide the global path.
+            entry.setPath( platform, global_path );
+            manager.setIFFEntry( global_id, entry );
+        }*/
+
+        // TODO If the mission path is specified then use a specified path.
+        /* if( mission_path.compare("") != 0  ) {
+            resource_identifier = "unk_custom_mission";
+
+            Data::Manager::IFFEntry entry = manager.getIFFEntry( resource_identifier );
+            // Overide the global path.
+            entry.setPath( platform, mission_path );
+            manager.setIFFEntry( resource_identifier, entry );
+        }*/
+
+        auto entry = manager.getIFFEntry( resource_identifier );
+        entry.importance = Data::Manager::Importance::NEEDED;
+
+        if( !manager.setIFFEntry( this->resource_identifier, entry ) ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+                log.output << "Set IFF Entry has failed for \"" << this->resource_identifier << "\".";
+            }
+
+            cleanup();
+
+            throw std::runtime_error( "Set IFF Entry has failed for \"" + this->resource_identifier + "\"." );
+        }
+
+        manager.togglePlatform( this->platform, true );
+
+        manager.setLoad( Data::Manager::Importance::NEEDED );
+
+        this->global_r = manager.getIFFEntry( Data::Manager::global ).getIFF( this->platform );
+        if( this->global_r == nullptr ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << "The global IFF " << Data::Manager::global << " did not load.";
+        }
+
+        this->resource_r = manager.getIFFEntry( this->resource_identifier ).getIFF( this->platform );
+        if( this->resource_r == nullptr ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << "The mission IFF " << this->resource_identifier << " did not load.";
+        }
+    }
+
+    void loadGraphics() {
+        if( this->resource_r != nullptr ) {
+            // First get the model textures from the resource file.
+            auto cbmp_resources = Data::Mission::BMPResource::getVector( *this->resource_r );
+
+            int status = this->environment_p->setupTextures( cbmp_resources );
+
+            if( status < 0 ) {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
+            }
+
+            // Load all the 3D meshes from the resource as well.
+            auto cobj_resources = Data::Mission::ObjResource::getVector( *this->resource_r );
+
+            status = this->environment_p->setModelTypes( cobj_resources );
+
+            if( status < 0 ) {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
+            }
+
+            std::vector<Data::Mission::TilResource*> til_resources = Data::Mission::TilResource::getVector( *this->resource_r );
+
+            this->environment_p->setMap( *Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 ), til_resources );
+        }
+
+        std::vector<Data::Mission::IFF*> loaded_IFFs = { this->global_r, this->resource_r };
+
+        // Get the font from the resource file.
+        if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << "Fonts are missing.";
+        }
+    }
+
+    void cleanup() {
+        options.saveOptions();
+
         if( control_system_p != nullptr )
             delete control_system_p;
 
@@ -84,44 +289,7 @@ public:
 
 int main(int argc, char** argv)
 {
-    try {
-        Utilities::Options::Parameters parameters( argc, argv );
-        Utilities::Options::Paths paths( parameters );
-        Utilities::Options::Options options( paths, parameters );
-
-        // Stop if help was requested, the information was already printed out
-        if (parameters.help.getValue()) {
-            return 0;
-        }
-
-        std::cout << "Using config file:           " << paths.getConfigFilePath()  << "\n\n";
-
-        std::cout << "Using data WINDOWS file:     " << options.getWindowsDataDirectory()     << "\n";
-        std::cout << "Using data MACINTOSH file:   " << options.getMacintoshDataDirectory()   << "\n";
-        std::cout << "Using data PLAYSTATION file: " << options.getPlaystationDataDirectory() << "\n\n";
-
-        std::cout << "Using user savedgames file:  " << options.getSaveDirectory()        << "\n";
-        std::cout << "Using user screenshots file: " << options.getScreenshotsDirectory() << "\n";
-        // std::cout << "Using user mods file:        " << options.getModsDirectory()        << "\n";
-        /*std::cout << "Video width (read):          " << options.getVideoWidth() << "\n";
-
-        int choosen_res = 340;
-
-        std::cout << "Video width (choosen_res): " << choosen_res << "\n";
-        options.setVideoWidth(choosen_res);*/
-
-        options.saveOptions();
-
-    } catch(std::invalid_argument exc) {
-        std::cout << "Error: " << exc.what() << "\n";
-        return 1;
-    } catch(std::logic_error exc) {
-        std::cout << "Internal error: " << exc.what() << "\n";
-        return 1;
-    } catch(std::runtime_error exc) {
-        std::cout << "Fatal error: " << exc.what() << "\n";
-        return 1;
-    }
+    MainProgram main_program( argc, argv );
 
     return 0;
 }

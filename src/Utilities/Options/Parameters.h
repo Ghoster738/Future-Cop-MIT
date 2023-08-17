@@ -34,6 +34,8 @@ public:
      */
     bool getParameters( int argc, char *argv[], std::ostream &output );
 
+    std::string getBinaryName() const { return this->binary_name; }
+
 public:
     /**
      * Single parameter definition - boolean
