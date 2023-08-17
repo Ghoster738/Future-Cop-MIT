@@ -47,6 +47,8 @@ protected:
     //
     std::string graphics_identifier;
     Graphics::Environment *environment_p;
+    Graphics::Text2DBuffer *text_2d_buffer_r;
+    Graphics::Camera *first_person_r;
     Controls::System *control_system_p;
 
 public:
@@ -56,6 +58,8 @@ public:
         this->global_r         = nullptr;
         this->resource_r       = nullptr;
         this->environment_p    = nullptr;
+        this->text_2d_buffer_r = nullptr;
+        this->first_person_r   = nullptr;
         this->control_system_p = nullptr;
 
         if( parameters.help.getValue() ) {
@@ -267,13 +271,25 @@ private:
             this->environment_p->setMap( *Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 ), til_resources );
         }
 
-        std::vector<Data::Mission::IFF*> loaded_IFFs = { this->global_r, this->resource_r };
+        std::vector<Data::Mission::IFF*> loaded_IFFs;
+
+        if( this->global_r != nullptr )
+            loaded_IFFs.push_back( this->global_r );
+        if( this->resource_r != nullptr )
+            loaded_IFFs.push_back( this->resource_r );
 
         // Get the font from the resource file.
-        if( Graphics::Text2DBuffer::loadFonts( *environment_p, loaded_IFFs ) == 0 ) {
+        if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, loaded_IFFs ) == 0 ) {
             auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
             log.output << "Fonts are missing.";
         }
+
+        this->text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *this->environment_p );
+
+        // Setup the camera
+        this->first_person_r = Graphics::Camera::alloc( *this->environment_p );
+        this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
+        this->environment_p->window_p->attachCamera( *this->first_person_r );
     }
 
     void cleanup() {
