@@ -52,6 +52,8 @@ protected:
 
     // Controls API variables goes here.
     Controls::System *control_system_p;
+    Controls::CursorInputSet *control_cursor_r;
+    std::vector<Controls::StandardInputSet*> controllers_r;
     glm::vec3 camera_position;
     glm::vec2 camera_rotation;
     float     camera_distance;
@@ -81,15 +83,24 @@ public:
         loadResources();
         loadGraphics();
         setupCamera();
+        setupControls();
 
         centerCamera();
         updateCamera();
 
-        if( true )
-            environment_p->setupFrame();
+        float delta_f = 1.0f;
 
+        // Make the control system poll all the inputs.
+        control_system_p->advanceTime( delta_f );
+
+        // Grab the inputs for either menu or primary game.
+
+        // Render GUI overlayed with menu when available.
+
+        // Render the frame.
+        environment_p->setupFrame();
+        environment_p->advanceTime( delta_f );
         environment_p->drawFrame();
-        environment_p->advanceTime( 0 );
 
         std::this_thread::sleep_for( std::chrono::seconds(5) );
     }
@@ -329,6 +340,16 @@ private:
         extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
         this->first_person_r->setView3D( extra_matrix_2 );
+    }
+
+    void setupControls() {
+        // Setup the controls
+        this->control_system_p = Controls::System::getSingleton(); // create the new system for controls
+        this->controllers_r.push_back( new Controls::StandardInputSet( "Player 1" ) ); // It is not player_1_controller_r job to delete itself.
+        control_system_p->addInputSet( this->controllers_r.back() );
+
+        control_system_p->allocateCursor();
+        this->control_cursor_r = control_system_p->getCursor();
     }
 
     void cleanup() {
