@@ -44,11 +44,13 @@ protected:
     Data::Mission::IFF *global_r;
     Data::Mission::IFF *resource_r;
 
-    //
+    // Graphics API variables goes here.
     std::string graphics_identifier;
     Graphics::Environment *environment_p;
     Graphics::Text2DBuffer *text_2d_buffer_r;
     Graphics::Camera *first_person_r;
+
+    // Controls API variables goes here.
     Controls::System *control_system_p;
 
 public:
@@ -67,7 +69,7 @@ public:
         }
 
         // This map has both vertex animations. The uv animations and the color animations.
-        this->resource_identifier = Data::Manager::pa_hollywood_keys;
+        this->resource_identifier = Data::Manager::pa_venice_beach;
         this->platform = Data::Manager::Platform::WINDOWS;
 
         setupLogging();
@@ -75,6 +77,15 @@ public:
         setupGraphics();
         loadResources();
         loadGraphics();
+        setupCamera();
+
+        if( true )
+            environment_p->setupFrame();
+
+        environment_p->drawFrame();
+        environment_p->advanceTime( 0 );
+
+        std::this_thread::sleep_for( std::chrono::seconds(5) );
     }
 
     virtual ~MainProgram() {
@@ -153,10 +164,6 @@ private:
         std::string title = "Future Cop M.I.T.";
 
         window_r->setWindowTitle( title );
-        if( window_r->center() != 1 ) {
-            auto log = Utilities::logger.getLog( Utilities::Logger::WARNING );
-            log.output << "The graphics window has failed to center.";
-        }
         window_r->setDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
         window_r->setFullScreen( options.getVideoFullscreen() );
 
@@ -257,20 +264,67 @@ private:
         if( this->text_2d_buffer_r == nullptr )
             throwException( "The Graphics::Text2DBuffer has failed to allocate." );
 
-        // Setup the camera
+        // Initialze the camera
         this->first_person_r = Graphics::Camera::alloc( *this->environment_p );
         this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
         this->environment_p->window_p->attachCamera( *this->first_person_r );
+
+        // Center the camera.
+        if( this->environment_p->window_p->center() != 1 ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << "The window had failed to center.";
+        }
+    }
+
+    void setupCamera( bool centered = true ) {
+        this->first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
+        this->first_person_r->setViewportDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
+
+        glm::mat4 extra_matrix_0;
+        glm::mat4 extra_matrix_1;
+        glm::mat4 extra_matrix_2;
+
+        extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>( options.getVideoWidth() ), -static_cast<float>( options.getVideoHeight() ), 0.0f, -1.0f, 1.0f );
+
+        this->first_person_r->setProjection2D( extra_matrix_0 );
+
+        extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
+
+        this->first_person_r->setProjection3D( extra_matrix_0 );
+
+        glm::vec3 position_of_camera = { 0, 0, 0 };
+
+        Data::Mission::PTCResource *map_r = Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 );
+
+        if( map_r != nullptr && centered ) {
+            position_of_camera.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+            position_of_camera.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+        }
+
+        glm::vec2 camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
+        float distance_away = -10;
+
+        extra_matrix_0 = glm::rotate( glm::mat4(1.0f), -camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) );
+
+        extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, distance_away ) );
+        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), camera_rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
+        extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
+        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
+        extra_matrix_0 = extra_matrix_2 * extra_matrix_1;
+        extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
+        extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
+
+        this->first_person_r->setView3D( extra_matrix_2 );
     }
 
     void cleanup() {
         options.saveOptions();
 
-        if( control_system_p != nullptr )
-            delete control_system_p;
+        if( this->control_system_p != nullptr )
+            delete this->control_system_p;
 
-        if( environment_p != nullptr )
-            delete environment_p;
+        if( this->environment_p != nullptr )
+            delete this->environment_p;
 
         // Set everything to null.
         this->global_r         = nullptr;
