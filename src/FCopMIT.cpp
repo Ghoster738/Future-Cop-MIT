@@ -52,6 +52,9 @@ protected:
 
     // Controls API variables goes here.
     Controls::System *control_system_p;
+    glm::vec3 camera_position;
+    glm::vec2 camera_rotation;
+    float     camera_distance;
 
 public:
     MainProgram( int argc, char** argv ) : parameters( argc, argv ), paths( parameters ), options( paths, parameters ) {
@@ -292,26 +295,26 @@ private:
 
         this->first_person_r->setProjection3D( extra_matrix_0 );
 
-        glm::vec3 position_of_camera = { 0, 0, 0 };
+        this->camera_position = { 0, 0, 0 };
 
         Data::Mission::PTCResource *map_r = Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 );
 
         if( map_r != nullptr && centered ) {
-            position_of_camera.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-            position_of_camera.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+            this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+            this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
         }
 
-        glm::vec2 camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
-        float distance_away = -10;
+        this->camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
+        this->camera_distance = -20;
 
-        extra_matrix_0 = glm::rotate( glm::mat4(1.0f), -camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) );
+        extra_matrix_0 = glm::rotate( glm::mat4(1.0f), -this->camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) );
 
-        extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, distance_away ) );
-        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), camera_rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
+        extra_matrix_0 = glm::translate( glm::mat4(1.0f), glm::vec3( 0, 0, this->camera_distance ) );
+        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), this->camera_rotation.y, glm::vec3( 1.0, 0.0, 0.0 ) ); // rotate up and down.
         extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
-        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
+        extra_matrix_1 = glm::rotate( glm::mat4(1.0f), this->camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ); // rotate left and right.
         extra_matrix_0 = extra_matrix_2 * extra_matrix_1;
-        extra_matrix_1 = glm::translate( glm::mat4(1.0f), -position_of_camera );
+        extra_matrix_1 = glm::translate( glm::mat4(1.0f), -this->camera_position );
         extra_matrix_2 = extra_matrix_0 * extra_matrix_1;
 
         this->first_person_r->setView3D( extra_matrix_2 );
