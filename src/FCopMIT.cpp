@@ -271,6 +271,14 @@ private:
 
         if( environment_p != nullptr )
             delete environment_p;
+
+        // Set everything to null.
+        this->global_r         = nullptr;
+        this->resource_r       = nullptr;
+        this->environment_p    = nullptr;
+        this->text_2d_buffer_r = nullptr;
+        this->first_person_r   = nullptr;
+        this->control_system_p = nullptr;
     }
 };
 
