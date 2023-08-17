@@ -66,6 +66,7 @@ public:
             return;
         }
 
+        // This map has both vertex animations. The uv animations and the color animations.
         this->resource_identifier = Data::Manager::pa_hollywood_keys;
         this->platform = Data::Manager::Platform::WINDOWS;
 
@@ -80,7 +81,21 @@ public:
         cleanup();
     }
 
+protected:
+
+void throwException( std::string output ) {
+    {
+        auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
+        log.output << output << "\n";
+    }
+
+    cleanup();
+
+    throw std::runtime_error( output );
+}
+
 private:
+
     void setupLogging() {
         // Setup the professional logger next.
         Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::INFO );
@@ -108,30 +123,15 @@ private:
                              << "  Screenshots directory: " << options.getScreenshotsDirectory()     << "\n";
         }
     }
+
     void initGraphics() {
         auto graphics_identifiers = Graphics::Environment::getAvailableIdentifiers();
 
-        if( graphics_identifiers.empty() ) {
-            {
-                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
-                log.output << "Graphics has no available identifiers.";
-            }
+        if( graphics_identifiers.empty() )
+            throwException( "Graphics has no available identifiers. Therefore there is nothing for the game to render to." );
 
-            cleanup();
-
-            throw std::runtime_error( "Graphics has no available identifiers. Therefore there is nothing for the game to render to." );
-        }
-
-        if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) ) {
-            {
-                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
-                log.output << "The graphics identifier \"" << graphics_identifiers[0] << "\" is not an identifer.";
-            }
-
-            cleanup();
-
-            throw std::runtime_error( "The graphics identifier \"" + graphics_identifiers[0] + "\" is not an identifer." );
-        }
+        if( !Graphics::Environment::isIdentifier( graphics_identifiers[0] ) )
+            throwException( "The graphics identifier \"" + graphics_identifiers[0] + "\" is not an identifer." );
 
         this->graphics_identifier = graphics_identifiers[0];
 
@@ -141,30 +141,14 @@ private:
     void setupGraphics() {
         this->environment_p = Graphics::Environment::alloc( this->graphics_identifier );
 
-        if( this->environment_p == nullptr ) {
-            {
-                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
-                log.output << "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " << this->graphics_identifier;
-            }
-
-            cleanup();
-
-            throw std::runtime_error( "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " + this->graphics_identifier );
-        }
+        if( this->environment_p == nullptr )
+            throwException( "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " + this->graphics_identifier );
 
         // Declare a pointer
         Graphics::Window *window_r = Graphics::Window::alloc( *this->environment_p );
 
-        if( window_r == nullptr ) {
-            {
-                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
-                log.output << "The graphics window has failed to allocate.";
-            }
-
-            cleanup();
-
-            throw std::runtime_error( "The graphics window has failed to allocate." );
-        }
+        if( window_r == nullptr )
+            throwException( "The graphics window has failed to allocate." );
 
         std::string title = "Future Cop M.I.T.";
 
@@ -176,16 +160,8 @@ private:
         window_r->setDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
         window_r->setFullScreen( options.getVideoFullscreen() );
 
-        if( window_r->attach() != 1 ) {
-            {
-                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
-                log.output << "The graphics window has failed to attach.";
-            }
-
-            cleanup();
-
-            throw std::runtime_error( "The graphics window has failed to attach." );
-        }
+        if( window_r->attach() != 1 )
+            throwException( "The graphics window has failed to attach." );
     }
 
     void loadResources() {
@@ -216,16 +192,8 @@ private:
         auto entry = manager.getIFFEntry( resource_identifier );
         entry.importance = Data::Manager::Importance::NEEDED;
 
-        if( !manager.setIFFEntry( this->resource_identifier, entry ) ) {
-            {
-                auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );
-                log.output << "Set IFF Entry has failed for \"" << this->resource_identifier << "\".";
-            }
-
-            cleanup();
-
-            throw std::runtime_error( "Set IFF Entry has failed for \"" + this->resource_identifier + "\"." );
-        }
+        if( !manager.setIFFEntry( this->resource_identifier, entry ) )
+            throwException( "Set IFF Entry has failed for \"" + this->resource_identifier + "\"." );
 
         manager.togglePlatform( this->platform, true );
 
@@ -285,6 +253,9 @@ private:
         }
 
         this->text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *this->environment_p );
+
+        if( this->text_2d_buffer_r == nullptr )
+            throwException( "The Graphics::Text2DBuffer has failed to allocate." );
 
         // Setup the camera
         this->first_person_r = Graphics::Camera::alloc( *this->environment_p );
