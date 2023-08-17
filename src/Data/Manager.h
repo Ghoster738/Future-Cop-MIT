@@ -110,7 +110,7 @@ public:
 
     bool setIFFEntry( const std::string &name, const IFFEntry &entry );
 
-    void autoSetEntries( const std::string &base_path );
+    void autoSetEntries( const std::string &base_path, Platform platform = Platform::ALL );
 
     /**
      * This enables which platform can be loaded.

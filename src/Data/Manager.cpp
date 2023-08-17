@@ -158,107 +158,171 @@ bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry 
     return true;
 }
 
-void Data::Manager::autoSetEntries( const std::string &base_path ) {
-    const std::string MACINT_PATH = base_path +  "Macintosh/missions/";
-    const std::string PSX_CW_PATH = base_path +     "Playstation/cw/";
-    const std::string PSX_PA_PATH = base_path +     "Playstation/pa/";
-    const std::string WINDOW_PATH = base_path +   "Windows/missions/";
+void Data::Manager::autoSetEntries( const std::string &base_path, Platform platform ) {
+    std::string MACINT_PATH = base_path;
+    std::string PSX_CW_PATH = base_path;
+    std::string PSX_PA_PATH = base_path;
+    std::string WINDOW_PATH = base_path;
+
+    if( platform == Platform::ALL ) {
+        MACINT_PATH += "Macintosh/";
+        PSX_CW_PATH += "Playstation/";
+        PSX_PA_PATH += "Playstation/";
+        WINDOW_PATH += "Windows/";
+    }
+
+    MACINT_PATH += "missions/";
+    PSX_CW_PATH += "cw/";
+    PSX_PA_PATH += "pa/";
+    WINDOW_PATH += "missions/";
+
+    const bool MAKE_MAC_PATH = (platform == Platform::MACINTOSH)   | (platform == Platform::ALL);
+    const bool MAKE_PSX_PATH = (platform == Platform::PLAYSTATION) | (platform == Platform::ALL);
+    const bool MAKE_WIN_PATH = (platform == Platform::WINDOWS)     | (platform == Platform::ALL);
 
     IFFEntry entry = getIFFEntry( global );
     entry.importance = Importance::NEEDED; // The global IFF is always used for loading the IFF mission files.
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "GlblData" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "fe.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "GlblData" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "GlblData" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "fe.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "GlblData" );
     setIFFEntry( global, entry );
 
     entry = getIFFEntry( griffith_park );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M2C" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m2c.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M2C" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M2C" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m2c.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M2C" );
     setIFFEntry( griffith_park, entry );
 
     entry = getIFFEntry( zuma_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3A" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3a.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3A" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3a.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
     setIFFEntry( zuma_beach, entry );
 
     entry = getIFFEntry( la_brea_tar_pits );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3B" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3b.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3B" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3B" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3b.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3B" );
     setIFFEntry( la_brea_tar_pits, entry );
 
     entry = getIFFEntry( venice_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OV" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ov.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OV" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OV" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ov.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OV" );
     setIFFEntry( venice_beach, entry );
 
     entry = getIFFEntry( hells_gate_prison );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M1A1" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m1a1.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M1A1" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M1A1" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m1a1.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M1A1" );
     setIFFEntry( hells_gate_prison, entry );
 
     entry = getIFFEntry( studio_city );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Un" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "un.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Un" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Un" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "un.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Un" );
     setIFFEntry( studio_city, entry );
 
     entry = getIFFEntry( lax_spaceport );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX1" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax1.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX1" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX1" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax1.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX1" );
     setIFFEntry( lax_spaceport, entry );
 
     entry = getIFFEntry( lax_spaceport_part_2 );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX2" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax2.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX2" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX2" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax2.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX2" );
     setIFFEntry( lax_spaceport_part_2, entry );
 
     entry = getIFFEntry( long_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M4A1" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m4a1.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M4A1" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M4A1" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m4a1.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M4A1" );
     setIFFEntry( long_beach, entry );
 
     entry = getIFFEntry( pa_urban_jungle );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "ConFt" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "conft.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "ConFt" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "ConFt" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "conft.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "ConFt" );
     setIFFEntry( pa_urban_jungle, entry );
 
     entry = getIFFEntry( pa_venice_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OVMP" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ovmp.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OVMP" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OVMP" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "ovmp.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OVMP" );
     setIFFEntry( pa_venice_beach, entry );
 
     entry = getIFFEntry( pa_hollywood_keys );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "HK" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "hk.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "HK" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "HK" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "hk.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "HK" );
     setIFFEntry( pa_hollywood_keys, entry );
 
     entry = getIFFEntry( pa_proving_ground );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Slim" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "slim.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Slim" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Slim" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "slim.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Slim" );
     setIFFEntry( pa_proving_ground, entry );
 
     entry = getIFFEntry( pa_bug_hunt );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "JOKE" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "joke.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "JOKE" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "JOKE" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "joke.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "JOKE" );
     setIFFEntry( pa_bug_hunt, entry );
 
     entry = getIFFEntry( pa_la_centina );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Mp" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" ); // Playstation does not have this
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Mp" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Mp" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" ); // Playstation does not have this
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Mp" );
     setIFFEntry( pa_la_centina, entry );
 }
 
