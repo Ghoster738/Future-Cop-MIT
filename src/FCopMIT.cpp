@@ -82,6 +82,9 @@ public:
         loadGraphics();
         setupCamera();
 
+        centerCamera();
+        updateCamera();
+
         if( true )
             environment_p->setupFrame();
 
@@ -279,33 +282,41 @@ private:
         }
     }
 
-    void setupCamera( bool centered = true ) {
+    void setupCamera() {
         this->first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
         this->first_person_r->setViewportDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
 
+        glm::mat4 projection_matrix = glm::ortho( 0.0f, static_cast<float>( options.getVideoWidth() ), -static_cast<float>( options.getVideoHeight() ), 0.0f, -1.0f, 1.0f );
+
+        this->first_person_r->setProjection2D( projection_matrix );
+
+        projection_matrix = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
+
+        this->first_person_r->setProjection3D( projection_matrix );
+
+        this->camera_position = { 0, 0, 0 };
+        this->camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
+        this->camera_distance = -20;
+
+        updateCamera();
+    }
+
+    void centerCamera() {
+        Data::Mission::PTCResource *map_r = Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 );
+
+        if( map_r != nullptr ) {
+            this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+            this->camera_position.y = 0;
+            this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+        }
+        else
+            this->camera_position = { 0, 0, 0 };
+    }
+
+    void updateCamera() {
         glm::mat4 extra_matrix_0;
         glm::mat4 extra_matrix_1;
         glm::mat4 extra_matrix_2;
-
-        extra_matrix_0 = glm::ortho( 0.0f, static_cast<float>( options.getVideoWidth() ), -static_cast<float>( options.getVideoHeight() ), 0.0f, -1.0f, 1.0f );
-
-        this->first_person_r->setProjection2D( extra_matrix_0 );
-
-        extra_matrix_0 = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
-
-        this->first_person_r->setProjection3D( extra_matrix_0 );
-
-        this->camera_position = { 0, 0, 0 };
-
-        Data::Mission::PTCResource *map_r = Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 );
-
-        if( map_r != nullptr && centered ) {
-            this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-            this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-        }
-
-        this->camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
-        this->camera_distance = -20;
 
         extra_matrix_0 = glm::rotate( glm::mat4(1.0f), -this->camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) );
 
