@@ -48,6 +48,11 @@ public:
     virtual void setFullScreen( bool is_full_screen );
 
     /**
+     * Set the window to full screen or in windowed mode.
+     */
+    virtual bool getFullScreen() const;
+
+    /**
      * Set the window boarder, by default the window has a boarder.
      */
     virtual void setBoarder( bool boarder );
