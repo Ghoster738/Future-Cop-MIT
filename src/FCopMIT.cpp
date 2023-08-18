@@ -20,6 +20,8 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     this->text_2d_buffer_r = nullptr;
     this->first_person_r   = nullptr;
     this->control_system_p = nullptr;
+    this->menu_r           = nullptr;
+    this->primary_game_r   = nullptr;
 
     if( parameters.help.getValue() ) {
         return;
@@ -57,8 +59,21 @@ void MainProgram::displayLoop() {
         control_system_p->advanceTime( delta_f );
 
         // Grab the inputs for either menu or primary game.
+        if( menu_r != nullptr ) {
+            menu_r->grabControls( *this );
+            menu_r->applyTime( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
+        }
+        else
+        if( primary_game_r != nullptr ) {
+            primary_game_r->grabControls( *this );
+            primary_game_r->applyTime( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
+        }
 
         // Render GUI overlayed with menu when available.
+        if( primary_game_r != nullptr )
+            primary_game_r->display( *this );
+        if( menu_r != nullptr )
+            menu_r->display( *this );
 
         // If position of the Camera changes then apply the changes.
         updateCamera();

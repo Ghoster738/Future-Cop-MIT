@@ -20,28 +20,14 @@
 
 class MainProgram;
 
-class Base {
+class GameState {
 public:
-    Base();
-    virtual ~Base();
+    GameState();
+    virtual ~GameState();
 
     virtual void grabControls( MainProgram &main_program ) = 0;
+    virtual void applyTime( MainProgram &main_program, std::chrono::microseconds delta ) = 0;
     virtual void display( MainProgram &main_program ) = 0;
-};
-
-class Game : Base {
-public:
-    Game();
-    virtual ~Game();
-
-    virtual void setPaused( bool paused ) = 0;
-    virtual bool isPaused() const = 0;
-};
-
-class Menu : Base {
-public:
-    Menu();
-    virtual ~Menu();
 };
 
 class MainProgram {
@@ -78,6 +64,8 @@ public:
     float     camera_distance;
 
     bool play_loop;
+    GameState *menu_r;
+    GameState *primary_game_r;
 
 public:
     MainProgram( int argc, char** argv );
