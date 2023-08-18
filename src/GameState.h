@@ -7,8 +7,10 @@ class MainProgram;
 
 class GameState {
 public:
-    GameState();
-    virtual ~GameState();
+    virtual ~GameState() = 0;
+
+    virtual void load() = 0;
+    virtual void unload() = 0;
 
     virtual void grabControls( MainProgram &main_program ) = 0;
     virtual void applyTime( MainProgram &main_program, std::chrono::microseconds delta ) = 0;
