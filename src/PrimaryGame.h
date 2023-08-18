@@ -8,6 +8,7 @@
 
 class PrimaryGame : public GameState {
 private:
+    bool is_camera_moving;
     glm::vec3 camera_position_transform;
     glm::vec2 camera_rotation_transform;
     float     camera_distance_transform;
@@ -22,8 +23,7 @@ public:
     virtual void load();
     virtual void unload();
 
-    virtual void grabControls( MainProgram &main_program );
-    virtual void applyTime( MainProgram &main_program, std::chrono::microseconds delta );
+    virtual void grabControls( MainProgram &main_program, std::chrono::microseconds delta );
     virtual void display( MainProgram &main_program );
 };
 

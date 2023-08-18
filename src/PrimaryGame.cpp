@@ -10,6 +10,7 @@ PrimaryGame::~PrimaryGame() {
 }
 
 void PrimaryGame::load() {
+    is_camera_moving = false;
     camera_position_transform = { 0, 0, 0 };
     camera_rotation_transform = { 0, 0 };
     camera_distance_transform = 0;
@@ -21,15 +22,15 @@ void PrimaryGame::load() {
 void PrimaryGame::unload() {
 }
 
-void PrimaryGame::grabControls( MainProgram &main_program ) {
+void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
+    float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
+
     if( main_program.control_system_p->isOrderedToExit() )
         main_program.play_loop = false;
 
-    bool simuluate_middle_button = false;
-
-    if( main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() )
+    if( main_program.controllers_r[0]->isChanged() )
     {
-        auto input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::UP );
+        auto input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::UP );
         if( input_r->isChanged() )
         {
             if( input_r->getState() > 0.5 )
@@ -38,7 +39,7 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
                 camera_position_transform.z = 0;
         }
 
-        input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::DOWN );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::DOWN );
         if( input_r->isChanged() )
         {
             if( input_r->getState() > 0.5 )
@@ -47,7 +48,7 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
                 camera_position_transform.z = 0;
         }
 
-        input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::LEFT );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::LEFT );
         if( input_r->isChanged() )
         {
             if( input_r->getState() > 0.5 )
@@ -56,7 +57,7 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
                 camera_position_transform.x = 0;
         }
 
-        input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::RIGHT );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
         if( input_r->isChanged() )
         {
             if( input_r->getState() > 0.5 )
@@ -65,17 +66,19 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
                 camera_position_transform.x = 0;
         }
 
-        input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::ACTION );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ACTION );
         if( input_r->isChanged() )
         {
             if( input_r->getState() > 0.5 )
-                simuluate_middle_button = true;
+                is_camera_moving = true;
+            else
+                is_camera_moving = false;
         }
 
-        input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::ROTATE_LEFT );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ROTATE_LEFT );
         if( input_r->isChanged() && input_r->getState() > 0.5 )
         {
-            if( !simuluate_middle_button )
+            if( !is_camera_moving )
             {
                 // Stop the blinking on the previous current_tile_selected
                 main_program.environment_p->setTilBlink( current_tile_selected, -1.0 );
@@ -98,10 +101,10 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
             }
         }
 
-        input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::ROTATE_RIGHT );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ROTATE_RIGHT );
         if( input_r->isChanged() && input_r->getState() > 0.5 )
         {
-            if( !simuluate_middle_button )
+            if( !is_camera_moving )
             {
                 // Stop the blinking on the previous current_tile_selected
                 main_program.environment_p->setTilBlink( current_tile_selected, -1.0 );
@@ -123,6 +126,7 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
                 }
             }
         }
+
 
         input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::CAMERA );
         if( input_r->isChanged() && input_r->getState() > 0.5 )
@@ -146,38 +150,38 @@ void PrimaryGame::grabControls( MainProgram &main_program ) {
     if( main_program.control_cursor_r->isChanged() )
     {
         auto input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::MIDDLE_BUTTON );
+        if( input_r->isChanged() )
+        {
+            if( input_r->getState() > 0.5 )
+                is_camera_moving = true;
+            else
+                is_camera_moving = false;
+        }
 
-        if( input_r->isChanged() && input_r->getState() > 0.5 )
+        if( is_camera_moving )
         {
             input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::MOTION_X );
 
-            camera_rotation_transform.x = static_cast<double>( input_r->getState() ) * (16.0 / glm::pi<double>());
+            main_program.camera_rotation.x += delta_f * static_cast<double>( input_r->getState() ) * (16.0 / glm::pi<double>());
 
             input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::MOTION_Y );
 
-            camera_rotation_transform.y = static_cast<double>( input_r->getState() ) * (16.0 / glm::pi<double>());
+            main_program.camera_rotation.y += delta_f * static_cast<double>( input_r->getState() ) * (16.0 / glm::pi<double>());
         }
 
         input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::WHEEL_Y );
         if( input_r->isChanged() )
         {
-            camera_distance_transform += 16.0 * static_cast<double>( input_r->getState() );
+            camera_distance_transform = 16.0 * static_cast<double>( input_r->getState() );
         }
+        else
+            camera_distance_transform = 0;
     }
-}
-
-void PrimaryGame::applyTime( MainProgram &main_program, std::chrono::microseconds delta ) {
-    float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
     glm::vec4 tmp = glm::rotate( glm::mat4( 1.0f ), -main_program.camera_rotation.x, glm::vec3( 0.0, 1.0, 0.0 ) ) * (glm::vec4(camera_position_transform.x, camera_position_transform.y, camera_position_transform.z, 1 ) * delta_f );
 
     main_program.camera_position += glm::vec3( tmp.x, tmp.y, tmp.z );
-    main_program.camera_rotation += delta_f * camera_rotation_transform;
     main_program.camera_distance += delta_f * camera_distance_transform;
-
-    camera_position_transform = { 0, 0, 0 };
-    camera_rotation_transform = { 0, 0 };
-    camera_distance_transform = 0;
 }
 
 void PrimaryGame::display( MainProgram &main_program ) {

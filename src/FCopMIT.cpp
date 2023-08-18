@@ -49,7 +49,7 @@ void MainProgram::displayLoop() {
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
-    this->play_loop = true;
+    this->play_loop  = configure_input( control_system_p, environment_p, text_2d_buffer_r, "controls");
 
     while( this->play_loop ) {
         this_time = std::chrono::high_resolution_clock::now();
@@ -61,13 +61,11 @@ void MainProgram::displayLoop() {
 
         // Grab the inputs for either menu or primary game.
         if( menu_r != nullptr ) {
-            menu_r->grabControls( *this );
-            menu_r->applyTime( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
+            menu_r->grabControls( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
         }
         else
         if( primary_game_r != nullptr ) {
-            primary_game_r->grabControls( *this );
-            primary_game_r->applyTime( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
+            primary_game_r->grabControls( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
         }
 
         // Render GUI overlayed with menu when available.
@@ -359,9 +357,13 @@ int main(int argc, char** argv)
     MainProgram main_program( argc, argv );
     PrimaryGame primary_game;
 
+    primary_game.load();
+
     main_program.primary_game_r = &primary_game;
 
     main_program.displayLoop();
+
+    primary_game.unload();
 
     return 0;
 }
