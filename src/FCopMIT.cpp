@@ -28,8 +28,37 @@
 #include "ConfigureInput.h"
 #include "SplashScreens.h"
 
+class MainProgram;
+
+class Base {
+public:
+    Base();
+    virtual ~Base();
+
+    virtual void grabControls( MainProgram &main_program ) = 0;
+    virtual void display( MainProgram &main_program ) = 0;
+};
+
+class Game : Base {
+public:
+    Game();
+    virtual ~Game();
+
+    virtual void setPaused( bool paused ) = 0;
+    virtual bool isPaused() const = 0;
+};
+
+class Menu : Base {
+public:
+    Menu();
+    virtual ~Menu();
+};
+
 class MainProgram {
-protected:
+public:
+    static constexpr std::chrono::microseconds FRAME_MS_LIMIT = std::chrono::microseconds(1000 / 60);
+
+public:
     // Read the parameter system.
     Utilities::Options::Parameters parameters;
     Utilities::Options::Paths      paths;
@@ -58,8 +87,11 @@ protected:
     glm::vec2 camera_rotation;
     float     camera_distance;
 
+    bool play_loop;
+
 public:
     MainProgram( int argc, char** argv ) : parameters( argc, argv ), paths( parameters ), options( paths, parameters ) {
+        this->play_loop = true;
 
         // Set everything to null.
         this->global_r         = nullptr;
@@ -73,8 +105,8 @@ public:
             return;
         }
 
-        // This map has both vertex animations. The uv animations and the color animations.
-        this->resource_identifier = Data::Manager::pa_venice_beach;
+        // TODO: Use venice beach as this map has all three types vertex animations.
+        this->resource_identifier = Data::Manager::pa_urban_jungle;
         this->platform = Data::Manager::Platform::WINDOWS;
 
         setupLogging();
@@ -86,23 +118,45 @@ public:
         setupControls();
 
         centerCamera();
-        updateCamera();
+    }
 
-        float delta_f = 1.0f;
+    void displayLoop() {
+        auto last_time = std::chrono::high_resolution_clock::now();
+        auto end_time = last_time + std::chrono::seconds( 5 );
+        auto this_time = last_time;
+        auto delta = this_time - last_time;
 
-        // Make the control system poll all the inputs.
-        control_system_p->advanceTime( delta_f );
+        this->play_loop = true;
 
-        // Grab the inputs for either menu or primary game.
+        while( this->play_loop ) {
+            this_time = std::chrono::high_resolution_clock::now();
+            delta = this_time - last_time;
+            float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
-        // Render GUI overlayed with menu when available.
+            // Make the control system poll all the inputs.
+            control_system_p->advanceTime( delta_f );
 
-        // Render the frame.
-        environment_p->setupFrame();
-        environment_p->advanceTime( delta_f );
-        environment_p->drawFrame();
+            // Grab the inputs for either menu or primary game.
 
-        std::this_thread::sleep_for( std::chrono::seconds(5) );
+            // Render GUI overlayed with menu when available.
+
+            // If position of the Camera changes then apply the changes.
+            updateCamera();
+
+            // Render the frame.
+            environment_p->setupFrame();
+            environment_p->advanceTime( delta_f );
+            environment_p->drawFrame();
+
+            text_2d_buffer_r->reset();
+
+            last_time = this_time;
+
+            this->play_loop = last_time < end_time;
+
+            if( delta < FRAME_MS_LIMIT )
+                std::this_thread::sleep_for( FRAME_MS_LIMIT - delta );
+        }
     }
 
     virtual ~MainProgram() {
@@ -374,6 +428,8 @@ private:
 int main(int argc, char** argv)
 {
     MainProgram main_program( argc, argv );
+
+    main_program.displayLoop();
 
     return 0;
 }
