@@ -7,7 +7,7 @@ class MainProgram;
 
 class GameState {
 public:
-    virtual ~GameState() = 0;
+    virtual ~GameState() {}
 
     virtual void load() = 0;
     virtual void unload() = 0;

@@ -6,6 +6,7 @@
 #include "Config.h"
 
 #include "MainProgram.h"
+#include "PrimaryGame.h"
 
 #include "ConfigureInput.h"
 #include "SplashScreens.h"
@@ -86,8 +87,6 @@ void MainProgram::displayLoop() {
         text_2d_buffer_r->reset();
 
         last_time = this_time;
-
-        this->play_loop = last_time < end_time;
 
         if( delta < FRAME_MS_LIMIT )
             std::this_thread::sleep_for( FRAME_MS_LIMIT - delta );
@@ -358,6 +357,9 @@ void MainProgram::cleanup() {
 int main(int argc, char** argv)
 {
     MainProgram main_program( argc, argv );
+    PrimaryGame primary_game;
+
+    main_program.primary_game_r = &primary_game;
 
     main_program.displayLoop();
 
