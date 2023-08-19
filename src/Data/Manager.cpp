@@ -365,9 +365,11 @@ int Data::Manager::setLoad( Importance importance, unsigned core_amount ) {
         }
         else {
             for( auto &i : entries ) {
-                if( i.second.importance <= importance && i.second.getIFF( p ) == nullptr ) {
-                    i.second.load( p );
-                    number_loaded++;
+                if( i.second.importance <= importance ) {
+                    if( i.second.getIFF( p ) == nullptr ) {
+                        i.second.load( p );
+                        number_loaded++;
+                    }
                 }
                 else
                 if( i.second.getIFF( p ) != nullptr )
