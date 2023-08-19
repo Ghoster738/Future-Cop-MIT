@@ -98,7 +98,26 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
         return -failed_texture_loads;
 }
 
+int Environment::unloadTextures() {
+    int deleted_item = !this->textures.empty();
+
+    for( auto i : this->textures ) {
+        delete i.second;
+    }
+    this->textures.clear();
+
+    return deleted_item;
+}
+
 void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) {
+    if( this->world_p != nullptr )
+        delete this->world_p;
+
+    this->world_p = nullptr;
+
+    if( tiles.empty() )
+        return;
+
     // Allocate the world
     this->world_p = new Internal::World();
     

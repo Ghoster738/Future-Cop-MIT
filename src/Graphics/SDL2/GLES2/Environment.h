@@ -38,6 +38,7 @@ public:
 
     virtual std::string getEnvironmentIdentifier() const;
     virtual int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures );
+    virtual int unloadTextures();
     virtual void setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles );
     virtual int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types );
     virtual size_t getTilAmount() const;
