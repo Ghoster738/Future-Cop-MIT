@@ -9,8 +9,8 @@ class GameState {
 public:
     virtual ~GameState() {}
 
-    virtual void load() = 0;
-    virtual void unload() = 0;
+    virtual void load( MainProgram &main_program ) = 0;
+    virtual void unload( MainProgram &main_program ) = 0;
 
     virtual void grabControls( MainProgram &main_program, std::chrono::microseconds delta ) = 0;
     virtual void display( MainProgram &main_program ) = 0;

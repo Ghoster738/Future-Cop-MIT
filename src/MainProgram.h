@@ -64,6 +64,8 @@ public:
 
     virtual ~MainProgram();
 
+    void centerCamera();
+
 protected:
     void throwException( std::string output );
 
@@ -79,8 +81,6 @@ private:
     void loadGraphics();
 
     void setupCamera();
-
-    void centerCamera();
 
     void updateCamera();
 

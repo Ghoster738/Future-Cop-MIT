@@ -9,17 +9,21 @@ PrimaryGame::PrimaryGame() {
 PrimaryGame::~PrimaryGame() {
 }
 
-void PrimaryGame::load() {
-    is_camera_moving = false;
-    camera_position_transform = { 0, 0, 0 };
-    camera_rotation_transform = { 0, 0 };
-    camera_distance_transform = 0;
+void PrimaryGame::load( MainProgram &main_program ) {
+    this->is_camera_moving          = false;
+    this->camera_position_transform = { 0, 0, 0 };
+    this->camera_rotation_transform = { 0, 0 };
+    this->camera_distance_transform = 0;
 
-    current_tile_selected = -1;
-    til_polygon_type_selected = 111;
+    this->current_tile_selected     =  -1;
+    this->til_polygon_type_selected = 111;
+
+    main_program.centerCamera();
+
+    this->til_resources = Data::Mission::TilResource::getVector( *main_program.resource_r );
 }
 
-void PrimaryGame::unload() {
+void PrimaryGame::unload( MainProgram &main_program ) {
 }
 
 void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
@@ -185,4 +189,36 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
 }
 
 void PrimaryGame::display( MainProgram &main_program ) {
+    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
+
+    if( text_2d_buffer_r->setFont( 6 ) == -3 )
+            text_2d_buffer_r->setFont( 2 );
+    text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
+    text_2d_buffer_r->print( "Position = (" + std::to_string(main_program.camera_position.x) + ", " + std::to_string(main_program.camera_position.y) + ", " + std::to_string(main_program.camera_position.z) + ")" );
+
+    if( text_2d_buffer_r->setFont( 5 ) == -3 )
+        text_2d_buffer_r->setFont( 2 );
+    text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
+    text_2d_buffer_r->print( "Rotation = (" + std::to_string(main_program.camera_rotation.x) + ", " + std::to_string(main_program.camera_rotation.y) + ")" );
+
+    if( til_polygon_type_selected != 111 ) {
+        if( text_2d_buffer_r->setFont( 3 ) == -3 )
+            text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+        text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
+    }
+
+    if( current_tile_selected >= 0 && static_cast<unsigned>(current_tile_selected) < til_resources.size() ) {
+        if( text_2d_buffer_r->setFont( 3 ) == -3 )
+            text_2d_buffer_r->setFont( 1 );
+        text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 60 ) );
+        text_2d_buffer_r->print( "Ctil Resource ID = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
+        text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 80 ) );
+        text_2d_buffer_r->print( "Ctil Offset = " + std::to_string( til_resources.at(current_tile_selected)->getOffset() ) );
+    }
 }

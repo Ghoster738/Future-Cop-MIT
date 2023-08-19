@@ -39,8 +39,6 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     loadGraphics();
     setupCamera();
     setupControls();
-
-    centerCamera();
 }
 
 void MainProgram::displayLoop() {
@@ -350,6 +348,8 @@ void MainProgram::cleanup() {
     this->text_2d_buffer_r = nullptr;
     this->first_person_r   = nullptr;
     this->control_system_p = nullptr;
+    this->menu_r           = nullptr;
+    this->primary_game_r   = nullptr;
 }
 
 int main(int argc, char** argv)
@@ -357,13 +357,13 @@ int main(int argc, char** argv)
     MainProgram main_program( argc, argv );
     PrimaryGame primary_game;
 
-    primary_game.load();
+    primary_game.load( main_program );
 
     main_program.primary_game_r = &primary_game;
 
     main_program.displayLoop();
 
-    primary_game.unload();
+    primary_game.unload( main_program );
 
     return 0;
 }
