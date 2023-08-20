@@ -5,6 +5,8 @@
 
 #include <ratio>
 
+#include "Config.h"
+
 PrimaryGame::PrimaryGame() {
     this->counter = std::chrono::seconds(0);
     this->map_index = 0;
@@ -194,6 +196,7 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
     main_program.camera_position += glm::vec3( tmp.x, tmp.y, tmp.z );
     main_program.camera_distance += delta_f * camera_distance_transform;
 
+    #ifdef FCOption_AUTOMATIC_MAP_SWITCHING
     this->counter += delta;
 
     if( this->counter > std::chrono::seconds(10) ) {
@@ -202,6 +205,7 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
         this->counter -= std::chrono::seconds(10);
         this->map_index = (this->map_index + 1) % Data::Manager::AMOUNT_OF_IFF_IDS;
     }
+    #endif
 }
 
 void PrimaryGame::display( MainProgram &main_program ) {

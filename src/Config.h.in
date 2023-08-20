@@ -7,6 +7,7 @@
 #cmakedefine PNG_FOUND
 
 #cmakedefine FCOption_RELATIVE_PATHS_ONLY
+#cmakedefine FCOption_AUTOMATIC_MAP_SWITCHING
 
 // This is what triggers compiling with PNG.
 #ifdef ZLIB_FOUND
