@@ -196,10 +196,10 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
 
     this->counter += delta;
 
-    if( this->counter > std::chrono::seconds(1) ) {
+    if( this->counter > std::chrono::seconds(10) ) {
         main_program.transitionToResource( *Data::Manager::map_iffs[ this->map_index ] );
 
-        this->counter -= std::chrono::seconds(1);
+        this->counter -= std::chrono::seconds(10);
         this->map_index = (this->map_index + 1) % Data::Manager::AMOUNT_OF_IFF_IDS;
     }
 }
