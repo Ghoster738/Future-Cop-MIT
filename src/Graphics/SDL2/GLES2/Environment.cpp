@@ -16,6 +16,8 @@ Environment::Environment() {
     this->world_p             = nullptr;
     this->text_draw_routine_p = nullptr;
     this->shiney_texture_p    = nullptr;
+
+    this->has_initialized_models = false;
 }
 
 Environment::~Environment() {
@@ -110,13 +112,13 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
         return -failed_texture_loads;
 }
 
-void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) {
+void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) {
     if( this->world_p != nullptr )
         delete this->world_p;
 
     this->world_p = nullptr;
 
-    if( tiles.empty() )
+    if( ptc_r == nullptr || tiles_r == nullptr )
         return;
 
     // Allocate the world
@@ -127,11 +129,11 @@ void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vect
     this->world_p->setFragmentShader();
     this->world_p->compilieProgram();
 
-    this->map_section_width  = ptc.getWidth();
-    this->map_section_height = ptc.getHeight();
+    this->map_section_width  = ptc_r->getWidth();
+    this->map_section_height = ptc_r->getHeight();
     
     // Turn the map into a world.
-    this->world_p->setWorld( ptc, tiles, this->textures );
+    this->world_p->setWorld( *ptc_r, *tiles_r, this->textures );
 }
 
 int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
@@ -140,51 +142,59 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     if( err != GL_NO_ERROR )
         std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
+    if( !this->has_initialized_models ) {
+
+        // Setup the vertex and fragment shaders
+        this->static_model_draw_routine.setVertexShader();
+        this->static_model_draw_routine.setFragmentShader();
+        this->static_model_draw_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Static Model shader is broken!: " << err << std::endl;
+
+        this->morph_model_draw_routine.setVertexShader();
+        this->morph_model_draw_routine.setFragmentShader();
+        this->morph_model_draw_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Morph Model shader is broken!: " << err << std::endl;
+
+        this->skeletal_model_draw_routine.setVertexShader();
+        this->skeletal_model_draw_routine.setFragmentShader();
+        this->skeletal_model_draw_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Skeletal Model shader is broken!: " << err << std::endl;
+
+        this->dynamic_triangle_draw_routine.setVertexShader();
+        this->dynamic_triangle_draw_routine.setFragmentShader();
+        this->dynamic_triangle_draw_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
+
+        this->has_initialized_models = true;
+    }
+    else {
+        this->skeletal_model_draw_routine.clearModels();
+        this->morph_model_draw_routine.clearModels();
+        this->static_model_draw_routine.clearModels();
+    }
+
+    this->static_model_draw_routine.setTextures( this->shiney_texture_p );
+    this->morph_model_draw_routine.setTextures( this->shiney_texture_p );
+    this->skeletal_model_draw_routine.setTextures( this->shiney_texture_p );
+
     int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder* model_r;
-    
-    // Setup the vertex and fragment shaders
-    this->static_model_draw_routine.setVertexShader();
-    this->static_model_draw_routine.setFragmentShader();
-    this->static_model_draw_routine.compileProgram();
-    
-    this->static_model_draw_routine.setTextures( this->shiney_texture_p );
-
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Static Model shader is broken!: " << err << std::endl;
-    
-    this->morph_model_draw_routine.setVertexShader();
-    this->morph_model_draw_routine.setFragmentShader();
-    this->morph_model_draw_routine.compileProgram();
-
-    this->morph_model_draw_routine.setTextures( this->shiney_texture_p );
-    
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Morph Model shader is broken!: " << err << std::endl;
-
-    this->skeletal_model_draw_routine.setVertexShader();
-    this->skeletal_model_draw_routine.setFragmentShader();
-    this->skeletal_model_draw_routine.compileProgram();
-    
-    this->skeletal_model_draw_routine.setTextures( this->shiney_texture_p );
-    
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Skeletal Model shader is broken!: " << err << std::endl;
-    
-    this->dynamic_triangle_draw_routine.setVertexShader();
-    this->dynamic_triangle_draw_routine.setFragmentShader();
-    this->dynamic_triangle_draw_routine.compileProgram();
-
-    err = glGetError();
-
-    if( err != GL_NO_ERROR )
-        std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )

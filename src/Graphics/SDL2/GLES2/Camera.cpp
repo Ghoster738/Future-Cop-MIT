@@ -72,13 +72,16 @@ int Graphics::SDL2::GLES2::Camera::attachText2DBuffer( Graphics::Text2DBuffer& b
     return 1;
 }
 
+#include <iostream>
+
 int Graphics::SDL2::GLES2::Camera::removeText2DBuffer( Graphics::Text2DBuffer* buffer_p ) {
     int erased_value = 0;
 
     if( buffer_p != nullptr )
     {
-        for( auto i = text_2d_buffers.begin(); i != text_2d_buffers.end(); i++ )
+        for( auto i = text_2d_buffers.begin(); i < text_2d_buffers.end(); i++ )
         {
+            std::cout << "Index " << (i - text_2d_buffers.begin()) << "\n";
             if( *i == buffer_p )
             {
                 // The camera has been found and deleted

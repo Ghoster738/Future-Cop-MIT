@@ -83,6 +83,8 @@ public:
      */
     int inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
+    void clearModels();
+
     /**
      * This draws all of the models with the morph attribute.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.

@@ -119,6 +119,8 @@ public:
      */
     int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
+    void clearModels();
+
     /**
      * This draws all the models that are opeqe.
      * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.

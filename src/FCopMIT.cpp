@@ -134,15 +134,14 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
     }
 
     // Set up environment to switch to the new resource.
-    this->environment_p->setupTextures( Data::Mission::BMPResource::getVector( *switch_resource_r ) );
-    this->environment_p->setMap( *Data::Mission::PTCResource::getVector( *switch_resource_r ).at( 0 ), Data::Mission::TilResource::getVector( *switch_resource_r ) );
-
-    // Other dependences should also be referencing the new resource.
+    this->first_person_r->removeText2DBuffer( this->text_2d_buffer_r );
 
     // Unload the old resource.
 
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;
+
+    loadGraphics();
 
     if( this->primary_game_r ) {
         this->primary_game_r->unload( *this );
@@ -166,7 +165,7 @@ void MainProgram::throwException( std::string output ) {
 
 void MainProgram::setupLogging() {
     // Setup the professional logger next.
-    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::ERROR );
+    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::INFO );
 
     {
         auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
@@ -309,8 +308,9 @@ void MainProgram::loadGraphics() {
         }
 
         std::vector<Data::Mission::TilResource*> til_resources = Data::Mission::TilResource::getVector( *this->resource_r );
+        std::vector<Data::Mission::PTCResource*> ptc_resources = Data::Mission::PTCResource::getVector( *this->resource_r );
 
-        this->environment_p->setMap( *Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 ), til_resources );
+        this->environment_p->setMap( ptc_resources.at( 0 ), &til_resources );
     }
 
     std::vector<Data::Mission::IFF*> loaded_IFFs;

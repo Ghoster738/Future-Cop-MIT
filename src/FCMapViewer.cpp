@@ -311,7 +311,7 @@ int main(int argc, char** argv)
     
     if( resource_r != nullptr ) {
         til_resources = Data::Mission::TilResource::getVector( *resource_r );
-        environment_p->setMap( *Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), til_resources );
+        environment_p->setMap( Data::Mission::PTCResource::getVector( *resource_r ).at( 0 ), &til_resources );
     }
 
     bool viewer_loop = true;
