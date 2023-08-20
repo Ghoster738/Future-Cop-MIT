@@ -185,6 +185,8 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::Mode
 }
 
 void Graphics::SDL2::GLES2::Internal::MorphModelDraw::clearModels() {
+    StaticModelDraw::clearModels();
+
     // Delete the models first.
     for( auto i = model_animation_p.begin(); i != model_animation_p.end(); i++ )
     {
