@@ -128,10 +128,6 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
         log.output << "The mission IFF " << switch_resource_identifier << " did not load cannot switch.";
         return false;
     }
-    {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "The mission IFF " << switch_resource_identifier << ",   0x" << switch_resource_r;
-    }
 
     // Set up environment to switch to the new resource.
     this->first_person_r->removeText2DBuffer( this->text_2d_buffer_r );
@@ -148,8 +144,6 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
 
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;
-
-    loadGraphics();
 
     if( this->primary_game_r ) {
         this->primary_game_r->unload( *this );
@@ -293,7 +287,7 @@ void MainProgram::loadResources() {
     }
 }
 
-void MainProgram::loadGraphics() {
+void MainProgram::loadGraphics( bool show_map ) {
     if( this->resource_r != nullptr ) {
         // First get the model textures from the resource file.
         auto cbmp_resources = Data::Mission::BMPResource::getVector( *this->resource_r );
@@ -315,10 +309,15 @@ void MainProgram::loadGraphics() {
             log.output << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
         }
 
-        std::vector<Data::Mission::TilResource*> til_resources = Data::Mission::TilResource::getVector( *this->resource_r );
-        std::vector<Data::Mission::PTCResource*> ptc_resources = Data::Mission::PTCResource::getVector( *this->resource_r );
+        if( !show_map )
+            this->environment_p->setMap( nullptr, nullptr );
+        else {
+            std::vector<Data::Mission::TilResource*> til_resources = Data::Mission::TilResource::getVector( *this->resource_r );
+            std::vector<Data::Mission::PTCResource*> ptc_resources = Data::Mission::PTCResource::getVector( *this->resource_r );
 
-        this->environment_p->setMap( ptc_resources.at( 0 ), &til_resources );
+            this->environment_p->setMap( ptc_resources.at( 0 ), &til_resources );
+        }
+
     }
 
     std::vector<Data::Mission::IFF*> loaded_IFFs;

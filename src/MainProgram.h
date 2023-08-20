@@ -69,6 +69,8 @@ public:
 
     void centerCamera();
 
+    void loadGraphics( bool show_map = true );
+
     void transitionToResource( std::string resource_identifier ) { switch_to_resource_identifier = resource_identifier; }
 
 protected:
@@ -84,8 +86,6 @@ private:
     void setupGraphics();
 
     void loadResources();
-
-    void loadGraphics();
 
     void setupCamera();
 
