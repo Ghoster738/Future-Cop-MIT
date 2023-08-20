@@ -137,6 +137,14 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
     this->first_person_r->removeText2DBuffer( this->text_2d_buffer_r );
 
     // Unload the old resource.
+    auto old_entry = this->manager.getIFFEntry( this->resource_identifier );
+    old_entry.importance = Data::Manager::Importance::NOT_NEEDED;
+
+    if( !this->manager.setIFFEntry( this->resource_identifier, old_entry ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "Set IFF Entry has failed for current \"" << this->resource_identifier << "\" in the switching process.";
+    }
+    this->manager.setLoad( Data::Manager::Importance::NEEDED );
 
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;

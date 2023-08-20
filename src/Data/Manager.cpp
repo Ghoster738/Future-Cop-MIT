@@ -123,6 +123,7 @@ bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
 bool Data::Manager::IFFEntryStorage::unload( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] != nullptr ) {
         delete this->iff_p[ platform ];
+        this->iff_p[ platform ] = nullptr;
         return true;
     }
     else
