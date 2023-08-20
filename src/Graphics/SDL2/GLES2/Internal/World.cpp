@@ -21,19 +21,10 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
         const auto info = mesh_draw_r->transparent_triangle_info[ i ];
 
-        if( selected_tile == info.bitfield.type ) {
-            for( unsigned t = 0; t < 3; t++ ) {
-
-                glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
-                draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
-                draw_triangles_r[ i ].vertices[ t ].color.w = 1;
-            }
-        }
-
         if( info.bitfield.vertex_animation ) {
             if( vertex_animation_p == nullptr ) {
                 for( unsigned t = 0; t < 3; t++ ) {
-                    draw_triangles_r[ i ].vertices[ t ].color += 2.0f * glm::vec4(1,1,1,0);
+                    draw_triangles_r[ i ].vertices[ t ].color = 2.0f * glm::vec4(1,1,1,0);
                 }
             }
             else {
@@ -42,8 +33,17 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
                     float light_level = (float)byte * 1. / 256.;
 
-                    draw_triangles_r[ i ].vertices[ t ].color += glm::vec4(light_level, light_level, light_level, 0);
+                    draw_triangles_r[ i ].vertices[ t ].color = glm::vec4(light_level, light_level, light_level, 0);
                 }
+            }
+        }
+
+        if( selected_tile == info.bitfield.type ) {
+            for( unsigned t = 0; t < 3; t++ ) {
+
+                glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
+                draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
+                draw_triangles_r[ i ].vertices[ t ].color.w = 1;
             }
         }
 
@@ -82,7 +82,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   float FRAME_BY_FRAME     = _TILE_TYPE.z;\n"
     "   float VERTEX_ANIMATION_ENABLE = float( _TILE_TYPE.x >= 128. );\n"
 
-    "   vec3 normal_color = COLOR_0;\n"
+    "   vec3 normal_color = COLOR_0 * float(VERTEX_ANIMATION_ENABLE != 1.);\n"
 
     "   normal_color += texture2D(VertexAnimation, vec2(_TILE_TYPE.w * (1. / 256.), 0)).rgb * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
 
