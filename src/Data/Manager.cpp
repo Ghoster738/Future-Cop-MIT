@@ -55,6 +55,14 @@ Data::Manager::IFFEntry::~IFFEntry() {
     // DO NOT DELETE ANYTHING. deleting iff_p is IFFEntryStorage's job.
 }
 
+void Data::Manager::IFFEntry::set( const IFFEntry& obj ) {
+    importance = obj.importance;
+    for( unsigned i = 0; i < Platform::ALL; i++ )
+        this->paths[ i ] = obj.paths[ i ];
+    for( unsigned i = 0; i < Platform::ALL; i++ )
+        this->iff_p[ i ] = obj.iff_p[ i ];
+}
+
 void Data::Manager::IFFEntry::setPath( Platform platform, const std::string &path ) {
     if( platform == Platform::ALL )
     {
@@ -86,6 +94,10 @@ Data::Manager::IFFEntryStorage::~IFFEntryStorage() {
     for( auto &i : iff_p )
         if( i != nullptr )
             delete i;
+}
+
+void Data::Manager::IFFEntryStorage::set( const IFFEntry& obj ) {
+    IFFEntry::set( obj );
 }
 
 bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
@@ -148,10 +160,16 @@ Data::Manager::IFFEntry Data::Manager::getIFFEntry( const std::string &name ) {
     return entry;
 }
 
+#include <iostream>
+
 bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry ) {
     // thread_lock.lock();
 
-    entries[ name ] = IFFEntryStorage( entry );
+    if( entries.find( name ) == entries.end() )
+        entries[ name ] = IFFEntryStorage( entry );
+    else {
+        entries.at( name ).set( entry );
+    }
 
     // thread_lock.unlock();
 
