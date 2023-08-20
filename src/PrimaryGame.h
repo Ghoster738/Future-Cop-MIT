@@ -19,6 +19,9 @@ private:
     int current_tile_selected;
     unsigned til_polygon_type_selected;
 
+    std::chrono::microseconds counter;
+    unsigned map_index;
+
 public:
     PrimaryGame();
     virtual ~PrimaryGame();

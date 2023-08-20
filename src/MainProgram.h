@@ -57,6 +57,9 @@ public:
     GameState *menu_r;
     GameState *primary_game_r;
 
+protected:
+    std::string switch_to_resource_identifier;
+
 public:
     MainProgram( int argc, char** argv );
 
@@ -66,8 +69,12 @@ public:
 
     void centerCamera();
 
+    void transitionToResource( std::string resource_identifier ) { switch_to_resource_identifier = resource_identifier; }
+
 protected:
     void throwException( std::string output );
+
+    bool switchToResource( std::string resource_identifier );
 
 private:
     void setupLogging();

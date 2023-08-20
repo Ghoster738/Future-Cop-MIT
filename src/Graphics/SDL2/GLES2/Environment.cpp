@@ -15,6 +15,7 @@ namespace Graphics::SDL2::GLES2 {
 Environment::Environment() {
     this->world_p             = nullptr;
     this->text_draw_routine_p = nullptr;
+    this->shiney_texture_p    = nullptr;
 }
 
 Environment::~Environment() {
@@ -57,6 +58,15 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
     int shine_index = -1;
+
+    for( auto i : this->textures ) {
+        delete i.second;
+    }
+    this->textures.clear();
+
+    if( this->shiney_texture_p != nullptr )
+        delete this->shiney_texture_p;
+    this->shiney_texture_p = nullptr;
     
     for( unsigned int i = 0; i < textures.size(); i++ )
     {
@@ -88,25 +98,16 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
         else
             textures.at( shine_index )->getImage()->subImage( 0, 124, 128, 128, environment_image );
 
-        this->shiney_texture.setFilters( 1, GL_NEAREST, GL_LINEAR );
-        this->shiney_texture.setImage( 1, 0, GL_RGBA, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, environment_image.getDirectGridData() );
+        this->shiney_texture_p = new Internal::Texture2D();
+
+        this->shiney_texture_p->setFilters( 1, GL_NEAREST, GL_LINEAR );
+        this->shiney_texture_p->setImage( 1, 0, GL_RGBA, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, environment_image.getDirectGridData() );
     }
 
     if( failed_texture_loads == 0 )
         return 1;
     else
         return -failed_texture_loads;
-}
-
-int Environment::unloadTextures() {
-    int deleted_item = !this->textures.empty();
-
-    for( auto i : this->textures ) {
-        delete i.second;
-    }
-    this->textures.clear();
-
-    return deleted_item;
 }
 
 void Environment::setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) {
@@ -147,7 +148,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     this->static_model_draw_routine.setFragmentShader();
     this->static_model_draw_routine.compileProgram();
     
-    this->static_model_draw_routine.setTextures( &this->shiney_texture );
+    this->static_model_draw_routine.setTextures( this->shiney_texture_p );
 
     err = glGetError();
 
@@ -158,7 +159,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     this->morph_model_draw_routine.setFragmentShader();
     this->morph_model_draw_routine.compileProgram();
 
-    this->morph_model_draw_routine.setTextures( &this->shiney_texture );
+    this->morph_model_draw_routine.setTextures( this->shiney_texture_p );
     
     err = glGetError();
 
@@ -169,7 +170,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     this->skeletal_model_draw_routine.setFragmentShader();
     this->skeletal_model_draw_routine.compileProgram();
     
-    this->skeletal_model_draw_routine.setTextures( &this->shiney_texture );
+    this->skeletal_model_draw_routine.setTextures( this->shiney_texture_p );
     
     err = glGetError();
 

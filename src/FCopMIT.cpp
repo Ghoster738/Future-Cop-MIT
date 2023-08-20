@@ -29,7 +29,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     }
 
     // TODO: Use venice beach as this map has all three types vertex animations.
-    this->resource_identifier = Data::Manager::pa_urban_jungle;
+    this->resource_identifier = Data::Manager::griffith_park;
     this->platform = Data::Manager::Platform::WINDOWS;
 
     setupLogging();
@@ -84,6 +84,11 @@ void MainProgram::displayLoop() {
 
         last_time = this_time;
 
+        if( !switch_to_resource_identifier.empty() ) {
+            switchToResource( switch_to_resource_identifier );
+            switch_to_resource_identifier = "";
+        }
+
         if( delta < FRAME_MS_LIMIT )
             std::this_thread::sleep_for( FRAME_MS_LIMIT - delta );
     }
@@ -91,6 +96,61 @@ void MainProgram::displayLoop() {
 
 MainProgram::~MainProgram() {
     cleanup();
+}
+
+bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
+    if( this->resource_identifier == switch_resource_identifier )
+        return true;
+
+    // Check if the parameter resource_identifier exists if not return false.
+    if( !this->manager.hasEntry( switch_resource_identifier ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The mission " << switch_resource_identifier << " does not exist cannot switch.";
+        return false;
+    }
+
+    // Next load the given resource.
+    auto switch_entry = this->manager.getIFFEntry( switch_resource_identifier );
+    switch_entry.importance = Data::Manager::Importance::NEEDED;
+
+    if( !this->manager.setIFFEntry( switch_resource_identifier, switch_entry ) ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "Set IFF Entry has failed for \"" << switch_resource_identifier << "\" cannot switch.";
+        return false;
+    }
+
+    this->manager.setLoad( Data::Manager::Importance::NEEDED );
+
+    // Check if the given resource successfully loaded if not return false.
+    auto switch_resource_r = manager.getIFFEntry( switch_resource_identifier ).getIFF( this->platform );
+    if( switch_resource_r == nullptr ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The mission IFF " << switch_resource_identifier << " did not load cannot switch.";
+        return false;
+    }
+    {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The mission IFF " << switch_resource_identifier << ",   0x" << switch_resource_r;
+    }
+
+    // Set up environment to switch to the new resource.
+    this->environment_p->setupTextures( Data::Mission::BMPResource::getVector( *switch_resource_r ) );
+    this->environment_p->setMap( *Data::Mission::PTCResource::getVector( *switch_resource_r ).at( 0 ), Data::Mission::TilResource::getVector( *switch_resource_r ) );
+
+    // Other dependences should also be referencing the new resource.
+
+    // Unload the old resource.
+
+    this->resource_r = switch_resource_r;
+    this->resource_identifier = switch_resource_identifier;
+
+    if( this->primary_game_r ) {
+        this->primary_game_r->unload( *this );
+        this->primary_game_r->load( *this );
+    }
+
+    // Finally, return true for successful switching.
+    return true;
 }
 
 void MainProgram::throwException( std::string output ) {
@@ -106,7 +166,7 @@ void MainProgram::throwException( std::string output ) {
 
 void MainProgram::setupLogging() {
     // Setup the professional logger next.
-    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::INFO );
+    Utilities::logger.setOutputLog( &std::cout, 0, Utilities::Logger::ERROR );
 
     {
         auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
@@ -166,6 +226,16 @@ void MainProgram::setupGraphics() {
 
     if( window_r->attach() != 1 )
         throwException( "The graphics window has failed to attach." );
+
+    // Initialize the camera
+    this->first_person_r = Graphics::Camera::alloc( *this->environment_p );
+    this->environment_p->window_p->attachCamera( *this->first_person_r );
+
+    // Center the camera.
+    if( this->environment_p->window_p->center() != 1 ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "The window had failed to center.";
+    }
 }
 
 void MainProgram::loadResources() {
@@ -261,16 +331,7 @@ void MainProgram::loadGraphics() {
     if( this->text_2d_buffer_r == nullptr )
         throwException( "The Graphics::Text2DBuffer has failed to allocate." );
 
-    // Initialze the camera
-    this->first_person_r = Graphics::Camera::alloc( *this->environment_p );
     this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
-    this->environment_p->window_p->attachCamera( *this->first_person_r );
-
-    // Center the camera.
-    if( this->environment_p->window_p->center() != 1 ) {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "The window had failed to center.";
-    }
 }
 
 void MainProgram::setupCamera() {

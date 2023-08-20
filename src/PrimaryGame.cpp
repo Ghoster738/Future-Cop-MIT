@@ -3,7 +3,11 @@
 
 #include "Utilities/ImageFormat/Chooser.h"
 
+#include <ratio>
+
 PrimaryGame::PrimaryGame() {
+    this->counter = std::chrono::seconds(0);
+    this->map_index = 0;
 }
 
 PrimaryGame::~PrimaryGame() {
@@ -186,6 +190,15 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
 
     main_program.camera_position += glm::vec3( tmp.x, tmp.y, tmp.z );
     main_program.camera_distance += delta_f * camera_distance_transform;
+
+    this->counter += delta;
+
+    if( this->counter > std::chrono::seconds(1) ) {
+        main_program.transitionToResource( *Data::Manager::map_iffs[ this->map_index ] );
+
+        this->counter -= std::chrono::seconds(1);
+        this->map_index = (this->map_index + 1) % Data::Manager::AMOUNT_OF_IFF_IDS;
+    }
 }
 
 void PrimaryGame::display( MainProgram &main_program ) {
