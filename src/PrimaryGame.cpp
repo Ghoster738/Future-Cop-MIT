@@ -23,6 +23,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
     this->til_polygon_type_selected = 111;
 
     main_program.centerCamera();
+    main_program.camera_distance = -20;
 
     this->til_resources = Data::Mission::TilResource::getVector( *main_program.resource_r );
 }
