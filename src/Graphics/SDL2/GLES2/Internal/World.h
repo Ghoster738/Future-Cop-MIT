@@ -85,7 +85,6 @@ protected:
     Texture2D vertex_animation_texture;
     
     GLfloat selected_tile;
-    GLfloat current_selected_tile;
     GLfloat scale;
     GLfloat glow_time;
 public:

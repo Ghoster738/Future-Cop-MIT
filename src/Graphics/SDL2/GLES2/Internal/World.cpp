@@ -111,8 +111,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     this->glow_time = 0;
-    this->current_selected_tile = 112;
-    this->selected_tile = this->current_selected_tile + 1;
+    setPolygonTypeBlink( 111, 1.0f );
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
@@ -465,11 +464,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         filtered_glow_time = this->glow_time;
 
     glUniform1f( glow_time_uniform_id, filtered_glow_time );
-    
-    if( this->selected_tile != this->current_selected_tile ) {
-        this->current_selected_tile = this->selected_tile;
-        glUniform1f( selected_tile_uniform_id, this->selected_tile );
-    }
+    glUniform1f( selected_tile_uniform_id, this->selected_tile );
 
     const float TILE_SPAN = 0.5;
 
@@ -590,7 +585,7 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
     // Update glow time.
     this->glow_time += seconds_passed * this->scale;
     
-    if( this->glow_time > 2.0f )
+    if( this->glow_time > 2.0f || this->glow_time < 0.0f )
         this->glow_time = 0.0f;
 }
 
