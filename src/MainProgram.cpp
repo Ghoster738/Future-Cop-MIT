@@ -62,10 +62,13 @@ void MainProgram::displayLoop() {
         }
 
         // Render GUI overlayed with menu when available.
-        if( primary_game_r != nullptr )
-            primary_game_r->display( *this );
-        if( menu_r != nullptr )
+        if( menu_r != nullptr ) {
             menu_r->display( *this );
+        }
+        else
+        if( primary_game_r != nullptr ) {
+            primary_game_r->display( *this );
+        }
 
         // If position of the Camera changes then apply the changes.
         updateCamera();
