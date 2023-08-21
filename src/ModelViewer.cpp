@@ -25,8 +25,18 @@ void ModelViewer::load( MainProgram &main_program ) {
 
     this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
 
+    this->count_down = 0;
     this->rotation = 0;
     this->exported_textures = false;
+
+    if( !main_program.parameters.export_path.wasModified() )
+        this->resource_export_path = "";
+    else
+        this->resource_export_path = main_program.parameters.export_path.getValue();
+
+    main_program.camera_position = { 0, 0, 0 };
+    main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
+    main_program.camera_distance = -20;
 }
 
 void ModelViewer::unload( MainProgram &main_program ) {
@@ -39,7 +49,6 @@ void ModelViewer::unload( MainProgram &main_program ) {
 
 void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
-    std::string resource_export_path = "";
 
     if( main_program.control_system_p->isOrderedToExit() )
         main_program.play_loop = false;
@@ -138,9 +147,9 @@ void ModelViewer::display( MainProgram &main_program ) {
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
     text_2d_buffer_r->print( "Resource ID = " + std::to_string( this->obj_vector.at( this->cobj_index )->getResourceID() ) );
 
-    /* if( !resource_export_path.empty() ) {
+    if( !this->resource_export_path.empty() ) {
         text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, 16 ) );
-        text_2d_buffer_r->print( "PRESS the \"" + player_1_controller_r->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
-    } */
+        text_2d_buffer_r->print( "PRESS the \"" + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
+    }
 }

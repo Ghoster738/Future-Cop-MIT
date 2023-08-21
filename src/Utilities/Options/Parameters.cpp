@@ -16,6 +16,7 @@ const int OPT_RES_WIDTH       = 'W';
 const int OPT_RES_HEIGHT      = 'H';
 const int OPT_RES             = 'r';
 const int OPT_CONFIG_DIR      = 'c';
+const int OPT_EXPORT_DIR      = 'e';
 const int OPT_USER_DIR        = 'u';
 const int OPT_WIN_DATA_DIR    = 'd';
 const int OPT_MAC_DATA_DIR    = 'm';
@@ -31,6 +32,7 @@ const option long_options[] = {
     {"fullscreen",   no_argument,       nullptr, OPT_FULLSCREEN   },
     {"window",       no_argument,       nullptr, OPT_WINDOW       },
     {"config",       required_argument, nullptr, OPT_CONFIG_DIR   },
+    {"export-path",  required_argument, nullptr, OPT_EXPORT_DIR   },
     {"user",         required_argument, nullptr, OPT_USER_DIR     },
     {"win-data",     required_argument, nullptr, OPT_WIN_DATA_DIR },
     {"mac-data",     required_argument, nullptr, OPT_MAC_DATA_DIR },
@@ -98,11 +100,12 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --fullscreen             Full screen mode" << "\n"
         << "    --window                 Window mode" << "\n"
         << "  Paths:" << "\n"
-        << "    --config   <path> Path to game configuration directory/file" << "\n"
-        << "    --user     <path> Path to directory - savegames and screenshots" << "\n"
-        << "    --win-data <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
-        << "    --mac-data <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
-        << "    --psx-data <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
+        << "    --user        <path> Path to directory - savegames and screenshots" << "\n"
+        << "    --config      <path> Path to game configuration directory/file" << "\n"
+        << "    --win-data    <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
+        << "    --mac-data    <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
+        << "    --psx-data    <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
+        << "    --export-path <path> Path to directory - path to where exported files go" << "\n"
         << "\n";
 }
 
@@ -134,6 +137,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_RES_HEIGHT:      parseHeight(optarg);             break;
             case OPT_RES:             parseRes(optarg);                break;
             case OPT_CONFIG_DIR:      parseConfigPath(optarg);         break;
+            case OPT_EXPORT_DIR:      parseExportPath(optarg);         break;
             case OPT_USER_DIR:        parseUserDir(optarg);            break;
             case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
             case OPT_MAC_DATA_DIR:    parseMacintoshDataDir(optarg);   break;
@@ -147,6 +151,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
                     case OPT_RES_HEIGHT:   storeError("resolution height not specified in commandline");               break;
                     case OPT_RES:          storeError("resolution (width and height) not specified in commandline");   break;
                     case OPT_CONFIG_DIR:   storeError("configuration directory not specified in commandline");         break;
+                    case OPT_EXPORT_DIR:   storeError("export directory not specified in commandline");                break;
                     case OPT_USER_DIR:     storeError("user data directory not specified in commandline");             break;
                     case OPT_WIN_DATA_DIR: storeError("Windows game data directory not specified in commandline");     break;
                     case OPT_MAC_DATA_DIR: storeError("Macintosh game data directory not specified in commandline");   break;
@@ -276,6 +281,37 @@ void Utilities::Options::Parameters::parseConfigPath( std::string path ) {
     }
     
     storeError("invalid config path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
+    if( p_export_path.wasModified() ) {
+        storeError("multiple export path directory parameters specified in commandline");
+        return;
+    }
+
+    if (!std::filesystem::exists(directory)) {
+        storeError("cannot access export path directory \"" + directory + "\" specified in commandline");
+        return;
+    }
+
+    // TODO: Refactor below, check if the directory it is writable
+
+    // Nothing more to do if it is a directory
+    if (std::filesystem::is_directory(directory)) {
+        p_export_path = StringParam(directory);
+        return;
+    }
+
+    if (std::filesystem::is_symlink(directory)) {
+        std::filesystem::path real_path = std::filesystem::read_symlink(directory);
+
+        if (std::filesystem::is_directory(real_path)) {
+            p_export_path = StringParam(directory);
+            return;
+        }
+    }
+
+    storeError("non-directory export path specified in commandline");
 }
 
 void Utilities::Options::Parameters::parseUserDir( std::string directory ) {

@@ -19,8 +19,10 @@ private:
     float radius;
 
     float rotation;
-    bool exported_textures;
     float count_down;
+
+    bool exported_textures;
+    std::string resource_export_path;
 
 public:
     ModelViewer();
