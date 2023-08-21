@@ -7,11 +7,21 @@
 #include <iostream>
 
 namespace {
-void mapSpectator( MainProgram &main_program, Menu*, Menu::Item* ) {
+void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     std::cout << "Map Spectator" << std::endl;
+    main_program.menu_r->unload( main_program );
+    main_program.menu_r = &dynamic_cast<MainMenu*>(menu_r)->map_selector_menu;
+    dynamic_cast<MapSelectorMenu*>(main_program.menu_r)->name = "Map Spectator Menu";
+    dynamic_cast<MapSelectorMenu*>(main_program.menu_r)->game_r = dynamic_cast<MainMenu*>(menu_r)->primary_game_r;
+    main_program.menu_r->load( main_program );
 }
-void viewGameModels( MainProgram &main_program, Menu*, Menu::Item* ) {
+void viewGameModels( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     std::cout << "View Game Models" << std::endl;
+    main_program.menu_r->unload( main_program );
+    main_program.menu_r = &dynamic_cast<MainMenu*>(menu_r)->map_selector_menu;
+    dynamic_cast<MapSelectorMenu*>(main_program.menu_r)->name = "Game Model Menu";
+    dynamic_cast<MapSelectorMenu*>(main_program.menu_r)->game_r = dynamic_cast<MainMenu*>(menu_r)->model_viewer_r;
+    main_program.menu_r->load( main_program );
 }
 void options( MainProgram &main_program, Menu*, Menu::Item* ) {
     std::cout << "Options not supported yet" << std::endl;
