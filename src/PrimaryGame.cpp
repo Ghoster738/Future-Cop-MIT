@@ -24,8 +24,10 @@ void PrimaryGame::load( MainProgram &main_program ) {
     this->current_tile_selected     =  -1;
     this->til_polygon_type_selected = 111;
 
-    main_program.centerCamera();
+    main_program.camera_position = { 0, 0, 0 };
+    main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
     main_program.camera_distance = -20;
+    main_program.centerCamera();
 
     this->til_resources = Data::Mission::TilResource::getVector( *main_program.resource_r );
 
@@ -41,7 +43,7 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
     if( main_program.control_system_p->isOrderedToExit() )
         main_program.play_loop = false;
 
-    if( main_program.controllers_r[0]->isChanged() )
+    if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() )
     {
         auto input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::UP );
         if( input_r->isChanged() )

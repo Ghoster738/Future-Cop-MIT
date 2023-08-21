@@ -1,10 +1,12 @@
 #include "MainProgram.h"
+
 #include "PrimaryGame.h"
+#include "ModelViewer.h"
 
 int main(int argc, char** argv)
 {
     MainProgram main_program( argc, argv );
-    PrimaryGame primary_game;
+    ModelViewer primary_game;
 
     primary_game.load( main_program );
 
