@@ -7,6 +7,8 @@ class MainMenu : public Menu {
 public:
     static MainMenu main_menu;
 
+    bool is_game_on;
+
     virtual ~MainMenu();
 
     virtual void load( MainProgram &main_program );

@@ -1,5 +1,6 @@
 #include "PrimaryGame.h"
 #include "MainProgram.h"
+#include "MainMenu.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
 
@@ -144,7 +145,6 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
             }
         }
 
-
         input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::CAMERA );
         if( input_r->isChanged() && input_r->getState() > 0.5 )
         {
@@ -161,6 +161,15 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
                     file.write( the_choosen_r->appendExtension( "screenshot" ) );
                 }
             }
+        }
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::TOGGLE_COMMAND_LINE );
+        if( input_r->isChanged() )
+        {
+            MainMenu::main_menu.is_game_on = true;
+            MainMenu::main_menu.load( main_program );
+
+            main_program.menu_r = &MainMenu::main_menu;
         }
     }
 

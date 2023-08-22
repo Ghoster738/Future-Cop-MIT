@@ -1,5 +1,6 @@
 #include "ModelViewer.h"
 #include "MainProgram.h"
+#include "MainMenu.h"
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -81,6 +82,15 @@ void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microsec
             auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
 
             obj->write( str.c_str() );
+        }
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::TOGGLE_COMMAND_LINE );
+        if( input_r->isChanged() )
+        {
+            MainMenu::main_menu.is_game_on = true;
+            MainMenu::main_menu.load( main_program );
+
+            main_program.menu_r = &MainMenu::main_menu;
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
