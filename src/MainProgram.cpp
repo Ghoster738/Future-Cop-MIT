@@ -221,7 +221,6 @@ void MainProgram::setupGraphics() {
 
     window_r->setWindowTitle( title );
     window_r->setDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
-    window_r->setFullScreen( options.getVideoFullscreen() );
 
     if( window_r->attach() != 1 )
         throwException( "The graphics window has failed to attach." );
@@ -235,6 +234,8 @@ void MainProgram::setupGraphics() {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The window had failed to center.";
     }
+
+    window_r->setFullScreen( options.getVideoFullscreen() );
 }
 
 void MainProgram::loadResources() {

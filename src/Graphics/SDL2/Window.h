@@ -22,6 +22,7 @@ public:
     virtual void setWindowTitle( const std::string &window_title );
     virtual void setPosition( glm::u32vec2 position );
     virtual int setDimensions( glm::u32vec2 dimensions );
+    virtual void setFullScreen( bool is_full_screen );
     
     virtual int center();
 };
