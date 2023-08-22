@@ -2,27 +2,27 @@
 
 const std::string Data::Manager::global = "global";
 
-const std::string Data::Manager::griffith_park        = "griffith_park";
-const std::string Data::Manager::zuma_beach           = "zuma_beach";
-const std::string Data::Manager::la_brea_tar_pits     = "la_brea_tar_pits";
-const std::string Data::Manager::venice_beach         = "venice_beach";
-const std::string Data::Manager::hells_gate_prison    = "hells_gate_prison";
-const std::string Data::Manager::studio_city          = "studio_city";
-const std::string Data::Manager::lax_spaceport        = "lax_spaceport";
-const std::string Data::Manager::lax_spaceport_part_2 = "lax_spaceport_part_2";
-const std::string Data::Manager::long_beach           = "long_beach";
+const std::string Data::Manager::griffith_park        = "griffith-park";
+const std::string Data::Manager::zuma_beach           = "zuma-beach";
+const std::string Data::Manager::la_brea_tar_pits     = "la-brea-tar-pits";
+const std::string Data::Manager::venice_beach         = "venice-beach";
+const std::string Data::Manager::hells_gate_prison    = "hells-gate-prison";
+const std::string Data::Manager::studio_city          = "studio-city";
+const std::string Data::Manager::lax_spaceport        = "lax-spaceport";
+const std::string Data::Manager::lax_spaceport_part_2 = "lax-spaceport-part-2";
+const std::string Data::Manager::long_beach           = "long-beach";
 
 const std::string *const Data::Manager::crime_war_iffs[] =
     { &Data::Manager::griffith_park, &Data::Manager::zuma_beach, &Data::Manager::la_brea_tar_pits, &Data::Manager::venice_beach,
       &Data::Manager::hells_gate_prison, &Data::Manager::studio_city, &Data::Manager::lax_spaceport, &Data::Manager::lax_spaceport_part_2, &Data::Manager::long_beach };
 const size_t Data::Manager::AMOUNT_OF_CRIME_WAR_IDS = sizeof(Data::Manager::crime_war_iffs) / sizeof( Data::Manager::crime_war_iffs[0] );
 
-const std::string Data::Manager::pa_urban_jungle   = "pa_urban_jungle";
-const std::string Data::Manager::pa_venice_beach   = "pa_venice_beach";
-const std::string Data::Manager::pa_hollywood_keys = "pa_hollywood_keys";
-const std::string Data::Manager::pa_proving_ground = "pa_proving_ground";
-const std::string Data::Manager::pa_bug_hunt       = "pa_bug_hunt";
-const std::string Data::Manager::pa_la_centina     = "pa_la_centina";
+const std::string Data::Manager::pa_urban_jungle   = "pa-urban-jungle";
+const std::string Data::Manager::pa_venice_beach   = "pa-venice-beach";
+const std::string Data::Manager::pa_hollywood_keys = "pa-hollywood-keys";
+const std::string Data::Manager::pa_proving_ground = "pa-proving-grounds";
+const std::string Data::Manager::pa_bug_hunt       = "pa-bug-hunt";
+const std::string Data::Manager::pa_la_centina     = "pa-la-centina";
 
 const std::string *const Data::Manager::precinct_assault_iffs[] =
     { &Data::Manager::pa_urban_jungle, &Data::Manager::pa_venice_beach, &Data::Manager::pa_hollywood_keys, &Data::Manager::pa_proving_ground,
