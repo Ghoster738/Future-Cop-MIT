@@ -22,6 +22,8 @@ void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
 }
 }
 
+MapSelectorMenu MapSelectorMenu::map_selector_menu;
+
 MapSelectorMenu::~MapSelectorMenu() {
 }
 

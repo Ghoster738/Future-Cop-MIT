@@ -2,15 +2,10 @@
 #define FC_MAIN_MENU_H
 
 #include "Menu.h"
-#include "MapSelectorMenu.h"
 
 class MainMenu : public Menu {
 public:
     static MainMenu main_menu;
-
-    MapSelectorMenu map_selector_menu;
-    GameState *primary_game_r;
-    GameState *model_viewer_r;
 
     virtual ~MainMenu();
 

@@ -8,23 +8,20 @@
 int main(int argc, char** argv)
 {
     MainProgram main_program( argc, argv );
-    PrimaryGame primary_game;
-    ModelViewer model_viewer;
-    MainMenu main_menu;
 
-    main_menu.primary_game_r = &primary_game;
-    main_menu.model_viewer_r = &model_viewer;
+    MainMenu::main_menu.load( main_program );
+    PrimaryGame::primary_game.load( main_program );
 
-    main_menu.load( main_program );
-    primary_game.load( main_program );
-
-    main_program.menu_r = &main_menu;
-    main_program.primary_game_r = &primary_game;
+    main_program.menu_r = &MainMenu::main_menu;
+    main_program.primary_game_r = &PrimaryGame::primary_game;
 
     main_program.displayLoop();
 
-    primary_game.unload( main_program );
-    main_menu.unload( main_program );
+    if( main_program.primary_game_r != nullptr )
+        main_program.primary_game_r->unload( main_program );
+
+    if( main_program.menu_r != nullptr )
+        main_program.menu_r->unload( main_program );
 
     return 0;
 }
