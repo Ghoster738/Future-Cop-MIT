@@ -7,6 +7,8 @@
 
 #include "Config.h"
 
+PrimaryGame PrimaryGame::primary_game;
+
 PrimaryGame::PrimaryGame() {
     this->counter = std::chrono::seconds(0);
     this->map_index = 0;

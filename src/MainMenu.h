@@ -6,6 +6,8 @@
 
 class MainMenu : public Menu {
 public:
+    static MainMenu main_menu;
+
     MapSelectorMenu map_selector_menu;
     GameState *primary_game_r;
     GameState *model_viewer_r;

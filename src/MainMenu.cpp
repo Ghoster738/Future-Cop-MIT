@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+MainMenu MainMenu::main_menu;
+
 namespace {
 void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     std::cout << "Map Spectator" << std::endl;

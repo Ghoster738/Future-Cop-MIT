@@ -9,6 +9,8 @@
 #include "Data/Mission/TilResource.h"
 
 class PrimaryGame : public GameState {
+public:
+    static PrimaryGame primary_game;
 private:
     bool      is_camera_moving;
     glm::vec3 camera_position_transform;

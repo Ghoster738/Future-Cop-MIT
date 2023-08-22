@@ -10,6 +10,9 @@
 #include "Graphics/ModelInstance.h"
 
 class ModelViewer : public GameState {
+public:
+    static ModelViewer model_viewer;
+
 private:
     unsigned int cobj_index;
     std::vector<Data::Mission::ObjResource*> obj_vector;

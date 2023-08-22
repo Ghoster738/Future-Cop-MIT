@@ -5,6 +5,8 @@
 
 class MapSelectorMenu : public Menu {
 public:
+    static MapSelectorMenu map_selector_menu;
+
     std::string name;
     GameState *game_r;
 

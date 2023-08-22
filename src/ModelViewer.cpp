@@ -7,6 +7,8 @@
 
 #include <glm/ext/quaternion_trigonometric.hpp>
 
+ModelViewer ModelViewer::model_viewer;
+
 ModelViewer::ModelViewer() {
     this->displayed_instance_p = nullptr;
 }
