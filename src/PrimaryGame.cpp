@@ -156,9 +156,10 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
                 Utilities::Buffer file;
                 Utilities::ImageFormat::Chooser chooser;
                 auto the_choosen_r = chooser.getWriterReference( image_screenshot );
+
                 if( the_choosen_r != nullptr ) {
                     the_choosen_r->write( image_screenshot, file);
-                    file.write( the_choosen_r->appendExtension( "screenshot" ) );
+                    file.write( main_program.options.getScreenshotsDirectory() + the_choosen_r->appendExtension( Utilities::Logger::getTime() ) );
                 }
             }
         }

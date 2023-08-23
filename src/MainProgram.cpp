@@ -169,7 +169,7 @@ void MainProgram::setupLogging() {
 
     {
         auto initialize_log = Utilities::logger.getLog( Utilities::Logger::ALL );
-        initialize_log.output << parameters.getBinaryName() << " started at ";
+        initialize_log.output << parameters.getBinaryName() << " started at " << Utilities::Logger::getTime();
     }
 
     Utilities::logger.setTimeStampMode( true );
