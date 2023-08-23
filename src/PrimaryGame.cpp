@@ -184,6 +184,10 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
             Utilities::Image2D *image_screenshot_p = new Utilities::Image2D( dimensions.x, dimensions.y, Utilities::PixelFormatColor_R8G8B8A8() );
 
             if( main_program.environment_p->screenshot( *image_screenshot_p ) ) {
+                {
+                    auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
+                    log.output << "Launching screenshot \"" << NAME << "\"\n";
+                }
                 std::thread thread( writeThreadedImage, NAME, image_screenshot_p );
 
                 thread.detach();
