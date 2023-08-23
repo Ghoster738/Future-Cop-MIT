@@ -17,7 +17,7 @@ void writeThreadedImage( std::string NAME, Utilities::Image2D *image_screenshot_
 
     if( the_choosen_r != nullptr ) {
         the_choosen_r->write( *image_screenshot_p, file );
-        file.write( NAME );
+        file.write( the_choosen_r->appendExtension( NAME ) );
 
         auto log = Utilities::logger.getLog( Utilities::Logger::INFO );
         log.output << "Successfully written \"" << the_choosen_r->appendExtension( NAME ) << "\".\n";
