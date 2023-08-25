@@ -27,6 +27,8 @@ void ModelViewer::load( MainProgram &main_program ) {
     main_program.loadGraphics( false );
 
     this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+    this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
+    this->displayed_instance_p->setPosition( -this->position );
 
     this->count_down = 0;
     this->rotation = 0;
@@ -39,7 +41,7 @@ void ModelViewer::load( MainProgram &main_program ) {
 
     main_program.camera_position = { 0, 0, 0 };
     main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
-    main_program.camera_distance = -20;
+    main_program.camera_distance = -(this->radius + 4.0f);
 }
 
 void ModelViewer::unload( MainProgram &main_program ) {
@@ -127,7 +129,7 @@ void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microsec
             if( Graphics::ModelInstance::exists( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID() ) ) {
                 this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->obj_vector.at( this->cobj_index )->getResourceID(), glm::vec3( 0, 0, 0 ) );
 
-                auto log = Utilities::logger.getLog( Utilities::Logger::INFO );
+                auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
 
                 log.output << "Sphere result is " << this->displayed_instance_p->getBoundingSphere( this->position, this->radius ) << "\n";
                 log.output << "position is (" << this->position.x << ", " << this->position.y << ", " << this->position.z << ")\n";
