@@ -113,6 +113,16 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
 }
 
 void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) {
+    // Erase the culling data.
+    if( this->window_p != nullptr ) {
+        for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ ) {
+            auto current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(window_p->getCameras()->at( i ));
+
+            if( current_camera_r != nullptr )
+                current_camera_r->culling_info.setDimensions( 0, 0 );
+        }
+    }
+
     if( this->world_p != nullptr )
         delete this->world_p;
 
