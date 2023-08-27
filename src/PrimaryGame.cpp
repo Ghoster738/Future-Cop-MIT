@@ -251,7 +251,7 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
     this->counter += delta;
 
     if( this->counter > std::chrono::seconds(10) ) {
-        const static Data::Manager::Platform platforms[ Data::Manager::Platform::ALL ] = { Data::Manager::Platform::WINDOWS, Data::Manager::Platform::PLAYSTATION, Data::Manager::Platform::MACINTOSH };
+        const static Data::Manager::Platform platforms[ Data::Manager::Platform::ALL ] = { Data::Manager::Platform::MACINTOSH, Data::Manager::Platform::PLAYSTATION, Data::Manager::Platform::WINDOWS };
 
         main_program.transitionToResource( *Data::Manager::map_iffs[ this->map_index ], platforms[ this->platform_index ] );
 

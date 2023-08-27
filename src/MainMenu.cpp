@@ -9,8 +9,6 @@
 #include "PrimaryGame.h"
 #include "ModelViewer.h"
 
-#include <iostream>
-
 MainMenu MainMenu::main_menu;
 
 namespace {
@@ -22,7 +20,6 @@ void menuDone( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
 void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     main_program.menu_r->unload( main_program );
     main_program.menu_r = &MapSelectorMenu::map_selector_menu;
-    MapSelectorMenu::map_selector_menu.name = "Map Spectator Menu";
     MapSelectorMenu::map_selector_menu.game_r = &PrimaryGame::primary_game;
     main_program.menu_r->load( main_program );
 }
@@ -30,12 +27,12 @@ void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
 void viewGameModels( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     main_program.menu_r->unload( main_program );
     main_program.menu_r = &MapSelectorMenu::map_selector_menu;
-    MapSelectorMenu::map_selector_menu.name = "Game Model Menu";
     MapSelectorMenu::map_selector_menu.game_r = &ModelViewer::model_viewer;
     main_program.menu_r->load( main_program );
 }
 void options( MainProgram &main_program, Menu*, Menu::Item* ) {
-    std::cout << "Options not supported yet" << std::endl;
+    auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+    log.output << "Options not supported yet";
 }
 void exitGame( MainProgram &main_program, Menu*, Menu::Item* ) {
     main_program.play_loop = false;

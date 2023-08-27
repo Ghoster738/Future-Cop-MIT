@@ -4,14 +4,11 @@
 
 #include "MainProgram.h"
 
-#include <iostream>
-
 namespace {
 void nullPress( MainProgram &main_program, Menu*, Menu::Item* ) {
     // Nothing.
 }
 void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-    std::cout << "Map selected = " << item_r->name << std::endl;
     if( main_program.primary_game_r != nullptr )
         main_program.primary_game_r->unload( main_program );
 
