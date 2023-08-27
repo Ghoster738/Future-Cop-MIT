@@ -71,8 +71,6 @@ void MainMenu::unload( MainProgram &main_program ) {
 }
 
 void MainMenu::display( MainProgram &main_program ) {
-    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
-
     for( size_t i = 0; i < this->items.size(); i++ ) {
         drawButton( main_program, this->items[i] );
     }

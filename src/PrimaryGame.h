@@ -23,6 +23,7 @@ private:
 
     std::chrono::microseconds counter;
     unsigned map_index;
+    unsigned platform_index;
 
 public:
     PrimaryGame();

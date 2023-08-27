@@ -18,7 +18,7 @@ void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     main_program.primary_game_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
     main_program.primary_game_r->load( main_program );
     main_program.menu_r = nullptr;
-    main_program.transitionToResource( item_r->name );
+    main_program.transitionToResource( item_r->name, main_program.platform );
 }
 }
 
@@ -46,8 +46,6 @@ void MapSelectorMenu::unload( MainProgram &main_program ) {
 }
 
 void MapSelectorMenu::display( MainProgram &main_program ) {
-    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
-
     for( size_t i = 0; i < this->items.size(); i++ ) {
         drawButton( main_program, this->items[i] );
     }

@@ -59,6 +59,7 @@ public:
 
 protected:
     std::string switch_to_resource_identifier;
+    Data::Manager::Platform switch_to_platform;
 
 public:
     MainProgram( int argc, char** argv );
@@ -71,12 +72,15 @@ public:
 
     void loadGraphics( bool show_map = true );
 
-    void transitionToResource( std::string resource_identifier ) { switch_to_resource_identifier = resource_identifier; }
+    void transitionToResource( std::string resource_identifier, Data::Manager::Platform platform ) {
+        this->switch_to_resource_identifier = resource_identifier;
+        this->switch_to_platform            = platform;
+    }
 
 protected:
     void throwException( std::string output );
 
-    bool switchToResource( std::string resource_identifier );
+    bool switchToResource( std::string resource_identifier, Data::Manager::Platform platform );
 
 private:
     void setupLogging();

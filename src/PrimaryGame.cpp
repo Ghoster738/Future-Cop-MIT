@@ -37,6 +37,7 @@ PrimaryGame PrimaryGame::primary_game;
 PrimaryGame::PrimaryGame() {
     this->counter = std::chrono::seconds(0);
     this->map_index = 0;
+    this->platform_index = 0;
 }
 
 PrimaryGame::~PrimaryGame() {
@@ -250,9 +251,15 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
     this->counter += delta;
 
     if( this->counter > std::chrono::seconds(10) ) {
-        main_program.transitionToResource( *Data::Manager::map_iffs[ this->map_index ] );
+        const static Data::Manager::Platform platforms[ Data::Manager::Platform::ALL ] = { Data::Manager::Platform::WINDOWS, Data::Manager::Platform::PLAYSTATION, Data::Manager::Platform::MACINTOSH };
+
+        main_program.transitionToResource( *Data::Manager::map_iffs[ this->map_index ], platforms[ this->platform_index ] );
 
         this->counter -= std::chrono::seconds(10);
+
+        if( this->map_index + 1 == Data::Manager::AMOUNT_OF_IFF_IDS )
+            this->platform_index = (this->platform_index + 1) % Data::Manager::Platform::ALL;
+
         this->map_index = (this->map_index + 1) % Data::Manager::AMOUNT_OF_IFF_IDS;
     }
     #endif

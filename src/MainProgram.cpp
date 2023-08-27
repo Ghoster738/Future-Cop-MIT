@@ -26,6 +26,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     // TODO: Use venice beach as this map has all three types vertex animations.
     this->resource_identifier = Data::Manager::pa_urban_jungle;
     this->platform = Data::Manager::Platform::WINDOWS;
+    this->switch_to_platform = this->platform;
 
     setupLogging();
     initGraphics();
@@ -38,7 +39,6 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
 
 void MainProgram::displayLoop() {
     auto last_time = std::chrono::high_resolution_clock::now();
-    auto end_time = last_time + std::chrono::seconds( 5 );
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
@@ -82,9 +82,10 @@ void MainProgram::displayLoop() {
 
         last_time = this_time;
 
-        if( !switch_to_resource_identifier.empty() ) {
-            switchToResource( switch_to_resource_identifier );
-            switch_to_resource_identifier = "";
+        if( !this->switch_to_resource_identifier.empty() || this->switch_to_platform != this->platform ) {
+            switchToResource( this->switch_to_resource_identifier, this->switch_to_platform );
+            this->switch_to_resource_identifier = "";
+            this->platform = this->switch_to_platform;
         }
 
         if( delta < FRAME_MS_LIMIT )
@@ -96,7 +97,7 @@ MainProgram::~MainProgram() {
     cleanup();
 }
 
-bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
+bool MainProgram::switchToResource( std::string switch_resource_identifier, Data::Manager::Platform switch_platform ) {
     if( this->resource_identifier == switch_resource_identifier )
         return true;
 
@@ -105,6 +106,10 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The mission " << switch_resource_identifier << " does not exist cannot switch.";
         return false;
+    }
+
+    if( switch_platform != this->platform ) {
+        this->manager.togglePlatform( switch_platform, true );
     }
 
     // Next load the given resource.
@@ -120,7 +125,7 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
     this->manager.setLoad( Data::Manager::Importance::NEEDED );
 
     // Check if the given resource successfully loaded if not return false.
-    auto switch_resource_r = manager.getIFFEntry( switch_resource_identifier ).getIFF( this->platform );
+    auto switch_resource_r = manager.getIFFEntry( switch_resource_identifier ).getIFF( switch_platform );
     if( switch_resource_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The mission IFF " << switch_resource_identifier << " did not load cannot switch.";
@@ -138,12 +143,29 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "Set IFF Entry has failed for current \"" << this->resource_identifier << "\" in the switching process.";
     }
+
+    if( switch_platform != this->platform ) {
+        this->manager.togglePlatform( this->platform, false );
+    }
+
     this->manager.setLoad( Data::Manager::Importance::NEEDED );
+
+    if( switch_platform != this->platform ) {
+        auto switch_global_resource_r = manager.getIFFEntry( Data::Manager::global ).getIFF( switch_platform );
+
+        if( switch_global_resource_r == nullptr ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << "The mission IFF does not have a global file.";
+        }
+
+        this->global_r = switch_global_resource_r;
+
+    }
 
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;
 
-    if( this->primary_game_r ) {
+    if( this->primary_game_r != nullptr ) {
         this->primary_game_r->unload( *this );
         this->primary_game_r->load( *this );
     }
