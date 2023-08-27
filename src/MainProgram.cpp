@@ -98,7 +98,7 @@ MainProgram::~MainProgram() {
 }
 
 bool MainProgram::switchToResource( std::string switch_resource_identifier, Data::Manager::Platform switch_platform ) {
-    if( this->resource_identifier == switch_resource_identifier )
+    if( this->resource_identifier == switch_resource_identifier && switch_platform == this->platform )
         return true;
 
     // Check if the parameter resource_identifier exists if not return false.
@@ -136,12 +136,14 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     this->first_person_r->removeText2DBuffer( this->text_2d_buffer_r );
 
     // Unload the old resource.
-    auto old_entry = this->manager.getIFFEntry( this->resource_identifier );
-    old_entry.importance = Data::Manager::Importance::NOT_NEEDED;
+    if( switch_resource_identifier != this->resource_identifier ) {
+        auto old_entry = this->manager.getIFFEntry( this->resource_identifier );
+        old_entry.importance = Data::Manager::Importance::NOT_NEEDED;
 
-    if( !this->manager.setIFFEntry( this->resource_identifier, old_entry ) ) {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "Set IFF Entry has failed for current \"" << this->resource_identifier << "\" in the switching process.";
+        if( !this->manager.setIFFEntry( this->resource_identifier, old_entry ) ) {
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+            log.output << "Set IFF Entry has failed for current \"" << this->resource_identifier << "\" in the switching process.";
+        }
     }
 
     if( switch_platform != this->platform ) {
