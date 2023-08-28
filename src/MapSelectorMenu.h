@@ -10,6 +10,8 @@ public:
     std::string name;
     GameState *game_r;
 
+    std::string failed_map_name;
+
     virtual ~MapSelectorMenu();
 
     virtual void load( MainProgram &main_program );

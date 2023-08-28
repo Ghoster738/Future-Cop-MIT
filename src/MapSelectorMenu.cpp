@@ -9,13 +9,17 @@ void nullPress( MainProgram &main_program, Menu*, Menu::Item* ) {
     // Nothing.
 }
 void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-    if( main_program.primary_game_r != nullptr )
-        main_program.primary_game_r->unload( main_program );
+    if( !Utilities::Options::Tools::isFile( main_program.manager.getIFFEntry( item_r->name ).getPath( main_program.platform ) ) )
+        dynamic_cast<MapSelectorMenu*>(menu_r)->failed_map_name = item_r->name;
+    else {
+        if( main_program.primary_game_r != nullptr )
+            main_program.primary_game_r->unload( main_program );
 
-    main_program.primary_game_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
-    main_program.primary_game_r->load( main_program );
-    main_program.menu_r = nullptr;
-    main_program.transitionToResource( item_r->name, main_program.platform );
+        main_program.primary_game_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
+        main_program.primary_game_r->load( main_program );
+        main_program.menu_r = nullptr;
+        main_program.transitionToResource( item_r->name, main_program.platform );
+    }
 }
 }
 
@@ -26,6 +30,8 @@ MapSelectorMenu::~MapSelectorMenu() {
 
 void MapSelectorMenu::load( MainProgram &main_program ) {
     Menu::load( main_program );
+
+    failed_map_name = "";
 
     this->items.resize( Data::Manager::AMOUNT_OF_IFF_IDS + 1 );
 
@@ -43,6 +49,38 @@ void MapSelectorMenu::unload( MainProgram &main_program ) {
 }
 
 void MapSelectorMenu::display( MainProgram &main_program ) {
+    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
+
+    if( !failed_map_name.empty() ) {
+        text_2d_buffer_r->setFont( 2 );
+        text_2d_buffer_r->setColor( glm::vec4( 0.7, 0, 0.5, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 100, 3 ) );
+        text_2d_buffer_r->print( "Game files are not found!" );
+        text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 100, 13 ) );
+        text_2d_buffer_r->print( "This project requires these game files to run." );
+        text_2d_buffer_r->setPosition( glm::vec2( 100, 35 ) );
+        text_2d_buffer_r->print( "This is the path that this program expects" );
+        text_2d_buffer_r->setPosition( glm::vec2( 100, 47 ) );
+        text_2d_buffer_r->print( "relative to the file location of this program." );
+
+        auto entry = main_program.manager.getIFFEntry( failed_map_name );
+        text_2d_buffer_r->setColor( glm::vec4( 0.5, 1, 0.5, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 100, 59 ) );
+        text_2d_buffer_r->print( entry.getPath( main_program.platform ) );
+
+        entry = main_program.manager.getIFFEntry( Data::Manager::global );
+
+        if( entry.getIFF( main_program.platform ) == nullptr ) {
+            text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 100, 83 ) );
+            text_2d_buffer_r->print( "The globals file is also missing." );
+            text_2d_buffer_r->setColor( glm::vec4( 0.5, 1, 0.5, 1 ) );
+            text_2d_buffer_r->setPosition( glm::vec2( 100, 95 ) );
+            text_2d_buffer_r->print( entry.getPath( main_program.platform ) );
+        }
+    }
+
     for( size_t i = 0; i < this->items.size(); i++ ) {
         drawButton( main_program, this->items[i] );
     }

@@ -134,9 +134,9 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 # OpenGLES 2 is the one and only API supported for now, but more will come.
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
-add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/ConfigureInput.cpp src/SplashScreens.cpp )
+add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/ConfigureInput.cpp src/MainProgram.cpp )
 
-add_executable( FCopMIT WIN32 src/FCopMIT.cpp src/MainProgram.cpp src/PrimaryGame.cpp src/ModelViewer.cpp src/Menu.cpp src/MainMenu.cpp src/MapSelectorMenu.cpp )
+add_executable( FCopMIT WIN32 src/FCopMIT.cpp src/PrimaryGame.cpp src/ModelViewer.cpp src/Menu.cpp src/MainMenu.cpp src/MapSelectorMenu.cpp )
 
 if( TARGET SDL2::SDL2main )
   target_link_libraries (FCopMIT PRIVATE SDL2::SDL2main)

@@ -2,7 +2,6 @@
 
 #include "Config.h"
 #include "ConfigureInput.h"
-#include "SplashScreens.h"
 
 #include <iostream>
 
@@ -25,7 +24,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
 
     // TODO: Use venice beach as this map has all three types vertex animations.
     this->resource_identifier = Data::Manager::pa_urban_jungle;
-    this->platform = Data::Manager::Platform::WINDOWS;
+    this->platform = Data::Manager::Platform::PLAYSTATION;
     this->switch_to_platform = this->platform;
 
     setupLogging();
@@ -42,7 +41,7 @@ void MainProgram::displayLoop() {
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
-    this->play_loop  = configure_input( control_system_p, environment_p, text_2d_buffer_r, "controls");
+    this->play_loop  = configure_input( control_system_p, environment_p, text_2d_buffer_r, this->paths.getConfigDirPath() + "controls");
 
     while( this->play_loop ) {
         this_time = std::chrono::high_resolution_clock::now();
