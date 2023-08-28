@@ -18,6 +18,8 @@ void menuDone( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
 }
 
 void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
+    MapSelectorMenu::map_selector_menu.name = "Map Spectator";
+
     main_program.menu_r->unload( main_program );
     main_program.menu_r = &MapSelectorMenu::map_selector_menu;
     MapSelectorMenu::map_selector_menu.game_r = &PrimaryGame::primary_game;
@@ -25,6 +27,8 @@ void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
 }
 
 void viewGameModels( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
+    MapSelectorMenu::map_selector_menu.name = "Model Viewer";
+
     main_program.menu_r->unload( main_program );
     main_program.menu_r = &MapSelectorMenu::map_selector_menu;
     MapSelectorMenu::map_selector_menu.game_r = &ModelViewer::model_viewer;
