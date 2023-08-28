@@ -34,7 +34,7 @@ public:
     ~Paths() { /* empty */ };
 
     // Calculates the configuration file path, based on user input (if any), points to a file
-    std::string getConfigFilePath();
+    std::string getConfigDirPath();
     // Calculates the user directory path, based on user input (if any)
     std::string getUserDirPath( UserDirectory type );
     // Calculate the data directory path, based on user input (if any)
@@ -55,7 +55,7 @@ private:
     std::string path_psx_game_data = "";
 
     // Path calculations
-    std::string findConfigPath() const;
+    std::string findConfigDirPath() const;
     std::string findUserDirPath( std::string sub_type ) const;
     std::string findDataDirPath( DataDirectory type ) const;
 

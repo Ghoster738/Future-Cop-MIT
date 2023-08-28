@@ -101,7 +101,7 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --window                 Window mode" << "\n"
         << "  Paths:" << "\n"
         << "    --user        <path> Path to directory - savegames and screenshots" << "\n"
-        << "    --config      <path> Path to game configuration directory/file" << "\n"
+        << "    --config      <path> Path to game configuration directory" << "\n"
         << "    --win-data    <path> Path to directory - Future Cop LAPD original Windows data" << "\n"
         << "    --mac-data    <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
         << "    --psx-data    <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
@@ -136,7 +136,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_RES_WIDTH:       parseWidth(optarg);              break;
             case OPT_RES_HEIGHT:      parseHeight(optarg);             break;
             case OPT_RES:             parseRes(optarg);                break;
-            case OPT_CONFIG_DIR:      parseConfigPath(optarg);         break;
+            case OPT_CONFIG_DIR:      parseConfigDir(optarg);         break;
             case OPT_EXPORT_DIR:      parseExportPath(optarg);         break;
             case OPT_USER_DIR:        parseUserDir(optarg);            break;
             case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
@@ -252,35 +252,35 @@ void Utilities::Options::Parameters::parseRes( std::string param ) {
     parseHeight( matches[2].str() );
 }
 
-void Utilities::Options::Parameters::parseConfigPath( std::string path ) {
-    if (p_config_path.wasModified()) {
-        storeError("multiple config path parameters specified in commandline");
+void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
+    if( p_config_dir.wasModified())  {
+        storeError("multiple config dir parameters specified in commandline");
         return;
     }
     
     // Path needs to exist if manually specified
-    if (!std::filesystem::exists(path)) {
-        storeError("cannot access config path \"" + path + "\" specified in commandline");
+    if( !std::filesystem::exists(path) ) {
+        storeError("cannot access config dir \"" + path + "\" specified in commandline");
         return;
     }
     
     // Nothing more to do if it is a regular file or directory
-    if (std::filesystem::is_regular_file(path) || std::filesystem::is_directory(path)) {
-        p_config_path = StringParam(path);
+    if( std::filesystem::is_directory(path) ) {
+        p_config_dir = StringParam(path);
         return;
     }
     
     // Check symlinks
-    if (std::filesystem::is_symlink(path)) {
+    if( std::filesystem::is_symlink(path) ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(path);
         
-        if (std::filesystem::is_regular_file(real_path) || std::filesystem::is_directory(real_path)) {
-            p_config_path = StringParam(path);
+        if( std::filesystem::is_directory(real_path) ) {
+            p_config_dir = StringParam(path);
             return;
         }
     }
     
-    storeError("invalid config path specified in commandline");
+    storeError("invalid config dir specified in commandline");
 }
 
 void Utilities::Options::Parameters::parseExportPath( std::string directory ) {

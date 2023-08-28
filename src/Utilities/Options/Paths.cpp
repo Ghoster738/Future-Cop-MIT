@@ -35,51 +35,36 @@ const std::string Utilities::Options::Paths::PATH_SEPARATOR = "/";
 const std::string Utilities::Options::Paths::CONFIG_FILE_NAME = "futurecop.ini";
 
 // Retrieve the configuration file path
-std::string Utilities::Options::Paths::getConfigFilePath()
-{
+std::string Utilities::Options::Paths::getConfigDirPath() {
     if( path_config.empty() ) {
-        path_config = findConfigPath();
+        path_config = findConfigDirPath();
     }
 
     return path_config;
 }
 
-std::string Utilities::Options::Paths::findConfigPath() const
-{
+std::string Utilities::Options::Paths::findConfigDirPath() const {
     // Work with the user-supplied value, if any
-    std::string config_path = parameters.config_path.getValue();
+    std::string config_dir = parameters.config_dir.getValue();
 
-    if (!config_path.empty()) {
-        // If it is a file path, just return it as-is
-        if (Tools::isFile(config_path)) {
-            return config_path;
-        }
-
-        // If it is a directory, append the default name of the config file to it
-        if (Tools::isDir(config_path)) {
-            // Add the directory separator if not in the provided path
-            if (0 != config_path.compare(config_path.size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR)) {
-                config_path += PATH_SEPARATOR;
-            }
-
-            // ... and the actual filename
-            config_path += CONFIG_FILE_NAME;
-
-            return config_path;
+    if (!config_dir.empty()) {
+        // If it is a directory, just return it as-is
+        if (Tools::isDir(config_dir)) {
+            return config_dir;
         }
 
         // Hard fail - just in case
         throw std::logic_error("unhandled config path parameter: non file/directory item type");
     }
 
-    // The user didn't specify a value, search for the default configuration file in the local directory first
+    // The user did not specify a value, search for the default configuration file in the local directory first
     // on any platform, as a local configuration has the highest priority when searching for existing configuration files
     // (and the least priority when creating an empty configuration file - see below)
-    config_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + CONFIG_FILE_NAME;
+    std::string config_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + CONFIG_FILE_NAME;
 
-    // If it points to a file path, return it
-    if (Tools::isFile(config_path)) {
-        return config_path;
+    // If it points to a directory with the config file, return the directory path.
+    if( Tools::isFile(config_path) ) {
+        return config_dir;
     }
 
     // Potential locations for the configuration file:
@@ -114,11 +99,12 @@ std::string Utilities::Options::Paths::findConfigPath() const
             continue;
         }
 
-        config_path = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + CONFIG_FILE_NAME;
+        config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
+        config_path = config_dir + CONFIG_FILE_NAME;
 
         // If it exists in this location, return it
-        if (Tools::isFile(config_path)) {
-            return config_path;
+        if( Tools::isFile(config_path) ) {
+            return config_dir;
         }
     }
 
@@ -133,17 +119,13 @@ std::string Utilities::Options::Paths::findConfigPath() const
         }
 
         // Try and create the directory
-        std::string config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir;
+        std::string config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
 
         if( !Tools::createDirectories( config_dir ) ) {
             continue;
         }
 
-        // Append the file name and we're good to go
-        if( !path_map.sub_dir.empty() )
-            return config_dir + PATH_SEPARATOR + CONFIG_FILE_NAME;
-        else
-            return config_dir + CONFIG_FILE_NAME;
+        return config_dir;
     }
 
     // Step three: hard fail - just in case we cannot work with anything

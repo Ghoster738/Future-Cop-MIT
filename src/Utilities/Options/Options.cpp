@@ -20,7 +20,7 @@ namespace Options {
 
 // Constructor
 Options::Options (Paths& paths, Parameters& parameters) : paths(paths), parameters(parameters) {
-    ini_file_p = new mINI::INIFile(paths.getConfigFilePath());
+    ini_file_p = new mINI::INIFile( paths.getConfigDirPath() + Paths::CONFIG_FILE_NAME );
     ini_file_p->read(ini_data);
 
     // Default values

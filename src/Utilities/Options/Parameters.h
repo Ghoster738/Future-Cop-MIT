@@ -85,7 +85,7 @@ public:
     const BoolParam&   full_screen  = p_full_screen;  // If the game should run in full-screen mode
     const IntParam&    res_width    = p_res_width;    // Display resolution width
     const IntParam&    res_height   = p_res_height;   // Display resolution height
-    const StringParam& config_path  = p_config_path;  // Game configuration directory/file
+    const StringParam& config_dir   = p_config_dir;  // Game configuration directory
     const StringParam& export_path  = p_export_path;  // The export path to where the exported resources go.
     const StringParam& user_dir     = p_user_dir;     // User directory (mods, screenshots, etc)
     const StringParam& win_data_dir = p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
@@ -100,7 +100,7 @@ private:
     BoolParam   p_full_screen;  // If the game should run in full-screen mode
     IntParam    p_res_width;    // Display resolution width
     IntParam    p_res_height;   // Display resolution height
-    StringParam p_config_path;  // Game configuration directory
+    StringParam p_config_dir;   // Game configuration directory
     StringParam p_export_path;  // The export path to where the exported resources go.
     StringParam p_user_dir;     // User directory (mods, screenshots, etc)
     StringParam p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
@@ -120,7 +120,7 @@ private:
     virtual void parseWidth(std::string value);
     virtual void parseHeight(std::string value);
     virtual void parseRes(std::string value);
-    virtual void parseConfigPath(std::string path);
+    virtual void parseConfigDir(std::string path);
     virtual void parseExportPath(std::string directory);
     virtual void parseUserDir(std::string directory);
     virtual void parseWindowsDataDir(std::string directory);
