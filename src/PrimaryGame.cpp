@@ -57,7 +57,10 @@ void PrimaryGame::load( MainProgram &main_program ) {
     main_program.camera_distance = -20;
     main_program.centerCamera();
 
-    this->til_resources = Data::Mission::TilResource::getVector( *main_program.resource_r );
+    if( main_program.resource_r != nullptr )
+        this->til_resources = Data::Mission::TilResource::getVector( *main_program.resource_r );
+    else
+        this->til_resources = std::vector<Data::Mission::TilResource*>();
 
     main_program.loadGraphics();
 }
