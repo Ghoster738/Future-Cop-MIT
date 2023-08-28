@@ -14,6 +14,7 @@ void exitMapSelector( MainProgram &main_program, Menu* menu_r, Menu::Item* item_
         main_program.menu_r->unload( main_program );
 
     main_program.menu_r = &MainMenu::main_menu;
+    main_program.menu_r->load( main_program );
 }
 void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     if( !Utilities::Options::Tools::isFile( main_program.manager.getIFFEntry( item_r->name ).getPath( main_program.platform ) ) )
