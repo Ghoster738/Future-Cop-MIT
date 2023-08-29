@@ -4,8 +4,11 @@
 #include "Menu.h"
 
 class OptionsMenu : public Menu {
+private:
 public:
     static OptionsMenu options_menu;
+
+    unsigned selected_resolution;
 
     virtual ~OptionsMenu();
 

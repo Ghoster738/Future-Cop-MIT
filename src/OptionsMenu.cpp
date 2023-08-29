@@ -70,6 +70,33 @@ void switchToPlaystation( MainProgram &main_program, Menu* menu_r, Menu::Item* i
     main_program.options.setCurrentPlatform( "playstation" );
 }
 
+const uint32_t resolutions[][2] = { {640, 480}, {800, 600}, {1024, 768}, {1280, 720}, {1280, 800}, {1280, 1024}, {1440, 900}, {1440, 900}, {1536, 864}, {1600, 900}, {1600, 1200}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2048, 1152}, {2048, 1536}, {2560, 1080}, {2560, 1440}, {2560, 1600}, {3440, 1440}, {3840, 2160}, {7680, 4320} };
+
+void updateResolutionStatus( MainProgram &main_program, Menu::Item& resolution ) {
+    resolution.name = std::to_string( main_program.options.getVideoWidth() );
+    resolution.name += "x";
+    resolution.name += std::to_string( main_program.options.getVideoHeight() );
+}
+void incrementResolution( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
+    auto converted_menu_r = dynamic_cast<OptionsMenu*>(menu_r);
+
+    main_program.options.setVideoWidth(  resolutions[ converted_menu_r->selected_resolution ][ 0 ] );
+    main_program.options.setVideoHeight( resolutions[ converted_menu_r->selected_resolution ][ 1 ] );
+
+    converted_menu_r->selected_resolution = (converted_menu_r->selected_resolution + 1) % (sizeof(resolutions) / (2 * sizeof(uint32_t)));
+}
+void decrementResolution( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
+    auto converted_menu_r = dynamic_cast<OptionsMenu*>(menu_r);
+
+    main_program.options.setVideoWidth(  resolutions[ converted_menu_r->selected_resolution ][ 0 ] );
+    main_program.options.setVideoHeight( resolutions[ converted_menu_r->selected_resolution ][ 1 ] );
+
+    if( converted_menu_r->selected_resolution != 0 )
+        converted_menu_r->selected_resolution = (converted_menu_r->selected_resolution - 1) % (sizeof(resolutions) / (2 * sizeof(uint32_t)));
+    else
+        converted_menu_r->selected_resolution = (sizeof(resolutions) / (2 * sizeof(uint32_t))) - 1;
+}
+
 }
 OptionsMenu::~OptionsMenu() {
 
@@ -78,18 +105,23 @@ OptionsMenu::~OptionsMenu() {
 void OptionsMenu::load( MainProgram &main_program ) {
     Menu::load( main_program );
 
-    this->items.resize( 8 );
+    this->items.resize( 11 );
 
     Menu::Item &resolution       = this->items[0];
     Menu::Item &window_status    = this->items[1];
     Menu::Item &current_platform = this->items[2];
     Menu::Item &save_exit        = this->items[3];
     Menu::Item &exit             = this->items[4];
+
     Menu::Item &windows          = this->items[5];
     Menu::Item &mac              = this->items[6];
     Menu::Item &playstation      = this->items[7];
 
-    resolution       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), &exit,             nullptr,  &window_status,    nullptr, nullPress );
+    Menu::Item &add_res          = this->items[8];
+    Menu::Item &dec_res          = this->items[9];
+    Menu::Item &display_res      = this->items[10];
+
+    resolution       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), &exit,             &dec_res, &window_status,    nullptr, nullPress );
     window_status    = Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), &resolution,       nullptr,  &current_platform, nullptr, windowStatus );
     current_platform = Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), &window_status,    &windows, &save_exit,        nullptr, nullPress );
     save_exit        = Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), &current_platform, nullptr,  &exit,             nullptr, menuSaveAndExit );
@@ -100,9 +132,17 @@ void OptionsMenu::load( MainProgram &main_program ) {
     mac         = Menu::Item( "Macintosh",   glm::vec2( 320, 48 ), nullptr, &playstation, nullptr, &windows,           switchToMacintosh );
     playstation = Menu::Item( "Playstation", glm::vec2( 460, 48 ), nullptr, nullptr,      nullptr, &mac,               switchToPlaystation );
 
+    dec_res     = Menu::Item( "<---",    glm::vec2( 190, 0 ), nullptr, &add_res, nullptr, &resolution, decrementResolution );
+    display_res = Menu::Item( "???x???", glm::vec2( 300, 0 ), nullptr, nullptr,  nullptr, nullptr,     nullPress );
+    add_res     = Menu::Item( "--->",    glm::vec2( 450, 0 ), nullptr, nullptr,  nullptr, &dec_res,    incrementResolution );
+
     updatePlatfromStatus( main_program, windows, mac, playstation );
 
     this->current_item_r = &items[0];
+
+    this->selected_resolution = 0;
+
+    updateResolutionStatus( main_program, display_res );
 }
 
 void OptionsMenu::unload( MainProgram &main_program ) {
@@ -114,6 +154,9 @@ void OptionsMenu::display( MainProgram &main_program ) {
     Menu::Item &mac              = this->items[6];
     Menu::Item &playstation      = this->items[7];
     updatePlatfromStatus( main_program, windows, mac, playstation );
+
+    Menu::Item &display_res      = this->items[10];
+    updateResolutionStatus( main_program, display_res );
 
     for( size_t i = 0; i < this->items.size(); i++ ) {
         drawButton( main_program, this->items[i] );
