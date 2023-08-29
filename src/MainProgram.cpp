@@ -24,7 +24,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
 
     // TODO: Use venice beach as this map has all three types vertex animations.
     this->resource_identifier = Data::Manager::pa_urban_jungle;
-    this->platform = Data::Manager::Platform::PLAYSTATION;
+    this->platform = Data::Manager::getPlatformFromString( this->options.getCurrentPlatform() );
     this->switch_to_platform = this->platform;
 
     setupLogging();
@@ -427,8 +427,6 @@ void MainProgram::setupControls() {
 }
 
 void MainProgram::cleanup() {
-    options.saveOptions();
-
     if( this->control_system_p != nullptr )
         delete this->control_system_p;
 

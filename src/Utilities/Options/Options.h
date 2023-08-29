@@ -12,7 +12,7 @@ namespace Options {
 class Options {
 public:
     // Constructor
-    Options (Paths& paths, Parameters& parameters);
+    Options( Paths& paths, Parameters& parameters );
 
     // Save changes to the file - public so that it can be manually called if needed
     void saveOptions();
@@ -21,6 +21,9 @@ public:
 
 // Supported options
 public:
+    std::string getCurrentPlatform();
+    void setCurrentPlatform(std::string value);
+
     int getVideoWidth();
     void setVideoWidth(int value);
 

@@ -6,6 +6,9 @@ const std::string VIDEO_WIDTH      = "width";
 const std::string VIDEO_HEIGHT     = "height";
 const std::string VIDEO_FULLSCREEN = "fullscreen";
 
+const std::string DATA = "data";
+const std::string DATA_PLATFORM = "current_platform";
+
 const std::string DIRECTORIES = "directories";
 const std::string DIRECTORIES_SAVES       = "user_saved_games";
 const std::string DIRECTORIES_SCREENSHOTS = "user_screenshots";
@@ -31,10 +34,11 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
     init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ));
     init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ));
     // init( DIRECTORIES, DIRECTORIES_MODS,        paths.getUserDirPath( Paths::MODS ));
-
     init( DIRECTORIES, DIRECTORIES_WIN_DATA, paths.getDataDirPath( Paths::WINDOWS ));
     init( DIRECTORIES, DIRECTORIES_MAC_DATA, paths.getDataDirPath( Paths::MACINTOSH ));
     init( DIRECTORIES, DIRECTORIES_PSX_DATA, paths.getDataDirPath( Paths::PLAYSTATION ));
+
+    init( DATA, DATA_PLATFORM, "windows" );
 };
 
 void Options::saveOptions() {
@@ -45,6 +49,11 @@ Options::~Options() {
     if( ini_file_p != nullptr )
         delete ini_file_p;
 };
+
+std::string Options::getCurrentPlatform() {
+    return getString( DATA, DATA_PLATFORM );
+}
+void Options::setCurrentPlatform( std::string value ) { setString( DATA, DATA_PLATFORM, value); }
 
 int Options::getVideoWidth() {
     return parameters.res_width.wasModified()

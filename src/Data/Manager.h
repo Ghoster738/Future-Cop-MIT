@@ -139,6 +139,8 @@ public:
     int reload( unsigned core_amount = 1 );
     
     static void listIDs( std::ostream &stream );
+
+    static Platform getPlatformFromString( const std::string &name );
 };
 
 } // Data

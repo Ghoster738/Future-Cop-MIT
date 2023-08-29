@@ -433,3 +433,20 @@ void Data::Manager::listIDs( std::ostream &stream ) {
     }
     stream << std::endl;
 }
+
+Data::Manager::Platform Data::Manager::getPlatformFromString( const std::string &name ) {
+    for( auto i : name ) {
+        auto character = toupper( i );
+
+        if( character == 'M' )
+            return Platform::MACINTOSH;
+        else
+        if( character == 'P' )
+            return Platform::PLAYSTATION;
+        else
+        if( character == 'W' )
+            return Platform::WINDOWS;
+    }
+
+    return Platform::WINDOWS;
+}

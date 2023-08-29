@@ -5,6 +5,7 @@
 #include "MainProgram.h"
 
 #include "MapSelectorMenu.h"
+#include "OptionsMenu.h"
 
 #include "PrimaryGame.h"
 #include "ModelViewer.h"
@@ -35,8 +36,9 @@ void viewGameModels( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     main_program.menu_r->load( main_program );
 }
 void options( MainProgram &main_program, Menu*, Menu::Item* ) {
-    auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-    log.output << "Options not supported yet";
+    main_program.menu_r->unload( main_program );
+    main_program.menu_r = &OptionsMenu::options_menu;
+    main_program.menu_r->load( main_program );
 }
 void exitGame( MainProgram &main_program, Menu*, Menu::Item* ) {
     main_program.play_loop = false;
