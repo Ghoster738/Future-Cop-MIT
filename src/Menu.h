@@ -3,6 +3,7 @@
 
 #include "GameState.h"
 #include <glm/vec2.hpp>
+#include "Graphics/Text2DBuffer.h"
 #include <vector>
 #include <string>
 
@@ -10,7 +11,7 @@ class Menu : public GameState {
 public:
     struct Item {
         Item();
-        Item( std::string name, glm::vec2 position, Item *up_r, Item *right_r, Item *down_r, Item *left_r, void (onPress)( MainProgram&, Menu*, Item* ) );
+        Item( std::string name, glm::vec2 position, Item *up_r, Item *right_r, Item *down_r, Item *left_r, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
 
         std::string name;
         glm::vec2 position;
@@ -19,6 +20,7 @@ public:
         Item *down_r;
         Item *left_r;
         void (*onPress)( MainProgram&, Menu*, Item* );
+        Graphics::Text2DBuffer::CenterMode center_mode;
     };
 
 protected:

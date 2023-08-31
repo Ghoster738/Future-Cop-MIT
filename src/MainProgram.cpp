@@ -175,6 +175,15 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     return true;
 }
 
+glm::u32vec2 MainProgram::getWindowScale() const {
+    glm::u32vec2 scale( 0, 0 );
+
+    if( this->environment_p != nullptr && this->environment_p->window_p != nullptr)
+        scale = this->environment_p->window_p->getDimensions();
+
+    return scale;
+}
+
 void MainProgram::throwException( std::string output ) {
     {
         auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );

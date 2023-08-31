@@ -77,6 +77,8 @@ public:
         this->switch_to_platform            = platform;
     }
 
+    glm::u32vec2 getWindowScale() const;
+
 protected:
     void throwException( std::string output );
 

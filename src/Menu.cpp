@@ -18,8 +18,8 @@ Menu::Item::Item() {
     this->onPress = &nullPress;
 }
 
-Menu::Item::Item( std::string p_name, glm::vec2 p_position, Item *p_up_r, Item *p_right_r, Item *p_down_r, Item *p_left_r, void (p_onPress)( MainProgram&, Menu*, Item* ) ) :
-    name( p_name ), position( p_position ), up_r( p_up_r ), right_r( p_right_r ), down_r( p_down_r ), left_r( p_left_r ), onPress( p_onPress )
+Menu::Item::Item( std::string p_name, glm::vec2 p_position, Item *p_up_r, Item *p_right_r, Item *p_down_r, Item *p_left_r, void (p_onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode p_center_mode ) :
+    name( p_name ), position( p_position ), up_r( p_up_r ), right_r( p_right_r ), down_r( p_down_r ), left_r( p_left_r ), onPress( p_onPress ), center_mode( p_center_mode )
 {}
 
 void Menu::drawButton( MainProgram &main_program, const Item &item ) const {
@@ -35,6 +35,7 @@ void Menu::drawButton( MainProgram &main_program, const Item &item ) const {
     }
 
     main_program.text_2d_buffer_r->setPosition( item.position );
+    main_program.text_2d_buffer_r->setCenterMode( item.center_mode );
     main_program.text_2d_buffer_r->print( item.name );
 }
 

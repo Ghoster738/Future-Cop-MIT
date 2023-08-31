@@ -14,6 +14,12 @@ class Text2DBuffer {
 protected:
     Text2DBuffer();
 public:
+    enum CenterMode {
+        LEFT,
+        MIDDLE,
+        RIGHT
+    };
+
     static Graphics::Text2DBuffer* alloc( Environment &env_r );
     
     virtual ~Text2DBuffer();
@@ -23,6 +29,7 @@ public:
     virtual int setFont( uint32_t resource_id ) = 0;
     virtual int setPosition( const glm::vec2 &position ) = 0;
     virtual int setColor( const glm::vec4 &color ) = 0;
+    virtual int setCenterMode( enum CenterMode ) = 0;
     virtual int print( const std::string &text ) = 0;
 
     /**

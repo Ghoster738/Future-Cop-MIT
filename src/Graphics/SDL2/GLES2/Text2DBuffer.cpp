@@ -169,6 +169,25 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
         return -1;
 }
 
+int Graphics::SDL2::GLES2::Text2DBuffer::setCenterMode( enum CenterMode center_mode ) {
+
+    switch( center_mode ) {
+        case Graphics::Text2DBuffer::CenterMode::LEFT:
+            this->center_mode = 'l';
+            break;
+        case Graphics::Text2DBuffer::CenterMode::MIDDLE:
+            this->center_mode = 'm';
+            break;
+        case Graphics::Text2DBuffer::CenterMode::RIGHT:
+            this->center_mode = 'r';
+            break;
+        default:
+            this->center_mode = 'l';
+    }
+
+    return 1;
+}
+
 int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     auto font_system_r = gl_environment_r->text_draw_routine_p;
     size_t expand_amount;
@@ -193,7 +212,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
             }
 
             // Try to add the filtered_text.
-            add_text_state = switch_text_2D_r->addText( filtered_text );
+            add_text_state = switch_text_2D_r->addText( filtered_text, this->center_mode );
 
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )

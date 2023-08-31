@@ -121,24 +121,26 @@ void OptionsMenu::load( MainProgram &main_program ) {
     Menu::Item &dec_res          = this->items[9];
     Menu::Item &display_res      = this->items[10];
 
-    resolution       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), &exit,             &dec_res, &window_status,    nullptr, nullPress );
-    window_status    = Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), &resolution,       nullptr,  &current_platform, nullptr, windowStatus );
-    current_platform = Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), &window_status,    &windows, &save_exit,        nullptr, nullPress );
-    save_exit        = Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), &current_platform, nullptr,  &exit,             nullptr, menuSaveAndExit );
-    exit             = Menu::Item( "Exit without Saving",            glm::vec2( 0, 120 ), &save_exit,        nullptr,  &resolution,       nullptr, menuExit );
+    const Graphics::Text2DBuffer::CenterMode left_mode = Graphics::Text2DBuffer::CenterMode::LEFT;
+
+    resolution       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), nullptr,    nullptr,  nullptr, nullptr, nullPress,       left_mode );
+    window_status    = Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), &dec_res,   nullptr, &mac,     nullptr, windowStatus,    left_mode );
+    current_platform = Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), nullptr,    nullptr,  nullptr, nullptr, nullPress,       left_mode );
+    save_exit        = Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), &mac,       nullptr, &exit,    nullptr, menuSaveAndExit, left_mode );
+    exit             = Menu::Item( "Exit without Saving",            glm::vec2( 0, 120 ), &save_exit, nullptr, &dec_res, nullptr, menuExit,        left_mode );
 
 
-    windows     = Menu::Item( "Windows",     glm::vec2( 190, 48 ), nullptr, &mac,         nullptr, &current_platform,  switchToWindows );
-    mac         = Menu::Item( "Macintosh",   glm::vec2( 320, 48 ), nullptr, &playstation, nullptr, &windows,           switchToMacintosh );
-    playstation = Menu::Item( "Playstation", glm::vec2( 460, 48 ), nullptr, nullptr,      nullptr, &mac,               switchToPlaystation );
+    windows     = Menu::Item( "Windows",     glm::vec2( 190, 48 ), &window_status, &mac,         &save_exit, nullptr,  switchToWindows,     left_mode );
+    mac         = Menu::Item( "Macintosh",   glm::vec2( 320, 48 ), &window_status, &playstation, &save_exit, &windows, switchToMacintosh,   left_mode );
+    playstation = Menu::Item( "Playstation", glm::vec2( 460, 48 ), &window_status, nullptr,      &save_exit, &mac,     switchToPlaystation, left_mode );
 
-    dec_res     = Menu::Item( "<---",    glm::vec2( 190, 0 ), nullptr, &add_res, nullptr, &resolution, decrementResolution );
-    display_res = Menu::Item( "???x???", glm::vec2( 300, 0 ), nullptr, nullptr,  nullptr, nullptr,     nullPress );
-    add_res     = Menu::Item( "--->",    glm::vec2( 450, 0 ), nullptr, nullptr,  nullptr, &dec_res,    incrementResolution );
+    dec_res     = Menu::Item( "<---",    glm::vec2( 190, 0 ), &exit,    &add_res, &window_status,  nullptr, decrementResolution, left_mode );
+    display_res = Menu::Item( "???x???", glm::vec2( 300, 0 ),  nullptr,  nullptr,  nullptr,        nullptr, nullPress,           left_mode );
+    add_res     = Menu::Item( "--->",    glm::vec2( 450, 0 ), &exit,     nullptr, &window_status, &dec_res, incrementResolution, left_mode );
 
     updatePlatfromStatus( main_program, windows, mac, playstation );
 
-    this->current_item_r = &items[0];
+    this->current_item_r = &dec_res;
 
     this->selected_resolution = 0;
 

@@ -85,16 +85,7 @@ public:
          * @param text The text to be added.
          * @return the text amount that was added to the text, or a negative one if the max_text is reached, or negative two if max_text is zero.
          */
-        int addText( const std::string &text );
-
-        /**
-         * This appends the text to the Text2D.
-         * @note setPenPosition and setPenColor will set the position of
-         *    the written text.
-         * @param text The text to be added.
-         * @return the text amount that was added to the text, or a negative one if the max_text is reached, or negative two if max_text is zero.
-         */
-        int addText( const char *const text );
+        int addText( const std::string &text, char centering = 'l' );
 
         /**
          * This clears all the text on the Text2D, and sets the font type of the font.
