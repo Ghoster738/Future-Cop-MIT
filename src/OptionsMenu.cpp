@@ -123,9 +123,9 @@ void OptionsMenu::load( MainProgram &main_program ) {
 
     const Graphics::Text2DBuffer::CenterMode left_mode = Graphics::Text2DBuffer::CenterMode::LEFT;
 
-    resolution       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), nullptr,    nullptr,  nullptr, nullptr, nullPress,       left_mode );
+    resolution       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ),  nullptr,   nullptr,  nullptr, nullptr, nullPress,       left_mode );
     window_status    = Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), &dec_res,   nullptr, &mac,     nullptr, windowStatus,    left_mode );
-    current_platform = Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), nullptr,    nullptr,  nullptr, nullptr, nullPress,       left_mode );
+    current_platform = Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ),  nullptr,   nullptr,  nullptr, nullptr, nullPress,       left_mode );
     save_exit        = Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), &mac,       nullptr, &exit,    nullptr, menuSaveAndExit, left_mode );
     exit             = Menu::Item( "Exit without Saving",            glm::vec2( 0, 120 ), &save_exit, nullptr, &dec_res, nullptr, menuExit,        left_mode );
 
