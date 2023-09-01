@@ -105,8 +105,6 @@ OptionsMenu::~OptionsMenu() {
 void OptionsMenu::load( MainProgram &main_program ) {
     Menu::load( main_program );
 
-    this->items.resize( 11 );
-
     const unsigned resolution       =  0;
     const unsigned window_status    =  1;
     const unsigned current_platform =  2;
@@ -117,34 +115,36 @@ void OptionsMenu::load( MainProgram &main_program ) {
     const unsigned mac              =  6;
     const unsigned playstation      =  7;
 
-    const unsigned add_res          =  8;
-    const unsigned dec_res          =  9;
-    const unsigned display_res      = 10;
+    const unsigned dec_res          =  8;
+    const unsigned display_res      =  9;
+    const unsigned add_res          = 10;
 
     const Graphics::Text2DBuffer::CenterMode left_mode = Graphics::Text2DBuffer::CenterMode::LEFT;
 
-    this->items[resolution]       = Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), resolution,       resolution,       resolution,       resolution,       nullPress,       left_mode );
-    this->items[window_status]    = Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), dec_res,          window_status,    mac,              window_status,    windowStatus,    left_mode );
-    this->items[current_platform] = Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), current_platform, current_platform, current_platform, current_platform, nullPress,       left_mode );
-    this->items[save_exit]        = Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), mac,              save_exit,        exit,             save_exit,        menuSaveAndExit, left_mode );
-    this->items[exit]             = Menu::Item( "Exit without Saving",            glm::vec2( 0, 120 ), save_exit,        exit,             dec_res,          exit,             menuExit,        left_mode );
+    this->items.clear();
+
+    this->items.emplace_back( new Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), resolution,       resolution,       resolution,       resolution,       nullPress,       left_mode ) );
+    this->items.emplace_back( new Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), dec_res,          window_status,    mac,              window_status,    windowStatus,    left_mode ) );
+    this->items.emplace_back( new Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), current_platform, current_platform, current_platform, current_platform, nullPress,       left_mode ) );
+    this->items.emplace_back( new Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), mac,              save_exit,        exit,             save_exit,        menuSaveAndExit, left_mode ) );
+    this->items.emplace_back( new Menu::Item( "Exit without Saving",            glm::vec2( 0, 120 ), save_exit,        exit,             dec_res,          exit,             menuExit,        left_mode ) );
 
 
-    this->items[windows]     = Menu::Item( "Windows",     glm::vec2( 190, 48 ), window_status, mac,         save_exit, windows,  switchToWindows,     left_mode );
-    this->items[mac]         = Menu::Item( "Macintosh",   glm::vec2( 320, 48 ), window_status, playstation, save_exit, windows, switchToMacintosh,   left_mode );
-    this->items[playstation] = Menu::Item( "Playstation", glm::vec2( 460, 48 ), window_status, playstation, save_exit, mac,     switchToPlaystation, left_mode );
+    this->items.emplace_back( new Menu::Item( "Windows",     glm::vec2( 190, 48 ), window_status, mac,         save_exit, windows,  switchToWindows,    left_mode ) );
+    this->items.emplace_back( new Menu::Item( "Macintosh",   glm::vec2( 320, 48 ), window_status, playstation, save_exit, windows, switchToMacintosh,   left_mode ) );
+    this->items.emplace_back( new Menu::Item( "Playstation", glm::vec2( 460, 48 ), window_status, playstation, save_exit, mac,     switchToPlaystation, left_mode ) );
 
-    this->items[dec_res]     = Menu::Item( "<---",    glm::vec2( 190, 0 ), exit,        add_res,     window_status, dec_res,     decrementResolution, left_mode );
-    this->items[display_res] = Menu::Item( "???x???", glm::vec2( 300, 0 ), display_res, display_res, display_res,   display_res, nullPress,           left_mode );
-    this->items[add_res]     = Menu::Item( "--->",    glm::vec2( 450, 0 ), exit,        add_res,     window_status, dec_res,     incrementResolution, left_mode );
+    this->items.emplace_back( new Menu::Item( "<---",    glm::vec2( 190, 0 ), exit,        add_res,     window_status, dec_res,     decrementResolution, left_mode ) );
+    this->items.emplace_back( new Menu::Item( "???x???", glm::vec2( 300, 0 ), display_res, display_res, display_res,   display_res, nullPress,           left_mode ) );
+    this->items.emplace_back( new Menu::Item( "--->",    glm::vec2( 450, 0 ), exit,        add_res,     window_status, dec_res,     incrementResolution, left_mode ) );
 
-    updatePlatfromStatus( main_program, this->items[windows], this->items[mac], this->items[playstation] );
+    updatePlatfromStatus( main_program, *this->items[windows], *this->items[mac], *this->items[playstation] );
 
     this->current_item_index = dec_res;
 
     this->selected_resolution = 0;
 
-    updateResolutionStatus( main_program, this->items[display_res] );
+    updateResolutionStatus( main_program, *this->items[display_res] );
 }
 
 void OptionsMenu::unload( MainProgram &main_program ) {
@@ -155,15 +155,15 @@ void OptionsMenu::display( MainProgram &main_program ) {
     const unsigned windows     = 5;
     const unsigned mac         = 6;
     const unsigned playstation = 7;
-    updatePlatfromStatus( main_program, this->items[windows], this->items[mac], this->items[playstation] );
+    updatePlatfromStatus( main_program, *this->items[windows], *this->items[mac], *this->items[playstation] );
 
-    const unsigned display_res = 10;
-    updateResolutionStatus( main_program, this->items[display_res] );
+    const unsigned display_res = 9;
+    updateResolutionStatus( main_program, *this->items[display_res] );
 
     for( size_t i = 0; i < this->items.size(); i++ ) {
         if( this->current_item_index != i )
-            this->items[i].drawNeutral( main_program );
+            this->items[i]->drawNeutral( main_program );
         else
-            this->items[i].drawSelected( main_program );
+            this->items[i]->drawSelected( main_program );
     }
 }

@@ -58,7 +58,7 @@ void Menu::grabControls( MainProgram &main_program, std::chrono::microseconds de
 
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() && this->timer == std::chrono::microseconds( 0 ) )
     {
-        auto current_item_r = &this->items[ this->current_item_index ];
+        auto current_item_r = this->items[ this->current_item_index ].get();
 
         auto input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ACTION );
 

@@ -41,7 +41,7 @@ public:
 protected:
     std::chrono::microseconds timer;
     unsigned current_item_index;
-    std::vector<Item> items;
+    std::vector<std::unique_ptr<Item>> items;
 
 public:
     virtual ~Menu() {}
