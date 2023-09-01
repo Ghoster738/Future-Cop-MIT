@@ -44,6 +44,7 @@ void exitGame( MainProgram &main_program, Menu*, Menu::Item* ) {
     main_program.play_loop = false;
 }
 }
+
 MainMenu::~MainMenu() {
 
 }
@@ -79,6 +80,9 @@ void MainMenu::unload( MainProgram &main_program ) {
 
 void MainMenu::display( MainProgram &main_program ) {
     for( size_t i = 0; i < this->items.size(); i++ ) {
-        drawButton( main_program, this->items[i] );
+        if( this->current_item_r != &this->items[i] )
+            this->items[i].drawNeutral( main_program );
+        else
+            this->items[i].drawSelected( main_program );
     }
 }

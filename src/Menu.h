@@ -9,9 +9,10 @@
 
 class Menu : public GameState {
 public:
-    struct Item {
+      struct Item {
         Item();
         Item( std::string name, glm::vec2 position, Item *up_r, Item *right_r, Item *down_r, Item *left_r, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        virtual ~Item() {};
 
         std::string name;
         glm::vec2 position;
@@ -21,14 +22,26 @@ public:
         Item *left_r;
         void (*onPress)( MainProgram&, Menu*, Item* );
         Graphics::Text2DBuffer::CenterMode center_mode;
-    };
+        uint32_t font_id;
+        uint32_t selected_font_id;
+
+        virtual void drawNeutral(  MainProgram &main_program ) const;
+        virtual void drawSelected( MainProgram &main_program ) const;
+    };/*
+    struct TextButton : public Item {
+        uint32_t font_id;
+        uint32_t selected_font_id;
+
+        TextButton();
+        TextButton( std::string name, glm::vec2 position, Item *up_r, Item *right_r, Item *down_r, Item *left_r, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE, uint32_t font_id = 1, uint32_t selected_font_id = 2 );
+
+        virtual draw( MainProgram &main_program ) const;
+    }*/
 
 protected:
     std::chrono::microseconds timer;
     Item *current_item_r;
     std::vector<Item> items;
-
-    virtual void drawButton( MainProgram &main_program, const Item &item ) const;
 
 public:
     virtual ~Menu() {}

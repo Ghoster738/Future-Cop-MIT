@@ -22,21 +22,24 @@ Menu::Item::Item( std::string p_name, glm::vec2 p_position, Item *p_up_r, Item *
     name( p_name ), position( p_position ), up_r( p_up_r ), right_r( p_right_r ), down_r( p_down_r ), left_r( p_left_r ), onPress( p_onPress ), center_mode( p_center_mode )
 {}
 
-void Menu::drawButton( MainProgram &main_program, const Item &item ) const {
-    if( &item != this->current_item_r ) {
-        if( main_program.text_2d_buffer_r->setFont( 4 ) == -3 )
-            main_program.text_2d_buffer_r->setFont( 1 );
-        main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
-    }
-    else {
-        if( main_program.text_2d_buffer_r->setFont( 5 ) == -3 )
-            main_program.text_2d_buffer_r->setFont( 2 );
-        main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
-    }
+void Menu::Item::drawNeutral( MainProgram &main_program ) const {
+    if( main_program.text_2d_buffer_r->setFont( 4 ) == -3 )
+        main_program.text_2d_buffer_r->setFont( 1 );
 
-    main_program.text_2d_buffer_r->setPosition( item.position );
-    main_program.text_2d_buffer_r->setCenterMode( item.center_mode );
-    main_program.text_2d_buffer_r->print( item.name );
+    main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+    main_program.text_2d_buffer_r->setPosition( this->position );
+    main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
+    main_program.text_2d_buffer_r->print( this->name );
+}
+
+void Menu::Item::drawSelected( MainProgram &main_program ) const {
+    if( main_program.text_2d_buffer_r->setFont( 5 ) == -3 )
+        main_program.text_2d_buffer_r->setFont( 2 );
+
+    main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
+    main_program.text_2d_buffer_r->setPosition( this->position );
+    main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
+    main_program.text_2d_buffer_r->print( this->name );
 }
 
 void Menu::load( MainProgram &main_program ) {
