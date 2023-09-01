@@ -11,15 +11,15 @@ class Menu : public GameState {
 public:
       struct Item {
         Item();
-        Item( std::string name, glm::vec2 position, Item *up_r, Item *right_r, Item *down_r, Item *left_r, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
         virtual ~Item() {};
 
         std::string name;
         glm::vec2 position;
-        Item *up_r;
-        Item *right_r;
-        Item *down_r;
-        Item *left_r;
+        unsigned up_index;
+        unsigned right_index;
+        unsigned down_index;
+        unsigned left_index;
         void (*onPress)( MainProgram&, Menu*, Item* );
         Graphics::Text2DBuffer::CenterMode center_mode;
         uint32_t font_id;
@@ -40,7 +40,7 @@ public:
 
 protected:
     std::chrono::microseconds timer;
-    Item *current_item_r;
+    unsigned current_item_index;
     std::vector<Item> items;
 
 public:

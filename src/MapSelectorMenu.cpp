@@ -46,15 +46,18 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
 
     this->items.resize( Data::Manager::AMOUNT_OF_IFF_IDS + 2 );
 
-    this->items[ Data::Manager::AMOUNT_OF_IFF_IDS + 0 ] = Menu::Item( "Back",     glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * 24 ), &items[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], nullptr, &items[ 0 ], nullptr, exitMapSelector );
-    this->items[ Data::Manager::AMOUNT_OF_IFF_IDS + 1 ] = Menu::Item( this->name, glm::vec2( center, 0 ), nullptr, nullptr, nullptr, nullptr, nullPress );
+    const unsigned back  = Data::Manager::AMOUNT_OF_IFF_IDS + 0;
+    const unsigned title = Data::Manager::AMOUNT_OF_IFF_IDS + 1;
 
-    this->items[0] = Menu::Item( *Data::Manager::map_iffs[0], glm::vec2( center, 24 ), &items[ Data::Manager::AMOUNT_OF_IFF_IDS ], nullptr, &items[ 1 ], nullptr, mapSelect );
+    this->items[ back  ] = Menu::Item( "Back",     glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * 24 ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, exitMapSelector );
+    this->items[ title ] = Menu::Item( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress );
+
+    this->items[0] = Menu::Item( *Data::Manager::map_iffs[0], glm::vec2( center, 24 ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, mapSelect );
     for( size_t i = 1; i < Data::Manager::AMOUNT_OF_IFF_IDS - 1; i++ )
-        this->items[i] = Menu::Item( *Data::Manager::map_iffs[i], glm::vec2( center, (i + 1) * 24 ), &items[ (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS ], nullptr, &items[ (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS ], nullptr, mapSelect );
-    this->items[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ] = Menu::Item( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( center, Data::Manager::AMOUNT_OF_IFF_IDS * 24 ), &items[ Data::Manager::AMOUNT_OF_IFF_IDS - 2 ], nullptr, &items[ Data::Manager::AMOUNT_OF_IFF_IDS ], nullptr, mapSelect );
+        this->items[i] = Menu::Item( *Data::Manager::map_iffs[i], glm::vec2( center, (i + 1) * 24 ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, mapSelect );
+    this->items[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ] = Menu::Item( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( center, Data::Manager::AMOUNT_OF_IFF_IDS * 24 ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, mapSelect );
 
-    this->current_item_r = &items[0];
+    this->current_item_index = 0;
 }
 
 void MapSelectorMenu::unload( MainProgram &main_program ) {
@@ -95,7 +98,7 @@ void MapSelectorMenu::display( MainProgram &main_program ) {
     }
 
     for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->current_item_r != &this->items[i] )
+        if( this->current_item_index != i )
             this->items[i].drawNeutral( main_program );
         else
             this->items[i].drawSelected( main_program );

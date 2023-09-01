@@ -57,20 +57,20 @@ void MainMenu::load( MainProgram &main_program ) {
 
     if( !this->is_game_on ) {
         this->items.resize( 4 );
-        this->items[0] = Menu::Item( "Map Spectator",    glm::vec2( center,  0 ), &items[3], nullptr, &items[1], nullptr, mapSpectator );
-        this->items[1] = Menu::Item( "View Game Models", glm::vec2( center, 24 ), &items[0], nullptr, &items[2], nullptr, viewGameModels );
-        this->items[2] = Menu::Item( "Options",          glm::vec2( center, 48 ), &items[1], nullptr, &items[3], nullptr, options );
-        this->items[3] = Menu::Item( "Exit to OS",       glm::vec2( center, 72 ), &items[2], nullptr, &items[0], nullptr, exitGame );
-        this->current_item_r = &items[0];
+        this->items[0] = Menu::Item( "Map Spectator",    glm::vec2( center,  0 ), 3, 0, 1, 0, mapSpectator );
+        this->items[1] = Menu::Item( "View Game Models", glm::vec2( center, 24 ), 0, 1, 2, 1, viewGameModels );
+        this->items[2] = Menu::Item( "Options",          glm::vec2( center, 48 ), 1, 2, 3, 2, options );
+        this->items[3] = Menu::Item( "Exit to OS",       glm::vec2( center, 72 ), 2, 3, 0, 3, exitGame );
+        this->current_item_index = 0;
     }
     else {
         this->items.resize( 5 );
-        this->items[0] = Menu::Item( "Back to Session",  glm::vec2( center,  0 ), &items[4], nullptr, &items[1], nullptr, menuDone );
-        this->items[1] = Menu::Item( "Map Spectator",    glm::vec2( center, 24 ), &items[0], nullptr, &items[2], nullptr, mapSpectator );
-        this->items[2] = Menu::Item( "View Game Models", glm::vec2( center, 48 ), &items[1], nullptr, &items[3], nullptr, viewGameModels );
-        this->items[3] = Menu::Item( "Options",          glm::vec2( center, 72 ), &items[2], nullptr, &items[4], nullptr, options );
-        this->items[4] = Menu::Item( "Exit to OS",       glm::vec2( center, 96 ), &items[3], nullptr, &items[0], nullptr, exitGame );
-        this->current_item_r = &items[0];
+        this->items[0] = Menu::Item( "Back to Session",  glm::vec2( center,  0 ), 4, 0, 1, 0, menuDone );
+        this->items[1] = Menu::Item( "Map Spectator",    glm::vec2( center, 24 ), 0, 1, 2, 1, mapSpectator );
+        this->items[2] = Menu::Item( "View Game Models", glm::vec2( center, 48 ), 1, 2, 3, 2, viewGameModels );
+        this->items[3] = Menu::Item( "Options",          glm::vec2( center, 72 ), 2, 3, 4, 3, options );
+        this->items[4] = Menu::Item( "Exit to OS",       glm::vec2( center, 96 ), 3, 4, 0, 4, exitGame );
+        this->current_item_index = 0;
     }
 }
 
@@ -80,7 +80,7 @@ void MainMenu::unload( MainProgram &main_program ) {
 
 void MainMenu::display( MainProgram &main_program ) {
     for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->current_item_r != &this->items[i] )
+        if( this->current_item_index != i )
             this->items[i].drawNeutral( main_program );
         else
             this->items[i].drawSelected( main_program );
