@@ -49,13 +49,22 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
     const unsigned back  = Data::Manager::AMOUNT_OF_IFF_IDS + 0;
     const unsigned title = Data::Manager::AMOUNT_OF_IFF_IDS + 1;
 
-    this->items.emplace_back( new Menu::Item( *Data::Manager::map_iffs[0], glm::vec2( center, 24 ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, mapSelect ) );
-    for( size_t i = 1; i < Data::Manager::AMOUNT_OF_IFF_IDS - 1; i++ )
-        this->items.emplace_back( new Menu::Item( *Data::Manager::map_iffs[i], glm::vec2( center, (i + 1) * 24 ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, mapSelect ) );
-    this->items.emplace_back( new Menu::Item( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( center, Data::Manager::AMOUNT_OF_IFF_IDS * 24 ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, mapSelect ) );
+    uint32_t prime_font = 4;
+    uint32_t selected_font = 5;
 
-    this->items.emplace_back( new Menu::Item( "Back",     glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * 24 ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, exitMapSelector ) );
-    this->items.emplace_back( new Menu::Item( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress ) );
+    if( main_program.text_2d_buffer_r->setFont( prime_font ) == -3 )
+        prime_font = 1;
+
+    if( main_program.text_2d_buffer_r->setFont( selected_font ) == -3 )
+        selected_font = 2;
+
+    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[0], glm::vec2( center, 24 ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, mapSelect, prime_font, selected_font ) );
+    for( size_t i = 1; i < Data::Manager::AMOUNT_OF_IFF_IDS - 1; i++ )
+        this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( center, (i + 1) * 24 ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, mapSelect, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( center, Data::Manager::AMOUNT_OF_IFF_IDS * 24 ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, mapSelect, prime_font, selected_font ) );
+
+    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * 24 ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, exitMapSelector, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress, prime_font, selected_font ) );
 
     this->current_item_index = 0;
 }

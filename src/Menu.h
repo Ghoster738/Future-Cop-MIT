@@ -11,7 +11,7 @@ class Menu : public GameState {
 public:
       struct Item {
         Item();
-        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ) );
         virtual ~Item() {};
 
         std::string name;
@@ -21,22 +21,21 @@ public:
         unsigned down_index;
         unsigned left_index;
         void (*onPress)( MainProgram&, Menu*, Item* );
+
+        virtual void drawNeutral(  MainProgram &main_program ) const = 0;
+        virtual void drawSelected( MainProgram &main_program ) const = 0;
+    };
+    struct TextButton : public Item {
         Graphics::Text2DBuffer::CenterMode center_mode;
         uint32_t font_id;
         uint32_t selected_font_id;
 
+        TextButton();
+        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ), uint32_t font_id = 1, uint32_t selected_font_id = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+
         virtual void drawNeutral(  MainProgram &main_program ) const;
         virtual void drawSelected( MainProgram &main_program ) const;
-    };/*
-    struct TextButton : public Item {
-        uint32_t font_id;
-        uint32_t selected_font_id;
-
-        TextButton();
-        TextButton( std::string name, glm::vec2 position, Item *up_r, Item *right_r, Item *down_r, Item *left_r, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE, uint32_t font_id = 1, uint32_t selected_font_id = 2 );
-
-        virtual draw( MainProgram &main_program ) const;
-    }*/
+    };
 
 protected:
     std::chrono::microseconds timer;

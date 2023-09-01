@@ -18,11 +18,18 @@ Menu::Item::Item() {
     this->onPress = &nullPress;
 }
 
-Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::CenterMode p_center_mode ) :
-    name( p_name ), position( p_position ), up_index( p_up_index ), right_index( p_right_index ), down_index( p_down_index ), left_index( p_left_index ), onPress( p_onPress ), center_mode( p_center_mode )
+Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ) ) :
+    name( p_name ), position( p_position ), up_index( p_up_index ), right_index( p_right_index ), down_index( p_down_index ), left_index( p_left_index ), onPress( p_onPress )
 {}
 
-void Menu::Item::drawNeutral( MainProgram &main_program ) const {
+Menu::TextButton::TextButton() : Item(), font_id( 1 ), selected_font_id( 2 ), center_mode( Graphics::Text2DBuffer::CenterMode::MIDDLE ) {
+}
+
+Menu::TextButton::TextButton( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ), uint32_t p_font_id, uint32_t p_selected_font_id, Graphics::Text2DBuffer::CenterMode p_center_mode ) :
+    Item( p_name, p_position, p_up_index, p_right_index, p_down_index, p_left_index, p_onPress ), font_id( p_font_id ), selected_font_id( p_selected_font_id ), center_mode( p_center_mode )
+{}
+
+void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
     if( main_program.text_2d_buffer_r->setFont( 4 ) == -3 )
         main_program.text_2d_buffer_r->setFont( 1 );
 
@@ -32,7 +39,7 @@ void Menu::Item::drawNeutral( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->print( this->name );
 }
 
-void Menu::Item::drawSelected( MainProgram &main_program ) const {
+void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
     if( main_program.text_2d_buffer_r->setFont( 5 ) == -3 )
         main_program.text_2d_buffer_r->setFont( 2 );
 

@@ -119,24 +119,33 @@ void OptionsMenu::load( MainProgram &main_program ) {
     const unsigned display_res      =  9;
     const unsigned add_res          = 10;
 
+    uint32_t prime_font = 4;
+    uint32_t selected_font = 5;
+
+    if( main_program.text_2d_buffer_r->setFont( prime_font ) == -3 )
+        prime_font = 1;
+
+    if( main_program.text_2d_buffer_r->setFont( selected_font ) == -3 )
+        selected_font = 2;
+
     const Graphics::Text2DBuffer::CenterMode left_mode = Graphics::Text2DBuffer::CenterMode::LEFT;
 
     this->items.clear();
 
-    this->items.emplace_back( new Menu::Item( "Resolution: ",                   glm::vec2( 0,   0 ), resolution,       resolution,       resolution,       resolution,       nullPress,       left_mode ) );
-    this->items.emplace_back( new Menu::Item( windowStatusName( main_program ), glm::vec2( 0,  24 ), dec_res,          window_status,    mac,              window_status,    windowStatus,    left_mode ) );
-    this->items.emplace_back( new Menu::Item( "Current Platform: ",             glm::vec2( 0,  48 ), current_platform, current_platform, current_platform, current_platform, nullPress,       left_mode ) );
-    this->items.emplace_back( new Menu::Item( "Save and Exit",                  glm::vec2( 0,  96 ), mac,              save_exit,        exit,             save_exit,        menuSaveAndExit, left_mode ) );
-    this->items.emplace_back( new Menu::Item( "Exit without Saving",            glm::vec2( 0, 120 ), save_exit,        exit,             dec_res,          exit,             menuExit,        left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0,   0 ), resolution,       resolution,       resolution,       resolution,       nullPress,        prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( 0,  24 ), dec_res,          window_status,    mac,              window_status,    windowStatus,    prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Current Platform: ",             glm::vec2( 0,  48 ), current_platform, current_platform, current_platform, current_platform, nullPress,       prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Save and Exit",                  glm::vec2( 0,  96 ), mac,              save_exit,        exit,             save_exit,        menuSaveAndExit, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",            glm::vec2( 0, 120 ), save_exit,        exit,             dec_res,          exit,             menuExit,        prime_font, selected_font, left_mode ) );
 
 
-    this->items.emplace_back( new Menu::Item( "Windows",     glm::vec2( 190, 48 ), window_status, mac,         save_exit, windows,  switchToWindows,    left_mode ) );
-    this->items.emplace_back( new Menu::Item( "Macintosh",   glm::vec2( 320, 48 ), window_status, playstation, save_exit, windows, switchToMacintosh,   left_mode ) );
-    this->items.emplace_back( new Menu::Item( "Playstation", glm::vec2( 460, 48 ), window_status, playstation, save_exit, mac,     switchToPlaystation, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Windows",     glm::vec2( 190, 48 ), window_status, mac,         save_exit, windows,  switchToWindows,    prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Macintosh",   glm::vec2( 320, 48 ), window_status, playstation, save_exit, windows, switchToMacintosh,   prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Playstation", glm::vec2( 460, 48 ), window_status, playstation, save_exit, mac,     switchToPlaystation, prime_font, selected_font, left_mode ) );
 
-    this->items.emplace_back( new Menu::Item( "<---",    glm::vec2( 190, 0 ), exit,        add_res,     window_status, dec_res,     decrementResolution, left_mode ) );
-    this->items.emplace_back( new Menu::Item( "???x???", glm::vec2( 300, 0 ), display_res, display_res, display_res,   display_res, nullPress,           left_mode ) );
-    this->items.emplace_back( new Menu::Item( "--->",    glm::vec2( 450, 0 ), exit,        add_res,     window_status, dec_res,     incrementResolution, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "<---",    glm::vec2( 190, 0 ), exit,        add_res,     window_status, dec_res,     decrementResolution, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "???x???", glm::vec2( 300, 0 ), display_res, display_res, display_res,   display_res, nullPress,           prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "--->",    glm::vec2( 450, 0 ), exit,        add_res,     window_status, dec_res,     incrementResolution, prime_font, selected_font, left_mode ) );
 
     updatePlatfromStatus( main_program, *this->items[windows], *this->items[mac], *this->items[playstation] );
 
