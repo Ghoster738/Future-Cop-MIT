@@ -119,14 +119,14 @@ void OptionsMenu::load( MainProgram &main_program ) {
     const unsigned display_res      =  9;
     const unsigned add_res          = 10;
 
-    uint32_t prime_font = 4;
-    uint32_t selected_font = 5;
+    Graphics::Text2DBuffer::Font prime_font = 4;
+    Graphics::Text2DBuffer::Font selected_font = 5;
 
     if( main_program.text_2d_buffer_r->setFont( prime_font ) == -3 )
-        prime_font = 1;
+        prime_font = {1, 2.0};
 
     if( main_program.text_2d_buffer_r->setFont( selected_font ) == -3 )
-        selected_font = 2;
+        selected_font = {1, 2.25};
 
     const Graphics::Text2DBuffer::CenterMode left_mode = Graphics::Text2DBuffer::CenterMode::LEFT;
 

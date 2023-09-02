@@ -26,6 +26,8 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
     text_data_p = gl_environment_r->text_draw_routine_p->getText2D();
+
+    this->scale_font = 1.0f;
 }
 
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
@@ -99,20 +101,22 @@ void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) co
     font_system_r->draw( projection, text_data_p );
 }
 
-int Graphics::SDL2::GLES2::Text2DBuffer::setFont( uint32_t resource_id ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
     auto font_system_r = gl_environment_r->text_draw_routine_p;
     
     auto last_text_2D_r = current_text_2D_r;
 
     if( font_system_r != nullptr )
     {
-        if( text_data_p.find( resource_id ) != text_data_p.end() )
+        if( text_data_p.find( font.resource_id ) != text_data_p.end() )
         {
             // Set the current text.
-            current_text_2D_r = text_data_p[ resource_id ];
+            current_text_2D_r = text_data_p[ font.resource_id ];
 
             // Steal the pen position and color from the last pen if available.
             current_text_2D_r->stealPen( last_text_2D_r );
+
+            this->scale_font = font.scale;
 
             // Successfully set the current font.
             return 1;
@@ -212,7 +216,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
             }
 
             // Try to add the filtered_text.
-            add_text_state = switch_text_2D_r->addText( filtered_text, this->center_mode );
+            add_text_state = switch_text_2D_r->addText( filtered_text, this->scale_font, this->center_mode );
 
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )
@@ -237,7 +241,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
                 if( add_text_state > 0 )
                 {
                     // Attempt to add the filtered_text again.
-                    add_text_state = switch_text_2D_r->addText( filtered_text );
+                    add_text_state = switch_text_2D_r->addText( filtered_text, this->scale_font );
 
                     if( add_text_state >= 0 )
                         return add_text_state;

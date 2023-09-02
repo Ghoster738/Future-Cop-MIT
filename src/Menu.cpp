@@ -25,12 +25,12 @@ Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index,
 Menu::TextButton::TextButton() : Item(), font_id( 1 ), selected_font_id( 2 ), center_mode( Graphics::Text2DBuffer::CenterMode::MIDDLE ) {
 }
 
-Menu::TextButton::TextButton( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ), uint32_t p_font_id, uint32_t p_selected_font_id, Graphics::Text2DBuffer::CenterMode p_center_mode ) :
+Menu::TextButton::TextButton( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::Font p_font_id, Graphics::Text2DBuffer::Font p_selected_font_id, Graphics::Text2DBuffer::CenterMode p_center_mode ) :
     Item( p_name, p_position, p_up_index, p_right_index, p_down_index, p_left_index, p_onPress ), font_id( p_font_id ), selected_font_id( p_selected_font_id ), center_mode( p_center_mode )
 {}
 
 void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
-    if( main_program.text_2d_buffer_r->setFont( 4 ) == -3 )
+    if( main_program.text_2d_buffer_r->setFont( font_id ) == -3 )
         main_program.text_2d_buffer_r->setFont( 1 );
 
     main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
@@ -40,8 +40,8 @@ void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
 }
 
 void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
-    if( main_program.text_2d_buffer_r->setFont( 5 ) == -3 )
-        main_program.text_2d_buffer_r->setFont( 2 );
+    if( main_program.text_2d_buffer_r->setFont( selected_font_id ) == -3 )
+        main_program.text_2d_buffer_r->setFont( 1 );
 
     main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
     main_program.text_2d_buffer_r->setPosition( this->position );

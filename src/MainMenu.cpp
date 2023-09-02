@@ -55,14 +55,14 @@ void MainMenu::load( MainProgram &main_program ) {
     glm::u32vec2 scale = main_program.getWindowScale();
     uint32_t center = scale.x / 2;
 
-    uint32_t prime_font = 4;
-    uint32_t selected_font = 5;
+    Graphics::Text2DBuffer::Font prime_font = 4;
+    Graphics::Text2DBuffer::Font selected_font = 5;
 
     if( main_program.text_2d_buffer_r->setFont( prime_font ) == -3 )
-        prime_font = 1;
+        prime_font = {1, 2.0};
 
     if( main_program.text_2d_buffer_r->setFont( selected_font ) == -3 )
-        selected_font = 2;
+        selected_font = {1, 2.25};
 
     this->items.clear();
 

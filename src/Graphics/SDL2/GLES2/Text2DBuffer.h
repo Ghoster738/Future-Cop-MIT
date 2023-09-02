@@ -20,8 +20,9 @@ private:
 public:
     std::map<uint32_t, Internal::FontSystem::Text2D*> text_data_p;
     Internal::FontSystem::Text2D *current_text_2D_r; // This merely references the text_data vector.
-    unsigned int buffer_size_per_font_KiB; // This is the memory size of the pages.
-    unsigned int text_2D_expand_factor; // The amount of characters the text 2D expands
+    float scale_font;
+    unsigned buffer_size_per_font_KiB; // This is the memory size of the pages.
+    unsigned text_2D_expand_factor; // The amount of characters the text 2D expands
     char center_mode;
     
     Text2DBuffer( Graphics::Environment &env_r );
@@ -36,8 +37,8 @@ public:
     static int loadFonts( Graphics::Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
     
     void draw( const glm::mat4 &projection ) const;
-    
-    virtual int setFont( uint32_t resource_id );
+
+    virtual int setFont( const Font &font );
     virtual int setPosition( const glm::vec2 &position );
     virtual int setColor( const glm::vec4 &color );
     virtual int setCenterMode( enum CenterMode );

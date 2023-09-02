@@ -20,13 +20,23 @@ public:
         RIGHT
     };
 
+    struct Font {
+        uint32_t resource_id;
+        float    scale;
+
+        Font( uint32_t p_resource_id, float p_scale ) : resource_id( p_resource_id ), scale ( p_scale ) {}
+        Font( uint32_t p_resource_id ) : Font( p_resource_id, 1 ) {}
+        Font() : Font( 1 ) {}
+        Font( const Font &font ) : Font( font.resource_id, font.scale ) {}
+    };
+
     static Graphics::Text2DBuffer* alloc( Environment &env_r );
     
     virtual ~Text2DBuffer();
     
     static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
 
-    virtual int setFont( uint32_t resource_id ) = 0;
+    virtual int setFont( const Font &font ) = 0;
     virtual int setPosition( const glm::vec2 &position ) = 0;
     virtual int setColor( const glm::vec4 &color ) = 0;
     virtual int setCenterMode( enum CenterMode ) = 0;

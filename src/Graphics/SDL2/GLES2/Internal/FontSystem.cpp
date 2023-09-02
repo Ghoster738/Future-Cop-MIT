@@ -165,7 +165,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setTextMax( size_t max_
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::string &text, char centering ) {
+int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::string &text, float scale, char centering ) {
     size_t appended_size = 0;
     auto text_vertex_buffer_r = reinterpret_cast<TextVertex*>(this->buffer_p);
     auto char_vertex_buffer_r = text_vertex_buffer_r;
@@ -186,19 +186,19 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
 
             if( glyph_r != nullptr && glyph_r->glyphID == character[0] )
             {
-                // Since the glypth is found it can now be appart of the text
+                // Since the glyph is found it can now be appart of the text
                 appended_size++;
 
                 lower_font.x = pen_position.x + static_cast<float>(  glyph_r->offset.x );
-                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->width );
-                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->offset.y );
-                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->height );
+                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->width ) * scale;
+                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->offset.y ) * scale;
+                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->height ) * scale;
                 texture_low.x  = static_cast<float>( glyph_r->left   ) / static_cast<float>( font_r->texture_scale.x );
                 texture_low.y  = static_cast<float>( glyph_r->top    ) / static_cast<float>( font_r->texture_scale.y );
                 texture_high.x = static_cast<float>( glyph_r->left + glyph_r->width ) / static_cast<float>( font_r->texture_scale.x );
                 texture_high.y = static_cast<float>( glyph_r->top + glyph_r->height ) / static_cast<float>( font_r->texture_scale.y );
 
-                pen_position.x += static_cast<float>( glyph_r->x_advance );
+                pen_position.x += static_cast<float>( glyph_r->x_advance ) * scale;
 
                 char_vertex_buffer_r[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
                 char_vertex_buffer_r[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );

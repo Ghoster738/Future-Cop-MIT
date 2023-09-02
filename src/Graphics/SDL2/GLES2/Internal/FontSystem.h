@@ -85,7 +85,7 @@ public:
          * @param text The text to be added.
          * @return the text amount that was added to the text, or a negative one if the max_text is reached, or negative two if max_text is zero.
          */
-        int addText( const std::string &text, char centering = 'l' );
+        int addText( const std::string &text, float scale, char centering = 'l' );
 
         /**
          * This clears all the text on the Text2D, and sets the font type of the font.
