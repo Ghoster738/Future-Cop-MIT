@@ -55,30 +55,30 @@ void MainMenu::load( MainProgram &main_program ) {
     glm::u32vec2 scale = main_program.getWindowScale();
     uint32_t center = scale.x / 2;
 
-    Graphics::Text2DBuffer::Font prime_font = 4;
-    Graphics::Text2DBuffer::Font selected_font = 5;
+    Graphics::Text2DBuffer::Font prime_font;
+    Graphics::Text2DBuffer::Font selected_font;
 
-    if( main_program.text_2d_buffer_r->setFont( prime_font ) == -3 )
+    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 19, 27 ) )
         prime_font = {1, 2.0};
 
-    if( main_program.text_2d_buffer_r->setFont( selected_font ) == -3 )
+    if( !main_program.text_2d_buffer_r->selectFont( selected_font, 28, 31 ) )
         selected_font = {1, 2.25};
 
     this->items.clear();
 
     if( !this->is_game_on ) {
         this->items.emplace_back( new Menu::TextButton( "Map Spectator",    glm::vec2( center,  0 ), 3, 0, 1, 0, mapSpectator,   prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "View Game Models", glm::vec2( center, 24 ), 0, 1, 2, 1, viewGameModels, prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center, 48 ), 1, 2, 3, 2, options,        prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, 72 ), 2, 3, 0, 3, exitGame,       prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "View Game Models", glm::vec2( center, 32 ), 0, 1, 2, 1, viewGameModels, prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center, 64 ), 1, 2, 3, 2, options,        prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, 96 ), 2, 3, 0, 3, exitGame,       prime_font, selected_font ) );
         this->current_item_index = 0;
     }
     else {
-        this->items.emplace_back( new Menu::TextButton( "Back to Session",  glm::vec2( center,  0 ), 4, 0, 1, 0, menuDone,       prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Map Spectator",    glm::vec2( center, 24 ), 0, 1, 2, 1, mapSpectator,   prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "View Game Models", glm::vec2( center, 48 ), 1, 2, 3, 2, viewGameModels, prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center, 72 ), 2, 3, 4, 3, options,        prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, 96 ), 3, 4, 0, 4, exitGame,       prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Back to Session",  glm::vec2( center,   0 ), 4, 0, 1, 0, menuDone,       prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Map Spectator",    glm::vec2( center,  32 ), 0, 1, 2, 1, mapSpectator,   prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "View Game Models", glm::vec2( center,  64 ), 1, 2, 3, 2, viewGameModels, prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center,  96 ), 2, 3, 4, 3, options,        prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, 128 ), 3, 4, 0, 4, exitGame,       prime_font, selected_font ) );
         this->current_item_index = 0;
     }
 }

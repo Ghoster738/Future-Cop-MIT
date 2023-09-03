@@ -78,8 +78,56 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     return fonts_r.size();
 }
 
-bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const {
-    return false;
+bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minimum_height, unsigned maxiuim_height ) const {
+    const Data::Mission::FontResource *selected_font_resource_r = nullptr;
+    float scale = 1.0f;
+    unsigned priority = std::numeric_limits<unsigned>::max();
+
+    assert( maxiuim_height >= minimum_height );
+
+    if( this->text_data_p.empty() )
+        return false;
+
+    for( auto i = this->text_data_p.begin(); i != this->text_data_p.end(); i++ ) {
+        auto font_resource_r = (*i).second->getFont()->font_resource_r;
+
+        if( font_resource_r->getHeight() >= minimum_height && font_resource_r->getHeight() <= maxiuim_height ) {
+            unsigned new_priority = maxiuim_height - font_resource_r->getHeight();
+
+            if( new_priority < priority ) {
+                priority = new_priority;
+                selected_font_resource_r = font_resource_r;
+            }
+        }
+    }
+
+    if( selected_font_resource_r == nullptr ) {
+        unsigned priority = std::numeric_limits<unsigned>::max();
+
+        for( auto i = this->text_data_p.begin(); i != this->text_data_p.end(); i++ ) {
+            auto font_resource_r = (*i).second->getFont()->font_resource_r;
+
+            if( font_resource_r->getHeight() <= maxiuim_height ) {
+                unsigned new_priority = maxiuim_height - font_resource_r->getHeight();
+
+                if( new_priority < priority ) {
+                    priority = new_priority;
+                    selected_font_resource_r = font_resource_r;
+                }
+            }
+        }
+
+        scale = static_cast<float>(maxiuim_height) / static_cast<float>(selected_font_resource_r->getHeight());
+    }
+
+    if( selected_font_resource_r == nullptr ) {
+        return false;
+    }
+    else {
+        font.resource_id = selected_font_resource_r->getResourceID();
+        font.scale = scale;
+        return true;
+    }
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
