@@ -10,6 +10,8 @@
 #include "PrimaryGame.h"
 #include "ModelViewer.h"
 
+#include "Config.h"
+
 MainMenu MainMenu::main_menu;
 
 namespace {
@@ -55,9 +57,12 @@ void MainMenu::load( MainProgram &main_program ) {
     glm::u32vec2 scale = main_program.getWindowScale();
     uint32_t center = scale.x / 2;
 
+    const Graphics::Text2DBuffer::CenterMode right_mode = Graphics::Text2DBuffer::CenterMode::RIGHT;
+
     Graphics::Text2DBuffer::Font title_font;
     Graphics::Text2DBuffer::Font prime_font;
     Graphics::Text2DBuffer::Font selected_font;
+    Graphics::Text2DBuffer::Font spec_detail_font;
 
     const unsigned step = 2. / 30. * static_cast<float>( scale.y );
 
@@ -70,6 +75,9 @@ void MainMenu::load( MainProgram &main_program ) {
     if( !main_program.text_2d_buffer_r->selectFont( selected_font, 0.9 * step, step ) )
         selected_font = {1, 2.25};
 
+    if( !main_program.text_2d_buffer_r->selectFont( spec_detail_font, 1, 14 ) )
+        spec_detail_font = 1;
+
     this->items.clear();
 
     if( !this->is_game_on ) {
@@ -80,6 +88,8 @@ void MainMenu::load( MainProgram &main_program ) {
 
         this->items.emplace_back( new Menu::TextButton( "Future Cop:",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
         this->items.emplace_back( new Menu::TextButton( "MIT",          glm::vec2( center, 5 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
+
+        this->items.emplace_back( new Menu::TextButton( FUTURE_COP_MIT_VERSION, glm::vec2( scale.x, scale.y - 14), 0, 0, 0, 0, mapSpectator, spec_detail_font, spec_detail_font, right_mode ) );
         this->current_item_index = 0;
     }
     else {
