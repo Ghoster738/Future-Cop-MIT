@@ -148,6 +148,7 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::scaleFont( Font &font, unsigned height
 
 float Graphics::SDL2::GLES2::Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const {
     auto accessor = this->text_data_p.find( font.resource_id );
+    std::string filtered_text;
 
     if( accessor == this->text_data_p.end() )
         return 0.0f;
@@ -157,8 +158,9 @@ float Graphics::SDL2::GLES2::Text2DBuffer::getLineLength( const Font &font, cons
     if( font_resource_r == nullptr )
         return 0.0f;
 
-    //
-    return true;
+    font_resource_r->filterText( text, &filtered_text );
+
+    return font.scale * static_cast<float>(font_resource_r->getLineLength( filtered_text ));
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {

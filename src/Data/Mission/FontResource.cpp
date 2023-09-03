@@ -79,9 +79,9 @@ Data::Mission::FontResource::FilterStatus Data::Mission::FontResource::filterTex
         *filtered_text_r = "";
     }
 
-    for( auto i = unfiltered_text.begin(); i != unfiltered_text.end(); i++ ) {
+    for( auto single_character : unfiltered_text ) {
 
-        if( getGlyph( (*i) ) == nullptr ) {
+        if( getGlyph( single_character ) == nullptr ) {
             filter_status = FilterStatus::CULLED;
 
             if( filtered_text_r != nullptr )
@@ -89,11 +89,25 @@ Data::Mission::FontResource::FilterStatus Data::Mission::FontResource::filterTex
         }
         else
         if( filtered_text_r != nullptr ) {
-            filtered_text_r->push_back( (*i) ); // The character is valid.
+            filtered_text_r->push_back( single_character ); // The character is valid.
         }
     }
 
     return filter_status;
+}
+
+uint32_t Data::Mission::FontResource::getLineLength( const std::string &filtered_text ) const {
+    uint32_t line_length = 0;
+
+    for( auto single_character : filtered_text ) {
+        auto glyph_r = getGlyph( single_character );
+
+        if( glyph_r != nullptr ) {
+            line_length += glyph_r->x_advance;
+        }
+    }
+
+    return line_length;
 }
 
 bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {

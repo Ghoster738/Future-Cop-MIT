@@ -86,8 +86,12 @@ void MainMenu::load( MainProgram &main_program ) {
         this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center, scale.y - 4 * step ), 1, 2, 3, 2, options,        prime_font, selected_font ) );
         this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, scale.y - 3 * step ), 2, 3, 0, 3, exitGame,       prime_font, selected_font ) );
 
-        this->items.emplace_back( new Menu::TextButton( "Future Cop:",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
-        this->items.emplace_back( new Menu::TextButton( "MIT",          glm::vec2( center, 5 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
+        if( main_program.text_2d_buffer_r->getLineLength( title_font, "Future Cop: MIT" ) > scale.x ) {
+            this->items.emplace_back( new Menu::TextButton( "Future Cop:",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
+            this->items.emplace_back( new Menu::TextButton( "MIT",          glm::vec2( center, 5 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
+        }
+        else
+            this->items.emplace_back( new Menu::TextButton( "Future Cop: MIT",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
 
         this->items.emplace_back( new Menu::TextButton( FUTURE_COP_MIT_VERSION, glm::vec2( scale.x, scale.y - 14), 0, 0, 0, 0, mapSpectator, spec_detail_font, spec_detail_font, right_mode ) );
         this->current_item_index = 0;

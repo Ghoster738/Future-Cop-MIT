@@ -74,6 +74,8 @@ public:
      */
     FilterStatus filterText( const std::string& unfiltered_text, std::string *filtered_text_r = nullptr ) const;
 
+    uint32_t getLineLength( const std::string &filtered_text ) const;
+
     /**
      * This is to be used when the file is finished loading everything into raw_data.
      * Be very sure that everything has been loaded before calling this, otherwise there could be errors.
