@@ -117,7 +117,8 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minim
             }
         }
 
-        scale = static_cast<float>(maxiuim_height) / static_cast<float>(selected_font_resource_r->getHeight());
+        if( selected_font_resource_r != nullptr )
+            scale = static_cast<float>(maxiuim_height) / static_cast<float>(selected_font_resource_r->getHeight());
     }
 
     if( selected_font_resource_r == nullptr ) {
@@ -128,6 +129,21 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minim
         font.scale = scale;
         return true;
     }
+}
+
+bool Graphics::SDL2::GLES2::Text2DBuffer::scaleFont( Font &font, unsigned height ) const {
+    auto accessor = this->text_data_p.find( font.resource_id );
+
+    if( accessor == this->text_data_p.end() )
+        return false;
+
+    auto font_resource_r = (*accessor).second->getFont()->font_resource_r;
+
+    if( font_resource_r == nullptr )
+        return false;
+
+    font.scale = static_cast<float>(height) / static_cast<float>(font_resource_r->getHeight());
+    return true;
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {

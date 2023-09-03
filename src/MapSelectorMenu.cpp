@@ -49,24 +49,38 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
     const unsigned back  = Data::Manager::AMOUNT_OF_IFF_IDS + 0;
     const unsigned title = Data::Manager::AMOUNT_OF_IFF_IDS + 1;
 
-    const unsigned step = static_cast<float>( scale.y ) / static_cast<float>( Data::Manager::AMOUNT_OF_IFF_IDS + 2);
+    const unsigned step = static_cast<float>( scale.y ) / static_cast<float>( Data::Manager::AMOUNT_OF_IFF_IDS + 3);
 
+    Graphics::Text2DBuffer::Font title_font;
     Graphics::Text2DBuffer::Font prime_font;
     Graphics::Text2DBuffer::Font selected_font;
 
-    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 0.8 * step, 0.9 * step - 1 ) )
-        prime_font = {1, 2.0};
+    if( !main_program.text_2d_buffer_r->selectFont( title_font, step, step * 2 - 1 ) ) {
+        title_font = 1;
 
-    if( !main_program.text_2d_buffer_r->selectFont( selected_font, 0.9 * step, step - 1 ) )
-        selected_font = {1, 2.25};
+        main_program.text_2d_buffer_r->scaleFont( title_font, step - 1 );
+    }
 
-    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[0], glm::vec2( center, step ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, mapSelect, prime_font, selected_font ) );
+    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 1, 0.9 * step ) ) {
+        prime_font = 1;
+
+        main_program.text_2d_buffer_r->scaleFont( prime_font, 0.9 * step - 1 );
+    }
+
+    if( !main_program.text_2d_buffer_r->selectFont( selected_font, 0.9 * step, step - 1 ) ) {
+        selected_font = 1;
+
+        main_program.text_2d_buffer_r->scaleFont( selected_font, step - 1 );
+    }
+
+
+    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[0], glm::vec2( center, 2 * step ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, mapSelect, prime_font, selected_font ) );
     for( size_t i = 1; i < Data::Manager::AMOUNT_OF_IFF_IDS - 1; i++ )
-        this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( center, (i + 1) * step ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, mapSelect, prime_font, selected_font ) );
-    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( center, Data::Manager::AMOUNT_OF_IFF_IDS * step ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, mapSelect, prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( center, (i + 2) * step ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, mapSelect, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * step ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, mapSelect, prime_font, selected_font ) );
 
-    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * step ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, exitMapSelector, prime_font, selected_font ) );
-    this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( center, (Data::Manager::AMOUNT_OF_IFF_IDS + 2) * step ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, exitMapSelector, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress, title_font, title_font ) );
 
     this->current_item_index = 0;
 }

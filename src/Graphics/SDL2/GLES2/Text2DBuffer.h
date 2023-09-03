@@ -39,6 +39,7 @@ public:
     void draw( const glm::mat4 &projection ) const;
 
     virtual bool selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const;
+    virtual bool scaleFont( Font &font, unsigned height ) const;
     virtual int setFont( const Font &font );
     virtual int setPosition( const glm::vec2 &position );
     virtual int setColor( const glm::vec4 &color );
