@@ -146,6 +146,21 @@ bool Graphics::SDL2::GLES2::Text2DBuffer::scaleFont( Font &font, unsigned height
     return true;
 }
 
+float Graphics::SDL2::GLES2::Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const {
+    auto accessor = this->text_data_p.find( font.resource_id );
+
+    if( accessor == this->text_data_p.end() )
+        return 0.0f;
+
+    auto font_resource_r = (*accessor).second->getFont()->font_resource_r;
+
+    if( font_resource_r == nullptr )
+        return 0.0f;
+
+    //
+    return true;
+}
+
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
     auto font_system_r = gl_environment_r->text_draw_routine_p;
     
