@@ -36,6 +36,8 @@ public:
     
     static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
 
+    virtual bool selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const = 0;
+
     virtual int setFont( const Font &font ) = 0;
     virtual int setPosition( const glm::vec2 &position ) = 0;
     virtual int setColor( const glm::vec4 &color ) = 0;

@@ -17,8 +17,7 @@ public:
 
     enum FilterStatus {
         PERFECT, // Every single character except the null terminator did not get replaced.
-        CULLED,  // Some characters had to be changed. The DEL symbol of the unfiltered text got replaced with space. Any character not avaiable in the font got replaced with DEL.
-        INVALID  // There is no DEL symbol in the Font Resource, so another font has to be used.
+        CULLED   // Some characters had to be changed. Any character not avaiable in the font got replaced with DEL.
     };
 
     struct Glyph {
@@ -43,6 +42,10 @@ public:
 protected:
     Utilities::Image2D *image_p; // The image containing all of the glyphs.
 
+    uint32_t height;
+
+    uint8_t missing_char_symbol;
+
     std::vector<Glyph> glyphs;
     
     Glyph *font_glyphs_r[ MAX_GLYPHS ];
@@ -54,6 +57,8 @@ public:
     virtual std::string getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
+
+    uint32_t getHeight() const { return height; }
 
     /**
      * @param character_id This is an ISO-8859-1 code value.
@@ -89,6 +94,8 @@ public:
      * @return 1 if the file has successfully been written.
      */
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+
+    std::string getValidCharacters() const;
 
     static std::vector<FontResource*> getVector( Data::Mission::IFF &mission_file );
     static const std::vector<FontResource*> getVector( const Data::Mission::IFF &mission_file );

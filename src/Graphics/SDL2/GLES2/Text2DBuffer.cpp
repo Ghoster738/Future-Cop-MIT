@@ -47,7 +47,6 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     std::vector<Data::Mission::FontResource*> fonts_r;
     bool has_resource_id_1 = false;
     bool has_resource_id_2 = false;
-    bool has_del_symbol = false;
 
     for( auto i = data.begin(); i != data.end(); i++ ) {
         auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
@@ -60,29 +59,16 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
             else
             if( (*f)->getResourceID() == 2 )
                 has_resource_id_2 = true;
-
-            if( (*f)->getGlyph( 0x7F ) != nullptr )
-                has_del_symbol = true;
         }
     }
 
     // If no fonts are found then add one.
     if( !has_resource_id_1 ) {
         fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
-        has_del_symbol = true;
     }
     if( !has_resource_id_2 ) {
         fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
-        has_del_symbol = true;
     }
-    if( !has_del_symbol ) {
-        auto font_p = Data::Mission::FontResource::getWindows( Utilities::logger );
-        font_p->setResourceID( 0 );
-        fonts_r.push_back( font_p );
-        has_del_symbol = true;
-    }
-
-    assert( has_del_symbol );
 
     gl_environment_r->text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
     gl_environment_r->text_draw_routine_p->setVertexShader();
@@ -90,6 +76,10 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     gl_environment_r->text_draw_routine_p->compileProgram();
     
     return fonts_r.size();
+}
+
+bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const {
+    return false;
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
@@ -202,21 +192,12 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     {
         if( current_text_2D_r != nullptr )
         {
-            auto switch_text_2D_r = this->current_text_2D_r;
             std::string filtered_text;
 
-            // Switch to a font with a DEL symbol if the current font lacks one.
-            if( switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text ) == Data::Mission::FontResource::FilterStatus::INVALID ) {
-                switch_text_2D_r = text_data_p[ font_system_r->getInvalidBackupFontID() ];
-
-                // This is a workaround for the fall back font code handle behaviors.
-                setFont( font_system_r->getInvalidBackupFontID() );
-
-                switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
-            }
+            this->current_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
 
             // Try to add the filtered_text.
-            add_text_state = switch_text_2D_r->addText( filtered_text, this->scale_font, this->center_mode );
+            add_text_state = this->current_text_2D_r->addText( filtered_text, this->scale_font, this->center_mode );
 
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )
@@ -232,16 +213,16 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
                 expand_amount *= text_2D_expand_factor;
 
                 // we get the expand sum.
-                expand_sum = switch_text_2D_r->getCharAmount() + expand_amount;
+                expand_sum = this->current_text_2D_r->getCharAmount() + expand_amount;
 
                 // The filtered_text must be expanded
-                add_text_state = switch_text_2D_r->setTextMax( expand_sum );
+                add_text_state = this->current_text_2D_r->setTextMax( expand_sum );
 
                 // Check to see if there was an expansion.
                 if( add_text_state > 0 )
                 {
                     // Attempt to add the filtered_text again.
-                    add_text_state = switch_text_2D_r->addText( filtered_text, this->scale_font );
+                    add_text_state = this->current_text_2D_r->addText( filtered_text, this->scale_font );
 
                     if( add_text_state >= 0 )
                         return add_text_state;
