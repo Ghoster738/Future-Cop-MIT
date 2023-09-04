@@ -9,6 +9,7 @@ public:
     static OptionsMenu options_menu;
 
     unsigned selected_resolution;
+    bool shorten_platform;
 
     virtual ~OptionsMenu();
 
