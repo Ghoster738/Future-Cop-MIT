@@ -41,15 +41,14 @@ void MainProgram::displayLoop() {
     auto this_time = last_time;
     auto delta = this_time - last_time;
 
-    this->play_loop  = configure_input( control_system_p, environment_p, text_2d_buffer_r, this->paths.getConfigDirPath() + "controls");
-
     while( this->play_loop ) {
         this_time = std::chrono::high_resolution_clock::now();
         delta = this_time - last_time;
         float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
         // Make the control system poll all the inputs.
-        control_system_p->advanceTime( delta_f );
+        if( menu_r != &InputMenu::input_menu )
+            control_system_p->advanceTime( delta_f );
 
         // Grab the inputs for either menu or primary game.
         if( menu_r != nullptr ) {

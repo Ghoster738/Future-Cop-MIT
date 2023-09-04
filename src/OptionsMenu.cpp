@@ -227,7 +227,7 @@ void OptionsMenu::unload( MainProgram &main_program ) {
 void OptionsMenu::display( MainProgram &main_program ) {
     if( this->configure_controls ) {
         this->configure_controls = false;
-        configure_input( main_program.control_system_p, main_program.environment_p, main_program.text_2d_buffer_r, main_program.paths.getConfigDirPath() + "controls" );
+        // configure_input( main_program.control_system_p, main_program.environment_p, main_program.text_2d_buffer_r, main_program.paths.getConfigDirPath() + "controls" );
     }
 
     const unsigned windows     = 6;
