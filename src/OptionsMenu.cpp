@@ -4,7 +4,7 @@
 
 #include "MainProgram.h"
 #include "MainMenu.h"
-#include "ConfigureInput.h"
+#include "InputMenu.h"
 
 #include <iostream>
 

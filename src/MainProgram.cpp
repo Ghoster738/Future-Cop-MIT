@@ -1,7 +1,7 @@
 #include "MainProgram.h"
 
 #include "Config.h"
-#include "ConfigureInput.h"
+#include "InputMenu.h"
 
 #include <iostream>
 

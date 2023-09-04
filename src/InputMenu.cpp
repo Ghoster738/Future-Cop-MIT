@@ -1,4 +1,4 @@
-#include "ConfigureInput.h"
+#include "InputMenu.h"
 
 #include <chrono>
 #include <thread>
