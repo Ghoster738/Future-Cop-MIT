@@ -4,6 +4,7 @@
 
 #include "MainProgram.h"
 #include "MainMenu.h"
+#include "ConfigureInput.h"
 
 #include <iostream>
 
@@ -114,17 +115,18 @@ void OptionsMenu::load( MainProgram &main_program ) {
 
     const unsigned resolution       =  0;
     const unsigned window_status    =  1;
-    const unsigned current_platform =  2;
-    const unsigned save_exit        =  3;
-    const unsigned exit             =  4;
+    const unsigned reconfigure_controls =  2;
+    const unsigned current_platform =  3;
+    const unsigned save_exit        =  4;
+    const unsigned exit             =  5;
 
-    const unsigned windows          =  5;
-    const unsigned mac              =  6;
-    const unsigned playstation      =  7;
+    const unsigned windows          =  6;
+    const unsigned mac              =  7;
+    const unsigned playstation      =  8;
 
-    const unsigned dec_res          =  8;
-    const unsigned display_res      =  9;
+    const unsigned dec_res          =  9;
     const unsigned add_res          = 10;
+    const unsigned display_res      = 11;
 
     glm::u32vec2 scale = main_program.getWindowScale();
     uint32_t center = scale.x / 2;
@@ -159,11 +161,12 @@ void OptionsMenu::load( MainProgram &main_program ) {
 
     this->items.clear();
 
-    this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0, 2 * smaller_step ), resolution,       resolution,       resolution,       resolution,       nullPress,        prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ), dec_res,          window_status,    mac,              window_status,    windowStatus,    prime_font, selected_font, right_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0, 4 * smaller_step ), current_platform, current_platform, current_platform, current_platform, nullPress,       prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Save and Exit",                  glm::vec2( center, scale.y - 3 * smaller_step ), mac,              save_exit,        exit,             save_exit,        menuSaveAndExit, prime_font, selected_font ) );
-    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",            glm::vec2( center, scale.y - 2 * smaller_step ), save_exit,        exit,             dec_res,          exit,             menuExit,        prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0,       2 * smaller_step ),          resolution,           resolution,           resolution,       resolution,       nullPress,        prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             dec_res,        window_status, reconfigure_controls,              window_status,    windowStatus,    prime_font, selected_font, right_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       window_status, reconfigure_controls,                  mac,       reconfigure_controls,    windowStatus,    prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0,       5 * smaller_step ),    current_platform,     current_platform,     current_platform, current_platform, nullPress,       prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Save and Exit",                  glm::vec2( center,  scale.y - 3 * smaller_step ),       mac,            save_exit,                 exit,             save_exit,        menuSaveAndExit, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",            glm::vec2( center,  scale.y - 2 * smaller_step ), save_exit,                 exit,              dec_res,          exit,             menuExit,        prime_font, selected_font ) );
 
     this->selected_resolution = 0;
 
@@ -199,11 +202,11 @@ void OptionsMenu::load( MainProgram &main_program ) {
     this->items.emplace_back( new Menu::TextButton( "Dec",       glm::vec2( line_length, this->items[resolution]->position.y ), exit,        add_res,     window_status, dec_res,     decrementResolution, prime_font, selected_font, left_mode ) );
     line_length += main_program.text_2d_buffer_r->getLineLength( selected_font, this->items[dec_res]->name );
 
+    this->items.emplace_back( new Menu::TextButton( "Add",       glm::vec2( scale.x, this->items[resolution]->position.y ), exit,        add_res,     window_status, dec_res,     incrementResolution, prime_font, selected_font, right_mode ) );
+
     end_length = scale.x - main_program.text_2d_buffer_r->getLineLength( prime_font, "Add" );
 
     this->items.emplace_back( new Menu::TextButton( "????x????", glm::vec2( (end_length + line_length) / 2, this->items[resolution]->position.y), display_res, display_res, display_res,   display_res, nullPress,           prime_font, selected_font ) );
-
-    this->items.emplace_back( new Menu::TextButton( "Add",       glm::vec2( scale.x, this->items[resolution]->position.y ), exit,        add_res,     window_status, dec_res,     incrementResolution, prime_font, selected_font, right_mode ) );
 
     updatePlatfromStatus( main_program, this->shorten_platform, *this->items[windows], *this->items[mac], *this->items[playstation] );
 
@@ -213,6 +216,8 @@ void OptionsMenu::load( MainProgram &main_program ) {
     this->current_item_index = dec_res;
 
     updateResolutionStatus( main_program, *this->items[display_res] );
+
+    this->configure_controls = false;
 }
 
 void OptionsMenu::unload( MainProgram &main_program ) {
@@ -220,12 +225,17 @@ void OptionsMenu::unload( MainProgram &main_program ) {
 }
 
 void OptionsMenu::display( MainProgram &main_program ) {
-    const unsigned windows     = 5;
-    const unsigned mac         = 6;
-    const unsigned playstation = 7;
+    if( this->configure_controls ) {
+        this->configure_controls = false;
+        configure_input( main_program.control_system_p, main_program.environment_p, main_program.text_2d_buffer_r, main_program.paths.getConfigDirPath() + "controls" );
+    }
+
+    const unsigned windows     = 6;
+    const unsigned mac         = 7;
+    const unsigned playstation = 8;
     updatePlatfromStatus( main_program, this->shorten_platform, *this->items[windows], *this->items[mac], *this->items[playstation] );
 
-    const unsigned display_res = 9;
+    const unsigned display_res = 11;
     updateResolutionStatus( main_program, *this->items[display_res] );
 
     for( size_t i = 0; i < this->items.size(); i++ ) {

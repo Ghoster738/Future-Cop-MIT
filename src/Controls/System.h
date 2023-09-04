@@ -61,7 +61,7 @@ public:
     /**
      * This writes a json file containing all of the controls.
      * @param filepath The location of the configuration file.
-     * @return -1 if the file cannot be written, 0 if the operation is not suppored, 1 file is successfully written.
+     * @return -1 if the file cannot be written, 0 if the operation is not supported, 1 file is successfully written.
      */
     int write( std::string filepath ) const;
 
