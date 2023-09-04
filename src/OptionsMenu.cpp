@@ -76,7 +76,8 @@ void switchToPlaystation( MainProgram &main_program, Menu* menu_r, Menu::Item* i
     main_program.options.setCurrentPlatform( "playstation" );
 }
 
-const uint32_t resolutions[][2] = { {320, 240}, {640, 480}, {800, 600}, {1024, 768}, {1280, 720}, {1280, 800}, {1280, 1024}, {1440, 900}, {1536, 864}, {1600, 900}, {1600, 1200}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2048, 1152}, {2048, 1536}, {2560, 1080}, {2560, 1440}, {2560, 1600}, {3440, 1440}, {3840, 2160}, {7680, 4320} };
+const int32_t resolutions[][2] = { {320, 240}, {640, 480}, {800, 600}, {1024, 768}, {1280, 720}, {1280, 800}, {1280, 1024}, {1440, 900}, {1536, 864}, {1600, 900}, {1600, 1200}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2048, 1152}, {2048, 1536}, {2560, 1080}, {2560, 1440}, {2560, 1600}, {3440, 1440}, {3840, 2160}, {7680, 4320} };
+const size_t RESOLUTION_AMOUNT = sizeof(resolutions) / (2 * sizeof(uint32_t));
 
 void updateResolutionStatus( MainProgram &main_program, Menu::Item& resolution ) {
     resolution.name = std::to_string( main_program.options.getVideoWidth() );
@@ -86,21 +87,21 @@ void updateResolutionStatus( MainProgram &main_program, Menu::Item& resolution )
 void incrementResolution( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     auto converted_menu_r = dynamic_cast<OptionsMenu*>(menu_r);
 
+    converted_menu_r->selected_resolution = (converted_menu_r->selected_resolution + 1) % RESOLUTION_AMOUNT;
+
     main_program.options.setVideoWidth(  resolutions[ converted_menu_r->selected_resolution ][ 0 ] );
     main_program.options.setVideoHeight( resolutions[ converted_menu_r->selected_resolution ][ 1 ] );
-
-    converted_menu_r->selected_resolution = (converted_menu_r->selected_resolution + 1) % (sizeof(resolutions) / (2 * sizeof(uint32_t)));
 }
 void decrementResolution( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     auto converted_menu_r = dynamic_cast<OptionsMenu*>(menu_r);
 
+    if( converted_menu_r->selected_resolution != 0 )
+        converted_menu_r->selected_resolution = (converted_menu_r->selected_resolution - 1) % RESOLUTION_AMOUNT;
+    else
+        converted_menu_r->selected_resolution = RESOLUTION_AMOUNT - 1;
+
     main_program.options.setVideoWidth(  resolutions[ converted_menu_r->selected_resolution ][ 0 ] );
     main_program.options.setVideoHeight( resolutions[ converted_menu_r->selected_resolution ][ 1 ] );
-
-    if( converted_menu_r->selected_resolution != 0 )
-        converted_menu_r->selected_resolution = (converted_menu_r->selected_resolution - 1) % (sizeof(resolutions) / (2 * sizeof(uint32_t)));
-    else
-        converted_menu_r->selected_resolution = (sizeof(resolutions) / (2 * sizeof(uint32_t))) - 1;
 }
 
 }
@@ -164,6 +165,17 @@ void OptionsMenu::load( MainProgram &main_program ) {
     this->items.emplace_back( new Menu::TextButton( "Save and Exit",                  glm::vec2( center, scale.y - 3 * smaller_step ), mac,              save_exit,        exit,             save_exit,        menuSaveAndExit, prime_font, selected_font ) );
     this->items.emplace_back( new Menu::TextButton( "Exit without Saving",            glm::vec2( center, scale.y - 2 * smaller_step ), save_exit,        exit,             dec_res,          exit,             menuExit,        prime_font, selected_font ) );
 
+    this->selected_resolution = 0;
+
+    for( size_t i = 0; i < RESOLUTION_AMOUNT; i++ ) {
+        if( resolutions[ i ][ 0 ] == main_program.options.getVideoWidth() &&
+            resolutions[ i ][ 1 ] == main_program.options.getVideoHeight()
+        ) {
+            this->selected_resolution = i;
+            i = RESOLUTION_AMOUNT;
+        }
+    }
+
     // This code is to shorten the platform names. This is so the Playstation version of the game fits in the screen.
     this->shorten_platform = false;
 
@@ -199,8 +211,6 @@ void OptionsMenu::load( MainProgram &main_program ) {
     this->items.emplace_back( new Menu::TextButton( "Current Window Status:", glm::vec2( 0, this->items[window_status]->position.y ), resolution, resolution, resolution, resolution, incrementResolution, prime_font, prime_font, left_mode ) );
 
     this->current_item_index = dec_res;
-
-    this->selected_resolution = 0;
 
     updateResolutionStatus( main_program, *this->items[display_res] );
 }
