@@ -61,7 +61,7 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
         main_program.text_2d_buffer_r->scaleFont( title_font, step - 1 );
     }
 
-    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 1, 0.9 * step ) ) {
+    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 0.7 * step, 0.9 * step ) ) {
         prime_font = 1;
 
         main_program.text_2d_buffer_r->scaleFont( prime_font, 0.9 * step - 1 );
