@@ -373,7 +373,14 @@ InputSet *const Controls::System::getInputSet( unsigned int index ) const {
     if( index < input_sets.size() )
         return input_sets[ index ];
     else
-        return nullptr;}
+        return nullptr;
+}
+
+void Controls::System::clearAllInputSets() {
+    for( auto input_set = this->input_sets.begin(); input_set != this->input_sets.end(); input_set++ ) {
+        (*input_set)->clearInputs();
+    }
+}
 
 int Controls::System::pollEventForInputSet( unsigned int input_set_index, unsigned int input_index ) {
     auto controls_p = reinterpret_cast<Controls::SDL2::System*>( system_internal_data_p );

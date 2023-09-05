@@ -35,6 +35,16 @@ void menuSaveAndExit( MainProgram &main_program, Menu* menu_r, Menu::Item* item_
     menuExit( main_program, menu_r, item_r );
 }
 
+void reconfigureControls( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
+    main_program.control_system_p->clearAllInputSets();
+
+    if( main_program.menu_r != nullptr )
+        main_program.menu_r->unload( main_program );
+
+    InputMenu::input_menu.load( main_program );
+    main_program.menu_r = &InputMenu::input_menu;
+}
+
 void windowStatus( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     main_program.options.setVideoFullscreen( !main_program.options.getVideoFullscreen() );
 
@@ -163,7 +173,7 @@ void OptionsMenu::load( MainProgram &main_program ) {
 
     this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0,       2 * smaller_step ),          resolution,           resolution,           resolution,       resolution,       nullPress,        prime_font, selected_font, left_mode ) );
     this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             dec_res,        window_status, reconfigure_controls,              window_status,    windowStatus,    prime_font, selected_font, right_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       window_status, reconfigure_controls,                  mac,       reconfigure_controls,    windowStatus,    prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       window_status, reconfigure_controls,                  mac,       reconfigure_controls,    reconfigureControls,    prime_font, selected_font, left_mode ) );
     this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0,       5 * smaller_step ),    current_platform,     current_platform,     current_platform, current_platform, nullPress,       prime_font, selected_font, left_mode ) );
     this->items.emplace_back( new Menu::TextButton( "Save and Exit",                  glm::vec2( center,  scale.y - 3 * smaller_step ),       mac,            save_exit,                 exit,             save_exit,        menuSaveAndExit, prime_font, selected_font ) );
     this->items.emplace_back( new Menu::TextButton( "Exit without Saving",            glm::vec2( center,  scale.y - 2 * smaller_step ), save_exit,                 exit,              dec_res,          exit,             menuExit,        prime_font, selected_font ) );
@@ -216,8 +226,6 @@ void OptionsMenu::load( MainProgram &main_program ) {
     this->current_item_index = dec_res;
 
     updateResolutionStatus( main_program, *this->items[display_res] );
-
-    this->configure_controls = false;
 }
 
 void OptionsMenu::unload( MainProgram &main_program ) {
@@ -225,11 +233,6 @@ void OptionsMenu::unload( MainProgram &main_program ) {
 }
 
 void OptionsMenu::display( MainProgram &main_program ) {
-    if( this->configure_controls ) {
-        this->configure_controls = false;
-        // configure_input( main_program.control_system_p, main_program.environment_p, main_program.text_2d_buffer_r, main_program.paths.getConfigDirPath() + "controls" );
-    }
-
     const unsigned windows     = 6;
     const unsigned mac         = 7;
     const unsigned playstation = 8;

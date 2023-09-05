@@ -11,8 +11,6 @@ public:
     unsigned selected_resolution;
     bool shorten_platform;
 
-    bool configure_controls;
-
     virtual ~OptionsMenu();
 
     virtual void load( MainProgram &main_program );

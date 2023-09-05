@@ -2,6 +2,9 @@
 #include "../CursorInputSet.h"
 #include <assert.h>
 
+void Controls::CursorInputSet::clearInputs() {
+}
+
 Controls::CursorInputSet::CursorInputSet( std::string name_param ) : InputSetInternal( name_param ) {
     this->states[ Inputs::LEFT_BUTTON   ].declare( "LEFT_BUTTON",   &changed );
     this->states[ Inputs::MIDDLE_BUTTON ].declare( "MIDDLE_BUTTON", &changed );

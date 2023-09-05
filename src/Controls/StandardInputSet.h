@@ -36,6 +36,11 @@ public:
     virtual ~StandardInputSet();
 
     /**
+     * This clears the StandardInputSet and prepares for remapping.
+     */
+    virtual void clearInputs();
+
+    /**
      * This is the accessor for the button states stored within the standard class.
      * @param which is which button would need to be accessed.
      * @return the pointer to the button state if the button is accessed.

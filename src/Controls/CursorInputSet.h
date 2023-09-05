@@ -31,6 +31,11 @@ public:
     virtual ~CursorInputSet();
 
     /**
+     * This does nothing as the keybindings has been predefined.
+     */
+    virtual void clearInputs();
+
+    /**
      * This is the accessor for the button states stored within the cursor class.
      * @param which is which button would need to be accessed.
      * @return the pointer to the button state if the button is accessed.

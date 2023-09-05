@@ -6,7 +6,7 @@
 namespace Controls {
 
 /**
- * This class stores the Input from the keyboard, or mouse, or gamepade, etc.
+ * This class stores the Input from the keyboard, or mouse, or gamepad, etc.
  */
 class Input {
 protected:
@@ -25,6 +25,11 @@ public:
      * @param global_change This is the pointer to the InputSet boolean.
      */
     void declare( std::string name, bool *global_change );
+
+    /*
+     * This resets the input.
+     */
+    void clear();
 
     /**
      * If there is a change in state for this input, this will return true.

@@ -93,6 +93,8 @@ public:
      */
     InputSet *const getInputSet( unsigned int index ) const;
 
+    void clearAllInputSets();
+
     /**
      * This method waits for an input to set
      * @param input_set_index The index to the InputSet to change.
