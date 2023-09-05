@@ -93,6 +93,10 @@ void MainMenu::load( MainProgram &main_program ) {
         else
             this->items.emplace_back( new Menu::TextButton( "Future Cop: MIT",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, mapSpectator, title_font, title_font ) );
 
+        // If any resource is missing I am sure the user would want to know about it.
+        if( main_program.global_r == nullptr || main_program.resource_r == nullptr )
+            this->items.emplace_back( new Menu::TextButton( "Not all resources are found",  glm::vec2( center, 7 * step ), 0, 0, 0, 0, mapSpectator, prime_font, prime_font ) );
+
         this->items.emplace_back( new Menu::TextButton( FUTURE_COP_MIT_VERSION, glm::vec2( scale.x, scale.y - 14), 0, 0, 0, 0, mapSpectator, spec_detail_font, spec_detail_font, right_mode ) );
         this->current_item_index = 0;
     }
