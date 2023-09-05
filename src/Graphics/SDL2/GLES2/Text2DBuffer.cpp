@@ -78,6 +78,54 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     return fonts_r.size();
 }
 
+std::vector<std::string> Graphics::SDL2::GLES2::Text2DBuffer::splitText( const Font &font, const std::string &unsplit_text, float line_length ) const {
+    auto accessor = this->text_data_p.find( font.resource_id );
+
+    if( accessor == this->text_data_p.end() )
+        return {};
+
+    auto font_resource_r = (*accessor).second->getFont()->font_resource_r;
+
+    if( font_resource_r == nullptr )
+        return {};
+
+    std::string filtered_text;
+
+    font_resource_r->filterText( unsplit_text, &filtered_text );
+
+    std::vector<std::string> split_text;
+
+    float current_line_length = 0;
+    std::string current_line;
+
+    for( auto i : filtered_text ) {
+        std::string single_char;
+        single_char += i;
+
+        float char_length = font.scale * static_cast<float>(font_resource_r->getLineLength( single_char ));
+
+        if( current_line_length + char_length < line_length ) {
+            current_line_length += char_length;
+            current_line += single_char;
+        }
+        else {
+            if( !current_line.empty() )
+                split_text.push_back( current_line );
+
+            current_line.clear();
+            current_line_length = 0;
+
+            current_line_length += char_length;
+            current_line += single_char;
+        }
+    }
+
+    if( !current_line.empty() )
+        split_text.push_back( current_line );
+
+    return split_text;
+}
+
 bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minimum_height, unsigned maxiuim_height ) const {
     const Data::Mission::FontResource *selected_font_resource_r = nullptr;
     float scale = 1.0f;

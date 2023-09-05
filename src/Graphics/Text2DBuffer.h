@@ -36,6 +36,8 @@ public:
     
     static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
 
+    virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const = 0;
+
     virtual bool selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const = 0;
     virtual bool scaleFont( Font &font, unsigned height ) const = 0;
     virtual float getLineLength( const Font &font, const std::string &text ) const = 0;

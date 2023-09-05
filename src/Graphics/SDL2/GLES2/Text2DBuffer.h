@@ -35,6 +35,8 @@ public:
      * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
      */
     static int loadFonts( Graphics::Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
+
+    virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const;
     
     void draw( const glm::mat4 &projection ) const;
 

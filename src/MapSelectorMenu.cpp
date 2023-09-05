@@ -17,8 +17,18 @@ void exitMapSelector( MainProgram &main_program, Menu* menu_r, Menu::Item* item_
     main_program.menu_r->load( main_program );
 }
 void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-    if( !Utilities::Options::Tools::isFile( main_program.manager.getIFFEntry( item_r->name ).getPath( main_program.platform ) ) )
-        dynamic_cast<MapSelectorMenu*>(menu_r)->failed_map_name = item_r->name;
+    auto entry = main_program.manager.getIFFEntry( item_r->name );
+
+    if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) ) {
+        auto menu_select_r = dynamic_cast<MapSelectorMenu*>(menu_r);
+
+        menu_select_r->missing_resource = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+
+        entry = main_program.manager.getIFFEntry( Data::Manager::global );
+
+        if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) )
+            menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+    }
     else {
         if( main_program.primary_game_r != nullptr )
             main_program.primary_game_r->unload( main_program );
@@ -38,8 +48,6 @@ MapSelectorMenu::~MapSelectorMenu() {
 
 void MapSelectorMenu::load( MainProgram &main_program ) {
     Menu::load( main_program );
-
-    failed_map_name = "";
 
     glm::u32vec2 scale = main_program.getWindowScale();
     uint32_t center = scale.x / 2;
@@ -101,6 +109,10 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
         this->placement.x = std::max( this->placement.x, (unsigned)main_program.text_2d_buffer_r->getLineLength( prime_font, this->items[i]->name ) );
     }
 
+    this->missing_line_length = scale.x - this->placement.x;
+    this->missing_resource = {};
+    this->missing_global   = {}; // main_program.text_2d_buffer_r->splitText( this->error_font, "/home/ghoster/.local/share/futurecopmit/Data/Platform/Playstation/cw/fe.mis", scale.x - this->placement.x );
+
     this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress, title_font, title_font ) );
 
     this->current_item_index = 0;
@@ -113,7 +125,7 @@ void MapSelectorMenu::unload( MainProgram &main_program ) {
 void MapSelectorMenu::display( MainProgram &main_program ) {
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 
-    if( !failed_map_name.empty() ) {
+    if( !this->missing_resource.empty() ) {
         text_2d_buffer_r->setFont( this->error_font );
         text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
         text_2d_buffer_r->setColor( glm::vec4( 0.7, 0, 0.5, 1 ) );
@@ -129,22 +141,25 @@ void MapSelectorMenu::display( MainProgram &main_program ) {
         text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 4 * this->error_line_height) );
         text_2d_buffer_r->print( "this program uses." );
 
-        auto entry = main_program.manager.getIFFEntry( failed_map_name );
         text_2d_buffer_r->setColor( glm::vec4( 0.5, 1, 0.5, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 5 * this->error_line_height) );
-        text_2d_buffer_r->print( entry.getPath( main_program.platform ) );
+        for( size_t i = 0; i < this->missing_resource.size(); i++ ) {
+            text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + (5 + i) * this->error_line_height) );
+            text_2d_buffer_r->print( this->missing_resource[i] );
+        }
 
-        entry = main_program.manager.getIFFEntry( Data::Manager::global );
+        if( !this->missing_global.empty() ) {
+            auto placement = this->placement.y + (5 + this->missing_resource.size()) * this->error_line_height;
 
-        if( entry.getIFF( main_program.platform ) == nullptr ) {
             text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
-            text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 6 * this->error_line_height) );
+            text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, placement + 1 * this->error_line_height) );
             text_2d_buffer_r->print( "The globals file is" );
-            text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 7 * this->error_line_height) );
+            text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, placement + 2 * this->error_line_height) );
             text_2d_buffer_r->print( "also missing." );
             text_2d_buffer_r->setColor( glm::vec4( 0.5, 1, 0.5, 1 ) );
-            text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 8 * this->error_line_height) );
-            text_2d_buffer_r->print( entry.getPath( main_program.platform ) );
+            for( size_t i = 0; i < this->missing_global.size(); i++ ) {
+                text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, placement + (3 + i) * this->error_line_height) );
+                text_2d_buffer_r->print( this->missing_global[i] );
+            }
         }
     }
 

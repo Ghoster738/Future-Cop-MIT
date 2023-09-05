@@ -5,16 +5,19 @@
 
 class MapSelectorMenu : public Menu {
 private:
-    Graphics::Text2DBuffer::Font error_font;
     unsigned error_line_height;
     glm::u32vec2 placement;
+
 public:
     static MapSelectorMenu map_selector_menu;
 
     std::string name;
     GameState *game_r;
 
-    std::string failed_map_name;
+    Graphics::Text2DBuffer::Font error_font;
+    float missing_line_length;
+    std::vector<std::string> missing_resource;
+    std::vector<std::string> missing_global;
 
     virtual ~MapSelectorMenu();
 
