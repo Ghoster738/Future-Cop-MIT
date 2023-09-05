@@ -4,6 +4,10 @@
 #include "Menu.h"
 
 class MapSelectorMenu : public Menu {
+private:
+    Graphics::Text2DBuffer::Font error_font;
+    unsigned error_line_height;
+    glm::u32vec2 placement;
 public:
     static MapSelectorMenu map_selector_menu;
 
