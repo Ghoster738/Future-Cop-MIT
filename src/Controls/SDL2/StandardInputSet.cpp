@@ -3,7 +3,7 @@
 #include <assert.h>
 
 Controls::StandardInputSet::StandardInputSet( std::string name_param ) : InputSet( name_param ) {
-    this->states[ Buttons::TOGGLE_COMMAND_LINE ].declare( "TOGGLE_COMMAND_LINE", &changed );
+    this->states[ Buttons::MENU ].declare(          "MENU", &changed );
     this->states[ Buttons::UP ].declare(            "UP", &changed );
     this->states[ Buttons::DOWN ].declare(          "DOWN", &changed );
     this->states[ Buttons::LEFT ].declare(          "LEFT", &changed );

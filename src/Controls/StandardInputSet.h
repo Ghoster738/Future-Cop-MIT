@@ -12,7 +12,7 @@ namespace Controls {
 class StandardInputSet : public InputSet {
 public:
     enum Buttons {
-        TOGGLE_COMMAND_LINE = 0,
+        MENU = 0,
         UP,
         DOWN,
         LEFT,

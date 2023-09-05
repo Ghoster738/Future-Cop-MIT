@@ -86,7 +86,7 @@ void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microsec
             obj->write( str.c_str() );
         }
 
-        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::TOGGLE_COMMAND_LINE );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::MENU );
         if( input_r->isChanged() )
         {
             MainMenu::main_menu.is_game_on = true;
