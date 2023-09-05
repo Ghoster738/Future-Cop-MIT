@@ -56,25 +56,34 @@ std::string Options::getCurrentPlatform() {
 void Options::setCurrentPlatform( std::string value ) { setString( DATA, DATA_PLATFORM, value); }
 
 int Options::getVideoWidth() {
+    if( this->modified.count( VIDEO + VIDEO_WIDTH ) == 1 )
+        return getInt( VIDEO, VIDEO_WIDTH);
+
     return parameters.res_width.wasModified()
         ? parameters.res_width.getValue()
         : getInt( VIDEO, VIDEO_WIDTH);
 }
-void Options::setVideoWidth(int value) { setInt( VIDEO, VIDEO_WIDTH, value); }
+void Options::setVideoWidth(int value) { setInt( VIDEO, VIDEO_WIDTH, value); this->modified.insert( VIDEO + VIDEO_WIDTH ); }
 
 int Options::getVideoHeight() {
+    if( this->modified.count( VIDEO + VIDEO_HEIGHT ) == 1 )
+        return getInt( VIDEO, VIDEO_HEIGHT);
+
     return parameters.res_height.wasModified()
         ? parameters.res_height.getValue()
         : getInt( VIDEO, VIDEO_HEIGHT);
 }
-void Options::setVideoHeight(int value) { setInt( VIDEO, VIDEO_HEIGHT, value); }
+void Options::setVideoHeight(int value) { setInt( VIDEO, VIDEO_HEIGHT, value); this->modified.insert( VIDEO + VIDEO_HEIGHT ); }
 
 bool Options::getVideoFullscreen() {
+    if( this->modified.count( VIDEO + VIDEO_FULLSCREEN ) == 1 )
+        return getBool( VIDEO, VIDEO_FULLSCREEN);
+
     return parameters.full_screen.wasModified()
         ? parameters.full_screen.getValue()
         : getBool( VIDEO, VIDEO_FULLSCREEN);
 }
-void Options::setVideoFullscreen(bool value) { setBool(VIDEO, VIDEO_FULLSCREEN, value); }
+void Options::setVideoFullscreen(bool value) { setBool(VIDEO, VIDEO_FULLSCREEN, value); this->modified.insert( VIDEO + VIDEO_FULLSCREEN ); }
 
 std::string Options::getSaveDirectory() {
     return getString( DIRECTORIES, DIRECTORIES_SAVES);
@@ -94,25 +103,34 @@ void Options::setModsDirectory( std::string value ) { setString( DIRECTORIES, DI
 */
 
 std::string Options::getWindowsDataDirectory() {
+    if( this->modified.count( DIRECTORIES + DIRECTORIES_WIN_DATA ) == 1 )
+        return getString( DIRECTORIES, DIRECTORIES_WIN_DATA);
+
     return parameters.win_data_dir.wasModified()
         ? parameters.win_data_dir.getValue()
         : getString( DIRECTORIES, DIRECTORIES_WIN_DATA);
 }
-void Options::setWindowsDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_WIN_DATA, value); }
+void Options::setWindowsDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_WIN_DATA, value); this->modified.insert( DIRECTORIES + DIRECTORIES_WIN_DATA ); }
 
 std::string Options::getMacintoshDataDirectory() {
+    if( this->modified.count( DIRECTORIES + DIRECTORIES_MAC_DATA ) == 1 )
+        return getString( DIRECTORIES, DIRECTORIES_MAC_DATA);
+
     return parameters.mac_data_dir.wasModified()
         ? parameters.mac_data_dir.getValue()
         : getString( DIRECTORIES, DIRECTORIES_MAC_DATA);
 }
-void Options::setMacintoshDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_MAC_DATA, value); }
+void Options::setMacintoshDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_MAC_DATA, value); this->modified.insert( DIRECTORIES + DIRECTORIES_MAC_DATA ); }
 
 std::string Options::getPlaystationDataDirectory() {
+    if( this->modified.count( DIRECTORIES + DIRECTORIES_PSX_DATA ) == 1 )
+        return getString( DIRECTORIES, DIRECTORIES_PSX_DATA);
+
     return parameters.psx_data_dir.wasModified()
         ? parameters.psx_data_dir.getValue()
         : getString( DIRECTORIES, DIRECTORIES_PSX_DATA);
 }
-void Options::setPlaystationDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_PSX_DATA, value); }
+void Options::setPlaystationDataDirectory( std::string value ) { setString( DIRECTORIES, DIRECTORIES_PSX_DATA, value); this->modified.insert( DIRECTORIES + DIRECTORIES_PSX_DATA ); }
 
 // Data is always set and retrieved as string
 std::string Options::getString(std::string section, std::string key) {

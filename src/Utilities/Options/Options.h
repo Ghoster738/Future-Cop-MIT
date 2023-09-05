@@ -4,6 +4,7 @@
 #include "Paths.h"
 #include "Parameters.h"
 #include <mini/ini.h>
+#include <set>
 
 namespace Utilities {
 namespace Options {
@@ -57,6 +58,8 @@ private:
 
     mINI::INIStructure ini_data;
     mINI::INIFile* ini_file_p;
+
+    std::set<std::string> modified;
 
     // Data is always set and retrieved as string
     std::string getString(std::string section, std::string key);
