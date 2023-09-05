@@ -18,6 +18,8 @@ void InputMenu::unload( MainProgram &main_program ) {
 }
 
 void InputMenu::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if( main_program.control_system_p->isOrderedToExit() )
+        main_program.play_loop = false;
 
     int status = main_program.control_system_p->pollEventForInputSet( this->input_set_index, this->input_index );
 
