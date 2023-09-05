@@ -5,6 +5,9 @@
 
 #include <iostream>
 
+
+const std::string MainProgram::CUSTOM_IDENTIFIER = "custom-map";
+
 MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), paths( parameters ), options( paths, parameters ) {
     this->play_loop = true;
 
@@ -274,25 +277,23 @@ void MainProgram::loadResources() {
     manager.autoSetEntries( options.getMacintoshDataDirectory(),   Data::Manager::Platform::MACINTOSH );
     manager.autoSetEntries( options.getPlaystationDataDirectory(), Data::Manager::Platform::PLAYSTATION );
 
-    // TODO If the global path is specified then use a specified path.
-    /* if( global_path.compare("") != 0 ) {
+    if( this->parameters.global_path.wasModified() ) {
         Data::Manager::IFFEntry entry = manager.getIFFEntry( Data::Manager::global );
         // Just in case if this was not set on global id.
         entry.importance = Data::Manager::Importance::NEEDED;
         // Overide the global path.
-        entry.setPath( platform, global_path );
-        manager.setIFFEntry( global_id, entry );
-    }*/
+        entry.setPath( Data::Manager::Platform::ALL, this->parameters.global_path.getValue() );
+        manager.setIFFEntry( Data::Manager::global, entry );
+    }
 
-    // TODO If the mission path is specified then use a specified path.
-    /* if( mission_path.compare("") != 0  ) {
-        resource_identifier = "unk_custom_mission";
-
-        Data::Manager::IFFEntry entry = manager.getIFFEntry( resource_identifier );
+    if( this->parameters.mission_path.wasModified() ) {
+        Data::Manager::IFFEntry entry = manager.getIFFEntry( CUSTOM_IDENTIFIER );
         // Overide the global path.
-        entry.setPath( platform, mission_path );
-        manager.setIFFEntry( resource_identifier, entry );
-    }*/
+        entry.setPath( Data::Manager::Platform::ALL, this->parameters.mission_path.getValue() );
+        manager.setIFFEntry( CUSTOM_IDENTIFIER, entry );
+
+        resource_identifier = CUSTOM_IDENTIFIER;
+    }
 
     auto entry = manager.getIFFEntry( resource_identifier );
     entry.importance = Data::Manager::Importance::NEEDED;

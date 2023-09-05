@@ -4,6 +4,7 @@
 #include <regex>
 #include "Parameters.h"
 #include "Config.h"
+#include "Tools.h"
 
 #include <iostream>
 
@@ -21,6 +22,8 @@ const int OPT_USER_DIR        = 'u';
 const int OPT_WIN_DATA_DIR    = 'd';
 const int OPT_MAC_DATA_DIR    = 'm';
 const int OPT_PSX_DATA_DIR    = 'p';
+const int OPT_GLOBAL_PATH     = 'g';
+const int OPT_MAP_PATH        = 'M';
 
 const char* const short_options = "h"; // The only short option is for the help parameter
 
@@ -37,6 +40,8 @@ const option long_options[] = {
     {"win-data",     required_argument, nullptr, OPT_WIN_DATA_DIR },
     {"mac-data",     required_argument, nullptr, OPT_MAC_DATA_DIR },
     {"psx-data",     required_argument, nullptr, OPT_PSX_DATA_DIR },
+    {"global",       required_argument, nullptr, OPT_GLOBAL_PATH  },
+    {"path",         required_argument, nullptr, OPT_MAP_PATH     },
 
     {0, 0, 0, 0} // Required as last option
 };
@@ -88,7 +93,9 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "  " << padding     << " [--width <number>] [--height <number>]" << "\n"
         << "  " << padding     << " [--res <number>x<number>]" << "\n"
         << "  " << padding     << " [--fullscreen|--window]" << "\n"
-        << "  " << padding     << " [--config <path>] [--save <path>]" << "\n"
+        << "  " << padding     << " [--config <path>] [--user <path>]" << "\n"
+        << "  " << padding     << " [--win-data <path>] [--mac-data <path>] [--psx-data <path>]" << "\n"
+        << "  " << padding     << " [--path <file path>] [--global <file path>]" << "\n"
         << "\n"
         << "Parameters" << "\n"
         << "  General:" << "\n"
@@ -106,6 +113,9 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --mac-data    <path> Path to directory - Future Cop LAPD original Macintosh data" << "\n"
         << "    --psx-data    <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
         << "    --export-path <path> Path to directory - path to where exported files go" << "\n"
+        << "  Maps:" << "\n"
+        << "    --path        <file path> Path to a map file" << "\n"
+        << "    --global      <file path> Path to the global file" << "\n"
         << "\n";
 }
 
@@ -136,12 +146,14 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_RES_WIDTH:       parseWidth(optarg);              break;
             case OPT_RES_HEIGHT:      parseHeight(optarg);             break;
             case OPT_RES:             parseRes(optarg);                break;
-            case OPT_CONFIG_DIR:      parseConfigDir(optarg);         break;
+            case OPT_CONFIG_DIR:      parseConfigDir(optarg);          break;
             case OPT_EXPORT_DIR:      parseExportPath(optarg);         break;
             case OPT_USER_DIR:        parseUserDir(optarg);            break;
             case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
             case OPT_MAC_DATA_DIR:    parseMacintoshDataDir(optarg);   break;
             case OPT_PSX_DATA_DIR:    parsePlaystationDataDir(optarg); break;
+            case OPT_GLOBAL_PATH:     parseGlobalPath(optarg);         break;
+            case OPT_MAP_PATH:        parseMissionPath(optarg);        break;
                 
             case '?':
             case ':':
@@ -156,6 +168,8 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
                     case OPT_WIN_DATA_DIR: storeError("Windows game data directory not specified in commandline");     break;
                     case OPT_MAC_DATA_DIR: storeError("Macintosh game data directory not specified in commandline");   break;
                     case OPT_PSX_DATA_DIR: storeError("Playstation game data directory not specified in commandline"); break;
+                    case OPT_GLOBAL_PATH:  storeError("Global path not specified in commandline");                     break;
+                    case OPT_MAP_PATH:     storeError("Map path not specified in commandline");                        break;
                     default:               storeError("unsupported option \"" + std::string( argv[ (optind - 1) % argc ] ) + "\" specified in commandline, use --help to list valid options");
                 }
                 
@@ -436,4 +450,42 @@ void Utilities::Options::Parameters::parsePlaystationDataDir( std::string direct
     }
 
     storeError("non-directory Playstation game data path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parseGlobalPath( std::string path ) {
+    if( p_global_path.wasModified() ) {
+        storeError("multiple global path parameters specified in commandline");
+        return;
+    }
+
+    if( !std::filesystem::exists( path ) ) {
+        storeError("cannot access global game data directory path \"" + path + "\" specified in commandline");
+        return;
+    }
+
+    if( Tools::isFile( path ) ) {
+        p_global_path = StringParam( path );
+        return;
+    }
+
+    storeError("improper global file path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parseMissionPath( std::string path ) {
+    if( p_mission_path.wasModified() ) {
+        storeError("multiple mission path parameters specified in commandline");
+        return;
+    }
+
+    if( !std::filesystem::exists( path ) ) {
+        storeError("cannot access mission game data directory path \"" + path + "\" specified in commandline");
+        return;
+    }
+
+    if( Tools::isFile( path ) ) {
+        p_mission_path = StringParam( path );
+        return;
+    }
+
+    storeError("improper mission file path specified in commandline");
 }

@@ -23,6 +23,7 @@
 class MainProgram {
 public:
     static constexpr std::chrono::microseconds FRAME_MS_LIMIT = std::chrono::microseconds(1000 / 60);
+    static const std::string CUSTOM_IDENTIFIER;
 
 public:
     // Read the parameter system.

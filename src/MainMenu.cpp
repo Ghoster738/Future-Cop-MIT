@@ -24,18 +24,42 @@ void mapSpectator( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     MapSelectorMenu::map_selector_menu.name = "Map Spectator";
 
     main_program.menu_r->unload( main_program );
-    main_program.menu_r = &MapSelectorMenu::map_selector_menu;
-    MapSelectorMenu::map_selector_menu.game_r = &PrimaryGame::primary_game;
-    main_program.menu_r->load( main_program );
+
+    if( main_program.resource_identifier != MainProgram::CUSTOM_IDENTIFIER ) {
+        main_program.menu_r = &MapSelectorMenu::map_selector_menu;
+        MapSelectorMenu::map_selector_menu.game_r = &PrimaryGame::primary_game;
+        main_program.menu_r->load( main_program );
+    }
+    else {
+        if( main_program.primary_game_r != nullptr )
+            main_program.primary_game_r->unload( main_program );
+
+        main_program.primary_game_r = &PrimaryGame::primary_game;
+        main_program.primary_game_r->load( main_program );
+        main_program.menu_r = nullptr;
+        main_program.transitionToResource( MainProgram::CUSTOM_IDENTIFIER, main_program.platform );
+    }
 }
 
 void viewGameModels( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
     MapSelectorMenu::map_selector_menu.name = "Model Viewer";
 
     main_program.menu_r->unload( main_program );
-    main_program.menu_r = &MapSelectorMenu::map_selector_menu;
-    MapSelectorMenu::map_selector_menu.game_r = &ModelViewer::model_viewer;
-    main_program.menu_r->load( main_program );
+
+    if( main_program.resource_identifier != MainProgram::CUSTOM_IDENTIFIER ) {
+        main_program.menu_r = &MapSelectorMenu::map_selector_menu;
+        MapSelectorMenu::map_selector_menu.game_r = &ModelViewer::model_viewer;
+        main_program.menu_r->load( main_program );
+    }
+    else {
+        if( main_program.primary_game_r != nullptr )
+            main_program.primary_game_r->unload( main_program );
+
+        main_program.primary_game_r = &ModelViewer::model_viewer;
+        main_program.primary_game_r->load( main_program );
+        main_program.menu_r = nullptr;
+        main_program.transitionToResource( MainProgram::CUSTOM_IDENTIFIER, main_program.platform );
+    }
 }
 void options( MainProgram &main_program, Menu*, Menu::Item* ) {
     main_program.menu_r->unload( main_program );

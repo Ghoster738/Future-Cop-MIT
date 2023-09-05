@@ -91,6 +91,8 @@ public:
     const StringParam& win_data_dir = p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
     const StringParam& mac_data_dir = p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
     const StringParam& psx_data_dir = p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
+    const StringParam& global_path  = p_global_path;
+    const StringParam& mission_path = p_mission_path;
 
 // Internal stuff
 private:
@@ -106,6 +108,8 @@ private:
     StringParam p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
     StringParam p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
     StringParam p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
+    StringParam p_global_path;
+    StringParam p_mission_path;
 
     // Help
     std::string binary_name;
@@ -117,15 +121,17 @@ private:
     virtual void parseHelp();
     virtual void parseFullscreen();
     virtual void parseWindow();
-    virtual void parseWidth(std::string value);
-    virtual void parseHeight(std::string value);
-    virtual void parseRes(std::string value);
-    virtual void parseConfigDir(std::string path);
-    virtual void parseExportPath(std::string directory);
-    virtual void parseUserDir(std::string directory);
-    virtual void parseWindowsDataDir(std::string directory);
-    virtual void parseMacintoshDataDir(std::string directory);
-    virtual void parsePlaystationDataDir(std::string directory);
+    virtual void parseWidth( std::string value );
+    virtual void parseHeight( std::string value );
+    virtual void parseRes( std::string value );
+    virtual void parseConfigDir( std::string path );
+    virtual void parseExportPath( std::string directory );
+    virtual void parseUserDir( std::string directory );
+    virtual void parseWindowsDataDir( std::string directory );
+    virtual void parseMacintoshDataDir( std::string directory );
+    virtual void parsePlaystationDataDir( std::string directory );
+    virtual void parseGlobalPath( std::string path );
+    virtual void parseMissionPath( std::string path );
 
     // Errors management
     std::string error_message;
