@@ -26,12 +26,12 @@ public:
         virtual void drawSelected( MainProgram &main_program ) const = 0;
     };
     struct TextButton : public Item {
+        Graphics::Text2DBuffer::Font font;
+        Graphics::Text2DBuffer::Font selected_font;
         Graphics::Text2DBuffer::CenterMode center_mode;
-        Graphics::Text2DBuffer::Font font_id;
-        Graphics::Text2DBuffer::Font selected_font_id;
 
         TextButton();
-        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::Font font_id = 1, Graphics::Text2DBuffer::Font selected_font_id = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::Font font = 1, Graphics::Text2DBuffer::Font selected_font = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
 
         virtual void drawNeutral(  MainProgram &main_program ) const;
         virtual void drawSelected( MainProgram &main_program ) const;
