@@ -1,14 +1,16 @@
 #ifndef INPUT_MENU_H
 #define INPUT_MENU_H
 
-#include "Graphics/Environment.h"
-#include "Graphics/Text2DBuffer.h"
 #include "Controls/System.h"
 
 #include "Menu.h"
 
 class InputMenu : public Menu {
 private:
+    Graphics::Text2DBuffer::Font input_set_font;
+    glm::u32vec2 center;
+    unsigned step;
+
 public:
     static InputMenu input_menu;
 
