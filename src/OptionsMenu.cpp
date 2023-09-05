@@ -175,8 +175,8 @@ void OptionsMenu::load( MainProgram &main_program ) {
     this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             dec_res,        window_status, reconfigure_controls,              window_status,    windowStatus,    prime_font, selected_font, right_mode ) );
     this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       window_status, reconfigure_controls,                  mac,       reconfigure_controls,    reconfigureControls,    prime_font, selected_font, left_mode ) );
     this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0,       5 * smaller_step ),    current_platform,     current_platform,     current_platform, current_platform, nullPress,       prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Save and Exit",                  glm::vec2( center,  scale.y - 3 * smaller_step ),       mac,            save_exit,                 exit,             save_exit,        menuSaveAndExit, prime_font, selected_font ) );
-    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",            glm::vec2( center,  scale.y - 2 * smaller_step ), save_exit,                 exit,              dec_res,          exit,             menuExit,        prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Save to Config File and Exit",  glm::vec2( center,  scale.y - 3 * smaller_step ),       mac,            save_exit,                 exit,             save_exit,        menuSaveAndExit, prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",           glm::vec2( center,  scale.y - 2 * smaller_step ), save_exit,                 exit,              dec_res,          exit,             menuExit,        prime_font, selected_font ) );
 
     this->selected_resolution = 0;
 
