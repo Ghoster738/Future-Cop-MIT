@@ -10,6 +10,10 @@ int main(int argc, char** argv)
 {
     MainProgram main_program( argc, argv );
 
+    if( main_program.parameters.help.getValue() ) {
+        return 0;
+    }
+
     MainMenu::main_menu.is_game_on = false;
 
     PrimaryGame::primary_game.load( main_program );
