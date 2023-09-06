@@ -7,6 +7,8 @@
 #include <glm/vec2.hpp>
 #include <vector>
 #include "Data/Mission/TilResource.h"
+#include "Graphics/Text2DBuffer.h"
+
 
 class PrimaryGame : public GameState {
 public:
@@ -24,6 +26,9 @@ private:
     std::chrono::microseconds counter;
     unsigned map_index;
     unsigned platform_index;
+
+    Graphics::Text2DBuffer::Font font;
+    unsigned font_height;
 
 public:
     PrimaryGame();

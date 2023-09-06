@@ -63,6 +63,21 @@ void PrimaryGame::load( MainProgram &main_program ) {
         this->til_resources = std::vector<Data::Mission::TilResource*>();
 
     main_program.loadGraphics();
+
+    glm::u32vec2 scale = main_program.getWindowScale();
+    this->font_height = (1. / 30.) * static_cast<float>( scale.y );
+
+    if( !main_program.text_2d_buffer_r->selectFont( this->font, 0.5 * this->font_height, this->font_height ) ) {
+        this->font = 1;
+
+        main_program.text_2d_buffer_r->scaleFont( this->font, this->font_height );
+
+        // Small bitmap font should not be shrunk.
+        if( this->font.scale < 1 ) {
+            this->font_height = static_cast<float>(this->font_height) / this->font.scale;
+            this->font.scale = 1;
+        }
+    }
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {
@@ -271,34 +286,29 @@ void PrimaryGame::grabControls( MainProgram &main_program, std::chrono::microsec
 void PrimaryGame::display( MainProgram &main_program ) {
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 
-    if( text_2d_buffer_r->setFont( 6 ) == -3 )
-            text_2d_buffer_r->setFont( 2 );
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
+
+    text_2d_buffer_r->setFont( this->font );
     text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
     text_2d_buffer_r->print( "Position = (" + std::to_string(main_program.camera_position.x) + ", " + std::to_string(main_program.camera_position.y) + ", " + std::to_string(main_program.camera_position.z) + ")" );
 
-    if( text_2d_buffer_r->setFont( 5 ) == -3 )
-        text_2d_buffer_r->setFont( 2 );
     text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
-    text_2d_buffer_r->setPosition( glm::vec2( 0, 20 ) );
-    text_2d_buffer_r->print( "Rotation = (" + std::to_string(main_program.camera_rotation.x) + ", " + std::to_string(main_program.camera_rotation.y) + ")" );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, 1 * this->font_height ) );
+    text_2d_buffer_r->print( "Rotation = (" + std::to_string( glm::degrees( main_program.camera_rotation.x ) ) + ", " + std::to_string( glm::degrees( main_program.camera_rotation.y ) ) + ")" );
 
     if( til_polygon_type_selected != 111 ) {
-        if( text_2d_buffer_r->setFont( 3 ) == -3 )
-            text_2d_buffer_r->setFont( 1 );
         text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( 0, 40 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 2 * this->font_height ) );
         text_2d_buffer_r->print( "Selected Polygon Type = " + std::to_string( til_polygon_type_selected ) );
     }
 
     if( current_tile_selected >= 0 && static_cast<unsigned>(current_tile_selected) < til_resources.size() ) {
-        if( text_2d_buffer_r->setFont( 3 ) == -3 )
-            text_2d_buffer_r->setFont( 1 );
         text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( 0, 60 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 3 * this->font_height ) );
         text_2d_buffer_r->print( "Ctil Resource ID = " + std::to_string( til_resources.at(current_tile_selected)->getResourceID() ) );
         text_2d_buffer_r->setColor( glm::vec4( 0, 1, 1, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( 0, 80 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 4 * this->font_height ) );
         text_2d_buffer_r->print( "Ctil Offset = " + std::to_string( til_resources.at(current_tile_selected)->getOffset() ) );
     }
 }
