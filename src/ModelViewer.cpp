@@ -42,6 +42,21 @@ void ModelViewer::load( MainProgram &main_program ) {
     main_program.camera_position = { 0, 0, 0 };
     main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
     main_program.camera_distance = -(this->radius + 4.0f);
+
+    glm::u32vec2 scale = main_program.getWindowScale();
+    this->font_height = (1. / 30.) * static_cast<float>( scale.y );
+
+    if( !main_program.text_2d_buffer_r->selectFont( this->font, 0.8 * this->font_height, this->font_height ) ) {
+        this->font = 1;
+
+        main_program.text_2d_buffer_r->scaleFont( this->font, this->font_height );
+
+        // Small bitmap font should not be shrunk.
+        if( this->font.scale < 1 ) {
+            this->font_height = static_cast<float>(this->font_height) / this->font.scale;
+            this->font.scale = 1;
+        }
+    }
 }
 
 void ModelViewer::unload( MainProgram &main_program ) {
@@ -155,15 +170,16 @@ void ModelViewer::display( MainProgram &main_program ) {
 
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 
-    if( text_2d_buffer_r->setFont( 3 ) == -3 )
-        text_2d_buffer_r->setFont( 1 );
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
+
+    text_2d_buffer_r->setFont( this->font );
     text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
     text_2d_buffer_r->print( "Resource ID = " + std::to_string( this->obj_vector.at( this->cobj_index )->getResourceID() ) );
 
     if( !this->resource_export_path.empty() ) {
         text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( 0, 16 ) );
-        text_2d_buffer_r->print( "PRESS the \"" + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + "\" button to export model." );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
+        text_2d_buffer_r->print( "PRESS the " + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + " button to export model." );
     }
 }

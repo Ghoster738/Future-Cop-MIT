@@ -27,6 +27,9 @@ private:
     bool exported_textures;
     std::string resource_export_path;
 
+    Graphics::Text2DBuffer::Font font;
+    unsigned font_height;
+
 public:
     ModelViewer();
     virtual ~ModelViewer();
