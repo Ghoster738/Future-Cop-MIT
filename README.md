@@ -13,15 +13,12 @@ Open Source Game Engine Project
     - [Usage](#usage)
     - [Parameters](#parameters)
     - [Examples](#examples)
-  + [FCMapViewer](#fcmapviewer)
+  + [FCopMIT](#fcopmit)
     - [Usage](#usage-1)
     - [Parameters](#parameters-1)
     - [Examples](#examples-1)
-  + [FCModelViewer](#fcmodelviewer)
-    - [Usage](#usage-2)
-    - [Parameters](#parameters-2)
   + [The ID system](#the-id-system)
-* [Autoloading game data](#autoloading-game-data)
+* [Loading game data](#loading-game-data)
 * [Resource types](#resource-types)
   + [Internal](#internal)
   + [Exported](#exported)
@@ -125,97 +122,68 @@ FCMissionReader -i path/to/mission/File -o path/to/existing/directory -r
 FCMissionReader -i path/to/mission/File -o path/to/existing/directory -d
 ```
 
-### FCMapViewer
-A basic map viewer able to display  the in-game maps - only the geometry, not the models.
+### FCopMIT
+The primary executable of this project.
 
 #### Usage
 ```
-FCMapViewer [-h|--help]  
-            [--width <number>] [--height <number>]  
-            [-w] [-m] [-p] [--id <id>] [--load-all] [--platform-all]  
-            [--global <path>] [--path <path>]
+FCopMIT [-h|--help]
+        [--width <number>] [--height <number>]
+        [--res <number>x<number>]
+        [--fullscreen|--window]
+        [--config <path>] [--user <path>]
+        [--win-data <path>] [--mac-data <path>] [--psx-data <path>]
+        [--path <file path>] [--global <file path>]
 ```
 #### Parameters
 [Heads-up about the "&nbsp;" usage for the "Parameter" header:  see the comment on the FCMissionReader]::
 
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
 |---|---|
-| `-h`, `--help` | Display the help screen. |
-| `-width <number>` | Window/screen resolution width - defaults to `640` if not specified. |
-| `-height <number>` | Window/screen resolution height - defaults to `480` if not specified. |
-| `-w` | Load Windows game data from `./Data/Platform/Windows` |
-| `-m` | Load Macintosh game data from `./Data/Platform/Macintosh` |
-| `-p` | Load PlayStation game data from `./Data/Platform/Playstation` |
-| `--id <id>` | Load the specified mission ID. Type in an invalid id to get a listing of valid IDs. |
-| `--load-all` | Load every single map. Will take some time. |
-| `--platform-all` | Attempt to load from all three platforms for the given ID. If `--load-all` is also present on the command line then the program will load all the levels. |
-| `--global <path>` | Path to the global file which every map uses. |
-| `--path <path>` | Path to the mission file which contains the rest of the data like the map.
+| `-h`, `--help` | Display this help screen and exit. |
+| `--width <number>` | Window width, in pixels. |
+| `--height <number>` | Window height, in pixels. |
+| `---res <number>x<number>` | Window width and height in pixels, as a single parameter. |
+| `--fullscreen` | Full screen mode. |
+| `--window` | Window mode. |
+| `--user <path>` | Path to directory - savegames and screenshots |
+| `--config <path>` | Path to game configuration directory |
+| `--win-data <path>` | Path to directory - Future Cop LAPD original Windows data |
+| `--mac-data <path>` | Path to directory - Future Cop LAPD original Macintosh data |
+| `--psx-data <path>` | Path to directory - Future Cop LAPD original Playstation data |
+| `--export-path <path>` | Path to directory - path to where exported models go from the model viewer |
+| `--global <file path>` | Path to the global file which every map uses. |
+| `--path <file path>` | Path to the mission file which contains the rest of the data like the map. |
 
 #### Examples
 ```
-FCMapViewer --id "map_id"
-FCMapViewer --global /path/to/global_mission --path "/path/to/mission"
+FCopMIT --window --res 1024x768
+FCopMIT --fullscreen --res 1920x1080
+FCopMIT --global /path/to/global_mission --path "/path/to/mission"
 ```
-
-### FCModelViewer
-A basic model viewer able to display the in-game models, including the animations, where available.
-
-#### Usage
-```
-FCModelViewer [-h|--help]  
-              [--width <number>] [--height <number>]  
-              [-w] [-m] [-p] [--id <id>]  
-              [--model-path <path>] [--type ??] [--start <number>]  
-              [--global <path>] [--path <path>]
-```
-
-#### Parameters
-[Heads-up about the "&nbsp;" usage for the "Parameter" header:  see the comment on the FCMissionReader]::
-
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parameter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
-|---|---|
-| `-h`, `--help` | Display the help screen. |
-| `--width <number>` | Window/screen resolution width - defaults to `640` if not specified. |
-| `--height <number>` | Window/screen resolution height - defaults to `480` if not specified. | 
-| `-w` | Load Windows game data from `./Data/Platform/Windows` |  
-| `-m` | Load Macintosh game data from `./Data/Platform/Macintosh` |
-| `-p` | Load PlayStation game data from `./Data/Platform/Playstation` |
-| `--id <id>` | Load the specified mission ID. Type in an invalid id to get a listing of valid IDs. |
-| `--model-path <path>` | Where to export the models, must point to an existing directory |
-| `--type ??` | ?? |
-| `--start` | The index of the model to display when the program starts up |
-| `--global <path>` | Path to the global file which every map uses. |
-| `--path <path>` | Path to the mission file which contains the rest of the data like the map. |
 
 ### The ID system
-This is a list of level names that can be used with the `--id` parameter of the FCMapViewer/FCModelViewer programs. 
-
-These IDs can be used only if the [autoloading](#autoloading-game-data) is properly configured:
+This is a list of level names that are used internally.
 
 | Crime War | Precinct Assault |
 |---|---|
-| `griffith_park` | `pa_urban_jungle` |
-| `zuma_beach` | `pa_venice_beach` |
-| `la_brea_tar_pits` | `pa_hollywood_keys` |
-| `venice_beach` | `pa_proving_ground` |
-| `hells_gate_prison` | `pa_bug_hunt` |
-| `studio_city` | `pa_la_centina` |
-| `lax_spaceport` |  |
-| `lax_spaceport_part_2` |  |
-| `long_beach` |  |
+| `griffith-park` | `pa-urban-jungle` |
+| `zuma-beach` | `pa-venice-beach` |
+| `la-brea-tar-pits` | `pa-hollywood-keys` |
+| `venice-beach` | `pa-proving-grounds` |
+| `hells-gate-prison` | `pa-bug-hunt` |
+| `studio-city` | `pa-la-centina` |
+| `lax-spaceport` |  |
+| `lax-spaceport-part-2` |  |
+| `long-beach` |  |
 
 
-## Autoloading game data
-By placing the game data in a certain directory (depending on the platform), the FCMapViewer/FCModelViewer will automatically load and parse the data, without explicitly indicating the paths to different files.
+## Loading game data
+By placing the game data in a certain directory (depending on the platform) the FCopMIT will load and parse data.
 
-Note that paths are case-sensitive (depending on the OS):
+Please see the documentation file named [Paths](Paths.md)
 
-| Platform | Path |
-|---|---|
-| Windows | `./Data/Platform/Windows` |
-| Macintosh | `./Data/Platform/Macintosh` |
-| PlayStation | `./Data/Platform/Playstation` |
+Note that paths are case-sensitive on Mac and Linux:
 
 ## Resource types
 ### Internal
