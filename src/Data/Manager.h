@@ -63,6 +63,8 @@ public:
         IFFEntry( const IFFEntry & );
         ~IFFEntry(); // DO NOT SET THIS TO VIRTUAL.
 
+        void set( const IFFEntry & );
+
         void setPath( Platform platform, const std::string &path );
         
         std::string getPath( Platform platform ) const { return paths[ platform ]; }
@@ -85,6 +87,8 @@ public:
         IFFEntryStorage();
         IFFEntryStorage( const IFFEntry & );
         ~IFFEntryStorage(); // This will delete the iff_p!
+
+        void set( const IFFEntry & );
 
         bool load( Platform platform );
         bool unload( Platform platform );
@@ -110,7 +114,7 @@ public:
 
     bool setIFFEntry( const std::string &name, const IFFEntry &entry );
 
-    void autoSetEntries( const std::string &base_path );
+    void autoSetEntries( const std::string &base_path, Platform platform = Platform::ALL );
 
     /**
      * This enables which platform can be loaded.
@@ -135,6 +139,8 @@ public:
     int reload( unsigned core_amount = 1 );
     
     static void listIDs( std::ostream &stream );
+
+    static Platform getPlatformFromString( const std::string &name );
 };
 
 } // Data

@@ -13,6 +13,8 @@ option(FCOption_GLM_VENDORED "Use GLM or OpenGL Mathematics vendored library. Ma
 # "Warning: Enabling this would mess with the locations where the program would normally compile to. Use jsoncpp vendored library. Make sure the submodule is there before using this option."
 set(FCOption_JSONCPP_VENDORED OFF)
 option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodule is there before using this option. Zlib is not needed, but it would be nice to have for PNG export support." OFF)
+option(FCOption_RELATIVE_PATHS_ONLY "This disables the complex file searchs inside the file structure of the operating system. Use this if you are making a headless version of this engine." OFF)
+option(FCOption_AUTOMATIC_MAP_SWITCHING "This makes the primary game switch maps every 10 seconds. This is for debugging purposes." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -22,6 +24,12 @@ file(GLOB_RECURSE DATA_SOURCE_FILES src/Data/*.cpp )
 add_library(FC_IFF_IO STATIC ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
 
 target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
+
+if( EXISTS "${CMAKE_SOURCE_DIR}/submodules/mINI/src/mini/ini.h" )
+  include_directories( "${CMAKE_SOURCE_DIR}/submodules/mINI/src/" )
+else()
+  message( ERROR "Sorry, but the mINI submodule is required for the compilation of this project.")
+endif()
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
@@ -126,27 +134,21 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 # OpenGLES 2 is the one and only API supported for now, but more will come.
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
-add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/ConfigureInput.cpp src/SplashScreens.cpp )
+add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/InputMenu.cpp src/MainProgram.cpp )
 
-add_executable( FCModelViewer WIN32 src/FCModelViewer.cpp )
-add_executable( FCMapViewer   WIN32 src/FCMapViewer.cpp   )
+add_executable( FCopMIT WIN32 src/FCopMIT.cpp src/PrimaryGame.cpp src/ModelViewer.cpp src/Menu.cpp src/MainMenu.cpp src/OptionsMenu.cpp src/MapSelectorMenu.cpp )
 
 if( TARGET SDL2::SDL2main )
-  target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2main)
-  target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2main)
+  target_link_libraries (FCopMIT PRIVATE SDL2::SDL2main)
 endif()
 target_link_libraries (FC_Engine PRIVATE SDL2::SDL2)
-
-target_link_libraries (FCModelViewer PRIVATE SDL2::SDL2)
-target_link_libraries (FCMapViewer PRIVATE SDL2::SDL2)
+target_link_libraries (FCopMIT PRIVATE SDL2::SDL2)
 
 target_link_libraries (FC_Engine PRIVATE FC_IFF_IO)
 target_link_libraries (FC_Engine PRIVATE ${OPENGL_gl_LIBRARY})
-target_link_libraries (FCModelViewer PRIVATE FC_IFF_IO)
-target_link_libraries (FCMapViewer PRIVATE FC_IFF_IO)
 
-target_link_libraries (FCModelViewer PRIVATE FC_Engine)
-target_link_libraries (FCMapViewer PRIVATE FC_Engine)
+target_link_libraries (FCopMIT PRIVATE FC_IFF_IO)
+target_link_libraries (FCopMIT PRIVATE FC_Engine)
 
 if (SDL2_FOUND)
     mark_as_advanced(SDL2_DIR)

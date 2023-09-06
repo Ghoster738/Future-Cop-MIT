@@ -74,6 +74,8 @@ public:
     Logger();
     virtual ~Logger();
 
+    static std::string getTime();
+
     void setTimeStampMode( bool status );
     
     bool setOutputLog( std::string file_path, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );

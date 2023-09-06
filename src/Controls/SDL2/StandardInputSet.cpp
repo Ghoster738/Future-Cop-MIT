@@ -2,8 +2,14 @@
 #include "../StandardInputSet.h"
 #include <assert.h>
 
+void Controls::StandardInputSet::clearInputs() {
+    for( size_t i = 0; i < Buttons::TOTAL_BUTTONS; i++ ) {
+        states[ i ].clear();
+    }
+}
+
 Controls::StandardInputSet::StandardInputSet( std::string name_param ) : InputSet( name_param ) {
-    this->states[ Buttons::TOGGLE_COMMAND_LINE ].declare( "TOGGLE_COMMAND_LINE", &changed );
+    this->states[ Buttons::MENU ].declare(          "MENU", &changed );
     this->states[ Buttons::UP ].declare(            "UP", &changed );
     this->states[ Buttons::DOWN ].declare(          "DOWN", &changed );
     this->states[ Buttons::LEFT ].declare(          "LEFT", &changed );

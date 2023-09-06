@@ -50,6 +50,11 @@ public:
     virtual ~InputSetInternal();
 
     /**
+     * This resets the Input Set keybinding state.
+     */
+    virtual void clearInputs() = 0;
+
+    /**
      * This is the accessor for the button states stored within the InputSetInternal class.
      * @param index is index to the Input class would need to be accessed.
      * @return the pointer to the button state if the button is accessed.

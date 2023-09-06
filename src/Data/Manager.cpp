@@ -2,27 +2,27 @@
 
 const std::string Data::Manager::global = "global";
 
-const std::string Data::Manager::griffith_park        = "griffith_park";
-const std::string Data::Manager::zuma_beach           = "zuma_beach";
-const std::string Data::Manager::la_brea_tar_pits     = "la_brea_tar_pits";
-const std::string Data::Manager::venice_beach         = "venice_beach";
-const std::string Data::Manager::hells_gate_prison    = "hells_gate_prison";
-const std::string Data::Manager::studio_city          = "studio_city";
-const std::string Data::Manager::lax_spaceport        = "lax_spaceport";
-const std::string Data::Manager::lax_spaceport_part_2 = "lax_spaceport_part_2";
-const std::string Data::Manager::long_beach           = "long_beach";
+const std::string Data::Manager::griffith_park        = "griffith-park";
+const std::string Data::Manager::zuma_beach           = "zuma-beach";
+const std::string Data::Manager::la_brea_tar_pits     = "la-brea-tar-pits";
+const std::string Data::Manager::venice_beach         = "venice-beach";
+const std::string Data::Manager::hells_gate_prison    = "hells-gate-prison";
+const std::string Data::Manager::studio_city          = "studio-city";
+const std::string Data::Manager::lax_spaceport        = "lax-spaceport";
+const std::string Data::Manager::lax_spaceport_part_2 = "lax-spaceport-part-2";
+const std::string Data::Manager::long_beach           = "long-beach";
 
 const std::string *const Data::Manager::crime_war_iffs[] =
     { &Data::Manager::griffith_park, &Data::Manager::zuma_beach, &Data::Manager::la_brea_tar_pits, &Data::Manager::venice_beach,
       &Data::Manager::hells_gate_prison, &Data::Manager::studio_city, &Data::Manager::lax_spaceport, &Data::Manager::lax_spaceport_part_2, &Data::Manager::long_beach };
 const size_t Data::Manager::AMOUNT_OF_CRIME_WAR_IDS = sizeof(Data::Manager::crime_war_iffs) / sizeof( Data::Manager::crime_war_iffs[0] );
 
-const std::string Data::Manager::pa_urban_jungle   = "pa_urban_jungle";
-const std::string Data::Manager::pa_venice_beach   = "pa_venice_beach";
-const std::string Data::Manager::pa_hollywood_keys = "pa_hollywood_keys";
-const std::string Data::Manager::pa_proving_ground = "pa_proving_ground";
-const std::string Data::Manager::pa_bug_hunt       = "pa_bug_hunt";
-const std::string Data::Manager::pa_la_centina     = "pa_la_centina";
+const std::string Data::Manager::pa_urban_jungle   = "pa-urban-jungle";
+const std::string Data::Manager::pa_venice_beach   = "pa-venice-beach";
+const std::string Data::Manager::pa_hollywood_keys = "pa-hollywood-keys";
+const std::string Data::Manager::pa_proving_ground = "pa-proving-grounds";
+const std::string Data::Manager::pa_bug_hunt       = "pa-bug-hunt";
+const std::string Data::Manager::pa_la_centina     = "pa-la-centina";
 
 const std::string *const Data::Manager::precinct_assault_iffs[] =
     { &Data::Manager::pa_urban_jungle, &Data::Manager::pa_venice_beach, &Data::Manager::pa_hollywood_keys, &Data::Manager::pa_proving_ground,
@@ -53,6 +53,14 @@ Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths(),
 
 Data::Manager::IFFEntry::~IFFEntry() {
     // DO NOT DELETE ANYTHING. deleting iff_p is IFFEntryStorage's job.
+}
+
+void Data::Manager::IFFEntry::set( const IFFEntry& obj ) {
+    importance = obj.importance;
+    for( unsigned i = 0; i < Platform::ALL; i++ )
+        this->paths[ i ] = obj.paths[ i ];
+    for( unsigned i = 0; i < Platform::ALL; i++ )
+        this->iff_p[ i ] = obj.iff_p[ i ];
 }
 
 void Data::Manager::IFFEntry::setPath( Platform platform, const std::string &path ) {
@@ -88,6 +96,10 @@ Data::Manager::IFFEntryStorage::~IFFEntryStorage() {
             delete i;
 }
 
+void Data::Manager::IFFEntryStorage::set( const IFFEntry& obj ) {
+    IFFEntry::set( obj );
+}
+
 bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] == nullptr ) {
         this->iff_p[ platform ] = new Mission::IFF;
@@ -111,6 +123,7 @@ bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
 bool Data::Manager::IFFEntryStorage::unload( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] != nullptr ) {
         delete this->iff_p[ platform ];
+        this->iff_p[ platform ] = nullptr;
         return true;
     }
     else
@@ -148,117 +161,187 @@ Data::Manager::IFFEntry Data::Manager::getIFFEntry( const std::string &name ) {
     return entry;
 }
 
+#include <iostream>
+
 bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry ) {
     // thread_lock.lock();
 
-    entries[ name ] = IFFEntryStorage( entry );
+    if( entries.find( name ) == entries.end() )
+        entries[ name ] = IFFEntryStorage( entry );
+    else {
+        entries.at( name ).set( entry );
+    }
 
     // thread_lock.unlock();
 
     return true;
 }
 
-void Data::Manager::autoSetEntries( const std::string &base_path ) {
-    const std::string MACINT_PATH = base_path +  "Macintosh/missions/";
-    const std::string PSX_CW_PATH = base_path +     "Playstation/cw/";
-    const std::string PSX_PA_PATH = base_path +     "Playstation/pa/";
-    const std::string WINDOW_PATH = base_path +   "Windows/missions/";
+void Data::Manager::autoSetEntries( const std::string &base_path, Platform platform ) {
+    std::string MACINT_PATH = base_path;
+    std::string PSX_CW_PATH = base_path;
+    std::string PSX_PA_PATH = base_path;
+    std::string WINDOW_PATH = base_path;
+
+    if( platform == Platform::ALL ) {
+        MACINT_PATH += "Macintosh/";
+        PSX_CW_PATH += "Playstation/";
+        PSX_PA_PATH += "Playstation/";
+        WINDOW_PATH += "Windows/";
+    }
+
+    MACINT_PATH += "missions/";
+    PSX_CW_PATH += "cw/";
+    PSX_PA_PATH += "pa/";
+    WINDOW_PATH += "missions/";
+
+    const bool MAKE_MAC_PATH = (platform == Platform::MACINTOSH)   | (platform == Platform::ALL);
+    const bool MAKE_PSX_PATH = (platform == Platform::PLAYSTATION) | (platform == Platform::ALL);
+    const bool MAKE_WIN_PATH = (platform == Platform::WINDOWS)     | (platform == Platform::ALL);
 
     IFFEntry entry = getIFFEntry( global );
     entry.importance = Importance::NEEDED; // The global IFF is always used for loading the IFF mission files.
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "GlblData" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "fe.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "GlblData" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "GlblData" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "fe.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "GlblData" );
     setIFFEntry( global, entry );
 
     entry = getIFFEntry( griffith_park );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M2C" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m2c.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M2C" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M2C" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m2c.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M2C" );
     setIFFEntry( griffith_park, entry );
 
     entry = getIFFEntry( zuma_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3A" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3a.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3A" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3a.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
     setIFFEntry( zuma_beach, entry );
 
     entry = getIFFEntry( la_brea_tar_pits );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3B" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3b.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3B" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3B" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3b.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3B" );
     setIFFEntry( la_brea_tar_pits, entry );
 
     entry = getIFFEntry( venice_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OV" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ov.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OV" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OV" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ov.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OV" );
     setIFFEntry( venice_beach, entry );
 
     entry = getIFFEntry( hells_gate_prison );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M1A1" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m1a1.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M1A1" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M1A1" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m1a1.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M1A1" );
     setIFFEntry( hells_gate_prison, entry );
 
     entry = getIFFEntry( studio_city );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Un" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "un.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Un" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Un" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "un.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Un" );
     setIFFEntry( studio_city, entry );
 
     entry = getIFFEntry( lax_spaceport );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX1" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax1.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX1" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX1" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax1.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX1" );
     setIFFEntry( lax_spaceport, entry );
 
     entry = getIFFEntry( lax_spaceport_part_2 );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX2" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax2.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX2" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX2" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax2.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX2" );
     setIFFEntry( lax_spaceport_part_2, entry );
 
     entry = getIFFEntry( long_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M4A1" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m4a1.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M4A1" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M4A1" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m4a1.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M4A1" );
     setIFFEntry( long_beach, entry );
 
     entry = getIFFEntry( pa_urban_jungle );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "ConFt" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "conft.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "ConFt" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "ConFt" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "conft.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "ConFt" );
     setIFFEntry( pa_urban_jungle, entry );
 
     entry = getIFFEntry( pa_venice_beach );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OVMP" );
-    entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ovmp.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OVMP" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OVMP" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "ovmp.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OVMP" );
     setIFFEntry( pa_venice_beach, entry );
 
     entry = getIFFEntry( pa_hollywood_keys );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "HK" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "hk.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "HK" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "HK" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "hk.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "HK" );
     setIFFEntry( pa_hollywood_keys, entry );
 
     entry = getIFFEntry( pa_proving_ground );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Slim" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "slim.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Slim" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Slim" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "slim.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Slim" );
     setIFFEntry( pa_proving_ground, entry );
 
     entry = getIFFEntry( pa_bug_hunt );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "JOKE" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "joke.mis" );
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "JOKE" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "JOKE" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "joke.mis" );
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "JOKE" );
     setIFFEntry( pa_bug_hunt, entry );
 
     entry = getIFFEntry( pa_la_centina );
-    entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Mp" );
-    entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" ); // Playstation does not have this
-    entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Mp" );
+    if( MAKE_MAC_PATH )
+        entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Mp" );
+    if( MAKE_PSX_PATH )
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" ); // Playstation does not have this
+    if( MAKE_WIN_PATH )
+        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Mp" );
     setIFFEntry( pa_la_centina, entry );
 }
 
@@ -301,9 +384,11 @@ int Data::Manager::setLoad( Importance importance, unsigned core_amount ) {
         }
         else {
             for( auto &i : entries ) {
-                if( i.second.importance <= importance && i.second.getIFF( p ) == nullptr ) {
-                    i.second.load( p );
-                    number_loaded++;
+                if( i.second.importance <= importance ) {
+                    if( i.second.getIFF( p ) == nullptr ) {
+                        i.second.load( p );
+                        number_loaded++;
+                    }
                 }
                 else
                 if( i.second.getIFF( p ) != nullptr )
@@ -347,4 +432,21 @@ void Data::Manager::listIDs( std::ostream &stream ) {
         stream << " " << *map_iffs[ i ] << "\n";
     }
     stream << std::endl;
+}
+
+Data::Manager::Platform Data::Manager::getPlatformFromString( const std::string &name ) {
+    for( auto i : name ) {
+        auto character = toupper( i );
+
+        if( character == 'M' )
+            return Platform::MACINTOSH;
+        else
+        if( character == 'P' )
+            return Platform::PLAYSTATION;
+        else
+        if( character == 'W' )
+            return Platform::WINDOWS;
+    }
+
+    return Platform::WINDOWS;
 }

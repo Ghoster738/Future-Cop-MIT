@@ -12,7 +12,7 @@ namespace Controls {
 class StandardInputSet : public InputSet {
 public:
     enum Buttons {
-        TOGGLE_COMMAND_LINE = 0,
+        MENU = 0,
         UP,
         DOWN,
         LEFT,
@@ -34,6 +34,11 @@ private:
 public:
     StandardInputSet( std::string name );
     virtual ~StandardInputSet();
+
+    /**
+     * This clears the StandardInputSet and prepares for remapping.
+     */
+    virtual void clearInputs();
 
     /**
      * This is the accessor for the button states stored within the standard class.

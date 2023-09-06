@@ -18,13 +18,22 @@ Controls::Input::~Input() {
 }
 
 void Controls::Input::declare( std::string name, bool *global_change ) {
-    auto input_p = reinterpret_cast<Controls::SDL2::Input*>( input_internals_p );
+    auto input_r = reinterpret_cast<Controls::SDL2::Input*>( input_internals_p );
 
     this->name = name;
 
-    input_p->global_change = global_change;
-    input_p->changed = false;
-    input_p->state = 0.0f;
+    input_r->global_change = global_change;
+    input_r->changed = false;
+    input_r->state = 0.0f;
+}
+
+
+void Controls::Input::clear() {
+    auto input_r = reinterpret_cast<Controls::SDL2::Input*>( input_internals_p );
+
+    memset( &input_r->sdl_event, 0, sizeof(input_r->sdl_event) );
+
+    input_r->sdl_event.type = SDL_USEREVENT;
 }
 
 bool Controls::Input::isChanged() const {

@@ -21,19 +21,10 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
         const auto info = mesh_draw_r->transparent_triangle_info[ i ];
 
-        if( selected_tile == info.bitfield.type ) {
-            for( unsigned t = 0; t < 3; t++ ) {
-
-                glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
-                draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
-                draw_triangles_r[ i ].vertices[ t ].color.w = 1;
-            }
-        }
-
         if( info.bitfield.vertex_animation ) {
             if( vertex_animation_p == nullptr ) {
                 for( unsigned t = 0; t < 3; t++ ) {
-                    draw_triangles_r[ i ].vertices[ t ].color += 2.0f * glm::vec4(1,1,1,0);
+                    draw_triangles_r[ i ].vertices[ t ].color = 2.0f * glm::vec4(1,1,1,1);
                 }
             }
             else {
@@ -42,8 +33,17 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 
                     float light_level = (float)byte * 1. / 256.;
 
-                    draw_triangles_r[ i ].vertices[ t ].color += glm::vec4(light_level, light_level, light_level, 0);
+                    draw_triangles_r[ i ].vertices[ t ].color = glm::vec4(light_level, light_level, light_level, 1);
                 }
+            }
+        }
+
+        if( selected_tile == info.bitfield.type ) {
+            for( unsigned t = 0; t < 3; t++ ) {
+
+                glm::vec4 inverse_color = frag_inv - draw_triangles_r[ i ].vertices[ t ].color;
+                draw_triangles_r[ i ].vertices[ t ].color = 2.0f * ( (1.0f - glow_time) * draw_triangles_r[ i ].vertices[ t ].color + 2.0f * glow_time * inverse_color );
+                draw_triangles_r[ i ].vertices[ t ].color.w = 1;
             }
         }
 
@@ -82,7 +82,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   float FRAME_BY_FRAME     = _TILE_TYPE.z;\n"
     "   float VERTEX_ANIMATION_ENABLE = float( _TILE_TYPE.x >= 128. );\n"
 
-    "   vec3 normal_color = COLOR_0;\n"
+    "   vec3 normal_color = COLOR_0 * float(VERTEX_ANIMATION_ENABLE != 1.);\n"
 
     "   normal_color += texture2D(VertexAnimation, vec2(_TILE_TYPE.w * (1. / 256.), 0)).rgb * float(VERTEX_ANIMATION_ENABLE == 1.);\n"
 
@@ -111,8 +111,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
 
 Graphics::SDL2::GLES2::Internal::World::World() {
     this->glow_time = 0;
-    this->current_selected_tile = 112;
-    this->selected_tile = this->current_selected_tile + 1;
+    setPolygonTypeBlink( 111, 1.0f );
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
@@ -465,11 +464,7 @@ void Graphics::SDL2::GLES2::Internal::World::draw( Graphics::SDL2::GLES2::Camera
         filtered_glow_time = this->glow_time;
 
     glUniform1f( glow_time_uniform_id, filtered_glow_time );
-    
-    if( this->selected_tile != this->current_selected_tile ) {
-        this->current_selected_tile = this->selected_tile;
-        glUniform1f( selected_tile_uniform_id, this->selected_tile );
-    }
+    glUniform1f( selected_tile_uniform_id, this->selected_tile );
 
     const float TILE_SPAN = 0.5;
 
@@ -590,7 +585,7 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
     // Update glow time.
     this->glow_time += seconds_passed * this->scale;
     
-    if( this->glow_time > 2.0f )
+    if( this->glow_time > 2.0f || this->glow_time < 0.0f )
         this->glow_time = 0.0f;
 }
 

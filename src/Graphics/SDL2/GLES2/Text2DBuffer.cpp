@@ -26,6 +26,8 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
     text_data_p = gl_environment_r->text_draw_routine_p->getText2D();
+
+    this->scale_font = 1.0f;
 }
 
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
@@ -45,7 +47,6 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     std::vector<Data::Mission::FontResource*> fonts_r;
     bool has_resource_id_1 = false;
     bool has_resource_id_2 = false;
-    bool has_del_symbol = false;
 
     for( auto i = data.begin(); i != data.end(); i++ ) {
         auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
@@ -58,29 +59,16 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
             else
             if( (*f)->getResourceID() == 2 )
                 has_resource_id_2 = true;
-
-            if( (*f)->getGlyph( 0x7F ) != nullptr )
-                has_del_symbol = true;
         }
     }
 
     // If no fonts are found then add one.
     if( !has_resource_id_1 ) {
         fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
-        has_del_symbol = true;
     }
     if( !has_resource_id_2 ) {
         fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
-        has_del_symbol = true;
     }
-    if( !has_del_symbol ) {
-        auto font_p = Data::Mission::FontResource::getWindows( Utilities::logger );
-        font_p->setResourceID( 0 );
-        fonts_r.push_back( font_p );
-        has_del_symbol = true;
-    }
-
-    assert( has_del_symbol );
 
     gl_environment_r->text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
     gl_environment_r->text_draw_routine_p->setVertexShader();
@@ -88,6 +76,139 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     gl_environment_r->text_draw_routine_p->compileProgram();
     
     return fonts_r.size();
+}
+
+std::vector<std::string> Graphics::SDL2::GLES2::Text2DBuffer::splitText( const Font &font, const std::string &unsplit_text, float line_length ) const {
+    auto accessor = this->text_data_p.find( font.resource_id );
+
+    if( accessor == this->text_data_p.end() )
+        return {};
+
+    auto font_resource_r = (*accessor).second->getFont()->font_resource_r;
+
+    if( font_resource_r == nullptr )
+        return {};
+
+    std::string filtered_text;
+
+    font_resource_r->filterText( unsplit_text, &filtered_text );
+
+    std::vector<std::string> split_text;
+
+    float current_line_length = 0;
+    std::string current_line;
+
+    for( auto i : filtered_text ) {
+        std::string single_char;
+        single_char += i;
+
+        float char_length = font.scale * static_cast<float>(font_resource_r->getLineLength( single_char ));
+
+        if( current_line_length + char_length < line_length ) {
+            current_line_length += char_length;
+            current_line += single_char;
+        }
+        else {
+            if( !current_line.empty() )
+                split_text.push_back( current_line );
+
+            current_line.clear();
+            current_line_length = 0;
+
+            current_line_length += char_length;
+            current_line += single_char;
+        }
+    }
+
+    if( !current_line.empty() )
+        split_text.push_back( current_line );
+
+    return split_text;
+}
+
+bool Graphics::SDL2::GLES2::Text2DBuffer::selectFont( Font &font, unsigned minimum_height, unsigned maxiuim_height ) const {
+    const Data::Mission::FontResource *selected_font_resource_r = nullptr;
+    float scale = 1.0f;
+    unsigned priority = std::numeric_limits<unsigned>::max();
+
+    assert( maxiuim_height >= minimum_height );
+
+    if( this->text_data_p.empty() )
+        return false;
+
+    for( auto i = this->text_data_p.begin(); i != this->text_data_p.end(); i++ ) {
+        auto font_resource_r = (*i).second->getFont()->font_resource_r;
+
+        if( font_resource_r->getHeight() >= minimum_height && font_resource_r->getHeight() <= maxiuim_height ) {
+            unsigned new_priority = maxiuim_height - font_resource_r->getHeight();
+
+            if( new_priority < priority ) {
+                priority = new_priority;
+                selected_font_resource_r = font_resource_r;
+            }
+        }
+    }
+
+    if( selected_font_resource_r == nullptr ) {
+        unsigned priority = std::numeric_limits<unsigned>::max();
+
+        for( auto i = this->text_data_p.begin(); i != this->text_data_p.end(); i++ ) {
+            auto font_resource_r = (*i).second->getFont()->font_resource_r;
+
+            if( font_resource_r->getHeight() <= maxiuim_height ) {
+                unsigned new_priority = maxiuim_height - font_resource_r->getHeight();
+
+                if( new_priority < priority ) {
+                    priority = new_priority;
+                    selected_font_resource_r = font_resource_r;
+                }
+            }
+        }
+
+        if( selected_font_resource_r != nullptr )
+            scale = static_cast<float>(maxiuim_height) / static_cast<float>(selected_font_resource_r->getHeight());
+    }
+
+    if( selected_font_resource_r == nullptr ) {
+        return false;
+    }
+    else {
+        font.resource_id = selected_font_resource_r->getResourceID();
+        font.scale = scale;
+        return true;
+    }
+}
+
+bool Graphics::SDL2::GLES2::Text2DBuffer::scaleFont( Font &font, unsigned height ) const {
+    auto accessor = this->text_data_p.find( font.resource_id );
+
+    if( accessor == this->text_data_p.end() )
+        return false;
+
+    auto font_resource_r = (*accessor).second->getFont()->font_resource_r;
+
+    if( font_resource_r == nullptr )
+        return false;
+
+    font.scale = static_cast<float>(height) / static_cast<float>(font_resource_r->getHeight());
+    return true;
+}
+
+float Graphics::SDL2::GLES2::Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const {
+    auto accessor = this->text_data_p.find( font.resource_id );
+    std::string filtered_text;
+
+    if( accessor == this->text_data_p.end() )
+        return 0.0f;
+
+    auto font_resource_r = (*accessor).second->getFont()->font_resource_r;
+
+    if( font_resource_r == nullptr )
+        return 0.0f;
+
+    font_resource_r->filterText( text, &filtered_text );
+
+    return font.scale * static_cast<float>(font_resource_r->getLineLength( filtered_text ));
 }
 
 void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
@@ -99,20 +220,22 @@ void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) co
     font_system_r->draw( projection, text_data_p );
 }
 
-int Graphics::SDL2::GLES2::Text2DBuffer::setFont( uint32_t resource_id ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
     auto font_system_r = gl_environment_r->text_draw_routine_p;
     
     auto last_text_2D_r = current_text_2D_r;
 
     if( font_system_r != nullptr )
     {
-        if( text_data_p.find( resource_id ) != text_data_p.end() )
+        if( text_data_p.find( font.resource_id ) != text_data_p.end() )
         {
             // Set the current text.
-            current_text_2D_r = text_data_p[ resource_id ];
+            current_text_2D_r = text_data_p[ font.resource_id ];
 
             // Steal the pen position and color from the last pen if available.
             current_text_2D_r->stealPen( last_text_2D_r );
+
+            this->scale_font = font.scale;
 
             // Successfully set the current font.
             return 1;
@@ -169,6 +292,25 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
         return -1;
 }
 
+int Graphics::SDL2::GLES2::Text2DBuffer::setCenterMode( enum CenterMode center_mode ) {
+
+    switch( center_mode ) {
+        case Graphics::Text2DBuffer::CenterMode::LEFT:
+            this->center_mode = 'l';
+            break;
+        case Graphics::Text2DBuffer::CenterMode::MIDDLE:
+            this->center_mode = 'm';
+            break;
+        case Graphics::Text2DBuffer::CenterMode::RIGHT:
+            this->center_mode = 'r';
+            break;
+        default:
+            this->center_mode = 'l';
+    }
+
+    return 1;
+}
+
 int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     auto font_system_r = gl_environment_r->text_draw_routine_p;
     size_t expand_amount;
@@ -179,21 +321,12 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     {
         if( current_text_2D_r != nullptr )
         {
-            auto switch_text_2D_r = this->current_text_2D_r;
             std::string filtered_text;
 
-            // Switch to a font with a DEL symbol if the current font lacks one.
-            if( switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text ) == Data::Mission::FontResource::FilterStatus::INVALID ) {
-                switch_text_2D_r = text_data_p[ font_system_r->getInvalidBackupFontID() ];
-
-                // This is a workaround for the fall back font code handle behaviors.
-                setFont( font_system_r->getInvalidBackupFontID() );
-
-                switch_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
-            }
+            this->current_text_2D_r->getFont()->font_resource_r->filterText( text, &filtered_text );
 
             // Try to add the filtered_text.
-            add_text_state = switch_text_2D_r->addText( filtered_text );
+            add_text_state = this->current_text_2D_r->addText( filtered_text, this->scale_font, this->center_mode );
 
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )
@@ -209,16 +342,16 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
                 expand_amount *= text_2D_expand_factor;
 
                 // we get the expand sum.
-                expand_sum = switch_text_2D_r->getCharAmount() + expand_amount;
+                expand_sum = this->current_text_2D_r->getCharAmount() + expand_amount;
 
                 // The filtered_text must be expanded
-                add_text_state = switch_text_2D_r->setTextMax( expand_sum );
+                add_text_state = this->current_text_2D_r->setTextMax( expand_sum );
 
                 // Check to see if there was an expansion.
                 if( add_text_state > 0 )
                 {
                     // Attempt to add the filtered_text again.
-                    add_text_state = switch_text_2D_r->addText( filtered_text );
+                    add_text_state = this->current_text_2D_r->addText( filtered_text, this->scale_font );
 
                     if( add_text_state >= 0 )
                         return add_text_state;

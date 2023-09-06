@@ -84,7 +84,7 @@ Utilities::Logger::Logger() {
 Utilities::Logger::~Logger() {
     std::lock_guard<std::mutex> guard(outputs_lock);
 
-    for( int i = 0; i < outputs.size(); i++ ) {
+    for( size_t i = 0; i < outputs.size(); i++ ) {
         delete outputs[i];
     }
 }
@@ -97,6 +97,26 @@ void Utilities::Logger::setTimeStampMode( bool status ) {
     if( has_time ) {
         time_point = std::chrono::steady_clock::now();
     }
+}
+
+namespace {
+std::mutex time_lock;
+const size_t TEXT_BUFFER_SIZE = 64;
+char time_text_buffer[ TEXT_BUFFER_SIZE ];
+time_t time_value;
+struct tm * time_data_r;
+}
+
+std::string Utilities::Logger::getTime() {
+    std::lock_guard<std::mutex> guard(time_lock);
+
+    time( &time_value );
+
+    time_data_r = gmtime( &time_value );
+
+    strftime( time_text_buffer, TEXT_BUFFER_SIZE, "UTC %F %H%M%S", time_data_r );
+
+    return time_text_buffer;
 }
 
 bool Utilities::Logger::setOutputLog( std::string file_path, size_t memory_bytes_limit, unsigned lower, unsigned upper ) {

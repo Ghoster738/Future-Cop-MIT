@@ -254,10 +254,12 @@ int Controls::System::read( std::string filepath ) {
         else {
             
             Json::Value control_base = root[name_control_name][name_subsystem]["name"];
+            Json::Value control_version = root[name_control_name][name_subsystem]["major"];
             SDL_Event sdl_event;
             
             // Make sure that this is the SDL2 library config file.
-            if( control_base.isString() && control_base.asString().compare("Simple Direct Media Layer 2") == 0 ) {
+            if( control_base.isString() && control_base.asString().compare("Simple Direct Media Layer 2") == 0 &&
+                control_version.isInt() && control_version.asInt() == 2 ) {
                 // TODO Add more checks
                 
                 for( auto it = input_sets.begin(); it != input_sets.end(); it++) {
@@ -316,7 +318,7 @@ int Controls::System::write( std::string filepath ) const {
     Json::Value root;
     
     root[name_control_name][name_subsystem]["name"]  = "Simple Direct Media Layer 2";
-    root[name_control_name][name_subsystem]["major"] = 1;
+    root[name_control_name][name_subsystem]["major"] = 2;
     root[name_control_name][name_subsystem]["minor"] = 0;
     
     root[name_control_name][name_input_sets];
@@ -371,7 +373,14 @@ InputSet *const Controls::System::getInputSet( unsigned int index ) const {
     if( index < input_sets.size() )
         return input_sets[ index ];
     else
-        return nullptr;}
+        return nullptr;
+}
+
+void Controls::System::clearAllInputSets() {
+    for( auto input_set = this->input_sets.begin(); input_set != this->input_sets.end(); input_set++ ) {
+        (*input_set)->clearInputs();
+    }
+}
 
 int Controls::System::pollEventForInputSet( unsigned int input_set_index, unsigned int input_index ) {
     auto controls_p = reinterpret_cast<Controls::SDL2::System*>( system_internal_data_p );

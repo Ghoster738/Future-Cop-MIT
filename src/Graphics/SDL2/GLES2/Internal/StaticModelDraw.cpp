@@ -57,12 +57,7 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
-    // Delete the models first.
-    for( auto i = models_p.begin(); i != models_p.end(); i++ )
-    {
-        delete (*i).second; // First delete the pointer.
-        (*i).second = nullptr; // Then set the pointer to null.
-    }
+    clearModels();
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::getDefaultVertexShader() {
@@ -240,6 +235,15 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         state = -1;
 
     return state;
+}
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::clearModels() {
+    // Delete the models first.
+    for( auto i = models_p.begin(); i != models_p.end(); i++ )
+    {
+        delete (*i).second; // First delete the pointer.
+        (*i).second = nullptr; // Then set the pointer to null.
+    }
+    models_p.clear();
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {

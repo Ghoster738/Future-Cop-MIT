@@ -85,16 +85,7 @@ public:
          * @param text The text to be added.
          * @return the text amount that was added to the text, or a negative one if the max_text is reached, or negative two if max_text is zero.
          */
-        int addText( const std::string &text );
-
-        /**
-         * This appends the text to the Text2D.
-         * @note setPenPosition and setPenColor will set the position of
-         *    the written text.
-         * @param text The text to be added.
-         * @return the text amount that was added to the text, or a negative one if the max_text is reached, or negative two if max_text is zero.
-         */
-        int addText( const char *const text );
+        int addText( const std::string &text, float scale, char centering = 'l' );
 
         /**
          * This clears all the text on the Text2D, and sets the font type of the font.
@@ -124,8 +115,6 @@ protected:
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
 
-    uint32_t invalid_text_resource_id; // This is a font with a DEL key symbol.
-
     std::vector<Font> font_bank;
 public:
     /**
@@ -145,11 +134,6 @@ public:
      * @return the number of fonts in the class.
      */
     int getNumFonts() const;
-
-    /**
-     * @return A valid resource id for the font with DEL key.
-     */
-    uint32_t getInvalidBackupFontID() const { return invalid_text_resource_id; }
 
     /**
      * This gets a font from the class.

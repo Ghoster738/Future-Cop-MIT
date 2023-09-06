@@ -45,6 +45,9 @@ void Graphics::Window::setFullScreen( bool is_full_screen ) {
     if( status.window_status != Status::FULL_SCREEN )
         status.window_status = Status::WINDOW;
 }
+bool Graphics::Window::getFullScreen() const {
+    return status.window_status == Status::FULL_SCREEN;
+}
 
 void Graphics::Window::setBoarder( bool boarder ) {
     if( status.window_status != Status::FULL_SCREEN )

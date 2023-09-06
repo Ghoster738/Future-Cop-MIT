@@ -165,53 +165,64 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setTextMax( size_t max_
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::string &text ) {
-    return addText( text.c_str() );
-}
-
-int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const char *const text ) {
+int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::string &text, float scale, char centering ) {
     size_t appended_size = 0;
-    auto character_buffer = reinterpret_cast<TextVertex*>(this->buffer_p);
+    auto text_vertex_buffer_r = reinterpret_cast<TextVertex*>(this->buffer_p);
+    auto char_vertex_buffer_r = text_vertex_buffer_r;
     glm::vec2 lower_font, higher_font;
     glm::vec2 texture_low, texture_high;
+
+    float last_line_pos = pen_position.x;
 
     if( this->max_amount_of_characters != 0 ) {
         glBindBuffer( GL_ARRAY_BUFFER, vertex_buffer_object );
 
-        for( const char * character = text; *character != '\0' && (appended_size + this->amount_of_characters) != this->max_amount_of_characters; character++ )
+        assert( this->font_r->font_resource_r != nullptr );
+
+        for( const uint8_t *character = reinterpret_cast<const uint8_t*>( text.c_str() ); *character != '\0' && (appended_size + this->amount_of_characters) != this->max_amount_of_characters; character++ )
         {
 
             auto glyph_r = this->font_r->font_resource_r->getGlyph( character[0] );
 
-            assert( this->font_r->font_resource_r != nullptr );
-
             if( glyph_r != nullptr && glyph_r->glyphID == character[0] )
             {
-                // Since the glypth is found it can now be appart of the text
+                // Since the glyph is found it can now be appart of the text
                 appended_size++;
 
-                lower_font.x = pen_position.x + static_cast<float>(  glyph_r->offset.x );
-                higher_font.x =  lower_font.x + static_cast<float>(  glyph_r->width );
-                lower_font.y =-pen_position.y + static_cast<float>( -glyph_r->offset.y );
-                higher_font.y =  lower_font.y + static_cast<float>( -glyph_r->height );
+                lower_font.x = pen_position.x +  static_cast<float>( glyph_r->offset.x );
+                higher_font.x =  lower_font.x +  static_cast<float>( glyph_r->width ) * scale;
+                lower_font.y =-pen_position.y + -static_cast<float>( glyph_r->offset.y ) * scale;
+                higher_font.y =  lower_font.y + -static_cast<float>( glyph_r->height ) * scale;
                 texture_low.x  = static_cast<float>( glyph_r->left   ) / static_cast<float>( font_r->texture_scale.x );
                 texture_low.y  = static_cast<float>( glyph_r->top    ) / static_cast<float>( font_r->texture_scale.y );
                 texture_high.x = static_cast<float>( glyph_r->left + glyph_r->width ) / static_cast<float>( font_r->texture_scale.x );
                 texture_high.y = static_cast<float>( glyph_r->top + glyph_r->height ) / static_cast<float>( font_r->texture_scale.y );
 
-                pen_position.x += static_cast<float>( glyph_r->x_advance );
+                pen_position.x += static_cast<float>( glyph_r->x_advance ) * scale;
 
-                character_buffer[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
-                character_buffer[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
-                character_buffer[2].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
-                character_buffer[3].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
-                character_buffer[4].set(  lower_font.x, higher_font.y,  texture_low.x, texture_high.y, pen_color );
-                character_buffer[5].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
+                char_vertex_buffer_r[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
+                char_vertex_buffer_r[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
+                char_vertex_buffer_r[2].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[3].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[4].set(  lower_font.x, higher_font.y,  texture_low.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[5].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
 
-                character_buffer += 6;
+                char_vertex_buffer_r += 6;
             }
             else
-                std::cout << "invalid = " << character[0] << std::endl;
+                std::cout << "invalid = " << (uint32_t)character[0] << std::endl;
+        }
+
+        if( centering == 'm' ) {
+            for( size_t x = 0; x < appended_size * 6; x++ ) {
+                text_vertex_buffer_r[x].x -= (pen_position.x - last_line_pos) * 0.5;
+            }
+        }
+        else
+        if( centering == 'r' ) {
+            for( size_t x = 0; x < appended_size * 6; x++ ) {
+                text_vertex_buffer_r[x].x -= (pen_position.x - last_line_pos);
+            }
         }
 
         glBufferSubData( GL_ARRAY_BUFFER, sizeof( TextVertex ) * this->amount_of_characters * 6, sizeof( TextVertex ) * (appended_size + this->amount_of_characters) * 6, this->buffer_p);
@@ -256,8 +267,6 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
     varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
 
-    bool has_backup = false;
-
     for( unsigned i = 0; i < font_resources.size(); i++ )
     {
         this->font_bank.push_back( Font() );
@@ -265,11 +274,6 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         assert( font_resources[i] != nullptr );
         
         this->font_bank.back().resource_id = font_resources[i]->getResourceID();
-
-        if( !has_backup && font_resources[i]->getGlyph( 0x7F ) != nullptr ) {
-            this->invalid_text_resource_id = this->font_bank.back().resource_id;
-            has_backup = true;
-        }
 
         // Set the pointer to
         this->font_bank.back().font_resource_r = font_resources[i];
@@ -308,8 +312,6 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data:
         this->font_bank.back().texture.setFilters( 0, GL_NEAREST, GL_LINEAR );
         this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     }
-
-    assert( has_backup == true );
 }
 
 Graphics::SDL2::GLES2::Internal::FontSystem::~FontSystem() {

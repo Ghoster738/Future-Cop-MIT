@@ -84,11 +84,10 @@ public:
 
     /**
      * This is used to setup the textures for the 3D models.
-     * @param ptc The grid of pointers which makes up the entire map. This references the tiles (which is actually a 16x16 grid of a complex hightmap triangle grid).
-     * @param tiles The tiles to be referenced by the ptc.
-     * @param tile_amount The amount of elements in tiles.
+     * @param ptc_r The grid of pointers which makes up the entire map. This references the tiles (which is actually a 16x16 grid of a complex hightmap triangle grid).
+     * @param tiles_r The tiles to be referenced by the ptc.
      */
-    virtual void setMap( const Data::Mission::PTCResource &ptc, const std::vector<Data::Mission::TilResource*> &tiles ) = 0;
+    virtual void setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) = 0;
     
     /**
      * This is used to setup the 3D models.
