@@ -101,10 +101,10 @@ void Utilities::Logger::setTimeStampMode( bool status ) {
 
 namespace {
 std::mutex time_lock;
-const size_t TEXT_BUFFER_SIZE = 64;
-char time_text_buffer[ TEXT_BUFFER_SIZE ];
+const size_t TEXT_BUFFER_SIZE = 512;
+char time_text_buffer[ TEXT_BUFFER_SIZE ] = { 0 };
 time_t time_value;
-struct tm * time_data_r;
+struct tm * time_data_r = nullptr;
 }
 
 std::string Utilities::Logger::getTime() {
@@ -114,7 +114,10 @@ std::string Utilities::Logger::getTime() {
 
     time_data_r = gmtime( &time_value );
 
-    strftime( time_text_buffer, TEXT_BUFFER_SIZE, "UTC %F %H%M%S", time_data_r );
+    if( strftime( time_text_buffer, TEXT_BUFFER_SIZE, "UTC %Y-%m-%d %H%M%S", time_data_r ) == 0 ) {
+        if( strftime( time_text_buffer, TEXT_BUFFER_SIZE, "UTC %c", time_data_r ) == 0 )
+            return "ERROR TIME DOES NOT WORK.";
+    }
 
     return time_text_buffer;
 }

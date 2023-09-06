@@ -1,4 +1,6 @@
 #include "../../Utilities/Logger.h"
+
+#include <regex>
 #include <iostream>
 
 using Utilities::Logger;
@@ -120,6 +122,31 @@ int main() {
         if( error_log.str().find( END ) == std::string::npos ) {
             std::cout << "This is not in: " << END << "\n";
             std::cout << "This: " << error_log.str() << std::endl;
+            program_status = 1;
+        }
+    }
+    {
+        std::regex time_format_regex = std::regex( "UTC\\s\\d+-\\d{2}-\\d{2}\\s\\d{6}" );
+        std::smatch smatch;
+
+        std::string bad  = "UTC 2D23-08*27 174110";
+        std::string good = "UTC 2023-08-27 174110";
+
+        if( std::regex_match( bad, smatch, time_format_regex ) != 0 ) {
+            std::cout << "Test problem found. Time regex failed to detect a problematic string.\n";
+            program_status = 1;
+        }
+
+        if( std::regex_match( good, smatch, time_format_regex ) != 1 ) {
+            std::cout << "Test problem found. Time regex failed to detect a perfect string.\n";
+            program_status = 1;
+        }
+
+        // Now attempt to detect a problem with the logger's getTime() method.
+        std::string received_time = Utilities::Logger::getTime();
+
+        if( std::regex_match( received_time, smatch, time_format_regex ) != 1 ) {
+            std::cout << "Utilities::Logger::getTime() problem found. This time \"" << received_time << "\" is not valid.\n";
             program_status = 1;
         }
     }
