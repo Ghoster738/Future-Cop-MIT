@@ -53,16 +53,7 @@ void updateResolutionStatus( MainProgram &main_program, Menu::Item& resolution )
     resolution.name += std::to_string( main_program.options.getVideoHeight() );
 }
 
-class ItemClickExit : public Menu::ItemClick {
-public:
-    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        if( main_program.menu_r != nullptr )
-            main_program.menu_r->unload( main_program );
-
-        main_program.menu_r = &MainMenu::main_menu;
-        main_program.menu_r->load( main_program );
-    }
-} item_click_exit;
+Menu::ItemClickSwitchMenu item_click_exit( &MainMenu::main_menu );
 
 class ItemClickSaveAndExit : public Menu::ItemClick {
 public:
@@ -72,16 +63,14 @@ public:
     }
 } item_click_save_and_exit;
 
-class ItemClickReconfigureControls : public Menu::ItemClick {
+class ItemClickReconfigureControls : public Menu::ItemClickSwitchMenu {
 public:
-    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
+    ItemClickReconfigureControls() : ItemClickSwitchMenu( &InputMenu::input_menu ) {}
+
+    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r) {
         main_program.control_system_p->clearAllInputSets();
 
-        if( main_program.menu_r != nullptr )
-            main_program.menu_r->unload( main_program );
-
-        InputMenu::input_menu.load( main_program );
-        main_program.menu_r = &InputMenu::input_menu;
+        ItemClickSwitchMenu::onPress( main_program, menu_r, item_r );
     }
 } item_click_reconfigure_controls;
 

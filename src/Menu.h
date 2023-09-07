@@ -10,10 +10,21 @@
 class Menu : public GameState {
 public:
     struct Item;
+
     class ItemClick {
     public:
         virtual void onPress( MainProgram&, Menu*, Item* ) = 0;
     };
+
+    class ItemClickSwitchMenu : public ItemClick {
+    private:
+        Menu *menu_switch_r;
+    public:
+        ItemClickSwitchMenu( Menu *p_menu_switch_r ) : menu_switch_r( p_menu_switch_r ) {}
+
+        virtual void onPress( MainProgram&, Menu*, Item* );
+    };
+
 
     static ItemClick &null_item_click;
 

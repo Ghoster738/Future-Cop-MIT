@@ -6,16 +6,7 @@
 #include "MainMenu.h"
 
 namespace {
-class ItemClickExitMapSelector : public Menu::ItemClick {
-public:
-    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-        if( main_program.menu_r != nullptr )
-            main_program.menu_r->unload( main_program );
-
-        main_program.menu_r = &MainMenu::main_menu;
-        main_program.menu_r->load( main_program );
-    }
-} item_click_exit_map_selector;
+Menu::ItemClickSwitchMenu item_click_exit_map_selector( &MainMenu::main_menu );
 
 class ItemClickMapSelect : public Menu::ItemClick {
 public:

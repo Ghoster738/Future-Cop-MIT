@@ -15,14 +15,6 @@
 MainMenu MainMenu::main_menu;
 
 namespace {
-class ItemClickMenuDone : public Menu::ItemClick {
-public:
-    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        main_program.menu_r->unload( main_program );
-        main_program.menu_r = nullptr;
-    }
-} item_click_menu_done;
-
 class ItemClickMapSpectator : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
@@ -71,21 +63,15 @@ public:
     }
 } item_click_view_game_models;
 
-class ItemClickOptions : public Menu::ItemClick {
-public:
-    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        main_program.menu_r->unload( main_program );
-        main_program.menu_r = &OptionsMenu::options_menu;
-        main_program.menu_r->load( main_program );
-    }
-} item_click_options;
-
 class ItemClickExitGame : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
         main_program.play_loop = false;
     }
 } item_click_exit_game;
+
+Menu::ItemClickSwitchMenu item_click_menu_done( nullptr );
+Menu::ItemClickSwitchMenu item_click_options( &OptionsMenu::options_menu );
 
 }
 
