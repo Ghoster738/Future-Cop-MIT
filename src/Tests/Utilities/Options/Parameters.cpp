@@ -522,7 +522,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "unsupported option \"" + missing_name + "\" specified in commandline, use --help to list valid options" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -545,7 +545,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -568,7 +568,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -591,7 +591,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -614,7 +614,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "multiple fullscreen and/or window mode parameters specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -637,7 +637,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ).find( "resolution width must be at least" ) != 0 ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -662,7 +662,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ).find( "multiple width/resolution parameters specified in commandline" ) != 0 ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -687,7 +687,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "invalid width value \"" + parameter_value + "\" specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -710,7 +710,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ).find( "resolution height must be at least" ) != 0 ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -735,7 +735,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ).find( "multiple height/resolution parameters specified in commandline" ) != 0 ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -760,7 +760,7 @@ int main( int argc, char *argv[] ) {
             problem |= 1;
             std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
         }
-        catch( std::invalid_argument arg )
+        catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ) != "invalid height value \"" + parameter_value + "\" specified in commandline" ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
@@ -789,7 +789,7 @@ int main( int argc, char *argv[] ) {
                 problem |= 1;
                 std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
             }
-            catch( std::invalid_argument arg )
+            catch( std::invalid_argument const &arg )
             {
                 if( std::string( arg.what() ) != "invalid resolution parameter specified in commandline" ) {
                     std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;

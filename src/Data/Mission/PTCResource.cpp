@@ -84,6 +84,9 @@ const Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned 
 }
 
 bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -100,6 +103,8 @@ bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
                 auto tile_amount = readerGRDB.readU32( settings.endian );
                 auto width       = readerGRDB.readU32( settings.endian );
                 auto height      = readerGRDB.readU32( settings.endian );
+
+                debug_log.output << "  tile_amount = " << tile_amount << "\n";
 
                 // Go to offset for boarder settings.
                 readerGRDB.setPosition( 0x1C, Utilities::Buffer::BEGIN );

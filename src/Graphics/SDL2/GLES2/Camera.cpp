@@ -78,7 +78,7 @@ int Graphics::SDL2::GLES2::Camera::removeText2DBuffer( Graphics::Text2DBuffer* b
     if( buffer_p == nullptr )
         return erased_value;
 
-    for( int index = 0; index < text_2d_buffers.size(); index++ ) {
+    for( size_t index = 0; index < text_2d_buffers.size(); index++ ) {
         if( text_2d_buffers[ index ] == buffer_p )
         {
             // The camera has been found and deleted

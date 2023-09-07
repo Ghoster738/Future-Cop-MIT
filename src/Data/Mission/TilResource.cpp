@@ -372,8 +372,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    int position_data = 0;
-
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
         
@@ -514,8 +512,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 
                 Til::Colorizer::setColors( colors, color_amount, reader_sect, settings.endian );
 
-                position_data = reader_sect.getPosition( Utilities::Buffer::BEGIN );
-
                 // Read the texture_references, and shading info.
                 while( reader_sect.getPosition( Utilities::Buffer::END ) >= sizeof(uint16_t) ) {
                     const auto data = reader_sect.readU16( settings.endian );
@@ -609,7 +605,6 @@ Data::Mission::Resource * Data::Mission::TilResource::duplicate() const {
 
 bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
     const static size_t TEXTURE_LIMIT = sizeof(texture_info) / sizeof( texture_info[0] );
-    glm::vec2 points[3];
     bool valid = true;
 
     for( auto cur = textures.begin(); cur != textures.end(); cur++ ) {
@@ -729,7 +724,6 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         return nullptr;
     else {
         Utilities::ModelBuilder *model_output_p = new Utilities::ModelBuilder();
-        bool has_displayed = false;
         bool has_texture_displayed = false;
         
         unsigned int position_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );

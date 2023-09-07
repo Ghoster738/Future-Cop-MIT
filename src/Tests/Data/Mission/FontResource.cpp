@@ -276,8 +276,6 @@ std::set<GlyphChecker> generateComputerFont() {
 
 int main() {
     int problem = 0;
-
-    const int OUTPUT_LEVEL = 0;
     
     {
         auto windows_font_r = Data::Mission::FontResource::getWindows( Utilities::logger );

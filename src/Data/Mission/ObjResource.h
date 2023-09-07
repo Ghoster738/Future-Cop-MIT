@@ -30,10 +30,10 @@ public:
         bool is_reflective;
         uint32_t     texture_quad_index;
         TextureQuad *texture_quad_r;
-        int16_t v0, v1, v2;
-        int16_t n0, n1, n2;
+        uint16_t v0, v1, v2;
+        uint16_t n0, n1, n2;
 
-        bool isWithinBounds( size_t vertex_limit, size_t normal_limit, uint32_t texture_quad_limit ) const;
+        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit, uint32_t texture_quad_limit ) const;
 
         bool getTransparency() const;
 
