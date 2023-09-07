@@ -16,53 +16,38 @@ MainMenu MainMenu::main_menu;
 Menu::ItemClickSwitchMenu MainMenu::item_click_main_menu( &MainMenu::main_menu );
 
 namespace {
-class ItemClickMapSpectator : public Menu::ItemClick {
+class ItemClickToGame : public Menu::ItemClick {
+private:
+    std::string name;
+    GameState *game_r;
+
 public:
+    ItemClickToGame( std::string p_name, GameState *p_game_r ) : name( p_name ), game_r( p_game_r ) {}
+
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        MapSelectorMenu::map_selector_menu.name = "Map Spectator";
+        MapSelectorMenu::map_selector_menu.name = name;
 
         main_program.menu_r->unload( main_program );
 
         if( main_program.resource_identifier != MainProgram::CUSTOM_IDENTIFIER ) {
             main_program.menu_r = &MapSelectorMenu::map_selector_menu;
-            MapSelectorMenu::map_selector_menu.game_r = &PrimaryGame::primary_game;
+            MapSelectorMenu::map_selector_menu.game_r = game_r;
             main_program.menu_r->load( main_program );
         }
         else {
             if( main_program.primary_game_r != nullptr )
                 main_program.primary_game_r->unload( main_program );
 
-            main_program.primary_game_r = &PrimaryGame::primary_game;
+            main_program.primary_game_r = game_r;
             main_program.primary_game_r->load( main_program );
             main_program.menu_r = nullptr;
             main_program.transitionToResource( MainProgram::CUSTOM_IDENTIFIER, main_program.platform );
         }
     }
-} item_click_map_spectator;
+}
+item_click_map_spectator(   "Map Spectator", &PrimaryGame::primary_game ),
+item_click_view_game_models( "Model Viewer", &ModelViewer::model_viewer );
 
-class ItemClickViewGameModels : public Menu::ItemClick {
-public:
-    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        MapSelectorMenu::map_selector_menu.name = "Model Viewer";
-
-        main_program.menu_r->unload( main_program );
-
-        if( main_program.resource_identifier != MainProgram::CUSTOM_IDENTIFIER ) {
-            main_program.menu_r = &MapSelectorMenu::map_selector_menu;
-            MapSelectorMenu::map_selector_menu.game_r = &ModelViewer::model_viewer;
-            main_program.menu_r->load( main_program );
-        }
-        else {
-            if( main_program.primary_game_r != nullptr )
-                main_program.primary_game_r->unload( main_program );
-
-            main_program.primary_game_r = &ModelViewer::model_viewer;
-            main_program.primary_game_r->load( main_program );
-            main_program.menu_r = nullptr;
-            main_program.transitionToResource( MainProgram::CUSTOM_IDENTIFIER, main_program.platform );
-        }
-    }
-} item_click_view_game_models;
 
 class ItemClickExitGame : public Menu::ItemClick {
 public:
