@@ -86,12 +86,24 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
 
     const Graphics::Text2DBuffer::CenterMode left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
 
-    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[0], glm::vec2( 0, 2 * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, &item_click_map_select, prime_font, selected_font, left_mode ) );
-    for( size_t i = 1; i < Data::Manager::AMOUNT_OF_IFF_IDS - 1; i++ )
-        this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( 0, (i + 2) * line_height ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, &item_click_map_select, prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, &item_click_map_select, prime_font, selected_font, left_mode ) );
+    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
+        const std::string map_name = *Data::Manager::map_iffs[i];
+        const auto line_placement = glm::vec2( 0, (i + 2) * line_height );
+        auto low_position = (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS;
+        const auto high_position = (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS;
+        const auto same_position = i;
+
+        if( i == 0 )
+            low_position = Data::Manager::AMOUNT_OF_IFF_IDS - 1;
+
+        this->items.emplace_back( new Menu::TextButton( map_name, line_placement, low_position, same_position, high_position, same_position, &item_click_map_select, prime_font, selected_font, left_mode ) );
+    }
 
     this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 2) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, &MainMenu::item_click_main_menu, prime_font, selected_font, left_mode ) );
+
+    // Attach the back button to the rest of the interface.
+    this->items.at( 0 )->up_index = this->items.size() - 1;
+    this->items.at( this->items.size() - 2 )->down_index = this->items.size() - 1;
 
     this->placement.x = 0;
     this->placement.y = line_height * 2;
