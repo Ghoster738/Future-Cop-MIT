@@ -3,10 +3,15 @@
 #include "MainProgram.h"
 
 namespace {
-    void nullPress( MainProgram &main_program, Menu*, Menu::Item* ) {
-        // Nothing.
-    }
+class NullItemClick : public Menu::ItemClick {
+public:
+    virtual void onPress( MainProgram&, Menu*, Menu::Item* ) {}
+};
+
+NullItemClick null_item_click;
+
 }
+Menu::ItemClick &Menu::null_item_click = null_item_click;
 
 Menu::Item::Item() {
     this->name = "";
@@ -15,18 +20,18 @@ Menu::Item::Item() {
     this->right_index = 0;
     this->down_index  = 0;
     this->left_index  = 0;
-    this->onPress = &nullPress;
+    this->item_click_r = &null_item_click;
 }
 
-Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ) ) :
-    name( p_name ), position( p_position ), up_index( p_up_index ), right_index( p_right_index ), down_index( p_down_index ), left_index( p_left_index ), onPress( p_onPress )
+Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, ItemClick *p_item_click_r ) :
+    name( p_name ), position( p_position ), up_index( p_up_index ), right_index( p_right_index ), down_index( p_down_index ), left_index( p_left_index ), item_click_r( p_item_click_r )
 {}
 
 Menu::TextButton::TextButton() : Item(), font( 1 ), selected_font( 2 ), center_mode( Graphics::Text2DBuffer::CenterMode::MIDDLE ) {
 }
 
-Menu::TextButton::TextButton( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, void (p_onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::Font p_font, Graphics::Text2DBuffer::Font p_selected_font, Graphics::Text2DBuffer::CenterMode p_center_mode ) :
-    Item( p_name, p_position, p_up_index, p_right_index, p_down_index, p_left_index, p_onPress ), font( p_font ), selected_font( p_selected_font ), center_mode( p_center_mode )
+Menu::TextButton::TextButton( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, ItemClick *p_item_click_r, Graphics::Text2DBuffer::Font p_font, Graphics::Text2DBuffer::Font p_selected_font, Graphics::Text2DBuffer::CenterMode p_center_mode ) :
+    Item( p_name, p_position, p_up_index, p_right_index, p_down_index, p_left_index, p_item_click_r ), font( p_font ), selected_font( p_selected_font ), center_mode( p_center_mode )
 {}
 
 void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
@@ -71,7 +76,7 @@ void Menu::grabControls( MainProgram &main_program, std::chrono::microseconds de
 
         if( input_r->isChanged() && input_r->getState() < 0.5 ) {
             this->timer = std::chrono::microseconds( 1000 );
-            current_item_r->onPress( main_program, this, current_item_r );
+            current_item_r->item_click_r->onPress( main_program, this, current_item_r );
             return;
         }
 

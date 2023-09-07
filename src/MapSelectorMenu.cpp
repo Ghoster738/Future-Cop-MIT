@@ -6,39 +6,43 @@
 #include "MainMenu.h"
 
 namespace {
-void nullPress( MainProgram &main_program, Menu*, Menu::Item* ) {
-    // Nothing.
-}
-void exitMapSelector( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-    if( main_program.menu_r != nullptr )
-        main_program.menu_r->unload( main_program );
+class ItemClickExitMapSelector : public Menu::ItemClick {
+public:
+    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
+        if( main_program.menu_r != nullptr )
+            main_program.menu_r->unload( main_program );
 
-    main_program.menu_r = &MainMenu::main_menu;
-    main_program.menu_r->load( main_program );
-}
-void mapSelect( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-    auto entry = main_program.manager.getIFFEntry( item_r->name );
-
-    if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) ) {
-        auto menu_select_r = dynamic_cast<MapSelectorMenu*>(menu_r);
-
-        menu_select_r->missing_resource = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
-
-        entry = main_program.manager.getIFFEntry( Data::Manager::global );
-
-        if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) )
-            menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+        main_program.menu_r = &MainMenu::main_menu;
+        main_program.menu_r->load( main_program );
     }
-    else {
-        if( main_program.primary_game_r != nullptr )
-            main_program.primary_game_r->unload( main_program );
+} item_click_exit_map_selector;
 
-        main_program.primary_game_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
-        main_program.primary_game_r->load( main_program );
-        main_program.menu_r = nullptr;
-        main_program.transitionToResource( item_r->name, main_program.platform );
+class ItemClickMapSelect : public Menu::ItemClick {
+public:
+    virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
+        auto entry = main_program.manager.getIFFEntry( item_r->name );
+
+        if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) ) {
+            auto menu_select_r = dynamic_cast<MapSelectorMenu*>(menu_r);
+
+            menu_select_r->missing_resource = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+
+            entry = main_program.manager.getIFFEntry( Data::Manager::global );
+
+            if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) )
+                menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+        }
+        else {
+            if( main_program.primary_game_r != nullptr )
+                main_program.primary_game_r->unload( main_program );
+
+            main_program.primary_game_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
+            main_program.primary_game_r->load( main_program );
+            main_program.menu_r = nullptr;
+            main_program.transitionToResource( item_r->name, main_program.platform );
+        }
     }
-}
+} item_click_map_select;
 }
 
 MapSelectorMenu MapSelectorMenu::map_selector_menu;
@@ -96,12 +100,12 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
 
     const Graphics::Text2DBuffer::CenterMode left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
 
-    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[0], glm::vec2( 0, 2 * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, mapSelect, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[0], glm::vec2( 0, 2 * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS, 0, 1, 0, &item_click_map_select, prime_font, selected_font, left_mode ) );
     for( size_t i = 1; i < Data::Manager::AMOUNT_OF_IFF_IDS - 1; i++ )
-        this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( 0, (i + 2) * line_height ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, mapSelect, prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, mapSelect, prime_font, selected_font, left_mode ) );
+        this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( 0, (i + 2) * line_height ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, &item_click_map_select, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, &item_click_map_select, prime_font, selected_font, left_mode ) );
 
-    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 2) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, exitMapSelector, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 2) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, &item_click_exit_map_selector, prime_font, selected_font, left_mode ) );
 
     this->placement.x = 0;
     this->placement.y = line_height * 2;
@@ -111,9 +115,9 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
 
     this->missing_line_length = scale.x - this->placement.x;
     this->missing_resource = {};
-    this->missing_global   = {}; // main_program.text_2d_buffer_r->splitText( this->error_font, "/home/ghoster/.local/share/futurecopmit/Data/Platform/Playstation/cw/fe.mis", scale.x - this->placement.x );
+    this->missing_global   = {};
 
-    this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, nullPress, title_font, title_font ) );
+    this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, &Menu::null_item_click, title_font, title_font ) );
 
     this->current_item_index = 0;
 }
