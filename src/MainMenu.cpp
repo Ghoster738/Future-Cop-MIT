@@ -13,6 +13,7 @@
 #include "Config.h"
 
 MainMenu MainMenu::main_menu;
+Menu::ItemClickSwitchMenu MainMenu::item_click_main_menu( &MainMenu::main_menu );
 
 namespace {
 class ItemClickMapSpectator : public Menu::ItemClick {

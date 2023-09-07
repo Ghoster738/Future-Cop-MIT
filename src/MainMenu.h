@@ -6,6 +6,7 @@
 class MainMenu : public Menu {
 public:
     static MainMenu main_menu;
+    static Menu::ItemClickSwitchMenu item_click_main_menu;
 
     bool is_game_on;
 

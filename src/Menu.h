@@ -25,7 +25,6 @@ public:
         virtual void onPress( MainProgram&, Menu*, Item* );
     };
 
-
     static ItemClick &null_item_click;
 
     struct Item {

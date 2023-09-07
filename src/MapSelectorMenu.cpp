@@ -6,8 +6,6 @@
 #include "MainMenu.h"
 
 namespace {
-Menu::ItemClickSwitchMenu item_click_exit_map_selector( &MainMenu::main_menu );
-
 class ItemClickMapSelect : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
@@ -96,7 +94,7 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
         this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[i], glm::vec2( 0, (i + 2) * line_height ), (i - 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, (i + 1) % Data::Manager::AMOUNT_OF_IFF_IDS, i, &item_click_map_select, prime_font, selected_font, left_mode ) );
     this->items.emplace_back( new Menu::TextButton( *Data::Manager::map_iffs[ Data::Manager::AMOUNT_OF_IFF_IDS - 1 ], glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 1) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 2, Data::Manager::AMOUNT_OF_IFF_IDS - 1, Data::Manager::AMOUNT_OF_IFF_IDS, Data::Manager::AMOUNT_OF_IFF_IDS - 1, &item_click_map_select, prime_font, selected_font, left_mode ) );
 
-    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 2) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, &item_click_exit_map_selector, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Back",     glm::vec2( 0, (Data::Manager::AMOUNT_OF_IFF_IDS + 2) * line_height ), Data::Manager::AMOUNT_OF_IFF_IDS - 1, back, 0, back, &MainMenu::item_click_main_menu, prime_font, selected_font, left_mode ) );
 
     this->placement.x = 0;
     this->placement.y = line_height * 2;

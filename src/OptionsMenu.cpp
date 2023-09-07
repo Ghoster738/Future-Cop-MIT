@@ -53,13 +53,11 @@ void updateResolutionStatus( MainProgram &main_program, Menu::Item& resolution )
     resolution.name += std::to_string( main_program.options.getVideoHeight() );
 }
 
-Menu::ItemClickSwitchMenu item_click_exit( &MainMenu::main_menu );
-
 class ItemClickSaveAndExit : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
         main_program.options.saveOptions();
-        item_click_exit.onPress( main_program, menu_r, item_r );
+        MainMenu::item_click_main_menu.onPress( main_program, menu_r, item_r );
     }
 } item_click_save_and_exit;
 
@@ -173,12 +171,12 @@ void OptionsMenu::load( MainProgram &main_program ) {
 
     this->items.clear();
 
-    this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0,       2 * smaller_step ),          id_resolution,           id_resolution,           id_resolution,       id_resolution,       &Menu::null_item_click,        prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             id_dec_res,        id_window_status, id_reconfigure_controls,              id_window_status,    &item_click_window_status,    prime_font, selected_font, right_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0,       2 * smaller_step ),          id_resolution,           id_resolution,           id_resolution,       id_resolution,       &Menu::null_item_click,          prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             id_dec_res,        id_window_status, id_reconfigure_controls,              id_window_status,    &item_click_window_status,       prime_font, selected_font, right_mode ) );
     this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       id_window_status, id_reconfigure_controls,                  id_mac,       id_reconfigure_controls,    &item_click_reconfigure_controls,    prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0,       5 * smaller_step ),    id_current_platform,     id_current_platform,     id_current_platform, id_current_platform, &Menu::null_item_click,       prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Save to Config File and Exit",  glm::vec2( center,  scale.y - 3 * smaller_step ),        id_mac,            id_save_exit,                 id_exit,             id_save_exit,        &item_click_save_and_exit, prime_font, selected_font ) );
-    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",           glm::vec2( center,  scale.y - 2 * smaller_step ),   id_save_exit,                id_exit,              id_dec_res,          id_exit,             &item_click_exit,        prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0,       5 * smaller_step ),    id_current_platform,     id_current_platform,     id_current_platform, id_current_platform, &Menu::null_item_click,          prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Save to Config File and Exit",  glm::vec2( center,  scale.y - 3 * smaller_step ),        id_mac,            id_save_exit,                 id_exit,             id_save_exit,        &item_click_save_and_exit,       prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",           glm::vec2( center,  scale.y - 2 * smaller_step ),   id_save_exit,                id_exit,              id_dec_res,          id_exit,             &MainMenu::item_click_main_menu, prime_font, selected_font ) );
 
     this->selected_resolution = 0;
 
