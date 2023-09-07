@@ -25,7 +25,7 @@ size_t Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::alloca
     glBufferData(GL_ARRAY_BUFFER, limit * sizeof(Triangle), nullptr, GL_DYNAMIC_DRAW);
 
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    if( size < sizeof(Triangle) ) {
+    if( size < static_cast<ssize_t>( sizeof(Triangle) ) ) {
         return 0;
     }
 

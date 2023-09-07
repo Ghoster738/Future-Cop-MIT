@@ -92,7 +92,7 @@ bool Data::Mission::ObjResource::TextureQuad::isWithinBounds( size_t texture_amo
         return false; // This statement should not be reached.
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( size_t vertex_limit, size_t normal_limit, uint32_t texture_quad_limit ) const {
+bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit, uint32_t texture_quad_limit ) const {
     bool is_valid = true;
 
     if( texture_quad_index >= texture_quad_limit )
@@ -233,11 +233,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         bool file_is_not_valid = true;
         
         // This is for testing mostly.
-        uint8_t *data_3DMI       = nullptr;
-        int data_3DMI_size       =  0;
         int bytes_per_frame_3DMI =  0;
         int frames_gen_3DHS      = -1;
-        int frames_gen_AnmD      = -1;
         uint16_t num_frames_4DGI =  0;
 
         while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
@@ -664,8 +661,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     debug_log.output << std::dec << "f: " << from_frame << " t: " << to_frame << " f.d: " << frame_duration << ".\n";
                 }
-                
-                frames_gen_AnmD = end - start + 1;
             }
             else
             if( identifier == TAG_3DBB ) {
@@ -954,7 +949,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         // Sort the triangle list.
         std::sort(triangle_buffer.begin(), triangle_buffer.end(), FaceTriangle() );
 
-        int last_texture_quad_index = 0;
+        uint32_t last_texture_quad_index = 0;
 
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
@@ -1256,7 +1251,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         
         unsigned int position_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC2 );
-        unsigned int position_morph_component_index = 0;
+        // unsigned int position_morph_component_index = 0;
         
         // TODO Add morph animations.
         // if( bounding_box_frames > 1 )

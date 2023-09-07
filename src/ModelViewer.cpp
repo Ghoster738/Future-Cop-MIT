@@ -67,7 +67,10 @@ void ModelViewer::unload( MainProgram &main_program ) {
     this->obj_vector.clear();
 }
 
-void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
+void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if( main_program.getMenu() != nullptr )
+        return;
+
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
     if( main_program.control_system_p->isOrderedToExit() )
@@ -105,9 +108,8 @@ void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microsec
         if( input_r->isChanged() )
         {
             MainMenu::main_menu.is_game_on = true;
-            MainMenu::main_menu.load( main_program );
 
-            main_program.menu_r = &MainMenu::main_menu;
+            main_program.switchMenu( &MainMenu::main_menu );
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
@@ -162,9 +164,7 @@ void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microsec
             this->rotation = 0;
         }
     }
-}
 
-void ModelViewer::display( MainProgram &main_program ) {
     if( this->displayed_instance_p != nullptr )
         this->displayed_instance_p->setRotation( glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
 

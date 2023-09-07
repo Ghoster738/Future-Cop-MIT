@@ -9,9 +9,27 @@
 
 class Menu : public GameState {
 public:
-      struct Item {
+    struct Item;
+
+    class ItemClick {
+    public:
+        virtual void onPress( MainProgram&, Menu*, Item* ) = 0;
+    };
+
+    class ItemClickSwitchMenu : public ItemClick {
+    private:
+        Menu *menu_switch_r;
+    public:
+        ItemClickSwitchMenu( Menu *p_menu_switch_r ) : menu_switch_r( p_menu_switch_r ) {}
+
+        virtual void onPress( MainProgram&, Menu*, Item* );
+    };
+
+    static ItemClick &null_item_click;
+
+    struct Item {
         Item();
-        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ) );
+        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, ItemClick *item_click_r = &null_item_click );
         virtual ~Item() {};
 
         std::string name;
@@ -20,7 +38,7 @@ public:
         unsigned right_index;
         unsigned down_index;
         unsigned left_index;
-        void (*onPress)( MainProgram&, Menu*, Item* );
+        ItemClick *item_click_r;
 
         virtual void drawNeutral(  MainProgram &main_program ) const = 0;
         virtual void drawSelected( MainProgram &main_program ) const = 0;
@@ -31,7 +49,7 @@ public:
         Graphics::Text2DBuffer::CenterMode center_mode;
 
         TextButton();
-        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, void (onPress)( MainProgram&, Menu*, Item* ), Graphics::Text2DBuffer::Font font = 1, Graphics::Text2DBuffer::Font selected_font = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, ItemClick *item_click_r = &null_item_click, Graphics::Text2DBuffer::Font font = 1, Graphics::Text2DBuffer::Font selected_font = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
 
         virtual void drawNeutral(  MainProgram &main_program ) const;
         virtual void drawSelected( MainProgram &main_program ) const;
@@ -48,8 +66,7 @@ public:
     virtual void load( MainProgram &main_program );
     virtual void unload( MainProgram &main_program ) = 0;
 
-    virtual void grabControls( MainProgram &main_program, std::chrono::microseconds delta );
-    virtual void display( MainProgram &main_program ) = 0;
+    virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
 
 #endif // FC_MENU_H

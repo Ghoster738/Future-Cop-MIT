@@ -9,7 +9,6 @@
 
 void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
     const glm::vec4 frag_inv = glm::vec4( 1, 1, 1, 1 );
-    glm::vec3 inverse_color;
     double unused;
 
     DynamicTriangleDraw::Triangle *draw_triangles_r;
@@ -261,7 +260,6 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
         for( unsigned int a = 0; a < model_p->getNumMaterials(); a++ ) {
             model_p->getMaterial( a, material );
-            GLsizei opeque_count = std::min( material.count, material.opeque_count );
             transparent_count += material.count - material.opeque_count;
         }
 
@@ -302,7 +300,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             else
                 cbmp_id = 0;
 
-            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+            unsigned opeque_count = std::min( material.count, material.opeque_count );
 
             glm::vec4   positions = glm::vec4(0, 0, 0, 1);
             glm::vec4      colors = glm::vec4(0.5, 0.5, 0.5, 0.5); // Just in case if the mesh does not have vertex color information.
@@ -311,7 +309,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
             const unsigned vertex_per_triangle = 3;
 
-            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {

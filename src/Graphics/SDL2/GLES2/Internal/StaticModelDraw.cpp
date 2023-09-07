@@ -168,9 +168,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         Utilities::ModelBuilder::TextureMaterial material;
         GLsizei transparent_count = 0;
 
-        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+        for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
-            GLsizei opeque_count = std::min( material.count, material.opeque_count );
             transparent_count += material.count - material.opeque_count;
         }
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
@@ -211,7 +210,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             const unsigned vertex_per_triangle = 3;
 
-            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {

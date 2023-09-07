@@ -34,7 +34,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
 }
 
 Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities::ModelBuilder *model_type_r, GLsizei transparent_count ) {
-    const auto frame_amount = model_type_r->getNumMorphFrames();
+    const unsigned frame_amount = model_type_r->getNumMorphFrames();
     
     this->triangles_per_frame = transparent_count;
     this->frame_data.reserve( triangles_per_frame * frame_amount );
@@ -52,19 +52,19 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities
     Utilities::ModelBuilder::TextureMaterial material;
     GLsizei material_count;
     
-    for( auto f = 0; f < frame_amount; f++ ) {
+    for( unsigned f = 0; f < frame_amount; f++ ) {
         material_count = 0;
         
         for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
             
-            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+            unsigned opeque_count = std::min( material.count, material.opeque_count );
             
             glm::vec4 joints = glm::vec4(0, 0, 0, 1);
             
             const unsigned vertex_per_triangle = 3;
             
-            for( GLsizei m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
                 DeltaTriangle triangle;
                 
                 for( unsigned t = 0; t < vertex_per_triangle; t++ ) {

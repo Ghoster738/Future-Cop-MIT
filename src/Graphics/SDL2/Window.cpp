@@ -38,12 +38,10 @@ void Graphics::SDL2::Window::setFullScreen( bool is_full_screen ) {
     // TODO Implement a way for SDL_WINDOW_FULLSCREEN_DESKTOP to be used when the resolution is the same.
     // TODO Implement logging, but first there must be buffer limits in place.
 
-    int potential_error_code = 0;
-
     if( is_full_screen )
-        potential_error_code = SDL_SetWindowFullscreen( this->window_p, SDL_WINDOW_FULLSCREEN );
+        SDL_SetWindowFullscreen( this->window_p, SDL_WINDOW_FULLSCREEN );
     else
-        potential_error_code = SDL_SetWindowFullscreen( this->window_p, 0 );
+        SDL_SetWindowFullscreen( this->window_p, 0 );
 }
 
 int Graphics::SDL2::Window::center() {
