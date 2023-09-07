@@ -177,6 +177,26 @@ glm::u32vec2 MainProgram::getWindowScale() const {
     return scale;
 }
 
+void MainProgram::switchMenu( GameState* menu_r ) {
+    if( this->menu_r != nullptr )
+        this->menu_r->unload( *this );
+
+    this->menu_r = menu_r;
+
+    if( this->menu_r != nullptr )
+        this->menu_r->load( *this );
+}
+
+void MainProgram::switchPrimaryGame( GameState* primary_game_r ) {
+    if( this->primary_game_r != nullptr )
+        this->primary_game_r->unload( *this );
+
+    this->primary_game_r = primary_game_r;
+
+    if( this->primary_game_r != nullptr )
+        this->primary_game_r->load( *this );
+}
+
 void MainProgram::throwException( std::string output ) {
     {
         auto log = Utilities::logger.getLog( Utilities::Logger::CRITICAL );

@@ -55,6 +55,8 @@ public:
     float     camera_distance;
 
     bool play_loop;
+
+protected:
     GameState *menu_r;
     GameState *primary_game_r;
 
@@ -73,12 +75,20 @@ public:
 
     void loadGraphics( bool show_map = true );
 
+    glm::u32vec2 getWindowScale() const;
+
+    void switchMenu( GameState* menu_r );
+
+    void switchPrimaryGame( GameState* primary_game_r );
+
+    GameState* getMenu() const { return menu_r; }
+
+    GameState* getPrimaryGame() const { return primary_game_r; }
+
     void transitionToResource( std::string resource_identifier, Data::Manager::Platform platform ) {
         this->switch_to_resource_identifier = resource_identifier;
         this->switch_to_platform            = platform;
     }
-
-    glm::u32vec2 getWindowScale() const;
 
 protected:
     void throwException( std::string output );

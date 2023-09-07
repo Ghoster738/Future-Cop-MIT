@@ -15,13 +15,7 @@ NullItemClick null_item_click;
 Menu::ItemClick &Menu::null_item_click = null_item_click;
 
 void Menu::ItemClickSwitchMenu::onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
-    if( main_program.menu_r != nullptr )
-        main_program.menu_r->unload( main_program );
-
-    main_program.menu_r = this->menu_switch_r;
-
-    if( main_program.menu_r != nullptr )
-        main_program.menu_r->load( main_program );
+    main_program.switchMenu( this->menu_switch_r );
 }
 
 Menu::Item::Item() {

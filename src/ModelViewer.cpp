@@ -68,7 +68,7 @@ void ModelViewer::unload( MainProgram &main_program ) {
 }
 
 void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-    if( main_program.menu_r != nullptr )
+    if( main_program.getMenu() != nullptr )
         return;
 
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
@@ -108,9 +108,8 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         if( input_r->isChanged() )
         {
             MainMenu::main_menu.is_game_on = true;
-            MainMenu::main_menu.load( main_program );
 
-            main_program.menu_r = &MainMenu::main_menu;
+            main_program.switchMenu( &MainMenu::main_menu );
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );

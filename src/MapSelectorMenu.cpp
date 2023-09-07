@@ -22,12 +22,9 @@ public:
                 menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
         }
         else {
-            if( main_program.primary_game_r != nullptr )
-                main_program.primary_game_r->unload( main_program );
+            main_program.switchMenu( nullptr );
+            main_program.switchPrimaryGame( dynamic_cast<MapSelectorMenu*>(menu_r)->game_r );
 
-            main_program.primary_game_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
-            main_program.primary_game_r->load( main_program );
-            main_program.menu_r = nullptr;
             main_program.transitionToResource( item_r->name, main_program.platform );
         }
     }

@@ -46,9 +46,7 @@ void InputMenu::update( MainProgram &main_program, std::chrono::microseconds del
             if( this->input_set_index >= main_program.control_system_p->amountOfInputSets() ) {
                 main_program.control_system_p->write( name );
 
-                this->menu_r->load( main_program );
-                main_program.menu_r = this->menu_r;
-                this->unload( main_program );
+                main_program.switchMenu( this->menu_r );
             }
         }
     }

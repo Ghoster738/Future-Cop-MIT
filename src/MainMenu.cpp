@@ -25,22 +25,16 @@ public:
     ItemClickToGame( std::string p_name, GameState *p_game_r ) : name( p_name ), game_r( p_game_r ) {}
 
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        MapSelectorMenu::map_selector_menu.name = name;
-
-        main_program.menu_r->unload( main_program );
-
         if( main_program.resource_identifier != MainProgram::CUSTOM_IDENTIFIER ) {
-            main_program.menu_r = &MapSelectorMenu::map_selector_menu;
+            MapSelectorMenu::map_selector_menu.name = name;
             MapSelectorMenu::map_selector_menu.game_r = game_r;
-            main_program.menu_r->load( main_program );
+
+            main_program.switchMenu( &MapSelectorMenu::map_selector_menu );
         }
         else {
-            if( main_program.primary_game_r != nullptr )
-                main_program.primary_game_r->unload( main_program );
+            main_program.switchMenu( nullptr );
+            main_program.switchPrimaryGame( game_r );
 
-            main_program.primary_game_r = game_r;
-            main_program.primary_game_r->load( main_program );
-            main_program.menu_r = nullptr;
             main_program.transitionToResource( MainProgram::CUSTOM_IDENTIFIER, main_program.platform );
         }
     }
