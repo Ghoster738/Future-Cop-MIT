@@ -66,8 +66,7 @@ public:
     virtual void load( MainProgram &main_program );
     virtual void unload( MainProgram &main_program ) = 0;
 
-    virtual void grabControls( MainProgram &main_program, std::chrono::microseconds delta );
-    virtual void display( MainProgram &main_program ) = 0;
+    virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
 
 #endif // FC_MENU_H

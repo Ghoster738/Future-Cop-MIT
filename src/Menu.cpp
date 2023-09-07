@@ -70,7 +70,7 @@ void Menu::load( MainProgram &main_program ) {
     this->current_item_index = 0;
 }
 
-void Menu::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
+void Menu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     if( main_program.control_system_p->isOrderedToExit() )
         main_program.play_loop = false;
 

@@ -128,7 +128,9 @@ void MainMenu::unload( MainProgram &main_program ) {
 
 }
 
-void MainMenu::display( MainProgram &main_program ) {
+void MainMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    Menu::update( main_program, delta );
+
     for( size_t i = 0; i < this->items.size(); i++ ) {
         if( this->current_item_index != i )
             this->items[i]->drawNeutral( main_program );

@@ -53,22 +53,13 @@ void MainProgram::displayLoop() {
         if( menu_r != &InputMenu::input_menu )
             control_system_p->advanceTime( delta_f );
 
-        // Grab the inputs for either menu or primary game.
+        // Update menu_r and primary_game_r
         if( menu_r != nullptr ) {
-            menu_r->grabControls( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
+            menu_r->update( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
         }
         else
         if( primary_game_r != nullptr ) {
-            primary_game_r->grabControls( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
-        }
-
-        // Render GUI overlayed with menu when available.
-        if( menu_r != nullptr ) {
-            menu_r->display( *this );
-        }
-        else
-        if( primary_game_r != nullptr ) {
-            primary_game_r->display( *this );
+            primary_game_r->update( *this, std::chrono::duration_cast<std::chrono::microseconds>(delta) );
         }
 
         // If position of the Camera changes then apply the changes.

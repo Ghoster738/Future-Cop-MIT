@@ -232,7 +232,9 @@ void OptionsMenu::unload( MainProgram &main_program ) {
 
 }
 
-void OptionsMenu::display( MainProgram &main_program ) {
+void OptionsMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    Menu::update( main_program, delta );
+
     updatePlatfromStatus( main_program, this->shorten_platform, *this->items[id_windows], *this->items[id_mac], *this->items[id_playstation] );
 
     updateResolutionStatus( main_program, *this->items[id_display_res] );

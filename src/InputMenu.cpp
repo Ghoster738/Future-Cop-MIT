@@ -30,7 +30,7 @@ void InputMenu::unload( MainProgram &main_program ) {
     this->input_set_r = nullptr;
 }
 
-void InputMenu::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
+void InputMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     if( main_program.control_system_p->isOrderedToExit() )
         main_program.play_loop = false;
 
@@ -52,9 +52,6 @@ void InputMenu::grabControls( MainProgram &main_program, std::chrono::microsecon
             }
         }
     }
-}
-
-void InputMenu::display( MainProgram &main_program ) {
 
     Graphics::Text2DBuffer *text_2d_buffer_r = main_program.text_2d_buffer_r;
 

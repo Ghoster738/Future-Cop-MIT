@@ -67,7 +67,10 @@ void ModelViewer::unload( MainProgram &main_program ) {
     this->obj_vector.clear();
 }
 
-void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microseconds delta ) {
+void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if( main_program.menu_r != nullptr )
+        return;
+
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
     if( main_program.control_system_p->isOrderedToExit() )
@@ -162,9 +165,7 @@ void ModelViewer::grabControls( MainProgram &main_program, std::chrono::microsec
             this->rotation = 0;
         }
     }
-}
 
-void ModelViewer::display( MainProgram &main_program ) {
     if( this->displayed_instance_p != nullptr )
         this->displayed_instance_p->setRotation( glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
 

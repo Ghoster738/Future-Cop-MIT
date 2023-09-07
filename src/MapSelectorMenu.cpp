@@ -115,7 +115,9 @@ void MapSelectorMenu::unload( MainProgram &main_program ) {
 
 }
 
-void MapSelectorMenu::display( MainProgram &main_program ) {
+void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    Menu::update( main_program, delta );
+
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 
     if( !this->missing_resource.empty() ) {

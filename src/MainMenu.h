@@ -15,7 +15,7 @@ public:
     virtual void load( MainProgram &main_program );
     virtual void unload( MainProgram &main_program );
 
-    virtual void display( MainProgram &main_program );
+    virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
 
 #endif // FC_MAIN_MENU_H
