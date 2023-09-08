@@ -15,6 +15,7 @@ set(FCOption_JSONCPP_VENDORED OFF)
 option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodule is there before using this option. Zlib is not needed, but it would be nice to have for PNG export support." OFF)
 option(FCOption_RELATIVE_PATHS_ONLY "This disables the complex file searchs inside the file structure of the operating system. Use this if you are making a headless version of this engine." OFF)
 option(FCOption_AUTOMATIC_MAP_SWITCHING "This makes the primary game switch maps every 10 seconds. This is for debugging purposes." OFF)
+option(FCOption_PREGCC_9_1_LIBRARIES "This configures this project to work with pre g++ 9.1. This is a workaround to get the filesystem working." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -104,6 +105,16 @@ else()
   find_package( JSON_CPP REQUIRED )
   include_directories(${JSON_CPP_INCLUDE_DIR})
   target_link_libraries( FC_IFF_IO ${JSON_CPP_LIBRARY})
+endif()
+
+if( FCOption_PREGCC_9_1_LIBRARIES )
+  target_link_libraries( FC_IFF_IO stdc++fs )
+
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package( Threads REQUIRED )
+
+  target_link_libraries( FC_IFF_IO Threads::Threads )
 endif()
 
 add_executable( FCMissionReader src/FCMissionReader.cpp )
