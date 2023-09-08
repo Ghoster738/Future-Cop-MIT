@@ -245,7 +245,22 @@ Data::Mission::TilResource::TilResource() {
     this->slfx_bitfield = info_slfx.get();
 }
 
-Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ) {
+Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_distance( obj.culling_distance ), culling_top_left( obj.culling_top_left ), culling_top_right( obj.culling_top_right ), culling_bottom_left( obj.culling_bottom_left ), culling_bottom_right( obj.culling_bottom_right ), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ) {
+
+    for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
+        for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
+            mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
+        }
+    }
+
+    texture_info[0] = obj.texture_info[0];
+    texture_info[1] = obj.texture_info[1];
+    texture_info[2] = obj.texture_info[2];
+    texture_info[3] = obj.texture_info[3];
+    texture_info[4] = obj.texture_info[4];
+    texture_info[5] = obj.texture_info[5];
+    texture_info[6] = obj.texture_info[6];
+    texture_info[7] = obj.texture_info[7];
 }
 
 std::string Data::Mission::TilResource::getFileExtension() const {
