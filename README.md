@@ -58,7 +58,11 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
        apt install libpng-dev git
        ```
 2. Get or clone the source code:
-   * Clone: `git clone https://github.com/Ghoster738/Future-Cop-MIT.git`
+   * Clone:
+     ```
+     git clone https://github.com/Ghoster738/Future-Cop-MIT.git
+     ```
+     
    * Download the latest [source code][source-code-link].
 
 [source-code-link]: https://github.com/Ghoster738/Future-Cop-MIT/archive/refs/heads/main.zip "Download as zip"
@@ -73,20 +77,25 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
     
 4. Configure the build (add your options if needed):
 
-4a. If the gcc version 9.1 or above use this command.
-    ```
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
-    ```
+   A. If the gcc version 9.1 or above use this command:
+   ```
+   cmake .. -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
+   ```
 
-4b. Pre 9.1 of gcc would need this command to compile.
-    ```
-    cmake .. -DFCOption_PREGCC_9_1_LIBRARIES=ON -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
-    ```
+   B. Pre 9.1 of gcc would need this command to compile:
+   ```
+   cmake .. -DFCOption_PREGCC_9_1_LIBRARIES=ON -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
+   ```
 
-5. Build it:
+5. Build it with this command (-j is optional, but it would make compiling faster):
     ```
-    make -j4
+    make -j<Number of CPU Cores>
     ```
+    For example, if the computer has 8 threads then you would use this command:
+    ```
+    make -j8
+    ```
+    
 ### Windows
 > :warning:  There are no build instructions for Windows at this time.
 
