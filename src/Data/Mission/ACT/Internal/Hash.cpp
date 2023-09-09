@@ -5,6 +5,7 @@
 #include "../Aircraft.h"
 #include "../Skycaptin.h"
 #include "../Prop.h"
+#include "../Trigger.h"
 
 namespace {
 
@@ -23,6 +24,7 @@ private:
         table_p[ Data::Mission::ACT::Aircraft::TYPE_ID ] = new Data::Mission::ACT::Aircraft();
         table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
+        table_p[ Data::Mission::ACT::Trigger::TYPE_ID ] = new Data::Mission::ACT::Trigger();
     }
 public:
     Declaration() {
