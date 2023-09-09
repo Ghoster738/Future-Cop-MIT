@@ -212,6 +212,10 @@ public:
         uint_fast32_t animated_uv_offset;
         uint_fast32_t source_uv_offset;
 
+        InfoSCTA() {}
+
+        InfoSCTA( int_fast32_t p_frame_count, uint_fast32_t p_duration_per_frame, uint_fast32_t p_animated_uv_offset, uint_fast32_t p_source_uv_offset ) : frame_count( p_frame_count ), duration_per_frame( p_duration_per_frame ), animated_uv_offset( p_animated_uv_offset ), source_uv_offset( p_source_uv_offset ) {}
+
         std::string getString() const;
 
         int_fast32_t getFrameCount() const { return std::abs( frame_count ); }
