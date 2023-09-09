@@ -52,6 +52,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
    apt install build-essential libglm-dev libsdl2-dev libjsoncpp-dev
    ```
     * Optional: install additional tools and packages:
+       * `libz-dev` for compression, but libpng-dev requires it so apt would install this with libpng-dev.
        * `libpng-dev` for PNG export support
        * `git` for repository cloning and build versioning
        ```
@@ -63,11 +64,20 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
      git clone https://github.com/Ghoster738/Future-Cop-MIT.git
      ```
      
-   * Download the latest [source code][source-code-link].
+   * Download the latest [source code][source-code-link]. (Warning: using git is strongly recommended, because of the ease of automatically downloading the submodules.)
 
 [source-code-link]: https://github.com/Ghoster738/Future-Cop-MIT/archive/refs/heads/main.zip "Download as zip"
+
+3. Get the submodules. **Submodule mINI is required for compilation**:
+   * For git use this command it would download every submodule used in this project:
+     ```
+     git submodule update --init --recursive --progress --depth 1
+     ```
+   * For the direct download all that is required is to get [mINI][mini-source-code-link] and put it into the submodules mINI directory.
+
+[mini-source-code-link]: https://github.com/pulzed/mINI/archive/refs/heads/master.zip
    
-3. Prepare an [out of source build][oos-build-link]:
+5. Prepare an [out of source build][oos-build-link]:
     ```
     cd Future-Cop-MIT
     mkdir build
@@ -75,7 +85,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
     ```
 [oos-build-link]: https://cgold.readthedocs.io/en/latest/tutorials/out-of-source.html "Out-of-source build documentation"
     
-4. Configure the build (add your options if needed):
+5. Configure the build (add your options if needed):
 
    A. If the gcc version 9.1 or above use this command:
    ```
@@ -87,7 +97,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
    cmake .. -DFCOption_PREGCC_9_1_LIBRARIES=ON -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
    ```
 
-5. Build it with this command (-j is optional, but it would make compiling faster):
+6. Build it with this command (-j is optional, but it would make compiling faster):
     ```
     make -j<Number of CPU Cores>
     ```
@@ -247,7 +257,7 @@ This is list of exported resource formats and the corresponding internal format 
 
 * BahKooJ for various information about Future Cop.
 
-* Killermosi for improving parameter system, the filesystem, and the options system.
+* Killermosi/kkmic for improving parameter system, the filesystem, and the options system.
 
 ### Libraries
 
