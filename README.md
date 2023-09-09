@@ -72,9 +72,17 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 [oos-build-link]: https://cgold.readthedocs.io/en/latest/tutorials/out-of-source.html "Out-of-source build documentation"
     
 4. Configure the build (add your options if needed):
+
+4a. If the gcc version 9.1 or above use this command.
     ```
     cmake .. -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
     ```
+
+4b. Pre 9.1 of gcc would need this command to compile.
+    ```
+    cmake .. -DFCOption_PREGCC_9_1_LIBRARIES=ON -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
+    ```
+
 5. Build it:
     ```
     make -j4
@@ -230,13 +238,15 @@ This is list of exported resource formats and the corresponding internal format 
 
 * BahKooJ for various information about Future Cop.
 
-* Killermosi for improving most of the terminal parameter system.
+* Killermosi for improving parameter system, the filesystem, and the options system.
 
 ### Libraries
 
 * SDL2
 
 * GLAD2
+
+* mINI
 
 * JsonCPP
 
