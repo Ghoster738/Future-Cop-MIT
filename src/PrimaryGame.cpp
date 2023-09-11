@@ -93,11 +93,15 @@ void PrimaryGame::load( MainProgram &main_program ) {
         for( auto i : prop_array_r ) {
             auto vector = i->getPosition();
             try {
-                props_p.push_back( Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), glm::vec3( vector.x, ptc_array_r.at(0)->getRayCast2D( vector.x, vector.y ), vector.y ) ) );
+                auto prop_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), glm::vec3( vector.x, ptc_array_r.at(0)->getRayCast2D( vector.x, vector.y ), vector.y ) );
+
+                props_p.push_back( prop_instance_p );
+
                 props_p.back()->setRotation( glm::angleAxis( -i->getRotation() + glm::pi<float>() / 2.0f, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
             }
             catch( const std::invalid_argument& argument ) {
-                // No action for unrecognized Cobj's
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << "Cobj with resource id " << i->getObjResourceID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
             }
         }
     }
