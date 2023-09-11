@@ -4,6 +4,8 @@
 #include "../ACTManager.h"
 #include <json/json.h>
 
+#include <glm/gtx/quaternion.hpp>
+
 namespace Data {
 
 namespace Mission {
@@ -58,6 +60,7 @@ public:
 
     uint32_t getObjResourceID() const { return rsl_data[0].index; }
     float getRotation() const;
+    glm::quat getRotationQuaternion() const;
 
     static std::vector<Prop*> getVector( Data::Mission::ACTManager& act_manager );
     static const std::vector<Prop*> getVector( const Data::Mission::ACTManager& act_manager );

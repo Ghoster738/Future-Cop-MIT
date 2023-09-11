@@ -97,7 +97,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
 
                 props_p.push_back( prop_instance_p );
 
-                props_p.back()->setRotation( glm::angleAxis( -i->getRotation() + glm::pi<float>() / 2.0f, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
+                props_p.back()->setRotation( i->getRotationQuaternion() );
             }
             catch( const std::invalid_argument& argument ) {
                 auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
