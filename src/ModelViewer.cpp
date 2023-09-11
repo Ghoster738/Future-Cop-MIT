@@ -4,6 +4,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include "Data/Mission/ACTResource.h"
 #include "Data/Mission/TilResource.h"
 
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -110,6 +111,31 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
             MainMenu::main_menu.is_game_on = true;
 
             main_program.switchMenu( &MainMenu::main_menu );
+        }
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::JUMP );
+        if( input_r->isChanged() && input_r->getState() < 0.5 )
+        {
+            auto act_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
+
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+
+            bool displayed = false;
+
+            for( auto i : act_r ) {
+                if( i->hasRSL( Data::Mission::ObjResource::IDENTIFIER_TAG, this->obj_vector[cobj_index]->getResourceID() ) ) {
+                    if( !displayed ) {
+                        log.output << "Resource ID: " << std::dec << this->obj_vector[cobj_index]->getResourceID() << "\n";
+                        log.output << "Type ID: "<< (unsigned)i->getTypeID() << "\n";
+                        log.output << "Type ID Name: "<< i->getTypeIDName() << "\n";
+                        log.output << "Size: "<< i->getSize() << "\n";
+                        displayed = true;
+                    }
+                    log.output << "  ID: "<< std::dec << i->getID() << "\n";
+                    log.output << "  Offset: 0x" << std::hex << i->getOffset() << "\n";
+                    log.output << "  SAC: " << i->getSpawnChunk().getString() << "\n";
+                }
+            }
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );

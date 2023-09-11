@@ -17,6 +17,22 @@ const uint32_t Data::Mission::ACTResource::ACT_CHUNK_ID = 0x74414354; // which i
 const uint32_t Data::Mission::ACTResource::RSL_CHUNK_ID = 0x6152534c; // which is { 0x61, 0x52, 0x53, 0x4c } or { 'a', 'R', 'S', 'L' } or "aRSL"
 const uint32_t Data::Mission::ACTResource::SAC_CHUNK_ID = 0x74534143; // which is { 0x74, 0x53, 0x41, 0x43 } or { 't', 'S', 'A', 'C' } or "tSAC"
 
+
+std::string Data::Mission::ACTResource::tSAC_chunk::getString() const {
+    std::stringstream sac;
+
+    if( !this->exists )
+        sac << "DOES NOT EXIST\n";
+    else {
+        sac << "game_ticks  = " << this->game_ticks  << "\n";
+        sac << "spawn_limit = " << this->spawn_limit << "\n";
+        sac << "unk_2       = " << this->unk_2       << "\n";
+        sac << "unk_3       = " << this->unk_3       << "\n";
+    }
+
+    return sac.str();
+}
+
 Data::Mission::ACTResource::ACTResource() : matching_number( 0xFFFFF ), rsl_data(), tSAC( {false, 0, 1, 2, 3} ) {
 }
 
@@ -288,6 +304,14 @@ Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Ut
             return Data::Mission::ACT::Hash::generateAct( this, type_id );
     }
     return new Data::Mission::ACT::Unknown( *this );
+}
+
+bool Data::Mission::ACTResource::hasRSL( uint32_t type_id, uint32_t resource_id ) const {
+    for( auto i = rsl_data.begin(); i != rsl_data.end(); i++ ) {
+        if( (*i).type == type_id && (*i).index == resource_id )
+            return true;
+    }
+    return false;
 }
 
 std::string Data::Mission::ACTResource::displayRSL() const {

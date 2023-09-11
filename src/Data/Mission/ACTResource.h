@@ -45,6 +45,8 @@ protected:
         uint16_t spawn_limit;
         uint16_t unk_2;
         uint16_t unk_3;
+
+        std::string getString() const;
     };
 
     // This might be the unique identifieyer for ACTResource.
@@ -104,11 +106,12 @@ public:
 
     uint_fast32_t getID() { return matching_number; }
     int_fast16_t getMatchingNumber() { return matching_number; }
-    int_fast16_t getGameTicks() { return tSAC.game_ticks; }
+    const tSAC_chunk& getSpawnChunk() const { return tSAC; }
     virtual uint_fast8_t getTypeID() const = 0;
     virtual size_t getSize() const = 0;
 
     std::string displayRSL() const;
+    bool hasRSL( uint32_t type_id, uint32_t resource_id ) const;
     virtual bool checkRSL() const = 0;
 
     static std::vector<ACTResource*> getVector( IFF &mission_file );
