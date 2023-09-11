@@ -10,7 +10,6 @@ Json::Value Data::Mission::ACT::Skycaptin::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint32_0"]      = internal.uint32_0;
     root["ACT"][NAME]["uint16_0"]      = internal.uint16_0;
     root["ACT"][NAME]["bytes_0"][0]    = internal.bytes_0[0];
     root["ACT"][NAME]["bytes_0"][1]    = internal.bytes_0[1];
@@ -67,8 +66,9 @@ bool Data::Mission::ACT::Skycaptin::readACTType( uint_fast8_t act_type, Utilitie
 
     if(data_reader.totalSize() != this->getSize())
         return false;
+
+    data_reader.readU32(); // Ignore rotation.
     
-    internal.uint32_0 = data_reader.readU32( endian );
     internal.uint16_0 = data_reader.readU16( endian );
     data_reader.readU16(); // 2 zero bytes
     internal.bytes_0[ 0 ] = data_reader.readU8();

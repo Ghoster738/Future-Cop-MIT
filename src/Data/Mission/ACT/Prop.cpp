@@ -11,8 +11,6 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["int16_0"] = internal.uint16_0;
-    root["ACT"][NAME]["int16_1"] = internal.uint16_1;
     root["ACT"][NAME]["int16_2"] = internal.uint16_2;
     root["ACT"][NAME]["angle?"]  = internal.uint16_3;
     root["ACT"][NAME]["byte 0"]  = internal.byte_0;
@@ -30,8 +28,8 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    internal.uint16_0 = data_reader.readU16( endian );
-    internal.uint16_1 = data_reader.readU16( endian );
+    data_reader.readU32(); // Ignore rotation.
+
     internal.uint16_2 = data_reader.readU16( endian );
     internal.uint16_3 = data_reader.readU16( endian );
 
@@ -89,14 +87,6 @@ Data::Mission::ACTResource* Data::Mission::ACT::Prop::duplicate( const ACTResour
 
 Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const {
     return internal;
-}
-
-float Data::Mission::ACT::Prop::getRotation() const {
-    return -glm::pi<float>() / 2048.0f * (internal.uint16_0 - 1024);
-}
-
-glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
-    return glm::angleAxis( this->getRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
 }
 
 std::vector<Data::Mission::ACT::Prop*> Data::Mission::ACT::Prop::getVector( Data::Mission::ACTManager& act_manager ) {

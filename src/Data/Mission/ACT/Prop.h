@@ -4,8 +4,6 @@
 #include "../ACTManager.h"
 #include <json/json.h>
 
-#include <glm/gtx/quaternion.hpp>
-
 namespace Data {
 
 namespace Mission {
@@ -24,8 +22,6 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t  uint16_0; // Unknown
-        uint16_t  uint16_1; // Unknown
         uint16_t  uint16_2; // Unknown
         uint16_t  uint16_3; // Time or angle until loop back
         uint8_t   byte_0; // Unknown
@@ -59,8 +55,6 @@ public:
     Internal getInternal() const;
 
     uint32_t getObjResourceID() const { return rsl_data[0].index; }
-    float getRotation() const;
-    glm::quat getRotationQuaternion() const;
 
     static std::vector<Prop*> getVector( Data::Mission::ACTManager& act_manager );
     static const std::vector<Prop*> getVector( const Data::Mission::ACTManager& act_manager );

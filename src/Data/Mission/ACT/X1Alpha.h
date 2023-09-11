@@ -20,7 +20,6 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t  rotation_value; // Guessed
         uint16_t  uint16_0;
         uint16_t  uint16_1;
         uint8_t   byte_0;

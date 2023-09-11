@@ -111,7 +111,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
 
         debug_log.output << "matching_number = " << matching_number << std::endl;
 
-        const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
+        const uint32_t ACT_SIZE = chunk_size - 7 * sizeof( uint32_t );
         const uint_fast8_t act_type = data_reader.readU8(); // 12
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
@@ -126,22 +126,23 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         // Since 8192 is equal to 2^13. We can treat these numbers as
         // fixed points. My engine for now will simply use floating
         // points, but position_y and position_x will be treated like this.
-        position_y      = data_reader.readI32(); // 16
-        position_height = data_reader.readI32(); // 20
-        position_x      = data_reader.readI32(); // 24
-        // 28
+        position_y      = data_reader.readI32( endian ); // 16
+        position_height = data_reader.readI32( endian ); // 20
+        position_x      = data_reader.readI32( endian ); // 24
+        rotation        = data_reader.readI32( endian ); // 28
+        data_reader.setPosition( -static_cast<ssize_t>(sizeof( int32_t )), Utilities::Buffer::CURRENT );
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
         if( dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
-            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << ".\n";
         }
         
         if( !readACTType( act_type, reader_act, endian ) )
-            error_log.output << getTypeIDName() << " ACT Type failed to parse.\n";
+            error_log.output << getTypeIDName() << " ACT Type failed to parse. Size:" << ACT_SIZE << "\n";
         
         if( dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
-            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << ".\n";
         }
         
         return chunk_size;
@@ -345,6 +346,19 @@ std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( 
 
     return copy;
 }
+
+glm::vec2 Data::Mission::ACTResource::getPosition() const {
+    return (1.f / 8192.f) * glm::vec2(position_x, position_y);
+}
+
+float Data::Mission::ACTResource::getRotation() const {
+    return -glm::pi<float>() / 2048.0f * (this->rotation - 1024);
+}
+
+glm::quat Data::Mission::ACTResource::getRotationQuaternion() const {
+    return glm::angleAxis( this->getRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+}
+
 
 const std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ACTResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );

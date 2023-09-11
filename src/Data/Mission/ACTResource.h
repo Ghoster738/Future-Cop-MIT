@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include <json/value.h>
+#include <glm/gtx/quaternion.hpp>
 
 namespace Data {
 
@@ -60,6 +61,7 @@ protected:
     int32_t position_y;
     int32_t position_height; // This is likely just zero.
     int32_t position_x;
+    int32_t rotation;
 
     virtual Json::Value makeJson() const;
 
@@ -113,7 +115,9 @@ public:
     bool hasRSL( uint32_t type_id, uint32_t resource_id ) const;
     virtual bool checkRSL() const = 0;
 
-    glm::vec2 getPosition() const { return (1.f / 8192.f) * glm::vec2(position_x, position_y); }
+    glm::vec2 getPosition() const;
+    float getRotation() const;
+    glm::quat getRotationQuaternion() const;
 
     static std::vector<ACTResource*> getVector( IFF &mission_file );
     static const std::vector<ACTResource*> getVector( const IFF &mission_file );

@@ -10,7 +10,6 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["rotation"] = internal.rotation;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
     root["ACT"][NAME]["uint16_0b"] = internal.uint16_0b;
     root["ACT"][NAME]["byte_0"] = internal.byte_0;
@@ -50,7 +49,8 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     if(data_reader.totalSize() != this->getSize())
         return false;
     
-    internal.rotation = data_reader.readU32( endian );
+    data_reader.readU32(); // Ignore rotation.
+
     internal.uint16_0 = data_reader.readU16( endian );
     internal.uint16_0b = data_reader.readU16( endian );
     internal.byte_0 = data_reader.readU8();
