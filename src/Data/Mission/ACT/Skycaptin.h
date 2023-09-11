@@ -14,8 +14,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        // 4 zero bytes?
-        uint32_t  pos_y; // position y
+        uint16_t  uint16_12;
         uint32_t  uint32_0;
         uint16_t  uint16_0;
         // 2 zero bytes?

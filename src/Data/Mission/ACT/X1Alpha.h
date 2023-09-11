@@ -20,6 +20,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
+        uint16_t  uint16_3;
         uint16_t  uint16_0;
         uint16_t  uint16_1;
         uint8_t   byte_0;

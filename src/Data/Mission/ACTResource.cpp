@@ -129,8 +129,8 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         position_y      = data_reader.readI32( endian ); // 16
         position_height = data_reader.readI32( endian ); // 20
         position_x      = data_reader.readI32( endian ); // 24
-        rotation        = data_reader.readI32( endian ); // 28
-        data_reader.setPosition( -static_cast<ssize_t>(sizeof( int32_t )), Utilities::Buffer::CURRENT );
+        rotation        = data_reader.readI16( endian ); // 28
+        data_reader.setPosition( -static_cast<ssize_t>(sizeof( int16_t )), Utilities::Buffer::CURRENT );
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         

@@ -22,6 +22,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
+        uint16_t  uint16_1; // Unknown
         uint16_t  uint16_2; // Unknown
         uint16_t  uint16_3; // Time or angle until loop back
         uint8_t   byte_0; // Unknown

@@ -49,8 +49,9 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     if(data_reader.totalSize() != this->getSize())
         return false;
     
-    data_reader.readU32(); // Ignore rotation.
+    data_reader.readU16(); // Ignore rotation.
 
+    internal.uint16_9 = data_reader.readU16( endian );
     internal.uint16_0 = data_reader.readU16( endian );
     internal.uint16_0b = data_reader.readU16( endian );
     internal.byte_0 = data_reader.readU8();

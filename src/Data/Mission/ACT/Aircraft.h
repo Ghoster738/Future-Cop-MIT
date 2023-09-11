@@ -21,6 +21,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
+        uint16_t  uint16_20;
         uint16_t  uint16_0;
         uint16_t  uint16_1; // Zero 32
         uint8_t   uint8_0;

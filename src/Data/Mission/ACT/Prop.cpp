@@ -28,8 +28,9 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    data_reader.readU32(); // Ignore rotation.
+    data_reader.readU16(); // Ignore rotation.
 
+    internal.uint16_1 = data_reader.readU16( endian );
     internal.uint16_2 = data_reader.readU16( endian );
     internal.uint16_3 = data_reader.readU16( endian );
 

@@ -67,8 +67,9 @@ bool Data::Mission::ACT::Skycaptin::readACTType( uint_fast8_t act_type, Utilitie
     if(data_reader.totalSize() != this->getSize())
         return false;
 
-    data_reader.readU32(); // Ignore rotation.
+    data_reader.readU16(); // Ignore rotation.
     
+    internal.uint16_12 = data_reader.readU16( endian );
     internal.uint16_0 = data_reader.readU16( endian );
     data_reader.readU16(); // 2 zero bytes
     internal.bytes_0[ 0 ] = data_reader.readU8();
