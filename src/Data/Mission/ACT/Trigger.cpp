@@ -3,7 +3,6 @@
 #include "../ObjResource.h"
 
 #include <cassert>
-#include <map>
 
 uint_fast8_t Data::Mission::ACT::Trigger::TYPE_ID = 95;
 

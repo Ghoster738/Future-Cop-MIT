@@ -52,6 +52,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 while( !reader_tfun.ended() ) {
                     fun_struct.faction    = reader_tfun.readI32( settings.endian );
                     fun_struct.identifier = reader_tfun.readI32( settings.endian );
+
                     fun_struct.zero       = reader_tfun.readI32( settings.endian );
                     fun_struct.start_parameter_offset = reader_tfun.readU32( settings.endian );
                     fun_struct.start_code_offset      = reader_tfun.readU32( settings.endian );
@@ -110,9 +111,11 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
                             debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
                         }
-                        for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
-                            if( (*f) == 0 ) {
-                                debug_log.output << "Difference: (*f) == 0.\n";
+                        if( !parameters.empty() ) {
+                            for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
+                                if( (*f) == 0 ) {
+                                    debug_log.output << "Difference: (*f) == 0.\n";
+                                }
                             }
                         }
                         debug_log.output << std::endl;
@@ -135,11 +138,15 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                         if( code.size() <= 1 ) {
                             debug_log.output << "Difference: code.size() > 1 false. code.size() = " << code.size() << "\n";
                         }
+                        if( !parameters.empty() ) {
                         if( parameters.back() != 0 ) {
                             debug_log.output << "Difference: parameters.back() = " << parameters.back() << ". It is not zero.\n";
                         }
+                        }
+                        if( !code.empty() ) {
                         if( code.back() != 0 ) {
                             debug_log.output << "Difference: code.back() = " << code.back() << ". It is not zero.\n";
+                        }
                         }
                     }
                     debug_log.output << std::hex << "Last tEXT = ";
@@ -195,7 +202,7 @@ std::vector<uint8_t> Data::Mission::FUNResource::getFunctionCode( unsigned index
     
     code.reserve( code_size );
     
-    for( size_t i = THE_FUNCTION.start_code_offset; i < THE_FUNCTION.start_code_offset + code_size; i++ ) {
+    for( size_t i = THE_FUNCTION.start_code_offset; i < THE_FUNCTION.start_code_offset + code_size && i < ext_bytes.size(); i++ ) {
         code.push_back( ext_bytes.at( i ) );
     }
     

@@ -16,8 +16,8 @@ public:
         int32_t faction; //    Wild Guess
         int32_t identifier; // Wild Guess
         int32_t zero; // Always zero.
-        uint32_t start_parameter_offset; // Wild Guess
-        uint32_t start_code_offset;      // Wild Guess
+        uint32_t start_parameter_offset;
+        uint32_t start_code_offset;
     };
     
 private:
