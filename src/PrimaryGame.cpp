@@ -94,6 +94,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
             auto vector = i->getPosition();
             try {
                 props_p.push_back( Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), glm::vec3( vector.x, ptc_array_r.at(0)->getRayCast2D( vector.x, vector.y ), vector.y ) ) );
+                props_p.back()->setRotation( glm::angleAxis( -i->getRotation() + glm::pi<float>() / 2.0f, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
             }
             catch( const std::invalid_argument& argument ) {
                 // No action for unrecognized Cobj's

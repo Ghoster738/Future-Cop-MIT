@@ -3,6 +3,7 @@
 #include "../ObjResource.h"
 
 #include <cassert>
+#include <glm/gtc/constants.hpp>
 
 uint_fast8_t Data::Mission::ACT::Prop::TYPE_ID = 96;
 
@@ -88,6 +89,10 @@ Data::Mission::ACTResource* Data::Mission::ACT::Prop::duplicate( const ACTResour
 
 Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const {
     return internal;
+}
+
+float Data::Mission::ACT::Prop::getRotation() const {
+    return glm::pi<float>() / 2048.0f * internal.uint16_0;
 }
 
 std::vector<Data::Mission::ACT::Prop*> Data::Mission::ACT::Prop::getVector( Data::Mission::ACTManager& act_manager ) {
