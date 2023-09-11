@@ -7,6 +7,7 @@
 #include <glm/vec2.hpp>
 #include <vector>
 #include "Data/Mission/TilResource.h"
+#include "Graphics/ModelInstance.h"
 #include "Graphics/Text2DBuffer.h"
 
 
@@ -29,6 +30,8 @@ private:
 
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
+
+    std::vector<Graphics::ModelInstance*> props_p;
 
 public:
     PrimaryGame();

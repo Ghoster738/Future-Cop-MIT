@@ -56,6 +56,8 @@ public:
 
     Internal getInternal() const;
 
+    uint32_t getObjResourceID() const { return rsl_data[0].index; }
+
     static std::vector<Prop*> getVector( Data::Mission::ACTManager& act_manager );
     static const std::vector<Prop*> getVector( const Data::Mission::ACTManager& act_manager );
 };

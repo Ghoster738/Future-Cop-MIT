@@ -19,10 +19,8 @@ protected:
     // TODO Check if there will be no conflicting IDs.
     std::map<uint_fast32_t, ACTResource*> act_id_map;
 public:
-    ACTManager();
+    ACTManager( const std::vector<ACTResource*> &acts_array );
     virtual ~ACTManager();
-
-    bool addACT( ACTResource *act_r );
 
     std::vector<ACTResource*> getACTs( uint_fast8_t type );
     const std::vector<ACTResource*> getACTs( uint_fast8_t type ) const;

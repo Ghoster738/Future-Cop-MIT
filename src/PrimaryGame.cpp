@@ -3,6 +3,8 @@
 #include "MainMenu.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
+#include "Data/Mission/PTCResource.h"
+#include "Data/Mission/ACT/Prop.h"
 
 #include <ratio>
 
@@ -78,9 +80,35 @@ void PrimaryGame::load( MainProgram &main_program ) {
             this->font.scale = 1;
         }
     }
+
+    if( main_program.resource_r != nullptr ) {
+        auto ptc_array_r = Data::Mission::PTCResource::getVector( *main_program.resource_r );
+
+        auto actor_array_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
+
+        Data::Mission::ACTManager actor_manager( actor_array_r );
+
+        auto prop_array_r = Data::Mission::ACT::Prop::getVector( actor_array_r );
+
+        for( auto i : prop_array_r ) {
+            auto vector = i->getPosition();
+            try {
+                props_p.push_back( Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), glm::vec3( vector.x, ptc_array_r.at(0)->getRayCast2D( vector.x, vector.y ), vector.y ) ) );
+            }
+            catch( const std::invalid_argument& argument ) {
+                // No action for unrecognized Cobj's
+            }
+        }
+    }
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {
+
+    for( auto single_prop_p : props_p ) {
+        delete single_prop_p;
+    }
+
+    props_p.clear();
 }
 
 void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds delta ) {

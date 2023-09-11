@@ -26,18 +26,7 @@ public:
     
     static const double SECONDS_PER_GAME_TICK;
     
-    
     static constexpr uint32_t RSL_NULL_TAG = 0x4E554C4C;
-
-protected:
-    static const uint32_t ACT_CHUNK_ID;
-    static const uint32_t RSL_CHUNK_ID;
-    static const uint32_t SAC_CHUNK_ID;
-
-    struct RSLEntry {
-        uint32_t type;
-        uint32_t index;
-    };
 
     struct tSAC_chunk {
         bool exists; // This tells if the struct is found.
@@ -47,6 +36,16 @@ protected:
         uint16_t unk_3;
 
         std::string getString() const;
+    };
+
+protected:
+    static const uint32_t ACT_CHUNK_ID;
+    static const uint32_t RSL_CHUNK_ID;
+    static const uint32_t SAC_CHUNK_ID;
+
+    struct RSLEntry {
+        uint32_t type;
+        uint32_t index;
     };
 
     // This might be the unique identifieyer for ACTResource.
@@ -113,6 +112,8 @@ public:
     std::string displayRSL() const;
     bool hasRSL( uint32_t type_id, uint32_t resource_id ) const;
     virtual bool checkRSL() const = 0;
+
+    glm::vec2 getPosition() const { return (1.f / 8192.f) * glm::vec2(position_x, position_y); }
 
     static std::vector<ACTResource*> getVector( IFF &mission_file );
     static const std::vector<ACTResource*> getVector( const IFF &mission_file );
