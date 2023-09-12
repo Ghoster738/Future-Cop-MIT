@@ -80,6 +80,10 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
     size_t buffer_offset = 0;
 
     while( buffer_offset < limit ) {
+        uint32_t min_32_bit = std::numeric_limits<uint32_t>::max(), max_32_bit = std::numeric_limits<uint32_t>::min();
+        uint16_t min_16_bit = std::numeric_limits<uint16_t>::max(), max_16_bit = std::numeric_limits<uint16_t>::min();
+        uint8_t   min_8_bit = std::numeric_limits<uint8_t>::max(),  max_8_bit  = std::numeric_limits<uint8_t>::min();
+
         bool always_32_bit = true;
         bool always_16_bit = true;
         bool always_8_bit  = true;
@@ -100,22 +104,43 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
             little_reader.setPosition( 0 );
             big_reader.setPosition( 0 );
 
-            if( little_reader.totalSize() < sizeof( uint32_t ) || little_reader.readU32( Utilities::Buffer::LITTLE ) != big_reader.readU32( Utilities::Buffer::BIG ) ) {
-                always_32_bit = false;
+            if( always_32_bit && little_reader.totalSize() >= sizeof( uint32_t ) ) {
+                const uint32_t little_num = little_reader.readU32( Utilities::Buffer::LITTLE );
+
+                if( little_num != big_reader.readU32( Utilities::Buffer::BIG ) )
+                    always_32_bit = false;
+                else {
+                    min_32_bit = std::min( min_32_bit, little_num );
+                    max_32_bit = std::max( max_32_bit, little_num );
+                }
             }
 
             little_reader.setPosition( 0 );
             big_reader.setPosition( 0 );
 
-            if( little_reader.totalSize() < sizeof( uint16_t ) || little_reader.readU16( Utilities::Buffer::LITTLE ) != big_reader.readU16( Utilities::Buffer::BIG ) ) {
-                always_16_bit = false;
+            if( always_16_bit && little_reader.totalSize() >= sizeof( uint16_t ) ) {
+                const uint16_t little_num = little_reader.readU16( Utilities::Buffer::LITTLE );
+
+                if( little_num != big_reader.readU16( Utilities::Buffer::BIG ) )
+                    always_16_bit = false;
+                else {
+                    min_16_bit = std::min( min_16_bit, little_num );
+                    max_16_bit = std::max( max_16_bit, little_num );
+                }
             }
 
             little_reader.setPosition( 0 );
             big_reader.setPosition( 0 );
 
-            if( little_reader.totalSize() < sizeof( uint8_t ) || little_reader.readU8() != big_reader.readU8() ) {
-                always_8_bit = false;
+            if( always_8_bit && little_reader.totalSize() >= sizeof( uint8_t ) ) {
+                const uint8_t little_num = little_reader.readU8();
+
+                if( little_num != big_reader.readU8() )
+                    always_8_bit = false;
+                else {
+                    min_8_bit = std::min( min_8_bit, little_num );
+                    max_8_bit = std::max( max_8_bit, little_num );
+                }
             }
         }
 
@@ -123,18 +148,27 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
             stream << "uint32_t uint32_" << bit_32_counter << "; ";
             bit_32_counter++;
             buffer_offset += sizeof( uint32_t );
+
+            if( min_32_bit == max_32_bit )
+                stream << "/* Always " << min_32_bit << " */ ";
         }
         else
         if( always_16_bit ) {
             stream << "uint16_t uint16_" << bit_16_counter << "; ";
             bit_16_counter++;
             buffer_offset += sizeof( uint16_t );
+
+            if( min_16_bit == max_16_bit )
+                stream << "/* Always " << max_16_bit << " */ ";
         }
         else
         if( always_8_bit ) {
             stream << "uint8_t uint8_" << bit_8_counter << "; ";
             bit_8_counter++;
             buffer_offset += sizeof( uint8_t );
+
+            if( min_8_bit == max_8_bit )
+                stream << "/* Always " << (uint32_t)max_8_bit << " */ ";
         }
         else {
             stream << "error error; ";
