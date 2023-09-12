@@ -120,6 +120,9 @@ endif()
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
+add_executable( FCActorFactory src/FCActorFactory.cpp )
+target_link_libraries( FCActorFactory PRIVATE FC_IFF_IO )
+
 include(${CMAKE_SOURCE_DIR}/cmake/GenerateVersionHeader.cmake)
 
 set (FUTURE_COP_MIT_VERSION "${FUTURE_COP_MIT_VERSION_FOUND}" CACHE STRING "Project version, autodetected if possible from")
