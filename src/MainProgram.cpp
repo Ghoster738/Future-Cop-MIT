@@ -26,8 +26,10 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     }
 
     // TODO: Use venice beach as this map has all three types vertex animations.
-    this->resource_identifier = ""; // Data::Manager::pa_la_centina;
+    this->resource_identifier = Data::Manager::pa_urban_jungle;
     this->platform = Data::Manager::getPlatformFromString( this->options.getCurrentPlatform() );
+
+    this->switch_to_resource_identifier = this->resource_identifier;
     this->switch_to_platform = this->platform;
 
     setupLogging();

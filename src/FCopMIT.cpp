@@ -16,8 +16,6 @@ int main(int argc, char** argv)
 
     MainMenu::main_menu.is_game_on = false;
 
-    PrimaryGame::primary_game.load( main_program );
-
     InputMenu::input_menu.name = main_program.paths.getConfigDirPath() + "controls";
     InputMenu::input_menu.menu_r = &MainMenu::main_menu;
 
