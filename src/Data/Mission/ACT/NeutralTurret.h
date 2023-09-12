@@ -51,6 +51,18 @@ public:
 
     Internal getInternal() const;
 
+    bool getHasAliveGunID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getAliveGunID() const { return rsl_data[0].index; }
+
+    bool getHasDestroyedGunID() const { return rsl_data[1].type != RSL_NULL_TAG; }
+    uint32_t getDestroyedGunID() const { return rsl_data[1].index; }
+
+    bool getHasAliveBaseID() const { return rsl_data[2].type != RSL_NULL_TAG; }
+    uint32_t getAliveBaseID() const { return rsl_data[2].index; }
+
+    bool getHasDestroyedBaseID() const { return rsl_data[3].type != RSL_NULL_TAG; }
+    uint32_t getDestroyedBaseID() const { return rsl_data[3].index; }
+
     static std::vector<NeutralTurret*> getVector( Data::Mission::ACTManager& act_manager );
     static const std::vector<NeutralTurret*> getVector( const Data::Mission::ACTManager& act_manager );
 };

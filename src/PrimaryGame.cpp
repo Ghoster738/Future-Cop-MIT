@@ -4,6 +4,7 @@
 
 #include "Utilities/ImageFormat/Chooser.h"
 #include "Data/Mission/PTCResource.h"
+#include "Data/Mission/ACT/NeutralTurret.h"
 #include "Data/Mission/ACT/Prop.h"
 
 #include <ratio>
@@ -103,6 +104,28 @@ void PrimaryGame::load( MainProgram &main_program ) {
             catch( const std::invalid_argument& argument ) {
                 auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
                 log.output << "Cobj with resource id " << i->getObjResourceID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
+            }
+        }
+
+        auto turret_array_r = Data::Mission::ACT::NeutralTurret::getVector( actor_array_r );
+
+        for( auto i : turret_array_r ) {
+            try {
+                auto alive_base_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getAliveBaseID(), i->getPosition( ptc ) );
+
+                props_p.push_back( alive_base_instance_p );
+
+                props_p.back()->setRotation( i->getRotationQuaternion() );
+
+                auto alive_turret_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getAliveGunID(), i->getPosition( ptc ) + glm::vec3( 0, 1, 0 ) );
+
+                props_p.push_back( alive_turret_instance_p );
+
+                props_p.back()->setRotation( i->getRotationQuaternion() );
+            }
+            catch( const std::invalid_argument& argument ) {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << "Cobj with resource id " << i->getAliveBaseID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
             }
         }
     }
