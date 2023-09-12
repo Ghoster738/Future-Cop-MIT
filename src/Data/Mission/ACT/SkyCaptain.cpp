@@ -1,12 +1,12 @@
-#include "Skycaptin.h"
+#include "SkyCaptain.h"
 
 #include "../ObjResource.h"
 
 #include <cassert>
 
-uint_fast8_t Data::Mission::ACT::Skycaptin::TYPE_ID = 37;
+uint_fast8_t Data::Mission::ACT::SkyCaptain::TYPE_ID = 37;
 
-Json::Value Data::Mission::ACT::Skycaptin::makeJson() const {
+Json::Value Data::Mission::ACT::SkyCaptain::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
@@ -61,7 +61,7 @@ Json::Value Data::Mission::ACT::Skycaptin::makeJson() const {
     return root;
 }
 
-bool Data::Mission::ACT::Skycaptin::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool Data::Mission::ACT::SkyCaptain::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
 
     if(data_reader.totalSize() != this->getSize())
@@ -127,60 +127,60 @@ bool Data::Mission::ACT::Skycaptin::readACTType( uint_fast8_t act_type, Utilitie
     return true;
 }
 
-Data::Mission::ACT::Skycaptin::Skycaptin() {
+Data::Mission::ACT::SkyCaptain::SkyCaptain() {
 }
 
-Data::Mission::ACT::Skycaptin::Skycaptin( const ACTResource& obj ) : ACTResource( obj ) {
+Data::Mission::ACT::SkyCaptain::SkyCaptain( const ACTResource& obj ) : ACTResource( obj ) {
 }
 
-Data::Mission::ACT::Skycaptin::Skycaptin( const Skycaptin& obj ) : ACTResource( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::SkyCaptain::SkyCaptain( const SkyCaptain& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
-uint_fast8_t Data::Mission::ACT::Skycaptin::getTypeID() const {
+uint_fast8_t Data::Mission::ACT::SkyCaptain::getTypeID() const {
     return TYPE_ID;
 }
 
-std::string Data::Mission::ACT::Skycaptin::getTypeIDName() const {
-    return "Skycaptin";
+std::string Data::Mission::ACT::SkyCaptain::getTypeIDName() const {
+    return "SkyCaptain";
 }
 
-size_t Data::Mission::ACT::Skycaptin::getSize() const {
+size_t Data::Mission::ACT::SkyCaptain::getSize() const {
     return 100; // bytes
 }
 
-bool Data::Mission::ACT::Skycaptin::checkRSL() const {
+bool Data::Mission::ACT::SkyCaptain::checkRSL() const {
     return rsl_data.size() == 2 && rsl_data[0].type == Data::Mission::ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG;
 }
 
-Data::Mission::Resource* Data::Mission::ACT::Skycaptin::duplicate() const {
-    return new Data::Mission::ACT::Skycaptin( *this );
+Data::Mission::Resource* Data::Mission::ACT::SkyCaptain::duplicate() const {
+    return new Data::Mission::ACT::SkyCaptain( *this );
 }
 
-Data::Mission::ACTResource* Data::Mission::ACT::Skycaptin::duplicate( const ACTResource &original ) const {
-    auto copy_r = dynamic_cast<const Skycaptin*>( &original );
+Data::Mission::ACTResource* Data::Mission::ACT::SkyCaptain::duplicate( const ACTResource &original ) const {
+    auto copy_r = dynamic_cast<const SkyCaptain*>( &original );
     
     if( copy_r != nullptr)
-        return new Data::Mission::ACT::Skycaptin( *copy_r );
+        return new Data::Mission::ACT::SkyCaptain( *copy_r );
     else
-        return new Data::Mission::ACT::Skycaptin( original );
+        return new Data::Mission::ACT::SkyCaptain( original );
 }
 
-Data::Mission::ACT::Skycaptin::Internal Data::Mission::ACT::Skycaptin::getInternal() const {
+Data::Mission::ACT::SkyCaptain::Internal Data::Mission::ACT::SkyCaptain::getInternal() const {
     return internal;
 }
 
-std::vector<Data::Mission::ACT::Skycaptin*> Data::Mission::ACT::Skycaptin::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::Skycaptin::TYPE_ID );
+std::vector<Data::Mission::ACT::SkyCaptain*> Data::Mission::ACT::SkyCaptain::getVector( Data::Mission::ACTManager& act_manager ) {
+    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::SkyCaptain::TYPE_ID );
 
-    std::vector<Skycaptin*> copy;
+    std::vector<SkyCaptain*> copy;
 
     copy.reserve( to_copy.size() );
 
     for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<Skycaptin*>( (*it) ) );
+        copy.push_back( dynamic_cast<SkyCaptain*>( (*it) ) );
 
     return copy;
 }
 
-const std::vector<Data::Mission::ACT::Skycaptin*> Data::Mission::ACT::Skycaptin::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::Skycaptin::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
+const std::vector<Data::Mission::ACT::SkyCaptain*> Data::Mission::ACT::SkyCaptain::getVector( const Data::Mission::ACTManager& act_manager ) {
+    return Data::Mission::ACT::SkyCaptain::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
 }

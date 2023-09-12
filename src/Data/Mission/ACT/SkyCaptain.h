@@ -9,7 +9,7 @@ namespace Mission {
 
 namespace ACT {
 
-class Skycaptin : public ACTResource {
+class SkyCaptain : public ACTResource {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -50,9 +50,9 @@ protected:
 
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 public:
-    Skycaptin();
-    Skycaptin( const ACTResource& obj );
-    Skycaptin( const Skycaptin& obj );
+    SkyCaptain();
+    SkyCaptain( const ACTResource& obj );
+    SkyCaptain( const SkyCaptain& obj );
 
     virtual uint_fast8_t getTypeID() const;
     virtual std::string getTypeIDName() const;
@@ -66,8 +66,8 @@ public:
 
     Internal getInternal() const;
 
-    static std::vector<Skycaptin*> getVector( Data::Mission::ACTManager& act_manager );
-    static const std::vector<Skycaptin*> getVector( const Data::Mission::ACTManager& act_manager );
+    static std::vector<SkyCaptain*> getVector( Data::Mission::ACTManager& act_manager );
+    static const std::vector<SkyCaptain*> getVector( const Data::Mission::ACTManager& act_manager );
 };
 
 }
