@@ -63,8 +63,6 @@ protected:
     int32_t position_x;
     int32_t rotation;
 
-    virtual Json::Value makeJson() const;
-
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) = 0;
 
     uint32_t readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
@@ -114,6 +112,8 @@ public:
     std::string displayRSL() const;
     bool hasRSL( uint32_t type_id, uint32_t resource_id ) const;
     virtual bool checkRSL() const = 0;
+
+    virtual Json::Value makeJson() const;
 
     glm::vec2 getPosition() const;
     float getRotation() const;

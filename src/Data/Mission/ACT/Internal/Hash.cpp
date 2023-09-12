@@ -4,6 +4,7 @@
 #include "../BaseTurret.h"
 #include "../Aircraft.h"
 #include "../Skycaptin.h"
+#include "../NeutralTurret.h"
 #include "../Prop.h"
 #include "../Trigger.h"
 
@@ -23,6 +24,7 @@ private:
         table_p[ Data::Mission::ACT::BaseTurret::TYPE_ID ] = new Data::Mission::ACT::BaseTurret();
         table_p[ Data::Mission::ACT::Aircraft::TYPE_ID ] = new Data::Mission::ACT::Aircraft();
         table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
+        table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
         table_p[ Data::Mission::ACT::Trigger::TYPE_ID ] = new Data::Mission::ACT::Trigger();
     }

@@ -5,14 +5,9 @@
 uint_fast16_t Data::Mission::ACT::Unknown::TYPE_ID = 0; // Zero is not used by any ACT types that future cop uses.
 
 bool Data::Mission::ACT::Unknown::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
-    if( data_reader.totalSize() >= 4 )
-    {
-        this->act_type = act_type;
-        this->act_size = data_reader.totalSize() - 4;
-        return true;
-    }
-    else
-        return false;
+    this->act_type = act_type;
+    this->act_size = data_reader.totalSize();
+    return true;
 }
 
 Json::Value Data::Mission::ACT::Unknown::makeJson() const {
@@ -38,7 +33,7 @@ uint_fast8_t Data::Mission::ACT::Unknown::getTypeID() const {
 };
 
 std::string Data::Mission::ACT::Unknown::getTypeIDName() const {
-    return "Unknown: {T:" + std::to_string( getTypeID() ) + ",S:" + std::to_string( getSize() ) + "}";
+    return "Unknown: { TypeID:" + std::to_string( getTypeID() ) + ", Size:" + std::to_string( getSize() ) + " }";
 };
 
 size_t Data::Mission::ACT::Unknown::getSize() const {

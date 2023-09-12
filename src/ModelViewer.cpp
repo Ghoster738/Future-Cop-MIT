@@ -128,12 +128,13 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                         log.output << "Resource ID: " << std::dec << this->obj_vector[cobj_index]->getResourceID() << "\n";
                         log.output << "Type ID: "<< (unsigned)i->getTypeID() << "\n";
                         log.output << "Type ID Name: "<< i->getTypeIDName() << "\n";
-                        log.output << "Size: "<< i->getSize() << "\n";
+                        log.output << "Size: 0x" << std::hex << i->getSize() << "\n";
                         displayed = true;
                     }
                     log.output << "  ID: "<< std::dec << i->getID() << "\n";
                     log.output << "  Offset: 0x" << std::hex << i->getOffset() << "\n";
                     log.output << "  SAC: " << i->getSpawnChunk().getString() << "\n";
+                    log.output << "  JSON: " << i->makeJson() << "\n";
                 }
             }
         }

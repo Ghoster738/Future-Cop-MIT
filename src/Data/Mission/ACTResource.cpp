@@ -24,6 +24,7 @@ std::string Data::Mission::ACTResource::tSAC_chunk::getString() const {
     if( !this->exists )
         sac << "DOES NOT EXIST\n";
     else {
+        sac << "\n";
         sac << "game_ticks  = " << this->game_ticks  << "\n";
         sac << "spawn_limit = " << this->spawn_limit << "\n";
         sac << "unk_2       = " << this->unk_2       << "\n";
