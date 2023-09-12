@@ -37,6 +37,8 @@ public:
     virtual Resource* duplicate() const;
     
     virtual ACTResource* duplicate( const ACTResource &original ) const;
+
+    static std::string getStructure( uint_fast16_t TYPE_ID, const Data::Mission::IFF &little_endian, const Data::Mission::IFF &big_endian );
 };
 
 }

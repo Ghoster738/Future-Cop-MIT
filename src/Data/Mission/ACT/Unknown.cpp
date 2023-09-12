@@ -1,5 +1,7 @@
 #include "Unknown.h"
 
+#include "../ACTManager.h"
+
 #include "Internal/Hash.h"
 
 uint_fast16_t Data::Mission::ACT::Unknown::TYPE_ID = 0; // Zero is not used by any ACT types that future cop uses.
@@ -50,4 +52,97 @@ Data::Mission::Resource* Data::Mission::ACT::Unknown::duplicate() const {
 
 Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTResource &original ) const {
     return new Unknown( original );
+}
+
+std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, const Data::Mission::IFF &little_endian, const Data::Mission::IFF &big_endian ) {
+    std::stringstream stream;
+
+    auto little_endian_array_r = Data::Mission::ACTResource::getVector( little_endian );
+    auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    big_endian );
+
+    Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
+    Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
+
+    std::vector<ACTResource*> little_endian_act = little_endian_manager.getACTs( type_id );
+    std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
+
+    if( little_endian_act.size() != big_endian_act.size() ) {
+        stream << "little_endian_act.size() != big_endian_act.size()\n";
+        stream <<  little_endian_act.size() <<" != " << big_endian_act.size() << "\n";
+        return stream.str();
+    }
+
+    unsigned bit_32_counter = 0;
+    unsigned bit_16_counter = 0;
+    unsigned bit_8_counter = 0;
+
+    size_t limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
+    size_t buffer_offset = 0;
+
+    while( buffer_offset < limit ) {
+        bool always_32_bit = true;
+        bool always_16_bit = true;
+        bool always_8_bit  = true;
+
+        for( size_t i = 0; i < little_endian_act.size(); i++ ) {
+            auto little_endian_r = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( i ) );
+            auto big_endian_r    = dynamic_cast<Data::Mission::ACT::Unknown*>(    big_endian_act.at( i ) );
+
+            Utilities::Buffer::Reader little_reader( little_endian_r->act_buffer.data() + buffer_offset, little_endian_r->act_buffer.size() - buffer_offset );
+            Utilities::Buffer::Reader    big_reader(    big_endian_r->act_buffer.data() + buffer_offset,    big_endian_r->act_buffer.size() - buffer_offset );
+
+            if( little_reader.totalSize() != big_reader.totalSize() ) {
+                stream << "little_reader.totalSize() != big_reader.totalSize()\n";
+                stream <<  little_reader.totalSize() <<" != " << big_reader.totalSize() << "\n";
+                return stream.str();
+            }
+
+            little_reader.setPosition( 0 );
+            big_reader.setPosition( 0 );
+
+            if( little_reader.totalSize() < sizeof( uint32_t ) || little_reader.readU32( Utilities::Buffer::LITTLE ) != big_reader.readU32( Utilities::Buffer::BIG ) ) {
+                always_32_bit = false;
+            }
+
+            little_reader.setPosition( 0 );
+            big_reader.setPosition( 0 );
+
+            if( little_reader.totalSize() < sizeof( uint16_t ) || little_reader.readU16( Utilities::Buffer::LITTLE ) != big_reader.readU16( Utilities::Buffer::BIG ) ) {
+                always_16_bit = false;
+            }
+
+            little_reader.setPosition( 0 );
+            big_reader.setPosition( 0 );
+
+            if( little_reader.totalSize() < sizeof( uint8_t ) || little_reader.readU8() != big_reader.readU8() ) {
+                always_8_bit = false;
+            }
+        }
+
+        if( always_32_bit ) {
+            stream << "uint32_t uint32_" << bit_32_counter << "; ";
+            bit_32_counter++;
+            buffer_offset += sizeof( uint32_t );
+        }
+        else
+        if( always_16_bit ) {
+            stream << "uint16_t uint16_" << bit_16_counter << "; ";
+            bit_16_counter++;
+            buffer_offset += sizeof( uint16_t );
+        }
+        else
+        if( always_8_bit ) {
+            stream << "uint8_t uint8_" << bit_8_counter << "; ";
+            bit_8_counter++;
+            buffer_offset += sizeof( uint8_t );
+        }
+        else {
+            stream << "error error; ";
+            buffer_offset += sizeof( uint8_t );
+        }
+    }
+
+    stream << "\n";
+
+    return stream.str();
 }
