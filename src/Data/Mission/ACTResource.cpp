@@ -352,6 +352,11 @@ glm::vec2 Data::Mission::ACTResource::getPosition() const {
     return (1.f / 8192.f) * glm::vec2(position_x, position_y);
 }
 
+glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) const {
+    const auto v = this->getPosition();
+    return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
+}
+
 float Data::Mission::ACTResource::getRotation() const {
     return -glm::pi<float>() / 2048.0f * (this->rotation - 1024);
 }

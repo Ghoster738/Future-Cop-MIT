@@ -81,8 +81,10 @@ void PrimaryGame::load( MainProgram &main_program ) {
         }
     }
 
-    if( main_program.resource_r != nullptr ) {
+    if( main_program.resource_r != nullptr && !Data::Mission::PTCResource::getVector( *main_program.resource_r ).empty() ) {
         auto ptc_array_r = Data::Mission::PTCResource::getVector( *main_program.resource_r );
+
+        Data::Mission::PTCResource &ptc = *ptc_array_r.at(0);
 
         auto actor_array_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
 
@@ -91,9 +93,8 @@ void PrimaryGame::load( MainProgram &main_program ) {
         auto prop_array_r = Data::Mission::ACT::Prop::getVector( actor_array_r );
 
         for( auto i : prop_array_r ) {
-            auto vector = i->getPosition();
             try {
-                auto prop_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), glm::vec3( vector.x, ptc_array_r.at(0)->getRayCast2D( vector.x, vector.y ), vector.y ) );
+                auto prop_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), i->getPosition( ptc ) );
 
                 props_p.push_back( prop_instance_p );
 

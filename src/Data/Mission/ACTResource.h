@@ -2,6 +2,7 @@
 #define MISSION_RESOURCE_ACT_HEADER
 
 #include "Resource.h"
+#include "PTCResource.h"
 #include "../../Utilities/DataTypes.h"
 
 #include <vector>
@@ -116,6 +117,7 @@ public:
     virtual Json::Value makeJson() const;
 
     glm::vec2 getPosition() const;
+    glm::vec3 getPosition( const PTCResource &ptc ) const;
     float getRotation() const;
     glm::quat getRotationQuaternion() const;
 
