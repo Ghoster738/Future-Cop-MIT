@@ -18,18 +18,7 @@ ModelViewer::ModelViewer() {
 ModelViewer::~ModelViewer() {}
 
 void ModelViewer::load( MainProgram &main_program ) {
-
     this->cobj_index = 0;
-    this->obj_vector = Data::Mission::ObjResource::getVector( *main_program.resource_r );
-
-    if( this->displayed_instance_p != nullptr )
-        delete this->displayed_instance_p;
-
-    main_program.loadGraphics( false );
-
-    this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
-    this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
-    this->displayed_instance_p->setPosition( -this->position );
 
     this->count_down = 0;
     this->rotation = 0;
@@ -46,6 +35,22 @@ void ModelViewer::load( MainProgram &main_program ) {
 
     glm::u32vec2 scale = main_program.getWindowScale();
     this->font_height = (1. / 30.) * static_cast<float>( scale.y );
+
+    if( this->displayed_instance_p != nullptr )
+        delete this->displayed_instance_p;
+    this->displayed_instance_p = nullptr;
+
+    // Do not load from resource if it does not exist.
+    if( main_program.resource_r == nullptr )
+        return;
+
+    this->obj_vector = Data::Mission::ObjResource::getVector( *main_program.resource_r );
+
+    main_program.loadGraphics( false );
+
+    this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+    this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
+    this->displayed_instance_p->setPosition( -this->position );
 
     if( !main_program.text_2d_buffer_r->selectFont( this->font, 0.8 * this->font_height, this->font_height ) ) {
         this->font = 1;
