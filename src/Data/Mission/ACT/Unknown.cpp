@@ -160,7 +160,7 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
             buffer_offset += sizeof( uint32_t );
 
             if( min_32_bit == max_32_bit )
-                stream << "/* Always " << min_32_bit << " */ ";
+                stream << "// Always " << min_32_bit;
         }
         else
         if( always_16_bit ) {
@@ -169,7 +169,7 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
             buffer_offset += sizeof( uint16_t );
 
             if( min_16_bit == max_16_bit )
-                stream << "/* Always " << max_16_bit << " */ ";
+                stream << "// Always " << max_16_bit;
         }
         else
         if( always_8_bit ) {
@@ -178,7 +178,7 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
             buffer_offset += sizeof( uint8_t );
 
             if( min_8_bit == max_8_bit )
-                stream << "/* Always " << (uint32_t)max_8_bit << " */ ";
+                stream << "// Always " << (uint32_t)max_8_bit;
         }
         else {
             stream << "error error; ";
