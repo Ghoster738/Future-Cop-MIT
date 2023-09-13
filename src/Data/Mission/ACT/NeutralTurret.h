@@ -1,5 +1,5 @@
-#ifndef MISSION_ACT_TYPE_NEUTRAL_TURRET_HEADER
-#define MISSION_ACT_TYPE_NEUTRAL_TURRET_HEADER
+#ifndef DATA_MISSION_ACTOR_ID_ACTOR_36_HEADER
+#define DATA_MISSION_ACTOR_ID_ACTOR_36_HEADER
 
 #include "../ACTManager.h"
 #include <json/json.h>
@@ -16,23 +16,47 @@ public:
 
     struct Internal {
         uint32_t uint32_0;
-        uint16_t uint16_0;    // 0
-        uint8_t   uint8_0[10];
-        uint16_t uint16_1[2]; // 1
-        uint16_t  uint8_1[2];
-        uint16_t uint16_2[5]; // 2
-        uint16_t  uint8_2[2];
-        uint16_t uint16_3[5]; // 3
-        uint8_t   uint8_3[6];
-        uint16_t uint16_4;    // 4
-        uint8_t   uint8_4[6];
-        uint16_t uint16_5;    // 5
+        uint16_t uint16_0;
+        uint16_t uint16_1;
+        uint8_t uint8_0;
+        uint8_t uint8_1;
+        uint8_t uint8_2;
+        uint8_t uint8_3;
+        uint8_t uint8_4;
+        uint16_t uint16_2;
+        uint8_t uint8_5;
+        uint16_t uint16_3;
+        uint16_t uint16_4;
+        uint8_t uint8_6;
+        uint8_t uint8_7;
+        uint16_t uint16_5;
+        uint32_t uint32_1;
+        uint16_t uint16_6;
+        uint16_t uint16_7;
+        uint8_t uint8_8;
+        uint8_t uint8_9;
+        uint16_t uint16_8;
+        uint16_t value_0;
+        uint16_t uint16_10;
+        uint16_t uint16_11;
+        uint16_t uint16_12;
+        uint8_t uint8_10;
+        uint32_t uint32_2;
+        uint8_t uint8_11;
+        uint16_t value_1;
+        uint8_t uint8_12;
+        uint8_t uint8_13;
+        uint8_t uint8_14;
+        uint8_t uint8_15;
+        uint8_t value_2;
+        uint8_t value_3;
+        uint16_t uint16_14;
     } internal;
 
 protected:
     virtual Json::Value makeJson() const;
-
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
+
 public:
     NeutralTurret();
     NeutralTurret( const ACTResource& obj );
@@ -46,7 +70,7 @@ public:
     virtual bool checkRSL() const;
 
     virtual Resource* duplicate() const;
-    
+
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
@@ -64,13 +88,14 @@ public:
     uint32_t getDestroyedBaseID() const { return rsl_data[3].index; }
 
     static std::vector<NeutralTurret*> getVector( Data::Mission::ACTManager& act_manager );
+
     static const std::vector<NeutralTurret*> getVector( const Data::Mission::ACTManager& act_manager );
+
 };
-
 }
 
 }
 
 }
 
-#endif // MISSION_ACT_TYPE_NEUTRAL_TURRET_HEADER
+#endif
