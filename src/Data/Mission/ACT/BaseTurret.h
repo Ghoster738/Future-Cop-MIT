@@ -1,5 +1,5 @@
-#ifndef MISSION_ACT_TYPE_BASE_TURRET_HEADER
-#define MISSION_ACT_TYPE_BASE_TURRET_HEADER
+#ifndef DATA_MISSION_ACTOR_ID_ACTOR_8_HEADER
+#define DATA_MISSION_ACTOR_ID_ACTOR_8_HEADER
 
 #include "../ACTManager.h"
 #include <json/json.h>
@@ -20,45 +20,44 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t  uint16_10;
-        uint16_t  uint16_0; // 28
-        uint16_t  uint16_0b; // 30
-        uint8_t   byte_0; // 32
-        uint8_t   byte_0b; // 33
-        uint8_t   byte_1; // 34
-        uint8_t   byte_1b; // 35
-        uint8_t   byte_2; // 36
-        uint8_t   byte_2b; // 37
-        uint8_t   byte_3b; // 38
-        uint8_t   byte_4b; // 39
-        uint16_t  uint16_1; // 40
-        uint16_t  uint16_2; // 42
-        uint8_t   byte_3; // 44
-        uint8_t   byte_4; // 45
-        uint16_t  uint16_3; // 46
-        uint16_t  uint16_1b; // 48
-        uint16_t  uint16_2b; // 50
-        uint16_t  uint16_4; // 52
-        uint16_t  uint16_3b; // 54
-        uint8_t   byte_5b; // 56
-        uint8_t   byte_5; // 57
-        uint16_t  uint16_5; // 58
-        uint16_t  uint16_6; // 60
-        uint16_t  uint16_4b; // 62
-        uint16_t  uint16_7;
-        uint16_t  uint16_8;
-        uint8_t   byte_6;
-        // 3 zero bytes
-        uint8_t   byte_6b;
-        // 1 zero byte
-        uint16_t  uint16_9;
-        
+        uint32_t uint32_0;
+        uint16_t uint16_0;
+        uint16_t uint16_1;
+        uint8_t uint8_0;
+        uint8_t uint8_1;
+        uint8_t uint8_2;
+        uint8_t uint8_3;
+        uint8_t uint8_4;
+        uint8_t uint8_5;
+        uint8_t uint8_6;
+        uint8_t uint8_7;
+        uint16_t uint16_2;
+        uint16_t uint16_3;
+        uint8_t uint8_8;
+        uint8_t uint8_9;
+        uint16_t uint16_4;
+        uint32_t uint32_1;
+        uint16_t uint16_5;
+        uint16_t uint16_6;
+        uint8_t uint8_10;
+        uint8_t uint8_11;
+        uint16_t uint16_7;
+        uint16_t uint16_8;
+        uint16_t uint16_9;
+        uint16_t uint16_10;
+        uint16_t uint16_11;
+        uint8_t uint8_12;
+        uint16_t zero_0;
+        uint8_t zero_1;
+        uint8_t uint8_14;
+        uint8_t zero_2;
+        uint16_t uint16_13;
     } internal;
 
 protected:
     virtual Json::Value makeJson() const;
-
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
+
 public:
     BaseTurret();
     BaseTurret( const ACTResource& obj );
@@ -72,19 +71,20 @@ public:
     virtual bool checkRSL() const;
 
     virtual Resource* duplicate() const;
-    
+
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
 
     static std::vector<BaseTurret*> getVector( Data::Mission::ACTManager& act_manager );
+
     static const std::vector<BaseTurret*> getVector( const Data::Mission::ACTManager& act_manager );
+
 };
-
 }
 
 }
 
 }
 
-#endif // MISSION_ACT_TYPE_X1A_UNIT_HEADER
+#endif
