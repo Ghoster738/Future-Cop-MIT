@@ -73,7 +73,12 @@ int main(int argc, char** argv)
 
         if( number != 0 ) {
             std::cout << "Using number " << number << "\n";
-            std::cout << "Actor Data: " << Data::Mission::ACT::Unknown::getStructure( number, *little_endian_r, *big_endian_r ) << std::endl;
+
+            auto structure = Data::Mission::ACT::Unknown::getStructure( number, *little_endian_r, *big_endian_r );
+
+            for( size_t i = 0; i < structure.size(); i++)
+                std::cout << "structure[" << i << "] = " << structure[ i ] << "\n";
+            std::cout << std::endl;
         }
     }
 

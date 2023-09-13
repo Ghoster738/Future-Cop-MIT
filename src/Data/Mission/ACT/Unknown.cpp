@@ -54,8 +54,8 @@ Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTRes
     return new Unknown( original );
 }
 
-std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, const Data::Mission::IFF &little_endian, const Data::Mission::IFF &big_endian ) {
-    std::stringstream stream;
+std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, const Data::Mission::IFF &little_endian, const Data::Mission::IFF &big_endian ) {
+    std::vector<std::string> list_of_variables;
 
     auto little_endian_array_r = Data::Mission::ACTResource::getVector( little_endian );
     auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    big_endian );
@@ -67,9 +67,10 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
     std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
 
     if( little_endian_act.size() != big_endian_act.size() ) {
-        stream << "little_endian_act.size() != big_endian_act.size()\n";
+        std::stringstream stream;
+        stream << "ERROR: little_endian_act.size() != big_endian_act.size()\n";
         stream <<  little_endian_act.size() <<" != " << big_endian_act.size() << "\n";
-        return stream.str();
+        return { stream.str() };
     }
 
     unsigned bit_32_counter = 0;
@@ -77,10 +78,10 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
     unsigned bit_8_counter = 0;
 
     if( little_endian_act.empty() )
-        return "Actor resource does not exist\n";
+        return { "ERROR: Actor resource does not exist\n" };
 
     if( dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) ) == nullptr )
-        return "Please enter a non existing Act resource\n";
+        return { "ERROR: Please enter a non existing Act resource\n" };
 
     size_t limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
     size_t buffer_offset = 0;
@@ -102,9 +103,10 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
             Utilities::Buffer::Reader    big_reader(    big_endian_r->act_buffer.data() + buffer_offset,    big_endian_r->act_buffer.size() - buffer_offset );
 
             if( little_reader.totalSize() != big_reader.totalSize() ) {
-                stream << "little_reader.totalSize() != big_reader.totalSize()\n";
+                std::stringstream stream;
+                stream << "ERROR: little_reader.totalSize() != big_reader.totalSize() ";
                 stream <<  little_reader.totalSize() <<" != " << big_reader.totalSize() << "\n";
-                return stream.str();
+                return { stream.str() };
             }
 
             little_reader.setPosition( 0 );
@@ -150,6 +152,8 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
             }
         }
 
+        std::stringstream stream;
+
         if( always_32_bit ) {
             stream << "uint32_t uint32_" << bit_32_counter << "; ";
             bit_32_counter++;
@@ -180,9 +184,9 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
             stream << "error error; ";
             buffer_offset += sizeof( uint8_t );
         }
+
+        list_of_variables.push_back( stream.str() );
     }
 
-    stream << "\n";
-
-    return stream.str();
+    return list_of_variables;
 }
