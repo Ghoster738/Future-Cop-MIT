@@ -54,11 +54,9 @@ Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTRes
     return new Unknown( original );
 }
 
-std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, const Data::Mission::IFF &little_endian, const Data::Mission::IFF &big_endian ) {
-    std::vector<std::string> list_of_variables;
-
-    auto little_endian_array_r = Data::Mission::ACTResource::getVector( little_endian );
-    auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    big_endian );
+std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t type_id, const std::vector<const Data::Mission::IFF*> &little_endian, const std::vector<const Data::Mission::IFF*> &big_endian ) {
+    auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( 0 ) );
+    auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( 0 ) );
 
     Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
     Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
@@ -73,10 +71,6 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
         return { stream.str() };
     }
 
-    unsigned bit_32_counter = 0;
-    unsigned bit_16_counter = 0;
-    unsigned bit_8_counter = 0;
-
     if( little_endian_act.empty() )
         return { "ERROR: Actor resource does not exist\n" };
 
@@ -85,6 +79,12 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
 
     size_t limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
     size_t buffer_offset = 0;
+
+    unsigned bit_32_counter = 0;
+    unsigned bit_16_counter = 0;
+    unsigned bit_8_counter = 0;
+
+    std::vector<std::string> list_of_variables;
 
     while( buffer_offset < limit ) {
         uint32_t min_32_bit = std::numeric_limits<uint32_t>::max(), max_32_bit = std::numeric_limits<uint32_t>::min();

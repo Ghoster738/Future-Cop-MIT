@@ -229,38 +229,50 @@ int main(int argc, char** argv)
     manager.togglePlatform( Data::Manager::Platform::WINDOWS,   true );
     manager.togglePlatform( Data::Manager::Platform::MACINTOSH, true );
 
-    const std::string resource_identifier = *Data::Manager::precinct_assault_iffs[0];
+    const std::string resource_identifier = *Data::Manager::precinct_assault_iffs[ 0 ];
+    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
+        const std::string resource_identifier = *Data::Manager::map_iffs[ i ];
 
-    auto entry = manager.getIFFEntry( resource_identifier );
-    entry.importance = Data::Manager::Importance::NEEDED;
+        auto entry = manager.getIFFEntry( resource_identifier );
+        entry.importance = Data::Manager::Importance::NEEDED;
 
-    if( !manager.setIFFEntry( resource_identifier, entry ) ) {
-        {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << "Set IFF Entry has failed for \"" + resource_identifier + "\".";
+        if( !manager.setIFFEntry( resource_identifier, entry ) ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << "Set IFF Entry has failed for \"" + resource_identifier + "\".";
+            }
+            return 0;
         }
-        return 0;
     }
 
     manager.setLoad( Data::Manager::Importance::NEEDED );
 
-    auto little_endian_r = manager.getIFFEntry( resource_identifier ).getIFF( Data::Manager::Platform::WINDOWS );
-    if( little_endian_r == nullptr ) {
-        {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << "The Windows mission IFF " << resource_identifier << " did not load.";
+    std::vector<const Data::Mission::IFF*> little_endian;
+    std::vector<const Data::Mission::IFF*>    big_endian;
+
+    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
+        auto little_endian_r = manager.getIFFEntry( resource_identifier ).getIFF( Data::Manager::Platform::WINDOWS );
+        if( little_endian_r == nullptr ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << "The Windows mission IFF " << resource_identifier << " did not load.";
+            }
+            return 0;
         }
-        return 0;
+
+        auto big_endian_r = manager.getIFFEntry( resource_identifier ).getIFF( Data::Manager::Platform::MACINTOSH );
+        if( big_endian_r == nullptr ) {
+            {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << "The Macintosh mission IFF " << resource_identifier << " did not load.";
+            }
+            return 0;
+        }
+
+        little_endian.push_back( little_endian_r );
+        big_endian.push_back(       big_endian_r );
     }
 
-    auto big_endian_r = manager.getIFFEntry( resource_identifier ).getIFF( Data::Manager::Platform::MACINTOSH );
-    if( big_endian_r == nullptr ) {
-        {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << "The Macintosh mission IFF " << resource_identifier << " did not load.";
-        }
-        return 0;
-    }
 
     uint16_t number = 1;
 
@@ -290,7 +302,7 @@ int main(int argc, char** argv)
 
             std::cout << "Using number " << number << "\n";
 
-            auto structure = Data::Mission::ACT::Unknown::getStructure( number, *little_endian_r, *big_endian_r );
+            auto structure = Data::Mission::ACT::Unknown::getStructure( number, little_endian, big_endian );
 
             std::ofstream header_file;
             header_file.open( camel_case_name + ".h", std::ios::out );
