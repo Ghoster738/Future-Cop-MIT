@@ -32,6 +32,11 @@ std::string header( std::string camel_case, std::string snake_case, const std::v
     stream << "    struct Internal {\n";
 
     for( std::string data_type : structure ) {
+        size_t end = data_type.find( ';' );
+
+        if( end != std::string::npos )
+            data_type = data_type.substr( 0, end + 1 );
+
         stream << "        " << data_type << "\n";
     }
 
@@ -91,14 +96,9 @@ std::string code( uint16_t type_id, std::string camel_case, const std::vector<st
     for( std::string data_type : structure ) {
         size_t begin = data_type.find( ' ' ) + 1;
         size_t end   = data_type.find( ';' );
-        const std::string data_name = data_type.substr(begin, end - begin);
+        const std::string data_name = data_type.substr( begin, end - begin );
 
-        std::string comment = "";
-
-        if( data_type.find( "//" ) != std::string::npos )
-            comment = " " + data_type.substr(data_type.find( "//" ));
-
-        stream << "    root[\"ACT\"][NAME][\"" << data_name << "\"] = internal." << data_name << ";" << comment << "\n";
+        stream << "    root[\"ACT\"][NAME][\"" << data_name << "\"] = internal." << data_name << ";\n";
     }
 
     stream << "\n";
