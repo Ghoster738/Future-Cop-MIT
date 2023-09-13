@@ -8,6 +8,71 @@
 
 #include <iostream>
 
+std::string header( std::string camel_case, std::string snake_case, const std::vector<std::string> &structure ) {
+    std::stringstream stream;
+
+    stream << "#ifndef MISSION_ACT_TYPE_" << snake_case << "_HEADER\n";
+    stream << "#define MISSION_ACT_TYPE_" << snake_case << "_HEADER\n\n";
+
+    stream << "#include \"../ACTManager.h\"\n";
+    stream << "#include <json/json.h>\n";
+
+    stream << "namespace Data {\n\n";
+
+    stream << "namespace Mission {\n\n";
+
+    stream << "namespace ACT {\n\n";
+
+    stream << "class " << camel_case << " : public ACTResource {\n";
+    stream << "public:\n";
+    stream << "    static uint_fast8_t TYPE_ID;\n\n";
+
+    stream << "    struct Internal {\n";
+
+    for( std::string data_type : structure ) {
+        stream << "        " << data_type << "\n";
+    }
+
+    stream << "    } internal;\n\n";
+
+    stream << "protected:\n";
+    stream << "    virtual Json::Value makeJson() const;\n";
+    stream << "    virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );\n\n";
+
+    stream << "public:\n";
+    stream << "    " << camel_case << "();\n";
+    stream << "    " << camel_case << "( const ACTResource& obj );\n";
+    stream << "    " << camel_case << "( const " << camel_case << "& obj );\n\n";
+
+    stream << "    virtual uint_fast8_t getTypeID() const;\n";
+    stream << "    virtual std::string getTypeIDName() const;\n\n";
+
+    stream << "    virtual size_t getSize() const;\n\n";
+
+    stream << "    virtual bool checkRSL() const;\n\n";
+
+    stream << "    virtual Resource* duplicate() const;\n\n";
+
+    stream << "    ACTResource* duplicate( const ACTResource &original ) const;\n\n";
+
+    stream << "    Internal getInternal() const;\n\n";
+
+    stream << "    static std::vector<" << camel_case << "*> getVector( Data::Mission::ACTManager& act_manager );\n\n";
+    stream << "    static const std::vector<" << camel_case << "*> getVector( const Data::Mission::ACTManager& act_manager );\n\n";
+
+    stream << "};\n";
+
+    stream << "}\n\n"; // ACT
+
+    stream << "}\n\n"; // Mission
+
+    stream << "}\n\n"; // Data
+
+    stream << "#endif\n";
+
+    return stream.str();
+}
+
 int main(int argc, char** argv)
 {
     // Read the parameter system.
@@ -95,9 +160,7 @@ int main(int argc, char** argv)
 
             auto structure = Data::Mission::ACT::Unknown::getStructure( number, *little_endian_r, *big_endian_r );
 
-            for( size_t i = 0; i < structure.size(); i++)
-                std::cout << "structure[" << i << "] = " << structure[ i ] << "\n";
-            std::cout << std::endl;
+            std::cout << header( camel_case_name, captialized_snake_case_name, structure) << std::endl;
         }
     }
 
