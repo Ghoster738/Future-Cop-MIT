@@ -65,7 +65,14 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    std::cout << "Actor Data: " << Data::Mission::ACT::Unknown::getStructure( 1, *little_endian_r, *big_endian_r ) << "\n";
+    std::cout << "Please enter the actor identifier number" << std::endl;
+    uint16_t number = 0;
+
+    std::cin >> number;
+
+    std::cout << "Using number " << (uint32_t)number << "\n";
+
+    std::cout << "Actor Data: " << Data::Mission::ACT::Unknown::getStructure( number, *little_endian_r, *big_endian_r ) << "\n";
 
     return 0;
 }
