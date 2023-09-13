@@ -55,29 +55,38 @@ Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTRes
 }
 
 std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t type_id, const std::vector<const Data::Mission::IFF*> &little_endian, const std::vector<const Data::Mission::IFF*> &big_endian ) {
-    auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( 0 ) );
-    auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( 0 ) );
+    size_t limit = 0;
+    std::vector<ACTResource*> little_endian_act;
+    std::vector<ACTResource*>    big_endian_act;
 
-    Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
-    Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
+    for( size_t iff_index = 0; limit == 0 && iff_index < little_endian.size(); iff_index++ ){
+        auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( iff_index ) );
+        auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( iff_index ) );
 
-    std::vector<ACTResource*> little_endian_act = little_endian_manager.getACTs( type_id );
-    std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
+        Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
+        Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
 
-    if( little_endian_act.size() != big_endian_act.size() ) {
-        std::stringstream stream;
-        stream << "ERROR: little_endian_act.size() != big_endian_act.size()\n";
-        stream <<  little_endian_act.size() <<" != " << big_endian_act.size() << "\n";
-        return { stream.str() };
+        little_endian_act = little_endian_manager.getACTs( type_id );
+        big_endian_act    =    big_endian_manager.getACTs( type_id );
+
+        if( little_endian_act.size() != big_endian_act.size() ) {
+            std::stringstream stream;
+            stream << "ERROR: little_endian_act.size() != big_endian_act.size()\n";
+            stream <<  little_endian_act.size() <<" != " << big_endian_act.size() << "\n";
+            return { stream.str() };
+        }
+
+        if( !little_endian_act.empty() ) {
+            if( dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) ) == nullptr )
+                return { "ERROR: Please enter a non existing Act resource\n" };
+
+            limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
+        }
     }
 
-    if( little_endian_act.empty() )
+    if( limit == 0 )
         return { "ERROR: Actor resource does not exist\n" };
 
-    if( dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) ) == nullptr )
-        return { "ERROR: Please enter a non existing Act resource\n" };
-
-    size_t limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
     size_t buffer_offset = 0;
 
     unsigned bit_32_counter = 0;

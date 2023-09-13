@@ -304,26 +304,31 @@ int main(int argc, char** argv)
 
             auto structure = Data::Mission::ACT::Unknown::getStructure( number, little_endian, big_endian );
 
-            std::ofstream header_file;
-            header_file.open( camel_case_name + ".h", std::ios::out );
+            if( structure.empty() || structure.back().find( "ERROR:" ) == 0 )
+                std::cout << "Cannot create file " << structure.back() << "\n";
+            else {
 
-            if( header_file.is_open() ) {
-                header_file << header( camel_case_name, captialized_snake_case_name, structure);
+                std::ofstream header_file;
+                header_file.open( camel_case_name + ".h", std::ios::out );
 
-                header_file.close();
+                if( header_file.is_open() ) {
+                    header_file << header( camel_case_name, captialized_snake_case_name, structure);
 
-                std::cout << "Created header file \"" << camel_case_name << ".h\"\n";
-            }
+                    header_file.close();
 
-            std::ofstream code_file;
-            code_file.open( camel_case_name + ".cpp", std::ios::out );
+                    std::cout << "Created header file \"" << camel_case_name << ".h\"\n";
+                }
 
-            if( code_file.is_open() ) {
-                code_file << code( number, camel_case_name, structure);
+                std::ofstream code_file;
+                code_file.open( camel_case_name + ".cpp", std::ios::out );
 
-                code_file.close();
+                if( code_file.is_open() ) {
+                    code_file << code( number, camel_case_name, structure);
 
-                std::cout << "Created code file \"" << camel_case_name << ".cpp\"\n";
+                    code_file.close();
+
+                    std::cout << "Created code file \"" << camel_case_name << ".cpp\"\n";
+                }
             }
         }
     }
