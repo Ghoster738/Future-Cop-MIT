@@ -4,6 +4,8 @@
 
 #include "Internal/Hash.h"
 
+#include <set>
+
 uint_fast16_t Data::Mission::ACT::Unknown::TYPE_ID = 0; // Zero is not used by any ACT types that future cop uses.
 
 bool Data::Mission::ACT::Unknown::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
@@ -101,9 +103,9 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
     std::vector<std::string> list_of_variables;
 
     while( buffer_offset < limit ) {
-        uint32_t min_32_bit = std::numeric_limits<uint32_t>::max(), max_32_bit = std::numeric_limits<uint32_t>::min();
-        uint16_t min_16_bit = std::numeric_limits<uint16_t>::max(), max_16_bit = std::numeric_limits<uint16_t>::min();
-        uint8_t   min_8_bit = std::numeric_limits<uint8_t>::max(),  max_8_bit  = std::numeric_limits<uint8_t>::min();
+        std::set<uint32_t> bit_32_values;
+        std::set<uint16_t> bit_16_values;
+        std::set<uint8_t>   bit_8_values;
 
         bool always_32_bit = true;
         bool always_16_bit = true;
@@ -141,10 +143,8 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
 
                     if( little_num != big_reader.readU32( Utilities::Buffer::BIG ) )
                         always_32_bit = false;
-                    else {
-                        min_32_bit = std::min( min_32_bit, little_num );
-                        max_32_bit = std::max( max_32_bit, little_num );
-                    }
+                    else
+                        bit_32_values.insert( little_num );
                 }
                 else
                     always_32_bit = false;
@@ -157,10 +157,8 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
 
                     if( little_num != big_reader.readU16( Utilities::Buffer::BIG ) )
                         always_16_bit = false;
-                    else {
-                        min_16_bit = std::min( min_16_bit, little_num );
-                        max_16_bit = std::max( max_16_bit, little_num );
-                    }
+                    else
+                        bit_16_values.insert( little_num );
                 }
                 else
                     always_16_bit = false;
@@ -173,10 +171,8 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
 
                     if( little_num != big_reader.readU8() )
                         always_8_bit = false;
-                    else {
-                        min_8_bit = std::min( min_8_bit, little_num );
-                        max_8_bit = std::max( max_8_bit, little_num );
-                    }
+                    else
+                        bit_8_values.insert( little_num );
                 }
                 else
                     always_8_bit = false;
@@ -190,8 +186,14 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
             bit_32_counter++;
             buffer_offset += sizeof( uint32_t );
 
-            if( min_32_bit == max_32_bit )
-                stream << " // Always " << min_32_bit;
+            if( bit_32_values.size() == 1 )
+                stream << " // Always " << *bit_32_values.begin();
+            else {
+                stream << " // Values: ";
+
+                for( uint32_t bit_32 : bit_32_values )
+                    stream << (uint32_t)bit_32 << ", ";
+            }
         }
         else
         if( always_16_bit ) {
@@ -199,8 +201,14 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
             bit_16_counter++;
             buffer_offset += sizeof( uint16_t );
 
-            if( min_16_bit == max_16_bit )
-                stream << " // Always " << max_16_bit;
+            if( bit_16_values.size() == 1 )
+                stream << " // Always " << *bit_16_values.begin();
+            else {
+                stream << " // Values: ";
+
+                for( uint16_t bit_16 : bit_16_values )
+                    stream << (uint32_t)bit_16 << ", ";
+            }
         }
         else
         if( always_8_bit ) {
@@ -208,8 +216,14 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
             bit_8_counter++;
             buffer_offset += sizeof( uint8_t );
 
-            if( min_8_bit == max_8_bit )
-                stream << " // Always " << (uint32_t)max_8_bit;
+            if( bit_8_values.size() == 1 )
+                stream << " // Always " << (uint32_t)*bit_8_values.begin();
+            else {
+                stream << " // Values: ";
+
+                for( uint8_t bit_8 : bit_8_values )
+                    stream << (uint32_t)bit_8 << ", ";
+            }
         }
         else {
             stream << "error error; ";
