@@ -55,7 +55,7 @@ std::string header( std::string camel_case, std::string snake_case, const std::v
 
     stream << "    virtual Resource* duplicate() const;\n\n";
 
-    stream << "    ACTResource* duplicate( const ACTResource &original ) const;\n\n";
+    stream << "    virtual ACTResource* duplicate( const ACTResource &original ) const;\n\n";
 
     stream << "    Internal getInternal() const;\n\n";
 
@@ -82,7 +82,7 @@ std::string code( uint16_t type_id, std::string camel_case, const std::vector<st
 
     stream << "#include <cassert>\n\n";
 
-    stream << "uint_fast8_t Data::Mission::ACT::" << camel_case << "::TYPE_ID = " << type_id << "\n\n";
+    stream << "uint_fast8_t Data::Mission::ACT::" << camel_case << "::TYPE_ID = " << type_id << ";\n\n";
 
     stream << "Json::Value Data::Mission::ACT::" << camel_case << "::makeJson() const {\n";
     stream << "    Json::Value root = Data::Mission::ACTResource::makeJson();\n";

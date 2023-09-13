@@ -1,7 +1,5 @@
 #include "Trigger.h"
 
-#include "../ObjResource.h"
-
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::Trigger::TYPE_ID = 95;
@@ -12,9 +10,11 @@ Json::Value Data::Mission::ACT::Trigger::makeJson() const {
 
     root["ACT"][NAME]["width"]    = internal.width;
     root["ACT"][NAME]["height"]   = internal.height;
-    root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
+    root["ACT"][NAME]["uint16_2"] = internal.uint16_2; // Always 2048
+    root["ACT"][NAME]["uint8_0"]  = internal.uint8_0; // Always 0
     root["ACT"][NAME]["type"]     = internal.type;
-    root["ACT"][NAME]["id"]       = internal.id;
+    root["ACT"][NAME]["actor_id"] = internal.actor_id;
+    root["ACT"][NAME]["uint16_4"] = internal.uint16_4; // Always 0
 
     return root;
 }
@@ -22,26 +22,25 @@ Json::Value Data::Mission::ACT::Trigger::makeJson() const {
 bool Data::Mission::ACT::Trigger::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
 
-    if( data_reader.totalSize() != this->getSize() ) {
+    if( data_reader.totalSize() != this->getSize() )
         return false;
-    }
 
     internal.width    = data_reader.readU16( endian );
     internal.height   = data_reader.readU16( endian );
-    internal.uint16_0 = data_reader.readU16( endian );
-    internal.type     = data_reader.readU16( endian );
-    internal.id       = data_reader.readU16( endian );
+    internal.uint16_2 = data_reader.readU16( endian ); // Always 2048
 
-    // uint16_t always_zero = data_reader.readU16( endian );
+    internal.uint8_0  = data_reader.readU8(); // Always 0
+    internal.type     = data_reader.readU8();
+
+    internal.actor_id = data_reader.readU16( endian );
+    internal.uint16_4 = data_reader.readU16( endian ); // Always 0
 
     return true;
 }
 
-Data::Mission::ACT::Trigger::Trigger() {
-}
+Data::Mission::ACT::Trigger::Trigger() {}
 
-Data::Mission::ACT::Trigger::Trigger( const ACTResource& obj ) : ACTResource( obj ) {
-}
+Data::Mission::ACT::Trigger::Trigger( const ACTResource& obj ) : ACTResource( obj ) {}
 
 Data::Mission::ACT::Trigger::Trigger( const Trigger& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
@@ -67,8 +66,8 @@ Data::Mission::Resource* Data::Mission::ACT::Trigger::duplicate() const {
 
 Data::Mission::ACTResource* Data::Mission::ACT::Trigger::duplicate( const ACTResource &original ) const {
     auto copy_r = dynamic_cast<const Trigger*>( &original );
-    
-    if( copy_r != nullptr)
+
+    if( copy_r != nullptr )
         return new Data::Mission::ACT::Trigger( *copy_r );
     else
         return new Data::Mission::ACT::Trigger( original );

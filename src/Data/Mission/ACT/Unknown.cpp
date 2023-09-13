@@ -122,6 +122,8 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
                     max_32_bit = std::max( max_32_bit, little_num );
                 }
             }
+            else
+                always_32_bit = false;
 
             little_reader.setPosition( 0 );
             big_reader.setPosition( 0 );
@@ -136,6 +138,8 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
                     max_16_bit = std::max( max_16_bit, little_num );
                 }
             }
+            else
+                always_16_bit = false;
 
             little_reader.setPosition( 0 );
             big_reader.setPosition( 0 );
@@ -150,35 +154,37 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast16_
                     max_8_bit = std::max( max_8_bit, little_num );
                 }
             }
+            else
+                always_8_bit = false;
         }
 
         std::stringstream stream;
 
         if( always_32_bit ) {
-            stream << "uint32_t uint32_" << bit_32_counter << "; ";
+            stream << "uint32_t uint32_" << bit_32_counter << ";";
             bit_32_counter++;
             buffer_offset += sizeof( uint32_t );
 
             if( min_32_bit == max_32_bit )
-                stream << "// Always " << min_32_bit;
+                stream << " // Always " << min_32_bit;
         }
         else
         if( always_16_bit ) {
-            stream << "uint16_t uint16_" << bit_16_counter << "; ";
+            stream << "uint16_t uint16_" << bit_16_counter << ";";
             bit_16_counter++;
             buffer_offset += sizeof( uint16_t );
 
             if( min_16_bit == max_16_bit )
-                stream << "// Always " << max_16_bit;
+                stream << " // Always " << max_16_bit;
         }
         else
         if( always_8_bit ) {
-            stream << "uint8_t uint8_" << bit_8_counter << "; ";
+            stream << "uint8_t uint8_" << bit_8_counter << ";";
             bit_8_counter++;
             buffer_offset += sizeof( uint8_t );
 
             if( min_8_bit == max_8_bit )
-                stream << "// Always " << (uint32_t)max_8_bit;
+                stream << " // Always " << (uint32_t)max_8_bit;
         }
         else {
             stream << "error error; ";
