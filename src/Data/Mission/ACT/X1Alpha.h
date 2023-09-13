@@ -1,5 +1,5 @@
-#ifndef MISSION_ACT_TYPE_X1A_UNIT_HEADER
-#define MISSION_ACT_TYPE_X1A_UNIT_HEADER
+#ifndef DATA_MISSION_ACTOR_ID_ACTOR_1_HEADER
+#define DATA_MISSION_ACTOR_ID_ACTOR_1_HEADER
 
 #include "../ACTManager.h"
 #include <json/json.h>
@@ -20,26 +20,26 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t  uint16_3;
-        uint16_t  uint16_0;
-        uint16_t  uint16_1;
-        uint8_t   byte_0;
-        uint8_t   byte_1;
-        uint8_t   byte_2;
-        uint8_t   byte_3;
-        uint8_t   byte_4;
-        // Zero Byte
-        uint8_t   byte_5;
-        // Zero Byte
-        uint16_t  uint16_2;
-        // Zero Byte
-        uint8_t   byte_6;
+        uint32_t uint32_0;
+        uint16_t uint16_0;
+        uint16_t uint16_1;
+        uint8_t uint8_0;
+        uint8_t uint8_1;
+        uint8_t uint8_2;
+        uint8_t uint8_3;
+        uint8_t uint8_4;
+        uint8_t zero_0;
+        uint8_t uint8_6;
+        uint8_t zero_1;
+        uint16_t uint16_2;
+        uint8_t uint8_8;
+        uint8_t uint8_9;
     } internal;
 
 protected:
     virtual Json::Value makeJson() const;
-
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
+
 public:
     X1Alpha();
     X1Alpha( const ACTResource& obj );
@@ -53,19 +53,20 @@ public:
     virtual bool checkRSL() const;
 
     virtual Resource* duplicate() const;
-    
+
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
 
     static std::vector<X1Alpha*> getVector( Data::Mission::ACTManager& act_manager );
+
     static const std::vector<X1Alpha*> getVector( const Data::Mission::ACTManager& act_manager );
+
 };
-
 }
 
 }
 
 }
 
-#endif // MISSION_ACT_TYPE_X1A_UNIT_HEADER
+#endif

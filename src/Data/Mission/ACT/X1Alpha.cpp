@@ -1,7 +1,6 @@
 #include "X1Alpha.h"
 
 #include "../ObjResource.h"
-
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::X1Alpha::TYPE_ID = 1;
@@ -10,16 +9,20 @@ Json::Value Data::Mission::ACT::X1Alpha::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
+    root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
     root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
-    root["ACT"][NAME]["byte_0"] = internal.byte_0;
-    root["ACT"][NAME]["byte_1"] = internal.byte_1;
-    root["ACT"][NAME]["byte_2"] = internal.byte_2;
-    root["ACT"][NAME]["byte_3"] = internal.byte_3;
-    root["ACT"][NAME]["byte_4"] = internal.byte_4;
-    root["ACT"][NAME]["byte_5"] = internal.byte_5;
+    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
+    root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
+    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
+    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
+    root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
+    root["ACT"][NAME]["zero_0"] = internal.zero_0;
+    root["ACT"][NAME]["uint8_6"] = internal.uint8_6;
+    root["ACT"][NAME]["zero_1"] = internal.zero_1;
     root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["byte_6"] = internal.byte_6;
+    root["ACT"][NAME]["uint8_8"] = internal.uint8_8;
+    root["ACT"][NAME]["uint8_9"] = internal.uint8_9;
 
     return root;
 }
@@ -27,34 +30,30 @@ Json::Value Data::Mission::ACT::X1Alpha::makeJson() const {
 bool Data::Mission::ACT::X1Alpha::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
 
-    if(data_reader.totalSize() != this->getSize())
+    if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    data_reader.readU16(); // Ignore rotation.
-
-    internal.uint16_3 = data_reader.readU16( endian );
-    internal.uint16_0 = data_reader.readU16( endian );
-    internal.uint16_1 = data_reader.readU16( endian );
-    internal.byte_0 = data_reader.readU8();
-    internal.byte_1 = data_reader.readU8();
-    internal.byte_2 = data_reader.readU8();
-    internal.byte_3 = data_reader.readU8();
-    internal.byte_4 = data_reader.readU8();
-    data_reader.readU8();
-    internal.byte_5 = data_reader.readU8();
-    data_reader.readU8();
-    internal.uint16_2 = data_reader.readU16( endian );
-    data_reader.readU8();
-    internal.byte_6 = data_reader.readU8();
+    internal.uint32_0 = data_reader.readU32( endian ); // Values: 64, 8256, 524352, 524864, 533056, 
+    internal.uint16_0 = data_reader.readU16( endian ); // Values: 1000, 5000, 
+    internal.uint16_1 = data_reader.readU16( endian ); // Values: 1, 5, 
+    internal.uint8_0 = data_reader.readU8(); // Values: 1, 2, 31, 
+    internal.uint8_1 = data_reader.readU8(); // Values: 0, 2, 
+    internal.uint8_2 = data_reader.readU8(); // Values: 34, 39, 49, 50, 
+    internal.uint8_3 = data_reader.readU8(); // Values: 5, 15, 
+    internal.uint8_4 = data_reader.readU8(); // Values: 0, 10, 
+    internal.zero_0 = data_reader.readU8(); // Always 0
+    internal.uint8_6 = data_reader.readU8(); // Values: 0, 128, 129, 
+    internal.zero_1 = data_reader.readU8(); // Always 0
+    internal.uint16_2 = data_reader.readU16( endian ); // Values: 0, 1024, 1536, 2048, 3072, 61440, 62464, 63488, 64512, 65535, 
+    internal.uint8_8 = data_reader.readU8(); // Values: 0, 1, 
+    internal.uint8_9 = data_reader.readU8(); // Values: 0, 1, 255, 
 
     return true;
 }
 
-Data::Mission::ACT::X1Alpha::X1Alpha() {
-}
+Data::Mission::ACT::X1Alpha::X1Alpha() {}
 
-Data::Mission::ACT::X1Alpha::X1Alpha( const ACTResource& obj ) : ACTResource( obj ) {
-}
+Data::Mission::ACT::X1Alpha::X1Alpha( const ACTResource& obj ) : ACTResource( obj ) {}
 
 Data::Mission::ACT::X1Alpha::X1Alpha( const X1Alpha& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
@@ -86,8 +85,8 @@ Data::Mission::Resource* Data::Mission::ACT::X1Alpha::duplicate() const {
 
 Data::Mission::ACTResource* Data::Mission::ACT::X1Alpha::duplicate( const ACTResource &original ) const {
     auto copy_r = dynamic_cast<const X1Alpha*>( &original );
-    
-    if( copy_r != nullptr)
+
+    if( copy_r != nullptr )
         return new Data::Mission::ACT::X1Alpha( *copy_r );
     else
         return new Data::Mission::ACT::X1Alpha( original );
