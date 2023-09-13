@@ -72,6 +72,25 @@ int main(int argc, char** argv)
         std::cin >> number;
 
         if( number != 0 ) {
+            std::cout << "Please enter the actor name in CamelCase." << std::endl;
+            std::string camel_case_name;
+            std::cin >> camel_case_name;
+
+            std::string captialized_snake_case_name;
+
+            if( !camel_case_name.empty() ) {
+                captialized_snake_case_name += toupper( camel_case_name[0] );
+
+                for( size_t i = 1; i < camel_case_name.size(); i++ ) {
+                    if( isupper( camel_case_name[i] ) )
+                        captialized_snake_case_name += "_";
+
+                    captialized_snake_case_name += toupper( camel_case_name[i] );
+                }
+            }
+
+            std::cout << "captialized_snake_case_name = " << captialized_snake_case_name << "\n";
+
             std::cout << "Using number " << number << "\n";
 
             auto structure = Data::Mission::ACT::Unknown::getStructure( number, *little_endian_r, *big_endian_r );
