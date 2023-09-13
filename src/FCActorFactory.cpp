@@ -65,10 +65,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "Actor Data: " << Data::Mission::ACT::Unknown::getStructure( 16, *little_endian_r, *big_endian_r ) << "\n";
-    }
+    std::cout << "Actor Data: " << Data::Mission::ACT::Unknown::getStructure( 1, *little_endian_r, *big_endian_r ) << "\n";
 
     return 0;
 }

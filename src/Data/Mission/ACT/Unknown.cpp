@@ -76,6 +76,12 @@ std::string Data::Mission::ACT::Unknown::getStructure( uint_fast16_t type_id, co
     unsigned bit_16_counter = 0;
     unsigned bit_8_counter = 0;
 
+    if( little_endian_act.empty() )
+        return "Actor resource does not exist\n";
+
+    if( dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) ) == nullptr )
+        return "Please enter a non existing Act resource\n";
+
     size_t limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
     size_t buffer_offset = 0;
 
