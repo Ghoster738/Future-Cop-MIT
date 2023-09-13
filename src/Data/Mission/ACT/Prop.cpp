@@ -3,7 +3,6 @@
 #include "../ObjResource.h"
 
 #include <cassert>
-#include <glm/gtc/constants.hpp>
 
 uint_fast8_t Data::Mission::ACT::Prop::TYPE_ID = 96;
 
@@ -11,13 +10,18 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["int16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["angle?"]  = internal.uint16_3;
-    root["ACT"][NAME]["byte 0"]  = internal.byte_0;
-    root["ACT"][NAME]["layer?"]  = internal.byte_1;
-    root["ACT"][NAME]["byte 2"]  = internal.byte_2;
-    root["ACT"][NAME]["spin?"]   = internal.spin;
-    root["ACT"][NAME]["byte 3"]  = internal.byte_3;
+    root["ACT"][NAME]["rotation"] = internal.rotation;
+    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
+    root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
+    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
+    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
+    root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
+    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
+    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
+    root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
+    root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
+    root["ACT"][NAME]["uint8_6"] = internal.uint8_6;
+    root["ACT"][NAME]["uint8_7"] = internal.uint8_7;
 
     return root;
 }
@@ -28,32 +32,25 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    data_reader.readU16(); // Ignore rotation.
-
-    internal.uint16_1 = data_reader.readU16( endian );
-    internal.uint16_2 = data_reader.readU16( endian );
-    internal.uint16_3 = data_reader.readU16( endian );
-
-    internal.byte_0 = data_reader.readU8();
-    internal.byte_1 = data_reader.readU8();
-    internal.byte_2 = data_reader.readU8();
-
-    internal.matching_bytes[0] = data_reader.readU8();
-    internal.matching_bytes[1] = data_reader.readU8();
-    internal.matching_bytes[2] = data_reader.readU8();
-
-    internal.spin = data_reader.readU8();
-
-    internal.byte_3 = data_reader.readU8();
+    internal.rotation = data_reader.readU16( endian ); // Values: 0, 512, 800, 900, 1000, 1024, 1111, 1200, 1256, 1536, 1650, 2000, 2048, 2100, 2222, 2300, 3000, 3072, 3076, 3333, 3584, 3600, 3700, 3900, 65535,
+    internal.uint16_1 = data_reader.readU16( endian ); // Values: 0, 84, 85, 86, 87, 88, 89, 90, 100, 3072, 3700, 
+    internal.uint16_2 = data_reader.readU16( endian ); // Values: 0, 13, 15, 17, 18, 19, 23, 24, 27, 200, 300, 340, 700, 3396, 
+    internal.uint16_3 = data_reader.readU16( endian ); // Values: 0, 40, 81, 122, 163, 204, 245, 250, 276, 286, 327, 450, 491, 512, 532, 573, 614, 696, 737, 819, 901, 983, 1024, 1044, 1126, 1187, 1228, 1310, 1351, 1433, 1536, 1638, 3276, 63692, 64512, 65208, 65249, 65290, 65331, 65372, 65413, 65433, 65454, 
+    internal.uint8_0 = data_reader.readU8(); // Values: 0, 1, 255, 
+    internal.uint8_1 = data_reader.readU8(); // Values: 0, 1, 2, 4, 16, 48, 64, 66, 68, 
+    internal.uint8_2 = data_reader.readU8(); // Values: 0, 8, 10, 13, 14, 15, 16, 
+    internal.uint8_3 = data_reader.readU8(); // Values: 19, 20, 21, 22, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 70, 76, 83, 89, 112, 121, 
+    internal.uint8_4 = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 76, 83, 96, 105, 108, 112, 115, 121, 
+    internal.uint8_5 = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 57, 60, 64, 67, 70, 76, 83, 89, 112, 121, 
+    internal.uint8_6 = data_reader.readU8(); // Values: 0, 1, 3, 4, 5, 7, 8, 16, 254, 
+    internal.uint8_7 = data_reader.readU8(); // Values: 0, 30, 40, 45, 60, 
 
     return true;
 }
 
-Data::Mission::ACT::Prop::Prop() {
-}
+Data::Mission::ACT::Prop::Prop() {}
 
-Data::Mission::ACT::Prop::Prop( const ACTResource& obj ) : ACTResource( obj ) {
-}
+Data::Mission::ACT::Prop::Prop( const ACTResource& obj ) : ACTResource( obj ) {}
 
 Data::Mission::ACT::Prop::Prop( const Prop& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
@@ -79,8 +76,8 @@ Data::Mission::Resource* Data::Mission::ACT::Prop::duplicate() const {
 
 Data::Mission::ACTResource* Data::Mission::ACT::Prop::duplicate( const ACTResource &original ) const {
     auto copy_r = dynamic_cast<const Prop*>( &original );
-    
-    if( copy_r != nullptr)
+
+    if( copy_r != nullptr )
         return new Data::Mission::ACT::Prop( *copy_r );
     else
         return new Data::Mission::ACT::Prop( original );
