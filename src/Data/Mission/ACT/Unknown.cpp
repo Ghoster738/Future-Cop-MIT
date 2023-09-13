@@ -56,18 +56,23 @@ Data::Mission::ACTResource* Data::Mission::ACT::Unknown::duplicate( const ACTRes
 
 std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t type_id, const std::vector<const Data::Mission::IFF*> &little_endian, const std::vector<const Data::Mission::IFF*> &big_endian ) {
     size_t limit = 0;
-    std::vector<ACTResource*> little_endian_act;
-    std::vector<ACTResource*>    big_endian_act;
 
-    for( size_t iff_index = 0; limit == 0 && iff_index < little_endian.size(); iff_index++ ){
+    if( little_endian.size() != big_endian.size() ) {
+        std::stringstream stream;
+        stream << "ERROR: little_endian.size() != big_endian.size()\n";
+        stream <<  little_endian.size() <<" != " << big_endian.size() << "\n";
+        return { stream.str() };
+    }
+
+    for( size_t iff_index = 0; limit == 0 && iff_index < little_endian.size(); iff_index++ ) {
         auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( iff_index ) );
         auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( iff_index ) );
 
         Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
         Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
 
-        little_endian_act = little_endian_manager.getACTs( type_id );
-        big_endian_act    =    big_endian_manager.getACTs( type_id );
+        std::vector<ACTResource*> little_endian_act = little_endian_manager.getACTs( type_id );
+        std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
 
         if( little_endian_act.size() != big_endian_act.size() ) {
             std::stringstream stream;
@@ -104,67 +109,78 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
         bool always_16_bit = true;
         bool always_8_bit  = true;
 
-        for( size_t i = 0; i < little_endian_act.size(); i++ ) {
-            auto little_endian_r = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( i ) );
-            auto big_endian_r    = dynamic_cast<Data::Mission::ACT::Unknown*>(    big_endian_act.at( i ) );
+        for( size_t iff_index = 0; iff_index < little_endian.size(); iff_index++ ) {
+            auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( iff_index ) );
+            auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( iff_index ) );
 
-            Utilities::Buffer::Reader little_reader( little_endian_r->act_buffer.data() + buffer_offset, little_endian_r->act_buffer.size() - buffer_offset );
-            Utilities::Buffer::Reader    big_reader(    big_endian_r->act_buffer.data() + buffer_offset,    big_endian_r->act_buffer.size() - buffer_offset );
+            Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
+            Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
 
-            if( little_reader.totalSize() != big_reader.totalSize() ) {
-                std::stringstream stream;
-                stream << "ERROR: little_reader.totalSize() != big_reader.totalSize() ";
-                stream <<  little_reader.totalSize() <<" != " << big_reader.totalSize() << "\n";
-                return { stream.str() };
-            }
+            std::vector<ACTResource*> little_endian_act = little_endian_manager.getACTs( type_id );
+            std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
 
-            little_reader.setPosition( 0 );
-            big_reader.setPosition( 0 );
+            for( size_t i = 0; i < little_endian_act.size(); i++ ) {
+                auto little_endian_r = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( i ) );
+                auto big_endian_r    = dynamic_cast<Data::Mission::ACT::Unknown*>(    big_endian_act.at( i ) );
 
-            if( always_32_bit && little_reader.totalSize() >= sizeof( uint32_t ) ) {
-                const uint32_t little_num = little_reader.readU32( Utilities::Buffer::LITTLE );
+                Utilities::Buffer::Reader little_reader( little_endian_r->act_buffer.data() + buffer_offset, little_endian_r->act_buffer.size() - buffer_offset );
+                Utilities::Buffer::Reader    big_reader(    big_endian_r->act_buffer.data() + buffer_offset,    big_endian_r->act_buffer.size() - buffer_offset );
 
-                if( little_num != big_reader.readU32( Utilities::Buffer::BIG ) )
+                if( little_reader.totalSize() != big_reader.totalSize() ) {
+                    std::stringstream stream;
+                    stream << "ERROR: little_reader.totalSize() != big_reader.totalSize() ";
+                    stream <<  little_reader.totalSize() <<" != " << big_reader.totalSize() << "\n";
+                    return { stream.str() };
+                }
+
+                little_reader.setPosition( 0 );
+                big_reader.setPosition( 0 );
+
+                if( always_32_bit && little_reader.totalSize() >= sizeof( uint32_t ) ) {
+                    const uint32_t little_num = little_reader.readU32( Utilities::Buffer::LITTLE );
+
+                    if( little_num != big_reader.readU32( Utilities::Buffer::BIG ) )
+                        always_32_bit = false;
+                    else {
+                        min_32_bit = std::min( min_32_bit, little_num );
+                        max_32_bit = std::max( max_32_bit, little_num );
+                    }
+                }
+                else
                     always_32_bit = false;
-                else {
-                    min_32_bit = std::min( min_32_bit, little_num );
-                    max_32_bit = std::max( max_32_bit, little_num );
+
+                little_reader.setPosition( 0 );
+                big_reader.setPosition( 0 );
+
+                if( always_16_bit && little_reader.totalSize() >= sizeof( uint16_t ) ) {
+                    const uint16_t little_num = little_reader.readU16( Utilities::Buffer::LITTLE );
+
+                    if( little_num != big_reader.readU16( Utilities::Buffer::BIG ) )
+                        always_16_bit = false;
+                    else {
+                        min_16_bit = std::min( min_16_bit, little_num );
+                        max_16_bit = std::max( max_16_bit, little_num );
+                    }
                 }
-            }
-            else
-                always_32_bit = false;
-
-            little_reader.setPosition( 0 );
-            big_reader.setPosition( 0 );
-
-            if( always_16_bit && little_reader.totalSize() >= sizeof( uint16_t ) ) {
-                const uint16_t little_num = little_reader.readU16( Utilities::Buffer::LITTLE );
-
-                if( little_num != big_reader.readU16( Utilities::Buffer::BIG ) )
+                else
                     always_16_bit = false;
-                else {
-                    min_16_bit = std::min( min_16_bit, little_num );
-                    max_16_bit = std::max( max_16_bit, little_num );
+
+                little_reader.setPosition( 0 );
+                big_reader.setPosition( 0 );
+
+                if( always_8_bit && little_reader.totalSize() >= sizeof( uint8_t ) ) {
+                    const uint8_t little_num = little_reader.readU8();
+
+                    if( little_num != big_reader.readU8() )
+                        always_8_bit = false;
+                    else {
+                        min_8_bit = std::min( min_8_bit, little_num );
+                        max_8_bit = std::max( max_8_bit, little_num );
+                    }
                 }
-            }
-            else
-                always_16_bit = false;
-
-            little_reader.setPosition( 0 );
-            big_reader.setPosition( 0 );
-
-            if( always_8_bit && little_reader.totalSize() >= sizeof( uint8_t ) ) {
-                const uint8_t little_num = little_reader.readU8();
-
-                if( little_num != big_reader.readU8() )
+                else
                     always_8_bit = false;
-                else {
-                    min_8_bit = std::min( min_8_bit, little_num );
-                    max_8_bit = std::max( max_8_bit, little_num );
-                }
             }
-            else
-                always_8_bit = false;
         }
 
         std::stringstream stream;

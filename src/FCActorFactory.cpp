@@ -229,7 +229,6 @@ int main(int argc, char** argv)
     manager.togglePlatform( Data::Manager::Platform::WINDOWS,   true );
     manager.togglePlatform( Data::Manager::Platform::MACINTOSH, true );
 
-    const std::string resource_identifier = *Data::Manager::precinct_assault_iffs[ 0 ];
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
         const std::string resource_identifier = *Data::Manager::map_iffs[ i ];
 
@@ -251,6 +250,8 @@ int main(int argc, char** argv)
     std::vector<const Data::Mission::IFF*>    big_endian;
 
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
+        const std::string resource_identifier = *Data::Manager::map_iffs[ i ];
+
         auto little_endian_r = manager.getIFFEntry( resource_identifier ).getIFF( Data::Manager::Platform::WINDOWS );
         if( little_endian_r == nullptr ) {
             {
