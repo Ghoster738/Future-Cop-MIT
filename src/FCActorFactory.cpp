@@ -13,8 +13,8 @@ namespace {
 std::string header( std::string camel_case, std::string snake_case, const std::vector<std::string> &structure ) {
     std::stringstream stream;
 
-    stream << "#ifndef MISSION_ACT_TYPE_" << snake_case << "_HEADER\n";
-    stream << "#define MISSION_ACT_TYPE_" << snake_case << "_HEADER\n\n";
+    stream << "#ifndef DATA_MISSION_ACTOR_ID_" << snake_case << "_HEADER\n";
+    stream << "#define DATA_MISSION_ACTOR_ID_" << snake_case << "_HEADER\n\n";
 
     stream << "#include \"../ACTManager.h\"\n";
     stream << "#include <json/json.h>\n\n";

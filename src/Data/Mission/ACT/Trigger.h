@@ -1,5 +1,5 @@
-#ifndef MISSION_ACT_TYPE_TRIGGER_HEADER
-#define MISSION_ACT_TYPE_TRIGGER_HEADER
+#ifndef DATA_MISSION_ACTOR_ID_95_HEADER
+#define DATA_MISSION_ACTOR_ID_95_HEADER
 
 #include "../ACTManager.h"
 #include <json/json.h>
@@ -17,11 +17,11 @@ public:
     struct Internal {
         uint16_t width;
         uint16_t height;
-        uint16_t uint16_2; // Not Always 2048
-        uint8_t  uint8_0; // Always 0
-        uint8_t  type;
-        uint16_t actor_id;
-        uint16_t uint16_4; // Always 0
+        uint16_t uint16_2;
+        uint8_t uint8_0;
+        uint8_t type;
+        uint16_t test_id;
+        uint16_t zero;
     } internal;
 
 protected:
