@@ -282,26 +282,16 @@ int main(int argc, char** argv)
         std::cin >> number;
 
         if( number != 0 ) {
-            std::cout << "Please enter the actor name in CamelCase." << std::endl;
+            std::cout << "Using number " << number << "\n";
+
+            std::string snake_case_name = "ACTOR_";
+            snake_case_name += std::to_string( number );
+
+            std::cout << "snake_case_name = " << snake_case_name << "\n";
+
+            std::cout << "Please enter the the class name for this actor." << std::endl;
             std::string camel_case_name;
             std::cin >> camel_case_name;
-
-            std::string captialized_snake_case_name;
-
-            if( !camel_case_name.empty() ) {
-                captialized_snake_case_name += toupper( camel_case_name[0] );
-
-                for( size_t i = 1; i < camel_case_name.size(); i++ ) {
-                    if( isupper( camel_case_name[i] ) )
-                        captialized_snake_case_name += "_";
-
-                    captialized_snake_case_name += toupper( camel_case_name[i] );
-                }
-            }
-
-            std::cout << "captialized_snake_case_name = " << captialized_snake_case_name << "\n";
-
-            std::cout << "Using number " << number << "\n";
 
             auto structure = Data::Mission::ACT::Unknown::getStructure( number, little_endian, big_endian );
 
@@ -313,12 +303,14 @@ int main(int argc, char** argv)
                 header_file.open( camel_case_name + ".h", std::ios::out );
 
                 if( header_file.is_open() ) {
-                    header_file << header( camel_case_name, captialized_snake_case_name, structure);
+                    header_file << header( camel_case_name, snake_case_name, structure);
 
                     header_file.close();
 
                     std::cout << "Created header file \"" << camel_case_name << ".h\"\n";
                 }
+                else
+                    std::cout << "Failed to create header file \"" << camel_case_name << ".h\"\n";
 
                 std::ofstream code_file;
                 code_file.open( camel_case_name + ".cpp", std::ios::out );
@@ -330,6 +322,8 @@ int main(int argc, char** argv)
 
                     std::cout << "Created code file \"" << camel_case_name << ".cpp\"\n";
                 }
+                else
+                    std::cout << "Failed to create code file \"" << camel_case_name << ".cpp\"\n";
             }
         }
     }
