@@ -88,11 +88,9 @@ public:
     uint32_t getDestroyedBaseID() const { return rsl_data[3].index; }
 
     float getGunRotation() const;
-
     glm::quat getGunRotationQuaternion() const;
 
     float getBaseRotation() const;
-
     glm::quat getBaseRotationQuaternion() const;
 
     static std::vector<NeutralTurret*> getVector( Data::Mission::ACTManager& act_manager );

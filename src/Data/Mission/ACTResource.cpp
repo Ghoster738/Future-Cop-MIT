@@ -232,6 +232,16 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
+
+float Data::Mission::ACTResource::getRotation( uint16_t rotation_value ) {
+    int32_t rotation = rotation_value;
+    return -glm::pi<float>() / 2048.0f * (rotation - 1024);
+}
+
+glm::quat Data::Mission::ACTResource::getRotationQuaternion( float rotation ) {
+    return glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+}
+
 bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";

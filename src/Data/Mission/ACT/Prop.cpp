@@ -88,11 +88,11 @@ Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const
 }
 
 float Data::Mission::ACT::Prop::getRotation() const {
-    return -glm::pi<float>() / 2048.0f * (internal.rotation - 1024);
+    return ACTResource::getRotation( internal.rotation );
 }
 
 glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
-    return glm::angleAxis( this->getRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+    return ACTResource::getRotationQuaternion( this->getRotation() );
 }
 
 std::vector<Data::Mission::ACT::Prop*> Data::Mission::ACT::Prop::getVector( Data::Mission::ACTManager& act_manager ) {

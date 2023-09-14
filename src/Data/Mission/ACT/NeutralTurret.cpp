@@ -140,19 +140,19 @@ Data::Mission::ACT::NeutralTurret::Internal Data::Mission::ACT::NeutralTurret::g
 }
 
 float Data::Mission::ACT::NeutralTurret::getGunRotation() const {
-    return -glm::pi<float>() / 2048.0f * (internal.gun_rotation - 1024);
+    return ACTResource::getRotation( internal.gun_rotation );
 }
 
 glm::quat Data::Mission::ACT::NeutralTurret::getGunRotationQuaternion() const {
-    return glm::angleAxis( this->getGunRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+    return getRotationQuaternion( this->getGunRotation() );
 }
 
 float Data::Mission::ACT::NeutralTurret::getBaseRotation() const {
-    return -glm::pi<float>() / 2048.0f * (internal.base_rotation - 1024);
+    return ACTResource::getRotation( internal.base_rotation );
 }
 
 glm::quat Data::Mission::ACT::NeutralTurret::getBaseRotationQuaternion() const {
-    return glm::angleAxis( this->getBaseRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+    return getRotationQuaternion( this->getBaseRotation() );
 }
 
 std::vector<Data::Mission::ACT::NeutralTurret*> Data::Mission::ACT::NeutralTurret::getVector( Data::Mission::ACTManager& act_manager ) {
