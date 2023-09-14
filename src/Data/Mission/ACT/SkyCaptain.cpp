@@ -10,53 +10,60 @@ Json::Value Data::Mission::ACT::SkyCaptain::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint16_0"]      = internal.uint16_0;
-    root["ACT"][NAME]["bytes_0"][0]    = internal.bytes_0[0];
-    root["ACT"][NAME]["bytes_0"][1]    = internal.bytes_0[1];
-    root["ACT"][NAME]["bytes_0"][2]    = internal.bytes_0[2];
-    root["ACT"][NAME]["bytes_0"][3]    = internal.bytes_0[3];
-    root["ACT"][NAME]["bytes_0"][4]    = internal.bytes_0[4];
-    root["ACT"][NAME]["bytes_0"][5]    = internal.bytes_0[5];
-    root["ACT"][NAME]["uint16_1"][0]   = internal.uint16_1[0];
-    root["ACT"][NAME]["uint16_1"][1]   = internal.uint16_1[1];
-    root["ACT"][NAME]["bytes_1"][0]    = internal.bytes_1[0];
-    root["ACT"][NAME]["bytes_1"][1]    = internal.bytes_1[1];
-    root["ACT"][NAME]["uint16_2"]      = internal.uint16_2;
-    root["ACT"][NAME]["uint32_1"]      = internal.uint32_1;
-    root["ACT"][NAME]["uint16_3"][0]   = internal.uint16_3[0];
-    root["ACT"][NAME]["uint16_3"][1]   = internal.uint16_3[1];
-    root["ACT"][NAME]["bytes_2"][0]    = internal.bytes_2[0];
-    root["ACT"][NAME]["bytes_2"][1]    = internal.bytes_2[1];
-    root["ACT"][NAME]["uint16_4"]      = internal.uint16_4;
-    root["ACT"][NAME]["bytes_3"][0]    = internal.bytes_3[0];
-    root["ACT"][NAME]["bytes_3"][1]    = internal.bytes_3[1];
-    root["ACT"][NAME]["uint16_5"][0]   = internal.uint16_5[0];
-    root["ACT"][NAME]["uint16_5"][1]   = internal.uint16_5[1];
-    root["ACT"][NAME]["uint16_5"][2]   = internal.uint16_5[2];
-    root["ACT"][NAME]["uint16_5"][3]   = internal.uint16_5[3];
-    root["ACT"][NAME]["uint16_5"][4]   = internal.uint16_5[4];
-    root["ACT"][NAME]["uint16_5"][5]   = internal.uint16_5[5];
-    root["ACT"][NAME]["uint16_5"][6]   = internal.uint16_5[6];
-    root["ACT"][NAME]["uint32_2"]      = internal.uint32_2;
-    root["ACT"][NAME]["uint16_6"][0]   = internal.uint16_6[0];
-    root["ACT"][NAME]["uint16_6"][1]   = internal.uint16_6[1];
-    root["ACT"][NAME]["byte_4"]        = internal.byte_4;
-    root["ACT"][NAME]["uint16_7"][0]   = internal.uint16_7[0];
-    root["ACT"][NAME]["uint16_7"][1]   = internal.uint16_7[1];
-    root["ACT"][NAME]["bytes_5"][0]    = internal.bytes_5[0];
-    root["ACT"][NAME]["bytes_5"][1]    = internal.bytes_5[1];
-    root["ACT"][NAME]["uint16_8"]      = internal.uint16_8;
-    root["ACT"][NAME]["uint16_9"][0]   = internal.uint16_9[0];
-    root["ACT"][NAME]["uint16_9"][1]   = internal.uint16_9[1];
-    root["ACT"][NAME]["uint16_9"][2]   = internal.uint16_9[2];
-    root["ACT"][NAME]["uint16_9"][3]   = internal.uint16_9[3];
-    root["ACT"][NAME]["bytes_6"][0]    = internal.bytes_6[0];
-    root["ACT"][NAME]["bytes_6"][1]    = internal.bytes_6[1];
-    root["ACT"][NAME]["uint16_10"]     = internal.uint16_10;
-    root["ACT"][NAME]["uint32_3"]      = internal.uint32_3;
-    root["ACT"][NAME]["uint16_11"][0]  = internal.uint16_11[0];
-    root["ACT"][NAME]["uint16_11"][1]  = internal.uint16_11[1];
-    
+    root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
+    root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
+    root["ACT"][NAME]["zero_0"] = internal.zero_0;
+    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
+    root["ACT"][NAME]["zero_1"] = internal.zero_1;
+    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
+    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
+    root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
+    root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
+    root["ACT"][NAME]["zero_2"] = internal.zero_2;
+    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
+    root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
+    root["ACT"][NAME]["uint8_6"] = internal.uint8_6;
+    root["ACT"][NAME]["uint8_7"] = internal.uint8_7;
+    root["ACT"][NAME]["uint16_5"] = internal.uint16_5;
+    root["ACT"][NAME]["uint32_1"] = internal.uint32_1;
+    root["ACT"][NAME]["uint16_6"] = internal.uint16_6;
+    root["ACT"][NAME]["uint16_7"] = internal.uint16_7;
+    root["ACT"][NAME]["uint8_8"] = internal.uint8_8;
+    root["ACT"][NAME]["uint8_9"] = internal.uint8_9;
+    root["ACT"][NAME]["uint16_8"] = internal.uint16_8;
+    root["ACT"][NAME]["uint8_10"] = internal.uint8_10;
+    root["ACT"][NAME]["uint8_11"] = internal.uint8_11;
+    root["ACT"][NAME]["uint16_9"] = internal.uint16_9;
+    root["ACT"][NAME]["uint16_10"] = internal.uint16_10;
+    root["ACT"][NAME]["uint16_11"] = internal.uint16_11;
+    root["ACT"][NAME]["uint16_12"] = internal.uint16_12;
+    root["ACT"][NAME]["uint16_13"] = internal.uint16_13;
+    root["ACT"][NAME]["uint16_14"] = internal.uint16_14;
+    root["ACT"][NAME]["uint16_15"] = internal.uint16_15;
+    root["ACT"][NAME]["uint32_2"] = internal.uint32_2;
+    root["ACT"][NAME]["uint16_16"] = internal.uint16_16;
+    root["ACT"][NAME]["uint16_17"] = internal.uint16_17;
+    root["ACT"][NAME]["uint16_18"] = internal.uint16_18;
+    root["ACT"][NAME]["uint16_19"] = internal.uint16_19;
+    root["ACT"][NAME]["uint8_12"] = internal.uint8_12;
+    root["ACT"][NAME]["zero_3"] = internal.zero_3;
+    root["ACT"][NAME]["zero_4"] = internal.zero_4;
+    root["ACT"][NAME]["uint16_21"] = internal.uint16_21;
+    root["ACT"][NAME]["uint16_22"] = internal.uint16_22;
+    root["ACT"][NAME]["uint8_14"] = internal.uint8_14;
+    root["ACT"][NAME]["uint8_15"] = internal.uint8_15;
+    root["ACT"][NAME]["uint16_23"] = internal.uint16_23;
+    root["ACT"][NAME]["uint32_3"] = internal.uint32_3;
+    root["ACT"][NAME]["uint16_24"] = internal.uint16_24;
+    root["ACT"][NAME]["uint16_25"] = internal.uint16_25;
+    root["ACT"][NAME]["uint16_26"] = internal.uint16_26;
+    root["ACT"][NAME]["uint16_27"] = internal.uint16_27;
+    root["ACT"][NAME]["uint8_16"] = internal.uint8_16;
+    root["ACT"][NAME]["uint8_17"] = internal.uint8_17;
+    root["ACT"][NAME]["uint16_28"] = internal.uint16_28;
+    root["ACT"][NAME]["uint32_4"] = internal.uint32_4;
+    root["ACT"][NAME]["uint16_29"] = internal.uint16_29;
+    root["ACT"][NAME]["uint16_30"] = internal.uint16_30;
 
     return root;
 }
@@ -64,74 +71,70 @@ Json::Value Data::Mission::ACT::SkyCaptain::makeJson() const {
 bool Data::Mission::ACT::SkyCaptain::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
 
-    if(data_reader.totalSize() != this->getSize())
+    if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    data_reader.readU16(); // Ignore rotation.
-    
-    internal.uint16_12 = data_reader.readU16( endian );
-    internal.uint16_0 = data_reader.readU16( endian );
-    data_reader.readU16(); // 2 zero bytes
-    internal.bytes_0[ 0 ] = data_reader.readU8();
-    internal.bytes_0[ 1 ] = data_reader.readU8();
-    internal.bytes_0[ 2 ] = data_reader.readU8();
-    internal.bytes_0[ 3 ] = data_reader.readU8();
-    internal.bytes_0[ 4 ] = data_reader.readU8();
-    internal.bytes_0[ 5 ] = data_reader.readU8();;
-    data_reader.readU16(); // 2 zero bytes
-    internal.uint16_1[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_1[ 1 ] = data_reader.readU16( endian );
-    internal.bytes_1[ 0 ] = data_reader.readU8();
-    internal.bytes_1[ 1 ] = data_reader.readU8();
-    internal.uint16_2 = data_reader.readU16( endian );
-    internal.uint32_1 = data_reader.readU32( endian );
-    internal.uint16_3[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_3[ 1 ] = data_reader.readU16( endian );
-    internal.bytes_2[ 0 ] = data_reader.readU8();
-    internal.bytes_2[ 1 ] = data_reader.readU8();
-    internal.uint16_4 = data_reader.readU16( endian );
-    internal.bytes_3[ 0 ] = data_reader.readU8();
-    internal.bytes_3[ 1 ] = data_reader.readU8();
-    internal.uint16_5[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_5[ 1 ] = data_reader.readU16( endian );
-    internal.uint16_5[ 2 ] = data_reader.readU16( endian );
-    internal.uint16_5[ 3 ] = data_reader.readU16( endian );
-    internal.uint16_5[ 4 ] = data_reader.readU16( endian );
-    internal.uint16_5[ 5 ] = data_reader.readU16( endian );
-    internal.uint16_5[ 6 ] = data_reader.readU16( endian );
-    internal.uint32_2 = data_reader.readU32( endian );
-    internal.uint16_6[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_6[ 1 ] = data_reader.readU16( endian );
-    data_reader.readU32(); // 4 zero bytes
-    internal.byte_4 = data_reader.readU8();
-    data_reader.readU8();
-    data_reader.readU8();
-    data_reader.readU8(); // 3 zero bytes
-    internal.uint16_7[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_7[ 1 ] = data_reader.readU16( endian );
-    internal.bytes_5[ 0 ] = data_reader.readU8();
-    internal.bytes_5[ 1 ] = data_reader.readU8();
-    internal.uint16_8 = data_reader.readU16( endian );
-    data_reader.readU32(); // 4 zero bytes
-    internal.uint16_9[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_9[ 1 ] = data_reader.readU16( endian );
-    internal.uint16_9[ 2 ] = data_reader.readU16( endian );
-    internal.uint16_9[ 3 ] = data_reader.readU16( endian );
-    internal.bytes_6[ 0 ] = data_reader.readU8();
-    internal.bytes_6[ 1 ] = data_reader.readU8();
-    internal.uint16_10 = data_reader.readU16( endian );
-    internal.uint32_3 = data_reader.readU32( endian );
-    internal.uint16_11[ 0 ] = data_reader.readU16( endian );
-    internal.uint16_11[ 1 ] = data_reader.readU16( endian );
+    internal.uint32_0 = data_reader.readU32( endian ); // Always 598856
+    internal.uint16_0 = data_reader.readU16( endian ); // Always 1000
+    internal.zero_0 = data_reader.readU16( endian ); // Always 0
+    internal.uint8_0 = data_reader.readU8(); // Always 2
+    internal.zero_1 = data_reader.readU8(); // Always 0
+    internal.uint8_2 = data_reader.readU8(); // Always 50
+    internal.uint8_3 = data_reader.readU8(); // Always 5
+    internal.uint8_4 = data_reader.readU8(); // Values: 220, 221, 222, 223, 
+    internal.uint8_5 = data_reader.readU8(); // Always 77
+    internal.zero_2 = data_reader.readU16( endian ); // Always 0
+    internal.uint16_3 = data_reader.readU16( endian ); // Always 7
+    internal.uint16_4 = data_reader.readU16( endian ); // Always 578
+    internal.uint8_6 = data_reader.readU8(); // Always 1
+    internal.uint8_7 = data_reader.readU8(); // Always 4
+    internal.uint16_5 = data_reader.readU16( endian ); // Always 1
+    internal.uint32_1 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
+    internal.uint16_6 = data_reader.readU16( endian ); // Always 6144
+    internal.uint16_7 = data_reader.readU16( endian ); // Always 16
+    internal.uint8_8 = data_reader.readU8(); // Always 1
+    internal.uint8_9 = data_reader.readU8(); // Always 4
+    internal.uint16_8 = data_reader.readU16( endian ); // Always 1
+    internal.uint8_10 = data_reader.readU8(); // Always 1
+    internal.uint8_11 = data_reader.readU8(); // Values: 0, 8, 12, 
+    internal.uint16_9 = data_reader.readU16( endian ); // Always 32358
+    internal.uint16_10 = data_reader.readU16( endian ); // Always 512
+    internal.uint16_11 = data_reader.readU16( endian ); // Values: 614, 675, 
+    internal.uint16_12 = data_reader.readU16( endian ); // Values: 655, 716, 
+    internal.uint16_13 = data_reader.readU16( endian ); // Values: 716, 757, 
+    internal.uint16_14 = data_reader.readU16( endian ); // Always 4096
+    internal.uint16_15 = data_reader.readU16( endian ); // Always 1843
+    internal.uint32_2 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
+    internal.uint16_16 = data_reader.readU16( endian ); // Always 7680
+    internal.uint16_17 = data_reader.readU16( endian ); // Always 1280
+    internal.uint16_18 = data_reader.readU16( endian ); // Values: 0, 1920, 2049, 3303, 
+    internal.uint16_19 = data_reader.readU16( endian ); // Values: 0, 1912, 2799, 3537, 
+    internal.uint8_12 = data_reader.readU8(); // Always 1
+    internal.zero_3 = data_reader.readU16( endian ); // Always 0
+    internal.zero_4 = data_reader.readU8(); // Always 0
+    internal.uint16_21 = data_reader.readU16( endian ); // Always 8
+    internal.uint16_22 = data_reader.readU16( endian ); // Always 578
+    internal.uint8_14 = data_reader.readU8(); // Always 1
+    internal.uint8_15 = data_reader.readU8(); // Always 4
+    internal.uint16_23 = data_reader.readU16( endian ); // Always 1
+    internal.uint32_3 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
+    internal.uint16_24 = data_reader.readU16( endian ); // Always 6144
+    internal.uint16_25 = data_reader.readU16( endian ); // Always 16
+    internal.uint16_26 = data_reader.readU16( endian ); // Always 9
+    internal.uint16_27 = data_reader.readU16( endian ); // Always 578
+    internal.uint8_16 = data_reader.readU8(); // Always 1
+    internal.uint8_17 = data_reader.readU8(); // Always 4
+    internal.uint16_28 = data_reader.readU16( endian ); // Always 1
+    internal.uint32_4 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
+    internal.uint16_29 = data_reader.readU16( endian ); // Always 6144
+    internal.uint16_30 = data_reader.readU16( endian ); // Always 16
 
     return true;
 }
 
-Data::Mission::ACT::SkyCaptain::SkyCaptain() {
-}
+Data::Mission::ACT::SkyCaptain::SkyCaptain() {}
 
-Data::Mission::ACT::SkyCaptain::SkyCaptain( const ACTResource& obj ) : ACTResource( obj ) {
-}
+Data::Mission::ACT::SkyCaptain::SkyCaptain( const ACTResource& obj ) : ACTResource( obj ) {}
 
 Data::Mission::ACT::SkyCaptain::SkyCaptain( const SkyCaptain& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
@@ -157,8 +160,8 @@ Data::Mission::Resource* Data::Mission::ACT::SkyCaptain::duplicate() const {
 
 Data::Mission::ACTResource* Data::Mission::ACT::SkyCaptain::duplicate( const ACTResource &original ) const {
     auto copy_r = dynamic_cast<const SkyCaptain*>( &original );
-    
-    if( copy_r != nullptr)
+
+    if( copy_r != nullptr )
         return new Data::Mission::ACT::SkyCaptain( *copy_r );
     else
         return new Data::Mission::ACT::SkyCaptain( original );
