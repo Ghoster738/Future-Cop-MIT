@@ -7,6 +7,7 @@
 #include "Data/Mission/ACT/BaseTurret.h"
 #include "Data/Mission/ACT/NeutralTurret.h"
 #include "Data/Mission/ACT/Prop.h"
+#include "Data/Mission/ACT/ItemPickup.h"
 
 #include <ratio>
 
@@ -151,6 +152,20 @@ void PrimaryGame::load( MainProgram &main_program ) {
             catch( const std::invalid_argument& argument ) {
                 auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
                 log.output << "Cobj with resource id " << i->getAliveBaseID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
+            }
+        }
+
+        auto item_pickup_array_r = Data::Mission::ACT::ItemPickup::getVector( actor_array_r );
+
+        for( auto i : item_pickup_array_r ) {
+            try {
+                auto alive_base_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getItemID(), i->getPosition( ptc ) );
+
+                props_p.push_back( alive_base_instance_p );
+            }
+            catch( const std::invalid_argument& argument ) {
+                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+                log.output << "Cobj with resource id " << i->getItemID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
             }
         }
     }

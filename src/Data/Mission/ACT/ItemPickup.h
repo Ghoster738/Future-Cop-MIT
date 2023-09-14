@@ -54,6 +54,9 @@ public:
 
     Internal getInternal() const;
 
+    bool getHasItemID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getItemID() const { return rsl_data[0].resource_id; }
+
     static std::vector<ItemPickup*> getVector( Data::Mission::ACTManager& act_manager );
 
     static const std::vector<ItemPickup*> getVector( const Data::Mission::ACTManager& act_manager );
