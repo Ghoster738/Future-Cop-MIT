@@ -143,6 +143,22 @@ Data::Mission::ACT::BaseTurret::Internal Data::Mission::ACT::BaseTurret::getInte
     return internal;
 }
 
+float Data::Mission::ACT::BaseTurret::getGunRotation() const {
+    return ACTResource::getRotation( 0 );
+}
+
+glm::quat Data::Mission::ACT::BaseTurret::getGunRotationQuaternion() const {
+    return getRotationQuaternion( this->getGunRotation() );
+}
+
+float Data::Mission::ACT::BaseTurret::getBaseRotation() const {
+    return ACTResource::getRotation( 0 );
+}
+
+glm::quat Data::Mission::ACT::BaseTurret::getBaseRotationQuaternion() const {
+    return getRotationQuaternion( this->getBaseRotation() );
+}
+
 std::vector<Data::Mission::ACT::BaseTurret*> Data::Mission::ACT::BaseTurret::getVector( Data::Mission::ACTManager& act_manager ) {
     std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::BaseTurret::TYPE_ID );
 
