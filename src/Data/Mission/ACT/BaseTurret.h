@@ -79,16 +79,16 @@ public:
     glm::vec2 getTextureOffset() const;
 
     bool getHasAliveGunID() const { return rsl_data[0].type != RSL_NULL_TAG; }
-    uint32_t getAliveGunID() const { return rsl_data[0].index; }
+    uint32_t getAliveGunID() const { return rsl_data[0].resource_id; }
 
     bool getHasDestroyedGunID() const { return rsl_data[1].type != RSL_NULL_TAG; }
-    uint32_t getDestroyedGunID() const { return rsl_data[1].index; }
+    uint32_t getDestroyedGunID() const { return rsl_data[1].resource_id; }
 
     bool getHasAliveBaseID() const { return rsl_data[2].type != RSL_NULL_TAG; }
-    uint32_t getAliveBaseID() const { return rsl_data[2].index; }
+    uint32_t getAliveBaseID() const { return rsl_data[2].resource_id; }
 
     bool getHasDestroyedBaseID() const { return rsl_data[3].type != RSL_NULL_TAG; }
-    uint32_t getDestroyedBaseID() const { return rsl_data[3].index; }
+    uint32_t getDestroyedBaseID() const { return rsl_data[3].resource_id; }
 
     float getGunRotation() const;
     glm::quat getGunRotationQuaternion() const;

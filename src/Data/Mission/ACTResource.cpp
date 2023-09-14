@@ -65,7 +65,7 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     Json::Value root;
 
     root["FutureCopAsset"]["type"] = "ACT Resource";
-    root["FutureCopAsset"]["major"] = 1;
+    root["FutureCopAsset"]["major"] = 2;
     root["FutureCopAsset"]["minor"] = 0;
 
     for( unsigned i = 0; i < rsl_data.size(); i++ )
@@ -78,8 +78,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 
         root["RSL"][ i ]["type"]  = reinterpret_cast<char*>( type );
 
-        if( rsl_data[ i ].type != NULL_INT && rsl_data[ i ].index != 0x0 )
-            root["RSL"][ i ]["index"] = rsl_data[ i ].index;
+        if( rsl_data[ i ].type != NULL_INT && rsl_data[ i ].resource_id != 0x0 )
+            root["RSL"][ i ]["resource_id"] = rsl_data[ i ].resource_id;
     }
 
     root["resource"]["id"] = static_cast<unsigned int>( this->matching_number );
@@ -318,7 +318,7 @@ Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Ut
 
 bool Data::Mission::ACTResource::hasRSL( uint32_t type_id, uint32_t resource_id ) const {
     for( auto i = rsl_data.begin(); i != rsl_data.end(); i++ ) {
-        if( (*i).type == type_id && (*i).index == resource_id )
+        if( (*i).type == type_id && (*i).resource_id == resource_id )
             return true;
     }
     return false;
@@ -335,7 +335,7 @@ std::string Data::Mission::ACTResource::displayRSL() const {
         rsl_text += static_cast<char>( ((*i).type >>  8) & 0xFF );
         rsl_text += static_cast<char>( ((*i).type >>  0) & 0xFF );
         
-        rsl_text += ", Resource ID: " + std::to_string((*i).index);
+        rsl_text += ", Resource ID: " + std::to_string((*i).resource_id);
         
         rsl_text += "};\n";
     }
@@ -357,7 +357,7 @@ std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( 
 }
 
 glm::vec2 Data::Mission::ACTResource::getPosition() const {
-    return (1.f / 8192.f) * glm::vec2(position_x, position_y);
+    return (1.f / 8192.f) * glm::vec2( position_x, position_y );
 }
 
 glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) const {

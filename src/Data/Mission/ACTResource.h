@@ -47,7 +47,7 @@ protected:
 
     struct RSLEntry {
         uint32_t type;
-        uint32_t index;
+        uint32_t resource_id;
     };
 
     // This might be the unique identifieyer for ACTResource.

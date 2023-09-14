@@ -51,7 +51,7 @@ public:
 
     Internal getInternal() const;
 
-    uint32_t getObjResourceID() const { return rsl_data[0].index; }
+    uint32_t getObjResourceID() const { return rsl_data[0].resource_id; }
 
     float getRotation() const;
 
