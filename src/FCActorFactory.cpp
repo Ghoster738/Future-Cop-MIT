@@ -13,8 +13,8 @@ namespace {
 std::string header( std::string camel_case, std::string snake_case, const std::vector<std::string> &structure ) {
     std::stringstream stream;
 
-    stream << "#ifndef DATA_MISSION_ACTOR_ID_" << snake_case << "_HEADER\n";
-    stream << "#define DATA_MISSION_ACTOR_ID_" << snake_case << "_HEADER\n\n";
+    stream << "#ifndef DATA_MISSION_" << snake_case << "_HEADER\n";
+    stream << "#define DATA_MISSION_" << snake_case << "_HEADER\n\n";
 
     stream << "#include \"../ACTManager.h\"\n";
     stream << "#include <json/json.h>\n\n";
@@ -75,7 +75,7 @@ std::string header( std::string camel_case, std::string snake_case, const std::v
 
     stream << "}\n\n"; // Data
 
-    stream << "#endif\n";
+    stream << "#endif // DATA_MISSION_" << snake_case << "_HEADER\n";
 
     return stream.str();
 }
@@ -284,7 +284,7 @@ int main(int argc, char** argv)
         if( number != 0 ) {
             std::cout << "Using number " << number << "\n";
 
-            std::string snake_case_name = "ACTOR_";
+            std::string snake_case_name = "ACTOR_ID_";
             snake_case_name += std::to_string( number );
 
             std::cout << "snake_case_name = " << snake_case_name << "\n";

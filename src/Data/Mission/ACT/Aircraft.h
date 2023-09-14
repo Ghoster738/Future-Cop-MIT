@@ -1,5 +1,5 @@
-#ifndef DATA_MISSION_ACTOR_ID_ACTOR_9_HEADER
-#define DATA_MISSION_ACTOR_ID_ACTOR_9_HEADER
+#ifndef DATA_MISSION_ACTOR_ID_9_HEADER
+#define DATA_MISSION_ACTOR_ID_9_HEADER
 
 #include "../ACTManager.h"
 #include <json/json.h>
@@ -93,4 +93,4 @@ public:
 
 }
 
-#endif
+#endif // DATA_MISSION_ACTOR_ID_9_HEADER
