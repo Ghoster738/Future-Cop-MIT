@@ -36,21 +36,21 @@ public:
         uint8_t uint8_8;
         uint8_t uint8_9;
         uint16_t uint16_8;
-        uint16_t value_0;
+        uint16_t gun_rotation;
         uint16_t uint16_10;
         uint16_t uint16_11;
         uint16_t uint16_12;
         uint8_t uint8_10;
         uint32_t uint32_2;
         uint8_t uint8_11;
-        uint16_t value_1;
+        uint16_t base_rotation;
         uint8_t uint8_12;
         uint8_t uint8_13;
         uint8_t uint8_14;
         uint8_t uint8_15;
         uint8_t value_2;
         uint8_t value_3;
-        uint16_t uint16_14;
+        uint16_t value_4;
     } internal;
 
 protected:
@@ -86,6 +86,14 @@ public:
 
     bool getHasDestroyedBaseID() const { return rsl_data[3].type != RSL_NULL_TAG; }
     uint32_t getDestroyedBaseID() const { return rsl_data[3].index; }
+
+    float getGunRotation() const;
+
+    glm::quat getGunRotationQuaternion() const;
+
+    float getBaseRotation() const;
+
+    glm::quat getBaseRotationQuaternion() const;
 
     static std::vector<NeutralTurret*> getVector( Data::Mission::ACTManager& act_manager );
 

@@ -31,21 +31,21 @@ Json::Value Data::Mission::ACT::NeutralTurret::makeJson() const {
     root["ACT"][NAME]["uint8_8"] = internal.uint8_8;
     root["ACT"][NAME]["uint8_9"] = internal.uint8_9;
     root["ACT"][NAME]["uint16_8"] = internal.uint16_8;
-    root["ACT"][NAME]["value_0"] = internal.value_0;
+    root["ACT"][NAME]["gun_rotation"] = internal.gun_rotation;
     root["ACT"][NAME]["uint16_10"] = internal.uint16_10;
     root["ACT"][NAME]["uint16_11"] = internal.uint16_11;
     root["ACT"][NAME]["uint16_12"] = internal.uint16_12;
     root["ACT"][NAME]["uint8_10"] = internal.uint8_10;
     root["ACT"][NAME]["uint32_2"] = internal.uint32_2;
     root["ACT"][NAME]["uint8_11"] = internal.uint8_11;
-    root["ACT"][NAME]["value_1"] = internal.value_1;
+    root["ACT"][NAME]["base_rotation"] = internal.base_rotation;
     root["ACT"][NAME]["uint8_12"] = internal.uint8_12;
     root["ACT"][NAME]["uint8_13"] = internal.uint8_13;
     root["ACT"][NAME]["uint8_14"] = internal.uint8_14;
     root["ACT"][NAME]["uint8_15"] = internal.uint8_15;
     root["ACT"][NAME]["value_2"] = internal.value_2;
     root["ACT"][NAME]["value_3"] = internal.value_3;
-    root["ACT"][NAME]["uint16_14"] = internal.uint16_14;
+    root["ACT"][NAME]["value_4"] = internal.value_4;
 
     return root;
 }
@@ -77,21 +77,21 @@ bool Data::Mission::ACT::NeutralTurret::readACTType( uint_fast8_t act_type, Util
     internal.uint8_8 = data_reader.readU8(); // Always 0
     internal.uint8_9 = data_reader.readU8(); // Always 4
     internal.uint16_8 = data_reader.readU16( endian ); // Always 1
-    internal.value_0 = data_reader.readU16( endian ); // Values: 0, 512, 1024, 1536, 2048, 2560, 3072, 3584,
+    internal.gun_rotation = data_reader.readU16( endian ); // Values: 0, 512, 1024, 1536, 2048, 2560, 3072, 3584,
     internal.uint16_10 = data_reader.readU16( endian ); // Always 0
     internal.uint16_11 = data_reader.readU16( endian ); // Always 2457
     internal.uint16_12 = data_reader.readU16( endian ); // Always 6144
     internal.uint8_10 = data_reader.readU8(); // Always 7
     internal.uint32_2 = data_reader.readU32( endian ); // Always 0
     internal.uint8_11 = data_reader.readU8(); // Always 0
-    internal.value_1 = data_reader.readU16( endian ); // Values: 0, 512, 1024, 1536, 2048, 2560, 3072, 3584,
+    internal.base_rotation = data_reader.readU16( endian ); // Values: 0, 512, 1024, 1536, 2048, 2560, 3072, 3584,
     internal.uint8_12 = data_reader.readU8(); // Always 1
     internal.uint8_13 = data_reader.readU8(); // Always 2
     internal.uint8_14 = data_reader.readU8(); // Always 1
     internal.uint8_15 = data_reader.readU8(); // Always 2
     internal.value_2 = data_reader.readU8(); // Values: 0, 50, 60,
     internal.value_3 = data_reader.readU8(); // Values: 0, 33,
-    internal.uint16_14 = data_reader.readU16( endian ); // Values: 1024, 1638, 1843, 
+    internal.value_4 = data_reader.readU16( endian ); // Values: 1024, 1638, 1843,
 
     return true;
 }
@@ -137,6 +137,22 @@ Data::Mission::ACTResource* Data::Mission::ACT::NeutralTurret::duplicate( const 
 
 Data::Mission::ACT::NeutralTurret::Internal Data::Mission::ACT::NeutralTurret::getInternal() const {
     return internal;
+}
+
+float Data::Mission::ACT::NeutralTurret::getGunRotation() const {
+    return -glm::pi<float>() / 2048.0f * (internal.gun_rotation - 1024);
+}
+
+glm::quat Data::Mission::ACT::NeutralTurret::getGunRotationQuaternion() const {
+    return glm::angleAxis( this->getGunRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+}
+
+float Data::Mission::ACT::NeutralTurret::getBaseRotation() const {
+    return -glm::pi<float>() / 2048.0f * (internal.base_rotation - 1024);
+}
+
+glm::quat Data::Mission::ACT::NeutralTurret::getBaseRotationQuaternion() const {
+    return glm::angleAxis( this->getBaseRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
 }
 
 std::vector<Data::Mission::ACT::NeutralTurret*> Data::Mission::ACT::NeutralTurret::getVector( Data::Mission::ACTManager& act_manager ) {
