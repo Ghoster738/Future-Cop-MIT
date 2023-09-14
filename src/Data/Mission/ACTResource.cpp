@@ -130,8 +130,6 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         position_y      = data_reader.readI32( endian ); // 16
         position_height = data_reader.readI32( endian ); // 20
         position_x      = data_reader.readI32( endian ); // 24
-        rotation        = data_reader.readI16( endian ); // 28
-        data_reader.setPosition( -static_cast<ssize_t>(sizeof( int16_t )), Utilities::Buffer::CURRENT );
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
@@ -356,15 +354,6 @@ glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) cons
     const auto v = this->getPosition();
     return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
 }
-
-float Data::Mission::ACTResource::getRotation() const {
-    return -glm::pi<float>() / 2048.0f * (this->rotation - 1024);
-}
-
-glm::quat Data::Mission::ACTResource::getRotationQuaternion() const {
-    return glm::angleAxis( this->getRotation(), glm::vec3( 0.0f, 1.0f, 0.0f ) );
-}
-
 
 const std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( const Data::Mission::IFF &mission_file ) {
     return Data::Mission::ACTResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );

@@ -115,13 +115,9 @@ void PrimaryGame::load( MainProgram &main_program ) {
 
                 props_p.push_back( alive_base_instance_p );
 
-                props_p.back()->setRotation( i->getRotationQuaternion() );
-
                 auto alive_turret_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getAliveGunID(), i->getPosition( ptc ) + glm::vec3( 0, 1, 0 ) );
 
                 props_p.push_back( alive_turret_instance_p );
-
-                props_p.back()->setRotation( i->getRotationQuaternion() );
             }
             catch( const std::invalid_argument& argument ) {
                 auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

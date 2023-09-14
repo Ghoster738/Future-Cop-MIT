@@ -62,7 +62,6 @@ protected:
     int32_t position_y;
     int32_t position_height; // This is likely just zero.
     int32_t position_x;
-    int32_t rotation;
 
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) = 0;
 
@@ -118,8 +117,6 @@ public:
 
     glm::vec2 getPosition() const;
     glm::vec3 getPosition( const PTCResource &ptc ) const;
-    float getRotation() const;
-    glm::quat getRotationQuaternion() const;
 
     static std::vector<ACTResource*> getVector( IFF &mission_file );
     static const std::vector<ACTResource*> getVector( const IFF &mission_file );
