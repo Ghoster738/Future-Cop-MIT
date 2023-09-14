@@ -229,8 +229,11 @@ int main(int argc, char** argv)
     manager.togglePlatform( Data::Manager::Platform::WINDOWS,   true );
     manager.togglePlatform( Data::Manager::Platform::MACINTOSH, true );
 
-    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_PRECINCT_ASSAULT_IDS; i++ ) {
-        const std::string resource_identifier = *Data::Manager::precinct_assault_iffs[ i ];
+    const size_t MAP_AMOUNT = Data::Manager::AMOUNT_OF_IFF_IDS;
+    const auto MAPS = Data::Manager::map_iffs;
+
+    for( size_t i = 0; i < MAP_AMOUNT; i++ ) {
+        const std::string resource_identifier = *MAPS[ i ];
 
         auto entry = manager.getIFFEntry( resource_identifier );
         entry.importance = Data::Manager::Importance::NEEDED;
@@ -249,8 +252,8 @@ int main(int argc, char** argv)
     std::vector<const Data::Mission::IFF*> little_endian;
     std::vector<const Data::Mission::IFF*>    big_endian;
 
-    for( size_t i = 0; i < Data::Manager::AMOUNT_OF_PRECINCT_ASSAULT_IDS; i++ ) {
-        const std::string resource_identifier = *Data::Manager::precinct_assault_iffs[ i ];
+    for( size_t i = 0; i < MAP_AMOUNT; i++ ) {
+        const std::string resource_identifier = *MAPS[ i ];
 
         auto little_endian_r = manager.getIFFEntry( resource_identifier ).getIFF( Data::Manager::Platform::WINDOWS );
         if( little_endian_r == nullptr ) {
