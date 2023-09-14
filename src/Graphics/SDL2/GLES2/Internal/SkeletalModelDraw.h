@@ -25,6 +25,7 @@ protected:
         public:
             SkeletalAnimation *skeletal_info_r;
             unsigned int current_frame;
+            glm::vec2 texture_offset;
 
             virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };

@@ -6,6 +6,25 @@
 #include <iostream>
 #include "SDL.h"
 
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
+            const std::vector<DynamicTriangleDraw::Triangle> &triangles,
+            DynamicTriangleDraw::DrawCommand &triangles_draw ) const
+{
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ];
+
+        for( unsigned t = 0; t < 3; t++ ) {
+            draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+        }
+
+        draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
+    }
+}
+
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
@@ -264,7 +283,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
     if( shiney_texture_r != nullptr )
         shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
 
-    Mesh::DynamicNormal dynamic;
+    Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
 
     // Traverse the models.
@@ -277,6 +296,11 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
         for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
             if( camera.isVisible( *(*instance) ) ) {
+                const auto texture_offset = (*instance)->getTextureOffset();
+                glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
+
+                dynamic.texture_offset = texture_offset;
+
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );

@@ -25,9 +25,12 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
         
         if( delta_triangle_r != nullptr ) {
             for( unsigned t = 0; t < 3; t++ ) {
-                draw_triangles_r[ i ].vertices[ t ].position += delta_triangle_r[ i ].vertices[ t ];
+                draw_triangles_r[ i ].vertices[ t ].position   += delta_triangle_r[ i ].vertices[ t ];
             }
         }
+        draw_triangles_r[ i ].vertices[ 0 ].coordinate += texture_offset;
+        draw_triangles_r[ i ].vertices[ 1 ].coordinate += texture_offset;
+        draw_triangles_r[ i ].vertices[ 2 ].coordinate += texture_offset;
         
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
     }
@@ -228,6 +231,9 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
         for( auto instance = ( *d ).second->instances_r.begin(); instance != ( *d ).second->instances_r.end(); instance++ )
         {
             if( camera.isVisible( *(*instance) ) ) {
+                const auto texture_offset = (*instance)->getTextureOffset();
+                glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
+
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
@@ -266,6 +272,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                     dynamic.transform = camera_3D_model_transform;
                     dynamic.morph_info_r = (*accessor).second;
                     dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
+                    dynamic.texture_offset = texture_offset;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }
             }

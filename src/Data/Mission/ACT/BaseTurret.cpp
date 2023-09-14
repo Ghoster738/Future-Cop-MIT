@@ -19,8 +19,8 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
     root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
     root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
-    root["ACT"][NAME]["uint8_6"] = internal.uint8_6;
-    root["ACT"][NAME]["uint8_7"] = internal.uint8_7;
+    root["ACT"][NAME]["texture_x"] = internal.texture_x;
+    root["ACT"][NAME]["texture_y"] = internal.texture_y;
     root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
     root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
     root["ACT"][NAME]["uint8_8"] = internal.uint8_8;
@@ -32,7 +32,7 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     root["ACT"][NAME]["uint8_10"] = internal.uint8_10;
     root["ACT"][NAME]["uint8_11"] = internal.uint8_11;
     root["ACT"][NAME]["uint16_7"] = internal.uint16_7;
-    root["ACT"][NAME]["uint16_8"] = internal.uint16_8;
+    root["ACT"][NAME]["gun_rotation"] = internal.gun_rotation;
     root["ACT"][NAME]["uint16_9"] = internal.uint16_9;
     root["ACT"][NAME]["uint16_10"] = internal.uint16_10;
     root["ACT"][NAME]["uint16_11"] = internal.uint16_11;
@@ -41,7 +41,7 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     root["ACT"][NAME]["zero_1"] = internal.zero_1;
     root["ACT"][NAME]["uint8_14"] = internal.uint8_14;
     root["ACT"][NAME]["zero_2"] = internal.zero_2;
-    root["ACT"][NAME]["uint16_13"] = internal.uint16_13;
+    root["ACT"][NAME]["base_rotation"] = internal.base_rotation;
 
     return root;
 }
@@ -63,10 +63,10 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint8_5 = data_reader.readU8(); // Values: 0, 85, 89, 96, 98, 108, 
 
     // JOKE 100 or 50. The rest 0.
-    internal.uint8_6 = data_reader.readU8(); // Values: 0, 50, 100, 
+    internal.texture_x = data_reader.readU8(); // Values: 0, 50, 100,
 
     // Precint Assualt maps seems to be 24, Crime War 0
-    internal.uint8_7 = data_reader.readU8(); // Values: 0, 24, 
+    internal.texture_y = data_reader.readU8(); // Values: 0, 24,
 
     internal.uint16_2 = data_reader.readU16( endian ); // Values: 1, 2, 3, 5, 6, 8, 11, 12, 13, 14, 16, 18, 95, 
     internal.uint16_3 = data_reader.readU16( endian ); // Values: 6, 14, 38, 46, 166, 256, 262, 288, 13574, 16966, 
@@ -86,7 +86,7 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint8_10 = data_reader.readU8(); // Values: 0, 1, 
     internal.uint8_11 = data_reader.readU8(); // Values: 0, 1, 4, 
     internal.uint16_7 = data_reader.readU16( endian ); // Values: 0, 1, 2, 
-    internal.uint16_8 = data_reader.readU16( endian ); // Values: 0, 200, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3072, 3200, 3400, 3584, 3600, 3700, 65535, 
+    internal.gun_rotation = data_reader.readU16( endian ); // Values: 0, 200, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3072, 3200, 3400, 3584, 3600, 3700, 65535,
     internal.uint16_9 = data_reader.readU16( endian ); // Values: 0, 40, 327, 409, 491, 532, 1925, 2129, 
     internal.uint16_10 = data_reader.readU16( endian ); // Values: 0, 409, 819, 1024, 1228, 1638, 2048, 2457, 3276, 4096, 
     internal.uint16_11 = data_reader.readU16( endian ); // Values: 2048, 6144, 7782, 8192, 10240, 12288, 
@@ -95,7 +95,7 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.zero_1 = data_reader.readU8(); // Always 0
     internal.uint8_14 = data_reader.readU8(); // Values: 0, 1, 
     internal.zero_2 = data_reader.readU8(); // Always 0
-    internal.uint16_13 = data_reader.readU16( endian ); // Values: 0, 200, 256, 300, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3060, 3072, 3200, 3400, 3572, 3584, 3600, 3700, 
+    internal.base_rotation = data_reader.readU16( endian ); // Values: 0, 200, 256, 300, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3060, 3072, 3200, 3400, 3572, 3584, 3600, 3700,
 
     return true;
 }
@@ -143,8 +143,12 @@ Data::Mission::ACT::BaseTurret::Internal Data::Mission::ACT::BaseTurret::getInte
     return internal;
 }
 
+glm::vec2 Data::Mission::ACT::BaseTurret::getTextureOffset() const {
+    return (1.f / 256.f) * glm::vec2( internal.texture_x, internal.texture_y );
+}
+
 float Data::Mission::ACT::BaseTurret::getGunRotation() const {
-    return ACTResource::getRotation( 0 );
+    return ACTResource::getRotation( internal.gun_rotation );
 }
 
 glm::quat Data::Mission::ACT::BaseTurret::getGunRotationQuaternion() const {
@@ -152,7 +156,7 @@ glm::quat Data::Mission::ACT::BaseTurret::getGunRotationQuaternion() const {
 }
 
 float Data::Mission::ACT::BaseTurret::getBaseRotation() const {
-    return ACTResource::getRotation( 0 );
+    return ACTResource::getRotation( internal.base_rotation );
 }
 
 glm::quat Data::Mission::ACT::BaseTurret::getBaseRotationQuaternion() const {

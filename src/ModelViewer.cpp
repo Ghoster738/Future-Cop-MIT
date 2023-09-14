@@ -186,6 +186,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
                 // first_person->setView3D( placeView( glm::pi<float>() / 4.0f, this->radius + 4.0f, this->position ) );
                 this->displayed_instance_p->setPosition( -this->position );
+                this->displayed_instance_p->setTextureOffset( { 0.5f, 0.0f } );
                 main_program.camera_distance = -(this->radius + 4.0f);
             }
             else

@@ -29,8 +29,8 @@ public:
         uint8_t uint8_3;
         uint8_t uint8_4;
         uint8_t uint8_5;
-        uint8_t uint8_6;
-        uint8_t uint8_7;
+        uint8_t texture_x;
+        uint8_t texture_y;
         uint16_t uint16_2;
         uint16_t uint16_3;
         uint8_t uint8_8;
@@ -42,7 +42,7 @@ public:
         uint8_t uint8_10;
         uint8_t uint8_11;
         uint16_t uint16_7;
-        uint16_t uint16_8;
+        uint16_t gun_rotation;
         uint16_t uint16_9;
         uint16_t uint16_10;
         uint16_t uint16_11;
@@ -51,7 +51,7 @@ public:
         uint8_t zero_1;
         uint8_t uint8_14;
         uint8_t zero_2;
-        uint16_t uint16_13;
+        uint16_t base_rotation;
     } internal;
 
 protected:
@@ -75,6 +75,8 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
+
+    glm::vec2 getTextureOffset() const;
 
     bool getHasAliveGunID() const { return rsl_data[0].type != RSL_NULL_TAG; }
     uint32_t getAliveGunID() const { return rsl_data[0].index; }

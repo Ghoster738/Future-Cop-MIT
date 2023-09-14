@@ -25,6 +25,13 @@ public:
         std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
     };
+    class Dynamic : public Mesh::DynamicNormal {
+    public:
+        glm::vec2 texture_offset;
+
+        virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
+    };
+
 protected:
     Program program;
     std::vector<Shader::Attribute> attributes;

@@ -52,6 +52,8 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
             draw_triangles_r[ i ].vertices[ t ].position.x = position.x * (1. / position.w);
             draw_triangles_r[ i ].vertices[ t ].position.y = position.y * (1. / position.w);
             draw_triangles_r[ i ].vertices[ t ].position.z = position.z * (1. / position.w);
+
+            draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
         }
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position );
@@ -246,6 +248,9 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
             for( auto instance = ( *d ).second->instances_r.begin(); instance != ( *d ).second->instances_r.end(); instance++ )
             {
                 if( camera.isVisible( *(*instance) ) ) {
+                    const auto texture_offset = (*instance)->getTextureOffset();
+                    glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
+
                     // Get the position and rotation of the model.
                     // Multiply them into one matrix which will hold the entire model transformation.
                     camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
@@ -273,6 +278,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     dynamic.transform = camera_3D_model_transform;
                     dynamic.skeletal_info_r = animate_r;
                     dynamic.current_frame = current_frame;
+                    dynamic.texture_offset = texture_offset;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }
             }
