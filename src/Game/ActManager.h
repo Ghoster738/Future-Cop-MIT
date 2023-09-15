@@ -18,6 +18,7 @@ public:
         struct Spawner {
             Data::Mission::ACTResource::tSAC_chunk timings;
             ActorClass actor;
+            std::chrono::microseconds time;
             std::vector<ActorClass> current_actors;
         };
         std::vector<ActorClass> actors;

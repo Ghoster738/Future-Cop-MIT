@@ -37,6 +37,8 @@ public:
         uint16_t unk_2;
         uint16_t unk_3;
 
+        bool isAutomatic() const { return game_ticks < 0; };
+        double getSpawnTime() const { return SECONDS_PER_GAME_TICK * std::abs( game_ticks ); }
         std::string getString() const;
     };
 

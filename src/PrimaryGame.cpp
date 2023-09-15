@@ -172,6 +172,9 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
     if( main_program.getMenu() != nullptr )
         return;
 
+    if( this->act_manager_p != nullptr )
+        this->act_manager_p->update( main_program, delta );
+
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
     if( main_program.control_system_p->isOrderedToExit() )
