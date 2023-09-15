@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ACT/BaseTurret.h"
+#include "ACT/ItemPickup.h"
 #include "ACT/NeutralTurret.h"
 
 namespace Game {
@@ -28,6 +29,7 @@ public:
 
 private:
     SpawnableActor<ACT::BaseTurret> base_turrets;
+    SpawnableActor<ACT::ItemPickup> item_pickups;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
 
 public:
