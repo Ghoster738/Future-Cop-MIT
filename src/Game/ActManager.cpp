@@ -18,6 +18,17 @@ ActManager::ActManager( const Data::Mission::IFF& resource ) {
             base_turrets.spawners.back().time = std::chrono::microseconds( (unsigned)(base_turrets.spawners.back().timings.getSpawnTime() * 1000000.0) );
         }
     }
+
+    auto neutral_turret_array_r = Data::Mission::ACT::NeutralTurret::getVector( actor_array_r );
+
+    for( const Data::Mission::ACT::NeutralTurret *const neutral_turret_r : neutral_turret_array_r ) {
+        if( !neutral_turret_r->getSpawnChunk().exists )
+            neutral_turrets.actors.push_back( ACT::NeutralTurret( resource, *neutral_turret_r ) );
+        else {
+            neutral_turrets.spawners.push_back( {neutral_turret_r->getSpawnChunk(), ACT::NeutralTurret( resource, *neutral_turret_r )} );
+            neutral_turrets.spawners.back().time = std::chrono::microseconds( (unsigned)(neutral_turrets.spawners.back().timings.getSpawnTime() * 1000000.0) );
+        }
+    }
 }
 
 ActManager::~ActManager() {
@@ -30,10 +41,29 @@ void ActManager::initialize( MainProgram &main_program ) {
         for( ACT::BaseTurret& base_turret : spawner.current_actors )
             base_turret.resetGraphics( main_program );
     }
+
+    for( ACT::NeutralTurret& neutral_turret : neutral_turrets.actors )
+        neutral_turret.resetGraphics( main_program );
+    for( SpawnableActor<ACT::NeutralTurret>::Spawner& spawner : neutral_turrets.spawners ) {
+        for( ACT::NeutralTurret& neutral_turret : spawner.current_actors )
+            neutral_turret.resetGraphics( main_program );
+    }
 }
 
 void ActManager::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     for( SpawnableActor<ACT::BaseTurret>::Spawner& spawner : base_turrets.spawners ) {
+        if( spawner.timings.isAutomatic() && spawner.current_actors.size() < spawner.timings.spawn_limit ) {
+            spawner.time -= delta;
+
+            if( spawner.time.count() <= 0 ) {
+                spawner.time = std::chrono::microseconds( (unsigned)(spawner.timings.getSpawnTime() * 1000000.0) );
+                spawner.current_actors.push_back( spawner.actor );
+                spawner.current_actors.back().resetGraphics( main_program );
+            }
+        }
+    }
+
+    for( SpawnableActor<ACT::NeutralTurret>::Spawner& spawner : neutral_turrets.spawners ) {
         if( spawner.timings.isAutomatic() && spawner.current_actors.size() < spawner.timings.spawn_limit ) {
             spawner.time -= delta;
 

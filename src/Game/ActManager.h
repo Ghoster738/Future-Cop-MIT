@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ACT/BaseTurret.h"
+#include "ACT/NeutralTurret.h"
 
 namespace Game {
 
@@ -27,6 +28,7 @@ public:
 
 private:
     SpawnableActor<ACT::BaseTurret> base_turrets;
+    SpawnableActor<ACT::NeutralTurret> neutral_turrets;
 
 public:
     ActManager( const Data::Mission::IFF& resource );
