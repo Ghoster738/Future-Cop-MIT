@@ -13,9 +13,9 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
     root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
-    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
+    root["ACT"][NAME]["hostile_to_turret"] = internal.hostile_to_turret;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
-    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
+    root["ACT"][NAME]["mini_map_color_index"] = internal.mini_map_color_index;
     root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
     root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
     root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
@@ -25,7 +25,7 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
     root["ACT"][NAME]["uint8_8"] = internal.uint8_8;
     root["ACT"][NAME]["uint8_9"] = internal.uint8_9;
-    root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
+    root["ACT"][NAME]["turret_hostile_to"] = internal.turret_hostile_to;
     root["ACT"][NAME]["uint32_1"] = internal.uint32_1;
     root["ACT"][NAME]["uint16_5"] = internal.uint16_5;
     root["ACT"][NAME]["uint16_6"] = internal.uint16_6;
@@ -55,9 +55,9 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint32_0 = data_reader.readU32( endian ); // Values: 0, 64, 193, 328, 1088, 1217, 1249, 2112, 65536, 65600, 65601, 65729, 131152, 131264, 131265, 131648, 196800, 524288, 524354, 528384, 856130, 2097216, 2621504, 
     internal.uint16_0 = data_reader.readU16( endian ); // Values: 0, 1, 35, 50, 55, 75, 80, 90, 99, 100, 125, 150, 175, 200, 300, 400, 500, 1500, 
     internal.uint16_1 = data_reader.readU16( endian ); // Values: 0, 1, 4, 5, 10, 25, 100, 
-    internal.uint8_0 = data_reader.readU8(); // Values: 0, 1, 2, 3, 6, 14, 
+    internal.hostile_to_turret = data_reader.readU8(); // Values: 0, 1, 2, 3, 6, 14,
     internal.uint8_1 = data_reader.readU8(); // Values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 24, 28, 41, 61, 
-    internal.uint8_2 = data_reader.readU8(); // Values: 0, 1, 2, 9, 10, 25, 
+    internal.mini_map_color_index = data_reader.readU8(); // Values: 0, 1, 2, 9, 10, 25,
     internal.uint8_3 = data_reader.readU8(); // Values: 0, 3, 6, 7, 9, 10, 15, 
     internal.uint8_4 = data_reader.readU8(); // Values: 0, 26, 91, 100, 101, 102, 200, 201, 213, 216, 
     internal.uint8_5 = data_reader.readU8(); // Values: 0, 85, 89, 96, 98, 108, 
@@ -75,7 +75,7 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint8_8 = data_reader.readU8(); // Values: 0, 1, 3, 
 
     internal.uint8_9 = data_reader.readU8(); // Values: 0, 1, 3, 4, 
-    internal.uint16_4 = data_reader.readU16( endian ); // Values: 0, 1, 2, 13, 
+    internal.turret_hostile_to = data_reader.readU16( endian ); // Values: 0, 1, 2, 13,
 
     // uint16_1b == uint16_2b Maybe current/default health? Never Zero.
     // Maybe current/default health?

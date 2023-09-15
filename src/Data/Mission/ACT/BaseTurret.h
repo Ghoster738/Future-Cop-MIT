@@ -23,9 +23,9 @@ public:
         uint32_t uint32_0;
         uint16_t uint16_0;
         uint16_t uint16_1;
-        uint8_t uint8_0;
+        uint8_t hostile_to_turret;
         uint8_t uint8_1;
-        uint8_t uint8_2;
+        uint8_t mini_map_color_index;
         uint8_t uint8_3;
         uint8_t uint8_4;
         uint8_t uint8_5;
@@ -35,7 +35,7 @@ public:
         uint16_t uint16_3;
         uint8_t uint8_8;
         uint8_t uint8_9;
-        uint16_t uint16_4;
+        uint16_t turret_hostile_to;
         uint32_t uint32_1;
         uint16_t uint16_5;
         uint16_t uint16_6;
