@@ -10,6 +10,8 @@
 #include "Graphics/ModelInstance.h"
 #include "Graphics/Text2DBuffer.h"
 
+#include "Game/ActManager.h"
+
 
 class PrimaryGame : public GameState {
 public:
@@ -32,6 +34,8 @@ private:
     unsigned font_height;
 
     std::vector<Graphics::ModelInstance*> props_p;
+
+    Game::ActManager *act_manager_p;
 
 public:
     PrimaryGame();

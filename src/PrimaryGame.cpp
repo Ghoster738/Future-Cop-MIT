@@ -43,6 +43,8 @@ PrimaryGame::PrimaryGame() {
     this->counter = std::chrono::seconds(0);
     this->map_index = 0;
     this->platform_index = 0;
+
+    this->act_manager_p = nullptr;
 }
 
 PrimaryGame::~PrimaryGame() {
@@ -85,6 +87,12 @@ void PrimaryGame::load( MainProgram &main_program ) {
     }
 
     if( main_program.resource_r != nullptr && !Data::Mission::PTCResource::getVector( *main_program.resource_r ).empty() ) {
+        if( this->act_manager_p != nullptr )
+            delete this->act_manager_p;
+        this->act_manager_p = new Game::ActManager( *main_program.resource_r );
+
+        this->act_manager_p->initialize( main_program );
+
         auto ptc_array_r = Data::Mission::PTCResource::getVector( *main_program.resource_r );
 
         Data::Mission::PTCResource &ptc = *ptc_array_r.at(0);
@@ -131,30 +139,6 @@ void PrimaryGame::load( MainProgram &main_program ) {
             }
         }
 
-        auto base_turret_array_r = Data::Mission::ACT::BaseTurret::getVector( actor_array_r );
-
-        for( auto i : base_turret_array_r ) {
-            try {
-                auto alive_base_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getAliveBaseID(), i->getPosition( ptc ) );
-
-                props_p.push_back( alive_base_instance_p );
-
-                props_p.back()->setRotation( i->getBaseRotationQuaternion() );
-                props_p.back()->setTextureOffset( i->getTextureOffset() );
-
-                auto alive_turret_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getAliveGunID(), i->getPosition( ptc ) + glm::vec3( 0, 0.25, 0 ) );
-
-                props_p.push_back( alive_turret_instance_p );
-
-                props_p.back()->setRotation( i->getGunRotationQuaternion() );
-                props_p.back()->setTextureOffset( i->getTextureOffset() );
-            }
-            catch( const std::invalid_argument& argument ) {
-                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-                log.output << "Cobj with resource id " << i->getAliveBaseID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
-            }
-        }
-
         auto item_pickup_array_r = Data::Mission::ACT::ItemPickup::getVector( actor_array_r );
 
         for( auto i : item_pickup_array_r ) {
@@ -178,6 +162,10 @@ void PrimaryGame::unload( MainProgram &main_program ) {
     }
 
     props_p.clear();
+
+    if( this->act_manager_p != nullptr )
+        delete this->act_manager_p;
+    this->act_manager_p = nullptr;
 }
 
 void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds delta ) {
