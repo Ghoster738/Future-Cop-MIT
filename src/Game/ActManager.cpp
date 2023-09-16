@@ -29,7 +29,7 @@ void updateGraphics( MainProgram &main_program, Game::ActManager::SpawnableActor
 }
 
 template<class game_act>
-void updateAct( MainProgram &main_program, Game::ActManager::SpawnableActor<game_act> &game_actors, std::chrono::microseconds delta ) {
+void updateSpawn( MainProgram &main_program, Game::ActManager::SpawnableActor<game_act> &game_actors, std::chrono::microseconds delta ) {
     for( auto &spawner : game_actors.spawners ) {
         if( spawner.timings.isAutomatic() && spawner.current_actors.size() < spawner.timings.spawn_limit ) {
             spawner.time -= delta;
@@ -65,9 +65,9 @@ void ActManager::initialize( MainProgram &main_program ) {
 }
 
 void ActManager::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-    updateAct<ACT::ItemPickup>(    main_program,    item_pickups, delta );
-    updateAct<ACT::BaseTurret>(    main_program,    base_turrets, delta );
-    updateAct<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
+    updateSpawn<ACT::ItemPickup>(    main_program,    item_pickups, delta );
+    updateSpawn<ACT::BaseTurret>(    main_program,    base_turrets, delta );
+    updateSpawn<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
 }
 
 }
