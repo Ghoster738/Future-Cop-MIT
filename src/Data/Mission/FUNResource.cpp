@@ -27,9 +27,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     // which is { 0x74, 0x46, 0x55, 0x4e } or { 't', 'F', 'U', 'N' } or "tFUN"
     const uint32_t TAG_tEXT = 0x74455854;
     // which is { 0x74, 0x45, 0x58, 0x54 } or { 't', 'E', 'X', 'T' } or "tEXT"
-
-    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
-    debug_log.output << FILE_EXTENSION << ": " << getResourceID() << "\n";
     
     uint32_t data_id;
     Function fun_struct;
@@ -46,9 +43,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 auto reader_tfun = reader.getReader( size - TAG_HEADER_SIZE );
                 
                 data_id = reader_tfun.readU32( settings.endian );
-                if( data_id != 1 )
-                    debug_log.output << "Difference: data_id is " << data_id << ".\n";
-                
+
                 while( !reader_tfun.ended() ) {
                     fun_struct.faction    = reader_tfun.readI32( settings.endian );
                     fun_struct.identifier = reader_tfun.readI32( settings.endian );
@@ -57,21 +52,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     fun_struct.start_parameter_offset = reader_tfun.readU32( settings.endian );
                     fun_struct.start_code_offset      = reader_tfun.readU32( settings.endian );
                     
-                    if( !(( fun_struct.faction == 1 ) | ( fun_struct.faction == -1 ) | (fun_struct.faction == 0 ) | ( fun_struct.faction == 25 ) | ( fun_struct.faction == 9999 )) ) {
-                        debug_log.output << "Difference: fun_struct.fraction is " << fun_struct.faction << ".\n";
-                    }
-                    if( fun_struct.zero != 0 ) {
-                        debug_log.output << "Difference: fun_struct.zero is " << fun_struct.zero << " not zero.\n";
-                    }
-                    if( fun_struct.start_parameter_offset >= fun_struct.start_code_offset ) {
-                        debug_log.output << "Difference: fun_struct.start_parameter_offset (" << fun_struct.start_parameter_offset << ") < fun_struct.start_code_offset (" << fun_struct.start_code_offset << ").\n";
-                    }
-                    
                     functions.push_back( fun_struct );
-                }
-                
-                if( functions.size() == 0 ) {
-                    debug_log.output << "Difference: functions.size() is " << functions.size() << ".\n";
                 }
                 
                 auto header    = reader.readU32( settings.endian );
@@ -81,87 +62,89 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     auto reader_ext = reader.getReader( size - TAG_HEADER_SIZE );
                     
                     data_id = reader_ext.readU32( settings.endian );
-                    if( data_id != 1 )
-                        debug_log.output << "Difference: data_id is " << data_id << ".\n";
                     
                     ext_bytes = reader_ext.getBytes();
-                    
-                    if( ext_bytes.size() == 0 )
-                        debug_log.output << "Difference: ext_bytes.size() is " << ext_bytes.size() << ".\n";
-                    if( ext_bytes.size() <= functions.back().start_code_offset )
-                        debug_log.output << "Difference: ext_bytes.size() (" << ext_bytes.size() << ") <= functions.back().start_code_offset (" << functions.back().start_code_offset << ").\n";
-                    if( !reader.ended() )
-                        debug_log.output << "Difference: Reader is not done.\n";
-                    
-                    while( ext_bytes.back() != 0 ){
-                        last_ext.insert( last_ext.begin(), ext_bytes.back() );
-                        ext_bytes.pop_back(  );
-                    }
+
+                    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+                    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
                     
                     for( size_t i = 0; i < functions.size(); i++ ) {
                         auto parameters = getFunctionParameters( i );
-                        auto code = getFunctionCode( i );
+                        auto code       = getFunctionCode( i );
                         
-                        debug_log.output << "i[" << std::dec << i  << "], ";
-                        debug_log.output << "f[" << functions.at( i ).faction << "], ";
-                        debug_log.output << "id[" << functions.at( i ).identifier << "], ";
-                        debug_log.output << "offset = " << functions.at( i ).start_parameter_offset << "\n" << std::endl;
+                        // Detect neutral turret spawn.
+                        {
+                            uint8_t p[] = { 0x86, 0x12, 0x80, 0x21, 0x00 };
+                            uint8_t param_2 = 0x88;
+                            uint8_t c[] = { 0xb2, 0xc7, 0x80, 0x3d, 0x00 };
 
-                        debug_log.output << std::hex << "Parameters = ";
-                        for( auto f = parameters.begin(); f < parameters.end(); f++ ) {
-                            debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                        }
-                        if( !parameters.empty() ) {
-                            for( auto f = parameters.begin(); f < parameters.end() - 1; f++ ) {
-                                if( (*f) == 0 ) {
-                                    debug_log.output << "Difference: (*f) == 0.\n";
+                            if( parameters.size() == 5 && (parameters[0] == p[0] || parameters[0] == param_2) && parameters[1] == p[1] && parameters[2] == p[2] && parameters[3] == p[3] ) {
+                                error_log.output << "Function Index = " << i << "\n";
+                                error_log.output << "  Faction = " << functions[ i ].faction << "\n";
+                                error_log.output << "  Identifier = " << functions[ i ].identifier << "\n";
+                                error_log.output << "  Parameter Offset = 0x" << std::hex << functions[ i ].start_parameter_offset << "\n";
+                                error_log.output << "  Code Offset = 0x" << functions[ i ].start_code_offset << std::dec << "\n";
+
+                                error_log.output << "Neutral Parameters!" << std::hex;
+                                for( auto param = parameters.begin(); param != parameters.end(); param++ ) {
+                                    error_log.output << " 0x" << (unsigned)(*param);
                                 }
+                                error_log.output << "\n" << std::dec;
+
+                                if( code.size() >= 5 && code[0] == c[0] && code[1] == c[1] && code[2] == c[2] && code[3] == c[3] ) {
+                                    error_log.output << "Command: NeutralInitAll()";
+                                }
+
+                                error_log.output << std::hex;
+                                for( auto param = code.begin(); param != code.end(); param++ ) {
+                                    error_log.output << " 0x" << (unsigned)(*param);
+                                }
+                                error_log.output << "\n\n" << std::dec;
                             }
                         }
-                        debug_log.output << std::endl;
-                        debug_log.output << std::hex << "Code = ";
-                        for( auto f = code.begin(); f < code.end(); f++ ) {
-                            debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
+
+                        {
+                            uint8_t p[] = { 0x86, 0x12, 0x80, 0x21, 0x00 };
+                            uint8_t c[] = { 0xC7, 0x80, 0x3C };
+
+                            if( parameters.size() == 5 && parameters[1] == p[1] && parameters[2] == p[2] && parameters[3] == p[3] &&
+                                code.size() > 4 && code[1] == c[0] && code[2] == c[1] && code[3] == c[2] ) {
+                                error_log.output << "Function Index = " << i << "\n";
+                                error_log.output << "  Faction = " << functions[ i ].faction << "\n";
+                                error_log.output << "  Identifier = " << functions[ i ].identifier << "\n";
+                                error_log.output << "  Parameter Offset = 0x" << std::hex << functions[ i ].start_parameter_offset << "\n";
+                                error_log.output << "  Code Offset = 0x" << functions[ i ].start_code_offset << std::dec << "\n";
+
+                                error_log.output << "Neutral Parameters!" << std::hex;
+                                for( auto param = parameters.begin(); param != parameters.end(); param++ ) {
+                                    error_log.output << " 0x" << (unsigned)(*param);
+                                }
+                                error_log.output << "\n" << std::dec;
+
+                                error_log.output << "Command: Init an Actor( id )";
+                                error_log.output << std::hex;
+                                for( auto param = code.begin(); param != code.end(); param++ ) {
+                                    error_log.output << " 0x" << (unsigned)(*param);
+                                }
+                                error_log.output << "\n\n" << std::dec;
+
+                            }
                         }
-                        debug_log.output << std::dec << "\n";
-                        
+
                         // faction = 1, identifier = 5 Probably means initialization!
                         // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
                         // NEUTRAL_TURRET_INIT = NUMBER, { 0xC7, 0x80, 0x3D }
-                        
+
                         // JOKE/SLIM has faction 1 and identifier 5, and it appears to be something else. I can deduce no pattern in this sequence.
                         // However, I have enough knowedge to write an inaccurate parser.
-                        
-                        if( parameters.size() <= 1 ) {
-                            debug_log.output << "Difference: parameters.size() > 1 false. parameters.size() = " << parameters.size() << "\n";
-                        }
-                        if( code.size() <= 1 ) {
-                            debug_log.output << "Difference: code.size() > 1 false. code.size() = " << code.size() << "\n";
-                        }
-                        if( !parameters.empty() ) {
-                        if( parameters.back() != 0 ) {
-                            debug_log.output << "Difference: parameters.back() = " << parameters.back() << ". It is not zero.\n";
-                        }
-                        }
-                        if( !code.empty() ) {
-                        if( code.back() != 0 ) {
-                            debug_log.output << "Difference: code.back() = " << code.back() << ". It is not zero.\n";
-                        }
-                        }
                     }
-                    debug_log.output << std::hex << "Last tEXT = ";
-                    for( auto f = last_ext.begin(); f < last_ext.end(); f++ ){
-                        debug_log.output << "0x" << static_cast<unsigned>( (*f) ) << ", ";
-                    }
-                    debug_log.output << "\n";
+
                     
                     return true;
                 }
             }
         }
     }
-    
-    debug_log.output << "parsing had failed.\n";
 
     return false;
 }

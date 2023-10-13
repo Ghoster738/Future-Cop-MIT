@@ -23,8 +23,6 @@ public:
 private:
     std::vector<Function> functions;
     std::vector<uint8_t> ext_bytes;
-    
-    std::vector<uint8_t> last_ext;
 
 public:
     FUNResource();
