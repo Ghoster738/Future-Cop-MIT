@@ -29,7 +29,6 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     this->resource_identifier = Data::Manager::pa_urban_jungle;
     this->platform = Data::Manager::getPlatformFromString( this->options.getCurrentPlatform() );
 
-    this->switch_to_resource_identifier = this->resource_identifier;
     this->switch_to_platform = this->platform;
 
     setupLogging();
