@@ -69,7 +69,19 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
     if( this->shiney_texture_p != nullptr )
         delete this->shiney_texture_p;
     this->shiney_texture_p = nullptr;
-    
+
+    {
+        Utilities::Image2D image_accessor( 1, 1, Utilities::PixelFormatColor_R8G8B8A8() );
+
+        image_accessor.writePixel(0, 0, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ));
+
+        this->textures[ 0 ] = new SDL2::GLES2::Internal::Texture2D;
+
+        this->textures[ 0 ]->setCBMPResourceID( 0 );
+        this->textures[ 0 ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
+        this->textures[ 0 ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
+    }
+
     for( unsigned int i = 0; i < textures.size(); i++ )
     {
         auto converted_texture = textures[i];

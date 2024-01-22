@@ -131,7 +131,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
     vertex_array.bind();
 
-   auto  err = glGetError();
+   auto err = glGetError();
 
     if( err != GL_NO_ERROR )
         std::cout << "This vertex_array has a problem " << err << std::endl;
@@ -159,6 +159,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_s
 
         glDrawArrays( draw_command_array_mode, (*i).first, (*i).opeque_count );
         auto err = glGetError();
+        assert( (*i).texture_r != nullptr );
 
         if( err != GL_NO_ERROR )
             std::cout << "glDrawArrays could have a problem! " << err << std::endl;
