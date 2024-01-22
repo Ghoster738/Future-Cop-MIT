@@ -24,8 +24,6 @@ public:
         bool has_transparent_pixel_t1;
 
         glm::u8vec2 coords[4];
-
-        bool isWithinBounds( size_t texture_amount ) const;
     };
     struct FaceTriangle {
         bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.

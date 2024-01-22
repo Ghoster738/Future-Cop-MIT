@@ -78,20 +78,6 @@ uint8_t reverse(uint8_t b) {
 }
 }
 
-bool Data::Mission::ObjResource::TextureQuad::isWithinBounds( size_t texture_amount ) const {
-    if( bmp_id >= 0 )
-    {
-        return (static_cast<size_t>(bmp_id) > texture_amount);
-    }
-    else
-    if( bmp_id < 0 )
-    {
-        return (static_cast<size_t>(-bmp_id - 1) > texture_amount);
-    }
-    else
-        return false; // This statement should not be reached.
-}
-
 bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
     bool is_valid = true;
 
