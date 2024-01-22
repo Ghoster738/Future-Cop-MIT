@@ -184,7 +184,6 @@ unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
         
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
-std::set<uint16_t> Data::Mission::ObjResource::unique_ids = {};
 
 Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
