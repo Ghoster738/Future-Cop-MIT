@@ -1241,36 +1241,40 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     root["samplers"][0]["wrapS"] = 10497;
     root["samplers"][0]["wrapT"] = 10497;
 
+    unsigned texture_index = 0;
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
-        unsigned position = i - texture_materials.begin();
+        unsigned material_index = i - texture_materials.begin();
         
         if( mesh_primative_mode != MeshPrimativeMode::TRIANGLES )
-            root["meshes"][0]["primitives"][position]["mode"] = mesh_primative_mode;
+            root["meshes"][0]["primitives"][material_index]["mode"] = mesh_primative_mode;
 
         if( !(*i).file_name.empty() )
         {
-            root["images"][position]["uri"] = (*i).file_name;
+            root["images"][texture_index]["uri"] = (*i).file_name;
 
-            root["textures"][position]["source"]  = position;
-            root["textures"][position]["sampler"] = 0;
+            root["textures"][texture_index]["source"]  = texture_index;
+            root["textures"][texture_index]["sampler"] = 0;
 
-            if( (*i).has_culling )
-                root["materials"][position]["doubleSided"] = false;
-            else
-                root["materials"][position]["doubleSided"] = true;
+            root["materials"][material_index]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = texture_index;
 
-            root["materials"][position]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = position;
-            root["materials"][position]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
-            root["materials"][position]["pbrMetallicRoughness"]["roughnessFactor"] = 0.8125;
-
-            root["meshes"][0]["primitives"][position]["material"] = position;
+            texture_index++;
         }
+
+        if( (*i).has_culling )
+            root["materials"][material_index]["doubleSided"] = false;
+        else
+            root["materials"][material_index]["doubleSided"] = true;
+
+        root["materials"][material_index]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
+        root["materials"][material_index]["pbrMetallicRoughness"]["roughnessFactor"] = 0.8125;
+
+        root["meshes"][0]["primitives"][material_index]["material"] = material_index;
 
         unsigned vertex_component_index = 0;
 
         for( auto d = vertex_components.begin(); d != vertex_components.end(); d++ ) {
 
-            root["meshes"][0]["primitives"][position]["attributes"][ (*d).getName() ] = accessors_amount;
+            root["meshes"][0]["primitives"][material_index]["attributes"][ (*d).getName() ] = accessors_amount;
 
             // Write the accessor
             root["accessors"][accessors_amount]["bufferView"] = vertex_component_index;
@@ -1295,7 +1299,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
         for( unsigned b = 0; b < vertex_morph_components.size(); b++ ) {
             for( unsigned a = 0; a < morph_frame_buffers.size(); a++ ) {
-                root["meshes"][0]["primitives"][position]["targets"][a][vertex_morph_components[b].getName()] = accessors_amount;
+                root["meshes"][0]["primitives"][material_index]["targets"][a][vertex_morph_components[b].getName()] = accessors_amount;
 
                 auto comp = vertex_morph_components.begin() + b;
 
