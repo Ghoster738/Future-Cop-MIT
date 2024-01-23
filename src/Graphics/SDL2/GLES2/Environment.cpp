@@ -17,7 +17,7 @@ Environment::Environment() {
     this->text_draw_routine_p = nullptr;
     this->shiney_texture_p    = nullptr;
 
-    this->has_initialized_models = false;
+    this->has_initialized_routines = false;
 }
 
 Environment::~Environment() {
@@ -188,7 +188,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     if( err != GL_NO_ERROR )
         std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
-    if( !this->has_initialized_models ) {
+    if( !this->has_initialized_routines ) {
 
         // Setup the vertex and fragment shaders
         this->static_model_draw_routine.setVertexShader();
@@ -227,7 +227,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         if( err != GL_NO_ERROR )
             std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
 
-        this->has_initialized_models = true;
+        this->has_initialized_routines = true;
     }
     else {
         this->skeletal_model_draw_routine.clearModels();
