@@ -70,10 +70,34 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
         delete this->shiney_texture_p;
     this->shiney_texture_p = nullptr;
 
+    // Make a no texture texture. Yes, it is easier to make a texture than to attempt to make a no texture state in OpenGLES 2.
+    // The 32x32 image has 8x8 white squares at each four corners of the image. The rest of the image is filled with a checker board of purple and violet.
+    // TODO Maybe make it so that this texture is not regenerated each time.
     {
-        Utilities::Image2D image_accessor( 1, 1, Utilities::PixelFormatColor_R8G8B8A8() );
+        const unsigned DIMENSION = 32;
+        const unsigned CORNER    = DIMENSION / 4;
+        const auto WHITE = Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        const Utilities::PixelFormatColor::GenericColor CHECKER[2] = {
+            Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f ),
+            Utilities::PixelFormatColor::GenericColor( 0.5f, 0.0f, 1.0f, 1.0f ) };
 
-        image_accessor.writePixel(0, 0, Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f ));
+
+        Utilities::Image2D image_accessor( DIMENSION, DIMENSION, Utilities::PixelFormatColor_R8G8B8A8() );
+
+        for( unsigned y = 0; y < DIMENSION; y++ ) {
+            for( unsigned x = 0; x < DIMENSION; x++ ) {
+                if( x < CORNER && y < CORNER )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x >= CORNER * 3 && y < CORNER )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x >= CORNER * 3 && y >= CORNER * 3 )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x < CORNER      && y >= CORNER * 3 )
+                    image_accessor.writePixel( x, y, WHITE );
+                else
+                    image_accessor.writePixel( x, y, CHECKER[(x + y) % 2] );
+            }
+        }
 
         this->textures[ 0 ] = new SDL2::GLES2::Internal::Texture2D;
 
