@@ -16,6 +16,8 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
+    static const std::string SPECULAR_COMPONENT_NAME;
+
     struct TextureQuad {
         uint8_t opcodes[4];
 

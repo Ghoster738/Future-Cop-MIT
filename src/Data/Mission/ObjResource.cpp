@@ -170,6 +170,7 @@ unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
         
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
+const std::string Data::Mission::ObjResource::SPECULAR_COMPONENT_NAME = "_SPECULAR";
 
 Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
@@ -986,7 +987,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     
     // Specular is to exist if there is a single triangle or quad with a specular map.
     // if( is_specular )
-    specular_component_index = model_output->addVertexComponent( "_Specular", Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::SCALAR );
+    specular_component_index = model_output->addVertexComponent( SPECULAR_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::SCALAR );
 
     if( !bones.empty() ) {
         joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
