@@ -43,7 +43,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
-    "   specular = _Specular\n;"
+    "   specular = _SPECULAR\n;"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
@@ -68,7 +68,7 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "float _Specular" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "float _SPECULAR" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
     varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "float specular" ) );
@@ -134,7 +134,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
             attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute( "_Specular", &std::cout );
+            attribute_failed |= !program.isAttribute( "_SPECULAR", &std::cout );
 
             link_success = true;
         }

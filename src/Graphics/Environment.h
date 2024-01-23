@@ -39,7 +39,7 @@ public:
     virtual ~Environment();
     
     /**
-     * This gets all the identifiers that is optionaly complied.
+     * This gets all the identifiers that is optionaly compiled.
      * Identifiers are used to support different rendering schemes.
      */
     static std::vector<std::string> getAvailableIdentifiers();

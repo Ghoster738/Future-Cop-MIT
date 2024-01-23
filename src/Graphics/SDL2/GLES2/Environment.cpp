@@ -17,7 +17,7 @@ Environment::Environment() {
     this->text_draw_routine_p = nullptr;
     this->shiney_texture_p    = nullptr;
 
-    this->has_initialized_models = false;
+    this->has_initialized_routines = false;
 }
 
 Environment::~Environment() {
@@ -69,7 +69,43 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
     if( this->shiney_texture_p != nullptr )
         delete this->shiney_texture_p;
     this->shiney_texture_p = nullptr;
-    
+
+    // Make a no texture texture. Yes, it is easier to make a texture than to attempt to make a no texture state in OpenGLES 2.
+    // The 32x32 image has 8x8 white squares at each four corners of the image. The rest of the image is filled with a checker board of purple and violet.
+    // TODO Maybe make it so that this texture is not regenerated each time.
+    {
+        const unsigned DIMENSION = 32;
+        const unsigned CORNER    = DIMENSION / 4;
+        const auto WHITE = Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        const Utilities::PixelFormatColor::GenericColor CHECKER[2] = {
+            Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f ),
+            Utilities::PixelFormatColor::GenericColor( 0.5f, 0.0f, 1.0f, 1.0f ) };
+
+
+        Utilities::Image2D image_accessor( DIMENSION, DIMENSION, Utilities::PixelFormatColor_R8G8B8A8() );
+
+        for( unsigned y = 0; y < DIMENSION; y++ ) {
+            for( unsigned x = 0; x < DIMENSION; x++ ) {
+                if( x < CORNER && y < CORNER )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x >= CORNER * 3 && y < CORNER )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x >= CORNER * 3 && y >= CORNER * 3 )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x < CORNER      && y >= CORNER * 3 )
+                    image_accessor.writePixel( x, y, WHITE );
+                else
+                    image_accessor.writePixel( x, y, CHECKER[(x + y) % 2] );
+            }
+        }
+
+        this->textures[ 0 ] = new SDL2::GLES2::Internal::Texture2D;
+
+        this->textures[ 0 ]->setCBMPResourceID( 0 );
+        this->textures[ 0 ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
+        this->textures[ 0 ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
+    }
+
     for( unsigned int i = 0; i < textures.size(); i++ )
     {
         auto converted_texture = textures[i];
@@ -123,11 +159,12 @@ void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::ve
         }
     }
 
+    // Destory the last world.
     if( this->world_p != nullptr )
         delete this->world_p;
-
     this->world_p = nullptr;
 
+    // Make sure that the pointers are not pointers.
     if( ptc_r == nullptr || tiles_r == nullptr )
         return;
 
@@ -152,7 +189,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     if( err != GL_NO_ERROR )
         std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
-    if( !this->has_initialized_models ) {
+    if( !this->has_initialized_routines ) {
 
         // Setup the vertex and fragment shaders
         this->static_model_draw_routine.setVertexShader();
@@ -191,7 +228,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         if( err != GL_NO_ERROR )
             std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
 
-        this->has_initialized_models = true;
+        this->has_initialized_routines = true;
     }
     else {
         this->skeletal_model_draw_routine.clearModels();

@@ -26,7 +26,7 @@ public:
     Graphics::SDL2::GLES2::Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
     Graphics::SDL2::GLES2::Internal::World              *world_p; // This handles drawing the whole world.
 
-    bool has_initialized_models;
+    bool has_initialized_routines;
     Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;

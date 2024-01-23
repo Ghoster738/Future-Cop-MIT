@@ -16,24 +16,26 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
+    static const std::string SPECULAR_COMPONENT_NAME;
+
     struct TextureQuad {
-        unsigned int bmp_id; // This is the resource id of the BMPResource texture refernced.
+        uint8_t opcodes[4];
+
+        uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
         bool has_transparent_pixel_t0;
         bool has_transparent_pixel_t1;
 
         glm::u8vec2 coords[4];
-
-        bool isWithinBounds( size_t texture_amount ) const;
     };
     struct FaceTriangle {
         bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.
         bool is_reflective;
-        uint32_t     texture_quad_index;
+        uint16_t     texture_quad_offset;
         TextureQuad *texture_quad_r;
         uint16_t v0, v1, v2;
         uint16_t n0, n1, n2;
 
-        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit, uint32_t texture_quad_limit ) const;
+        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
         bool getTransparency() const;
 
@@ -85,7 +87,7 @@ public:
 private:
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
-    std::vector<TextureQuad>  texture_quads;
+    std::map<uint_fast16_t, TextureQuad>  texture_quads;
     std::vector<FaceTriangle> face_trinagles;
     std::vector<FaceQuad>     face_quads;
     std::vector<Bone>         bones;
