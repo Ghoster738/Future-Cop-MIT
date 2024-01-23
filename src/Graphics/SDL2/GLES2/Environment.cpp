@@ -159,11 +159,12 @@ void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::ve
         }
     }
 
+    // Destory the last world.
     if( this->world_p != nullptr )
         delete this->world_p;
-
     this->world_p = nullptr;
 
+    // Make sure that the pointers are not pointers.
     if( ptc_r == nullptr || tiles_r == nullptr )
         return;
 
