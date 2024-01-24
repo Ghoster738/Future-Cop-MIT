@@ -18,6 +18,17 @@ public:
 
     static const std::string SPECULAR_COMPONENT_NAME;
 
+    enum VertexColorMode {
+        NON = 0,
+        MONOCHROME = 1,
+        FULL = 2
+    };
+    enum VisabilityMode {
+        OPAQUE   = 0,
+        ADDITION = 1,
+        MIX      = 2
+    };
+
     struct FaceType {
         uint8_t opcodes[4];
 
@@ -32,8 +43,8 @@ public:
         struct {
             uint8_t uses_texture:       1; // Does the face use a texture or not?
             uint8_t normal_shading:     1;
-            uint8_t polygon_color_type: 2; // 0 No color, 1 Monochrome color, 2 full color.
-            uint8_t visability:         2; // 0 Opaque, 1 Addition, 2 Mixed or subtractive.
+            uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
+            uint8_t visability:         2; // Please see enum VisabilityMode
             uint8_t is_reflective:      1;
         } type;
         uint16_t  face_type_offset;
