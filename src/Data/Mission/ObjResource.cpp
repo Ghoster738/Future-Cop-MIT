@@ -103,7 +103,7 @@ bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( uint32_t vertex_l
 }
 
 bool Data::Mission::ObjResource::FaceTriangle::getTransparency() const {
-    if( is_reflective || face_type_r == nullptr )
+    if( type.is_reflective || face_type_r == nullptr )
         return false;
     else
     if( is_other_side )
@@ -133,7 +133,7 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::f
     FaceTriangle new_tri;
 
     new_tri.is_other_side = false;
-    new_tri.is_reflective = is_reflective;
+    new_tri.type.is_reflective = type.is_reflective;
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
     new_tri.v0 = v0;
@@ -150,7 +150,7 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::s
     FaceTriangle new_tri;
 
     new_tri.is_other_side = true;
-    new_tri.is_reflective = is_reflective;
+    new_tri.type.is_reflective = type.is_reflective;
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
     new_tri.v0 = v2;
@@ -402,7 +402,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_quads.push_back( FaceQuad() );
 
                             face_quads.back().face_type_offset = face_type_offset;
-                            face_quads.back().is_reflective = is_reflect;
+                            face_quads.back().type.is_reflective = is_reflect;
 
                             face_quads.back().v0 = reader3DQL.readU8();
                             face_quads.back().v1 = reader3DQL.readU8();
@@ -422,7 +422,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                             face_trinagles.back().is_other_side = false;
                             face_trinagles.back().face_type_offset = face_type_offset;
-                            face_trinagles.back().is_reflective = is_reflect;
+                            face_trinagles.back().type.is_reflective = is_reflect;
 
                             face_trinagles.back().v0 = reader3DQL.readU8();
                             face_trinagles.back().v1 = reader3DQL.readU8();
@@ -944,7 +944,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         triangle_buffer.reserve( face_trinagles.size() + face_quads.size() * 2 );
 
         for( auto i = face_trinagles.begin(); i != face_trinagles.end(); i++ ) {
-            is_specular |= (*i).is_reflective;
+            is_specular |= (*i).type.is_reflective;
             if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
                 triangle_buffer.push_back( (*i) );
@@ -952,7 +952,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         }
 
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
-            is_specular |= (*i).is_reflective;
+            is_specular |= (*i).type.is_reflective;
             if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
                 triangle_buffer.push_back( (*i).firstTriangle() );
@@ -1104,7 +1104,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         {
             triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
-            if( (*triangle).is_reflective )
+            if( (*triangle).type.is_reflective )
                 specular = 1.0f;
             else
                 specular = 0.0f;
