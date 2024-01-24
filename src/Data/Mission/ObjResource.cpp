@@ -392,87 +392,91 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     // Read the opcodes
                     const bool is_texture      = ((opcode_0 & 0x80) != 0);
                     const uint8_t array_amount =  (opcode_0 & 0x07);
-                    const uint8_t bitfield = (opcode_0 * 0x78) >> 3;
+                    const uint8_t bitfield     =  (opcode_0 * 0x78) >> 3;
+
+                    bool            normal_shadows;
+                    VisabilityMode  visability_mode;
+                    VertexColorMode vertex_color_mode;
 
                     switch( bitfield ) {
                         case 0b0000:
                         {
-                            // No normal.
-                            // Opaque
-                            // No color.
+                            normal_shadows    = false;                  // No normal.
+                            visability_mode   = VisabilityMode::OPAQUE; // Opaque
+                            vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
                         }
                         case 0b0001:
                         case 0b0011:
                         {
-                            // No normal.
-                            // Mix.
-                            // No color.
+                            normal_shadows    = false;                // No normal.
+                            visability_mode   = VisabilityMode::MIX;  // Mix.
+                            vertex_color_mode = VertexColorMode::NON; // No color.
                             break;
                         }
                         case 0b0010:
                         {
-                            // No normal.
-                            // Opaque.
-                            // Monochrome color.
+                            normal_shadows    = false;                       // No normal.
+                            visability_mode   = VisabilityMode::OPAQUE;      // Opaque.
+                            vertex_color_mode = VertexColorMode::MONOCHROME; // Monochrome color.
                             break;
                         }
                         case 0b0100:
                         {
-                            // Has normal lighting
-                            // Opaque.
-                            // No color.
+                            normal_shadows    = true;                   // Has normal lighting
+                            visability_mode   = VisabilityMode::OPAQUE; // Opaque.
+                            vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
                         }
                         case 0b0101:
                         {
-                            // Has normal lighting
-                            // Mix.
-                            // No color.
+                            normal_shadows    = true;                 // Has normal lighting
+                            visability_mode   = VisabilityMode::MIX;  // Mix.
+                            vertex_color_mode = VertexColorMode::NON; // No color.
                             break;
                         }
                         case 0b0110:
                         case 0b1010:
                         case 0b1011:
                         {
-                            // Has normal lighting
-                            // Opaque.
-                            // Full color.
+                            normal_shadows    = true;                   // Has normal lighting
+                            visability_mode   = VisabilityMode::OPAQUE; // Opaque.
+                            vertex_color_mode = VertexColorMode::FULL;  // Full color.
                             break;
                         }
                         case 0b0111:
                         {
-                            // Has normal lighting
-                            // Mix.
-                            // Full color.
+                            normal_shadows    = true;                  // Has normal lighting
+                            visability_mode   = VisabilityMode::MIX;   // Mix.
+                            vertex_color_mode = VertexColorMode::FULL; // Full color.
                             break;
                         }
                         case 0b1000:
                         {
-                            // Has normal lighting
-                            // Opaque.
-                            // No color.
+                            normal_shadows    = true;                   // Has normal lighting
+                            visability_mode   = VisabilityMode::OPAQUE; // Opaque.
+                            vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
                         }
                         case 0b1001:
                         {
-                            // Has normal lighting
-                            // Mix.
-                            // No color.
+                            normal_shadows    = true;                 // Has normal lighting
+                            visability_mode   = VisabilityMode::MIX;  // Mix.
+                            vertex_color_mode = VertexColorMode::NON; // No color.
                             break;
                         }
                         case 0b1101:
                         {
-                            // No normals.
-                            // Addition.
-                            // No color.
+                            normal_shadows    = false;                    // No normal.
+                            visability_mode   = VisabilityMode::ADDITION; // Addition.
+                            vertex_color_mode = VertexColorMode::NON;     // No color.
                             break;
                         }
                         default:
                         {
-                            // No normals.
-                            // Opaque.
-                            // No color.
+                            normal_shadows    = false;                  // No normal.
+                            visability_mode   = VisabilityMode::OPAQUE; // Opaque.
+                            vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
                         }
                     }
