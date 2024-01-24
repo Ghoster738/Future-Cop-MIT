@@ -461,7 +461,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             // No color.
                             break;
                         }
-                        case 0b1001:
+                        case 0b1101:
                         {
                             // No normals.
                             // Addition.
