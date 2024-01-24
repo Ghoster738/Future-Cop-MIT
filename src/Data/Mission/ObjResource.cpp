@@ -468,7 +468,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             break;
                     }
 
-                    const bool is_reflect   = ((opcode_1 & 0x80) != 0);
+                    const bool is_reflect   = ((opcode_1 & 0x80) != 0); // & (visability_mode != VisabilityMode::OPAQUE);
                     const uint8_t face_type =  (opcode_1 & 0x07);
                     
                     switch( face_type ) {
