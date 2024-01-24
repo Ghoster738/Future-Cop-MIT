@@ -384,51 +384,57 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
-                    auto face_type   = reader3DQL.readU8();
-                    if( !(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 )) )
-                        warning_log.output << "3DQL has 0x" << std::hex  << static_cast<uint32_t>(face_type) << " face_type\n";
-                    auto face_type_2 = reader3DQL.readU8();
+                    auto opcode_0 = reader3DQL.readU8();
+                    auto opcode_1 = reader3DQL.readU8();
 
                     const uint16_t texture_quad_offset = reader3DQL.readU16( settings.endian );
 
-                    bool reflect = ((face_type_2 & 0xF0) == 0x80);
+                    // Read the face types
+                    const bool is_texture      = ((opcode_0 & 0x80) != 0);
+                    const uint8_t array_amount =  (opcode_0 & 0x07);
+
+                    bool is_reflect         = ((opcode_1 & 0x80) != 0);
+                    const uint8_t face_type =  (opcode_1 & 0x07);
                     
-                    if( (face_type & 0x07) == 4 ) {
-                        face_quads.push_back( FaceQuad() );
+                    switch( face_type ) {
+                        case 4:
+                        {
+                            face_quads.push_back( FaceQuad() );
 
-                        face_quads.back().texture_quad_offset = texture_quad_offset;
-                        // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
-                        // 0x07 Appears to be its own face type
-                        face_quads.back().is_reflective = reflect;
+                            face_quads.back().texture_quad_offset = texture_quad_offset;
+                            face_quads.back().is_reflective = is_reflect;
 
-                        face_quads.back().v0 = reader3DQL.readU8();
-                        face_quads.back().v1 = reader3DQL.readU8();
-                        face_quads.back().v2 = reader3DQL.readU8();
-                        face_quads.back().v3 = reader3DQL.readU8();
-                        
-                        face_quads.back().n0 = reader3DQL.readU8();
-                        face_quads.back().n1 = reader3DQL.readU8();
-                        face_quads.back().n2 = reader3DQL.readU8();
-                        face_quads.back().n3 = reader3DQL.readU8();
-                    }
-                    else {
-                        face_trinagles.push_back( FaceTriangle() );
+                            face_quads.back().v0 = reader3DQL.readU8();
+                            face_quads.back().v1 = reader3DQL.readU8();
+                            face_quads.back().v2 = reader3DQL.readU8();
+                            face_quads.back().v3 = reader3DQL.readU8();
 
-                        face_trinagles.back().is_other_side = false;
-                        face_trinagles.back().texture_quad_offset = texture_quad_offset;
-                        // (face_type & 0x08) seems to be the effect bit.
-                        // (face_type & 0x28) seems to be the tranlucent bit.
-                        face_trinagles.back().is_reflective = reflect;
+                            face_quads.back().n0 = reader3DQL.readU8();
+                            face_quads.back().n1 = reader3DQL.readU8();
+                            face_quads.back().n2 = reader3DQL.readU8();
+                            face_quads.back().n3 = reader3DQL.readU8();
+                            break;
+                        }
+                        case 3:
+                        default:
+                        {
+                            face_trinagles.push_back( FaceTriangle() );
 
-                        face_trinagles.back().v0 = reader3DQL.readU8();
-                        face_trinagles.back().v1 = reader3DQL.readU8();
-                        face_trinagles.back().v2 = reader3DQL.readU8();
-                        reader3DQL.readU8();
+                            face_trinagles.back().is_other_side = false;
+                            face_trinagles.back().texture_quad_offset = texture_quad_offset;
+                            face_trinagles.back().is_reflective = is_reflect;
 
-                        face_trinagles.back().n0 = reader3DQL.readU8();
-                        face_trinagles.back().n1 = reader3DQL.readU8();
-                        face_trinagles.back().n2 = reader3DQL.readU8();
-                        reader3DQL.readU8();
+                            face_trinagles.back().v0 = reader3DQL.readU8();
+                            face_trinagles.back().v1 = reader3DQL.readU8();
+                            face_trinagles.back().v2 = reader3DQL.readU8();
+                            reader3DQL.readU8();
+
+                            face_trinagles.back().n0 = reader3DQL.readU8();
+                            face_trinagles.back().n1 = reader3DQL.readU8();
+                            face_trinagles.back().n2 = reader3DQL.readU8();
+                            reader3DQL.readU8();
+                            break;
+                        }
                     }
                 }
             }
