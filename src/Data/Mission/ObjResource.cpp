@@ -133,7 +133,13 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::f
     FaceTriangle new_tri;
 
     new_tri.is_other_side = false;
-    new_tri.type.is_reflective = type.is_reflective;
+
+    new_tri.type.uses_texture       = type.uses_texture;
+    new_tri.type.normal_shading     = type.normal_shading;
+    new_tri.type.is_reflective      = type.is_reflective;
+    new_tri.type.polygon_color_type = type.polygon_color_type;
+    new_tri.type.visability         = type.visability;
+
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
     new_tri.v0 = v0;
@@ -150,7 +156,13 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::s
     FaceTriangle new_tri;
 
     new_tri.is_other_side = true;
-    new_tri.type.is_reflective = type.is_reflective;
+
+    new_tri.type.uses_texture       = type.uses_texture;
+    new_tri.type.normal_shading     = type.normal_shading;
+    new_tri.type.is_reflective      = type.is_reflective;
+    new_tri.type.polygon_color_type = type.polygon_color_type;
+    new_tri.type.visability         = type.visability;
+
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
     new_tri.v0 = v2;
@@ -392,93 +404,68 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     // Read the opcodes
                     const bool is_texture      = ((opcode_0 & 0x80) != 0);
                     const uint8_t array_amount =  (opcode_0 & 0x07);
-                    const uint8_t bitfield     =  (opcode_0 * 0x78) >> 3;
+                    const uint8_t bitfield     =  (opcode_0 & 0x78) >> 3;
 
-                    bool            normal_shadows;
-                    VisabilityMode  visability_mode;
-                    VertexColorMode vertex_color_mode;
+                    bool            normal_shadows = false;
+                    VisabilityMode  visability_mode = VisabilityMode::OPAQUE;
+                    VertexColorMode vertex_color_mode = VertexColorMode::NON;
 
                     switch( bitfield ) {
                         case 0b0000:
-                        {
                             normal_shadows    = false;                  // No normal.
                             visability_mode   = VisabilityMode::OPAQUE; // Opaque
                             vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
-                        }
                         case 0b0001:
                         case 0b0011:
-                        {
                             normal_shadows    = false;                // No normal.
                             visability_mode   = VisabilityMode::MIX;  // Mix.
                             vertex_color_mode = VertexColorMode::NON; // No color.
                             break;
-                        }
                         case 0b0010:
-                        {
                             normal_shadows    = false;                       // No normal.
                             visability_mode   = VisabilityMode::OPAQUE;      // Opaque.
                             vertex_color_mode = VertexColorMode::MONOCHROME; // Monochrome color.
                             break;
-                        }
                         case 0b0100:
-                        {
                             normal_shadows    = true;                   // Has normal lighting
                             visability_mode   = VisabilityMode::OPAQUE; // Opaque.
                             vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
-                        }
                         case 0b0101:
-                        {
                             normal_shadows    = true;                 // Has normal lighting
                             visability_mode   = VisabilityMode::MIX;  // Mix.
                             vertex_color_mode = VertexColorMode::NON; // No color.
                             break;
-                        }
                         case 0b0110:
                         case 0b1010:
                         case 0b1011:
-                        {
                             normal_shadows    = true;                   // Has normal lighting
                             visability_mode   = VisabilityMode::OPAQUE; // Opaque.
                             vertex_color_mode = VertexColorMode::FULL;  // Full color.
                             break;
-                        }
                         case 0b0111:
-                        {
                             normal_shadows    = true;                  // Has normal lighting
                             visability_mode   = VisabilityMode::MIX;   // Mix.
                             vertex_color_mode = VertexColorMode::FULL; // Full color.
                             break;
-                        }
                         case 0b1000:
-                        {
                             normal_shadows    = true;                   // Has normal lighting
                             visability_mode   = VisabilityMode::OPAQUE; // Opaque.
                             vertex_color_mode = VertexColorMode::NON;   // No color.
                             break;
-                        }
                         case 0b1001:
-                        {
                             normal_shadows    = true;                 // Has normal lighting
                             visability_mode   = VisabilityMode::MIX;  // Mix.
                             vertex_color_mode = VertexColorMode::NON; // No color.
                             break;
-                        }
                         case 0b1101:
-                        {
                             normal_shadows    = false;                    // No normal.
                             visability_mode   = VisabilityMode::ADDITION; // Addition.
                             vertex_color_mode = VertexColorMode::NON;     // No color.
                             break;
-                        }
-                        default:
-                        {
-                            normal_shadows    = false;                  // No normal.
-                            visability_mode   = VisabilityMode::OPAQUE; // Opaque.
-                            vertex_color_mode = VertexColorMode::NON;   // No color.
+                        default: // Nothing
                             break;
-                        }
                     }
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0);
@@ -516,11 +503,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_trinagles.back().is_other_side = false;
                             face_trinagles.back().face_type_offset = face_type_offset;
 
-                            face_quads.back().type.uses_texture       = is_texture;
-                            face_quads.back().type.normal_shading     = normal_shadows;
-                            face_quads.back().type.polygon_color_type = vertex_color_mode;
-                            face_quads.back().type.visability         = visability_mode;
-                            face_quads.back().type.is_reflective      = is_reflect;
+                            face_trinagles.back().type.uses_texture       = is_texture;
+                            face_trinagles.back().type.normal_shading     = normal_shadows;
+                            face_trinagles.back().type.polygon_color_type = vertex_color_mode;
+                            face_trinagles.back().type.visability         = visability_mode;
+                            face_trinagles.back().type.is_reflective      = is_reflect;
 
                             face_trinagles.back().v0 = reader3DQL.readU8();
                             face_trinagles.back().v1 = reader3DQL.readU8();

@@ -40,6 +40,7 @@ public:
     };
     struct FaceTriangle {
         bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.
+
         struct {
             uint8_t uses_texture:       1; // Does the face use a texture or not?
             uint8_t normal_shading:     1;
@@ -47,6 +48,7 @@ public:
             uint8_t visability:         2; // Please see enum VisabilityMode
             uint8_t is_reflective:      1;
         } type;
+
         uint16_t  face_type_offset;
         FaceType *face_type_r;
         uint16_t v0, v1, v2;
