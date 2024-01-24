@@ -389,9 +389,93 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     const uint16_t face_type_offset = reader3DQL.readU16( settings.endian );
 
-                    // Read the face types
+                    // Read the opcodes
                     const bool is_texture      = ((opcode_0 & 0x80) != 0);
                     const uint8_t array_amount =  (opcode_0 & 0x07);
+                    const uint8_t bitfield = (opcode_0 * 0x78) >> 3;
+
+                    switch( bitfield ) {
+                        case 0b0000:
+                        {
+                            // No normal.
+                            // Opaque
+                            // No color.
+                            break;
+                        }
+                        case 0b0001:
+                        case 0b0011:
+                        {
+                            // No normal.
+                            // Mix.
+                            // No color.
+                            break;
+                        }
+                        case 0b0010:
+                        {
+                            // No normal.
+                            // Opaque.
+                            // Monochrome color.
+                            break;
+                        }
+                        case 0b0100:
+                        {
+                            // Has normal lighting
+                            // Opaque.
+                            // No color.
+                            break;
+                        }
+                        case 0b0101:
+                        {
+                            // Has normal lighting
+                            // Mix.
+                            // No color.
+                            break;
+                        }
+                        case 0b0110:
+                        case 0b1010:
+                        case 0b1011:
+                        {
+                            // Has normal lighting
+                            // Opaque.
+                            // Full color.
+                            break;
+                        }
+                        case 0b0111:
+                        {
+                            // Has normal lighting
+                            // Mix.
+                            // Full color.
+                            break;
+                        }
+                        case 0b1000:
+                        {
+                            // Has normal lighting
+                            // Opaque.
+                            // No color.
+                            break;
+                        }
+                        case 0b1001:
+                        {
+                            // Has normal lighting
+                            // Mix.
+                            // No color.
+                            break;
+                        }
+                        case 0b1001:
+                        {
+                            // No normals.
+                            // Addition.
+                            // No color.
+                            break;
+                        }
+                        default:
+                        {
+                            // No normals.
+                            // Opaque.
+                            // No color.
+                            break;
+                        }
+                    }
 
                     bool is_reflect         = ((opcode_1 & 0x80) != 0);
                     const uint8_t face_type =  (opcode_1 & 0x07);
