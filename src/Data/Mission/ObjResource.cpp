@@ -489,8 +489,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         {
                             face_quads.push_back( FaceQuad() );
 
-                            face_quads.back().face_type_offset = face_type_offset;
-                            face_quads.back().type.is_reflective = is_reflect;
+                            face_quads.back().face_type_offset    = face_type_offset;
+
+                            face_quads.back().type.uses_texture       = is_texture;
+                            face_quads.back().type.normal_shading     = normal_shadows;
+                            face_quads.back().type.polygon_color_type = vertex_color_mode;
+                            face_quads.back().type.visability         = visability_mode;
+                            face_quads.back().type.is_reflective      = is_reflect;
 
                             face_quads.back().v0 = reader3DQL.readU8();
                             face_quads.back().v1 = reader3DQL.readU8();
@@ -510,7 +515,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                             face_trinagles.back().is_other_side = false;
                             face_trinagles.back().face_type_offset = face_type_offset;
-                            face_trinagles.back().type.is_reflective = is_reflect;
+
+                            face_quads.back().type.uses_texture       = is_texture;
+                            face_quads.back().type.normal_shading     = normal_shadows;
+                            face_quads.back().type.polygon_color_type = vertex_color_mode;
+                            face_quads.back().type.visability         = visability_mode;
+                            face_quads.back().type.is_reflective      = is_reflect;
 
                             face_trinagles.back().v0 = reader3DQL.readU8();
                             face_trinagles.back().v1 = reader3DQL.readU8();
