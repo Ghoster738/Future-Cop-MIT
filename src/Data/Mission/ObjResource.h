@@ -18,7 +18,7 @@ public:
 
     static const std::string SPECULAR_COMPONENT_NAME;
 
-    struct TextureQuad {
+    struct FaceType {
         uint8_t opcodes[4];
 
         uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
@@ -30,8 +30,8 @@ public:
     struct FaceTriangle {
         bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.
         bool is_reflective;
-        uint16_t     texture_quad_offset;
-        TextureQuad *texture_quad_r;
+        uint16_t  face_type_offset;
+        FaceType *face_type_r;
         uint16_t v0, v1, v2;
         uint16_t n0, n1, n2;
 
@@ -87,7 +87,7 @@ public:
 private:
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
-    std::map<uint_fast16_t, TextureQuad>  texture_quads;
+    std::map<uint_fast16_t, FaceType>  face_types;
     std::vector<FaceTriangle> face_trinagles;
     std::vector<FaceQuad>     face_quads;
     std::vector<Bone>         bones;

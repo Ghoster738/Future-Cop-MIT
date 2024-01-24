@@ -42,7 +42,7 @@ namespace {
 
     const auto INTEGER_FACTOR = 1.0 / 512.0;
 
-    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, const Data::Mission::ObjResource::TextureQuad &texture_quad, glm::u8vec2 *cords )
+    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *cords )
     {
         if( !triangle.is_other_side )
         {
@@ -103,19 +103,19 @@ bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( uint32_t vertex_l
 }
 
 bool Data::Mission::ObjResource::FaceTriangle::getTransparency() const {
-    if( is_reflective || texture_quad_r == nullptr )
+    if( is_reflective || face_type_r == nullptr )
         return false;
     else
     if( is_other_side )
-        return texture_quad_r->has_transparent_pixel_t1;
+        return face_type_r->has_transparent_pixel_t1;
     else
-        return texture_quad_r->has_transparent_pixel_t0;
+        return face_type_r->has_transparent_pixel_t0;
 }
 
 bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
-    if( l_operand.texture_quad_r != nullptr && r_operand.texture_quad_r != nullptr ) {
-        if( l_operand.texture_quad_r->bmp_id != r_operand.texture_quad_r->bmp_id )
-            return (l_operand.texture_quad_r->bmp_id < r_operand.texture_quad_r->bmp_id);
+    if( l_operand.face_type_r != nullptr && r_operand.face_type_r != nullptr ) {
+        if( l_operand.face_type_r->bmp_id != r_operand.face_type_r->bmp_id )
+            return (l_operand.face_type_r->bmp_id < r_operand.face_type_r->bmp_id);
         else
         if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
             return true;
@@ -123,7 +123,7 @@ bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle &
             return false;
     }
     else
-    if( l_operand.texture_quad_r != nullptr )
+    if( l_operand.face_type_r != nullptr )
         return false;
     else
         return true;
@@ -134,8 +134,8 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::f
 
     new_tri.is_other_side = false;
     new_tri.is_reflective = is_reflective;
-    new_tri.texture_quad_offset = texture_quad_offset;
-    new_tri.texture_quad_r = texture_quad_r;
+    new_tri.face_type_offset = face_type_offset;
+    new_tri.face_type_r = face_type_r;
     new_tri.v0 = v0;
     new_tri.v1 = v1;
     new_tri.v2 = v2;
@@ -151,8 +151,8 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::s
 
     new_tri.is_other_side = true;
     new_tri.is_reflective = is_reflective;
-    new_tri.texture_quad_offset = texture_quad_offset;
-    new_tri.texture_quad_r = texture_quad_r;
+    new_tri.face_type_offset = face_type_offset;
+    new_tri.face_type_r = face_type_r;
     new_tri.v0 = v2;
     new_tri.v1 = v3;
     new_tri.v2 = v0;
@@ -322,44 +322,44 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 while( valid_opcodes && reader3DTL.getPosition( Utilities::Buffer::BEGIN ) < reader3DTL.totalSize() ) {
                     uint16_t offset = reader3DTL.getPosition( Utilities::Buffer::BEGIN ) - sizeof(uint32_t);
 
-                    texture_quads[offset] = TextureQuad();
+                    face_types[offset] = FaceType();
 
-                    texture_quads[offset].opcodes[0] = reader3DTL.readU8();
-                    texture_quads[offset].opcodes[1] = reader3DTL.readU8();
-                    texture_quads[offset].opcodes[2] = reader3DTL.readU8();
-                    texture_quads[offset].opcodes[3] = reader3DTL.readU8();
+                    face_types[offset].opcodes[0] = reader3DTL.readU8();
+                    face_types[offset].opcodes[1] = reader3DTL.readU8();
+                    face_types[offset].opcodes[2] = reader3DTL.readU8();
+                    face_types[offset].opcodes[3] = reader3DTL.readU8();
 
-                    texture_quads[offset].has_transparent_pixel_t0 = false;
-                    texture_quads[offset].has_transparent_pixel_t1 = false;
+                    face_types[offset].has_transparent_pixel_t0 = false;
+                    face_types[offset].has_transparent_pixel_t1 = false;
 
-                    switch( texture_quads[offset].opcodes[0] ) {
+                    switch( face_types[offset].opcodes[0] ) {
                         case 1:
                         {
                             // Placeholder code
-                            texture_quads[offset].bmp_id = 0;
+                            face_types[offset].bmp_id = 0;
                         }
                         break;
                         case 2:
                         case 3:
                         {
-                            texture_quads[offset].coords[0].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[0].y = reader3DTL.readU8();
+                            face_types[offset].coords[0].x = reader3DTL.readU8();
+                            face_types[offset].coords[0].y = reader3DTL.readU8();
 
-                            texture_quads[offset].coords[1].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[1].y = reader3DTL.readU8();
+                            face_types[offset].coords[1].x = reader3DTL.readU8();
+                            face_types[offset].coords[1].y = reader3DTL.readU8();
 
-                            texture_quads[offset].coords[2].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[2].y = reader3DTL.readU8();
+                            face_types[offset].coords[2].x = reader3DTL.readU8();
+                            face_types[offset].coords[2].y = reader3DTL.readU8();
 
-                            texture_quads[offset].coords[3].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[3].y = reader3DTL.readU8();
+                            face_types[offset].coords[3].x = reader3DTL.readU8();
+                            face_types[offset].coords[3].y = reader3DTL.readU8();
 
-                            texture_quads[offset].bmp_id = reader3DTL.readU32( settings.endian );
+                            face_types[offset].bmp_id = reader3DTL.readU32( settings.endian );
                         }
                         break;
                         default:
                         {
-                            error_log.output << std::hex << "0x" << (unsigned)texture_quads[offset].opcodes[0] << " opcode is not recognized for 3DTL.";
+                            error_log.output << std::hex << "0x" << (unsigned)face_types[offset].opcodes[0] << " opcode is not recognized for 3DTL.";
                             error_log.output << " Offset 0x" << this->getOffset() << ".\n";
                             valid_opcodes = false;
                         }
@@ -387,7 +387,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto opcode_0 = reader3DQL.readU8();
                     auto opcode_1 = reader3DQL.readU8();
 
-                    const uint16_t texture_quad_offset = reader3DQL.readU16( settings.endian );
+                    const uint16_t face_type_offset = reader3DQL.readU16( settings.endian );
 
                     // Read the face types
                     const bool is_texture      = ((opcode_0 & 0x80) != 0);
@@ -401,7 +401,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         {
                             face_quads.push_back( FaceQuad() );
 
-                            face_quads.back().texture_quad_offset = texture_quad_offset;
+                            face_quads.back().face_type_offset = face_type_offset;
                             face_quads.back().is_reflective = is_reflect;
 
                             face_quads.back().v0 = reader3DQL.readU8();
@@ -421,7 +421,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_trinagles.push_back( FaceTriangle() );
 
                             face_trinagles.back().is_other_side = false;
-                            face_trinagles.back().texture_quad_offset = texture_quad_offset;
+                            face_trinagles.back().face_type_offset = face_type_offset;
                             face_trinagles.back().is_reflective = is_reflect;
 
                             face_trinagles.back().v0 = reader3DQL.readU8();
@@ -800,15 +800,15 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         }
 
         for( auto &triangle : this->face_trinagles ) {
-            if( this->texture_quads.find( triangle.texture_quad_offset ) != this->texture_quads.end() ) {
-                triangle.texture_quad_r = &this->texture_quads[ triangle.texture_quad_offset ];
+            if( this->face_types.find( triangle.face_type_offset ) != this->face_types.end() ) {
+                triangle.face_type_r = &this->face_types[ triangle.face_type_offset ];
             }
             else
-                triangle.texture_quad_r = nullptr;
+                triangle.face_type_r = nullptr;
         }
         for( auto &quad : this->face_quads ) {
-            if( this->texture_quads.find( quad.texture_quad_offset ) != this->texture_quads.end() ) {
-                quad.texture_quad_r = &this->texture_quads[ quad.texture_quad_offset ];
+            if( this->face_types.find( quad.face_type_offset ) != this->face_types.end() ) {
+                quad.face_type_r = &this->face_types[ quad.face_type_offset ];
             }
         }
 
@@ -867,7 +867,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
         for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
 
-        for( auto i = texture_quads.begin(); i != texture_quads.end(); i++ ) {
+        for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
             // Check for the texture bit on the opcode.
             const bool HAS_TEXTURE = ((*i).second.opcodes[0] & 0x2) != 0;
 
@@ -894,7 +894,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
             }
         }
 
-        for( auto i = texture_quads.begin(); i != texture_quads.end(); i++ ) {
+        for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
             // Check for the texture bit on the opcode.
             if( ((*i).second.opcodes[0] & 0x2) == 0 )
                 continue;
@@ -971,7 +971,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
-            uint32_t bmp_id = (*i).texture_quad_r->bmp_id;
+            uint32_t bmp_id = (*i).face_type_r->bmp_id;
 
             if( triangle_buffer.begin() == i || last_texture_quad_index != bmp_id ) {
                 triangle_counts.push_back( 0 );
@@ -1102,7 +1102,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
         {
-            triangleToCoords( (*triangle), *(*triangle).texture_quad_r, coords );
+            triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
             if( (*triangle).is_reflective )
                 specular = 1.0f;
@@ -1110,8 +1110,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 specular = 0.0f;
 
             if( triangle != previous_triangle ) {
-                if( (*triangle).texture_quad_r != nullptr && (*previous_triangle).texture_quad_r != nullptr && // Memory safety.
-                    (*triangle).texture_quad_r->bmp_id == (*previous_triangle).texture_quad_r->bmp_id )
+                if( (*triangle).face_type_r != nullptr && (*previous_triangle).face_type_r != nullptr && // Memory safety.
+                    (*triangle).face_type_r->bmp_id == (*previous_triangle).face_type_r->bmp_id )
                 {
                     if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
                         model_output->beginSemiTransperency();
