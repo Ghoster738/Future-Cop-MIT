@@ -120,20 +120,13 @@ bool Data::Mission::ObjResource::Primitive::getTransparency() const {
 }
 
 bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_operand, const Primitive & r_operand ) const {
-    if( l_operand.face_type_r != nullptr && r_operand.face_type_r != nullptr ) {
-        if( l_operand.face_type_r->bmp_id != r_operand.face_type_r->bmp_id )
-            return (l_operand.face_type_r->bmp_id < r_operand.face_type_r->bmp_id);
-        else
-        if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
-            return true;
-        else
-            return false;
-    }
+    if( l_operand.getBmpID() != r_operand.getBmpID() )
+        return (l_operand.getBmpID() < r_operand.getBmpID());
     else
-    if( l_operand.face_type_r != nullptr )
-        return false;
-    else
+    if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
         return true;
+    else
+        return false;
 }
 
 Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::firstTriangle() const {
@@ -1014,7 +1007,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     // This buffer will be used to store every triangle that the write function has.
     std::vector< Primitive > triangle_buffer;
-    std::vector<unsigned int> triangle_counts;
+    std::map<unsigned int, unsigned int> triangle_counts;
     bool is_specular = false;
 
     {
@@ -1046,17 +1039,14 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         // Sort the triangle list.
         std::sort(triangle_buffer.begin(), triangle_buffer.end(), Primitive() );
 
-        uint32_t last_texture_quad_index = 0;
-
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
-            uint32_t bmp_id = (*i).face_type_r->bmp_id;
+            uint32_t bmp_id = (*i).getBmpID();
 
-            if( triangle_buffer.begin() == i || last_texture_quad_index != bmp_id ) {
-                triangle_counts.push_back( 0 );
-                last_texture_quad_index = bmp_id;
+            if( triangle_counts.find(bmp_id) == triangle_counts.end() ) {
+                triangle_counts[bmp_id] = 0;
             }
-            triangle_counts.back()++;
+            triangle_counts[bmp_id]++;
         }
     }
 
@@ -1178,7 +1168,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id, true );
 
-        for( unsigned int i = 0; i < (*count_it); i++ )
+        for( unsigned int i = 0; i < (*count_it).second; i++ )
         {
             triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
@@ -1188,8 +1178,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 specular = 0.0f;
 
             if( triangle != previous_triangle ) {
-                if( (*triangle).face_type_r != nullptr && (*previous_triangle).face_type_r != nullptr && // Memory safety.
-                    (*triangle).face_type_r->bmp_id == (*previous_triangle).face_type_r->bmp_id )
+                if( (*triangle).getBmpID() == (*previous_triangle).getBmpID() )
                 {
                     if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
                         model_output->beginSemiTransperency();
