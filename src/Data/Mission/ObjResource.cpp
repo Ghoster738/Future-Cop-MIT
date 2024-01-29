@@ -42,6 +42,12 @@ namespace {
 
     void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
     {
+        if( !triangle.type.uses_texture ) {
+            coords[0] = glm::u8vec2(0, 0);
+            coords[1] = glm::u8vec2(0, 0);
+            coords[2] = glm::u8vec2(0, 0);
+        }
+        else
         if( triangle.kind != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
             coords[0] = texture_quad.coords[0];
