@@ -40,28 +40,26 @@ namespace {
     // 3D bounding box
     const uint32_t TAG_3DBB = 0x33444242; // which is { 0x33, 0x44, 0x42, 0x42 } or { '3', 'D', 'B', 'B' } or "3DBB"
 
-    const auto INTEGER_FACTOR = 1.0 / 512.0;
-
-    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *cords )
+    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
     {
         if( triangle.kind != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
-            cords[0] = texture_quad.coords[0];
-            cords[1] = texture_quad.coords[1];
-            cords[2] = texture_quad.coords[2];
+            coords[0] = texture_quad.coords[0];
+            coords[1] = texture_quad.coords[1];
+            coords[2] = texture_quad.coords[2];
         }
         else
         {
-            cords[0] = texture_quad.coords[2];
-            cords[1] = texture_quad.coords[3];
-            cords[2] = texture_quad.coords[0];
+            coords[0] = texture_quad.coords[2];
+            coords[1] = texture_quad.coords[3];
+            coords[2] = texture_quad.coords[0];
         }
     }
 
     void handlePositions( glm::vec3 &position, const glm::i16vec3 *array, int index ) {
-        position.x = -array[ index ].x * INTEGER_FACTOR;
-        position.y =  array[ index ].y * INTEGER_FACTOR;
-        position.z =  array[ index ].z * INTEGER_FACTOR;
+        position.x = -array[ index ].x * Data::Mission::ObjResource::FIXED_POINT_UNIT;
+        position.y =  array[ index ].y * Data::Mission::ObjResource::FIXED_POINT_UNIT;
+        position.z =  array[ index ].z * Data::Mission::ObjResource::FIXED_POINT_UNIT;
     }
     void handleNormals( glm::vec3 &normal, const glm::i16vec3 *array, int index ) {
         normal.x = array[ index ].x;
@@ -183,6 +181,9 @@ unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
 const std::string Data::Mission::ObjResource::SPECULAR_COMPONENT_NAME = "_SPECULAR";
+
+const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
+const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
 
 Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
@@ -1069,8 +1070,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         
         glm::mat4 bone_matrix;
         
-        const float ANGLE_UNITS_TO_RADIANS = glm::pi<float>() / 2048.0;
-        
         // Make joint relations.
         unsigned int childern[ max_bone_childern ];
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
@@ -1103,11 +1102,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 if( !(*current_bone).opcode.rotation.z_const )
                     frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
                 
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 1, 0 ) );
-                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
+                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
+                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
+                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
                 
-                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( INTEGER_FACTOR );
+                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
                 auto quaterion = glm::quat_cast( bone_matrix );
                 
                 model_output->setJointFrame( frame, bone_index, position, quaterion );
@@ -1274,17 +1273,17 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
             
             const BoundingBox3D &current_box = bounding_boxes[ box_index ];
             
-            position.x = -(current_box.x + current_box.length_x) * INTEGER_FACTOR;
-            position.y =  (current_box.y + current_box.length_y) * INTEGER_FACTOR;
-            position.z =  (current_box.z + current_box.length_z) * INTEGER_FACTOR;
+            position.x = -(current_box.x + current_box.length_x) * FIXED_POINT_UNIT;
+            position.y =  (current_box.y + current_box.length_y) * FIXED_POINT_UNIT;
+            position.z =  (current_box.z + current_box.length_z) * FIXED_POINT_UNIT;
             
             box_output->startVertex();
             box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec3Type( color ) );
             
-            position.x = -(current_box.x - current_box.length_x) * INTEGER_FACTOR;
-            position.y =  (current_box.y - current_box.length_y) * INTEGER_FACTOR;
-            position.z =  (current_box.z - current_box.length_z) * INTEGER_FACTOR;
+            position.x = -(current_box.x - current_box.length_x) * FIXED_POINT_UNIT;
+            position.y =  (current_box.y - current_box.length_y) * FIXED_POINT_UNIT;
+            position.z =  (current_box.z - current_box.length_z) * FIXED_POINT_UNIT;
             
             box_output->startVertex();
             box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );

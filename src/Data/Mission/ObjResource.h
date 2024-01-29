@@ -18,6 +18,9 @@ public:
 
     static const std::string SPECULAR_COMPONENT_NAME;
 
+    static const float FIXED_POINT_UNIT;
+    static const float ANGLE_UNIT;
+
     enum VertexColorMode {
         NON = 0,
         MONOCHROME = 1,
