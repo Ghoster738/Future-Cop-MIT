@@ -16,7 +16,7 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
-    static const std::string SPECULAR_COMPONENT_NAME;
+    static const std::string METADATA_COMPONENT_NAME;
 
     static const float FIXED_POINT_UNIT;
     static const float ANGLE_UNIT;

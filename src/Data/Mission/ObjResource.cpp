@@ -185,8 +185,8 @@ unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
 }
         
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
-const uint32_t Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
-const std::string Data::Mission::ObjResource::SPECULAR_COMPONENT_NAME = "_SPECULAR";
+const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
+const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
 const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
@@ -1017,14 +1017,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     // This buffer will be used to store every triangle that the write function has.
     std::vector< Primitive > triangle_buffer;
     std::map<unsigned int, unsigned int> triangle_counts;
-    bool is_specular = false;
 
     {
         triangle_buffer.reserve( face_triangles.size() + face_quads.size() * 2 );
 
         // Go through the normal triangles first.
         for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ ) {
-            is_specular |= (*i).visual.is_reflective;
             if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
                 triangle_buffer.push_back( (*i) );
@@ -1033,7 +1031,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         // Now go through the quads.
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
-            is_specular |= (*i).visual.is_reflective;
             if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
                 triangle_buffer.push_back( (*i).firstTriangle() );
@@ -1062,13 +1059,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
+    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
-    unsigned int specular_component_index = -1; 
-    
-    // Specular is to exist if there is a single triangle or quad with a specular map.
-    // if( is_specular )
-    specular_component_index = model_output->addVertexComponent( SPECULAR_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::SCALAR );
 
     if( !bones.empty() ) {
         joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
@@ -1154,7 +1147,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     glm::vec3 new_position;
     glm::vec3 normal( 1, 0, 0 );
     glm::vec3 new_normal( 1, 0, 0 );
-    float specular;
+    glm::u8vec4 metadata;
     glm::u8vec2 coords[3];
     glm::u8vec4 weights;
     glm::u8vec4 joints;
@@ -1180,9 +1173,14 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
             if( (*triangle).visual.is_reflective )
-                specular = 1.0f;
+                metadata[0] = 0xFF;
             else
-                specular = 0.0f;
+                metadata[0] = 0x00;
+
+            if( (*triangle).visual.normal_shading )
+                metadata[1] = 0xFF;
+            else
+                metadata[1] = 0x00;
 
             if( triangle != previous_triangle ) {
                 if( (*triangle).getBmpID() == (*previous_triangle).getBmpID() )
@@ -1214,10 +1212,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
 
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[vertex_index - 1] ) );
-                if( is_specular )
-                {
-                    model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-                }
+
+                model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
+
                 for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
                 {
                     handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[vertex_index - 1] );
