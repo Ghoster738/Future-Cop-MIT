@@ -481,6 +481,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     Primitive primitive;
 
                     primitive.face_type_offset = face_type_offset;
+                    primitive.face_type_r      = nullptr;
 
                     primitive.visual.uses_texture       = is_texture;
                     primitive.visual.normal_shading     = normal_shadows;
@@ -880,8 +881,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( this->face_types.find( triangle.face_type_offset ) != this->face_types.end() ) {
                 triangle.face_type_r = &this->face_types[ triangle.face_type_offset ];
             }
-            else
-                triangle.face_type_r = nullptr;
         }
         for( auto &quad : this->face_quads ) {
             if( this->face_types.find( quad.face_type_offset ) != this->face_types.end() ) {
