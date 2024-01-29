@@ -62,14 +62,12 @@ public:
 
         uint16_t v[4], n[4];
 
+        uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
-
         bool getTransparency() const;
-
-        bool operator() ( const Primitive & l_operand, const Primitive & r_operand ) const;
-
         Primitive firstTriangle() const;
         Primitive secondTriangle() const;
+        bool operator() ( const Primitive & l_operand, const Primitive & r_operand ) const;
     };
     class Bone {
     public:

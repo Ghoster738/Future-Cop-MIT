@@ -78,6 +78,13 @@ uint8_t reverse(uint8_t b) {
 }
 }
 
+uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
+    if( !type.uses_texture || face_type_r == nullptr )
+        return 0;
+    else
+        return face_type_r->bmp_id;
+}
+
 bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
     bool is_valid = true;
 
