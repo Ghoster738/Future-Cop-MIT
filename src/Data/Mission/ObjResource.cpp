@@ -110,7 +110,7 @@ bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limi
 }
 
 bool Data::Mission::ObjResource::Primitive::getTransparency() const {
-    if( face_type_r == nullptr )
+    if( type.is_reflective || face_type_r == nullptr )
         return false;
     else
     if( kind == PrimitiveType::TRIANGLE_OTHER )
