@@ -478,6 +478,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0); // & (visability_mode != VisabilityMode::OPAQUE);
                     const uint8_t face_type =  (opcode_1 & 0x07);
 
+                    if( is_reflect ) // TODO Remove this hack. It removes semi-transparency for reflections.
+                        visability_mode = VisabilityMode::OPAQUE;
+
                     Primitive primitive;
 
                     primitive.face_type_offset = face_type_offset;
