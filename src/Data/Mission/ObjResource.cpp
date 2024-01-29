@@ -42,7 +42,7 @@ namespace {
 
     void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
     {
-        if( !triangle.type.uses_texture ) {
+        if( !triangle.visual.uses_texture ) {
             coords[0] = glm::u8vec2(0, 0);
             coords[1] = glm::u8vec2(0, 0);
             coords[2] = glm::u8vec2(0, 0);
@@ -83,7 +83,7 @@ uint8_t reverse(uint8_t b) {
 }
 
 uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
-    if( !type.uses_texture || face_type_r == nullptr )
+    if( !visual.uses_texture || face_type_r == nullptr )
         return 0;
     else
         return face_type_r->bmp_id;
@@ -114,7 +114,7 @@ bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limi
 }
 
 bool Data::Mission::ObjResource::Primitive::getTransparency() const {
-    if( type.visability == VisabilityMode::OPAQUE || face_type_r == nullptr )
+    if( visual.visability == VisabilityMode::OPAQUE || face_type_r == nullptr )
         return false;
     else
     if( kind == PrimitiveType::TRIANGLE_OTHER )
@@ -138,11 +138,11 @@ Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::fir
 
     new_tri.kind = PrimitiveType::TRIANGLE;
 
-    new_tri.type.uses_texture       = type.uses_texture;
-    new_tri.type.normal_shading     = type.normal_shading;
-    new_tri.type.is_reflective      = type.is_reflective;
-    new_tri.type.polygon_color_type = type.polygon_color_type;
-    new_tri.type.visability         = type.visability;
+    new_tri.visual.uses_texture       = visual.uses_texture;
+    new_tri.visual.normal_shading     = visual.normal_shading;
+    new_tri.visual.is_reflective      = visual.is_reflective;
+    new_tri.visual.polygon_color_type = visual.polygon_color_type;
+    new_tri.visual.visability         = visual.visability;
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
@@ -161,11 +161,11 @@ Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::sec
 
     new_tri.kind = PrimitiveType::TRIANGLE_OTHER;
 
-    new_tri.type.uses_texture       = type.uses_texture;
-    new_tri.type.normal_shading     = type.normal_shading;
-    new_tri.type.is_reflective      = type.is_reflective;
-    new_tri.type.polygon_color_type = type.polygon_color_type;
-    new_tri.type.visability         = type.visability;
+    new_tri.visual.uses_texture       = visual.uses_texture;
+    new_tri.visual.normal_shading     = visual.normal_shading;
+    new_tri.visual.is_reflective      = visual.is_reflective;
+    new_tri.visual.polygon_color_type = visual.polygon_color_type;
+    new_tri.visual.visability         = visual.visability;
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
@@ -482,11 +482,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     primitive.face_type_offset = face_type_offset;
 
-                    primitive.type.uses_texture       = is_texture;
-                    primitive.type.normal_shading     = normal_shadows;
-                    primitive.type.polygon_color_type = vertex_color_mode;
-                    primitive.type.visability         = visability_mode;
-                    primitive.type.is_reflective      = is_reflect;
+                    primitive.visual.uses_texture       = is_texture;
+                    primitive.visual.normal_shading     = normal_shadows;
+                    primitive.visual.polygon_color_type = vertex_color_mode;
+                    primitive.visual.visability         = visability_mode;
+                    primitive.visual.is_reflective      = is_reflect;
                     
                     primitive.v[0] = reader3DQL.readU8();
                     primitive.v[1] = reader3DQL.readU8();
@@ -1022,7 +1022,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         // Go through the normal triangles first.
         for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ ) {
-            is_specular |= (*i).type.is_reflective;
+            is_specular |= (*i).visual.is_reflective;
             if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
                 triangle_buffer.push_back( (*i) );
@@ -1031,7 +1031,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         // Now go through the quads.
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
-            is_specular |= (*i).type.is_reflective;
+            is_specular |= (*i).visual.is_reflective;
             if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
                 triangle_buffer.push_back( (*i).firstTriangle() );
@@ -1177,7 +1177,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         {
             triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
-            if( (*triangle).type.is_reflective )
+            if( (*triangle).visual.is_reflective )
                 specular = 1.0f;
             else
                 specular = 0.0f;

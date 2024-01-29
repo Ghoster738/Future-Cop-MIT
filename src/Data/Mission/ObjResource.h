@@ -58,7 +58,7 @@ public:
             uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
             uint8_t visability:         2; // Please see enum VisabilityMode
             uint8_t is_reflective:      1;
-        } type;
+        } visual;
 
         uint16_t  face_type_offset;
         FaceType *face_type_r;
