@@ -42,9 +42,9 @@ namespace {
 
     const auto INTEGER_FACTOR = 1.0 / 512.0;
 
-    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *cords )
+    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *cords )
     {
-        if( !triangle.is_other_side )
+        if( triangle.kind != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
             cords[0] = texture_quad.coords[0];
             cords[1] = texture_quad.coords[1];
@@ -78,41 +78,41 @@ uint8_t reverse(uint8_t b) {
 }
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
+bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
     bool is_valid = true;
 
-    if( this->v0 >= vertex_limit )
+    if( this->v[0] >= vertex_limit )
         is_valid = false;
     else
-    if( this->v1 >= vertex_limit )
+    if( this->v[1] >= vertex_limit )
         is_valid = false;
     else
-    if( this->v2 >= vertex_limit )
+    if( this->v[2] >= vertex_limit )
         is_valid = false;
     else
-    if( normal_limit != 0 && this->n0 >= normal_limit )
+    if( normal_limit != 0 && this->n[0] >= normal_limit )
         is_valid = false;
     else
-    if( normal_limit != 0 && this->n1 >= normal_limit )
+    if( normal_limit != 0 && this->n[1] >= normal_limit )
         is_valid = false;
     else
-    if( normal_limit != 0 && this->n2 >= normal_limit )
+    if( normal_limit != 0 && this->n[2] >= normal_limit )
         is_valid = false;
 
     return is_valid;
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::getTransparency() const {
-    if( type.is_reflective || face_type_r == nullptr )
+bool Data::Mission::ObjResource::Primitive::getTransparency() const {
+    if( face_type_r == nullptr )
         return false;
     else
-    if( is_other_side )
+    if( kind == PrimitiveType::TRIANGLE_OTHER )
         return face_type_r->has_transparent_pixel_t1;
     else
         return face_type_r->has_transparent_pixel_t0;
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
+bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_operand, const Primitive & r_operand ) const {
     if( l_operand.face_type_r != nullptr && r_operand.face_type_r != nullptr ) {
         if( l_operand.face_type_r->bmp_id != r_operand.face_type_r->bmp_id )
             return (l_operand.face_type_r->bmp_id < r_operand.face_type_r->bmp_id);
@@ -129,10 +129,10 @@ bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle &
         return true;
 }
 
-Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::firstTriangle() const {
-    FaceTriangle new_tri;
+Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::firstTriangle() const {
+    Primitive new_tri;
 
-    new_tri.is_other_side = false;
+    new_tri.kind = PrimitiveType::TRIANGLE;
 
     new_tri.type.uses_texture       = type.uses_texture;
     new_tri.type.normal_shading     = type.normal_shading;
@@ -142,20 +142,20 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::f
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
-    new_tri.v0 = v0;
-    new_tri.v1 = v1;
-    new_tri.v2 = v2;
-    new_tri.n0 = n0;
-    new_tri.n1 = n1;
-    new_tri.n2 = n2;
+    new_tri.v[0] = v[0];
+    new_tri.v[1] = v[1];
+    new_tri.v[2] = v[2];
+    new_tri.n[0] = n[0];
+    new_tri.n[1] = n[1];
+    new_tri.n[2] = n[2];
 
     return new_tri;
 }
 
-Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::secondTriangle() const {
-    FaceTriangle new_tri;
+Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::secondTriangle() const {
+    Primitive new_tri;
 
-    new_tri.is_other_side = true;
+    new_tri.kind = PrimitiveType::TRIANGLE_OTHER;
 
     new_tri.type.uses_texture       = type.uses_texture;
     new_tri.type.normal_shading     = type.normal_shading;
@@ -165,12 +165,12 @@ Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::s
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
-    new_tri.v0 = v2;
-    new_tri.v1 = v3;
-    new_tri.v2 = v0;
-    new_tri.n0 = n2;
-    new_tri.n1 = n3;
-    new_tri.n2 = n0;
+    new_tri.v[0] = v[2];
+    new_tri.v[1] = v[3];
+    new_tri.v[2] = v[0];
+    new_tri.n[0] = n[2];
+    new_tri.n[1] = n[3];
+    new_tri.n[2] = n[0];
 
     return new_tri;
 
@@ -474,8 +474,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     switch( face_type ) {
                         case 4:
                         {
-                            face_quads.push_back( FaceQuad() );
+                            face_quads.push_back( Primitive() );
 
+                            face_quads.back().kind = PrimitiveType::QUAD;
                             face_quads.back().face_type_offset    = face_type_offset;
 
                             face_quads.back().type.uses_texture       = is_texture;
@@ -484,39 +485,39 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_quads.back().type.visability         = visability_mode;
                             face_quads.back().type.is_reflective      = is_reflect;
 
-                            face_quads.back().v0 = reader3DQL.readU8();
-                            face_quads.back().v1 = reader3DQL.readU8();
-                            face_quads.back().v2 = reader3DQL.readU8();
-                            face_quads.back().v3 = reader3DQL.readU8();
+                            face_quads.back().v[0] = reader3DQL.readU8();
+                            face_quads.back().v[1] = reader3DQL.readU8();
+                            face_quads.back().v[2] = reader3DQL.readU8();
+                            face_quads.back().v[3] = reader3DQL.readU8();
 
-                            face_quads.back().n0 = reader3DQL.readU8();
-                            face_quads.back().n1 = reader3DQL.readU8();
-                            face_quads.back().n2 = reader3DQL.readU8();
-                            face_quads.back().n3 = reader3DQL.readU8();
+                            face_quads.back().n[0] = reader3DQL.readU8();
+                            face_quads.back().n[1] = reader3DQL.readU8();
+                            face_quads.back().n[2] = reader3DQL.readU8();
+                            face_quads.back().n[3] = reader3DQL.readU8();
                             break;
                         }
                         case 3:
                         default:
                         {
-                            face_trinagles.push_back( FaceTriangle() );
+                            face_triangles.push_back( Primitive() );
 
-                            face_trinagles.back().is_other_side = false;
-                            face_trinagles.back().face_type_offset = face_type_offset;
+                            face_triangles.back().kind = PrimitiveType::TRIANGLE;
+                            face_triangles.back().face_type_offset = face_type_offset;
 
-                            face_trinagles.back().type.uses_texture       = is_texture;
-                            face_trinagles.back().type.normal_shading     = normal_shadows;
-                            face_trinagles.back().type.polygon_color_type = vertex_color_mode;
-                            face_trinagles.back().type.visability         = visability_mode;
-                            face_trinagles.back().type.is_reflective      = is_reflect;
+                            face_triangles.back().type.uses_texture       = is_texture;
+                            face_triangles.back().type.normal_shading     = normal_shadows;
+                            face_triangles.back().type.polygon_color_type = vertex_color_mode;
+                            face_triangles.back().type.visability         = visability_mode;
+                            face_triangles.back().type.is_reflective      = is_reflect;
 
-                            face_trinagles.back().v0 = reader3DQL.readU8();
-                            face_trinagles.back().v1 = reader3DQL.readU8();
-                            face_trinagles.back().v2 = reader3DQL.readU8();
+                            face_triangles.back().v[0] = reader3DQL.readU8();
+                            face_triangles.back().v[1] = reader3DQL.readU8();
+                            face_triangles.back().v[2] = reader3DQL.readU8();
                             reader3DQL.readU8();
 
-                            face_trinagles.back().n0 = reader3DQL.readU8();
-                            face_trinagles.back().n1 = reader3DQL.readU8();
-                            face_trinagles.back().n2 = reader3DQL.readU8();
+                            face_triangles.back().n[0] = reader3DQL.readU8();
+                            face_triangles.back().n[1] = reader3DQL.readU8();
+                            face_triangles.back().n[2] = reader3DQL.readU8();
                             reader3DQL.readU8();
                             break;
                         }
@@ -884,7 +885,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI bounding_box_frames = " << std::dec << bounding_box_frames << "\n";
         }
 
-        for( auto &triangle : this->face_trinagles ) {
+        for( auto &triangle : this->face_triangles ) {
             if( this->face_types.find( triangle.face_type_offset ) != this->face_types.end() ) {
                 triangle.face_type_r = &this->face_types[ triangle.face_type_offset ];
             }
@@ -1021,15 +1022,15 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
-    std::vector< FaceTriangle > triangle_buffer;
+    std::vector< Primitive > triangle_buffer;
     std::vector<unsigned int> triangle_counts;
     bool is_specular = false;
 
     {
-        triangle_buffer.reserve( face_trinagles.size() + face_quads.size() * 2 );
+        triangle_buffer.reserve( face_triangles.size() + face_quads.size() * 2 );
 
         // Go through the normal triangles first.
-        for( auto i = face_trinagles.begin(); i != face_trinagles.end(); i++ ) {
+        for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ ) {
             is_specular |= (*i).type.is_reflective;
             if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
             {
@@ -1052,7 +1053,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         }
 
         // Sort the triangle list.
-        std::sort(triangle_buffer.begin(), triangle_buffer.end(), FaceTriangle() );
+        std::sort(triangle_buffer.begin(), triangle_buffer.end(), Primitive() );
 
         uint32_t last_texture_quad_index = 0;
 
@@ -1070,7 +1071,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-    
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
@@ -1181,13 +1181,13 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
 
-    for( auto it = triangle_counts.begin(); it != triangle_counts.end(); it++ )
+    for( auto count_it = triangle_counts.begin(); count_it != triangle_counts.end(); count_it++ )
     {
-        unsigned int mat = std::distance(triangle_counts.begin(), it);
+        unsigned int mat = std::distance(triangle_counts.begin(), count_it);
 
         model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id, true );
 
-        for( unsigned int i = 0; i < (*it).second; i++ )
+        for( unsigned int i = 0; i < (*count_it); i++ )
         {
             triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
@@ -1216,10 +1216,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v2 );
+            handlePositions( position, vertex_positions.data(), (*triangle).v[2] );
             
             if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n2 );
+                handleNormals( normal, vertex_normals.data(), (*triangle).n[2] );
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
@@ -1232,21 +1232,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
             {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v2 );
+                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[2] );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n2 );
+                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[2] );
                 
                 model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v2 ) {
+                    if( (*bone).vertex_start > (*triangle).v[2] ) {
                         break;
                     }
                     else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v2 )
+                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[2] )
                     {
                         joints.x = bone - bones.begin();
                         model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
@@ -1258,10 +1258,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v1 );
+            handlePositions( position, vertex_positions.data(), (*triangle).v[1] );
             
             if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n1 );
+                handleNormals( normal, vertex_normals.data(), (*triangle).n[1] );
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
@@ -1274,21 +1274,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
             for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
             {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v1 );
+                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[1] );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n1 );
+                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[1] );
                 
                 model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v1 ) {
+                    if( (*bone).vertex_start > (*triangle).v[1] ) {
                         break;
                     }
                     else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v1 )
+                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[1] )
                     {
                         joints.x = bone - bones.begin();
                         model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
@@ -1300,10 +1300,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v0 );
+            handlePositions( position, vertex_positions.data(), (*triangle).v[0] );
             
             if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n0 );
+                handleNormals( normal, vertex_normals.data(), (*triangle).n[0] );
             
             model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             
@@ -1316,21 +1316,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
             for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
             {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v0 );
+                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[0] );
                 model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
                 
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n0 );
+                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[0] );
                 
                 model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
             }
             if( !bones.empty() ) {
                 for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v0 ) {
+                    if( (*bone).vertex_start > (*triangle).v[0] ) {
                         break;
                     }
                     else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v0 )
+                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[0] )
                     {
                         joints.x = bone - bones.begin();
                         model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );

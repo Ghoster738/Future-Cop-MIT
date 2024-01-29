@@ -28,6 +28,14 @@ public:
         ADDITION = 1,
         MIX      = 2
     };
+    enum PrimitiveType {
+        UNKNOWN_0      = 0,
+        TRIANGLE_OTHER = 2,
+        TRIANGLE       = 3,
+        QUAD           = 4,
+        BILLBOARD      = 5,
+        UNKNOWN_1      = 7
+    };
 
     struct FaceType {
         uint8_t opcodes[4];
@@ -38,8 +46,8 @@ public:
 
         glm::u8vec2 coords[4];
     };
-    struct FaceTriangle {
-        bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.
+    struct Primitive {
+        PrimitiveType kind;
 
         struct {
             uint8_t uses_texture:       1; // Does the face use a texture or not?
@@ -51,21 +59,17 @@ public:
 
         uint16_t  face_type_offset;
         FaceType *face_type_r;
-        uint16_t v0, v1, v2;
-        uint16_t n0, n1, n2;
+
+        uint16_t v[4], n[4];
 
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
         bool getTransparency() const;
 
-        bool operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const;
-    };
-    struct FaceQuad : public FaceTriangle {
-        int16_t v3;
-        int16_t n3;
+        bool operator() ( const Primitive & l_operand, const Primitive & r_operand ) const;
 
-        FaceTriangle firstTriangle() const;
-        FaceTriangle secondTriangle() const;
+        Primitive firstTriangle() const;
+        Primitive secondTriangle() const;
     };
     class Bone {
     public:
@@ -106,9 +110,12 @@ public:
 private:
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
+
     std::map<uint_fast16_t, FaceType>  face_types;
-    std::vector<FaceTriangle> face_trinagles;
-    std::vector<FaceQuad>     face_quads;
+
+    std::vector<Primitive>    face_triangles;
+    std::vector<Primitive>    face_quads;
+
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.
     unsigned int              bone_frames;
