@@ -470,55 +470,39 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0); // & (visability_mode != VisabilityMode::OPAQUE);
                     const uint8_t face_type =  (opcode_1 & 0x07);
+
+                    Primitive primitive;
+
+                    primitive.face_type_offset = face_type_offset;
+
+                    primitive.type.uses_texture       = is_texture;
+                    primitive.type.normal_shading     = normal_shadows;
+                    primitive.type.polygon_color_type = vertex_color_mode;
+                    primitive.type.visability         = visability_mode;
+                    primitive.type.is_reflective      = is_reflect;
                     
+                    primitive.v[0] = reader3DQL.readU8();
+                    primitive.v[1] = reader3DQL.readU8();
+                    primitive.v[2] = reader3DQL.readU8();
+                    primitive.v[3] = reader3DQL.readU8();
+
+                    primitive.n[0] = reader3DQL.readU8();
+                    primitive.n[1] = reader3DQL.readU8();
+                    primitive.n[2] = reader3DQL.readU8();
+                    primitive.n[3] = reader3DQL.readU8();
+
                     switch( face_type ) {
                         case 4:
                         {
-                            face_quads.push_back( Primitive() );
-
-                            face_quads.back().kind = PrimitiveType::QUAD;
-                            face_quads.back().face_type_offset    = face_type_offset;
-
-                            face_quads.back().type.uses_texture       = is_texture;
-                            face_quads.back().type.normal_shading     = normal_shadows;
-                            face_quads.back().type.polygon_color_type = vertex_color_mode;
-                            face_quads.back().type.visability         = visability_mode;
-                            face_quads.back().type.is_reflective      = is_reflect;
-
-                            face_quads.back().v[0] = reader3DQL.readU8();
-                            face_quads.back().v[1] = reader3DQL.readU8();
-                            face_quads.back().v[2] = reader3DQL.readU8();
-                            face_quads.back().v[3] = reader3DQL.readU8();
-
-                            face_quads.back().n[0] = reader3DQL.readU8();
-                            face_quads.back().n[1] = reader3DQL.readU8();
-                            face_quads.back().n[2] = reader3DQL.readU8();
-                            face_quads.back().n[3] = reader3DQL.readU8();
+                            primitive.kind = PrimitiveType::QUAD;
+                            face_quads.push_back( primitive );
                             break;
                         }
                         case 3:
                         default:
                         {
-                            face_triangles.push_back( Primitive() );
-
-                            face_triangles.back().kind = PrimitiveType::TRIANGLE;
-                            face_triangles.back().face_type_offset = face_type_offset;
-
-                            face_triangles.back().type.uses_texture       = is_texture;
-                            face_triangles.back().type.normal_shading     = normal_shadows;
-                            face_triangles.back().type.polygon_color_type = vertex_color_mode;
-                            face_triangles.back().type.visability         = visability_mode;
-                            face_triangles.back().type.is_reflective      = is_reflect;
-
-                            face_triangles.back().v[0] = reader3DQL.readU8();
-                            face_triangles.back().v[1] = reader3DQL.readU8();
-                            face_triangles.back().v[2] = reader3DQL.readU8();
-                            reader3DQL.readU8();
-
-                            face_triangles.back().n[0] = reader3DQL.readU8();
-                            face_triangles.back().n[1] = reader3DQL.readU8();
-                            face_triangles.back().n[2] = reader3DQL.readU8();
-                            reader3DQL.readU8();
+                            primitive.kind = PrimitiveType::TRIANGLE;
+                            face_triangles.push_back( primitive );
                             break;
                         }
                     }
