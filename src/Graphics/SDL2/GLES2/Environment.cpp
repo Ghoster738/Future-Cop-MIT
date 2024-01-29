@@ -359,11 +359,9 @@ void Environment::drawFrame() {
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
 
-            // Disable culling on the world map.
-            glDisable( GL_CULL_FACE );
-
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
+            glDisable( GL_CULL_FACE ); // Okay, the faces drawn in 2D are probably drawn in the wrong direction.
             glEnable( GL_BLEND ); // Easier to implement blending here.
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
