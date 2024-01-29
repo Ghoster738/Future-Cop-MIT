@@ -340,6 +340,7 @@ void Environment::drawFrame() {
 
             // Enable culling on the world map.
             glEnable( GL_CULL_FACE );
+            glCullFace(GL_BACK); // TODO When 2D draw winding is fixed make sure to remove this statement.
 
             // Draw the map if available.
             if( this->world_p != nullptr )
@@ -361,7 +362,7 @@ void Environment::drawFrame() {
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
-            glDisable( GL_CULL_FACE ); // Okay, the faces drawn in 2D are probably drawn in the wrong direction.
+            glCullFace(GL_FRONT); // TODO The faces drawn in 2D drawn in the wrong side of the clock.
             glEnable( GL_BLEND ); // Easier to implement blending here.
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
