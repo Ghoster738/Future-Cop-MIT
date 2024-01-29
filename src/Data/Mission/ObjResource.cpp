@@ -1198,130 +1198,48 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 model_output->beginSemiTransperency();
             }
 
-            model_output->startVertex();
+            for( unsigned vertex_index = 3; vertex_index != 0; vertex_index-- ) {
+                model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v[2] );
-            
-            if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n[2] );
-            
-            model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            
-            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-            
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[2] ) );
+                handlePositions( position, vertex_positions.data(), (*triangle).v[vertex_index - 1] );
 
-            if( is_specular )
-                model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-
-            for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
-            {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[2] );
-                model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
-                
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[2] );
-                
-                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-            }
-            if( !bones.empty() ) {
-                for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v[2] ) {
-                        break;
-                    }
-                    else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[2] )
-                    {
-                        joints.x = bone - bones.begin();
-                        model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                    }
+                    handleNormals( normal, vertex_normals.data(), (*triangle).n[vertex_index - 1] );
+
+                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
+
+                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
+
+                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[vertex_index - 1] ) );
+                if( is_specular )
+                {
+                    model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
                 }
+                for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
+                {
+                    handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[vertex_index - 1] );
+                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
 
-                model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
-            }
+                    if( vertex_normals.size() != 0 )
+                        handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[vertex_index - 1] );
 
-            model_output->startVertex();
-
-            handlePositions( position, vertex_positions.data(), (*triangle).v[1] );
-            
-            if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n[1] );
-            
-            model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            
-            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-            
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[1] ) );
-            if( is_specular )
-            {
-                model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-            }
-            for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
-            {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[1] );
-                model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
-                
-                if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[1] );
-                
-                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-            }
-            if( !bones.empty() ) {
-                for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v[1] ) {
-                        break;
-                    }
-                    else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[1] )
-                    {
-                        joints.x = bone - bones.begin();
-                        model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                    }
+                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
                 }
-
-                model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
-            }
-
-            model_output->startVertex();
-
-            handlePositions( position, vertex_positions.data(), (*triangle).v[0] );
-            
-            if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n[0] );
-            
-            model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            
-            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-            
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[0] ) );
-            if( is_specular )
-            {
-                model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-            }
-            for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
-            {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[0] );
-                model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
-                
-                if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[0] );
-                
-                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-            }
-            if( !bones.empty() ) {
-                for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v[0] ) {
-                        break;
+                if( !bones.empty() ) {
+                    for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+                        if( (*bone).vertex_start > (*triangle).v[vertex_index - 1] ) {
+                            break;
+                        }
+                        else
+                        if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[vertex_index - 1] )
+                        {
+                            joints.x = bone - bones.begin();
+                            model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
+                        }
                     }
-                    else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[0] )
-                    {
-                        joints.x = bone - bones.begin();
-                        model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                    }
+
+                    model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
                 }
-
-                model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
             }
 
             triangle++;
