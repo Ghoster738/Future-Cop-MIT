@@ -336,10 +336,7 @@ void Environment::drawFrame() {
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
 
-            // This is very crude blending.
-            glEnable( GL_BLEND );
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+            glDisable( GL_BLEND );
 
             // Enable culling on the world map.
             glEnable( GL_CULL_FACE );
@@ -354,6 +351,10 @@ void Environment::drawFrame() {
             this->static_model_draw_routine.draw(   *current_camera_r );
             this->morph_model_draw_routine.draw(    *current_camera_r );
             this->skeletal_model_draw_routine.draw( *current_camera_r );
+
+            glEnable( GL_BLEND );
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
