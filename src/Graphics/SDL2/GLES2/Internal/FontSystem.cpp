@@ -200,12 +200,12 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
 
                 pen_position.x += static_cast<float>( glyph_r->x_advance ) * scale;
 
-                char_vertex_buffer_r[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
-                char_vertex_buffer_r[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
-                char_vertex_buffer_r[2].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
-                char_vertex_buffer_r[3].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
-                char_vertex_buffer_r[4].set(  lower_font.x, higher_font.y,  texture_low.x, texture_high.y, pen_color );
                 char_vertex_buffer_r[5].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
+                char_vertex_buffer_r[4].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
+                char_vertex_buffer_r[3].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[2].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[1].set(  lower_font.x, higher_font.y,  texture_low.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
 
                 char_vertex_buffer_r += 6;
             }
