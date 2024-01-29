@@ -1028,6 +1028,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     {
         triangle_buffer.reserve( face_trinagles.size() + face_quads.size() * 2 );
 
+        // Go through the normal triangles first.
         for( auto i = face_trinagles.begin(); i != face_trinagles.end(); i++ ) {
             is_specular |= (*i).type.is_reflective;
             if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
@@ -1036,6 +1037,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             }
         }
 
+        // Now go through the quads.
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
             is_specular |= (*i).type.is_reflective;
             if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
@@ -1179,11 +1181,13 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
 
-    for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
+    for( auto it = triangle_counts.begin(); it != triangle_counts.end(); it++ )
     {
+        unsigned int mat = std::distance(triangle_counts.begin(), it);
+
         model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id, true );
 
-        for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
+        for( unsigned int i = 0; i < (*it).second; i++ )
         {
             triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
