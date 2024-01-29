@@ -48,7 +48,7 @@ namespace {
             coords[2] = glm::u8vec2(0, 0);
         }
         else
-        if( triangle.kind != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
+        if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
             coords[0] = texture_quad.coords[0];
             coords[1] = texture_quad.coords[1];
@@ -117,7 +117,7 @@ bool Data::Mission::ObjResource::Primitive::getTransparency() const {
     if( visual.visability == VisabilityMode::OPAQUE || face_type_r == nullptr )
         return false;
     else
-    if( kind == PrimitiveType::TRIANGLE_OTHER )
+    if( type == PrimitiveType::TRIANGLE_OTHER )
         return face_type_r->has_transparent_pixel_t1;
     else
         return face_type_r->has_transparent_pixel_t0;
@@ -136,7 +136,7 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
 Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::firstTriangle() const {
     Primitive new_tri;
 
-    new_tri.kind = PrimitiveType::TRIANGLE;
+    new_tri.type = PrimitiveType::TRIANGLE;
 
     new_tri.visual.uses_texture       = visual.uses_texture;
     new_tri.visual.normal_shading     = visual.normal_shading;
@@ -159,7 +159,7 @@ Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::fir
 Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::secondTriangle() const {
     Primitive new_tri;
 
-    new_tri.kind = PrimitiveType::TRIANGLE_OTHER;
+    new_tri.type = PrimitiveType::TRIANGLE_OTHER;
 
     new_tri.visual.uses_texture       = visual.uses_texture;
     new_tri.visual.normal_shading     = visual.normal_shading;
@@ -501,14 +501,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     switch( face_type ) {
                         case 4:
                         {
-                            primitive.kind = PrimitiveType::QUAD;
+                            primitive.type = PrimitiveType::QUAD;
                             face_quads.push_back( primitive );
                             break;
                         }
                         case 3:
                         default:
                         {
-                            primitive.kind = PrimitiveType::TRIANGLE;
+                            primitive.type = PrimitiveType::TRIANGLE;
                             face_triangles.push_back( primitive );
                             break;
                         }

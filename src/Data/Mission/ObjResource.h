@@ -50,7 +50,7 @@ public:
         glm::u8vec2 coords[4];
     };
     struct Primitive {
-        PrimitiveType kind;
+        PrimitiveType type;
 
         struct {
             uint8_t uses_texture:       1; // Does the face use a texture or not?
