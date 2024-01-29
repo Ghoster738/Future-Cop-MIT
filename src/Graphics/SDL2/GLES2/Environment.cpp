@@ -336,10 +336,11 @@ void Environment::drawFrame() {
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
 
-            glDisable( GL_BLEND );
-
-            // Enable culling on the world map.
+            // Enable culling on the opaque rendering path.
             glEnable( GL_CULL_FACE );
+
+            // Also there will be no blending as well.
+            glDisable( GL_BLEND );
 
             // Draw the map if available.
             if( this->world_p != nullptr )
