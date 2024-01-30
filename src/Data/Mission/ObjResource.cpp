@@ -44,8 +44,8 @@ namespace {
     {
         if( !triangle.visual.uses_texture ) {
             coords[0] = glm::u8vec2(0, 0);
-            coords[1] = glm::u8vec2(0xff, 0);
-            coords[2] = glm::u8vec2(0xff, 0xff);
+            coords[1] = glm::u8vec2(0, 0);
+            coords[2] = glm::u8vec2(0, 0);
         }
         else
         if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
@@ -1009,6 +1009,8 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
     }
 }
 
+#include <iostream>
+
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
@@ -1046,6 +1048,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
             uint32_t bmp_id = (*i).getBmpID();
+
+            if( (*i).visual.uses_texture )
+                bmp_id++;
 
             if( triangle_counts.find(bmp_id) == triangle_counts.end() ) {
                 triangle_counts[bmp_id] = 0;
@@ -1162,9 +1167,30 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     for( auto count_it = triangle_counts.begin(); count_it != triangle_counts.end(); count_it++ )
     {
-        unsigned int mat = std::distance(triangle_counts.begin(), count_it);
+        if( (*count_it).second == 0 )
+            continue;
 
-        model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id, true );
+        bool found = false;
+
+        for( unsigned t_index = 0; t_index < texture_references.size(); t_index++ ) {
+            if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
+                model_output->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+                found = true;
+                t_index = texture_references.size();
+            }
+        }
+
+        if( !found ) {
+            std::cout << std::dec << "\nCannot find resource_id " << (*count_it).first << "\nThese are the available texture references.\n";
+
+            for( unsigned t_index = 0; t_index < texture_references.size(); t_index++ ) {
+                std::cout << "    Name: " << texture_references.at( t_index ).name << ", RID: " << texture_references.at( t_index ).resource_id << "\n";
+            }
+
+            std::cout << std::endl;
+        }
+
+        assert(found);
 
         for( unsigned int i = 0; i < (*count_it).second; i++ )
         {
