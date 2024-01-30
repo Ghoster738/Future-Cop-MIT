@@ -86,7 +86,7 @@ uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
     if( !visual.uses_texture || face_type_r == nullptr )
         return 0;
     else
-        return face_type_r->bmp_id;
+        return face_type_r->bmp_id + 1;
 }
 
 bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
@@ -1046,9 +1046,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
             uint32_t bmp_id = (*i).getBmpID();
-
-            if( (*i).visual.uses_texture )
-                bmp_id++;
 
             if( triangle_counts.find(bmp_id) == triangle_counts.end() ) {
                 triangle_counts[bmp_id] = 0;
