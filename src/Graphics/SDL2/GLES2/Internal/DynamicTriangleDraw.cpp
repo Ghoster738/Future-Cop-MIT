@@ -192,13 +192,13 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
     Triangle triangle = *this;
 
     for( unsigned i = 0; i < 3; i++ ) {
-        auto position = matrix * glm::vec4( triangle.vertices[i].position, 1 );
-        auto normal = matrix * glm::vec4( triangle.vertices[i].normal, 0 );
+        const auto position = matrix * glm::vec4( triangle.vertices[i].position, 1 );
+        const auto normal   = matrix * glm::vec4( triangle.vertices[i].normal,   0 );
 
-        auto scale = 1.0f / position.w;
+        const auto scale = 1.0f / position.w;
 
         triangle.vertices[i].position = glm::vec3( position.x, position.y, position.z ) * scale;
-        triangle.vertices[i].normal = glm::vec3( normal.x, normal.y, normal.z );
+        triangle.vertices[i].normal   = glm::vec3(   normal.x,   normal.y,   normal.z );
     }
 
     triangle.vertices[1].metadata.distance_from_camera = triangle.genDistanceSq( camera_position );
