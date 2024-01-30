@@ -1165,15 +1165,23 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     for( auto count_it = triangle_counts.begin(); count_it != triangle_counts.end(); count_it++ )
     {
+        // If there are no triangle counts then do not even write down the material.
         if( (*count_it).second == 0 )
             continue;
 
         bool found = false;
 
+        // Do a linear search to find the resource id stored in first of count_it.
         for( unsigned t_index = 0; t_index < texture_references.size(); t_index++ ) {
             if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
+
+                // Set this material.
                 model_output->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+
+                // The material is found.
                 found = true;
+
+                // Stop this search.
                 t_index = texture_references.size();
             }
         }
