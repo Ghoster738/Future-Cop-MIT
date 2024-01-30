@@ -146,7 +146,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_vert
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
     "   color = COLOR_0;\n"
-    "   specular = 1.0;\n"
+    "   specular = _METADATA[0];\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_fragment_shader =

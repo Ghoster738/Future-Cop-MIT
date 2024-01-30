@@ -245,6 +245,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
                     triangle.vertices[t].coordinate = coordinate;
+                    triangle.vertices[t].vertex_metadata = {0xff, 0, 0, 0};
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
