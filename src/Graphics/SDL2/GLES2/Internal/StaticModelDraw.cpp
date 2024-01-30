@@ -196,6 +196,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         GLsizei material_count = 0;
 
         unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
+        unsigned     normal_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
 
         Utilities::ModelBuilder::VertexComponent element("EMPTY");
@@ -204,6 +205,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
                 position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+                normal_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
         }
@@ -223,9 +226,10 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             GLsizei opeque_count = std::min( material.count, material.opeque_count );
 
-            glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
-            glm::vec4      color     =  glm::vec4(1, 1, 1, 1);
-            glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+            glm::vec4   position = glm::vec4(0, 0, 0, 1);
+            glm::vec4     normal = glm::vec4(0, 0, 0, 1);
+            glm::vec4      color = glm::vec4(1, 1, 1, 1);
+            glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
 
             const unsigned vertex_per_triangle = 3;
 
@@ -233,12 +237,14 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {
-                    model_type_r->getTransformation(   positions[t],   position_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation( coordinates[t], coordinate_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
 
-                    triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
+                    triangle.vertices[t].position = { position.x, position.y, position.z };
+                    triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
-                    triangle.vertices[t].coordinate = coordinates[t];
+                    triangle.vertices[t].coordinate = coordinate;
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
