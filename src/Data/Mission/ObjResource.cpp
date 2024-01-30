@@ -1009,8 +1009,6 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
     }
 }
 
-#include <iostream>
-
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
@@ -1178,16 +1176,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 found = true;
                 t_index = texture_references.size();
             }
-        }
-
-        if( !found ) {
-            std::cout << std::dec << "\nCannot find resource_id " << (*count_it).first << "\nThese are the available texture references.\n";
-
-            for( unsigned t_index = 0; t_index < texture_references.size(); t_index++ ) {
-                std::cout << "    Name: " << texture_references.at( t_index ).name << ", RID: " << texture_references.at( t_index ).resource_id << "\n";
-            }
-
-            std::cout << std::endl;
         }
 
         assert(found);
