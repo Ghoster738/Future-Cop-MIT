@@ -269,6 +269,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         GLsizei material_count = 0;
 
         unsigned   position_compenent_index = model_p->getNumVertexComponents();
+        unsigned     normal_compenent_index = position_compenent_index;
         unsigned      color_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
         unsigned  tile_type_compenent_index = position_compenent_index;
@@ -279,6 +280,8 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
             if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
                 position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+                normal_compenent_index = i;
             if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
                 color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
@@ -303,6 +306,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             unsigned opeque_count = std::min( material.count, material.opeque_count );
 
             glm::vec4   positions = glm::vec4(0, 0, 0, 1);
+            glm::vec4     normals = glm::vec4(0, 0, 0, 1);
             glm::vec4      colors = glm::vec4(0.5, 0.5, 0.5, 0.5); // Just in case if the mesh does not have vertex color information.
             glm::vec4 coordinates = glm::vec4(0, 0, 0, 1);
             glm::vec4   tile_type = glm::vec4(0, 0, 0, 1);
@@ -314,13 +318,15 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
                 for( unsigned t = 0; t < 3; t++ ) {
                     model_p->getTransformation(   positions,   position_compenent_index, material_count + m + t );
+                    model_p->getTransformation(     normals,     normal_compenent_index, material_count + m + t );
                     model_p->getTransformation(      colors,      color_compenent_index, material_count + m + t );
                     model_p->getTransformation( coordinates, coordinate_compenent_index, material_count + m + t );
                     model_p->getTransformation(   tile_type,  tile_type_compenent_index, material_count + m + t );
 
                     triangle.vertices[t].position = { positions.x, positions.y, positions.z };
-                    triangle.vertices[t].color = 2.0f * colors;
-                    triangle.vertices[t].color.w = 1;
+                    triangle.vertices[t].normal   = {   normals.x,   normals.y,   normals.z };
+                    triangle.vertices[t].color    = 2.0f * colors;
+                    triangle.vertices[t].color.w  = 1;
                     triangle.vertices[t].coordinate = coordinates;
 
                     if( t == 0 ) {

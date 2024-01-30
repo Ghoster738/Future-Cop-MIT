@@ -239,6 +239,7 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     this->static_model_draw_routine.setTextures( this->shiney_texture_p );
     this->morph_model_draw_routine.setTextures( this->shiney_texture_p );
     this->skeletal_model_draw_routine.setTextures( this->shiney_texture_p );
+    this->dynamic_triangle_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
 
     int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder* model_r;

@@ -224,7 +224,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
     // Check if there is even a shiney texture.
     if( shiney_texture_r != nullptr )
-        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
+        shiney_texture_r->bind( 1, specular_texture_uniform_id );
 
     SkeletalAnimation::Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();

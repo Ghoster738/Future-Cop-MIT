@@ -39,7 +39,7 @@ protected:
     Shader vertex_shader;
     Shader fragment_shader;
     GLuint diffusive_texture_uniform_id;
-    GLuint sepecular_texture_uniform_id;
+    GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
     GLuint texture_offset_uniform_id;
     
@@ -157,7 +157,7 @@ public:
     /**
      * @return The OpenGL id of the texture uniform from the static model program.
      */
-    GLuint getSepecularTextureUniformID() const { return sepecular_texture_uniform_id; }
+    GLuint getSpecularTextureUniformID() const { return specular_texture_uniform_id; }
 
     /**
      * @return The OpenGL id of the matrix uniform from the static model program.

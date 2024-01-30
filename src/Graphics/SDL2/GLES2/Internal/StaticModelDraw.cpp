@@ -125,7 +125,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
         {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
-            sepecular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
+            specular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
             texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
             view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
@@ -281,7 +281,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
 
     // Check if there is even a shiney texture.
     if( shiney_texture_r != nullptr )
-        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
+        shiney_texture_r->bind( 1, specular_texture_uniform_id );
 
     Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
