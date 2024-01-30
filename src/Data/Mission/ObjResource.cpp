@@ -44,8 +44,8 @@ namespace {
     {
         if( !triangle.visual.uses_texture ) {
             coords[0] = glm::u8vec2(0, 0);
-            coords[1] = glm::u8vec2(0, 0);
-            coords[2] = glm::u8vec2(0, 0);
+            coords[1] = glm::u8vec2(0xff, 0);
+            coords[2] = glm::u8vec2(0xff, 0xff);
         }
         else
         if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
@@ -943,20 +943,21 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
         for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
 
+        // Make a null texture.
+        resource_id_to_reference[0].resource_id = 0;
+        resource_id_to_reference[0].name = "";
+
         for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
             // Check for the texture bit on the opcode.
-            const bool HAS_TEXTURE = ((*i).second.opcodes[0] & 0x2) != 0;
+            if( ((*i).second.opcodes[0] & 0x2) == 0 )
+                continue;
 
-            const auto RESOURCE_ID = HAS_TEXTURE * ((*i).second.bmp_id + 1);
+            const auto RESOURCE_ID = (*i).second.bmp_id + 1;
             
             if( resource_id_to_reference.count( RESOURCE_ID ) == 0 ) {
                 resource_id_to_reference[ RESOURCE_ID ].resource_id = RESOURCE_ID;
 
-                if( !HAS_TEXTURE ) {
-                    resource_id_to_reference[ RESOURCE_ID ].name = "";
-                }
-                else
-                if( HAS_TEXTURE && resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
+                if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
                         auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 

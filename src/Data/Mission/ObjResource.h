@@ -103,7 +103,6 @@ public:
         uint16_t rotation_x;
         uint16_t rotation_y;
     };
-    // This is all that a GLTF needs to know.
     struct TextureReference {
         uint32_t resource_id;
         std::string name;
