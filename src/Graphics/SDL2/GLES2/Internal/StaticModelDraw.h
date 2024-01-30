@@ -105,11 +105,10 @@ public:
     int compileProgram();
 
     /**
-     * This sets the textures.
-     * @param general_textures_ref This holds all the textures that the models could use.
-     * @param shiney_texture_ref This stores the shiney texture.
+     * This sets the environement texture.
+     * @param env_texture_ref This stores the shiney texture.
      */
-    void setTextures( Texture2D *shiney_texture_ref );
+    void setEnvironmentTexture( Texture2D *env_texture_ref );
 
     /**
      * This checks for the existence of the model inside the Draw routine.

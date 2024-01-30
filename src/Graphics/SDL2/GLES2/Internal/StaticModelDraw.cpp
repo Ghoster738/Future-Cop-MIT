@@ -164,8 +164,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *shiney_texture_r ) {
-    this->shiney_texture_r = shiney_texture_r;
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setEnvironmentTexture( Texture2D *env_texture_ref ) {
+    this->shiney_texture_r = env_texture_ref;
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
