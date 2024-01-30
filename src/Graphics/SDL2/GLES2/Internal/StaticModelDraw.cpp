@@ -198,6 +198,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
         unsigned     normal_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
+        unsigned   metadata_compenent_index = position_compenent_index;
 
         Utilities::ModelBuilder::VertexComponent element("EMPTY");
         for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
@@ -209,6 +210,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                 normal_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
+            if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
+                metadata_compenent_index = i;
         }
 
         for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
@@ -230,6 +233,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             glm::vec4     normal = glm::vec4(0, 0, 0, 1);
             glm::vec4      color = glm::vec4(1, 1, 1, 1);
             glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
+            glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
 
             const unsigned vertex_per_triangle = 3;
 
@@ -240,12 +244,13 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
                     model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
                     model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
 
                     triangle.vertices[t].position = { position.x, position.y, position.z };
                     triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
                     triangle.vertices[t].coordinate = coordinate;
-                    triangle.vertices[t].vertex_metadata = {0xff, 0, 0, 0};
+                    triangle.vertices[t].vertex_metadata = metadata * 255.0f;
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
