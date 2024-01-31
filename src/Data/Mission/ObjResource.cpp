@@ -406,7 +406,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto opcode_0 = reader3DQL.readU8();
                     auto opcode_1 = reader3DQL.readU8();
 
+                    // Check if this file is not Windows or Playstation.
                     if( settings.endian != Utilities::Buffer::Endian::LITTLE ) {
+
+                        // I do not know why, but this might have something to do with the PowerPC CPU.
                         opcode_1 = ((opcode_1 & 0xf0) >> 4) |
                                    ((opcode_1 & 0x0e) << 3) |
                                    ((opcode_1 & 0x01) << 7);
