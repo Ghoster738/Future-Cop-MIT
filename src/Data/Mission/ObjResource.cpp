@@ -151,26 +151,28 @@ int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Primitive> &tria
     Primitive new_tri;
     int counter = 0;
 
+    new_tri.visual.uses_texture       = visual.uses_texture;
+    new_tri.visual.normal_shading     = visual.normal_shading;
+    new_tri.visual.is_reflective      = visual.is_reflective;
+    new_tri.visual.polygon_color_type = visual.polygon_color_type;
+    new_tri.visual.visability         = visual.visability;
+
+    new_tri.face_type_offset = face_type_offset;
+    new_tri.face_type_r = face_type_r;
+
+    new_tri.v[3] = 0;
+    new_tri.n[3] = 0;
+
     for( unsigned i = 0; i < 2; i++ ) {
         new_tri.type = TYPES[i];
-
-        new_tri.visual.uses_texture       = visual.uses_texture;
-        new_tri.visual.normal_shading     = visual.normal_shading;
-        new_tri.visual.is_reflective      = visual.is_reflective;
-        new_tri.visual.polygon_color_type = visual.polygon_color_type;
-        new_tri.visual.visability         = visual.visability;
-        new_tri.face_type_offset = face_type_offset;
-        new_tri.face_type_r = face_type_r;
 
         new_tri.v[0] = v[QUAD_TABLE[i][0]];
         new_tri.v[1] = v[QUAD_TABLE[i][1]];
         new_tri.v[2] = v[QUAD_TABLE[i][2]];
-        new_tri.v[3] = 0;
 
         new_tri.n[0] = n[QUAD_TABLE[i][0]];
         new_tri.n[1] = n[QUAD_TABLE[i][1]];
         new_tri.n[2] = n[QUAD_TABLE[i][2]];
-        new_tri.n[3] = 0;
 
         if( new_tri.isWithinBounds( position_limit, normal_limit ) ) {
             triangles.push_back( new_tri );
