@@ -40,6 +40,8 @@ namespace {
     // 3D bounding box
     const uint32_t TAG_3DBB = 0x33444242; // which is { 0x33, 0x44, 0x42, 0x42 } or { '3', 'D', 'B', 'B' } or "3DBB"
 
+    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
+
     void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
     {
         if( !triangle.visual.uses_texture ) {
@@ -50,15 +52,15 @@ namespace {
         else
         if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
-            coords[0] = texture_quad.coords[0];
-            coords[1] = texture_quad.coords[1];
-            coords[2] = texture_quad.coords[2];
+            coords[0] = texture_quad.coords[QUAD_TABLE[0][0]];
+            coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
+            coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
         }
         else
         {
-            coords[0] = texture_quad.coords[2];
-            coords[1] = texture_quad.coords[3];
-            coords[2] = texture_quad.coords[0];
+            coords[0] = texture_quad.coords[QUAD_TABLE[1][0]];
+            coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
+            coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
         }
     }
 
@@ -74,12 +76,13 @@ namespace {
 
         normal = glm::normalize( normal );
     }
-uint8_t reverse(uint8_t b) {
-   b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
-   b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
-   b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
-   return b;
-}
+
+    uint8_t reverse(uint8_t b) {
+    b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
+    b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
+    b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
+    return b;
+    }
 }
 
 uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
@@ -133,51 +136,65 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return false;
 }
 
-Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::firstTriangle() const {
-    Primitive new_tri;
-
-    new_tri.type = PrimitiveType::TRIANGLE;
-
-    new_tri.visual.uses_texture       = visual.uses_texture;
-    new_tri.visual.normal_shading     = visual.normal_shading;
-    new_tri.visual.is_reflective      = visual.is_reflective;
-    new_tri.visual.polygon_color_type = visual.polygon_color_type;
-    new_tri.visual.visability         = visual.visability;
-
-    new_tri.face_type_offset = face_type_offset;
-    new_tri.face_type_r = face_type_r;
-    new_tri.v[0] = v[0];
-    new_tri.v[1] = v[1];
-    new_tri.v[2] = v[2];
-    new_tri.n[0] = n[0];
-    new_tri.n[1] = n[1];
-    new_tri.n[2] = n[2];
-
-    return new_tri;
+int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
+    if( isWithinBounds( position_limit, normal_limit ) )
+    {
+        triangles.push_back( *this );
+        return 1;
+    }
+    return 0;
 }
 
-Data::Mission::ObjResource::Primitive Data::Mission::ObjResource::Primitive::secondTriangle() const {
-    Primitive new_tri;
+int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
+    Primitive triangulate[2];
+    int counter = 0;
 
-    new_tri.type = PrimitiveType::TRIANGLE_OTHER;
+    triangulate[0].type = PrimitiveType::TRIANGLE;
+    triangulate[1].type = PrimitiveType::TRIANGLE_OTHER;
 
-    new_tri.visual.uses_texture       = visual.uses_texture;
-    new_tri.visual.normal_shading     = visual.normal_shading;
-    new_tri.visual.is_reflective      = visual.is_reflective;
-    new_tri.visual.polygon_color_type = visual.polygon_color_type;
-    new_tri.visual.visability         = visual.visability;
+    for( unsigned i = 0; i < 2; i++ ) {
+        triangulate[i].visual.uses_texture       = visual.uses_texture;
+        triangulate[i].visual.normal_shading     = visual.normal_shading;
+        triangulate[i].visual.is_reflective      = visual.is_reflective;
+        triangulate[i].visual.polygon_color_type = visual.polygon_color_type;
+        triangulate[i].visual.visability         = visual.visability;
+        triangulate[i].face_type_offset = face_type_offset;
+        triangulate[i].face_type_r = face_type_r;
 
-    new_tri.face_type_offset = face_type_offset;
-    new_tri.face_type_r = face_type_r;
-    new_tri.v[0] = v[2];
-    new_tri.v[1] = v[3];
-    new_tri.v[2] = v[0];
-    new_tri.n[0] = n[2];
-    new_tri.n[1] = n[3];
-    new_tri.n[2] = n[0];
+        triangulate[i].v[0] = v[QUAD_TABLE[i][0]];
+        triangulate[i].v[1] = v[QUAD_TABLE[i][1]];
+        triangulate[i].v[2] = v[QUAD_TABLE[i][2]];
+        triangulate[i].v[3] = 0;
 
-    return new_tri;
+        triangulate[i].n[0] = n[QUAD_TABLE[i][0]];
+        triangulate[i].n[1] = n[QUAD_TABLE[i][1]];
+        triangulate[i].n[2] = n[QUAD_TABLE[i][2]];
+        triangulate[i].n[3] = 0;
+    }
 
+    if( triangulate[0].isWithinBounds( position_limit, normal_limit ) ) {
+        triangles.push_back( triangulate[0] );
+        counter++;
+    }
+
+    if( triangulate[1].isWithinBounds( position_limit, normal_limit ) ) {
+        triangles.push_back( triangulate[1] );
+        counter++;
+    }
+
+    return counter;
+}
+
+size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
+    switch( type ) {
+        case PrimitiveType::TRIANGLE:
+        case PrimitiveType::TRIANGLE_OTHER:
+            return 1;
+        case PrimitiveType::QUAD:
+            return 2;
+        default:
+            return 0;
+    }
 }
 
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
@@ -409,7 +426,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     // Check if this file is not Windows or Playstation.
                     if( settings.endian != Utilities::Buffer::Endian::LITTLE ) {
 
-                        // I do not know why, but this might have something to do with the PowerPC CPU.
+                        // I do not know why Mac CObj stores this opcode like this, but this might have something to do with the PowerPC Instruction Set Architecture.
                         opcode_1 = ((opcode_1 & 0xf0) >> 4) |
                                    ((opcode_1 & 0x0e) << 3) |
                                    ((opcode_1 & 0x01) << 7);
@@ -990,13 +1007,13 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
             if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                 auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 
-                points[0] = (*i).second.coords[0];
-                points[1] = (*i).second.coords[1];
-                points[2] = (*i).second.coords[2];
+                points[0] = (*i).second.coords[QUAD_TABLE[0][0]];
+                points[1] = (*i).second.coords[QUAD_TABLE[0][1]];
+                points[2] = (*i).second.coords[QUAD_TABLE[0][2]];
 
-                points[3] = (*i).second.coords[2];
-                points[4] = (*i).second.coords[3];
-                points[5] = (*i).second.coords[0];
+                points[3] = (*i).second.coords[QUAD_TABLE[1][0]];
+                points[4] = (*i).second.coords[QUAD_TABLE[1][1]];
+                points[5] = (*i).second.coords[QUAD_TABLE[1][2]];
 
                 if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[0] ) )
                     (*i).second.has_transparent_pixel_t0 = true;
@@ -1026,27 +1043,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     std::map<unsigned int, unsigned int> triangle_counts;
 
     {
-        triangle_buffer.reserve( face_triangles.size() + face_quads.size() * 2 );
+        size_t triangle_buffer_size = 0;
+
+        triangle_buffer_size += face_triangles.size() * Primitive::getTriangleAmount( PrimitiveType::TRIANGLE );
+        triangle_buffer_size += face_quads.size() * Primitive::getTriangleAmount( PrimitiveType::QUAD );
+
+        triangle_buffer.reserve( triangle_buffer_size );
 
         // Go through the normal triangles first.
         for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ ) {
-            if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
-            {
-                triangle_buffer.push_back( (*i) );
-            }
+            (*i).setTriangle( triangle_buffer, vertex_positions.size(), vertex_normals.size() );
         }
 
         // Now go through the quads.
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
-            if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
-            {
-                triangle_buffer.push_back( (*i).firstTriangle() );
-            }
-
-            if( (*i).secondTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
-            {
-                triangle_buffer.push_back( (*i).secondTriangle() );
-            }
+            (*i).setQuad( triangle_buffer, vertex_positions.size(), vertex_normals.size() );
         }
 
         // Sort the triangle list.

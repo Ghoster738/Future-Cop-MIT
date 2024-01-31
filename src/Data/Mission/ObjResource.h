@@ -68,8 +68,12 @@ public:
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
         bool getTransparency() const;
-        Primitive firstTriangle() const;
-        Primitive secondTriangle() const;
+
+        int setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
+        int setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
+
+        static size_t getTriangleAmount( PrimitiveType type );
+
         bool operator() ( const Primitive & l_operand, const Primitive & r_operand ) const;
     };
     class Bone {
