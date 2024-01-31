@@ -146,40 +146,36 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Primitive> &
 }
 
 int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
-    Primitive triangulate[2];
+    const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
+
+    Primitive new_tri;
     int counter = 0;
 
-    triangulate[0].type = PrimitiveType::TRIANGLE;
-    triangulate[1].type = PrimitiveType::TRIANGLE_OTHER;
-
     for( unsigned i = 0; i < 2; i++ ) {
-        triangulate[i].visual.uses_texture       = visual.uses_texture;
-        triangulate[i].visual.normal_shading     = visual.normal_shading;
-        triangulate[i].visual.is_reflective      = visual.is_reflective;
-        triangulate[i].visual.polygon_color_type = visual.polygon_color_type;
-        triangulate[i].visual.visability         = visual.visability;
-        triangulate[i].face_type_offset = face_type_offset;
-        triangulate[i].face_type_r = face_type_r;
+        new_tri.type = TYPES[i];
 
-        triangulate[i].v[0] = v[QUAD_TABLE[i][0]];
-        triangulate[i].v[1] = v[QUAD_TABLE[i][1]];
-        triangulate[i].v[2] = v[QUAD_TABLE[i][2]];
-        triangulate[i].v[3] = 0;
+        new_tri.visual.uses_texture       = visual.uses_texture;
+        new_tri.visual.normal_shading     = visual.normal_shading;
+        new_tri.visual.is_reflective      = visual.is_reflective;
+        new_tri.visual.polygon_color_type = visual.polygon_color_type;
+        new_tri.visual.visability         = visual.visability;
+        new_tri.face_type_offset = face_type_offset;
+        new_tri.face_type_r = face_type_r;
 
-        triangulate[i].n[0] = n[QUAD_TABLE[i][0]];
-        triangulate[i].n[1] = n[QUAD_TABLE[i][1]];
-        triangulate[i].n[2] = n[QUAD_TABLE[i][2]];
-        triangulate[i].n[3] = 0;
-    }
+        new_tri.v[0] = v[QUAD_TABLE[i][0]];
+        new_tri.v[1] = v[QUAD_TABLE[i][1]];
+        new_tri.v[2] = v[QUAD_TABLE[i][2]];
+        new_tri.v[3] = 0;
 
-    if( triangulate[0].isWithinBounds( position_limit, normal_limit ) ) {
-        triangles.push_back( triangulate[0] );
-        counter++;
-    }
+        new_tri.n[0] = n[QUAD_TABLE[i][0]];
+        new_tri.n[1] = n[QUAD_TABLE[i][1]];
+        new_tri.n[2] = n[QUAD_TABLE[i][2]];
+        new_tri.n[3] = 0;
 
-    if( triangulate[1].isWithinBounds( position_limit, normal_limit ) ) {
-        triangles.push_back( triangulate[1] );
-        counter++;
+        if( new_tri.isWithinBounds( position_limit, normal_limit ) ) {
+            triangles.push_back( new_tri );
+            counter++;
+        }
     }
 
     return counter;
