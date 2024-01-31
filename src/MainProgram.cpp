@@ -315,7 +315,7 @@ void MainProgram::loadResources() {
 
     manager.togglePlatform( this->platform, true );
 
-    manager.setLoad( Data::Manager::Importance::NEEDED );
+    manager.setLoad( Data::Manager::Importance::NOT_NEEDED );
 
     this->global_r = manager.getIFFEntry( Data::Manager::global ).getIFF( this->platform );
     if( this->global_r == nullptr ) {
@@ -327,6 +327,24 @@ void MainProgram::loadResources() {
     if( this->resource_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The mission IFF " << this->resource_identifier << " did not load.";
+    }
+
+    {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "There are about " << Data::Mission::ObjResource::opcode_frequency.size() << " opcodes.\n";
+        log.output << "dictionary = {\n";
+        for( auto it = Data::Mission::ObjResource::opcode_frequency.begin(); it != Data::Mission::ObjResource::opcode_frequency.end(); it++ ) {
+            log.output << "\t0x" << std::hex << (*it).first << ": " << std::dec << (*it).second;
+
+            auto next = it;
+            next++;
+
+            if( next != Data::Mission::ObjResource::opcode_frequency.end())
+                log.output << ",";
+
+            log.output << "\n";
+        }
+        log.output << "}\n";
     }
 }
 

@@ -191,6 +191,8 @@ const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADA
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
 const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
 
+std::map<uint16_t, unsigned> Data::Mission::ObjResource::opcode_frequency = {};
+
 Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
     this->max_bone_childern = 0;
@@ -403,8 +405,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
-                    auto opcode_0 = reader3DQL.readU8();
-                    auto opcode_1 = reader3DQL.readU8();
+                    const auto opcode_0 = reader3DQL.readU8();
+                    const auto opcode_1 = reader3DQL.readU8();
+
+                    const uint16_t op_bitfield = (static_cast<uint16_t>(opcode_0) << 8) | static_cast<uint16_t>(opcode_1);
+
+                    if(opcode_frequency.find(op_bitfield) == opcode_frequency.end())
+                        opcode_frequency[op_bitfield] = 0;
+                    opcode_frequency[op_bitfield]++;
 
                     const uint16_t face_type_offset = reader3DQL.readU16( settings.endian );
 

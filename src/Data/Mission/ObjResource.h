@@ -21,6 +21,8 @@ public:
     static const float FIXED_POINT_UNIT;
     static const float ANGLE_UNIT;
 
+    static std::map<uint16_t, unsigned> opcode_frequency;
+
     enum VertexColorMode {
         NON = 0,
         MONOCHROME = 1,
