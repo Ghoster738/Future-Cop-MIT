@@ -406,6 +406,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto opcode_0 = reader3DQL.readU8();
                     auto opcode_1 = reader3DQL.readU8();
 
+                    if( settings.endian != Utilities::Buffer::Endian::LITTLE ) {
+                        opcode_1 = ((opcode_1 & 0xf0) >> 4) |
+                                   ((opcode_1 & 0x0e) << 3) |
+                                   ((opcode_1 & 0x01) << 7);
+                    }
+
                     const uint16_t face_type_offset = reader3DQL.readU16( settings.endian );
 
                     // Read the opcodes
