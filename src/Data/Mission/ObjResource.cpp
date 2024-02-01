@@ -276,28 +276,21 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto un1 = reader4DGI.readU32( settings.endian );
                     if( un1 != 1 ) // Always 1 for Mac, Playstation, and Windows
                         warning_log.output << "4DGI un1 is 0x" << std::hex << un1 << "\n";
+
                     num_frames_4DGI = reader4DGI.readU16( settings.endian );
-                    auto id       = reader4DGI.readU8();
+
+                    auto id       = reader4DGI.readU8(); // 0x10 for mac and 0x01 for windows
                     auto bitfield = reader4DGI.readU8();
-                    
-                    // The first byte is decoded.
-                    if( id == 0x10 || id == 0x01 ) {
-                        // Reverse the bit order if in Playstation or Windows.
-                        if( id == 0x01 )
-                            bitfield = reverse( bitfield );
-                        
-                        // These are all the values that are seen in the CObj format.
-                        if( !((bitfield == 0x10) || (bitfield == 0x11) ||
-                              (bitfield == 0x12) || (bitfield == 0x13) ||
-                              (bitfield == 0x14) || (bitfield == 0x15) ||
-                              (bitfield == 0x16) || (bitfield == 0x51) ||
-                              (bitfield == 0x53) || (bitfield == 0x55)) )
-                        {
-                            warning_log.output << "4DGI bitfield actually is 0x" << std::hex << bitfield << "\n";
-                        }
-                    }
-                    else
-                        warning_log.output << "4DGI id is 0x" << std::hex << id << "\n";
+
+                    // Reverse the bit order if on mac.
+                    if( settings.endian != Utilities::Buffer::Endian::LITTLE )
+                        bitfield = reverse( bitfield );
+
+                    info.has_skeleton     = (bitfield & 0x02) != 0;
+                    info.always_on        = (bitfield & 0x08) != 0;
+                    info.semi_transparent = (bitfield & 0x20) != 0;
+                    info.environment_map  = (bitfield & 0x40) != 0;
+                    info.animation        = (bitfield & 0x80) != 0;
 
                     // Skip the zeros.
                     auto position_index = reader4DGI.getPosition( Utilities::Buffer::BEGIN );
@@ -499,8 +492,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             break;
                     }
 
-                    const bool is_reflect   = ((opcode_1 & 0x80) != 0); // & (visability_mode != VisabilityMode::OPAQUE);
+                    const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
                     const uint8_t face_type =  (opcode_1 & 0x07);
+
+                    if( is_reflect && !info.semi_transparent ) {
+                        visability_mode = VisabilityMode::OPAQUE;
+                    }
 
                     Primitive primitive;
 

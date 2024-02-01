@@ -112,6 +112,14 @@ public:
         std::string name;
     };
 private:
+    struct {
+        unsigned has_skeleton:     1;
+        unsigned always_on:        1; // This always seems to be on.
+        unsigned semi_transparent: 1; // This bit makes environment map polygons semi transparent.
+        unsigned environment_map:  1;
+        unsigned animation:        1;
+    } info;
+
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
 
