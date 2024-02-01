@@ -282,7 +282,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto id       = reader4DGI.readU8(); // 0x10 for mac and 0x01 for windows
                     auto bitfield = reader4DGI.readU8();
 
-                    // Reverse the bit order if on mac.
+                    // Reverse the bit order if the resource is mac.
                     if( settings.endian != Utilities::Buffer::Endian::LITTLE )
                         bitfield = reverse( bitfield );
 
@@ -291,6 +291,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     info.semi_transparent = (bitfield & 0x20) != 0;
                     info.environment_map  = (bitfield & 0x40) != 0;
                     info.animation        = (bitfield & 0x80) != 0;
+
+                    // Check for bits that goes outside of what I found.
+                    if( (bitfield & 0x15) != 0 ) {
+                        warning_log.output << "4DGI has unknown bit values for info bitfield 0x" << std::hex << (unsigned)bitfield << ". Note: If this is the Mac version, then this bitfield is converted to Windows.\n";
+                    }
 
                     // Skip the zeros.
                     auto position_index = reader4DGI.getPosition( Utilities::Buffer::BEGIN );
