@@ -750,28 +750,20 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 const auto TRACK_AMOUNT = data_size / 0x10;
 
                 debug_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
-
-                unsigned int start = 0xFFFF, end = 0x0;
                 
                 for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
                     auto u0 = readerAnmD.readU8();
-                    auto u1 = readerAnmD.readU8();
+                    auto speed = readerAnmD.readU8(); // The bigger the slower
                     auto u2 = readerAnmD.readU8();
-                    auto u3 = readerAnmD.readU8();
+                    auto skip_frame = readerAnmD.readU8(); // Wild guess.
                     auto from_frame = readerAnmD.readU16( settings.endian );
                     auto to_frame   = readerAnmD.readU16( settings.endian );
                     auto u6 = readerAnmD.readU8();
                     auto u7 = readerAnmD.readU8();
                     auto u8 = readerAnmD.readU16( settings.endian );
-                    auto frame_duration = readerAnmD.readU32( settings.endian );
-                    
-                    start = std::min( start, static_cast<unsigned int>( from_frame ) );
-                    start = std::min( start, static_cast<unsigned int>( to_frame ) );
-                    
-                    end = std::max( end, static_cast<unsigned int>( from_frame ) );
-                    end = std::max( end, static_cast<unsigned int>( to_frame ) );
+                    auto u9 = readerAnmD.readU32( settings.endian );
 
-                    debug_log.output << std::dec << "f: " << from_frame << " t: " << to_frame << " f.d: " << frame_duration << ".\n";
+                    // from_frame and to_frame can be (from_frame == to_frame), (from_frame > to_frame), and (from_frame < to_frame)
                 }
             }
             else
