@@ -82,7 +82,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
-    "   specular = _SPECULAR;\n"
+    "   specular = _METADATA[0];\n"
     "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
@@ -224,7 +224,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
     // Check if there is even a shiney texture.
     if( shiney_texture_r != nullptr )
-        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
+        shiney_texture_r->bind( 1, specular_texture_uniform_id );
 
     SkeletalAnimation::Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();

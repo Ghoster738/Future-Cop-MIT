@@ -19,9 +19,11 @@ public:
     static const GLchar* default_fragment_shader;
 
     struct Vertex {
-        glm::vec3 position;
-        glm::vec4 color;
-        glm::vec2 coordinate;
+        glm::vec3   position;
+        glm::vec3   normal;
+        glm::vec4   color;
+        glm::vec2   coordinate;
+        glm::u8vec4 vertex_metadata;
 
         // OpenGL should ignore these values.
         union {
@@ -93,8 +95,14 @@ protected:
     Shader fragment_shader;
 
     GLuint diffusive_texture_uniform_id;
+    GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
+    GLuint view_uniform_id;
+    GLuint view_inv_uniform_id;
     
+    // The textures will also need to be accessed.
+    Texture2D *env_texture_r;
+
     VertexAttributeArray vertex_array;
 public:
 
@@ -146,6 +154,12 @@ public:
      * @return false if one of the shaders are not loaded.
      */
     int compileProgram();
+
+    /**
+     * This sets the environement texture.
+     * @param env_texture_ref This stores the shiney texture.
+     */
+    void setEnvironmentTexture( Texture2D *env_texture_ref );
 
     /**
      * This draws all the stored triangles.

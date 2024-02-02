@@ -236,9 +236,10 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         this->static_model_draw_routine.clearModels();
     }
 
-    this->static_model_draw_routine.setTextures( this->shiney_texture_p );
-    this->morph_model_draw_routine.setTextures( this->shiney_texture_p );
-    this->skeletal_model_draw_routine.setTextures( this->shiney_texture_p );
+    this->static_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
+    this->morph_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
+    this->skeletal_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
+    this->dynamic_triangle_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
 
     int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder* model_r;
@@ -336,13 +337,11 @@ void Environment::drawFrame() {
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
 
-            // This is very crude blending.
-            glEnable( GL_BLEND );
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-
-            // Enable culling on the world map.
+            // Enable culling on the opaque rendering path.
             glEnable( GL_CULL_FACE );
+
+            // Also there will be no blending as well.
+            glDisable( GL_BLEND );
 
             // Draw the map if available.
             if( this->world_p != nullptr )
@@ -355,11 +354,12 @@ void Environment::drawFrame() {
             this->morph_model_draw_routine.draw(    *current_camera_r );
             this->skeletal_model_draw_routine.draw( *current_camera_r );
 
+            glEnable( GL_BLEND );
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
-
-            // Disable culling on the world map.
-            glDisable( GL_CULL_FACE );
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);

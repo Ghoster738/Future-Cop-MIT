@@ -39,7 +39,7 @@ protected:
     Shader vertex_shader;
     Shader fragment_shader;
     GLuint diffusive_texture_uniform_id;
-    GLuint sepecular_texture_uniform_id;
+    GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
     GLuint texture_offset_uniform_id;
     
@@ -105,11 +105,10 @@ public:
     int compileProgram();
 
     /**
-     * This sets the textures.
-     * @param general_textures_ref This holds all the textures that the models could use.
-     * @param shiney_texture_ref This stores the shiney texture.
+     * This sets the environement texture.
+     * @param env_texture_ref This stores the shiney texture.
      */
-    void setTextures( Texture2D *shiney_texture_ref );
+    void setEnvironmentTexture( Texture2D *env_texture_ref );
 
     /**
      * This checks for the existence of the model inside the Draw routine.
@@ -157,7 +156,7 @@ public:
     /**
      * @return The OpenGL id of the texture uniform from the static model program.
      */
-    GLuint getSepecularTextureUniformID() const { return sepecular_texture_uniform_id; }
+    GLuint getSpecularTextureUniformID() const { return specular_texture_uniform_id; }
 
     /**
      * @return The OpenGL id of the matrix uniform from the static model program.

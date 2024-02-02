@@ -16,9 +16,31 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
-    static const std::string SPECULAR_COMPONENT_NAME;
+    static const std::string METADATA_COMPONENT_NAME;
 
-    struct TextureQuad {
+    static const float FIXED_POINT_UNIT;
+    static const float ANGLE_UNIT;
+
+    enum VertexColorMode {
+        NON = 0,
+        MONOCHROME = 1,
+        FULL = 2
+    };
+    enum VisabilityMode {
+        OPAQUE   = 0,
+        ADDITION = 1,
+        MIX      = 2
+    };
+    enum PrimitiveType {
+        UNKNOWN_0      = 0,
+        TRIANGLE_OTHER = 2,
+        TRIANGLE       = 3,
+        QUAD           = 4,
+        BILLBOARD      = 5,
+        UNKNOWN_1      = 7
+    };
+
+    struct FaceType {
         uint8_t opcodes[4];
 
         uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
@@ -27,26 +49,32 @@ public:
 
         glm::u8vec2 coords[4];
     };
-    struct FaceTriangle {
-        bool is_other_side; // This indicates that the triangle is mearly the other side of the quad.
-        bool is_reflective;
-        uint16_t     texture_quad_offset;
-        TextureQuad *texture_quad_r;
-        uint16_t v0, v1, v2;
-        uint16_t n0, n1, n2;
+    struct Primitive {
+        PrimitiveType type;
 
+        struct {
+            uint8_t uses_texture:       1; // Does the face use a texture or not?
+            uint8_t normal_shading:     1;
+            uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
+            uint8_t visability:         2; // Please see enum VisabilityMode
+            uint8_t is_reflective:      1;
+        } visual;
+
+        uint16_t  face_type_offset;
+        FaceType *face_type_r;
+
+        uint16_t v[4], n[4];
+
+        uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
-
         bool getTransparency() const;
 
-        bool operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const;
-    };
-    struct FaceQuad : public FaceTriangle {
-        int16_t v3;
-        int16_t n3;
+        int setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
+        int setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
 
-        FaceTriangle firstTriangle() const;
-        FaceTriangle secondTriangle() const;
+        static size_t getTriangleAmount( PrimitiveType type );
+
+        bool operator() ( const Primitive & l_operand, const Primitive & r_operand ) const;
     };
     class Bone {
     public:
@@ -79,17 +107,27 @@ public:
         uint16_t rotation_x;
         uint16_t rotation_y;
     };
-    // This is all that a GLTF needs to know.
     struct TextureReference {
         uint32_t resource_id;
         std::string name;
     };
 private:
+    struct {
+        unsigned has_skeleton:     1;
+        unsigned always_on:        1; // This always seems to be on.
+        unsigned semi_transparent: 1; // This bit makes environment map polygons semi transparent.
+        unsigned environment_map:  1;
+        unsigned animation:        1;
+    } info;
+
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
-    std::map<uint_fast16_t, TextureQuad>  texture_quads;
-    std::vector<FaceTriangle> face_trinagles;
-    std::vector<FaceQuad>     face_quads;
+
+    std::map<uint_fast16_t, FaceType>  face_types;
+
+    std::vector<Primitive>    face_triangles;
+    std::vector<Primitive>    face_quads;
+
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.
     unsigned int              bone_frames;

@@ -40,28 +40,34 @@ namespace {
     // 3D bounding box
     const uint32_t TAG_3DBB = 0x33444242; // which is { 0x33, 0x44, 0x42, 0x42 } or { '3', 'D', 'B', 'B' } or "3DBB"
 
-    const auto INTEGER_FACTOR = 1.0 / 512.0;
+    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
 
-    void triangleToCoords( const Data::Mission::ObjResource::FaceTriangle &triangle, const Data::Mission::ObjResource::TextureQuad &texture_quad, glm::u8vec2 *cords )
+    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
     {
-        if( !triangle.is_other_side )
+        if( !triangle.visual.uses_texture ) {
+            coords[0] = glm::u8vec2(0, 0);
+            coords[1] = glm::u8vec2(0, 0);
+            coords[2] = glm::u8vec2(0, 0);
+        }
+        else
+        if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
-            cords[0] = texture_quad.coords[0];
-            cords[1] = texture_quad.coords[1];
-            cords[2] = texture_quad.coords[2];
+            coords[0] = texture_quad.coords[QUAD_TABLE[0][0]];
+            coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
+            coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
         }
         else
         {
-            cords[0] = texture_quad.coords[2];
-            cords[1] = texture_quad.coords[3];
-            cords[2] = texture_quad.coords[0];
+            coords[0] = texture_quad.coords[QUAD_TABLE[1][0]];
+            coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
+            coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
         }
     }
 
     void handlePositions( glm::vec3 &position, const glm::i16vec3 *array, int index ) {
-        position.x = -array[ index ].x * INTEGER_FACTOR;
-        position.y =  array[ index ].y * INTEGER_FACTOR;
-        position.z =  array[ index ].z * INTEGER_FACTOR;
+        position.x = -array[ index ].x * Data::Mission::ObjResource::FIXED_POINT_UNIT;
+        position.y =  array[ index ].y * Data::Mission::ObjResource::FIXED_POINT_UNIT;
+        position.z =  array[ index ].z * Data::Mission::ObjResource::FIXED_POINT_UNIT;
     }
     void handleNormals( glm::vec3 &normal, const glm::i16vec3 *array, int index ) {
         normal.x = array[ index ].x;
@@ -70,98 +76,123 @@ namespace {
 
         normal = glm::normalize( normal );
     }
-uint8_t reverse(uint8_t b) {
-   b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
-   b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
-   b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
-   return b;
-}
+
+    uint8_t reverse(uint8_t b) {
+    b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
+    b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
+    b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
+    return b;
+    }
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
+uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
+    if( !visual.uses_texture || face_type_r == nullptr )
+        return 0;
+    else
+        return face_type_r->bmp_id + 1;
+}
+
+bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const {
     bool is_valid = true;
 
-    if( this->v0 >= vertex_limit )
+    if( this->v[0] >= vertex_limit )
         is_valid = false;
     else
-    if( this->v1 >= vertex_limit )
+    if( this->v[1] >= vertex_limit )
         is_valid = false;
     else
-    if( this->v2 >= vertex_limit )
+    if( this->v[2] >= vertex_limit )
         is_valid = false;
     else
-    if( normal_limit != 0 && this->n0 >= normal_limit )
+    if( normal_limit != 0 && this->n[0] >= normal_limit )
         is_valid = false;
     else
-    if( normal_limit != 0 && this->n1 >= normal_limit )
+    if( normal_limit != 0 && this->n[1] >= normal_limit )
         is_valid = false;
     else
-    if( normal_limit != 0 && this->n2 >= normal_limit )
+    if( normal_limit != 0 && this->n[2] >= normal_limit )
         is_valid = false;
 
     return is_valid;
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::getTransparency() const {
-    if( is_reflective || texture_quad_r == nullptr )
+bool Data::Mission::ObjResource::Primitive::getTransparency() const {
+    if( visual.visability == VisabilityMode::OPAQUE || face_type_r == nullptr )
         return false;
     else
-    if( is_other_side )
-        return texture_quad_r->has_transparent_pixel_t1;
+    if( type == PrimitiveType::TRIANGLE_OTHER )
+        return face_type_r->has_transparent_pixel_t1;
     else
-        return texture_quad_r->has_transparent_pixel_t0;
+        return face_type_r->has_transparent_pixel_t0;
 }
 
-bool Data::Mission::ObjResource::FaceTriangle::operator() ( const FaceTriangle & l_operand, const FaceTriangle & r_operand ) const {
-    if( l_operand.texture_quad_r != nullptr && r_operand.texture_quad_r != nullptr ) {
-        if( l_operand.texture_quad_r->bmp_id != r_operand.texture_quad_r->bmp_id )
-            return (l_operand.texture_quad_r->bmp_id < r_operand.texture_quad_r->bmp_id);
-        else
-        if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
-            return true;
-        else
-            return false;
-    }
+bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_operand, const Primitive & r_operand ) const {
+    if( l_operand.getBmpID() != r_operand.getBmpID() )
+        return (l_operand.getBmpID() < r_operand.getBmpID());
     else
-    if( l_operand.texture_quad_r != nullptr )
-        return false;
-    else
+    if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
         return true;
+    else
+        return false;
 }
 
-Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::firstTriangle() const {
-    FaceTriangle new_tri;
-
-    new_tri.is_other_side = false;
-    new_tri.is_reflective = is_reflective;
-    new_tri.texture_quad_offset = texture_quad_offset;
-    new_tri.texture_quad_r = texture_quad_r;
-    new_tri.v0 = v0;
-    new_tri.v1 = v1;
-    new_tri.v2 = v2;
-    new_tri.n0 = n0;
-    new_tri.n1 = n1;
-    new_tri.n2 = n2;
-
-    return new_tri;
+int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
+    if( isWithinBounds( position_limit, normal_limit ) )
+    {
+        triangles.push_back( *this );
+        return 1;
+    }
+    return 0;
 }
 
-Data::Mission::ObjResource::FaceTriangle Data::Mission::ObjResource::FaceQuad::secondTriangle() const {
-    FaceTriangle new_tri;
+int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
+    const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
-    new_tri.is_other_side = true;
-    new_tri.is_reflective = is_reflective;
-    new_tri.texture_quad_offset = texture_quad_offset;
-    new_tri.texture_quad_r = texture_quad_r;
-    new_tri.v0 = v2;
-    new_tri.v1 = v3;
-    new_tri.v2 = v0;
-    new_tri.n0 = n2;
-    new_tri.n1 = n3;
-    new_tri.n2 = n0;
+    Primitive new_tri;
+    int counter = 0;
 
-    return new_tri;
+    new_tri.visual.uses_texture       = visual.uses_texture;
+    new_tri.visual.normal_shading     = visual.normal_shading;
+    new_tri.visual.is_reflective      = visual.is_reflective;
+    new_tri.visual.polygon_color_type = visual.polygon_color_type;
+    new_tri.visual.visability         = visual.visability;
 
+    new_tri.face_type_offset = face_type_offset;
+    new_tri.face_type_r = face_type_r;
+
+    new_tri.v[3] = 0;
+    new_tri.n[3] = 0;
+
+    for( unsigned i = 0; i < 2; i++ ) {
+        new_tri.type = TYPES[i];
+
+        new_tri.v[0] = v[QUAD_TABLE[i][0]];
+        new_tri.v[1] = v[QUAD_TABLE[i][1]];
+        new_tri.v[2] = v[QUAD_TABLE[i][2]];
+
+        new_tri.n[0] = n[QUAD_TABLE[i][0]];
+        new_tri.n[1] = n[QUAD_TABLE[i][1]];
+        new_tri.n[2] = n[QUAD_TABLE[i][2]];
+
+        if( new_tri.isWithinBounds( position_limit, normal_limit ) ) {
+            triangles.push_back( new_tri );
+            counter++;
+        }
+    }
+
+    return counter;
+}
+
+size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
+    switch( type ) {
+        case PrimitiveType::TRIANGLE:
+        case PrimitiveType::TRIANGLE_OTHER:
+            return 1;
+        case PrimitiveType::QUAD:
+            return 2;
+        default:
+            return 0;
+    }
 }
 
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
@@ -169,8 +200,11 @@ unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
 }
         
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
-const uint32_t Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
-const std::string Data::Mission::ObjResource::SPECULAR_COMPONENT_NAME = "_SPECULAR";
+const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
+const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
+
+const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
+const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
 
 Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
@@ -242,28 +276,26 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto un1 = reader4DGI.readU32( settings.endian );
                     if( un1 != 1 ) // Always 1 for Mac, Playstation, and Windows
                         warning_log.output << "4DGI un1 is 0x" << std::hex << un1 << "\n";
+
                     num_frames_4DGI = reader4DGI.readU16( settings.endian );
-                    auto id       = reader4DGI.readU8();
+
+                    auto id       = reader4DGI.readU8(); // 0x10 for mac and 0x01 for windows
                     auto bitfield = reader4DGI.readU8();
-                    
-                    // The first byte is decoded.
-                    if( id == 0x10 || id == 0x01 ) {
-                        // Reverse the bit order if in Playstation or Windows.
-                        if( id == 0x01 )
-                            bitfield = reverse( bitfield );
-                        
-                        // These are all the values that are seen in the CObj format.
-                        if( !((bitfield == 0x10) || (bitfield == 0x11) ||
-                              (bitfield == 0x12) || (bitfield == 0x13) ||
-                              (bitfield == 0x14) || (bitfield == 0x15) ||
-                              (bitfield == 0x16) || (bitfield == 0x51) ||
-                              (bitfield == 0x53) || (bitfield == 0x55)) )
-                        {
-                            warning_log.output << "4DGI bitfield actually is 0x" << std::hex << bitfield << "\n";
-                        }
+
+                    // Reverse the bit order if the resource is mac.
+                    if( settings.endian != Utilities::Buffer::Endian::LITTLE )
+                        bitfield = reverse( bitfield );
+
+                    info.has_skeleton     = (bitfield & 0x02) != 0;
+                    info.always_on        = (bitfield & 0x08) != 0;
+                    info.semi_transparent = (bitfield & 0x20) != 0;
+                    info.environment_map  = (bitfield & 0x40) != 0;
+                    info.animation        = (bitfield & 0x80) != 0;
+
+                    // Check for bits that goes outside of what I found.
+                    if( (bitfield & 0x15) != 0 ) {
+                        warning_log.output << "4DGI has unknown bit values for info bitfield 0x" << std::hex << (unsigned)bitfield << ". Note: If this is the Mac version, then this bitfield is converted to Windows.\n";
                     }
-                    else
-                        warning_log.output << "4DGI id is 0x" << std::hex << id << "\n";
 
                     // Skip the zeros.
                     auto position_index = reader4DGI.getPosition( Utilities::Buffer::BEGIN );
@@ -322,44 +354,44 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 while( valid_opcodes && reader3DTL.getPosition( Utilities::Buffer::BEGIN ) < reader3DTL.totalSize() ) {
                     uint16_t offset = reader3DTL.getPosition( Utilities::Buffer::BEGIN ) - sizeof(uint32_t);
 
-                    texture_quads[offset] = TextureQuad();
+                    face_types[offset] = FaceType();
 
-                    texture_quads[offset].opcodes[0] = reader3DTL.readU8();
-                    texture_quads[offset].opcodes[1] = reader3DTL.readU8();
-                    texture_quads[offset].opcodes[2] = reader3DTL.readU8();
-                    texture_quads[offset].opcodes[3] = reader3DTL.readU8();
+                    face_types[offset].opcodes[0] = reader3DTL.readU8();
+                    face_types[offset].opcodes[1] = reader3DTL.readU8();
+                    face_types[offset].opcodes[2] = reader3DTL.readU8();
+                    face_types[offset].opcodes[3] = reader3DTL.readU8();
 
-                    texture_quads[offset].has_transparent_pixel_t0 = false;
-                    texture_quads[offset].has_transparent_pixel_t1 = false;
+                    face_types[offset].has_transparent_pixel_t0 = false;
+                    face_types[offset].has_transparent_pixel_t1 = false;
 
-                    switch( texture_quads[offset].opcodes[0] ) {
+                    switch( face_types[offset].opcodes[0] ) {
                         case 1:
                         {
                             // Placeholder code
-                            texture_quads[offset].bmp_id = 0;
+                            face_types[offset].bmp_id = 0;
                         }
                         break;
                         case 2:
                         case 3:
                         {
-                            texture_quads[offset].coords[0].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[0].y = reader3DTL.readU8();
+                            face_types[offset].coords[0].x = reader3DTL.readU8();
+                            face_types[offset].coords[0].y = reader3DTL.readU8();
 
-                            texture_quads[offset].coords[1].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[1].y = reader3DTL.readU8();
+                            face_types[offset].coords[1].x = reader3DTL.readU8();
+                            face_types[offset].coords[1].y = reader3DTL.readU8();
 
-                            texture_quads[offset].coords[2].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[2].y = reader3DTL.readU8();
+                            face_types[offset].coords[2].x = reader3DTL.readU8();
+                            face_types[offset].coords[2].y = reader3DTL.readU8();
 
-                            texture_quads[offset].coords[3].x = reader3DTL.readU8();
-                            texture_quads[offset].coords[3].y = reader3DTL.readU8();
+                            face_types[offset].coords[3].x = reader3DTL.readU8();
+                            face_types[offset].coords[3].y = reader3DTL.readU8();
 
-                            texture_quads[offset].bmp_id = reader3DTL.readU32( settings.endian );
+                            face_types[offset].bmp_id = reader3DTL.readU32( settings.endian );
                         }
                         break;
                         default:
                         {
-                            error_log.output << std::hex << "0x" << (unsigned)texture_quads[offset].opcodes[0] << " opcode is not recognized for 3DTL.";
+                            error_log.output << std::hex << "0x" << (unsigned)face_types[offset].opcodes[0] << " opcode is not recognized for 3DTL.";
                             error_log.output << " Offset 0x" << this->getOffset() << ".\n";
                             valid_opcodes = false;
                         }
@@ -384,51 +416,129 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 for( unsigned int i = 0; i < number_of_faces; i++ )
                 {
-                    auto face_type   = reader3DQL.readU8();
-                    if( !(( (face_type & 0x07) == 3 ) || ((face_type & 0x07) == 4 )) )
-                        warning_log.output << "3DQL has 0x" << std::hex  << static_cast<uint32_t>(face_type) << " face_type\n";
-                    auto face_type_2 = reader3DQL.readU8();
+                    auto opcode_0 = reader3DQL.readU8();
+                    auto opcode_1 = reader3DQL.readU8();
 
-                    const uint16_t texture_quad_offset = reader3DQL.readU16( settings.endian );
+                    // Check if this file is not Windows or Playstation.
+                    if( settings.endian != Utilities::Buffer::Endian::LITTLE ) {
 
-                    bool reflect = ((face_type_2 & 0xF0) == 0x80);
-                    
-                    if( (face_type & 0x07) == 4 ) {
-                        face_quads.push_back( FaceQuad() );
-
-                        face_quads.back().texture_quad_offset = texture_quad_offset;
-                        // (((face_type & 0xFF) == 0xCC) & ((face_type_2 & 0x84) == 0x84))
-                        // 0x07 Appears to be its own face type
-                        face_quads.back().is_reflective = reflect;
-
-                        face_quads.back().v0 = reader3DQL.readU8();
-                        face_quads.back().v1 = reader3DQL.readU8();
-                        face_quads.back().v2 = reader3DQL.readU8();
-                        face_quads.back().v3 = reader3DQL.readU8();
-                        
-                        face_quads.back().n0 = reader3DQL.readU8();
-                        face_quads.back().n1 = reader3DQL.readU8();
-                        face_quads.back().n2 = reader3DQL.readU8();
-                        face_quads.back().n3 = reader3DQL.readU8();
+                        // I do not know why Mac CObj stores this opcode like this, but this might have something to do with the PowerPC Instruction Set Architecture.
+                        opcode_1 = ((opcode_1 & 0xf0) >> 4) |
+                                   ((opcode_1 & 0x0e) << 3) |
+                                   ((opcode_1 & 0x01) << 7);
                     }
-                    else {
-                        face_trinagles.push_back( FaceTriangle() );
 
-                        face_trinagles.back().is_other_side = false;
-                        face_trinagles.back().texture_quad_offset = texture_quad_offset;
-                        // (face_type & 0x08) seems to be the effect bit.
-                        // (face_type & 0x28) seems to be the tranlucent bit.
-                        face_trinagles.back().is_reflective = reflect;
+                    const uint16_t face_type_offset = reader3DQL.readU16( settings.endian );
 
-                        face_trinagles.back().v0 = reader3DQL.readU8();
-                        face_trinagles.back().v1 = reader3DQL.readU8();
-                        face_trinagles.back().v2 = reader3DQL.readU8();
-                        reader3DQL.readU8();
+                    // Read the opcodes
+                    const bool is_texture      = ((opcode_0 & 0x80) != 0);
+                    const uint8_t array_amount =  (opcode_0 & 0x07);
+                    const uint8_t bitfield     =  (opcode_0 & 0x78) >> 3;
 
-                        face_trinagles.back().n0 = reader3DQL.readU8();
-                        face_trinagles.back().n1 = reader3DQL.readU8();
-                        face_trinagles.back().n2 = reader3DQL.readU8();
-                        reader3DQL.readU8();
+                    bool            normal_shadows = false;
+                    VisabilityMode  visability_mode = VisabilityMode::OPAQUE;
+                    VertexColorMode vertex_color_mode = VertexColorMode::NON;
+
+                    switch( bitfield ) {
+                        case 0b0000:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        case 0b0001:
+                        case 0b0011:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        case 0b0010:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            break;
+                        case 0b0100:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        case 0b0101:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        case 0b0110:
+                        case 0b1010:
+                        case 0b1011:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            break;
+                        case 0b0111:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            break;
+                        case 0b1000:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        case 0b1001:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        case 0b1101:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::ADDITION;
+                            vertex_color_mode = VertexColorMode::NON;
+                            break;
+                        default: // Nothing
+                            break;
+                    }
+
+                    const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
+                    const uint8_t face_type =  (opcode_1 & 0x07);
+
+                    if( is_reflect && !info.semi_transparent ) {
+                        visability_mode = VisabilityMode::OPAQUE;
+                    }
+
+                    Primitive primitive;
+
+                    primitive.face_type_offset = face_type_offset;
+                    primitive.face_type_r      = nullptr;
+
+                    primitive.visual.uses_texture       = is_texture;
+                    primitive.visual.normal_shading     = normal_shadows;
+                    primitive.visual.polygon_color_type = vertex_color_mode;
+                    primitive.visual.visability         = visability_mode;
+                    primitive.visual.is_reflective      = is_reflect;
+                    
+                    primitive.v[0] = reader3DQL.readU8();
+                    primitive.v[1] = reader3DQL.readU8();
+                    primitive.v[2] = reader3DQL.readU8();
+                    primitive.v[3] = reader3DQL.readU8();
+
+                    primitive.n[0] = reader3DQL.readU8();
+                    primitive.n[1] = reader3DQL.readU8();
+                    primitive.n[2] = reader3DQL.readU8();
+                    primitive.n[3] = reader3DQL.readU8();
+
+                    switch( face_type ) {
+                        case 4:
+                        {
+                            primitive.type = PrimitiveType::QUAD;
+                            face_quads.push_back( primitive );
+                            break;
+                        }
+                        case 3:
+                        default:
+                        {
+                            primitive.type = PrimitiveType::TRIANGLE;
+                            face_triangles.push_back( primitive );
+                            break;
+                        }
                     }
                 }
             }
@@ -640,28 +750,20 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 const auto TRACK_AMOUNT = data_size / 0x10;
 
                 debug_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
-
-                unsigned int start = 0xFFFF, end = 0x0;
                 
                 for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
                     auto u0 = readerAnmD.readU8();
-                    auto u1 = readerAnmD.readU8();
+                    auto speed = readerAnmD.readU8(); // The bigger the slower
                     auto u2 = readerAnmD.readU8();
-                    auto u3 = readerAnmD.readU8();
+                    auto skip_frame = readerAnmD.readU8(); // Wild guess.
                     auto from_frame = readerAnmD.readU16( settings.endian );
                     auto to_frame   = readerAnmD.readU16( settings.endian );
                     auto u6 = readerAnmD.readU8();
                     auto u7 = readerAnmD.readU8();
                     auto u8 = readerAnmD.readU16( settings.endian );
-                    auto frame_duration = readerAnmD.readU32( settings.endian );
-                    
-                    start = std::min( start, static_cast<unsigned int>( from_frame ) );
-                    start = std::min( start, static_cast<unsigned int>( to_frame ) );
-                    
-                    end = std::max( end, static_cast<unsigned int>( from_frame ) );
-                    end = std::max( end, static_cast<unsigned int>( to_frame ) );
+                    auto u9 = readerAnmD.readU32( settings.endian );
 
-                    debug_log.output << std::dec << "f: " << from_frame << " t: " << to_frame << " f.d: " << frame_duration << ".\n";
+                    // from_frame and to_frame can be (from_frame == to_frame), (from_frame > to_frame), and (from_frame < to_frame)
                 }
             }
             else
@@ -793,16 +895,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI bounding_box_frames = " << std::dec << bounding_box_frames << "\n";
         }
 
-        for( auto &triangle : this->face_trinagles ) {
-            if( this->texture_quads.find( triangle.texture_quad_offset ) != this->texture_quads.end() ) {
-                triangle.texture_quad_r = &this->texture_quads[ triangle.texture_quad_offset ];
+        for( auto &triangle : this->face_triangles ) {
+            if( this->face_types.find( triangle.face_type_offset ) != this->face_types.end() ) {
+                triangle.face_type_r = &this->face_types[ triangle.face_type_offset ];
             }
-            else
-                triangle.texture_quad_r = nullptr;
         }
         for( auto &quad : this->face_quads ) {
-            if( this->texture_quads.find( quad.texture_quad_offset ) != this->texture_quads.end() ) {
-                quad.texture_quad_r = &this->texture_quads[ quad.texture_quad_offset ];
+            if( this->face_types.find( quad.face_type_offset ) != this->face_types.end() ) {
+                quad.face_type_r = &this->face_types[ quad.face_type_offset ];
             }
         }
 
@@ -861,20 +961,21 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
         for( uint32_t i = 0; i < textures.size(); i++ )
             resource_id_to_bmp[ textures[ i ]->getResourceID() ] = textures[ i ];
 
-        for( auto i = texture_quads.begin(); i != texture_quads.end(); i++ ) {
-            // Check for the texture bit on the opcode.
-            const bool HAS_TEXTURE = ((*i).second.opcodes[0] & 0x2) != 0;
+        // Make a null texture.
+        resource_id_to_reference[0].resource_id = 0;
+        resource_id_to_reference[0].name = "";
 
-            const auto RESOURCE_ID = HAS_TEXTURE * ((*i).second.bmp_id + 1);
+        for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
+            // Check for the texture bit on the opcode.
+            if( ((*i).second.opcodes[0] & 0x2) == 0 )
+                continue;
+
+            const auto RESOURCE_ID = (*i).second.bmp_id + 1;
             
             if( resource_id_to_reference.count( RESOURCE_ID ) == 0 ) {
                 resource_id_to_reference[ RESOURCE_ID ].resource_id = RESOURCE_ID;
 
-                if( !HAS_TEXTURE ) {
-                    resource_id_to_reference[ RESOURCE_ID ].name = "";
-                }
-                else
-                if( HAS_TEXTURE && resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
+                if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
                         auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 
@@ -888,7 +989,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
             }
         }
 
-        for( auto i = texture_quads.begin(); i != texture_quads.end(); i++ ) {
+        for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
             // Check for the texture bit on the opcode.
             if( ((*i).second.opcodes[0] & 0x2) == 0 )
                 continue;
@@ -898,13 +999,13 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
             if( resource_id_to_bmp.count( RESOURCE_ID ) != 0 ) {
                 auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 
-                points[0] = (*i).second.coords[0];
-                points[1] = (*i).second.coords[1];
-                points[2] = (*i).second.coords[2];
+                points[0] = (*i).second.coords[QUAD_TABLE[0][0]];
+                points[1] = (*i).second.coords[QUAD_TABLE[0][1]];
+                points[2] = (*i).second.coords[QUAD_TABLE[0][2]];
 
-                points[3] = (*i).second.coords[2];
-                points[4] = (*i).second.coords[3];
-                points[5] = (*i).second.coords[0];
+                points[3] = (*i).second.coords[QUAD_TABLE[1][0]];
+                points[4] = (*i).second.coords[QUAD_TABLE[1][1]];
+                points[5] = (*i).second.coords[QUAD_TABLE[1][2]];
 
                 if( Data::Mission::BMPResource::isSemiTransparent( *bmp_reference_r->getImage(), &points[0] ) )
                     (*i).second.has_transparent_pixel_t0 = true;
@@ -930,64 +1031,47 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
-    std::vector< FaceTriangle > triangle_buffer;
-    std::vector<unsigned int> triangle_counts;
-    bool is_specular = false;
+    std::vector< Primitive > triangle_buffer;
+    std::map<unsigned int, unsigned int> triangle_counts;
 
     {
-        triangle_buffer.reserve( face_trinagles.size() + face_quads.size() * 2 );
+        size_t triangle_buffer_size = 0;
 
-        for( auto i = face_trinagles.begin(); i != face_trinagles.end(); i++ ) {
-            is_specular |= (*i).is_reflective;
-            if( (*i).isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
-            {
-                triangle_buffer.push_back( (*i) );
-            }
+        triangle_buffer_size += face_triangles.size() * Primitive::getTriangleAmount( PrimitiveType::TRIANGLE );
+        triangle_buffer_size += face_quads.size() * Primitive::getTriangleAmount( PrimitiveType::QUAD );
+
+        triangle_buffer.reserve( triangle_buffer_size );
+
+        // Go through the normal triangles first.
+        for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ ) {
+            (*i).setTriangle( triangle_buffer, vertex_positions.size(), vertex_normals.size() );
         }
 
+        // Now go through the quads.
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
-            is_specular |= (*i).is_reflective;
-            if( (*i).firstTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
-            {
-                triangle_buffer.push_back( (*i).firstTriangle() );
-            }
-
-            if( (*i).secondTriangle().isWithinBounds( vertex_positions.size(), vertex_normals.size() ) )
-            {
-                triangle_buffer.push_back( (*i).secondTriangle() );
-            }
+            (*i).setQuad( triangle_buffer, vertex_positions.size(), vertex_normals.size() );
         }
 
         // Sort the triangle list.
-        std::sort(triangle_buffer.begin(), triangle_buffer.end(), FaceTriangle() );
-
-        uint32_t last_texture_quad_index = 0;
+        std::sort(triangle_buffer.begin(), triangle_buffer.end(), Primitive() );
 
         // Get the list of the used textures
         for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
-            uint32_t bmp_id = (*i).texture_quad_r->bmp_id;
+            uint32_t bmp_id = (*i).getBmpID();
 
-            if( triangle_buffer.begin() == i || last_texture_quad_index != bmp_id ) {
-                triangle_counts.push_back( 0 );
-                last_texture_quad_index = bmp_id;
+            if( triangle_counts.find(bmp_id) == triangle_counts.end() ) {
+                triangle_counts[bmp_id] = 0;
             }
-            triangle_counts.back()++;
+            triangle_counts[bmp_id]++;
         }
     }
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-    unsigned int normal_component_index = -1;
-    
-    normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-    
+    unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
+    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
-    unsigned int specular_component_index = -1; 
-    
-    // Specular is to exist if there is a single triangle or quad with a specular map.
-    // if( is_specular )
-    specular_component_index = model_output->addVertexComponent( SPECULAR_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::SCALAR );
 
     if( !bones.empty() ) {
         joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
@@ -996,8 +1080,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         model_output->allocateJoints( bones.size(), bone_frames );
         
         glm::mat4 bone_matrix;
-        
-        const float ANGLE_UNITS_TO_RADIANS = glm::pi<float>() / 2048.0;
         
         // Make joint relations.
         unsigned int childern[ max_bone_childern ];
@@ -1031,11 +1113,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 if( !(*current_bone).opcode.rotation.z_const )
                     frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
                 
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 1, 0 ) );
-                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 1, 0, 0 ) );
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNITS_TO_RADIANS, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
+                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
+                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
+                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
                 
-                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( INTEGER_FACTOR );
+                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
                 auto quaterion = glm::quat_cast( bone_matrix );
                 
                 model_output->setJointFrame( frame, bone_index, position, quaterion );
@@ -1075,7 +1157,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     glm::vec3 new_position;
     glm::vec3 normal( 1, 0, 0 );
     glm::vec3 new_normal( 1, 0, 0 );
-    float specular;
+    glm::u8vec4 metadata;
     glm::u8vec2 coords[3];
     glm::u8vec4 weights;
     glm::u8vec4 joints;
@@ -1090,22 +1172,47 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
 
-    for( unsigned int mat = 0; mat < triangle_counts.size(); mat++ )
+    for( auto count_it = triangle_counts.begin(); count_it != triangle_counts.end(); count_it++ )
     {
-        model_output->setMaterial( texture_references.at( mat ).name, texture_references.at( mat ).resource_id, true );
+        // If there are no triangle counts then do not even write down the material.
+        if( (*count_it).second == 0 )
+            continue;
 
-        for( unsigned int i = 0; i < triangle_counts.at(mat); i++ )
+        bool found = false;
+
+        // Do a linear search to find the resource id stored in first of count_it.
+        for( unsigned t_index = 0; t_index < texture_references.size(); t_index++ ) {
+            if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
+
+                // Set this material.
+                model_output->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+
+                // The material is found.
+                found = true;
+
+                // Stop this search.
+                t_index = texture_references.size();
+            }
+        }
+
+        assert(found);
+
+        for( unsigned int i = 0; i < (*count_it).second; i++ )
         {
-            triangleToCoords( (*triangle), *(*triangle).texture_quad_r, coords );
+            triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
             
-            if( (*triangle).is_reflective )
-                specular = 1.0f;
+            if( (*triangle).visual.is_reflective )
+                metadata[0] = 0xFF;
             else
-                specular = 0.0f;
+                metadata[0] = 0x00;
+
+            if( (*triangle).visual.normal_shading )
+                metadata[1] = 0xFF;
+            else
+                metadata[1] = 0x00;
 
             if( triangle != previous_triangle ) {
-                if( (*triangle).texture_quad_r != nullptr && (*previous_triangle).texture_quad_r != nullptr && // Memory safety.
-                    (*triangle).texture_quad_r->bmp_id == (*previous_triangle).texture_quad_r->bmp_id )
+                if( (*triangle).getBmpID() == (*previous_triangle).getBmpID() )
                 {
                     if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
                         model_output->beginSemiTransperency();
@@ -1121,130 +1228,47 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 model_output->beginSemiTransperency();
             }
 
-            model_output->startVertex();
+            for( unsigned vertex_index = 3; vertex_index != 0; vertex_index-- ) {
+                model_output->startVertex();
 
-            handlePositions( position, vertex_positions.data(), (*triangle).v2 );
-            
-            if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n2 );
-            
-            model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            
-            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-            
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[2] ) );
+                handlePositions( position, vertex_positions.data(), (*triangle).v[vertex_index - 1] );
 
-            if( is_specular )
-                model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-
-            for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
-            {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v2 );
-                model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
-                
                 if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n2 );
-                
-                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-            }
-            if( !bones.empty() ) {
-                for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v2 ) {
-                        break;
-                    }
-                    else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v2 )
-                    {
-                        joints.x = bone - bones.begin();
-                        model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                    }
+                    handleNormals( normal, vertex_normals.data(), (*triangle).n[vertex_index - 1] );
+
+                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
+
+                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
+
+                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[vertex_index - 1] ) );
+
+                model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
+
+                for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
+                {
+                    handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[vertex_index - 1] );
+                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
+
+                    if( vertex_normals.size() != 0 )
+                        handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[vertex_index - 1] );
+
+                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
                 }
-
-                model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
-            }
-
-            model_output->startVertex();
-
-            handlePositions( position, vertex_positions.data(), (*triangle).v1 );
-            
-            if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n1 );
-            
-            model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            
-            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-            
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[1] ) );
-            if( is_specular )
-            {
-                model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-            }
-            for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
-            {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v1 );
-                model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
-                
-                if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n1 );
-                
-                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-            }
-            if( !bones.empty() ) {
-                for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v1 ) {
-                        break;
+                if( !bones.empty() ) {
+                    for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+                        if( (*bone).vertex_start > (*triangle).v[vertex_index - 1] ) {
+                            break;
+                        }
+                        else
+                        if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[vertex_index - 1] )
+                        {
+                            joints.x = bone - bones.begin();
+                            model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
+                        }
                     }
-                    else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v1 )
-                    {
-                        joints.x = bone - bones.begin();
-                        model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                    }
+
+                    model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
                 }
-
-                model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
-            }
-
-            model_output->startVertex();
-
-            handlePositions( position, vertex_positions.data(), (*triangle).v0 );
-            
-            if( vertex_normals.size() != 0 )
-                handleNormals( normal, vertex_normals.data(), (*triangle).n0 );
-            
-            model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            
-            model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-            
-            model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[0] ) );
-            if( is_specular )
-            {
-                model_output->setVertexData( specular_component_index, Utilities::DataTypes::ScalarType( specular ) );
-            }
-            for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
-            {
-                handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v0 );
-                model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
-                
-                if( vertex_normals.size() != 0 )
-                    handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n0 );
-                
-                model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
-            }
-            if( !bones.empty() ) {
-                for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                    if( (*bone).vertex_start > (*triangle).v0 ) {
-                        break;
-                    }
-                    else
-                    if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v0 )
-                    {
-                        joints.x = bone - bones.begin();
-                        model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                    }
-                }
-
-                model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
             }
 
             triangle++;
@@ -1283,17 +1307,17 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
             
             const BoundingBox3D &current_box = bounding_boxes[ box_index ];
             
-            position.x = -(current_box.x + current_box.length_x) * INTEGER_FACTOR;
-            position.y =  (current_box.y + current_box.length_y) * INTEGER_FACTOR;
-            position.z =  (current_box.z + current_box.length_z) * INTEGER_FACTOR;
+            position.x = -(current_box.x + current_box.length_x) * FIXED_POINT_UNIT;
+            position.y =  (current_box.y + current_box.length_y) * FIXED_POINT_UNIT;
+            position.z =  (current_box.z + current_box.length_z) * FIXED_POINT_UNIT;
             
             box_output->startVertex();
             box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
             box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec3Type( color ) );
             
-            position.x = -(current_box.x - current_box.length_x) * INTEGER_FACTOR;
-            position.y =  (current_box.y - current_box.length_y) * INTEGER_FACTOR;
-            position.z =  (current_box.z - current_box.length_z) * INTEGER_FACTOR;
+            position.x = -(current_box.x - current_box.length_x) * FIXED_POINT_UNIT;
+            position.y =  (current_box.y - current_box.length_y) * FIXED_POINT_UNIT;
+            position.z =  (current_box.z - current_box.length_z) * FIXED_POINT_UNIT;
             
             box_output->startVertex();
             box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );

@@ -43,7 +43,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
-    "   specular = _SPECULAR\n;"
+    "   specular = _METADATA[0];\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
@@ -53,8 +53,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
     "void main()\n"
     "{\n"
     "  vec4 color = texture2D(Texture, texture_coord_1);\n"
-    "   if( color.a < 0.015625 )\n"
-    "       discard;\n"
+    "  if( color.a < 0.015625 )\n"
+    "    discard;\n"
     "  float BLENDING = 1.0 - color.a;\n"
     "  if( specular > 0.5 )\n"
     "    gl_FragColor = texture2D(Shine, world_reflection.xz) * BLENDING + vec4(color.rgb, 1.0);\n"
@@ -68,7 +68,7 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "float _SPECULAR" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 _METADATA" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
     varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "float specular" ) );
@@ -125,7 +125,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
         {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
-            sepecular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
+            specular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
             texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
             view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
@@ -134,7 +134,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
             attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute( "_SPECULAR", &std::cout );
+            attribute_failed |= !program.isAttribute( "_METADATA", &std::cout );
 
             link_success = true;
         }
@@ -164,8 +164,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *shiney_texture_r ) {
-    this->shiney_texture_r = shiney_texture_r;
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setEnvironmentTexture( Texture2D *env_texture_ref ) {
+    this->shiney_texture_r = env_texture_ref;
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
@@ -196,7 +196,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         GLsizei material_count = 0;
 
         unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
+        unsigned     normal_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
+        unsigned   metadata_compenent_index = position_compenent_index;
 
         Utilities::ModelBuilder::VertexComponent element("EMPTY");
         for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
@@ -204,8 +206,12 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
                 position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+                normal_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
+            if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
+                metadata_compenent_index = i;
         }
 
         for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
@@ -223,9 +229,11 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             GLsizei opeque_count = std::min( material.count, material.opeque_count );
 
-            glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
-            glm::vec4      color     =  glm::vec4(1, 1, 1, 1);
-            glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+            glm::vec4   position = glm::vec4(0, 0, 0, 1);
+            glm::vec4     normal = glm::vec4(0, 0, 0, 1);
+            glm::vec4      color = glm::vec4(1, 1, 1, 1);
+            glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
+            glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
 
             const unsigned vertex_per_triangle = 3;
 
@@ -233,12 +241,16 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {
-                    model_type_r->getTransformation(   positions[t],   position_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation( coordinates[t], coordinate_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
 
-                    triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
+                    triangle.vertices[t].position = { position.x, position.y, position.z };
+                    triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
-                    triangle.vertices[t].coordinate = coordinates[t];
+                    triangle.vertices[t].coordinate = coordinate;
+                    triangle.vertices[t].vertex_metadata = metadata * 255.0f;
                 }
 
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
@@ -281,7 +293,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
 
     // Check if there is even a shiney texture.
     if( shiney_texture_r != nullptr )
-        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
+        shiney_texture_r->bind( 1, specular_texture_uniform_id );
 
     Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
