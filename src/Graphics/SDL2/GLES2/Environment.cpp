@@ -355,8 +355,6 @@ void Environment::drawFrame() {
             this->skeletal_model_draw_routine.draw( *current_camera_r );
 
             glEnable( GL_BLEND );
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();

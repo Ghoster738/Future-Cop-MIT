@@ -92,6 +92,20 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
     glBufferSubData( GL_ARRAY_BUFFER, 0, triangles_amount * sizeof(Triangle), triangles_p );
     vertex_array.bind();
 
+    PolygonType current_polygon_type = PolygonType::MIX;
+    if( triangles_amount != 0 ) {
+        current_polygon_type = static_cast<PolygonType>( triangles_p[0].vertices[0].metadata.bitfield.polygon_type );
+
+        if( current_polygon_type == PolygonType::MIX ) {
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        }
+        else {
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+        }
+    }
+
     uint32_t texture_id = 0;
     Graphics::SDL2::GLES2::Internal::Texture2D* current_texture_r = nullptr;
     if( textures.size() != 0 ) {
@@ -165,8 +179,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
     "    gl_FragColor = other;\n"
     "}\n";
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type ) {
     vertices[0].metadata.bitfield.texture_id = texture_id;
+    vertices[0].metadata.bitfield.polygon_type = poly_type;
     vertices[1].metadata.distance_from_camera = genDistanceSq( camera_position );
 }
 
