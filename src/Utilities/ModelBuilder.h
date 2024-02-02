@@ -73,7 +73,8 @@ public:
         std::string file_name; // The file is relative to the texture.
         unsigned starting_vertex_index; // The index of the starting vertices.
         unsigned count; // The amount of vertices that the texture material covers.
-        unsigned opaque_count;
+        unsigned addition_index;
+        unsigned mix_index;
         Utilities::DataTypes::Vec3Type min, max;
         bool has_culling;
         

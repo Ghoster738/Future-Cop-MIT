@@ -184,12 +184,14 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures );
         state =  1;
 
+        // TODO Add addition render path for "light".
+
         Utilities::ModelBuilder::TextureMaterial material;
         GLsizei transparent_count = 0;
 
         for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
-            transparent_count += material.count - material.opaque_count;
+            transparent_count += material.count - material.mix_index;
         }
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
 
@@ -227,7 +229,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             else
                 cbmp_id = 0;
 
-            GLsizei opaque_count = std::min( material.count, material.opaque_count );
+            GLsizei mix_index = std::min( material.count, material.mix_index );
 
             glm::vec4   position = glm::vec4(0, 0, 0, 1);
             glm::vec4     normal = glm::vec4(0, 0, 0, 1);
@@ -237,7 +239,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = opaque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = mix_index; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {

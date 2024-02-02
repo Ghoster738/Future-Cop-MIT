@@ -106,9 +106,11 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
 
-        GLsizei opaque_count = std::min( material.count, material.opaque_count );
+        // TODO Add addition render path for "light".
 
-        addCommand( material.starting_vertex_index, opaque_count, material.count, texture_2d_r );
+        GLsizei mix_index = std::min( material.count, material.mix_index );
+
+        addCommand( material.starting_vertex_index, mix_index, material.count, texture_2d_r );
     }
 }
 
