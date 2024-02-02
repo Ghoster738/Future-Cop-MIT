@@ -73,7 +73,7 @@ public:
         std::string file_name; // The file is relative to the texture.
         unsigned starting_vertex_index; // The index of the starting vertices.
         unsigned count; // The amount of vertices that the texture material covers.
-        unsigned opaque_count; // The amount of vertices that the texture material covers.
+        unsigned opaque_count;
         Utilities::DataTypes::Vec3Type min, max;
         bool has_culling;
         
@@ -292,8 +292,9 @@ public:
 
     /**
      * When done with the opaque part of the model then you can use semi transparency.
+     * @param is_light If the material is light.
      */
-    void beginSemiTransperency();
+    void beginSemiTransperency( bool is_light );
 
     /**
      * When all the methods of setVertexData and addMorphVertexData is called for the current vertex it is time to call this method.

@@ -922,7 +922,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
             }
 
             if( not_opaque == false ) {
-                model_output_p->beginSemiTransperency();
+                model_output_p->beginSemiTransperency( false );
             }
         }
         

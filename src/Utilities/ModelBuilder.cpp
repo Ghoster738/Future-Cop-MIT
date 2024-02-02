@@ -461,8 +461,9 @@ bool Utilities::ModelBuilder::getMaterial(unsigned material_index, TextureMateri
         return false;
 }
 
-void Utilities::ModelBuilder::beginSemiTransperency() {
-    texture_materials.back().opaque_count = texture_materials.back().count;
+void Utilities::ModelBuilder::beginSemiTransperency( bool is_light ) {
+    if( texture_materials.back().opaque_count == 0 )
+        texture_materials.back().opaque_count = texture_materials.back().count;
 }
 
 void Utilities::ModelBuilder::startVertex() {

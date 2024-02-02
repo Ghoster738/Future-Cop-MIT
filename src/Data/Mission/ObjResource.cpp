@@ -1202,16 +1202,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 if( (*triangle).getBmpID() == (*previous_triangle).getBmpID() )
                 {
                     if( (*previous_triangle).visual.visability < (*triangle).visual.visability )
-                        model_output->beginSemiTransperency();
+                        model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                     else if( (*previous_triangle).visual.visability > (*triangle).visual.visability )
                         assert( false && "Sorting is wrong!" );
                 }
                 else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
-                    model_output->beginSemiTransperency();
+                    model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                 }
             }
             else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
-                model_output->beginSemiTransperency();
+                model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
             }
 
             for( unsigned vertex_index = 3; vertex_index != 0; vertex_index-- ) {
