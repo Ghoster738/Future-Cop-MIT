@@ -170,13 +170,13 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
         for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
 
-            unsigned opeque_count = std::min( material.count, material.opeque_count );
+            unsigned opaque_count = std::min( material.count, material.opaque_count );
 
             glm::vec4 joints = glm::vec4(0, 0, 0, 1);
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = opaque_count; m < material.count; m += vertex_per_triangle ) {
                 SkeletalAnimation::TriangleIndex triangle;
 
                 for( unsigned t = 0; t < vertex_per_triangle; t++ ) {

@@ -106,9 +106,9 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
 
-        GLsizei opeque_count = std::min( material.count, material.opeque_count );
+        GLsizei opaque_count = std::min( material.count, material.opaque_count );
 
-        addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
+        addCommand( material.starting_vertex_index, opaque_count, material.count, texture_2d_r );
     }
 }
 

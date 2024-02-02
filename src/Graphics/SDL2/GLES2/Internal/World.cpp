@@ -260,7 +260,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
         for( unsigned int a = 0; a < model_p->getNumMaterials(); a++ ) {
             model_p->getMaterial( a, material );
-            transparent_count += material.count - material.opeque_count;
+            transparent_count += material.count - material.opaque_count;
         }
 
         (*i).transparent_triangles.reserve(     transparent_count );
@@ -303,7 +303,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             else
                 cbmp_id = 0;
 
-            unsigned opeque_count = std::min( material.count, material.opeque_count );
+            unsigned opaque_count = std::min( material.count, material.opaque_count );
 
             glm::vec4   positions = glm::vec4(0, 0, 0, 1);
             glm::vec4     normals = glm::vec4(0, 0, 0, 1);
@@ -313,7 +313,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = opaque_count; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {

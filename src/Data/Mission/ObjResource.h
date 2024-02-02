@@ -44,6 +44,8 @@ public:
         uint8_t opcodes[4];
 
         uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
+
+        // TODO Find a use for these.
         bool has_transparent_pixel_t0;
         bool has_transparent_pixel_t1;
 
@@ -67,7 +69,6 @@ public:
 
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
-        bool getTransparency() const;
 
         int setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
         int setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;

@@ -73,7 +73,7 @@ public:
         std::string file_name; // The file is relative to the texture.
         unsigned starting_vertex_index; // The index of the starting vertices.
         unsigned count; // The amount of vertices that the texture material covers.
-        unsigned opeque_count; // The amount of vertices that the texture material covers.
+        unsigned opaque_count; // The amount of vertices that the texture material covers.
         Utilities::DataTypes::Vec3Type min, max;
         bool has_culling;
         
@@ -291,8 +291,7 @@ public:
     bool getMaterial( unsigned material_index, TextureMaterial &element ) const;
 
     /**
-     * When done with the opeque part of the model then you can use semi transparency.
-     * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
+     * When done with the opaque part of the model then you can use semi transparency.
      */
     void beginSemiTransperency();
 
