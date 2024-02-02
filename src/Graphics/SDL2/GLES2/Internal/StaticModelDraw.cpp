@@ -255,7 +255,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].vertex_metadata = metadata * 255.0f;
                 }
 
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), DynamicTriangleDraw::PolygonType::ADDITION );
 
                 models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
             }

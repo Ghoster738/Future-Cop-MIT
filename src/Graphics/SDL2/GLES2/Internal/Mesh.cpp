@@ -108,6 +108,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
         // TODO Add addition render path for "light".
 
+        GLsizei addition_index = std::min( material.count, material.addition_index );
         GLsizei mix_index = std::min( material.count, material.mix_index );
 
         addCommand( material.starting_vertex_index, mix_index, material.count, texture_2d_r );

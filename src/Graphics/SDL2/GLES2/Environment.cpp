@@ -361,7 +361,6 @@ void Environment::drawFrame() {
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
-            glEnable( GL_BLEND ); // Easier to implement blending here.
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
             current_camera_r->getProjectionView2D( camera_3D_projection_view_model );

@@ -135,6 +135,25 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
                 current_texture_r->bind( 0, diffusive_texture_uniform_id );
             }
         }
+
+        if( current_polygon_type != static_cast<PolygonType>( triangles_p[t].vertices[0].metadata.bitfield.polygon_type ) ) {
+            if( t_last != t ) {
+                glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
+
+                t_last = t;
+            }
+
+            current_polygon_type = static_cast<PolygonType>( triangles_p[t].vertices[0].metadata.bitfield.polygon_type );
+
+            if( current_polygon_type == PolygonType::MIX ) {
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+            }
+            else {
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+            }
+        }
     }
 
     if( t_last < triangles_amount ) {

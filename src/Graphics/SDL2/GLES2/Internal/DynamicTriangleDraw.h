@@ -44,7 +44,7 @@ public:
     struct Triangle {
         Vertex vertices[3];
 
-        void setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type = PolygonType::ADDITION );
+        void setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type );
 
         float genDistanceSq( const glm::vec3 &camera_position ) const;
 

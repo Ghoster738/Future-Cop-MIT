@@ -352,7 +352,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     (*i).transparent_triangle_info.back().vertex_animation_index[t] = tile_type.w;
                 }
 
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), DynamicTriangleDraw::PolygonType::MIX );
 
                 (*i).transparent_triangles.push_back( triangle );
             }
