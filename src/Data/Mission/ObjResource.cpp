@@ -116,24 +116,11 @@ bool Data::Mission::ObjResource::Primitive::isWithinBounds( uint32_t vertex_limi
     return is_valid;
 }
 
-bool Data::Mission::ObjResource::Primitive::getTransparency() const {
-    if( visual.visability == VisabilityMode::OPAQUE || face_type_r == nullptr )
-        return false;
-    else
-    if( type == PrimitiveType::TRIANGLE_OTHER )
-        return face_type_r->has_transparent_pixel_t1;
-    else
-        return face_type_r->has_transparent_pixel_t0;
-}
-
 bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_operand, const Primitive & r_operand ) const {
     if( l_operand.getBmpID() != r_operand.getBmpID() )
         return (l_operand.getBmpID() < r_operand.getBmpID());
     else
-    if( l_operand.getTransparency() == false && r_operand.getTransparency() == true )
-        return true;
-    else
-        return false;
+        return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
 int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
@@ -1214,18 +1201,17 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             if( triangle != previous_triangle ) {
                 if( (*triangle).getBmpID() == (*previous_triangle).getBmpID() )
                 {
-                    if( (*previous_triangle).getTransparency() == false && (*triangle).getTransparency() == true )
-                        model_output->beginSemiTransperency();
-                    else
-                    if( (*previous_triangle).getTransparency() == true  && (*triangle).getTransparency() == false )
+                    if( (*previous_triangle).visual.visability < (*triangle).visual.visability )
+                        model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                    else if( (*previous_triangle).visual.visability > (*triangle).visual.visability )
                         assert( false && "Sorting is wrong!" );
                 }
-                else if( (*triangle).getTransparency() ) {
-                    model_output->beginSemiTransperency();
+                else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
+                    model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                 }
             }
-            else if( (*triangle).getTransparency() ) {
-                model_output->beginSemiTransperency();
+            else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
+                model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
             }
 
             for( unsigned vertex_index = 3; vertex_index != 0; vertex_index-- ) {

@@ -18,6 +18,13 @@ public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 
+    enum PolygonType {
+        MIX             = 0,
+        ADDITION        = 1,
+        SUBTRACTION     = 2,
+        LESSER_ADDITION = 3
+    };
+
     struct Vertex {
         glm::vec3   position;
         glm::vec3   normal;
@@ -37,7 +44,7 @@ public:
     struct Triangle {
         Vertex vertices[3];
 
-        void setup( uint32_t texture_id, const glm::vec3 &camera_position );
+        void setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type );
 
         float genDistanceSq( const glm::vec3 &camera_position ) const;
 

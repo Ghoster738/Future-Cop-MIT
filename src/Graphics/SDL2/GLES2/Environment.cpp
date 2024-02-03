@@ -355,15 +355,12 @@ void Environment::drawFrame() {
             this->skeletal_model_draw_routine.draw( *current_camera_r );
 
             glEnable( GL_BLEND );
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
-            glEnable( GL_BLEND ); // Easier to implement blending here.
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
             current_camera_r->getProjectionView2D( camera_3D_projection_view_model );
