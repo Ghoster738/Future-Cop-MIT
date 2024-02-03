@@ -17,6 +17,8 @@ class Mesh {
 public:
     struct DrawCommand {
         GLint first;
+        GLsizei addition_index;
+        GLsizei mix_index;
         GLsizei opeque_count;
         GLsizei count;
         const Texture2D *texture_r;
@@ -51,7 +53,7 @@ protected:
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
 
-    void addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r );
+    void addCommand( GLint first, GLsizei addition_index, GLsizei mix_index, GLsizei count, const Texture2D *texture_r );
 public:
     Mesh( Program *program_r );
     virtual ~Mesh();

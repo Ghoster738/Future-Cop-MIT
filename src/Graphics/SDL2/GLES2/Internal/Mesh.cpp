@@ -25,11 +25,13 @@ Graphics::SDL2::GLES2::Internal::Mesh::~Mesh() {
     glDeleteBuffers( 1, &vertex_buffer_object );
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei addition_index, GLsizei mix_index, GLsizei count, const Texture2D *texture_r ) {
     draw_command.push_back( DrawCommand() );
     draw_command.back().first = first;
-    draw_command.back().opeque_count = opeque_count;
+    draw_command.back().addition_index = addition_index;
+    draw_command.back().mix_index = mix_index;
     draw_command.back().count = count;
+    draw_command.back().opeque_count = std::min(std::min(addition_index, mix_index), count);
     draw_command.back().texture_r = texture_r;
 }
 
@@ -111,7 +113,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
         GLsizei addition_index = std::min( material.count, material.addition_index );
         GLsizei mix_index = std::min( material.count, material.mix_index );
 
-        addCommand( material.starting_vertex_index, mix_index, material.count, texture_2d_r );
+        addCommand( material.starting_vertex_index, addition_index, mix_index, material.count, texture_2d_r );
     }
 }
 
