@@ -184,14 +184,17 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures );
         state =  1;
 
-        // TODO Add addition render path for "light".
-
         Utilities::ModelBuilder::TextureMaterial material;
         GLsizei transparent_count = 0;
 
         for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
-            transparent_count += material.count - material.mix_index;
+
+            GLsizei addition_index = std::min( material.count, material.addition_index );
+            GLsizei mix_index = std::min( material.count, material.mix_index );
+            GLsizei transparent_index = std::min( mix_index, addition_index );
+
+            transparent_count += material.count - transparent_index;
         }
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
 
@@ -229,7 +232,11 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             else
                 cbmp_id = 0;
 
-            GLsizei mix_index = std::min( material.count, material.mix_index );
+            unsigned addition_index = std::min( material.count, material.addition_index );
+            unsigned mix_index = std::min( material.count, material.mix_index );
+            unsigned transparent_index = std::min( mix_index, addition_index );
+
+            DynamicTriangleDraw::PolygonType polygon_type;
 
             glm::vec4   position = glm::vec4(0, 0, 0, 1);
             glm::vec4     normal = glm::vec4(0, 0, 0, 1);
@@ -239,7 +246,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = mix_index; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {
@@ -255,7 +262,12 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].vertex_metadata = metadata * 255.0f;
                 }
 
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), DynamicTriangleDraw::PolygonType::ADDITION );
+                if( m < mix_index )
+                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                else
+                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
 
                 models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
             }

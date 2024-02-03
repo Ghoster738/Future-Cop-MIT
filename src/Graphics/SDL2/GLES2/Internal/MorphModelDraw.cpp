@@ -55,21 +55,21 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities
     Utilities::ModelBuilder::TextureMaterial material;
     GLsizei material_count;
 
-    // TODO Add addition render path for "light".
-    
     for( unsigned f = 0; f < frame_amount; f++ ) {
         material_count = 0;
         
         for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
             
+            unsigned addition_index = std::min( material.count, material.addition_index );
             unsigned mix_index = std::min( material.count, material.mix_index );
+            unsigned transparent_index = std::min( mix_index, addition_index );
             
             glm::vec4 joints = glm::vec4(0, 0, 0, 1);
             
             const unsigned vertex_per_triangle = 3;
             
-            for( unsigned m = mix_index; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
                 DeltaTriangle triangle;
                 
                 for( unsigned t = 0; t < vertex_per_triangle; t++ ) {

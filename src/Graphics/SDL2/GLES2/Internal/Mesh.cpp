@@ -108,7 +108,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
 
         GLsizei addition_index = std::min( material.count, material.addition_index );
         GLsizei mix_index = std::min( material.count, material.mix_index );
-        GLsizei opaque_count std::min(std::min(addition_index, mix_index), count);
+        GLsizei opaque_count = std::min(addition_index, mix_index);
 
         addCommand( material.starting_vertex_index, opaque_count, material.count, texture_2d_r );
     }

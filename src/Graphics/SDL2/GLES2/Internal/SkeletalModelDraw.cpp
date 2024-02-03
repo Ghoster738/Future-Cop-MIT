@@ -170,14 +170,15 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::M
         for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
 
-            // TODO Add addition render path for "light".
-            unsigned mix_index = std::min( material.count, material.mix_index );
+            GLsizei addition_index = std::min( material.count, material.addition_index );
+            GLsizei mix_index = std::min( material.count, material.mix_index );
+            GLsizei transparent_index = std::min( mix_index, addition_index );
 
             glm::vec4 joints = glm::vec4(0, 0, 0, 1);
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = mix_index; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
                 SkeletalAnimation::TriangleIndex triangle;
 
                 for( unsigned t = 0; t < vertex_per_triangle; t++ ) {
