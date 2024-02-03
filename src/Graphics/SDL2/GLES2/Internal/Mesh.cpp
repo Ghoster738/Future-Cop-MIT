@@ -25,13 +25,11 @@ Graphics::SDL2::GLES2::Internal::Mesh::~Mesh() {
     glDeleteBuffers( 1, &vertex_buffer_object );
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei addition_index, GLsizei mix_index, GLsizei count, const Texture2D *texture_r ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opaque_count, GLsizei count, const Texture2D *texture_r ) {
     draw_command.push_back( DrawCommand() );
     draw_command.back().first = first;
-    draw_command.back().addition_index = addition_index;
-    draw_command.back().mix_index = mix_index;
     draw_command.back().count = count;
-    draw_command.back().opeque_count = std::min(std::min(addition_index, mix_index), count);
+    draw_command.back().opaque_count = opaque_count;
     draw_command.back().texture_r = texture_r;
 }
 
@@ -108,12 +106,11 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
 
-        // TODO Add addition render path for "light".
-
         GLsizei addition_index = std::min( material.count, material.addition_index );
         GLsizei mix_index = std::min( material.count, material.mix_index );
+        GLsizei opaque_count std::min(std::min(addition_index, mix_index), count);
 
-        addCommand( material.starting_vertex_index, addition_index, mix_index, material.count, texture_2d_r );
+        addCommand( material.starting_vertex_index, opaque_count, material.count, texture_2d_r );
     }
 }
 
@@ -162,7 +159,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_s
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
-        glDrawArrays( draw_command_array_mode, (*i).first, (*i).opeque_count );
+        glDrawArrays( draw_command_array_mode, (*i).first, (*i).opaque_count );
         auto err = glGetError();
         assert( (*i).texture_r != nullptr );
 
@@ -177,7 +174,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint act
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
-        glDrawArrays( draw_command_array_mode, (*i).first + (*i).opeque_count, (*i).count - (*i).opeque_count );
+        glDrawArrays( draw_command_array_mode, (*i).first + (*i).opaque_count, (*i).count - (*i).opaque_count );
         auto err = glGetError();
 
         if( err != GL_NO_ERROR )
