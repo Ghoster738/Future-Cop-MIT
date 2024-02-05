@@ -905,6 +905,25 @@ Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
     return new ObjResource( *this );
 }
 
+bool Data::Mission::ObjResource::isPositionValid( unsigned index ) const {
+    if( index < 4 && vertex_positions.size() > position_indexes[index] )
+        return true;
+    else
+        return false;
+}
+
+glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
+    glm::vec3 position(0, 0, 0);
+
+    if( isPositionValid( index ) ) {
+        position  = vertex_positions.at( position_indexes[index] );
+        position *= glm::vec3(FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+    }
+
+
+    return position;
+}
+
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 

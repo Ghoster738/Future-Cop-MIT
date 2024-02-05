@@ -165,6 +165,10 @@ public:
 
     virtual Resource * duplicate() const;
 
+    bool isPositionValid( unsigned index ) const;
+
+    glm::vec3 getPosition( unsigned index ) const;
+
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
