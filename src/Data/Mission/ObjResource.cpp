@@ -313,10 +313,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if( un8 != 3 ) // Always 3 for Mac, Playstation, and Windows.
                         warning_log.output << "4DGI un8 is 0x" << std::hex << un8 << "\n";
 
-                    auto position_index_0 = reader4DGI.readU8();
-                    auto position_index_1 = reader4DGI.readU8();
-                    auto position_index_2 = reader4DGI.readU8();
-                    auto position_index_3 = reader4DGI.readU8();
+                    position_indexes[0] = reader4DGI.readU8();
+                    position_indexes[1] = reader4DGI.readU8();
+                    position_indexes[2] = reader4DGI.readU8();
+                    position_indexes[3] = reader4DGI.readU8();
 
                     auto un13 = reader4DGI.readU32( settings.endian ); // 0x38
                     if( un13 != 4 ) // Always 4 for Mac, Playstation, and Windows.

@@ -120,6 +120,7 @@ private:
         unsigned environment_map:  1;
         unsigned animation:        1;
     } info;
+    unsigned position_indexes[4];
 
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
