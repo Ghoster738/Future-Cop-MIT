@@ -10,6 +10,7 @@
 #include "Controls/StandardInputSet.h"
 
 #include "Data/Manager.h"
+#include "Data/Accessor.h"
 #include "Data/Mission/IFF.h"
 
 #include "Graphics/Environment.h"
