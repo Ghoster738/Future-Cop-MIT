@@ -15,7 +15,8 @@
 #include "Mission/TilResource.h"
 #include "Mission/WAVResource.h"
 
-#define SEARCH( CLASS_NAME ) \
+#define SEARCH( CLASS_NAME, METHOD_NAME ) \
+Mission::CLASS_NAME* Accessor::METHOD_NAME( uint32_t resource_id ) const {\
     Mission::Resource *resource_r = nullptr;\
     SearchValue search_value = {  Mission::CLASS_NAME::IDENTIFIER_TAG, resource_id };\
 \
@@ -24,7 +25,8 @@
     if( result != search.end() )\
         resource_r = (*result).second;\
 \
-    return dynamic_cast<Mission::CLASS_NAME*>( resource_r );
+    return dynamic_cast<Mission::CLASS_NAME*>( resource_r );\
+}
 
 namespace Data {
 
@@ -53,61 +55,19 @@ Accessor::Accessor( std::vector<Mission::IFF*> resources ) {
 
 Accessor::~Accessor() {}
 
-Mission::ANMResource* Accessor::getANM( uint32_t resource_id ) const {
-    SEARCH(ANMResource)
-}
-
-Mission::BMPResource* Accessor::getBMP( uint32_t resource_id ) const {
-    SEARCH(BMPResource)
-}
-
-Mission::DCSResource* Accessor::getDCS( uint32_t resource_id ) const {
-    SEARCH(DCSResource)
-}
-
-Mission::FUNResource* Accessor::getFUN( uint32_t resource_id ) const {
-    SEARCH(FUNResource)
-}
-
-Mission::FontResource* Accessor::getFNT( uint32_t resource_id ) const {
-    SEARCH(FontResource)
-}
-
-Mission::MSICResource* Accessor::getMISC( uint32_t resource_id ) const {
-    SEARCH(MSICResource)
-}
-
-Mission::NetResource* Accessor::getNET( uint32_t resource_id ) const {
-    SEARCH(NetResource)
-}
-
-Mission::ObjResource* Accessor::getOBJ( uint32_t resource_id ) const {
-    SEARCH(ObjResource)
-}
-
-Mission::PTCResource* Accessor::getPTC( uint32_t resource_id ) const {
-    SEARCH(PTCResource)
-}
-
-Mission::PYRResource* Accessor::getPYR( uint32_t resource_id ) const {
-    SEARCH(PYRResource)
-}
-
-Mission::RPNSResource* Accessor::getRPNS( uint32_t resource_id ) const {
-    SEARCH(RPNSResource)
-}
-
-Mission::SNDSResource* Accessor::getSNDS( uint32_t resource_id ) const {
-    SEARCH(SNDSResource)
-}
-
-Mission::TilResource* Accessor::getTIL( uint32_t resource_id ) const {
-    SEARCH(TilResource)
-}
-
-Mission::WAVResource* Accessor::getWAV( uint32_t resource_id ) const {
-    SEARCH(WAVResource)
-}
-
+SEARCH(ANMResource, getANM)
+SEARCH(BMPResource, getBMP)
+SEARCH(DCSResource, getDCS)
+SEARCH(FUNResource, getFUN)
+SEARCH(FontResource, getFNT)
+SEARCH(MSICResource, getMISC)
+SEARCH(NetResource, getNET)
+SEARCH(ObjResource, getOBJ)
+SEARCH(PTCResource, getPTC)
+SEARCH(PYRResource, getPYR)
+SEARCH(RPNSResource, getRPNS)
+SEARCH(SNDSResource, getSNDS)
+SEARCH(TilResource, getTIL)
+SEARCH(WAVResource, getWAV)
 
 }
