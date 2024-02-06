@@ -37,23 +37,26 @@ bool Accessor::SearchValue::operator< ( const Accessor::SearchValue & operand ) 
         return (resource_id < operand.resource_id);
 }
 
-Accessor::Accessor( std::vector<Mission::IFF*> resources ) {
-    SearchValue search_value;
-    std::vector<Mission::Resource*> array;
-
-    for( auto it = resources.begin(); it != resources.end(); it++ ) {
-        array = (*it)->getAllResources();
-
-        for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-            search_value.type = (*r_it)->getResourceTagID();
-            search_value.resource_id = (*r_it)->getResourceID();
-
-            search[ search_value ] = (*r_it);
-        }
-    }
+Accessor::Accessor() {
 }
 
 Accessor::~Accessor() {}
+
+void Accessor::load( Mission::IFF &resource_r ) {
+    SearchValue search_value;
+    std::vector<Mission::Resource*> array = resource_r.getAllResources();
+
+    for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
+        search_value.type = (*r_it)->getResourceTagID();
+        search_value.resource_id = (*r_it)->getResourceID();
+
+        search[ search_value ] = (*r_it);
+    }
+}
+
+void Accessor::clear() {
+    search.clear();
+}
 
 SEARCH(ANMResource, getANM)
 SEARCH(BMPResource, getBMP)

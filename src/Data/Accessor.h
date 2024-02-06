@@ -39,8 +39,11 @@ private:
     std::map<SearchValue, Mission::Resource*> search;
 
 public:
-    Accessor( std::vector<Mission::IFF*> resources );
+    Accessor();
     virtual ~Accessor();
+
+    void load( Mission::IFF &resource_r );
+    void clear();
 
     Mission::ANMResource*  getANM(  uint32_t resource_id ) const;
     Mission::BMPResource*  getBMP(  uint32_t resource_id ) const;
