@@ -4,10 +4,8 @@ namespace Game {
 
 namespace ACT {
 
-BaseTurret::BaseTurret( const Data::Mission::IFF &resource, const Data::Mission::ACT::BaseTurret& obj ) {
-    auto ptc_array_r = Data::Mission::PTCResource::getVector( resource );
-
-    Data::Mission::PTCResource &ptc = *ptc_array_r.at(0);
+BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj ) {
+    Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
 
     this->position = obj.getPosition( ptc );
     this->rest_gun_rotation = obj.getGunRotationQuaternion();
@@ -25,6 +23,23 @@ BaseTurret::BaseTurret( const Data::Mission::IFF &resource, const Data::Mission:
     this->dead_base_id = obj.getDestroyedBaseID();
     this->dead_base = obj.getHasDestroyedBaseID();
 
+    this->alive_gun_cobj_r  = nullptr;
+    this->alive_base_cobj_r = nullptr;
+    this->dead_gun_cobj_r   = nullptr;
+    this->dead_base_cobj_r  = nullptr;
+
+    if( this->alive_gun )
+        this->alive_gun_cobj_r = accessor.getOBJ( this->alive_gun_id );
+
+    if( this->alive_base )
+        this->alive_base_cobj_r = accessor.getOBJ( this->alive_base_id );
+
+    if( this->dead_gun )
+        this->dead_gun_cobj_r = accessor.getOBJ( this->dead_gun_id );
+
+    if( this->dead_base )
+        this->dead_base_cobj_r = accessor.getOBJ( this->dead_base_id );
+
     this->base_p = nullptr;
     this->gun_p = nullptr;
 }
@@ -34,6 +49,7 @@ BaseTurret::BaseTurret( const BaseTurret& obj ) :
     rest_gun_rotation( obj.rest_gun_rotation ), gun_rotation( obj.gun_rotation ), base_rotation( obj.base_rotation ), texture_offset( obj.texture_offset ),
     alive_gun_id( obj.alive_gun_id ), alive_gun( obj.alive_gun ), alive_base_id( obj.alive_base_id ), alive_base( obj.alive_base ),
     dead_gun_id( obj.dead_gun_id ), dead_gun( obj.dead_gun ), dead_base_id( obj.dead_base_id ), dead_base( obj.dead_base ),
+    alive_gun_cobj_r( obj.alive_gun_cobj_r ), alive_base_cobj_r( obj.alive_base_cobj_r ), dead_gun_cobj_r( obj.dead_gun_cobj_r ), dead_base_cobj_r( obj.dead_base_cobj_r ),
     base_p( nullptr ), gun_p( nullptr ) {}
 
 BaseTurret::~BaseTurret() {
@@ -58,11 +74,16 @@ void BaseTurret::resetGraphics( MainProgram &main_program ) {
     this->gun_p = nullptr;
 
     try {
+        glm::vec3 gun_position = glm::vec3( 0, 0.25, 0 );
+
+        if( this->alive_base_cobj_r != nullptr )
+            gun_position = this->base_rotation * this->alive_base_cobj_r->getPosition( 0 );
+
         if( this->alive_base )
             this->base_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->alive_base_id, this->position, this->base_rotation, this->texture_offset );
 
         if( this->alive_gun )
-            this->gun_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->alive_gun_id, this->position + glm::vec3( 0, 0.25, 0 ), this->gun_rotation, this->texture_offset );
+            this->gun_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->alive_gun_id, this->position + gun_position, this->gun_rotation, this->texture_offset );
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

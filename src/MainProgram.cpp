@@ -160,6 +160,11 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;
 
+    // Update the accessor
+    accessor.clear();
+    accessor.load( *this->global_r );
+    accessor.load( *this->resource_r );
+
     if( this->primary_game_r != nullptr ) {
         this->primary_game_r->unload( *this );
         this->primary_game_r->load( *this );
@@ -285,6 +290,8 @@ void MainProgram::setupGraphics() {
 }
 
 void MainProgram::loadResources() {
+    accessor.clear();
+
     manager.autoSetEntries( options.getWindowsDataDirectory(),     Data::Manager::Platform::WINDOWS );
     manager.autoSetEntries( options.getMacintoshDataDirectory(),   Data::Manager::Platform::MACINTOSH );
     manager.autoSetEntries( options.getPlaystationDataDirectory(), Data::Manager::Platform::PLAYSTATION );
@@ -322,12 +329,16 @@ void MainProgram::loadResources() {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The global IFF " << Data::Manager::global << " did not load.";
     }
+    else
+        accessor.load( *this->global_r );
 
     this->resource_r = manager.getIFFEntry( this->resource_identifier ).getIFF( this->platform );
     if( this->resource_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The mission IFF " << this->resource_identifier << " did not load.";
     }
+    else
+        accessor.load( *this->resource_r );
 }
 
 void MainProgram::loadGraphics( bool show_map ) {

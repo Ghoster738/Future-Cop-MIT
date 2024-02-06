@@ -2,7 +2,7 @@
 #define FC_GAME_ACT_MANAGER_H
 
 #include "../Graphics/Environment.h"
-#include "../Data/Mission/IFF.h"
+#include "../Data/Accessor.h"
 
 #include <chrono>
 #include <vector>
@@ -33,7 +33,7 @@ private:
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
 
 public:
-    ActManager( const Data::Mission::IFF& resource );
+    ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor );
     virtual ~ActManager();
 
     void initialize( MainProgram &main_program );

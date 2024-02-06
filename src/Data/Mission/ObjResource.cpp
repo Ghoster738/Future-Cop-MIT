@@ -312,10 +312,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto un8 = reader4DGI.readU32( settings.endian ); // 0x30?
                     if( un8 != 3 ) // Always 3 for Mac, Playstation, and Windows.
                         warning_log.output << "4DGI un8 is 0x" << std::hex << un8 << "\n";
-                    auto un9 = reader4DGI.readU8(); // Unknown 0xFF and 0x6F values found.
-                    auto un10 = reader4DGI.readU8(); // Unknown 0xFF and 0x12 values found.
-                    auto un11 = reader4DGI.readU8(); // Unknown 0xFF and 0x00 values found.
-                    auto un12 = reader4DGI.readU8(); // Unknown 0xFF and 0x00 values found.
+
+                    position_indexes[0] = reader4DGI.readU8();
+                    position_indexes[1] = reader4DGI.readU8();
+                    position_indexes[2] = reader4DGI.readU8();
+                    position_indexes[3] = reader4DGI.readU8();
+
                     auto un13 = reader4DGI.readU32( settings.endian ); // 0x38
                     if( un13 != 4 ) // Always 4 for Mac, Playstation, and Windows.
                         warning_log.output << "4DGI un13 is 0x" << std::hex << un13 << "\n";
@@ -901,6 +903,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
 Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
     return new ObjResource( *this );
+}
+
+bool Data::Mission::ObjResource::isPositionValid( unsigned index ) const {
+    if( index < 4 && vertex_positions.size() > position_indexes[index] )
+        return true;
+    else
+        return false;
+}
+
+glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
+    glm::vec3 position(0, 0, 0);
+
+    if( isPositionValid( index ) ) {
+        position  = vertex_positions.at( position_indexes[index] );
+        position *= glm::vec3(FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+    }
+
+
+    return position;
 }
 
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {

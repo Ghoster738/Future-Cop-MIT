@@ -10,6 +10,7 @@
 #include "Controls/StandardInputSet.h"
 
 #include "Data/Manager.h"
+#include "Data/Accessor.h"
 #include "Data/Mission/IFF.h"
 
 #include "Graphics/Environment.h"
@@ -39,6 +40,7 @@ public:
     std::string resource_identifier;
     Data::Mission::IFF *global_r;
     Data::Mission::IFF *resource_r;
+    Data::Accessor accessor;
 
     // Graphics API variables goes here.
     std::string graphics_identifier;

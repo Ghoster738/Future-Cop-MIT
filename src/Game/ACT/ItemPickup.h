@@ -21,7 +21,7 @@ private:
     Graphics::ModelInstance *model_p;
 
 public:
-    ItemPickup( const Data::Mission::IFF &resource, const Data::Mission::ACT::ItemPickup& obj );
+    ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj );
     ItemPickup( const ItemPickup& obj );
     virtual ~ItemPickup();
 

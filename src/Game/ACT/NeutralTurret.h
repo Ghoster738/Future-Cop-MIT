@@ -23,10 +23,15 @@ private:
     uint32_t dead_gun_id;   bool dead_gun;
     uint32_t dead_base_id;  bool dead_base;
 
+    Data::Mission::ObjResource  *alive_gun_cobj_r;
+    Data::Mission::ObjResource *alive_base_cobj_r;
+    Data::Mission::ObjResource   *dead_gun_cobj_r;
+    Data::Mission::ObjResource  *dead_base_cobj_r;
+
     Graphics::ModelInstance *base_p, *gun_p;
 
 public:
-    NeutralTurret( const Data::Mission::IFF &resource, const Data::Mission::ACT::NeutralTurret& obj );
+    NeutralTurret(const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj );
     NeutralTurret( const NeutralTurret& obj );
     virtual ~NeutralTurret();
 

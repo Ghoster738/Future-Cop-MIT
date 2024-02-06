@@ -4,10 +4,8 @@ namespace Game {
 
 namespace ACT {
 
-ItemPickup::ItemPickup( const Data::Mission::IFF &resource, const Data::Mission::ACT::ItemPickup& obj ) {
-    auto ptc_array_r = Data::Mission::PTCResource::getVector( resource );
-
-    Data::Mission::PTCResource &ptc = *ptc_array_r.at(0);
+ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) {
+    Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
 
     this->position = obj.getPosition( ptc );
     this->speed_per_second_radians = 0.128;
