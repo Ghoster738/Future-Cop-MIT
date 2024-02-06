@@ -160,6 +160,11 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;
 
+    // Update the accessor
+    accessor.clear();
+    accessor.load( *this->global_r );
+    accessor.load( *this->resource_r );
+
     if( this->primary_game_r != nullptr ) {
         this->primary_game_r->unload( *this );
         this->primary_game_r->load( *this );
