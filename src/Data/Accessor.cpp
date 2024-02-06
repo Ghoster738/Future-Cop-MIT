@@ -18,7 +18,7 @@
 #define SEARCH( CLASS_NAME, METHOD_NAME ) \
 Mission::CLASS_NAME* Accessor::METHOD_NAME( uint32_t resource_id ) const {\
     Mission::Resource *resource_r = nullptr;\
-    SearchValue search_value = {  Mission::CLASS_NAME::IDENTIFIER_TAG, resource_id };\
+    SearchValue search_value = { Mission::CLASS_NAME::IDENTIFIER_TAG, resource_id };\
 \
     auto result = search.find(search_value);\
 \
@@ -71,3 +71,5 @@ SEARCH(TilResource, getTIL)
 SEARCH(WAVResource, getWAV)
 
 }
+
+#undef SEARCH
