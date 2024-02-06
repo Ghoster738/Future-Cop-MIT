@@ -86,7 +86,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
     if( main_program.resource_r != nullptr && !Data::Mission::PTCResource::getVector( *main_program.resource_r ).empty() ) {
         if( this->act_manager_p != nullptr )
             delete this->act_manager_p;
-        this->act_manager_p = new Game::ActManager( *main_program.resource_r );
+        this->act_manager_p = new Game::ActManager( *main_program.resource_r, main_program.accessor );
 
         this->act_manager_p->initialize( main_program );
 

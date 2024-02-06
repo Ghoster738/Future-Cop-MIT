@@ -26,7 +26,7 @@ private:
     Graphics::ModelInstance *base_p, *gun_p;
 
 public:
-    BaseTurret( const Data::Mission::IFF &resource, const Data::Mission::ACT::BaseTurret& obj );
+    BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj );
     BaseTurret( const BaseTurret& obj );
     virtual ~BaseTurret();
 

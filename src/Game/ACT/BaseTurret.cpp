@@ -4,10 +4,8 @@ namespace Game {
 
 namespace ACT {
 
-BaseTurret::BaseTurret( const Data::Mission::IFF &resource, const Data::Mission::ACT::BaseTurret& obj ) {
-    auto ptc_array_r = Data::Mission::PTCResource::getVector( resource );
-
-    Data::Mission::PTCResource &ptc = *ptc_array_r.at(0);
+BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj ) {
+    Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
 
     this->position = obj.getPosition( ptc );
     this->rest_gun_rotation = obj.getGunRotationQuaternion();

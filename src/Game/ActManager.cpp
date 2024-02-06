@@ -3,14 +3,14 @@
 namespace {
 
 template<class data_act, class game_act>
-Game::ActManager::SpawnableActor<game_act> initializeActors( const Data::Mission::IFF& resource, const std::vector<data_act*>& actor_array_r ) {
+Game::ActManager::SpawnableActor<game_act> initializeActors( const Data::Accessor& accessor, const std::vector<data_act*>& actor_array_r ) {
     Game::ActManager::SpawnableActor<game_act> game_actors;
 
     for( const data_act *const actor_r : actor_array_r ) {
         if( !actor_r->getSpawnChunk().exists )
-            game_actors.actors.push_back( game_act( resource, *actor_r ) );
+            game_actors.actors.push_back( game_act( accessor, *actor_r ) );
         else {
-            game_actors.spawners.push_back( {actor_r->getSpawnChunk(), game_act( resource, *actor_r )} );
+            game_actors.spawners.push_back( {actor_r->getSpawnChunk(), game_act( accessor, *actor_r )} );
             game_actors.spawners.back().time = std::chrono::microseconds( (unsigned)(game_actors.spawners.back().timings.getSpawnTime() * 1000000.0) );
         }
     }
@@ -47,12 +47,12 @@ void updateSpawn( MainProgram &main_program, Game::ActManager::SpawnableActor<ga
 
 namespace Game {
 
-ActManager::ActManager( const Data::Mission::IFF& resource ) {
+ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor ) {
     auto actor_array_r = Data::Mission::ACTResource::getVector( resource );
 
-    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    resource, Data::Mission::ACT::ItemPickup::getVector(    actor_array_r ) );
-    base_turrets    = initializeActors<Data::Mission::ACT::BaseTurret,    ACT::BaseTurret>(    resource, Data::Mission::ACT::BaseTurret::getVector(    actor_array_r ) );
-    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( resource, Data::Mission::ACT::NeutralTurret::getVector( actor_array_r ) );
+    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, Data::Mission::ACT::ItemPickup::getVector(    actor_array_r ) );
+    base_turrets    = initializeActors<Data::Mission::ACT::BaseTurret,    ACT::BaseTurret>(    accessor, Data::Mission::ACT::BaseTurret::getVector(    actor_array_r ) );
+    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, Data::Mission::ACT::NeutralTurret::getVector( actor_array_r ) );
 }
 
 ActManager::~ActManager() {

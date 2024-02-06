@@ -26,7 +26,7 @@ private:
     Graphics::ModelInstance *base_p, *gun_p;
 
 public:
-    NeutralTurret( const Data::Mission::IFF &resource, const Data::Mission::ACT::NeutralTurret& obj );
+    NeutralTurret(const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj );
     NeutralTurret( const NeutralTurret& obj );
     virtual ~NeutralTurret();
 
