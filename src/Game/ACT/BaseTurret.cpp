@@ -77,7 +77,7 @@ void BaseTurret::resetGraphics( MainProgram &main_program ) {
         glm::vec3 gun_position = glm::vec3( 0, 0.25, 0 );
 
         if( this->alive_base_cobj_r != nullptr )
-            gun_position = this->alive_base_cobj_r->getPosition( 0 );
+            gun_position = this->base_rotation * this->alive_base_cobj_r->getPosition( 0 );
 
         if( this->alive_base )
             this->base_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->alive_base_id, this->position, this->base_rotation, this->texture_offset );
