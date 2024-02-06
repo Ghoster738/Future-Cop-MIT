@@ -26,6 +26,23 @@ NeutralTurret::NeutralTurret( const Data::Accessor& accessor, const Data::Missio
 
     this->base_p = nullptr;
     this->gun_p = nullptr;
+
+    this->alive_gun_cobj_r  = nullptr;
+    this->alive_base_cobj_r = nullptr;
+    this->dead_gun_cobj_r   = nullptr;
+    this->dead_base_cobj_r  = nullptr;
+
+    if( this->alive_gun )
+        this->alive_gun_cobj_r = accessor.getOBJ( this->alive_gun_id );
+
+    if( this->alive_base )
+        this->alive_base_cobj_r = accessor.getOBJ( this->alive_base_id );
+
+    if( this->dead_gun )
+        this->dead_gun_cobj_r = accessor.getOBJ( this->dead_gun_id );
+
+    if( this->dead_base )
+        this->dead_base_cobj_r = accessor.getOBJ( this->dead_base_id );
 }
 
 NeutralTurret::NeutralTurret( const NeutralTurret& obj ) :

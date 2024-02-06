@@ -25,6 +25,11 @@ private:
 
     Graphics::ModelInstance *base_p, *gun_p;
 
+    Data::Mission::ObjResource  *alive_gun_cobj_r;
+    Data::Mission::ObjResource *alive_base_cobj_r;
+    Data::Mission::ObjResource   *dead_gun_cobj_r;
+    Data::Mission::ObjResource  *dead_base_cobj_r;
+
 public:
     BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj );
     BaseTurret( const BaseTurret& obj );
