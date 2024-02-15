@@ -342,37 +342,8 @@ void MainProgram::loadResources() {
 }
 
 void MainProgram::loadGraphics( bool show_map ) {
-    if( this->resource_r != nullptr ) {
-        // First get the model textures from the resource file.
-        auto cbmp_resources = Data::Mission::BMPResource::getVector( *this->resource_r );
-
-        int status = this->environment_p->setupTextures( cbmp_resources );
-
-        if( status < 0 ) {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
-        }
-
-        // Load all the 3D meshes from the resource as well.
-        auto cobj_resources = Data::Mission::ObjResource::getVector( *this->resource_r );
-
-        status = this->environment_p->setModelTypes( cobj_resources );
-
-        if( status < 0 ) {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
-        }
-
-        if( !show_map )
-            this->environment_p->setMap( nullptr, nullptr );
-        else {
-            std::vector<Data::Mission::TilResource*> til_resources = Data::Mission::TilResource::getVector( *this->resource_r );
-            std::vector<Data::Mission::PTCResource*> ptc_resources = Data::Mission::PTCResource::getVector( *this->resource_r );
-
-            this->environment_p->setMap( ptc_resources.at( 0 ), &til_resources );
-        }
-
-    }
+    this->environment_p->loadResources( this->accessor );
+    this->environment_p->displayMap( show_map );
 
     std::vector<Data::Mission::IFF*> loaded_IFFs;
 

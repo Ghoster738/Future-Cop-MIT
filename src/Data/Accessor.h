@@ -45,20 +45,47 @@ public:
     void load( Mission::IFF &resource_r );
     void clear();
 
-    Mission::ANMResource*  getANM(  uint32_t resource_id ) const;
-    Mission::BMPResource*  getBMP(  uint32_t resource_id ) const;
-    Mission::DCSResource*  getDCS(  uint32_t resource_id ) const;
-    Mission::FUNResource*  getFUN(  uint32_t resource_id ) const;
-    Mission::FontResource* getFNT(  uint32_t resource_id ) const;
+    Mission::ANMResource*  getANM( uint32_t resource_id ) const;
+    std::vector<const Mission::ANMResource*> getAllANM() const;
+
+    Mission::BMPResource*  getBMP( uint32_t resource_id ) const;
+    std::vector<const Mission::BMPResource*> getAllBMP() const;
+
+    Mission::DCSResource*  getDCS( uint32_t resource_id ) const;
+    std::vector<const Mission::DCSResource*> getAllDCS() const;
+
+    Mission::FUNResource*  getFUN( uint32_t resource_id ) const;
+    std::vector<const Mission::FUNResource*> getAllFUN() const;
+
+    Mission::FontResource* getFNT( uint32_t resource_id ) const;
+    std::vector<const Mission::FontResource*> getAllFNT() const;
+
     Mission::MSICResource* getMISC( uint32_t resource_id ) const;
-    Mission::NetResource*  getNET(  uint32_t resource_id ) const;
-    Mission::ObjResource*  getOBJ(  uint32_t resource_id ) const;
-    Mission::PTCResource*  getPTC(  uint32_t resource_id ) const;
-    Mission::PYRResource*  getPYR(  uint32_t resource_id ) const;
+    std::vector<const Mission::MSICResource*> getAllMISC() const;
+
+    Mission::NetResource*  getNET( uint32_t resource_id ) const;
+    std::vector<const Mission::NetResource*> getAllNET() const;
+
+    Mission::ObjResource*  getOBJ( uint32_t resource_id ) const;
+    std::vector<const Mission::ObjResource*> getAllOBJ() const;
+
+    Mission::PTCResource*  getPTC( uint32_t resource_id ) const;
+    std::vector<const Mission::PTCResource*> getAllPTC() const;
+
+    Mission::PYRResource*  getPYR( uint32_t resource_id ) const;
+    std::vector<const Mission::PYRResource*> getAllPYR() const;
+
     Mission::RPNSResource* getRPNS( uint32_t resource_id ) const;
+    std::vector<const Mission::RPNSResource*> getAllRPNS() const;
+
     Mission::SNDSResource* getSNDS( uint32_t resource_id ) const;
-    Mission::TilResource*  getTIL(  uint32_t resource_id ) const;
-    Mission::WAVResource*  getWAV(  uint32_t resource_id ) const;
+    std::vector<const Mission::SNDSResource*> getAllSNDS() const;
+
+    Mission::TilResource*  getTIL( uint32_t resource_id ) const;
+    std::vector<const Mission::TilResource*> getAllTIL() const;
+
+    Mission::WAVResource*  getWAV( uint32_t resource_id ) const;
+    std::vector<const Mission::WAVResource*> getAllWAV() const;
 };
 
 } // Data

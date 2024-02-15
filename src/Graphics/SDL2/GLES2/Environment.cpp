@@ -17,6 +17,7 @@ Environment::Environment() {
     this->text_draw_routine_p = nullptr;
     this->shiney_texture_p    = nullptr;
 
+    this->display_world = false;
     this->has_initialized_routines = false;
 }
 
@@ -56,7 +57,9 @@ std::string Environment::getEnvironmentIdentifier() const {
     return Graphics::Environment::SDL2_WITH_GLES_2;
 }
 
-int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
+int Environment::loadResources( const Data::Accessor &accessor ) {
+    std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllBMP();
+
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
     int shine_index = -1;
@@ -142,13 +145,6 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
         this->shiney_texture_p->setImage( 1, 0, GL_RGBA, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, environment_image.getDirectGridData() );
     }
 
-    if( failed_texture_loads == 0 )
-        return 1;
-    else
-        return -failed_texture_loads;
-}
-
-void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) {
     // Erase the culling data.
     if( this->window_p != nullptr ) {
         for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ ) {
@@ -164,26 +160,26 @@ void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::ve
         delete this->world_p;
     this->world_p = nullptr;
 
+    Data::Mission::PTCResource* ptc_r = accessor.getPTC( 1 );
+    std::vector<const Data::Mission::TilResource*> tiles = accessor.getAllTIL();
+
     // Make sure that the pointers are not pointers.
-    if( ptc_r == nullptr || tiles_r == nullptr )
-        return;
+    if( ptc_r != nullptr && tiles.size() != 0 ) {
+        // Allocate the world
+        this->world_p = new Internal::World();
 
-    // Allocate the world
-    this->world_p = new Internal::World();
-    
-    // Setup the vertex and fragment shaders
-    this->world_p->setVertexShader();
-    this->world_p->setFragmentShader();
-    this->world_p->compilieProgram();
+        // Setup the vertex and fragment shaders
+        this->world_p->setVertexShader();
+        this->world_p->setFragmentShader();
+        this->world_p->compilieProgram();
 
-    this->map_section_width  = ptc_r->getWidth();
-    this->map_section_height = ptc_r->getHeight();
-    
-    // Turn the map into a world.
-    this->world_p->setWorld( *ptc_r, *tiles_r, this->textures );
-}
+        this->map_section_width  = ptc_r->getWidth();
+        this->map_section_height = ptc_r->getHeight();
 
-int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
+        // Turn the map into a world.
+        this->world_p->setWorld( *ptc_r, tiles, this->textures );
+    }
+
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
@@ -242,7 +238,8 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
     this->dynamic_triangle_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
 
     int number_of_failures = 0; // TODO make sure that this gets set.
-    Utilities::ModelBuilder* model_r;
+    Utilities::ModelBuilder *model_r;
+    std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllOBJ();
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr )
@@ -268,6 +265,20 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         std::cout << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << std::endl;
 
     return number_of_failures;
+
+    if( failed_texture_loads == 0 )
+        return 1;
+    else
+        return -failed_texture_loads;
+}
+
+bool Environment::displayMap( bool state ) {
+    if( this->world_p != nullptr ) {
+        display_world = state;
+        return true;
+    }
+    else
+        return false;
 }
 
 size_t Environment::getTilAmount() const {
@@ -344,7 +355,7 @@ void Environment::drawFrame() {
             glDisable( GL_BLEND );
 
             // Draw the map if available.
-            if( this->world_p != nullptr )
+            if( this->world_p != nullptr && this->display_world )
             {
                 // Draw the map.
                 this->world_p->draw( *current_camera_r );
