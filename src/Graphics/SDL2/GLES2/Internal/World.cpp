@@ -156,7 +156,7 @@ int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *cons
     return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
 }
 
-int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
+int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
     bool link_success     = true;
     bool uniform_failed   = false;
     bool attribute_failed = false;

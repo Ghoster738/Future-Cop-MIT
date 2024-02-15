@@ -135,7 +135,7 @@ public:
      * Link every shader to the program.
      * @return false if one of the shaders are not loaded.
      */
-    int compilieProgram();
+    int compileProgram();
 
     /**
      * This sets the world.
@@ -155,7 +155,7 @@ public:
 
     /**
      * This draws the entire map.
-     * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
+     * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and setWorld in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into world.
      */
     void draw( Graphics::SDL2::GLES2::Camera &camera );

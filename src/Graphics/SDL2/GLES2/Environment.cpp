@@ -171,7 +171,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         // Setup the vertex and fragment shaders
         this->world_p->setVertexShader();
         this->world_p->setFragmentShader();
-        this->world_p->compilieProgram();
+        this->world_p->compileProgram();
 
         this->map_section_width  = ptc_r->getWidth();
         this->map_section_height = ptc_r->getHeight();
