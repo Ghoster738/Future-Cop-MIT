@@ -31,10 +31,10 @@ public:
     /**
      * This is used to setup the fonts. It does not account for the playstation layouts.
      * @param env_r The environment that stores the data types.
-     * @param data These are the IFF files that hold resources.
+     * @param accessor This is used to get the font.
      * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
      */
-    static int loadFonts( Graphics::Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
+    static int loadFonts( Graphics::Environment &env_r, const Data::Accessor &accessor );
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const;
     

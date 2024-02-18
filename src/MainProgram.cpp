@@ -345,15 +345,8 @@ void MainProgram::loadGraphics( bool show_map ) {
     this->environment_p->loadResources( this->accessor );
     this->environment_p->displayMap( show_map );
 
-    std::vector<Data::Mission::IFF*> loaded_IFFs;
-
-    if( this->global_r != nullptr )
-        loaded_IFFs.push_back( this->global_r );
-    if( this->resource_r != nullptr )
-        loaded_IFFs.push_back( this->resource_r );
-
     // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, loaded_IFFs ) == 0 ) {
+    if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, this->accessor ) == 0 ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "Fonts are missing.";
     }

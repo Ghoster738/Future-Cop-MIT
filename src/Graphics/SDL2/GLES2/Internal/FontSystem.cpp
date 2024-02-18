@@ -257,7 +257,7 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
     glDrawArrays( GL_TRIANGLES, 0, amount_of_characters * 6 );
 }
 
-Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources ) {
+Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
