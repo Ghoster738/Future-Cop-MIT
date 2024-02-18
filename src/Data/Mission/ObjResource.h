@@ -37,7 +37,7 @@ public:
         TRIANGLE       = 3,
         QUAD           = 4,
         BILLBOARD      = 5,
-        UNKNOWN_1      = 7
+        LINE           = 7
     };
 
     struct FaceType {
@@ -124,6 +124,7 @@ private:
 
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
+    std::vector<uint16_t>     lengths;
 
     std::map<uint_fast16_t, FaceType>  face_types;
 
@@ -138,6 +139,7 @@ private:
 
     std::vector<std::vector<glm::i16vec3>> vertex_anm_positions;
     std::vector<std::vector<glm::i16vec3>> vertex_anm_normals;
+    std::vector<std::vector<uint16_t>>     anm_lengths;
     
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;

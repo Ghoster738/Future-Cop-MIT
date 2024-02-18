@@ -19,7 +19,7 @@ namespace {
     const uint32_t TAG_3DQL = 0x3344514C; // which is { 0x33, 0x44, 0x51, 0x4C } or { '3', 'D', 'Q', 'L' } or "3DQL"
     // 3D reference?
     const uint32_t TAG_3DRF = 0x33445246; // which is { 0x33, 0x44, 0x52, 0x46 } or { '3', 'D', 'R', 'F' } or "3DRF"
-    // 3D reference list?
+    // 3D reference lengths.
     const uint32_t TAG_3DRL = 0x3344524C; // which is { 0x33, 0x44, 0x52, 0x4C } or { '3', 'D', 'R', 'L' } or "3DRL"
     // Bones.
     const uint32_t TAG_3DHY = 0x33444859; // which is { 0x33, 0x44, 0x48, 0x59 } or { '3', 'D', 'H', 'Y' } or "3DHY"
@@ -515,6 +515,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[3] = reader3DQL.readU8();
 
                     switch( face_type ) {
+                        // Opcode 7: v[0] and v[1] are vertex position offset, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+                        // Opcode 5: v[0] is vertex position and v[2] is width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
                         case 4:
                         {
                             primitive.type = PrimitiveType::QUAD;
@@ -545,7 +547,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_3DRL ) {
                 debug_log.output << "3DRL" << std::endl;
-                auto reader3DRL = reader.getReader( data_tag_size );
+                auto reader3DRL = reader.getReader(data_tag_size);
+
+                auto frame_number = reader3DRL.readU32(settings.endian);
+
+                auto count = reader3DRL.readU32(settings.endian);
+
+                if( count != 0 ) {
+                    auto lengths_pointer = &lengths;
+
+                    // If lengths is not empty then it is a morph target.
+                    if( lengths_pointer->size() != 0 ) {
+                        anm_lengths.push_back( std::vector<uint16_t>() );
+                        lengths_pointer = &anm_lengths.back();
+                    }
+
+                    for( uint32_t i = 0; i < count; i++ ) {
+                        lengths_pointer->push_back( reader3DRL.readU16(settings.endian) );
+                    }
+                }
             }
             else
             if( identifier == TAG_3DHY ) {
@@ -678,10 +698,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_4DVL ) {
                 auto reader4DVL = reader.getReader( data_tag_size );
                 
-                auto start_number = reader4DVL.readU32( settings.endian );
+                auto frame_number = reader4DVL.readU32( settings.endian );
+
                 auto amount_of_vertices = reader4DVL.readU32( settings.endian );
-                
-                debug_log.output << "4DVL has 0x" << std::hex << amount_of_vertices << " vertices.\n";
 
                 auto positions_pointer = &vertex_positions;
 
@@ -697,7 +716,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     positions_pointer->at(i).x = reader4DVL.readI16( settings.endian );
                     positions_pointer->at(i).y = reader4DVL.readI16( settings.endian );
                     positions_pointer->at(i).z = reader4DVL.readI16( settings.endian );
-                    // positions_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
                     reader4DVL.readI16( settings.endian );
                 }
             }
@@ -705,10 +723,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_4DNL ) {
                 auto reader4DNL = reader.getReader( data_tag_size );
                 
-                auto start_number = reader4DNL.readU32( settings.endian );
-                auto amount_of_normals = reader4DNL.readU32( settings.endian );
+                auto frame_number = reader4DNL.readU32( settings.endian );
 
-                debug_log.output << "4DNL has 0x" << std::hex << amount_of_normals << " normals.\n";
+                auto amount_of_normals = reader4DNL.readU32( settings.endian );
 
                 auto normals_pointer = &vertex_normals;
 
