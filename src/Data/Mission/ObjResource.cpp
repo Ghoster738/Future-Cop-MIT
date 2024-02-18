@@ -515,8 +515,18 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[3] = reader3DQL.readU8();
 
                     switch( face_type ) {
-                        // Opcode 7: v[0] and v[1] are vertex position offset, v[2] and v[3] are width offsets. All normals are 0 probably unused.
-                        // Opcode 5: v[0] is vertex position and v[2] is width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
+                        case 7: // v[0] and v[1] are vertex position offset, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+                        {
+                            primitive.type = PrimitiveType::LINE;
+                            face_lines.push_back( primitive );
+                            break;
+                        }
+                        case 5: // v[0] is vertex position and v[2] is width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
+                        {
+                            primitive.type = PrimitiveType::BILLBOARD;
+                            face_billboards.push_back( primitive );
+                            break;
+                        }
                         case 4:
                         {
                             primitive.type = PrimitiveType::QUAD;

@@ -130,6 +130,8 @@ private:
 
     std::vector<Primitive>    face_triangles;
     std::vector<Primitive>    face_quads;
+    std::vector<Primitive>    face_billboards;
+    std::vector<Primitive>    face_lines;
 
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.
