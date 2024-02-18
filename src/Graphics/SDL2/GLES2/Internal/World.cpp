@@ -156,7 +156,7 @@ int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *cons
     return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
 }
 
-int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
+int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
     bool link_success     = true;
     bool uniform_failed   = false;
     bool attribute_failed = false;
@@ -210,7 +210,7 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til,  const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, std::vector<const Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     tiles.resize( resources_til.size() );
 
     // Set up the primary tiles. O(n)

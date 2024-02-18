@@ -1,10 +1,11 @@
 #ifndef GRAPHICS_2D_TEXT_BUFFER_H
 #define GRAPHICS_2D_TEXT_BUFFER_H
 
-#include "../Utilities/DataTypes.h"
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+
 #include "../Data/Mission/FontResource.h"
+#include "../Data/Accessor.h"
 
 namespace Graphics {
 
@@ -34,7 +35,7 @@ public:
     
     virtual ~Text2DBuffer();
     
-    static int loadFonts( Environment &env_r, const std::vector<Data::Mission::IFF*> &data );
+    static int loadFonts( Environment &env_r, const Data::Accessor &accessor );
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const = 0;
 

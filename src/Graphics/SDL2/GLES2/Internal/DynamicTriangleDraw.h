@@ -170,7 +170,7 @@ public:
 
     /**
      * This draws all the stored triangles.
-     * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and allocateTriangles in this order are called SUCCESSFULLY.
+     * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and allocateTriangles in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into this routine.
      * @param textures This is the camera data to be passed into this routine.
      */

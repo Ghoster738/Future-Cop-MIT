@@ -119,7 +119,7 @@ protected:
 public:
     /**
      */
-    FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources );
+    FontSystem( const std::vector<const Data::Mission::FontResource*> &font_resources );
 
     /**
      * Delete everything.

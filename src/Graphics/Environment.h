@@ -10,6 +10,7 @@
 #include "../Data/Mission/PTCResource.h"
 #include "../Data/Mission/TilResource.h"
 #include "../Data/Mission/ObjResource.h"
+#include "../Data/Accessor.h"
 
 namespace Graphics {
 
@@ -75,28 +76,10 @@ public:
      */
     virtual std::string getEnvironmentIdentifier() const = 0;
 
-    /**
-     * This is used to setup the textures.
-     * @param textures The pointer vector to the textures for the models.
-     * @return It will return 1 for success or a negative number stating how many textures failed to load.
-     */
-    virtual int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) = 0;
+    virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
-    /**
-     * This is used to setup the textures for the 3D models.
-     * @param ptc_r The grid of pointers which makes up the entire map. This references the tiles (which is actually a 16x16 grid of a complex hightmap triangle grid).
-     * @param tiles_r The tiles to be referenced by the ptc.
-     */
-    virtual void setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) = 0;
-    
-    /**
-     * This is used to setup the 3D models.
-     * @param model_types All the objects that are 3D models goes here.
-     * @param model_amount The amount of the objects.
-     * @return It will return 1 for success or a negative number stating how many textures failed to load.
-     */
-    virtual int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) = 0;
-    
+    virtual bool displayMap( bool state ) = 0;
+
     /**
      * @return The number of Ctils in the environment.
      */
