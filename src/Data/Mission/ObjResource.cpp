@@ -521,7 +521,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_lines.push_back( primitive );
                             break;
                         }
-                        case 5: // v[0] is vertex position and v[2] is width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
+                        case 5: // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
                         {
                             primitive.type = PrimitiveType::BILLBOARD;
                             face_billboards.push_back( primitive );
@@ -1270,31 +1270,27 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 if( vertex_normals.size() != 0 )
                     handleNormals( normal, vertex_normals.data(), (*triangle).n[vertex_index - 1] );
 
-                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-
-                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-
+                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(      position ) );
+                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(      normal ) );
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[vertex_index - 1] ) );
-
-                model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
+                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
 
                 for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
                 {
                     handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[vertex_index - 1] );
-                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
 
                     if( vertex_normals.size() != 0 )
                         handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[vertex_index - 1] );
 
-                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
+                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
+                    model_output->addMorphVertexData(   normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ),   Utilities::DataTypes::Vec3Type( new_normal ) );
                 }
                 if( !bones.empty() ) {
                     for( auto bone = bones.begin(); bone != bones.end(); bone++) {
                         if( (*bone).vertex_start > (*triangle).v[vertex_index - 1] ) {
                             break;
                         }
-                        else
-                        if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[vertex_index - 1] )
+                        else if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[vertex_index - 1] )
                         {
                             joints.x = bone - bones.begin();
                             model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
