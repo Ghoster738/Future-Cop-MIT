@@ -51,31 +51,31 @@ public:
 
         glm::u8vec2 coords[4];
     };
-    struct Primitive {
-        PrimitiveType type;
-
-        struct {
-            uint8_t uses_texture:       1; // Does the face use a texture or not?
-            uint8_t normal_shading:     1;
-            uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
-            uint8_t visability:         2; // Please see enum VisabilityMode
-            uint8_t is_reflective:      1;
-        } visual;
-
-        uint16_t  face_type_offset;
-        FaceType *face_type_r;
-
-        uint8_t v[4], n[4];
-
-        uint32_t getBmpID() const;
-        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
-
-        int setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
-        int setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const;
-
-        static size_t getTriangleAmount( PrimitiveType type );
-
-        bool operator() ( const Primitive & l_operand, const Primitive & r_operand ) const;
+    struct Material {
+        uint8_t uses_texture:       1; // Does the face use a texture or not?
+        uint8_t normal_shading:     1;
+        uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
+        uint8_t visability:         2; // Please see enum VisabilityMode
+        uint8_t is_reflective:      1;
+    };
+    struct Point {
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::u8vec2 coords;
+        glm::u8vec4 weights;
+        glm::u8vec4 joints;
+    };
+    struct MorphPoint {
+        glm::vec3 position;
+        glm::vec3 normal;
+    };
+    struct Triangle {
+        uint32_t bmp_id;
+        Material visual;
+        Point points[3];
+    };
+    struct MorphTriangle {
+        MorphPoint points[3];
     };
     class Bone {
     public:
@@ -91,11 +91,31 @@ public:
             } position, rotation;
             unsigned int unknown: 2; // bone_index?
         } opcode;
-        
+
         /**
          * @return The number of attributes in the bone.
          */
         unsigned int getNumAttributes() const;
+    };
+    struct Primitive {
+        PrimitiveType type;
+
+        Material visual;
+
+        uint16_t  face_type_offset;
+        FaceType *face_type_r;
+
+        uint8_t v[4], n[4];
+
+        uint32_t getBmpID() const;
+        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
+
+        int setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
+        int setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
+
+        static size_t getTriangleAmount( PrimitiveType type );
+
+        bool operator() ( const Primitive &l_operand, const Primitive &r_operand ) const;
     };
     // Warning: I do not know if this is actually the bounding box's data structure.
     struct BoundingBox3D {
