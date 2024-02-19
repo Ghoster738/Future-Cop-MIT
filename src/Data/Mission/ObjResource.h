@@ -65,7 +65,7 @@ public:
         uint16_t  face_type_offset;
         FaceType *face_type_r;
 
-        uint16_t v[4], n[4];
+        uint8_t v[4], n[4];
 
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
