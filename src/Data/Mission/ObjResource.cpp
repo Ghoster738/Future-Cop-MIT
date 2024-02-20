@@ -140,15 +140,22 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-    triangle.visual = visual;
+
+    triangle.visual.uses_texture       = visual.uses_texture;
+    triangle.visual.normal_shading     = visual.normal_shading;
+    triangle.visual.is_reflective      = visual.is_reflective;
+    triangle.visual.polygon_color_type = visual.polygon_color_type;
+    triangle.visual.visability         = visual.visability;
 
     handlePositions( triangle.points[0].position, positions.data(), v[2] );
     handlePositions( triangle.points[1].position, positions.data(), v[1] );
     handlePositions( triangle.points[2].position, positions.data(), v[0] );
 
-    handleNormals( triangle.points[0].normal, positions.data(), n[2] );
-    handleNormals( triangle.points[1].normal, positions.data(), n[1] );
-    handleNormals( triangle.points[2].normal, positions.data(), n[0] );
+    if( normals.size() != 0 ) {
+        handleNormals( triangle.points[0].normal, normals.data(), n[2] );
+        handleNormals( triangle.points[1].normal, normals.data(), n[1] );
+        handleNormals( triangle.points[2].normal, normals.data(), n[0] );
+    }
 
     triangleToCoords( *this, *face_type_r, coords );
     for( unsigned t = 0; t < 3; t++ ) {
@@ -1154,7 +1161,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             triangle_counts[bmp_id] += Primitive::getTriangleAmount( (*i).type );
         }
 
-        // Go through the normal triangles first.
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
             if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
