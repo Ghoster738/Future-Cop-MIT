@@ -177,6 +177,8 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     }
     if( !bones.empty() ) {
         for( unsigned t = 0; t < 3; t++ ) {
+            triangle.points[2 - t].joints = glm::u8vec4(0,0,0,0);
+
             for( auto bone = bones.begin(); bone != bones.end(); bone++) {
                 if( (*bone).vertex_start > v[t] ) {
                     break;
@@ -1246,8 +1248,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     glm::u8vec4 metadata;
 
     auto triangle = triangle_buffer.begin();
-    auto morph_triangle = morph_triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
+    auto morph_triangle = morph_triangle_buffer.begin();
 
     for( auto count_it = triangle_counts.begin(); count_it != triangle_counts.end(); count_it++ )
     {
