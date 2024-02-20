@@ -44,7 +44,7 @@ void ModelViewer::load( MainProgram &main_program ) {
     if( main_program.resource_r == nullptr )
         return;
 
-    this->obj_vector = Data::Mission::ObjResource::getVector( *main_program.resource_r );
+    this->obj_vector = main_program.accessor.getAllOBJ();
 
     main_program.loadGraphics( false );
 
@@ -52,8 +52,7 @@ void ModelViewer::load( MainProgram &main_program ) {
     if( this->obj_vector.size() <= cobj_index )
         cobj_index = this->obj_vector.size() - 1;
 
-    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) )
-    {
+    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) ) {
         this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
         this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
         this->displayed_instance_p->setPosition( -this->position );
