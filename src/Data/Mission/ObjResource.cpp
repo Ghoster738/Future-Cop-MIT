@@ -19,7 +19,7 @@ namespace {
     const uint32_t TAG_3DQL = 0x3344514C; // which is { 0x33, 0x44, 0x51, 0x4C } or { '3', 'D', 'Q', 'L' } or "3DQL"
     // 3D reference?
     const uint32_t TAG_3DRF = 0x33445246; // which is { 0x33, 0x44, 0x52, 0x46 } or { '3', 'D', 'R', 'F' } or "3DRF"
-    // 3D reference list?
+    // 3D reference lengths.
     const uint32_t TAG_3DRL = 0x3344524C; // which is { 0x33, 0x44, 0x52, 0x4C } or { '3', 'D', 'R', 'L' } or "3DRL"
     // Bones.
     const uint32_t TAG_3DHY = 0x33444859; // which is { 0x33, 0x44, 0x48, 0x59 } or { '3', 'D', 'H', 'Y' } or "3DHY"
@@ -78,10 +78,10 @@ namespace {
     }
 
     uint8_t reverse(uint8_t b) {
-    b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
-    b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
-    b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
-    return b;
+        b = (b & 0b11110000) >> 4 | (b & 0b00001111) << 4;
+        b = (b & 0b11001100) >> 2 | (b & 0b00110011) << 2;
+        b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
+        return b;
     }
 }
 
@@ -123,16 +123,81 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
-int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
-    if( isWithinBounds( position_limit, normal_limit ) )
-    {
-        triangles.push_back( *this );
-        return 1;
+int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+    if( !isWithinBounds( positions.size(), normals.size() ) )
+        return 0;
+
+    Triangle triangle;
+    MorphTriangle morph_triangle;
+    glm::u8vec2 coords[3];
+    glm::u8vec4 weights, joints;
+
+    // Future Cop only uses one joint, so it only needs one weight.
+    weights.x = 0xFF;
+    weights.y = weights.z = weights.w = 0;
+
+    // The joint needs to be set to zero.
+    joints.x = joints.y = joints.z = joints.w = 0;
+
+    triangle.bmp_id = getBmpID();
+
+    triangle.visual.uses_texture       = visual.uses_texture;
+    triangle.visual.normal_shading     = visual.normal_shading;
+    triangle.visual.is_reflective      = visual.is_reflective;
+    triangle.visual.polygon_color_type = visual.polygon_color_type;
+    triangle.visual.visability         = visual.visability;
+
+    handlePositions( triangle.points[0].position, positions.data(), v[2] );
+    handlePositions( triangle.points[1].position, positions.data(), v[1] );
+    handlePositions( triangle.points[2].position, positions.data(), v[0] );
+
+    if( normals.size() != 0 ) {
+        handleNormals( triangle.points[0].normal, normals.data(), n[2] );
+        handleNormals( triangle.points[1].normal, normals.data(), n[1] );
+        handleNormals( triangle.points[2].normal, normals.data(), n[0] );
     }
-    return 0;
+
+    triangleToCoords( *this, *face_type_r, coords );
+    for( unsigned t = 0; t < 3; t++ ) {
+        triangle.points[t].coords = coords[2 - t];
+    }
+
+    for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+        handlePositions( morph_triangle.points[0].position, vertex_anm_positions.at(morph_frames).data(), v[2] );
+        handlePositions( morph_triangle.points[1].position, vertex_anm_positions.at(morph_frames).data(), v[1] );
+        handlePositions( morph_triangle.points[2].position, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+        if( normals.size() != 0 ) {
+            handleNormals( morph_triangle.points[0].normal, vertex_anm_normals.at(morph_frames).data(), n[2] );
+            handleNormals( morph_triangle.points[1].normal, vertex_anm_normals.at(morph_frames).data(), n[1] );
+            handleNormals( morph_triangle.points[2].normal, vertex_anm_normals.at(morph_frames).data(), n[0] );
+        }
+
+        morph_triangles.push_back( morph_triangle );
+    }
+    if( !bones.empty() ) {
+        for( unsigned t = 0; t < 3; t++ ) {
+            triangle.points[2 - t].joints = glm::u8vec4(0,0,0,0);
+
+            for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+                if( (*bone).vertex_start > v[t] ) {
+                    break;
+                }
+                else if( (*bone).vertex_start + (*bone).vertex_stride > v[t] )
+                {
+                    joints.x = bone - bones.begin();
+                    triangle.points[2 - t].joints = joints;
+                }
+            }
+            triangle.points[2 - t].weights = weights;
+        }
+    }
+    triangles.push_back( triangle );
+
+    return 1;
 }
 
-int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Primitive> &triangles, size_t position_limit, size_t normal_limit ) const {
+int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
     const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
     Primitive new_tri;
@@ -161,10 +226,7 @@ int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Primitive> &tria
         new_tri.n[1] = n[QUAD_TABLE[i][1]];
         new_tri.n[2] = n[QUAD_TABLE[i][2]];
 
-        if( new_tri.isWithinBounds( position_limit, normal_limit ) ) {
-            triangles.push_back( new_tri );
-            counter++;
-        }
+        counter += new_tri.setTriangle(triangles, positions, normals, lengths, morph_triangles, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones);
     }
 
     return counter;
@@ -515,6 +577,18 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[3] = reader3DQL.readU8();
 
                     switch( face_type ) {
+                        case 7: // v[0] and v[1] are vertex position offset, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+                        {
+                            primitive.type = PrimitiveType::LINE;
+                            face_lines.push_back( primitive );
+                            break;
+                        }
+                        case 5: // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
+                        {
+                            primitive.type = PrimitiveType::BILLBOARD;
+                            face_billboards.push_back( primitive );
+                            break;
+                        }
                         case 4:
                         {
                             primitive.type = PrimitiveType::QUAD;
@@ -522,11 +596,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             break;
                         }
                         case 3:
-                        default:
                         {
                             primitive.type = PrimitiveType::TRIANGLE;
                             face_triangles.push_back( primitive );
                             break;
+                        }
+                        default:
+                        {
                         }
                     }
                 }
@@ -545,7 +621,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_3DRL ) {
                 debug_log.output << "3DRL" << std::endl;
-                auto reader3DRL = reader.getReader( data_tag_size );
+                auto reader3DRL = reader.getReader(data_tag_size);
+
+                auto frame_number = reader3DRL.readU32(settings.endian);
+
+                auto count = reader3DRL.readU32(settings.endian);
+
+                if( count != 0 ) {
+                    auto lengths_pointer = &lengths;
+
+                    // If lengths is not empty then it is a morph target.
+                    if( lengths_pointer->size() != 0 ) {
+                        anm_lengths.push_back( std::vector<uint16_t>() );
+                        lengths_pointer = &anm_lengths.back();
+                    }
+
+                    for( uint32_t i = 0; i < count; i++ ) {
+                        lengths_pointer->push_back( reader3DRL.readU16(settings.endian) );
+                    }
+                }
             }
             else
             if( identifier == TAG_3DHY ) {
@@ -678,10 +772,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_4DVL ) {
                 auto reader4DVL = reader.getReader( data_tag_size );
                 
-                auto start_number = reader4DVL.readU32( settings.endian );
+                auto frame_number = reader4DVL.readU32( settings.endian );
+
                 auto amount_of_vertices = reader4DVL.readU32( settings.endian );
-                
-                debug_log.output << "4DVL has 0x" << std::hex << amount_of_vertices << " vertices.\n";
 
                 auto positions_pointer = &vertex_positions;
 
@@ -697,7 +790,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     positions_pointer->at(i).x = reader4DVL.readI16( settings.endian );
                     positions_pointer->at(i).y = reader4DVL.readI16( settings.endian );
                     positions_pointer->at(i).z = reader4DVL.readI16( settings.endian );
-                    // positions_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
                     reader4DVL.readI16( settings.endian );
                 }
             }
@@ -705,10 +797,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_4DNL ) {
                 auto reader4DNL = reader.getReader( data_tag_size );
                 
-                auto start_number = reader4DNL.readU32( settings.endian );
-                auto amount_of_normals = reader4DNL.readU32( settings.endian );
+                auto frame_number = reader4DNL.readU32( settings.endian );
 
-                debug_log.output << "4DNL has 0x" << std::hex << amount_of_normals << " normals.\n";
+                auto amount_of_normals = reader4DNL.readU32( settings.endian );
 
                 auto normals_pointer = &vertex_normals;
 
@@ -920,7 +1011,6 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
         position *= glm::vec3(FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
     }
 
-
     return position;
 }
 
@@ -1039,38 +1129,47 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
-    std::vector< Primitive > triangle_buffer;
+    std::vector<Triangle> triangle_buffer;
+    std::vector<MorphTriangle> morph_triangle_buffer;
     std::map<unsigned int, unsigned int> triangle_counts;
 
     {
+        std::vector<Primitive> primitive_buffer;
         size_t triangle_buffer_size = 0;
 
         triangle_buffer_size += face_triangles.size() * Primitive::getTriangleAmount( PrimitiveType::TRIANGLE );
         triangle_buffer_size += face_quads.size() * Primitive::getTriangleAmount( PrimitiveType::QUAD );
 
         triangle_buffer.reserve( triangle_buffer_size );
+        morph_triangle_buffer.reserve( triangle_buffer_size * vertex_anm_positions.size() );
+        primitive_buffer.reserve( triangle_buffer_size );
 
         // Go through the normal triangles first.
-        for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ ) {
-            (*i).setTriangle( triangle_buffer, vertex_positions.size(), vertex_normals.size() );
-        }
+        for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ )
+            primitive_buffer.push_back( (*i) );
 
         // Now go through the quads.
-        for( auto i = face_quads.begin(); i != face_quads.end(); i++ ) {
-            (*i).setQuad( triangle_buffer, vertex_positions.size(), vertex_normals.size() );
-        }
+        for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
+            primitive_buffer.push_back( (*i) );
 
         // Sort the triangle list.
-        std::sort(triangle_buffer.begin(), triangle_buffer.end(), Primitive() );
+        std::sort(primitive_buffer.begin(), primitive_buffer.end(), Primitive() );
 
         // Get the list of the used textures
-        for( auto i = triangle_buffer.begin(); i != triangle_buffer.end(); i++ ) {
+        for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
             uint32_t bmp_id = (*i).getBmpID();
 
             if( triangle_counts.find(bmp_id) == triangle_counts.end() ) {
                 triangle_counts[bmp_id] = 0;
             }
-            triangle_counts[bmp_id]++;
+            triangle_counts[bmp_id] += Primitive::getTriangleAmount( (*i).type );
+        }
+
+        for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
+            if( (*i).type == PrimitiveType::TRIANGLE )
+                (*i).setTriangle( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+            else if( (*i).type == PrimitiveType::QUAD )
+                (*i).setQuad( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
         }
     }
 
@@ -1140,11 +1239,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
     }
 
-    // TODO add texture settings.
-    // Set the sampler for all the textures ever referenced.
-    // model_output->setSampler( GLTFWriter::FilterType::NEAREST, GLTFWriter::FilterType::NEAREST_MIPMAP_LINEAR,
-        // GLTFWriter::WrapType::CLAMP_TO_EDGE, GLTFWriter::WrapType::CLAMP_TO_EDGE );
-
     // Setup the vertex components now that every field had been entered.
     model_output->setupVertexComponents( vertex_anm_positions.size() );
 
@@ -1152,33 +1246,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     if( texture_references.size() == 0 )
         model_output->setMaterial( "" );
-    /*
-    for( unsigned int i = 0; i < texture_references.size(); i++ )
-    {
-        image_path = std::to_string( texture_references.at(i) ) + ".png";
 
-        glTF_output->addTexturePath( image_path );
-    }
-    */
-
-    glm::vec3 position;
-    glm::vec3 new_position;
-    glm::vec3 normal( 1, 0, 0 );
-    glm::vec3 new_normal( 1, 0, 0 );
     glm::u8vec4 metadata;
-    glm::u8vec2 coords[3];
-    glm::u8vec4 weights;
-    glm::u8vec4 joints;
-
-    // Future Cop only uses one joint, so it only needs one weight.
-    weights.x = 0xFF;
-    weights.y = weights.z = weights.w = 0;
-
-    // The joint needs to be set to zero.
-    joints.x = joints.y = joints.z = joints.w = 0;
 
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
+    auto morph_triangle = morph_triangle_buffer.begin();
 
     for( auto count_it = triangle_counts.begin(); count_it != triangle_counts.end(); count_it++ )
     {
@@ -1207,8 +1280,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( unsigned int i = 0; i < (*count_it).second; i++ )
         {
-            triangleToCoords( (*triangle), *(*triangle).face_type_r, coords );
-            
             if( (*triangle).visual.is_reflective )
                 metadata[0] = 0xFF;
             else
@@ -1220,7 +1291,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 metadata[1] = 0x00;
 
             if( triangle != previous_triangle ) {
-                if( (*triangle).getBmpID() == (*previous_triangle).getBmpID() )
+                if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
                 {
                     if( (*previous_triangle).visual.visability < (*triangle).visual.visability )
                         model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
@@ -1235,51 +1306,38 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
             }
 
-            for( unsigned vertex_index = 3; vertex_index != 0; vertex_index-- ) {
+            for( unsigned vertex_index = 0; vertex_index < 3; vertex_index++ ) {
+                const Point point = (*triangle).points[vertex_index];
+
                 model_output->startVertex();
 
-                handlePositions( position, vertex_positions.data(), (*triangle).v[vertex_index - 1] );
+                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(      point.position ) );
+                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(      point.normal ) );
+                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( point.coords ) );
+                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
 
-                if( vertex_normals.size() != 0 )
-                    handleNormals( normal, vertex_normals.data(), (*triangle).n[vertex_index - 1] );
+                auto morph_triangle_frame = morph_triangle;
 
-                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-
-                model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( normal ) );
-
-                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( coords[vertex_index - 1] ) );
-
-                model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
-
-                for( unsigned int morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
+                for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ )
                 {
-                    handlePositions( new_position, vertex_anm_positions.at(morph_frames).data(), (*triangle).v[vertex_index - 1] );
-                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( new_position ) );
+                    const MorphPoint morph_point = (*morph_triangle_frame).points[vertex_index];
 
-                    if( vertex_normals.size() != 0 )
-                        handleNormals( new_normal, vertex_anm_normals.at(morph_frames).data(), (*triangle).n[vertex_index - 1] );
+                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
+                    model_output->addMorphVertexData(   normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
 
-                    model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( normal ), Utilities::DataTypes::Vec3Type( new_normal ) );
+                    morph_triangle_frame++;
                 }
                 if( !bones.empty() ) {
-                    for( auto bone = bones.begin(); bone != bones.end(); bone++) {
-                        if( (*bone).vertex_start > (*triangle).v[vertex_index - 1] ) {
-                            break;
-                        }
-                        else
-                        if( (*bone).vertex_start + (*bone).vertex_stride > (*triangle).v[vertex_index - 1] )
-                        {
-                            joints.x = bone - bones.begin();
-                            model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( joints ) );
-                        }
-                    }
-
-                    model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( weights ) );
+                    model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( point.joints ) );
+                    model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( point.weights ) );
                 }
             }
 
             triangle++;
             previous_triangle = triangle - 1;
+
+            if( morph_triangle != morph_triangle_buffer.end() )
+                morph_triangle += vertex_anm_positions.size();
         }
     }
     
