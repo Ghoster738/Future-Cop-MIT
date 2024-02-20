@@ -238,7 +238,7 @@ int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &trian
 int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
-    glm::u8vec2 coords[3];
+    glm::u8vec2 coords[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center;
     float length;
@@ -268,34 +268,102 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     triangle.points[2].joints = joints;
 
     if( face_type_r != nullptr ) {
-        triangleToCoords( *this, *face_type_r, coords );
-        for( unsigned t = 0; t < 3; t++ ) {
-            triangle.points[t].coords = coords[2 - t];
-        }
+        coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
+        coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
+        coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
+        coords[1][0] = face_type_r->coords[QUAD_TABLE[1][0]];
+        coords[1][1] = face_type_r->coords[QUAD_TABLE[1][1]];
+        coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
     }
     else {
-        coords[0] = glm::u8vec2( 0x00, 0x00 );
-        coords[1] = glm::u8vec2( 0xFF, 0x00 );
-        coords[2] = glm::u8vec2( 0xFF, 0xFF );
+        coords[0][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
+        coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
+        coords[1][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[1][1] = glm::u8vec2( 0x00, 0xFF );
+        coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
     }
 
      // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
     handlePositions( center, positions.data(), v[0] );
     length = lengths[ v[2] ] * FIXED_POINT_UNIT;
 
+    // Quad 1
     triangle.points[0].position = center + glm::vec3( length, length, 0);
     triangle.points[1].position = center + glm::vec3(-length, length, 0);
     triangle.points[2].position = center + glm::vec3(-length,-length, 0);
-    triangle.points[0].coords = coords[0];
-    triangle.points[1].coords = coords[1];
-    triangle.points[2].coords = coords[2];
+    triangle.points[0].coords = coords[0][0];
+    triangle.points[1].coords = coords[0][1];
+    triangle.points[2].coords = coords[0][2];
 
     triangles.push_back( triangle );
 
     triangle.switchPoints();
     triangles.push_back( triangle );
 
-    return 2;
+    triangle.points[0].position = center + glm::vec3( length, length, 0);
+    triangle.points[1].position = center + glm::vec3( length,-length, 0);
+    triangle.points[2].position = center + glm::vec3(-length,-length, 0);
+    triangle.points[0].coords = coords[1][0];
+    triangle.points[1].coords = coords[1][1];
+    triangle.points[2].coords = coords[1][2];
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    // Quad 2
+    triangle.points[0].position = center + glm::vec3( length, 0, length);
+    triangle.points[1].position = center + glm::vec3(-length, 0, length);
+    triangle.points[2].position = center + glm::vec3(-length, 0,-length);
+    triangle.points[0].coords = coords[0][0];
+    triangle.points[1].coords = coords[0][1];
+    triangle.points[2].coords = coords[0][2];
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    triangle.points[0].position = center + glm::vec3( length, 0, length);
+    triangle.points[1].position = center + glm::vec3( length, 0,-length);
+    triangle.points[2].position = center + glm::vec3(-length, 0,-length);
+    triangle.points[0].coords = coords[1][0];
+    triangle.points[1].coords = coords[1][1];
+    triangle.points[2].coords = coords[1][2];
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    // Quad 3
+    triangle.points[0].position = center + glm::vec3( 0, length, length);
+    triangle.points[1].position = center + glm::vec3( 0,-length, length);
+    triangle.points[2].position = center + glm::vec3( 0,-length,-length);
+    triangle.points[0].coords = coords[0][0];
+    triangle.points[1].coords = coords[0][1];
+    triangle.points[2].coords = coords[0][2];
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    triangle.points[0].position = center + glm::vec3( 0, length, length);
+    triangle.points[1].position = center + glm::vec3( 0, length,-length);
+    triangle.points[2].position = center + glm::vec3( 0,-length,-length);
+    triangle.points[0].coords = coords[1][0];
+    triangle.points[1].coords = coords[1][1];
+    triangle.points[2].coords = coords[1][2];
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    return getTriangleAmount( PrimitiveType::BILLBOARD );
 }
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
@@ -306,7 +374,7 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
         case PrimitiveType::QUAD:
             return 2;
         case PrimitiveType::BILLBOARD:
-            return 2;
+            return 12;
         default:
             return 0;
     }
