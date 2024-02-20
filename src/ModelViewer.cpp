@@ -48,7 +48,11 @@ void ModelViewer::load( MainProgram &main_program ) {
 
     main_program.loadGraphics( false );
 
-    if( this->obj_vector.size() > cobj_index && Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) )
+    // cobj_index needs to be restricted to the obj_vector size
+    if( this->obj_vector.size() <= cobj_index )
+        cobj_index = this->obj_vector.size() - 1;
+
+    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) )
     {
         this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
         this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
