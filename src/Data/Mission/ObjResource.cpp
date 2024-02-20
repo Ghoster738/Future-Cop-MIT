@@ -85,6 +85,10 @@ namespace {
     }
 }
 
+void Data::Mission::ObjResource::Triangle::switchPoints() {
+    std::swap(points[0], points[2]);
+}
+
 uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
     if( !visual.uses_texture || face_type_r == nullptr )
         return 0;
@@ -288,13 +292,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
     triangles.push_back( triangle );
 
-    triangle.points[2].position = center + glm::vec3( length, length, 0);
-    triangle.points[1].position = center + glm::vec3(-length, length, 0);
-    triangle.points[0].position = center + glm::vec3(-length,-length, 0);
-    triangle.points[2].coords = coords[0];
-    triangle.points[1].coords = coords[1];
-    triangle.points[0].coords = coords[2];
-
+    triangle.switchPoints();
     triangles.push_back( triangle );
 
     return 2;

@@ -73,6 +73,8 @@ public:
         uint32_t bmp_id;
         Material visual;
         Point points[3];
+
+        void switchPoints();
     };
     struct MorphTriangle {
         MorphPoint points[3];
