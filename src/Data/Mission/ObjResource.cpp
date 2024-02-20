@@ -596,11 +596,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             break;
                         }
                         case 3:
-                        default:
                         {
                             primitive.type = PrimitiveType::TRIANGLE;
                             face_triangles.push_back( primitive );
                             break;
+                        }
+                        default:
+                        {
                         }
                     }
                 }
