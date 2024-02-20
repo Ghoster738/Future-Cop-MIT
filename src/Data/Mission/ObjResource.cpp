@@ -184,10 +184,10 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
                 else if( (*bone).vertex_start + (*bone).vertex_stride > v[t] )
                 {
                     joints.x = bone - bones.begin();
-                    triangle.points[t].joints = joints;
+                    triangle.points[2 - t].joints = joints;
                 }
             }
-            triangle.points[t].weights = weights;
+            triangle.points[2 - t].weights = weights;
         }
     }
     triangles.push_back( triangle );
