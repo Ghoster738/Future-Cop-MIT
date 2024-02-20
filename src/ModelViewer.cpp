@@ -48,9 +48,12 @@ void ModelViewer::load( MainProgram &main_program ) {
 
     main_program.loadGraphics( false );
 
-    this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
-    this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
-    this->displayed_instance_p->setPosition( -this->position );
+    if( this->obj_vector.size() > cobj_index && Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) )
+    {
+        this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+        this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
+        this->displayed_instance_p->setPosition( -this->position );
+    }
 
     if( !main_program.text_2d_buffer_r->selectFont( this->font, 0.8 * this->font_height, this->font_height ) ) {
         this->font = 1;
