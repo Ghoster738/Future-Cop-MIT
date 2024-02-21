@@ -241,7 +241,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     glm::u8vec2 coords[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center, morph_center;
-    float length;
+    float length, morph_length;
 
     const glm::vec3 billboard_star[3][2][3] = {
         { // Quad 0
@@ -322,9 +322,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][0][i];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -334,9 +335,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][2 - i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][0][2 - i];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -351,9 +353,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][1][i];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -363,9 +366,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][2 - i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][1][2 - i];
 
             morph_triangles.push_back( morph_triangle );
         }
