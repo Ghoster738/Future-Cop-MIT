@@ -288,6 +288,27 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     handlePositions( center, positions.data(), v[0] );
     length = lengths[ v[2] ] * FIXED_POINT_UNIT;
 
+    // Bone animation.
+    if( !bones.empty() ) {
+        for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+            if( (*bone).vertex_start > v[0] ) {
+                break;
+            }
+            else if( (*bone).vertex_start + (*bone).vertex_stride > v[0] )
+            {
+                joints.x = bone - bones.begin();
+            }
+        }
+
+        triangle.points[0].joints = joints;
+        triangle.points[1].joints = joints;
+        triangle.points[2].joints = joints;
+
+        triangle.points[0].weights = weights;
+        triangle.points[1].weights = weights;
+        triangle.points[2].weights = weights;
+    }
+
     // Quad 1
     triangle.points[0].position = center + glm::vec3( length, length, 0);
     triangle.points[1].position = center + glm::vec3(-length, length, 0);
