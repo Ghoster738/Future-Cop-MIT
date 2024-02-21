@@ -430,6 +430,10 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         lengths[ v[3] ] * FIXED_POINT_UNIT };
 
     const glm::vec3 unnormalized = segments[1] - offset;
+    const glm::ivec2 placements[3] = {
+        glm::vec2( 0, 1 ),
+        glm::vec2( 0, 2 ),
+        glm::vec2( 1, 2 ) };
     const glm::vec2 othro[3] = {
         glm::vec2( unnormalized.x, unnormalized.y ),
         glm::vec2( unnormalized.x, unnormalized.z ),
@@ -441,11 +445,64 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         glm::length( othro[1] ),
         glm::length( othro[2] ) };
 
-    // Choose the longest length to generate first quad.
+    // Choose the longest length to generate first quaderlateral.
+    unsigned longest_index = 0;
+    float longest_length = -1.0;
 
-    // Choose the 2nd longest length to generate second quad.
+    for( unsigned i = 0; i < 3; i++ ) {
+        if( othro_lengths[i] > longest_length ) {
+            longest_index = i;
+            longest_length = othro_lengths[i];
+        }
+    }
 
-    return 0;
+    // Choose the 2nd longest length to generate second quaderlateral.
+    unsigned median_index = 0;
+    float median_length = -1.0;
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        if( i != longest_index &&
+            othro_lengths[i] > median_length ) {
+            median_length = othro_lengths[i];
+            median_index = i;
+        }
+    }
+
+    // First Quad.
+    const glm::vec2  &longest_othro = othro[longest_index];
+    const glm::vec2   longest_othro_normal = glm::normalize(longest_othro);
+    const glm::vec2   longest_othro_axis = longest_othro_normal * glm::vec2(-1.0, 1.0);
+    const glm::ivec2 &longest_placement = placements[longest_index];
+
+    glm::vec2 flat_2;
+    glm::vec3 flat_3 = glm::vec3(0, 0, 0);
+
+    flat_2 = thickness[0] * longest_othro_axis;
+    flat_3[ longest_placement.x ] = flat_2.x;
+    flat_3[ longest_placement.y ] = flat_2.y;
+    triangle.points[0].position = segments[0] + flat_3;
+
+    flat_2 = thickness[1] * -longest_othro_axis;
+    flat_3[ longest_placement.x ] = flat_2.x;
+    flat_3[ longest_placement.y ] = flat_2.y;
+    triangle.points[1].position = segments[1] + flat_3;
+
+    flat_2 = thickness[0] * -longest_othro_axis;
+    flat_3[ longest_placement.x ] = flat_2.x;
+    flat_3[ longest_placement.y ] = flat_2.y;
+    triangle.points[2].position = segments[0] + flat_3;
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].coords = coords[0][i];
+    }
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+
+    triangles.push_back( triangle );
+
+    return getTriangleAmount( PrimitiveType::LINE );
 }
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
@@ -458,7 +515,7 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
         case PrimitiveType::BILLBOARD:
             return 12;
         case PrimitiveType::LINE:
-            return 1;
+            return 2;
         default:
             return 0;
     }
