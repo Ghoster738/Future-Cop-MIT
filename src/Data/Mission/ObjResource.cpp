@@ -479,24 +479,58 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
     glm::vec2 flat_2;
     glm::vec3 flat_3 = glm::vec3(0, 0, 0);
+    glm::vec3 quaderlateral[4];
 
     flat_2 = thickness[0] * longest_othro_axis;
     flat_3[ longest_placement.x ] = flat_2.y;
     flat_3[ longest_placement.y ] = flat_2.x;
-    triangle.points[0].position = segments[0] + flat_3;
+    quaderlateral[0] = segments[0] + flat_3;
 
     flat_2 = thickness[0] * -longest_othro_axis;
     flat_3[ longest_placement.x ] = flat_2.y;
     flat_3[ longest_placement.y ] = flat_2.x;
-    triangle.points[1].position = segments[0] + flat_3;
+    quaderlateral[1] = segments[0] + flat_3;
 
     flat_2 = thickness[1] * -longest_othro_axis;
     flat_3[ longest_placement.x ] = flat_2.y;
     flat_3[ longest_placement.y ] = flat_2.x;
-    triangle.points[2].position = segments[1] + flat_3;
+    quaderlateral[2] = segments[1] + flat_3;
+
+    flat_2 = thickness[1] *  longest_othro_axis;
+    flat_3[ longest_placement.x ] = flat_2.y;
+    flat_3[ longest_placement.y ] = flat_2.x;
+    quaderlateral[3] = segments[1] + flat_3;
 
     for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = quaderlateral[QUAD_TABLE[0][i]];
         triangle.points[i].coords = coords[0][i];
+    }
+
+    triangles.push_back( triangle );
+
+    // TODO THIS IS A NULL STATEMENT
+    for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+        for( unsigned i = 0; i < 3; i++ )
+            morph_triangle.points[i].position = triangle.points[i].position;
+
+        morph_triangles.push_back( morph_triangle );
+    }
+
+    triangle.switchPoints();
+
+    triangles.push_back( triangle );
+
+    // TODO THIS IS A NULL STATEMENT
+    for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+        for( unsigned i = 0; i < 3; i++ )
+            morph_triangle.points[i].position = triangle.points[i].position;
+
+        morph_triangles.push_back( morph_triangle );
+    }
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = quaderlateral[QUAD_TABLE[1][i]];
+        triangle.points[i].coords = coords[1][i];
     }
 
     triangles.push_back( triangle );
@@ -534,7 +568,7 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
         case PrimitiveType::BILLBOARD:
             return 12;
         case PrimitiveType::LINE:
-            return 2;
+            return 4;
         default:
             return 0;
     }
