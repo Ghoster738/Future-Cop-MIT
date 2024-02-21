@@ -401,6 +401,9 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
     triangle.points[2].normal = glm::vec3(0, 1, 0);
+    morph_triangle.points[0].normal = triangle.points[0].normal;
+    morph_triangle.points[1].normal = triangle.points[1].normal;
+    morph_triangle.points[2].normal = triangle.points[2].normal;
 
     if( face_type_r != nullptr ) {
         coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
@@ -498,9 +501,25 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
     triangles.push_back( triangle );
 
+    // TODO THIS IS A NULL STATEMENT
+    for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+        for( unsigned i = 0; i < 3; i++ )
+            morph_triangle.points[i].position = triangle.points[i].position;
+
+        morph_triangles.push_back( morph_triangle );
+    }
+
     triangle.switchPoints();
 
     triangles.push_back( triangle );
+
+    // TODO THIS IS A NULL STATEMENT
+    for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+        for( unsigned i = 0; i < 3; i++ )
+            morph_triangle.points[i].position = triangle.points[i].position;
+
+        morph_triangles.push_back( morph_triangle );
+    }
 
     return getTriangleAmount( PrimitiveType::LINE );
 }
@@ -1267,6 +1286,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
+        for( auto &primitive : this->face_lines ) {
+            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
+            }
+        }
 
         return !file_is_not_valid;
     }
@@ -1437,6 +1461,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
+            primitive_buffer.push_back( (*i) );
+
         // Sort the triangle list.
         std::sort(primitive_buffer.begin(), primitive_buffer.end(), Primitive() );
 
@@ -1457,6 +1484,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 (*i).setQuad( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
             else if( (*i).type == PrimitiveType::BILLBOARD )
                 (*i).setBillboard( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+            else if( (*i).type == PrimitiveType::LINE )
+                (*i).setLine( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
         }
     }
 
