@@ -379,8 +379,6 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
     glm::u8vec4 weights, joints;
-    glm::vec3 segments[2];
-    float thickness[2];
 
     // Future Cop only uses one joint, so it only needs one weight.
     weights.x = 0xFF;
@@ -417,13 +415,27 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
     }
 
+    glm::vec3 segments[2];
+    glm::vec3 &offset = segments[0];
+
     // v[0] and v[1] are vertex position offsets, v[2] and v[3] are width offsets. All normals are 0 probably unused.
     handlePositions( segments[0], positions.data(), v[0] );
     handlePositions( segments[1], positions.data(), v[1] );
-    thickness[0] = lengths[ v[2] ] * FIXED_POINT_UNIT;
-    thickness[1] = lengths[ v[3] ] * FIXED_POINT_UNIT;
+    const float thickness[2] = {
+        lengths[ v[2] ] * FIXED_POINT_UNIT,
+        lengths[ v[3] ] * FIXED_POINT_UNIT };
+
+    const glm::vec3 unnormalized = segments[1] - offset;
+    const glm::vec2 othro[3] = {
+        glm::vec2( unnormalized.x, unnormalized.y ),
+        glm::vec2( unnormalized.x, unnormalized.z ),
+        glm::vec2( unnormalized.y, unnormalized.z ) };
 
     // Calculate 3 lengths calculated from 2D planes of the lines in an othrographic perspective. TOP, RIGHT, and FRONT
+    const float othro_lengths[3] = {
+        glm::length( othro[0] ),
+        glm::length( othro[1] ),
+        glm::length( othro[2] ) };
 
     // Choose the longest length to generate first quad.
 
