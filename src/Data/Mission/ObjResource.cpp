@@ -468,37 +468,37 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         }
     }
 
-    assert( median_index != longest_index );
-    assert( longest_length >= median_length );
+    assert( longest_index != median_index );
+    assert( othro_lengths[longest_index] >= othro_lengths[median_index] );
 
     // First Quad.
-    const glm::vec2  &longest_othro = othro[longest_index];
-    const glm::vec2   longest_othro_normal = glm::normalize(longest_othro);
-    const glm::vec2   longest_othro_axis = longest_othro_normal * glm::vec2(-1.0, 1.0);
-    const glm::ivec2 &longest_placement = placements[longest_index];
+    const glm::vec2  &current_othro = othro[longest_index];
+    const glm::vec2   current_othro_normal = glm::normalize(current_othro);
+    const glm::vec2   current_othro_axis = current_othro_normal * glm::vec2(-1.0, 1.0);
+    const glm::ivec2 &current_placement = placements[longest_index];
 
     glm::vec2 flat_2;
     glm::vec3 flat_3 = glm::vec3(0, 0, 0);
     glm::vec3 quaderlateral[4];
 
-    flat_2 = thickness[0] * longest_othro_axis;
-    flat_3[ longest_placement.x ] = flat_2.y;
-    flat_3[ longest_placement.y ] = flat_2.x;
+    flat_2 = thickness[0] * current_othro_axis;
+    flat_3[ current_placement.x ] = flat_2.y;
+    flat_3[ current_placement.y ] = flat_2.x;
     quaderlateral[0] = segments[0] + flat_3;
 
-    flat_2 = thickness[0] * -longest_othro_axis;
-    flat_3[ longest_placement.x ] = flat_2.y;
-    flat_3[ longest_placement.y ] = flat_2.x;
+    flat_2 = thickness[0] * -current_othro_axis;
+    flat_3[ current_placement.x ] = flat_2.y;
+    flat_3[ current_placement.y ] = flat_2.x;
     quaderlateral[1] = segments[0] + flat_3;
 
-    flat_2 = thickness[1] * -longest_othro_axis;
-    flat_3[ longest_placement.x ] = flat_2.y;
-    flat_3[ longest_placement.y ] = flat_2.x;
+    flat_2 = thickness[1] * -current_othro_axis;
+    flat_3[ current_placement.x ] = flat_2.y;
+    flat_3[ current_placement.y ] = flat_2.x;
     quaderlateral[2] = segments[1] + flat_3;
 
-    flat_2 = thickness[1] *  longest_othro_axis;
-    flat_3[ longest_placement.x ] = flat_2.y;
-    flat_3[ longest_placement.y ] = flat_2.x;
+    flat_2 = thickness[1] *  current_othro_axis;
+    flat_3[ current_placement.x ] = flat_2.y;
+    flat_3[ current_placement.y ] = flat_2.x;
     quaderlateral[3] = segments[1] + flat_3;
 
     for( unsigned q = 0; q < 2; q++ ) {
