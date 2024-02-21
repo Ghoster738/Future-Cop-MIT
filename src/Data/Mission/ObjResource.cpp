@@ -311,67 +311,26 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         triangle.points[i].weights = weights;
     }
 
-    // Quad 0
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length * billboard_star[0][0][i];
-        triangle.points[i].coords = coords[0][i];
+    for( unsigned quad_index = 0; quad_index < 3; quad_index++ ) {
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].position = center + length * billboard_star[quad_index][0][i];
+            triangle.points[i].coords = coords[0][i];
+        }
+        triangles.push_back( triangle );
+
+        triangle.switchPoints();
+        triangles.push_back( triangle );
+
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].position = center + length * billboard_star[quad_index][1][i];
+            triangle.points[i].coords = coords[1][i];
+        }
+
+        triangles.push_back( triangle );
+
+        triangle.switchPoints();
+        triangles.push_back( triangle );
     }
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length * billboard_star[0][1][i];
-        triangle.points[i].coords = coords[1][i];
-    }
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    // Quad 1
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length * billboard_star[1][0][i];
-        triangle.points[i].coords = coords[0][i];
-    }
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length * billboard_star[1][1][i];
-        triangle.points[i].coords = coords[1][i];
-    }
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    // Quad 2
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length * billboard_star[2][0][i];
-        triangle.points[i].coords = coords[0][i];
-    }
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length * billboard_star[2][1][i];
-        triangle.points[i].coords = coords[1][i];
-    }
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
 
     return getTriangleAmount( PrimitiveType::BILLBOARD );
 }
