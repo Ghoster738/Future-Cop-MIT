@@ -243,6 +243,18 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     glm::vec3 center;
     float length;
 
+    const glm::vec3 billboard_star[3][2][3] = {
+        { // Quad 0
+            { { 1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}, {-1.0,-1.0, 0.0} },
+            { { 1.0, 1.0, 0.0}, { 1.0,-1.0, 0.0}, {-1.0,-1.0, 0.0} } },
+        { // Quad 1
+            { { 1.0, 0.0, 1.0}, {-1.0, 0.0, 1.0}, {-1.0, 0.0,-1.0} },
+            { { 1.0, 0.0, 1.0}, { 1.0, 0.0,-1.0}, {-1.0, 0.0,-1.0} } },
+        { // Quad 2
+            { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0} },
+            { { 0.0, 1.0, 1.0}, { 0.0, 1.0,-1.0}, { 0.0,-1.0,-1.0} } }
+    };
+
     // Future Cop only uses one joint, so it only needs one weight.
     weights.x = 0xFF;
     weights.y = weights.z = weights.w = 0;
@@ -299,25 +311,41 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         triangle.points[i].weights = weights;
     }
 
-    // Quad 1
-    triangle.points[0].position = center + glm::vec3( length, length, 0);
-    triangle.points[1].position = center + glm::vec3(-length, length, 0);
-    triangle.points[2].position = center + glm::vec3(-length,-length, 0);
-    triangle.points[0].coords = coords[0][0];
-    triangle.points[1].coords = coords[0][1];
-    triangle.points[2].coords = coords[0][2];
+    // Quad 0
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length * billboard_star[0][0][i];
+        triangle.points[i].coords = coords[0][i];
+    }
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length * billboard_star[0][1][i];
+        triangle.points[i].coords = coords[1][i];
+    }
 
     triangles.push_back( triangle );
 
     triangle.switchPoints();
     triangles.push_back( triangle );
 
-    triangle.points[0].position = center + glm::vec3( length, length, 0);
-    triangle.points[1].position = center + glm::vec3( length,-length, 0);
-    triangle.points[2].position = center + glm::vec3(-length,-length, 0);
-    triangle.points[0].coords = coords[1][0];
-    triangle.points[1].coords = coords[1][1];
-    triangle.points[2].coords = coords[1][2];
+    // Quad 1
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length * billboard_star[1][0][i];
+        triangle.points[i].coords = coords[0][i];
+    }
+
+    triangles.push_back( triangle );
+
+    triangle.switchPoints();
+    triangles.push_back( triangle );
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length * billboard_star[1][1][i];
+        triangle.points[i].coords = coords[1][i];
+    }
 
     triangles.push_back( triangle );
 
@@ -325,49 +353,20 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     triangles.push_back( triangle );
 
     // Quad 2
-    triangle.points[0].position = center + glm::vec3( length, 0, length);
-    triangle.points[1].position = center + glm::vec3(-length, 0, length);
-    triangle.points[2].position = center + glm::vec3(-length, 0,-length);
-    triangle.points[0].coords = coords[0][0];
-    triangle.points[1].coords = coords[0][1];
-    triangle.points[2].coords = coords[0][2];
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length * billboard_star[2][0][i];
+        triangle.points[i].coords = coords[0][i];
+    }
 
     triangles.push_back( triangle );
 
     triangle.switchPoints();
     triangles.push_back( triangle );
 
-    triangle.points[0].position = center + glm::vec3( length, 0, length);
-    triangle.points[1].position = center + glm::vec3( length, 0,-length);
-    triangle.points[2].position = center + glm::vec3(-length, 0,-length);
-    triangle.points[0].coords = coords[1][0];
-    triangle.points[1].coords = coords[1][1];
-    triangle.points[2].coords = coords[1][2];
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    // Quad 3
-    triangle.points[0].position = center + glm::vec3( 0, length, length);
-    triangle.points[1].position = center + glm::vec3( 0,-length, length);
-    triangle.points[2].position = center + glm::vec3( 0,-length,-length);
-    triangle.points[0].coords = coords[0][0];
-    triangle.points[1].coords = coords[0][1];
-    triangle.points[2].coords = coords[0][2];
-
-    triangles.push_back( triangle );
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    triangle.points[0].position = center + glm::vec3( 0, length, length);
-    triangle.points[1].position = center + glm::vec3( 0, length,-length);
-    triangle.points[2].position = center + glm::vec3( 0,-length,-length);
-    triangle.points[0].coords = coords[1][0];
-    triangle.points[1].coords = coords[1][1];
-    triangle.points[2].coords = coords[1][2];
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length * billboard_star[2][1][i];
+        triangle.points[i].coords = coords[1][i];
+    }
 
     triangles.push_back( triangle );
 
