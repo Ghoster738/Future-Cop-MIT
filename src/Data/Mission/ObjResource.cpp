@@ -300,13 +300,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
             }
         }
 
-        triangle.points[0].joints = joints;
-        triangle.points[1].joints = joints;
-        triangle.points[2].joints = joints;
-
-        triangle.points[0].weights = weights;
-        triangle.points[1].weights = weights;
-        triangle.points[2].weights = weights;
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].joints = joints;
+            triangle.points[i].weights = weights;
+        }
     }
 
     // Quad 1
