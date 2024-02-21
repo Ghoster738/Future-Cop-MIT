@@ -446,36 +446,35 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         glm::length( othro[2] ) };
 
     // Choose the longest length to generate first quaderlateral.
-    unsigned longest_index = 0;
-    float longest_length = -1.0;
+    unsigned selected_indexes[2] = {0, 0};
+    float current_length = -1.0;
 
     for( unsigned i = 0; i < 3; i++ ) {
-        if( othro_lengths[i] > longest_length ) {
-            longest_index = i;
-            longest_length = othro_lengths[i];
+        if( othro_lengths[i] > current_length ) {
+            selected_indexes[0] = i;
+            current_length = othro_lengths[i];
         }
     }
 
     // Choose the 2nd longest length to generate second quaderlateral.
-    unsigned median_index = 0;
-    float median_length = -1.0;
+    current_length = -1.0;
 
     for( unsigned i = 0; i < 3; i++ ) {
-        if( i != longest_index &&
-            othro_lengths[i] > median_length ) {
-            median_length = othro_lengths[i];
-            median_index = i;
+        if( i != selected_indexes[0] &&
+            othro_lengths[i] > current_length ) {
+            selected_indexes[1] = i;
+            current_length = othro_lengths[i];
         }
     }
 
-    assert( longest_index != median_index );
-    assert( othro_lengths[longest_index] >= othro_lengths[median_index] );
+    assert( selected_indexes[0] != selected_indexes[1] );
+    assert( othro_lengths[selected_indexes[0]] >= othro_lengths[selected_indexes[1]] );
 
     // First Quad.
-    const glm::vec2  &current_othro = othro[longest_index];
+    const glm::vec2  &current_othro = othro[selected_indexes[0]];
     const glm::vec2   current_othro_normal = glm::normalize(current_othro);
     const glm::vec2   current_othro_axis = current_othro_normal * glm::vec2(-1.0, 1.0);
-    const glm::ivec2 &current_placement = placements[longest_index];
+    const glm::ivec2 &current_placement = placements[selected_indexes[0]];
 
     glm::vec2 flat_2;
     glm::vec3 flat_3 = glm::vec3(0, 0, 0);
@@ -501,11 +500,11 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     flat_3[ current_placement.y ] = flat_2.x;
     quaderlateral[3] = segments[1] + flat_3;
 
-    for( unsigned q = 0; q < 2; q++ ) {
+    for( unsigned t = 0; t < 2; t++ ) {
 
         for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = quaderlateral[QUAD_TABLE[q][i]];
-            triangle.points[i].coords = coords[q][i];
+            triangle.points[i].position = quaderlateral[QUAD_TABLE[t][i]];
+            triangle.points[i].coords = coords[t][i];
         }
         triangles.push_back( triangle );
 
