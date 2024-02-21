@@ -85,6 +85,10 @@ namespace {
     }
 }
 
+void Data::Mission::ObjResource::Triangle::switchPoints() {
+    std::swap(points[0], points[2]);
+}
+
 uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
     if( !visual.uses_texture || face_type_r == nullptr )
         return 0;
@@ -140,7 +144,6 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-
     triangle.visual.uses_texture       = visual.uses_texture;
     triangle.visual.normal_shading     = visual.normal_shading;
     triangle.visual.is_reflective      = visual.is_reflective;
@@ -232,6 +235,145 @@ int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &trian
     return counter;
 }
 
+int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+    Triangle triangle;
+    MorphTriangle morph_triangle;
+    glm::u8vec2 coords[2][3];
+    glm::u8vec4 weights, joints;
+    glm::vec3 center, morph_center;
+    float length;
+
+    const glm::vec3 billboard_star[3][2][3] = {
+        { // Quad 0
+            { { 1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}, {-1.0,-1.0, 0.0} },
+            { { 1.0, 1.0, 0.0}, { 1.0,-1.0, 0.0}, {-1.0,-1.0, 0.0} } },
+        { // Quad 1
+            { { 1.0, 0.0, 1.0}, {-1.0, 0.0, 1.0}, {-1.0, 0.0,-1.0} },
+            { { 1.0, 0.0, 1.0}, { 1.0, 0.0,-1.0}, {-1.0, 0.0,-1.0} } },
+        { // Quad 2
+            { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0} },
+            { { 0.0, 1.0, 1.0}, { 0.0, 1.0,-1.0}, { 0.0,-1.0,-1.0} } }
+    };
+
+    // Future Cop only uses one joint, so it only needs one weight.
+    weights.x = 0xFF;
+    weights.y = weights.z = weights.w = 0;
+
+    // The joint needs to be set to zero.
+    joints.x = joints.y = joints.z = joints.w = 0;
+
+    triangle.bmp_id = getBmpID();
+    triangle.visual.uses_texture       = visual.uses_texture;
+    triangle.visual.normal_shading     = visual.normal_shading;
+    triangle.visual.is_reflective      = visual.is_reflective;
+    triangle.visual.polygon_color_type = visual.polygon_color_type;
+    triangle.visual.visability         = visual.visability;
+
+    triangle.points[0].normal = glm::vec3(0, 1, 0);
+    triangle.points[1].normal = glm::vec3(0, 1, 0);
+    triangle.points[2].normal = glm::vec3(0, 1, 0);
+
+    if( face_type_r != nullptr ) {
+        coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
+        coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
+        coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
+        coords[1][0] = face_type_r->coords[QUAD_TABLE[1][0]];
+        coords[1][1] = face_type_r->coords[QUAD_TABLE[1][1]];
+        coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
+    }
+    else {
+        coords[0][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
+        coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
+        coords[1][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[1][1] = glm::u8vec2( 0x00, 0xFF );
+        coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
+    }
+
+     // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
+    handlePositions( center, positions.data(), v[0] );
+    length = lengths[ v[2] ] * FIXED_POINT_UNIT;
+
+    // Bone animation.
+    if( !bones.empty() ) {
+        for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+            if( (*bone).vertex_start > v[0] ) {
+                break;
+            }
+            else if( (*bone).vertex_start + (*bone).vertex_stride > v[0] )
+            {
+                joints.x = bone - bones.begin();
+            }
+        }
+    }
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].joints = joints;
+        triangle.points[i].weights = weights;
+    }
+
+    for( unsigned quad_index = 0; quad_index < 3; quad_index++ ) {
+        // Triangle 0
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].position = center + length * billboard_star[quad_index][0][i];
+            triangle.points[i].coords = coords[0][i];
+        }
+
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        triangle.switchPoints();
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][2 - i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        // Triangle 1
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].position = center + length * billboard_star[quad_index][1][i];
+            triangle.points[i].coords = coords[1][i];
+        }
+
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        triangle.switchPoints();
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][2 - i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+    }
+
+    return getTriangleAmount( PrimitiveType::BILLBOARD );
+}
+
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
         case PrimitiveType::TRIANGLE:
@@ -239,6 +381,8 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
             return 1;
         case PrimitiveType::QUAD:
             return 2;
+        case PrimitiveType::BILLBOARD:
+            return 12;
         default:
             return 0;
     }
@@ -583,7 +727,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_lines.push_back( primitive );
                             break;
                         }
-                        case 5: // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
+                        case 5:
                         {
                             primitive.type = PrimitiveType::BILLBOARD;
                             face_billboards.push_back( primitive );
@@ -975,14 +1119,19 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI bounding_box_frames = " << std::dec << bounding_box_frames << "\n";
         }
 
-        for( auto &triangle : this->face_triangles ) {
-            if( this->face_types.find( triangle.face_type_offset ) != this->face_types.end() ) {
-                triangle.face_type_r = &this->face_types[ triangle.face_type_offset ];
+        for( auto &primitive : this->face_triangles ) {
+            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
-        for( auto &quad : this->face_quads ) {
-            if( this->face_types.find( quad.face_type_offset ) != this->face_types.end() ) {
-                quad.face_type_r = &this->face_types[ quad.face_type_offset ];
+        for( auto &primitive : this->face_quads ) {
+            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
+            }
+        }
+        for( auto &primitive : this->face_billboards ) {
+            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
 
@@ -1152,6 +1301,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
+            primitive_buffer.push_back( (*i) );
+
         // Sort the triangle list.
         std::sort(primitive_buffer.begin(), primitive_buffer.end(), Primitive() );
 
@@ -1170,6 +1322,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 (*i).setTriangle( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
             else if( (*i).type == PrimitiveType::QUAD )
                 (*i).setQuad( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+            else if( (*i).type == PrimitiveType::BILLBOARD )
+                (*i).setBillboard( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
         }
     }
 
@@ -1280,6 +1434,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( unsigned int i = 0; i < (*count_it).second; i++ )
         {
+            assert( triangle != triangle_buffer.end() );
+
             if( (*triangle).visual.is_reflective )
                 metadata[0] = 0xFF;
             else
