@@ -260,12 +260,6 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
     triangle.points[2].normal = glm::vec3(0, 1, 0);
-    triangle.points[0].weights = weights;
-    triangle.points[1].weights = weights;
-    triangle.points[2].weights = weights;
-    triangle.points[0].joints = joints;
-    triangle.points[1].joints = joints;
-    triangle.points[2].joints = joints;
 
     if( face_type_r != nullptr ) {
         coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
@@ -299,11 +293,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
                 joints.x = bone - bones.begin();
             }
         }
-
-        for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].joints = joints;
-            triangle.points[i].weights = weights;
-        }
+    }
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].joints = joints;
+        triangle.points[i].weights = weights;
     }
 
     // Quad 1
