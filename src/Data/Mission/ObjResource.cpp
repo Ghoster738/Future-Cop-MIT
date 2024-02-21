@@ -240,7 +240,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
     glm::u8vec4 weights, joints;
-    glm::vec3 center;
+    glm::vec3 center, morph_center;
     float length;
 
     const glm::vec3 billboard_star[3][2][3] = {
@@ -312,15 +312,36 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     }
 
     for( unsigned quad_index = 0; quad_index < 3; quad_index++ ) {
+        // Triangle 0
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][0][i];
             triangle.points[i].coords = coords[0][i];
         }
+
         triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
 
         triangle.switchPoints();
         triangles.push_back( triangle );
 
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][2 - i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        // Triangle 1
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][1][i];
             triangle.points[i].coords = coords[1][i];
@@ -328,8 +349,26 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         triangles.push_back( triangle );
 
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
         triangle.switchPoints();
         triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][2 - i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
     }
 
     return getTriangleAmount( PrimitiveType::BILLBOARD );
