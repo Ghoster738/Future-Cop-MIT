@@ -485,15 +485,15 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     flat_3[ longest_placement.y ] = flat_2.x;
     triangle.points[0].position = segments[0] + flat_3;
 
-    flat_2 = thickness[1] * -longest_othro_axis;
-    flat_3[ longest_placement.x ] = flat_2.y;
-    flat_3[ longest_placement.y ] = flat_2.x;
-    triangle.points[1].position = segments[1] + flat_3;
-
     flat_2 = thickness[0] * -longest_othro_axis;
     flat_3[ longest_placement.x ] = flat_2.y;
     flat_3[ longest_placement.y ] = flat_2.x;
-    triangle.points[2].position = segments[0] + flat_3;
+    triangle.points[1].position = segments[0] + flat_3;
+
+    flat_2 = thickness[1] * -longest_othro_axis;
+    flat_3[ longest_placement.x ] = flat_2.y;
+    flat_3[ longest_placement.y ] = flat_2.x;
+    triangle.points[2].position = segments[1] + flat_3;
 
     for( unsigned i = 0; i < 3; i++ ) {
         triangle.points[i].coords = coords[0][i];
