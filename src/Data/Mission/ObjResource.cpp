@@ -243,16 +243,13 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     glm::vec3 center, morph_center;
     float length, morph_length;
 
-    const glm::vec3 billboard_star[3][2][3] = {
-        { // Quad 0
-            { { 1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}, {-1.0,-1.0, 0.0} },
-            { { 1.0, 1.0, 0.0}, { 1.0,-1.0, 0.0}, {-1.0,-1.0, 0.0} } },
-        { // Quad 1
-            { { 1.0, 0.0, 1.0}, {-1.0, 0.0, 1.0}, {-1.0, 0.0,-1.0} },
-            { { 1.0, 0.0, 1.0}, { 1.0, 0.0,-1.0}, {-1.0, 0.0,-1.0} } },
-        { // Quad 2
-            { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0} },
-            { { 0.0, 1.0, 1.0}, { 0.0, 1.0,-1.0}, { 0.0,-1.0,-1.0} } }
+    const glm::vec3 billboard_star[3][4] = {
+        // Quad 0
+            { { 1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}, {-1.0,-1.0, 0.0}, { 1.0,-1.0, 0.0} },
+        // Quad 1
+            { { 1.0, 0.0, 1.0}, {-1.0, 0.0, 1.0}, {-1.0, 0.0,-1.0}, { 1.0, 0.0,-1.0} },
+        // Quad 2
+            { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0}, { 0.0, 1.0,-1.0} }
     };
 
     // Future Cop only uses one joint, so it only needs one weight.
@@ -314,7 +311,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     for( unsigned quad_index = 0; quad_index < 3; quad_index++ ) {
         // Triangle 0
         for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = center + length * billboard_star[quad_index][0][i];
+            triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[0][i]];
             triangle.points[i].coords = coords[0][i];
         }
 
@@ -325,7 +322,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
             morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][0][i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][i]];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -338,14 +335,14 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
             morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][0][2 - i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][2 - i]];
 
             morph_triangles.push_back( morph_triangle );
         }
 
         // Triangle 1
         for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = center + length * billboard_star[quad_index][1][i];
+            triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[1][i]];
             triangle.points[i].coords = coords[1][i];
         }
 
@@ -356,7 +353,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
             morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][1][i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][i]];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -369,7 +366,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
             morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][1][2 - i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][2 - i]];
 
             morph_triangles.push_back( morph_triangle );
         }
