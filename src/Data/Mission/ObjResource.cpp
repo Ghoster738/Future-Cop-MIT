@@ -374,6 +374,64 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     return getTriangleAmount( PrimitiveType::BILLBOARD );
 }
 
+int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+    Triangle triangle;
+    MorphTriangle morph_triangle;
+    glm::u8vec2 coords[2][3];
+    glm::u8vec4 weights, joints;
+    glm::vec3 segments[2];
+    float thickness[2];
+
+    // Future Cop only uses one joint, so it only needs one weight.
+    weights.x = 0xFF;
+    weights.y = weights.z = weights.w = 0;
+
+    // The joint needs to be set to zero.
+    joints.x = joints.y = joints.z = joints.w = 0;
+
+    triangle.bmp_id = getBmpID();
+    triangle.visual.uses_texture       = visual.uses_texture;
+    triangle.visual.normal_shading     = visual.normal_shading;
+    triangle.visual.is_reflective      = visual.is_reflective;
+    triangle.visual.polygon_color_type = visual.polygon_color_type;
+    triangle.visual.visability         = visual.visability;
+
+    triangle.points[0].normal = glm::vec3(0, 1, 0);
+    triangle.points[1].normal = glm::vec3(0, 1, 0);
+    triangle.points[2].normal = glm::vec3(0, 1, 0);
+
+    if( face_type_r != nullptr ) {
+        coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
+        coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
+        coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
+        coords[1][0] = face_type_r->coords[QUAD_TABLE[1][0]];
+        coords[1][1] = face_type_r->coords[QUAD_TABLE[1][1]];
+        coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
+    }
+    else {
+        coords[0][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
+        coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
+        coords[1][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[1][1] = glm::u8vec2( 0x00, 0xFF );
+        coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
+    }
+
+    // v[0] and v[1] are vertex position offsets, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+    handlePositions( segments[0], positions.data(), v[0] );
+    handlePositions( segments[1], positions.data(), v[1] );
+    thickness[0] = lengths[ v[2] ] * FIXED_POINT_UNIT;
+    thickness[1] = lengths[ v[3] ] * FIXED_POINT_UNIT;
+
+    // Calculate 3 lengths calculated from 2D planes of the lines in an othrographic perspective. TOP, RIGHT, and FRONT
+
+    // Choose the longest length to generate first quad.
+
+    // Choose the 2nd longest length to generate second quad.
+
+    return 0;
+}
+
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
         case PrimitiveType::TRIANGLE:
@@ -383,6 +441,8 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
             return 2;
         case PrimitiveType::BILLBOARD:
             return 12;
+        case PrimitiveType::LINE:
+            return 1;
         default:
             return 0;
     }
@@ -721,7 +781,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[3] = reader3DQL.readU8();
 
                     switch( face_type ) {
-                        case 7: // v[0] and v[1] are vertex position offset, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+                        case 7:
                         {
                             primitive.type = PrimitiveType::LINE;
                             face_lines.push_back( primitive );
