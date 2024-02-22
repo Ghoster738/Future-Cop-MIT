@@ -470,62 +470,63 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     assert( selected_indexes[0] != selected_indexes[1] );
     assert( othro_lengths[selected_indexes[0]] >= othro_lengths[selected_indexes[1]] );
 
-    // First Quad.
-    const glm::vec2  &current_othro = othro[selected_indexes[0]];
-    const glm::vec2   current_othro_normal = glm::normalize(current_othro);
-    const glm::vec2   current_othro_axis = current_othro_normal * glm::vec2(-1.0, 1.0);
-    const glm::ivec2 &current_placement = placements[selected_indexes[0]];
+    for( unsigned q = 0; q < 2; q++ ) {
+        const glm::vec2  &current_othro = othro[selected_indexes[q]];
+        const glm::vec2   current_othro_normal = glm::normalize(current_othro);
+        const glm::vec2   current_othro_axis = current_othro_normal * glm::vec2(-1.0, 1.0);
+        const glm::ivec2 &current_placement = placements[selected_indexes[q]];
 
-    glm::vec2 flat_2;
-    glm::vec3 flat_3 = glm::vec3(0, 0, 0);
-    glm::vec3 quaderlateral[4];
+        glm::vec2 flat_2;
+        glm::vec3 flat_3 = glm::vec3(0, 0, 0);
+        glm::vec3 quaderlateral[4];
 
-    flat_2 = thickness[0] * current_othro_axis;
-    flat_3[ current_placement.x ] = flat_2.y;
-    flat_3[ current_placement.y ] = flat_2.x;
-    quaderlateral[0] = segments[0] + flat_3;
+        flat_2 = thickness[0] * current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.y;
+        flat_3[ current_placement.y ] = flat_2.x;
+        quaderlateral[0] = segments[0] + flat_3;
 
-    flat_2 = thickness[0] * -current_othro_axis;
-    flat_3[ current_placement.x ] = flat_2.y;
-    flat_3[ current_placement.y ] = flat_2.x;
-    quaderlateral[1] = segments[0] + flat_3;
+        flat_2 = thickness[0] * -current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.y;
+        flat_3[ current_placement.y ] = flat_2.x;
+        quaderlateral[1] = segments[0] + flat_3;
 
-    flat_2 = thickness[1] * -current_othro_axis;
-    flat_3[ current_placement.x ] = flat_2.y;
-    flat_3[ current_placement.y ] = flat_2.x;
-    quaderlateral[2] = segments[1] + flat_3;
+        flat_2 = thickness[1] * -current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.y;
+        flat_3[ current_placement.y ] = flat_2.x;
+        quaderlateral[2] = segments[1] + flat_3;
 
-    flat_2 = thickness[1] *  current_othro_axis;
-    flat_3[ current_placement.x ] = flat_2.y;
-    flat_3[ current_placement.y ] = flat_2.x;
-    quaderlateral[3] = segments[1] + flat_3;
+        flat_2 = thickness[1] *  current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.y;
+        flat_3[ current_placement.y ] = flat_2.x;
+        quaderlateral[3] = segments[1] + flat_3;
 
-    for( unsigned t = 0; t < 2; t++ ) {
+        for( unsigned t = 0; t < 2; t++ ) {
 
-        for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = quaderlateral[QUAD_TABLE[t][i]];
-            triangle.points[i].coords = coords[t][i];
-        }
-        triangles.push_back( triangle );
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].position = quaderlateral[QUAD_TABLE[t][i]];
+                triangle.points[i].coords = coords[t][i];
+            }
+            triangles.push_back( triangle );
 
-        // TODO THIS IS A NULL STATEMENT
-        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
-            for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = triangle.points[i].position;
+            // TODO THIS IS A NULL STATEMENT
+            for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = triangle.points[i].position;
 
-            morph_triangles.push_back( morph_triangle );
-        }
+                morph_triangles.push_back( morph_triangle );
+            }
 
-        triangle.switchPoints();
+            triangle.switchPoints();
 
-        triangles.push_back( triangle );
+            triangles.push_back( triangle );
 
-        // TODO THIS IS A NULL STATEMENT
-        for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
-            for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = triangle.points[i].position;
+            // TODO THIS IS A NULL STATEMENT
+            for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = triangle.points[i].position;
 
-            morph_triangles.push_back( morph_triangle );
+                morph_triangles.push_back( morph_triangle );
+            }
         }
     }
 
@@ -542,7 +543,7 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
         case PrimitiveType::BILLBOARD:
             return 12;
         case PrimitiveType::LINE:
-            return 4;
+            return 8;
         default:
             return 0;
     }
