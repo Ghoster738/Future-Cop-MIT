@@ -85,6 +85,27 @@ namespace {
     }
 }
 
+glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) const {
+    glm::u8vec4 color;
+
+    const uint_fast16_t max_number = 0xFF;
+
+    if( material.polygon_color_type == VertexColorMode::FULL ) {
+        color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+        color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+        color.b = std::min( (static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
+    }
+    else {
+        color.r = 0xFF;
+        color.g = 0xFF;
+        color.b = 0xFF;
+    }
+
+    color.a = 0xFF;
+
+    return color;
+}
+
 void Data::Mission::ObjResource::Triangle::switchPoints() {
     std::swap(points[0], points[2]);
 }
@@ -150,6 +171,8 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     triangle.visual.polygon_color_type = visual.polygon_color_type;
     triangle.visual.visability         = visual.visability;
 
+    triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
+
     handlePositions( triangle.points[0].position, positions.data(), v[2] );
     handlePositions( triangle.points[1].position, positions.data(), v[1] );
     handlePositions( triangle.points[2].position, positions.data(), v[0] );
@@ -161,6 +184,11 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     }
 
     triangleToCoords( *this, *face_type_r, coords );
+
+    if( face_type_r != nullptr ) {
+        triangle.color = face_type_r->getColor( triangle.visual );
+    }
+
     for( unsigned t = 0; t < 3; t++ ) {
         triangle.points[t].coords = coords[2 - t];
     }
@@ -271,6 +299,8 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     triangle.points[2].normal = glm::vec3(0, 1, 0);
 
     if( face_type_r != nullptr ) {
+        triangle.color = face_type_r->getColor( triangle.visual );
+
         coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
         coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
         coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
@@ -279,6 +309,8 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
     }
     else {
+        triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
+
         coords[0][0] = glm::u8vec2( 0x00, 0x00 );
         coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
         coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
@@ -398,6 +430,8 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     morph_triangle.points[2].normal = triangle.points[2].normal;
 
     if( face_type_r != nullptr ) {
+        triangle.color = face_type_r->getColor( triangle.visual );
+
         coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
         coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
         coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
@@ -406,6 +440,8 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
     }
     else {
+        triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
+
         coords[0][0] = glm::u8vec2( 0x00, 0x00 );
         coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
         coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
@@ -874,7 +910,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         case 0b1101:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::ADDITION;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::FULL;
                             break;
                         default: // Nothing
                             break;
@@ -1600,7 +1636,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     if( texture_references.size() == 0 )
         model_output->setMaterial( "" );
 
-    glm::u8vec4 color;
     glm::u8vec4 metadata;
 
     auto triangle = triangle_buffer.begin();
@@ -1646,8 +1681,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             else
                 metadata[1] = 0x00;
 
-            color = glm::u8vec4(0xff, 0x00, 0xff, 0xff);
-
             if( triangle != previous_triangle ) {
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
                 {
@@ -1671,7 +1704,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
                 model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(      point.position ) );
                 model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(      point.normal ) );
-                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
+                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( point.coords ) );
                 model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
 

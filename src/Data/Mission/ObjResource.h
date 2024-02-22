@@ -39,7 +39,13 @@ public:
         BILLBOARD      = 5,
         LINE           = 7
     };
-
+    struct Material {
+        uint8_t uses_texture:       1; // Does the face use a texture or not?
+        uint8_t normal_shading:     1;
+        uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
+        uint8_t visability:         2; // Please see enum VisabilityMode
+        uint8_t is_reflective:      1;
+    };
     struct FaceType {
         uint8_t opcodes[4];
 
@@ -50,13 +56,8 @@ public:
         bool has_transparent_pixel_t1;
 
         glm::u8vec2 coords[4];
-    };
-    struct Material {
-        uint8_t uses_texture:       1; // Does the face use a texture or not?
-        uint8_t normal_shading:     1;
-        uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
-        uint8_t visability:         2; // Please see enum VisabilityMode
-        uint8_t is_reflective:      1;
+
+        glm::u8vec4 getColor( Material material ) const;
     };
     struct Point {
         glm::vec3 position;
@@ -71,6 +72,7 @@ public:
     };
     struct Triangle {
         uint32_t bmp_id;
+        glm::u8vec4 color;
         Material visual;
         Point points[3];
 
