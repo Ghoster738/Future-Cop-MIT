@@ -366,9 +366,11 @@ void Environment::drawFrame() {
             this->skeletal_model_draw_routine.draw( *current_camera_r );
 
             glEnable( GL_BLEND );
+            glDepthMask(GL_FALSE);
 
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
+            glDepthMask(GL_TRUE);
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);

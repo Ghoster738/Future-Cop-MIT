@@ -241,18 +241,15 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     glm::u8vec2 coords[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center, morph_center;
-    float length;
+    float length, morph_length;
 
-    const glm::vec3 billboard_star[3][2][3] = {
-        { // Quad 0
-            { { 1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}, {-1.0,-1.0, 0.0} },
-            { { 1.0, 1.0, 0.0}, { 1.0,-1.0, 0.0}, {-1.0,-1.0, 0.0} } },
-        { // Quad 1
-            { { 1.0, 0.0, 1.0}, {-1.0, 0.0, 1.0}, {-1.0, 0.0,-1.0} },
-            { { 1.0, 0.0, 1.0}, { 1.0, 0.0,-1.0}, {-1.0, 0.0,-1.0} } },
-        { // Quad 2
-            { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0} },
-            { { 0.0, 1.0, 1.0}, { 0.0, 1.0,-1.0}, { 0.0,-1.0,-1.0} } }
+    const glm::vec3 billboard_star[3][4] = {
+        // Quad 0
+            { { 1.0, 1.0, 0.0}, {-1.0, 1.0, 0.0}, {-1.0,-1.0, 0.0}, { 1.0,-1.0, 0.0} },
+        // Quad 1
+            { { 1.0, 0.0, 1.0}, {-1.0, 0.0, 1.0}, {-1.0, 0.0,-1.0}, { 1.0, 0.0,-1.0} },
+        // Quad 2
+            { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0}, { 0.0, 1.0,-1.0} }
     };
 
     // Future Cop only uses one joint, so it only needs one weight.
@@ -314,7 +311,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     for( unsigned quad_index = 0; quad_index < 3; quad_index++ ) {
         // Triangle 0
         for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = center + length * billboard_star[quad_index][0][i];
+            triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[0][i]];
             triangle.points[i].coords = coords[0][i];
         }
 
@@ -322,9 +319,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][i]];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -334,16 +332,17 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][0][2 - i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][2 - i]];
 
             morph_triangles.push_back( morph_triangle );
         }
 
         // Triangle 1
         for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = center + length * billboard_star[quad_index][1][i];
+            triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[1][i]];
             triangle.points[i].coords = coords[1][i];
         }
 
@@ -351,9 +350,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][i]];
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -363,15 +363,201 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
+            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + length * billboard_star[quad_index][1][2 - i];
+                morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][2 - i]];
 
             morph_triangles.push_back( morph_triangle );
         }
     }
 
     return getTriangleAmount( PrimitiveType::BILLBOARD );
+}
+
+int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+    Triangle triangle;
+    MorphTriangle morph_triangle;
+    glm::u8vec2 coords[2][3];
+
+    triangle.bmp_id = getBmpID();
+    triangle.visual.uses_texture       = visual.uses_texture;
+    triangle.visual.normal_shading     = visual.normal_shading;
+    triangle.visual.is_reflective      = visual.is_reflective;
+    triangle.visual.polygon_color_type = visual.polygon_color_type;
+    triangle.visual.visability         = visual.visability;
+
+    triangle.points[0].normal = glm::vec3(0, 1, 0);
+    triangle.points[1].normal = glm::vec3(0, 1, 0);
+    triangle.points[2].normal = glm::vec3(0, 1, 0);
+    triangle.points[0].weights = glm::u8vec4(0xFF, 0x00, 0x00, 0x00);
+    triangle.points[1].weights = glm::u8vec4(0xFF, 0x00, 0x00, 0x00);
+    triangle.points[2].weights = glm::u8vec4(0xFF, 0x00, 0x00, 0x00);
+    morph_triangle.points[0].normal = triangle.points[0].normal;
+    morph_triangle.points[1].normal = triangle.points[1].normal;
+    morph_triangle.points[2].normal = triangle.points[2].normal;
+
+    if( face_type_r != nullptr ) {
+        coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
+        coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
+        coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
+        coords[1][0] = face_type_r->coords[QUAD_TABLE[1][0]];
+        coords[1][1] = face_type_r->coords[QUAD_TABLE[1][1]];
+        coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
+    }
+    else {
+        coords[0][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
+        coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
+        coords[1][0] = glm::u8vec2( 0x00, 0x00 );
+        coords[1][1] = glm::u8vec2( 0x00, 0xFF );
+        coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
+    }
+
+    glm::vec3 segments[2];
+    glm::vec3 &offset = segments[0];
+
+    // v[0] and v[1] are vertex position offsets, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+    handlePositions( segments[0], positions.data(), v[0] );
+    handlePositions( segments[1], positions.data(), v[1] );
+    const float thickness[2] = {
+        lengths[ v[2] ] * FIXED_POINT_UNIT,
+        lengths[ v[3] ] * FIXED_POINT_UNIT };
+
+    glm::u8vec4 joints[2];
+
+    for( unsigned q = 0; q < 2; q++ ) {
+        joints[q]  = glm::u8vec4(0,0,0,0);
+
+        for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+            if( (*bone).vertex_start > v[q] ) {
+                break;
+            }
+            else if( (*bone).vertex_start + (*bone).vertex_stride > v[q] )
+            {
+                joints[q].x = bone - bones.begin();
+            }
+        }
+    }
+
+    const glm::vec3 unnormalized = segments[1] - offset;
+    const glm::ivec2 placements[3] = {
+        glm::vec2( 1, 0 ),
+        glm::vec2( 2, 0 ),
+        glm::vec2( 2, 1 ) };
+    const glm::vec2 othro[3] = {
+        glm::vec2( unnormalized.x, unnormalized.y ),
+        glm::vec2( unnormalized.x, unnormalized.z ),
+        glm::vec2( unnormalized.y, unnormalized.z ) };
+
+    // Calculate 3 lengths calculated from 2D planes of the lines in an othrographic perspective. TOP, RIGHT, and FRONT
+    const float othro_lengths[3] = {
+        glm::length( othro[0] ),
+        glm::length( othro[1] ),
+        glm::length( othro[2] ) };
+
+    // Choose the longest length to generate first quaderlateral.
+    unsigned selected_indexes[2] = {0, 0};
+    float current_length = -1.0;
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        if( othro_lengths[i] > current_length ) {
+            selected_indexes[0] = i;
+            current_length = othro_lengths[i];
+        }
+    }
+
+    // Choose the 2nd longest length to generate second quaderlateral.
+    current_length = -1.0;
+
+    for( unsigned i = 0; i < 3; i++ ) {
+        if( i != selected_indexes[0] &&
+            othro_lengths[i] > current_length ) {
+            selected_indexes[1] = i;
+            current_length = othro_lengths[i];
+        }
+    }
+
+    assert( selected_indexes[0] != selected_indexes[1] );
+    assert( othro_lengths[selected_indexes[0]] >= othro_lengths[selected_indexes[1]] );
+
+    for( unsigned q = 0; q < 2; q++ ) {
+        const glm::vec2  &current_othro = othro[selected_indexes[q]];
+        const glm::vec2   current_othro_normal = glm::normalize(current_othro);
+        const glm::vec2   current_othro_axis = current_othro_normal * glm::vec2(-1.0, 1.0);
+        const glm::ivec2 &current_placement = placements[selected_indexes[q]];
+
+        glm::vec3 quaderlateral[4];
+
+        glm::vec3 flat_3 = glm::vec3(0, 0, 0);
+        glm::vec2 flat_2;
+        flat_2 = thickness[0] * current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
+        quaderlateral[0] = flat_3;
+
+        flat_2 = thickness[0] * -current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
+        quaderlateral[1] = flat_3;
+
+        flat_2 = thickness[1] * -current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
+        quaderlateral[2] = flat_3;
+
+        flat_2 = thickness[1] *  current_othro_axis;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
+        quaderlateral[3] = flat_3;
+
+        for( unsigned t = 0; t < 2; t++ ) {
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].position = segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
+                triangle.points[i].coords = coords[t][i];
+                triangle.points[i].joints = joints[QUAD_TABLE[t][i] / 2]; // Untested.
+            }
+            triangles.push_back( triangle );
+
+            // TODO THIS IS A NULL STATEMENT
+            for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                glm::vec3 morph_segments[2];
+                handlePositions( morph_segments[0], vertex_anm_positions[morph_frames].data(), v[0] );
+                handlePositions( morph_segments[1], vertex_anm_positions[morph_frames].data(), v[1] );
+
+                const float morph_thickness[2] = {
+                    anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT,
+                    anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
+            triangle.switchPoints();
+
+            triangles.push_back( triangle );
+
+            // TODO THIS IS A NULL STATEMENT
+            for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                glm::vec3 morph_segments[2];
+                handlePositions( morph_segments[0], vertex_anm_positions[morph_frames].data(), v[0] );
+                handlePositions( morph_segments[1], vertex_anm_positions[morph_frames].data(), v[1] );
+
+                const float morph_thickness[2] = {
+                    anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT,
+                    anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][2 - i] / 2] + quaderlateral[QUAD_TABLE[t][2 - i]];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+        }
+    }
+
+    return getTriangleAmount( PrimitiveType::LINE );
 }
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
@@ -383,6 +569,8 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
             return 2;
         case PrimitiveType::BILLBOARD:
             return 12;
+        case PrimitiveType::LINE:
+            return 8;
         default:
             return 0;
     }
@@ -721,7 +909,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[3] = reader3DQL.readU8();
 
                     switch( face_type ) {
-                        case 7: // v[0] and v[1] are vertex position offset, v[2] and v[3] are width offsets. All normals are 0 probably unused.
+                        case 7:
                         {
                             primitive.type = PrimitiveType::LINE;
                             face_lines.push_back( primitive );
@@ -1134,6 +1322,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
+        for( auto &primitive : this->face_lines ) {
+            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
+            }
+        }
 
         return !file_is_not_valid;
     }
@@ -1304,6 +1497,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
+            primitive_buffer.push_back( (*i) );
+
         // Sort the triangle list.
         std::sort(primitive_buffer.begin(), primitive_buffer.end(), Primitive() );
 
@@ -1324,6 +1520,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 (*i).setQuad( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
             else if( (*i).type == PrimitiveType::BILLBOARD )
                 (*i).setBillboard( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+            else if( (*i).type == PrimitiveType::LINE )
+                (*i).setLine( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
         }
     }
 
