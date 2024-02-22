@@ -118,6 +118,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
     "   specular = _METADATA[0];\n"
+    "   in_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw() {

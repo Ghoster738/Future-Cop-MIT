@@ -1527,6 +1527,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int joints_0_component_index = -1;
@@ -1599,6 +1600,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     if( texture_references.size() == 0 )
         model_output->setMaterial( "" );
 
+    glm::u8vec4 color;
     glm::u8vec4 metadata;
 
     auto triangle = triangle_buffer.begin();
@@ -1644,6 +1646,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             else
                 metadata[1] = 0x00;
 
+            color = glm::u8vec4(0xff, 0x00, 0xff, 0xff);
+
             if( triangle != previous_triangle ) {
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
                 {
@@ -1667,6 +1671,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
                 model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(      point.position ) );
                 model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(      point.normal ) );
+                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( point.coords ) );
                 model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
 

@@ -44,6 +44,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
     "   specular = _METADATA[0];\n"
+    "   in_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
@@ -52,7 +53,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 
     "void main()\n"
     "{\n"
-    "  vec4 color = texture2D(Texture, texture_coord_1);\n"
+    "  vec4 color = texture2D(Texture, texture_coord_1) * in_color;\n"
     "  if( color.a < 0.015625 )\n"
     "    discard;\n"
     "  float BLENDING = 1.0 - color.a;\n"
@@ -67,12 +68,14 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 _METADATA" ) );
 
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec4 in_color" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec3 world_reflection" ) );
     varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "float specular" ) );
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec2 texture_coord_1" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
@@ -133,6 +136,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
             
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
             attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
+            attribute_failed |= !program.isAttribute( "COLOR_0", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
             attribute_failed |= !program.isAttribute( "_METADATA", &std::cout );
 
@@ -202,6 +206,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
         unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
         unsigned     normal_compenent_index = position_compenent_index;
+        unsigned      color_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
         unsigned   metadata_compenent_index = position_compenent_index;
 
@@ -213,6 +218,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                 position_compenent_index = i;
             if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
                 normal_compenent_index = i;
+            if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
+                color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
             if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
@@ -252,6 +259,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                 for( unsigned t = 0; t < 3; t++ ) {
                     model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
                     model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
                     model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
                     model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
 
