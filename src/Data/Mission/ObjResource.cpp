@@ -494,26 +494,26 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         flat_2 = thickness[0] * current_othro_axis;
         flat_3[ current_placement.x ] = flat_2.x;
         flat_3[ current_placement.y ] = flat_2.y;
-        quaderlateral[0] = segments[0] + flat_3;
+        quaderlateral[0] = flat_3;
 
         flat_2 = thickness[0] * -current_othro_axis;
         flat_3[ current_placement.x ] = flat_2.x;
         flat_3[ current_placement.y ] = flat_2.y;
-        quaderlateral[1] = segments[0] + flat_3;
+        quaderlateral[1] = flat_3;
 
         flat_2 = thickness[1] * -current_othro_axis;
         flat_3[ current_placement.x ] = flat_2.x;
         flat_3[ current_placement.y ] = flat_2.y;
-        quaderlateral[2] = segments[1] + flat_3;
+        quaderlateral[2] = flat_3;
 
         flat_2 = thickness[1] *  current_othro_axis;
         flat_3[ current_placement.x ] = flat_2.x;
         flat_3[ current_placement.y ] = flat_2.y;
-        quaderlateral[3] = segments[1] + flat_3;
+        quaderlateral[3] = flat_3;
 
         for( unsigned t = 0; t < 2; t++ ) {
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].position = quaderlateral[QUAD_TABLE[t][i]];
+                triangle.points[i].position = segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
                 triangle.points[i].coords = coords[t][i];
                 triangle.points[i].joints = joints[QUAD_TABLE[t][i] / 2]; // Untested.
             }
@@ -530,7 +530,7 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
                     anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
 
                 for( unsigned i = 0; i < 3; i++ )
-                    morph_triangle.points[i].position = triangle.points[i].position;
+                    morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
 
                 morph_triangles.push_back( morph_triangle );
             }
@@ -541,8 +541,16 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
             // TODO THIS IS A NULL STATEMENT
             for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                glm::vec3 morph_segments[2];
+                handlePositions( morph_segments[0], vertex_anm_positions[morph_frames].data(), v[0] );
+                handlePositions( morph_segments[1], vertex_anm_positions[morph_frames].data(), v[1] );
+
+                const float morph_thickness[2] = {
+                    anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT,
+                    anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
+
                 for( unsigned i = 0; i < 3; i++ )
-                    morph_triangle.points[i].position = triangle.points[i].position;
+                    morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][2 - i] / 2] + quaderlateral[QUAD_TABLE[t][2 - i]];
 
                 morph_triangles.push_back( morph_triangle );
             }
