@@ -442,9 +442,9 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
     const glm::vec3 unnormalized = segments[1] - offset;
     const glm::ivec2 placements[3] = {
-        glm::vec2( 0, 1 ),
-        glm::vec2( 0, 2 ),
-        glm::vec2( 1, 2 ) };
+        glm::vec2( 1, 0 ),
+        glm::vec2( 2, 0 ),
+        glm::vec2( 2, 1 ) };
     const glm::vec2 othro[3] = {
         glm::vec2( unnormalized.x, unnormalized.y ),
         glm::vec2( unnormalized.x, unnormalized.z ),
@@ -487,28 +487,28 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         const glm::vec2   current_othro_axis = current_othro_normal * glm::vec2(-1.0, 1.0);
         const glm::ivec2 &current_placement = placements[selected_indexes[q]];
 
-        glm::vec2 flat_2;
-        glm::vec3 flat_3 = glm::vec3(0, 0, 0);
         glm::vec3 quaderlateral[4];
 
+        glm::vec3 flat_3 = glm::vec3(0, 0, 0);
+        glm::vec2 flat_2;
         flat_2 = thickness[0] * current_othro_axis;
-        flat_3[ current_placement.x ] = flat_2.y;
-        flat_3[ current_placement.y ] = flat_2.x;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
         quaderlateral[0] = segments[0] + flat_3;
 
         flat_2 = thickness[0] * -current_othro_axis;
-        flat_3[ current_placement.x ] = flat_2.y;
-        flat_3[ current_placement.y ] = flat_2.x;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
         quaderlateral[1] = segments[0] + flat_3;
 
         flat_2 = thickness[1] * -current_othro_axis;
-        flat_3[ current_placement.x ] = flat_2.y;
-        flat_3[ current_placement.y ] = flat_2.x;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
         quaderlateral[2] = segments[1] + flat_3;
 
         flat_2 = thickness[1] *  current_othro_axis;
-        flat_3[ current_placement.x ] = flat_2.y;
-        flat_3[ current_placement.y ] = flat_2.x;
+        flat_3[ current_placement.x ] = flat_2.x;
+        flat_3[ current_placement.y ] = flat_2.y;
         quaderlateral[3] = segments[1] + flat_3;
 
         for( unsigned t = 0; t < 2; t++ ) {
@@ -521,6 +521,14 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
             // TODO THIS IS A NULL STATEMENT
             for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                glm::vec3 morph_segments[2];
+                handlePositions( morph_segments[0], vertex_anm_positions[morph_frames].data(), v[0] );
+                handlePositions( morph_segments[1], vertex_anm_positions[morph_frames].data(), v[1] );
+
+                const float morph_thickness[2] = {
+                    anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT,
+                    anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
+
                 for( unsigned i = 0; i < 3; i++ )
                     morph_triangle.points[i].position = triangle.points[i].position;
 
