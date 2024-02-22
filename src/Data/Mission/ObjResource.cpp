@@ -379,14 +379,6 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
-    glm::u8vec4 weights, joints;
-
-    // Future Cop only uses one joint, so it only needs one weight.
-    weights.x = 0xFF;
-    weights.y = weights.z = weights.w = 0;
-
-    // The joint needs to be set to zero.
-    joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
     triangle.visual.uses_texture       = visual.uses_texture;
@@ -398,6 +390,9 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
     triangle.points[2].normal = glm::vec3(0, 1, 0);
+    triangle.points[0].weights = glm::u8vec4(0xFF, 0x00, 0x00, 0x00);
+    triangle.points[1].weights = glm::u8vec4(0xFF, 0x00, 0x00, 0x00);
+    triangle.points[2].weights = glm::u8vec4(0xFF, 0x00, 0x00, 0x00);
     morph_triangle.points[0].normal = triangle.points[0].normal;
     morph_triangle.points[1].normal = triangle.points[1].normal;
     morph_triangle.points[2].normal = triangle.points[2].normal;
@@ -428,6 +423,22 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     const float thickness[2] = {
         lengths[ v[2] ] * FIXED_POINT_UNIT,
         lengths[ v[3] ] * FIXED_POINT_UNIT };
+
+    glm::u8vec4 joints[2];
+
+    for( unsigned q = 0; q < 2; q++ ) {
+        joints[q]  = glm::u8vec4(0,0,0,0);
+
+        for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+            if( (*bone).vertex_start > v[q] ) {
+                break;
+            }
+            else if( (*bone).vertex_start + (*bone).vertex_stride > v[q] )
+            {
+                joints[q].x = bone - bones.begin();
+            }
+        }
+    }
 
     const glm::vec3 unnormalized = segments[1] - offset;
     const glm::ivec2 placements[3] = {
@@ -501,10 +512,10 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         quaderlateral[3] = segments[1] + flat_3;
 
         for( unsigned t = 0; t < 2; t++ ) {
-
             for( unsigned i = 0; i < 3; i++ ) {
                 triangle.points[i].position = quaderlateral[QUAD_TABLE[t][i]];
                 triangle.points[i].coords = coords[t][i];
+                triangle.points[i].joints = joints[QUAD_TABLE[t][i] / 2]; // Untested.
             }
             triangles.push_back( triangle );
 
