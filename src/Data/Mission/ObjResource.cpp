@@ -96,12 +96,12 @@ glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) 
         color.b = std::min( (static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
     }
     else {
-        color.r = 0xFF;
-        color.g = 0xFF;
-        color.b = 0xFF;
+        color.r = max_number;
+        color.g = max_number;
+        color.b = max_number;
     }
 
-    color.a = 0xFF;
+    color.a = max_number;
 
     return color;
 }
