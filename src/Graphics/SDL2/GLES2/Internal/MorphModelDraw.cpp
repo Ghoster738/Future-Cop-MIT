@@ -214,7 +214,6 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
 
     camera.getView3D( view );
     
-    // Use the static shader for the static models.
     program.use();
 
     // Check if there is even a shiney texture.
