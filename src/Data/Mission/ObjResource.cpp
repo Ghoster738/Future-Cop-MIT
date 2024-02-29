@@ -91,9 +91,16 @@ glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) 
     const uint_fast16_t max_number = 0xFF;
 
     if( material.polygon_color_type == VertexColorMode::FULL ) {
-        color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
-        color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
-        color.b = std::min( (static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
+        if( material.visability == ADDITION) {
+            color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+            color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+            color.b = std::min( (static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
+        }
+        else {
+            color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+            color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+            color.b = 0;
+        }
     }
     else {
         color.r = max_number;
