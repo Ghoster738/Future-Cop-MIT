@@ -1135,7 +1135,31 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DTA ) {
                 auto reader3DTA = reader.getReader( data_tag_size );
                 
-                debug_log.output << "3DTA is not handled yet.\n";
+                uint32_t number_of_face_overrides = reader3DTA.readU32( settings.endian );
+
+                FaceOverrideType face_override_type;
+
+                for( unsigned int i = 0; i < number_of_face_overrides; i++ ) {
+                    face_override_type.number_of_frames = reader3DTA.readU8();
+                    face_override_type.zero_0 = reader3DTA.readU8();
+                    face_override_type.one = reader3DTA.readU8();
+                    face_override_type.unknown = reader3DTA.readU8();
+
+                    face_override_type.speed = reader3DTA.readU16( settings.endian );
+                    face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
+
+                    face_override_type.uv_data_offset = reader3DTA.readU32( settings.endian );
+                    face_override_type.offset_to_3DTL_uv = reader3DTA.readU32( settings.endian );
+
+                    face_type_overrides.push_back(face_override_type);
+                }
+
+                this->override_uvs.resize((reader3DTA.totalSize() - reader3DTA.getPosition()) / sizeof(glm::u8vec2));
+
+                for(auto i = this->override_uvs.begin(); i != this->override_uvs.end(); i++) {
+                    (*i).x = reader3DTA.readU8();
+                    (*i).y = reader3DTA.readU8();
+                }
             }
             else
             if( identifier == TAG_3DAL ) {
@@ -1299,6 +1323,36 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( file_is_not_valid ) {
                 error_log.output << "This is not a valid Obj file!\n";
                 reader.setPosition( 0, Utilities::Buffer::END );
+            }
+        }
+
+        for( auto i = face_type_overrides.size(); i != 0; i-- ) {
+            FaceOverrideType &face_override = face_type_overrides[ i - 1 ];
+
+            size_t data_size = 4 * face_override.number_of_frames;
+
+            if(face_override.uv_data_offset % sizeof(glm::u8vec2) != 0) {
+                error_log.output << "UV data offset 0x" << std::hex << face_override.uv_data_offset << " is not even\n";
+                error_log.output << "  Culling 3DTL index " << std::dec << (i - 1) << "\n";
+
+                face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
+                continue;
+            }
+
+            if(override_uvs.size() < data_size + face_override.uv_data_offset / sizeof(glm::u8vec2)) {
+                error_log.output << "UV data offset 0x" << std::hex << face_override.uv_data_offset << " is too big for size 0x" << override_uvs.size() << "\n";
+                error_log.output << "  Culling 3DTL index " << std::dec << (i - 1) << "\n";
+
+                face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
+                continue;
+            }
+
+            if(face_types.find(face_override.offset_to_3DTL_uv - 4) == face_types.end()) {
+                error_log.output << "Offset to 3DTL 0x" << std::hex << face_override.offset_to_3DTL_uv << " is not found.\n";
+                error_log.output << "  Anyways culling 3DTL index " << std::dec << (i - 1) << ". It might be a feature that I do not know about yet.\n";
+
+                face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
+                continue;
             }
         }
         

@@ -59,6 +59,21 @@ public:
 
         glm::u8vec4 getColor( Material material ) const;
     };
+    struct FaceOverrideType {
+        static constexpr float UNITS_TO_SECONDS = 0.001652018;
+
+        uint8_t number_of_frames;
+        uint8_t zero_0; // Guess
+        uint8_t one; // Guess
+        uint8_t unknown;
+        uint16_t speed;
+        uint16_t zero_1;
+        uint32_t uv_data_offset;
+        uint32_t offset_to_3DTL_uv;
+
+        float getFrameDuration() const { return static_cast<float>(speed) * UNITS_TO_SECONDS; }
+        float getEntireDuration() const { return getFrameDuration() * number_of_frames; }
+    };
     struct Point {
         glm::vec3 position;
         glm::vec3 normal;
@@ -152,7 +167,9 @@ private:
     std::vector<glm::i16vec3> vertex_normals;
     std::vector<uint16_t>     lengths;
 
-    std::map<uint_fast16_t, FaceType>  face_types;
+    std::map<uint_fast16_t, FaceType> face_types;
+    std::vector<FaceOverrideType>     face_type_overrides;
+    std::vector<glm::u8vec2>          override_uvs;
 
     std::vector<Primitive>    face_triangles;
     std::vector<Primitive>    face_quads;
