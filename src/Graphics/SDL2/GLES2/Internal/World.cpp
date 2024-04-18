@@ -64,12 +64,16 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
+    "const int ANIMATED_UV_FRAME_AMOUNT = 16;"
+    "const int QUAD_VERTEX_AMOUNT = 4;"
+    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;"
+
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform vec2  AnimatedUVDestination;\n"
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
-    "uniform vec2  AnimatedUVFrames[ 16 * 4 ];\n"
+    "uniform vec2  AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
     "uniform sampler2D VertexAnimation;\n"
 
@@ -90,7 +94,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   vertex_colors = (1.0 - flashing) * normal_color + 2.0 * flashing * inverse_color;\n"
 
     "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0. );\n"
-    "   tex_coord_pos += AnimatedUVFrames[ int( clamp( FRAME_BY_FRAME - 1., 0., 16. * 4. ) ) ] * float( FRAME_BY_FRAME != 0. );\n"
+    "   tex_coord_pos += AnimatedUVFrames[ int( clamp( FRAME_BY_FRAME - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( FRAME_BY_FRAME != 0. );\n"
     "   texture_coord_1 = tex_coord_pos + AnimatedUVDestination * DISPLACEMENT;\n"
     "   texture_coord_1 = fract( texture_coord_1 ) + vec2( float( texture_coord_1.x == 1. ), float( texture_coord_1.y == 1. ) );\n"
 
