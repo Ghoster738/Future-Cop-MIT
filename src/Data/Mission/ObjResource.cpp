@@ -42,12 +42,18 @@ namespace {
 
     const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
 
-    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
+    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords, int16_t *face_override_index )
     {
         if( !triangle.visual.uses_texture ) {
             coords[0] = glm::u8vec2(0, 0);
             coords[1] = glm::u8vec2(0, 0);
             coords[2] = glm::u8vec2(0, 0);
+
+            if(face_override_index != nullptr) {
+                face_override_index[0] = 0;
+                face_override_index[1] = 0;
+                face_override_index[2] = 0;
+            }
         }
         else
         if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
@@ -55,12 +61,36 @@ namespace {
             coords[0] = texture_quad.coords[QUAD_TABLE[0][0]];
             coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
             coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
+
+            if(face_override_index != nullptr) {
+                if(texture_quad.face_override_r != nullptr) {
+                    face_override_index[0] = QUAD_TABLE[0][0] + 1;
+                    face_override_index[1] = QUAD_TABLE[0][1] + 1;
+                    face_override_index[2] = QUAD_TABLE[0][2] + 1;
+                }
+                else {
+                    face_override_index[0] = 0;
+                    face_override_index[1] = 0;
+                    face_override_index[2] = 0;
+                }
+            }
         }
         else
         {
             coords[0] = texture_quad.coords[QUAD_TABLE[1][0]];
             coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
             coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
+
+            if(texture_quad.face_override_r != nullptr) {
+                face_override_index[0] = QUAD_TABLE[1][0] + 1;
+                face_override_index[1] = QUAD_TABLE[1][1] + 1;
+                face_override_index[2] = QUAD_TABLE[1][2] + 1;
+            }
+            else {
+                face_override_index[0] = 0;
+                face_override_index[1] = 0;
+                face_override_index[2] = 0;
+            }
         }
     }
 
@@ -162,6 +192,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[3];
+    int16_t face_override_indexes[3];
     glm::u8vec4 weights, joints;
 
     // Future Cop only uses one joint, so it only needs one weight.
@@ -190,7 +221,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
         handleNormals( triangle.points[2].normal, normals.data(), n[0] );
     }
 
-    triangleToCoords( *this, *face_type_r, coords );
+    triangleToCoords( *this, *face_type_r, coords, face_override_indexes );
 
     if( face_type_r != nullptr ) {
         triangle.color = face_type_r->getColor( triangle.visual );
@@ -198,6 +229,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
 
     for( unsigned t = 0; t < 3; t++ ) {
         triangle.points[t].coords = coords[2 - t];
+        triangle.points[t].face_override_index = face_override_indexes[2 - t];
     }
 
     for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
@@ -1744,8 +1776,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             if( !(*triangle).visual.is_reflective )
                 metadata[0] = -metadata[0];
 
-            metadata[1] = 0;
-
             if( triangle != previous_triangle ) {
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
                 {
@@ -1764,6 +1794,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             for( unsigned vertex_index = 0; vertex_index < 3; vertex_index++ ) {
                 const Point point = (*triangle).points[vertex_index];
+
+                metadata[1] = point.face_override_index;
 
                 model_output->startVertex();
 
