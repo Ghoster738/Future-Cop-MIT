@@ -1626,7 +1626,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC4, false );
+    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
 
@@ -1739,6 +1739,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
             if( !(*triangle).visual.is_reflective )
                 metadata[0] = -metadata[0];
+
+            metadata[1] = 0;
 
             if( triangle != previous_triangle ) {
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
