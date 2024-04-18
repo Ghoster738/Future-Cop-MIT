@@ -1697,7 +1697,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     if( texture_references.size() == 0 )
         model_output->setMaterial( "" );
 
-    glm::u8vec4 metadata;
+    glm::i8vec4 metadata;
 
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
