@@ -46,21 +46,6 @@ public:
         uint8_t visability:         2; // Please see enum VisabilityMode
         uint8_t is_reflective:      1;
     };
-    struct FaceType {
-        uint8_t opcodes[4];
-
-        uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
-
-        uint32_t face_override_index;
-
-        // TODO Find a use for these.
-        bool has_transparent_pixel_t0;
-        bool has_transparent_pixel_t1;
-
-        glm::u8vec2 coords[4];
-
-        glm::u8vec4 getColor( Material material ) const;
-    };
     struct FaceOverrideType {
         static constexpr float UNITS_TO_SECONDS = 0.001652018;
 
@@ -75,6 +60,21 @@ public:
 
         float getFrameDuration() const { return static_cast<float>(speed) * UNITS_TO_SECONDS; }
         float getEntireDuration() const { return getFrameDuration() * number_of_frames; }
+    };
+    struct FaceType {
+        uint8_t opcodes[4];
+
+        uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
+
+        // TODO Find a use for these.
+        bool has_transparent_pixel_t0;
+        bool has_transparent_pixel_t1;
+
+        glm::u8vec2 coords[4];
+
+        FaceOverrideType *face_override_r;
+
+        glm::u8vec4 getColor( Material material ) const;
     };
     struct Point {
         glm::vec3 position;

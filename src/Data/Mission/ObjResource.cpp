@@ -790,7 +790,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     face_types[offset].has_transparent_pixel_t0 = false;
                     face_types[offset].has_transparent_pixel_t1 = false;
 
-                    face_types[offset].face_override_index = 0;
+                    face_types[offset].face_override_r = nullptr;
 
                     switch( face_types[offset].opcodes[0] ) {
                         case 1:
@@ -1356,9 +1356,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
                 continue;
             }
-
-            face_types[face_override.offset_to_3DTL_uv - 4].face_override_index = i;
         }
+        for( auto i = face_type_overrides.begin(); i != face_type_overrides.end(); i++ )
+            face_types[(*i).offset_to_3DTL_uv - 4].face_override_r = &(*i);
         
         // This warning tells that there are only two options for animations either morphing or bone animation.
         if( !( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_anm_positions.size() > 0 )) ) )
