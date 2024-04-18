@@ -42,6 +42,7 @@ protected:
     GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
     GLuint texture_offset_uniform_id;
+    GLuint animated_uv_frames_id;
     
     // These are used for speculars
     GLuint view_uniform_id;

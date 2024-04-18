@@ -61,6 +61,9 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
+    "const int ANIMATED_UV_FRAME_AMOUNT = 64;\n"
+    "const int QUAD_VERTEX_AMOUNT = 4;\n"
+    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
@@ -68,6 +71,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for the bones of the animation.
     "uniform mat4 Bone[12];\n" // 12 bones seems to be the limit of Future Cop.
+    "uniform vec2  AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
     "void main()\n"
     "{\n"
@@ -81,8 +85,10 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     // Find a way to use the spherical projection properly.
     "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
-    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
     "   specular = _METADATA[0];\n"
+    "   texture_coord_1 = TEXCOORD_0 * float( _METADATA[1] == 0. );\n"
+    "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
+    "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
     "}\n";
