@@ -64,9 +64,9 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
-    "const int ANIMATED_UV_FRAME_AMOUNT = 16;"
-    "const int QUAD_VERTEX_AMOUNT = 4;"
-    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;"
+    "const int ANIMATED_UV_FRAME_AMOUNT = 16;\n"
+    "const int QUAD_VERTEX_AMOUNT = 4;\n"
+    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
 
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
