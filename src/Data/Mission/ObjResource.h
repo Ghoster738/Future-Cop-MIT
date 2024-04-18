@@ -51,6 +51,8 @@ public:
 
         uint32_t bmp_id; // This is the resource id of the BMPResource texture refernced.
 
+        uint32_t face_override_index;
+
         // TODO Find a use for these.
         bool has_transparent_pixel_t0;
         bool has_transparent_pixel_t1;
