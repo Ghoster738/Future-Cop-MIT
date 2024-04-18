@@ -79,9 +79,10 @@ public:
     struct Point {
         glm::vec3 position;
         glm::vec3 normal;
-        glm::u8vec2 coords;
         glm::u8vec4 weights;
         glm::u8vec4 joints;
+        glm::u8vec2 coords;
+        int16_t     face_override_index;
     };
     struct MorphPoint {
         glm::vec3 position;
