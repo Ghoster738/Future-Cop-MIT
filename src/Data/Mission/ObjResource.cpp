@@ -1626,7 +1626,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::BYTE, Utilities::DataTypes::Type::VEC4, false );
+    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC4, false );
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
 
@@ -1697,7 +1697,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     if( texture_references.size() == 0 )
         model_output->setMaterial( "" );
 
-    glm::i8vec4 metadata;
+    glm::i16vec2 metadata;
 
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
@@ -1761,11 +1761,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
                 model_output->startVertex();
 
-                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(      point.position ) );
-                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(      point.normal ) );
-                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
-                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( point.coords ) );
-                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
+                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
+                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
+                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType(  (*triangle).color ) );
+                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
+                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
 
                 auto morph_triangle_frame = morph_triangle;
 
