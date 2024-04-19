@@ -1181,7 +1181,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     face_override_type.one = reader3DTA.readU8();
                     face_override_type.unknown = reader3DTA.readU8();
 
-                    face_override_type.speed = reader3DTA.readU16( settings.endian );
+                    face_override_type.frame_duration = reader3DTA.readU16( settings.endian );
                     face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
 
                     face_override_type.uv_data_offset = reader3DTA.readU32( settings.endian );

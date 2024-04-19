@@ -6,6 +6,22 @@
 #include <iostream>
 #include "SDL.h"
 
+
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time) {
+    for(auto i = uv_animation_info.begin(); i != uv_animation_info.end(); i++) {
+        const size_t index = 4 * (i - uv_animation_info.begin());
+
+        const size_t uv_data_index = (*i).uv_data_offset / sizeof(glm::u8vec2);
+
+        uv_frame_buffer[index + 0] = glm::vec2(uv_animation_data[uv_data_index + 0].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 0].y * 1.0 / 256.0);
+        uv_frame_buffer[index + 1] = glm::vec2(uv_animation_data[uv_data_index + 1].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 1].y * 1.0 / 256.0);
+        uv_frame_buffer[index + 2] = glm::vec2(uv_animation_data[uv_data_index + 2].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 2].y * 1.0 / 256.0);
+        uv_frame_buffer[index + 3] = glm::vec2(uv_animation_data[uv_data_index + 3].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 3].y * 1.0 / 256.0);
+    }
+
+    glUniform2fv( animated_uv_frames_id, uv_frame_buffer.size(), reinterpret_cast<float*>(uv_frame_buffer.data()) );
+}
+
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
             const std::vector<DynamicTriangleDraw::Triangle> &triangles,
             DynamicTriangleDraw::DrawCommand &triangles_draw ) const
@@ -187,7 +203,7 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t o
         return false;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
     int state = 0;
 
     if( model_type_r->getNumVertices() > 0 )
@@ -209,6 +225,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             transparent_count += material.count - transparent_index;
         }
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
+        models_p[ obj_identifier ]->uv_animation_data = face_override_uvs;
+        models_p[ obj_identifier ]->uv_animation_info = face_override_animation;
+        models_p[ obj_identifier ]->uv_frame_buffer.resize( 4 * face_override_animation.size() );
 
         GLsizei material_count = 0;
 
@@ -342,6 +361,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
 
                 dynamic.texture_offset = texture_offset;
+
+                (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline());
 
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.

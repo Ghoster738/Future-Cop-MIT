@@ -53,13 +53,15 @@ public:
         uint8_t zero_0; // Guess
         uint8_t one; // Guess
         uint8_t unknown;
-        uint16_t speed;
+        uint16_t frame_duration;
         uint16_t zero_1;
         uint32_t uv_data_offset;
         uint32_t offset_to_3DTL_uv;
 
-        float getFrameDuration() const { return static_cast<float>(speed) * UNITS_TO_SECONDS; }
+        float getFrameDuration() const { return static_cast<float>(frame_duration) * UNITS_TO_SECONDS; }
         float getEntireDuration() const { return getFrameDuration() * number_of_frames; }
+
+        uint_fast32_t getEntireDurationUnits() const { return static_cast<uint_fast32_t>(frame_duration) * static_cast<uint_fast32_t>(number_of_frames); }
     };
     struct FaceType {
         uint8_t opcodes[4];
@@ -218,6 +220,9 @@ public:
     bool isPositionValid( unsigned index ) const;
 
     glm::vec3 getPosition( unsigned index ) const;
+
+    const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
+    const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
