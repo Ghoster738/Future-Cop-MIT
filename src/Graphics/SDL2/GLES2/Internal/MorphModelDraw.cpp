@@ -306,7 +306,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds
             // Go through every instance of the model.
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
                 (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
-                (*instance)->setTextureTransformTimelineSeconds( seconds_passed );
+                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
             }
         }
     }

@@ -85,7 +85,7 @@ public:
      * This sets the time of the instance.
      * @param texture_transform_timeline set the timeline of the instance.
      */
-    virtual void setTextureTransformTimelineSeconds( float texture_transform_timeline );
+    virtual void addTextureTransformTimelineSeconds( float texture_transform_timeline );
 
     /**
      * This gets the position of the model.
@@ -107,7 +107,6 @@ public:
 
     float getPositionTransformTimeline() const { return position_transform_timeline; }
     unsigned int getTextureTransformTimeline() const { return texture_transform_timeline; }
-    float getTextureTransformTimelineSeconds() const;
     
     /**
      * Get the regular bounding sphere of the model instance.

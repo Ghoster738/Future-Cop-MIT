@@ -422,9 +422,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
 
         if( mesh_r->getFrameAmount() > 0 ) {
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                auto last = (*instance)->getTextureTransformTimeline();
-                (*instance)->setTextureTransformTimelineSeconds( seconds_passed );
-                (*instance)->setTextureTransformTimeline((*instance)->getTextureTransformTimeline() + last);
+                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
             }
         }
     }

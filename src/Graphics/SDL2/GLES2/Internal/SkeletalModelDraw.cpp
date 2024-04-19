@@ -307,7 +307,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seco
         if( mesh_r->getFrameAmount() > 0 ) {
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
                 (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
-                (*instance)->setTextureTransformTimelineSeconds( seconds_passed );
+                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
             }
         }
     }
