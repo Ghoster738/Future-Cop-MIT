@@ -17,6 +17,7 @@ protected:
     glm::vec2 texture_offset;
     
     float position_transform_timeline;
+    unsigned int texture_transform_timeline;
     
     ModelInstance(
         const glm::vec3 &pos,
@@ -25,7 +26,8 @@ protected:
             position( pos ),
             rotation( rot ),
             texture_offset( offset ),
-            position_transform_timeline( 0.0f ) {}
+            position_transform_timeline( 0.0f ),
+            texture_transform_timeline( 0 ) {}
 public:
     /**
      * This method is to be called only in Environment, because this class is responsiable for handling the position and rotation of the model.
@@ -74,6 +76,18 @@ public:
     virtual void setPositionTransformTimeline( float position_transform_timeline ) { this->position_transform_timeline = position_transform_timeline; }
 
     /**
+     * This sets the time of the instance.
+     * @param texture_transform_timeline set the timeline of the instance.
+     */
+    virtual void setTextureTransformTimeline( unsigned int texture_transform_timeline ) { this->texture_transform_timeline = texture_transform_timeline; }
+
+    /**
+     * This sets the time of the instance.
+     * @param texture_transform_timeline set the timeline of the instance.
+     */
+    virtual void setTextureTransformTimelineSeconds( float texture_transform_timeline );
+
+    /**
      * This gets the position of the model.
      * @return position the 3D position of the model to be overwritten.
      */
@@ -90,13 +104,15 @@ public:
      * @return texture_offset the offset to the texture.
      */
     glm::vec2 getTextureOffset() const;
+
+    float getPositionTransformTimeline() const { return position_transform_timeline; }
+    unsigned int getTextureTransformTimeline() const { return texture_transform_timeline; }
+    float getTextureTransformTimelineSeconds() const;
     
     /**
      * Get the regular bounding sphere of the model instance.
      */
     virtual bool getBoundingSphere( glm::vec3 &position, float &radius ) const = 0;
-
-    float getPositionTransformTimeline() const { return position_transform_timeline; }
 };
 
 }
