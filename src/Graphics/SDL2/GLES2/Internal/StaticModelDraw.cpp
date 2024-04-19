@@ -8,10 +8,12 @@
 
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time) {
-    for(auto i = uv_animation_info.begin(); i != uv_animation_info.end(); i++) {
+    for(auto i = uv_animation_info.cbegin(); i != uv_animation_info.cend(); i++) {
         const size_t index = 4 * (i - uv_animation_info.begin());
+        const uint_fast32_t duration = time % (*i).getEntireDurationUnits();
+        const uint_fast32_t frame_index = ((*i).number_of_frames - 1) - duration / (*i).frame_duration;
 
-        const size_t uv_data_index = (*i).uv_data_offset / sizeof(glm::u8vec2);
+        const size_t uv_data_index = (*i).uv_data_offset / sizeof(glm::u8vec2) + 4 * frame_index;
 
         uv_frame_buffer[index + 0] = glm::vec2(uv_animation_data[uv_data_index + 0].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 0].y * 1.0 / 256.0);
         uv_frame_buffer[index + 1] = glm::vec2(uv_animation_data[uv_data_index + 1].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 1].y * 1.0 / 256.0);
@@ -420,7 +422,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
 
         if( mesh_r->getFrameAmount() > 0 ) {
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+                auto last = (*instance)->getTextureTransformTimeline();
                 (*instance)->setTextureTransformTimelineSeconds( seconds_passed );
+                (*instance)->setTextureTransformTimeline((*instance)->getTextureTransformTimeline() + last);
             }
         }
     }

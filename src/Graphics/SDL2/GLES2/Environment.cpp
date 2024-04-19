@@ -422,6 +422,7 @@ bool Environment::screenshot( Utilities::Image2D &image ) const {
 
 void Environment::advanceTime( float seconds_passed ) {
     // For animatable meshes advance the time
+    this->static_model_draw_routine.advanceTime( seconds_passed );
     this->morph_model_draw_routine.advanceTime( seconds_passed );
     this->skeletal_model_draw_routine.advanceTime( seconds_passed );
 
