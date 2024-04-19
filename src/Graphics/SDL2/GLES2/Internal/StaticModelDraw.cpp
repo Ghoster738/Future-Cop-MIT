@@ -391,8 +391,18 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
         return -1; // The requested index_obj does not exist
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_seconds ) {
-    // No operation. Static Meshes do not have the concept of time.
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float seconds_passed ) {
+    // Go through every model array.
+    for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
+        // Get the mesh.
+        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
+
+        if( mesh_r->getFrameAmount() > 0 ) {
+            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+                (*instance)->setTextureTransformTimelineSeconds( seconds_passed );
+            }
+        }
+    }
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const {
