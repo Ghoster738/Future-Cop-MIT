@@ -262,7 +262,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                 // We now draw the the mesh!
                 mesh_r->bindArray();
 
-                int current_last_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) ) - 1;
+                int current_last_frame = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) ) - 1;
 
                 if( current_last_frame < 0 )
                 {
@@ -280,7 +280,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                 if( accessor != model_animation_p.end() ) {
                     dynamic.transform = camera_3D_model_transform;
                     dynamic.morph_info_r = (*accessor).second;
-                    dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
+                    dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
                     dynamic.texture_offset = texture_offset;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }
@@ -305,7 +305,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds
 
             // Go through every instance of the model.
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
+                (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
             }
         }
     }

@@ -276,7 +276,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     glUniformMatrix4fv(     view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
                     glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
                     
-                    int current_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
+                    int current_frame = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
                     
                     assert( animate_r->getFrames( current_frame ) != nullptr );
                     
@@ -306,7 +306,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seco
         
         if( mesh_r->getFrameAmount() > 0 ) {
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
+                (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
             }
         }
     }
