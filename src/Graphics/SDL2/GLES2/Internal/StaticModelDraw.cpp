@@ -7,7 +7,7 @@
 #include "SDL.h"
 
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time) {
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const {
     for(auto i = uv_animation_info.cbegin(); i != uv_animation_info.cend(); i++) {
         const size_t index = 4 * (i - uv_animation_info.begin());
         const uint_fast32_t duration = time % (*i).getEntireDurationUnits();
@@ -229,7 +229,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
         models_p[ obj_identifier ]->uv_animation_data = face_override_uvs;
         models_p[ obj_identifier ]->uv_animation_info = face_override_animation;
-        models_p[ obj_identifier ]->uv_frame_buffer.resize( 4 * face_override_animation.size() );
+
+        if(uv_frame_buffer.size() < 4 * face_override_animation.size())
+            uv_frame_buffer.resize( 4 * face_override_animation.size() );
 
         GLsizei material_count = 0;
 
@@ -364,7 +366,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
 
                 dynamic.texture_offset = texture_offset;
 
-                (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline());
+                (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
 
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.

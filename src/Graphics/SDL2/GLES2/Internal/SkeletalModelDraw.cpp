@@ -260,7 +260,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     const auto texture_offset = (*instance)->getTextureOffset();
                     glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
 
-                    (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline());
+                    (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
 
                     // Get the position and rotation of the model.
                     // Multiply them into one matrix which will hold the entire model transformation.

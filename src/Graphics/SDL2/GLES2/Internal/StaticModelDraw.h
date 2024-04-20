@@ -22,13 +22,12 @@ public:
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
-        std::vector<glm::vec2> uv_frame_buffer;
         std::vector<glm::u8vec2> uv_animation_data;
         std::vector<Data::Mission::ObjResource::FaceOverrideType> uv_animation_info;
         std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
 
-        void bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time);
+        void bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const;
     };
     class Dynamic : public Mesh::DynamicNormal {
     public:
@@ -55,6 +54,8 @@ protected:
 
     // The models need to be accessed.
     std::map<uint32_t, ModelArray*> models_p;
+
+    std::vector<glm::vec2> uv_frame_buffer;
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
