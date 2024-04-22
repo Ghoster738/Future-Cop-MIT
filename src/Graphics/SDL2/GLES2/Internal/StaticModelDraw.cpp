@@ -36,6 +36,13 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
         draw_triangles_r[ i ] = triangles[ i ];
 
         for( unsigned t = 0; t < 3; t++ ) {
+            const auto texture_coord_index = (*triangle_texture_indexes_r)[ i ].texture_coords[ t ];
+
+            if(texture_coord_index != 0) {
+                assert(texture_coord_index < triangles.size());
+                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_coord_index - 1];
+            }
+
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
         }
 
@@ -230,8 +237,10 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         models_p[ obj_identifier ]->uv_animation_data = face_override_uvs;
         models_p[ obj_identifier ]->uv_animation_info = face_override_animation;
 
-        if(uv_frame_buffer.size() < 4 * face_override_animation.size())
-            uv_frame_buffer.resize( 4 * face_override_animation.size() );
+        const size_t face_override_amount = 4 * face_override_animation.size();
+
+        if(uv_frame_buffer.size() < face_override_amount )
+            uv_frame_buffer.resize( face_override_amount );
 
         GLsizei material_count = 0;
 
@@ -286,6 +295,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
+                TriangleIndex texture_override_animation;
 
                 for( unsigned t = 0; t < 3; t++ ) {
                     model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
@@ -298,7 +308,19 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
                     triangle.vertices[t].coordinate = coordinate;
-                    triangle.vertices[t].vertex_metadata = metadata * 255.0f;
+                    triangle.vertices[t].vertex_metadata = metadata * 32767.0f;
+
+                    if(face_override_amount > 0)
+                        texture_override_animation.texture_coords[t] = metadata[1];
+                    else
+                        texture_override_animation.texture_coords[t] = 0;
+
+                    if(texture_override_animation.texture_coords[t] != 0) {
+                        std::cout << "i[" << 0 << "] = " << texture_override_animation.texture_coords[0] << std::endl;
+                        std::cout << "i[" << 1 << "] = " << texture_override_animation.texture_coords[1] << std::endl;
+                        std::cout << "face_override_amount = " << face_override_amount << std::endl;
+                        assert(texture_override_animation.texture_coords[t] < face_override_amount);
+                    }
                 }
 
                 if( m < mix_index )
@@ -309,6 +331,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                 triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
 
                 models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
+                models_p[ obj_identifier ]->triangle_texture_indexes.push_back( texture_override_animation );
             }
 
             material_count += material.count;
@@ -364,9 +387,11 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 const auto texture_offset = (*instance)->getTextureOffset();
                 glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
 
-                dynamic.texture_offset = texture_offset;
-
                 (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
+
+                dynamic.texture_offset = texture_offset;
+                dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
+                dynamic.triangle_texture_indexes_r = &(*d).second->triangle_texture_indexes;
 
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
