@@ -167,7 +167,7 @@ namespace Utilities {
             uint16_t red   : 5;
             uint16_t green : 5;
             uint16_t blue  : 5;
-            uint16_t semi_transparency : 1; // This is semi transparency. https://psx-spx.consoledev.net/graphicsprocessingunitgpu/
+            uint16_t semi_transparency : 1;
             
             Color() {}
             Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );
@@ -195,7 +195,7 @@ namespace Utilities {
             uint16_t red   : 5;
             uint16_t green : 5;
             uint16_t blue  : 5;
-            uint16_t semi_transparency : 1; // This is semi transparency. https://psx-spx.consoledev.net/graphicsprocessingunitgpu/
+            uint16_t semi_transparency : 1;
             
             Color() {}
             Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate );

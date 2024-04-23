@@ -36,7 +36,7 @@ public:
         union {
             struct {
                 uint32_t texture_id : 30;
-                uint32_t polygon_type : 2; // https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#semi-transparency
+                uint32_t polygon_type : 2;
             } bitfield;
             float distance_from_camera;
         } metadata;
