@@ -333,7 +333,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     triangle.vertices[t].color    = 2.0f * colors;
                     triangle.vertices[t].color.w  = 1;
                     triangle.vertices[t].coordinate = coordinates;
-                    triangle.vertices[t].vertex_metadata = { 0, 0, 0, 0 };
+                    triangle.vertices[t].vertex_metadata = { 0, 0 };
 
                     if( t == 0 ) {
                         MeshDraw::Info info;

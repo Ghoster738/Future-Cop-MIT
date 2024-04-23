@@ -26,11 +26,11 @@ public:
     };
 
     struct Vertex {
-        glm::vec3   position;
-        glm::vec3   normal;
-        glm::vec4   color;
-        glm::vec2   coordinate;
-        glm::u8vec4 vertex_metadata;
+        glm::vec3    position;
+        glm::vec3    normal;
+        glm::vec4    color;
+        glm::vec2    coordinate;
+        glm::i16vec2 vertex_metadata;
 
         // OpenGL should ignore these values.
         union {

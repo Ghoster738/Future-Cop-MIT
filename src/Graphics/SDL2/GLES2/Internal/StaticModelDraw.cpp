@@ -308,7 +308,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
                     triangle.vertices[t].coordinate = coordinate;
-                    triangle.vertices[t].vertex_metadata = metadata * 32767.0f;
+                    triangle.vertices[t].vertex_metadata = metadata;
 
                     if(face_override_amount > 0)
                         texture_override_animation.texture_coords[t] = metadata[1];
