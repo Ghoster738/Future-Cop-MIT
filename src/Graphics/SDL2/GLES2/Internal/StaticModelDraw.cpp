@@ -39,7 +39,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
             const auto texture_coord_index = (*triangle_texture_indexes_r)[ i ].texture_coords[ t ];
 
             if(texture_coord_index != 0) {
-                assert(texture_coord_index < triangles.size());
+                assert(texture_coord_index < uv_frame_buffer_r->size());
                 draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_coord_index - 1];
             }
 
@@ -315,11 +315,11 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     else
                         texture_override_animation.texture_coords[t] = 0;
 
-                    if(texture_override_animation.texture_coords[t] != 0) {
-                        std::cout << "i[" << 0 << "] = " << texture_override_animation.texture_coords[0] << std::endl;
-                        std::cout << "i[" << 1 << "] = " << texture_override_animation.texture_coords[1] << std::endl;
+                    if(face_override_amount != 0 && texture_override_animation.texture_coords[t] > face_override_amount) {
+                        for(int a = 0; a < t + 1; a++)
+                            std::cout << "i[" << a << "] = " << texture_override_animation.texture_coords[a] << "\n";
                         std::cout << "face_override_amount = " << face_override_amount << std::endl;
-                        assert(texture_override_animation.texture_coords[t] < face_override_amount);
+                        assert(false);
                     }
                 }
 
