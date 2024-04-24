@@ -44,16 +44,17 @@ namespace {
 
     void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords, int16_t *face_override_index )
     {
+        assert(coords != nullptr);
+        assert(face_override_index != nullptr);
+
         if( !triangle.visual.uses_texture ) {
             coords[0] = glm::u8vec2(0, 0);
             coords[1] = glm::u8vec2(0, 0);
             coords[2] = glm::u8vec2(0, 0);
 
-            if(face_override_index != nullptr) {
-                face_override_index[0] = 0;
-                face_override_index[1] = 0;
-                face_override_index[2] = 0;
-            }
+            face_override_index[0] = 0;
+            face_override_index[1] = 0;
+            face_override_index[2] = 0;
         }
         else
         if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
@@ -62,17 +63,15 @@ namespace {
             coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
             coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
 
-            if(face_override_index != nullptr) {
-                if(texture_quad.face_override_index != 0) {
-                    face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][0] + 1;
-                    face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][1] + 1;
-                    face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][2] + 1;
-                }
-                else {
-                    face_override_index[0] = 0;
-                    face_override_index[1] = 0;
-                    face_override_index[2] = 0;
-                }
+            if(texture_quad.face_override_index != 0) {
+                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][0] + 1;
+                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][1] + 1;
+                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][2] + 1;
+            }
+            else {
+                face_override_index[0] = 0;
+                face_override_index[1] = 0;
+                face_override_index[2] = 0;
             }
         }
         else
@@ -81,17 +80,15 @@ namespace {
             coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
             coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
 
-            if(face_override_index != nullptr) {
-                if(texture_quad.face_override_index != 0) {
-                    face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][0] + 1;
-                    face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][1] + 1;
-                    face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][2] + 1;
-                }
-                else {
-                    face_override_index[0] = 0;
-                    face_override_index[1] = 0;
-                    face_override_index[2] = 0;
-                }
+            if(texture_quad.face_override_index != 0) {
+                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][0] + 1;
+                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][1] + 1;
+                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+            }
+            else {
+                face_override_index[0] = 0;
+                face_override_index[1] = 0;
+                face_override_index[2] = 0;
             }
         }
     }
@@ -1541,6 +1538,8 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
+#include <iostream>
+
 bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &textures ) {
     if( textures.size() != 0 ) {
         bool valid = true;
@@ -1815,6 +1814,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 const Point point = (*triangle).points[vertex_index];
 
                 metadata[1] = point.face_override_index;
+
+                std::cout << std::dec << point.face_override_index << " <= " << std::dec << 4 * face_type_overrides.size() << std::endl;
+
+                assert(point.face_override_index <= 4 * face_type_overrides.size());
 
                 model_output->startVertex();
 

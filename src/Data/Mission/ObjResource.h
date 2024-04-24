@@ -74,7 +74,7 @@ public:
 
         glm::u8vec2 coords[4];
 
-        uint32_t face_override_index;
+        int16_t face_override_index;
 
         glm::u8vec4 getColor( Material material ) const;
     };
