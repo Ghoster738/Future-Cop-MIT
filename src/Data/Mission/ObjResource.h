@@ -3,6 +3,7 @@
 
 #include "ModelResource.h"
 #include "BMPResource.h"
+#include <map>
 
 #include "../../Utilities/Image2D.h"
 #include "../../Utilities/DataTypes.h"
@@ -15,6 +16,7 @@ class ObjResource : public ModelResource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
+    static std::map<uint8_t, uint32_t> unknowns;
 
     static const std::string METADATA_COMPONENT_NAME;
 

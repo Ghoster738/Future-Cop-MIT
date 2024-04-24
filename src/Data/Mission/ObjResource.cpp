@@ -661,6 +661,8 @@ const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
 const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
+std::map<uint8_t, uint32_t> Data::Mission::ObjResource::unknowns;
+
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
 const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
 
@@ -1181,11 +1183,20 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     face_override_type.one = reader3DTA.readU8();
                     face_override_type.unknown = reader3DTA.readU8();
 
+                    if(unknowns.find(face_override_type.unknown) == unknowns.end())
+                        unknowns[face_override_type.unknown] = 0;
+                    unknowns[face_override_type.unknown]++;
+
                     face_override_type.frame_duration = reader3DTA.readU16( settings.endian );
                     face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
 
                     face_override_type.uv_data_offset = reader3DTA.readU32( settings.endian );
                     face_override_type.offset_to_3DTL_uv = reader3DTA.readU32( settings.endian );
+
+                    // Macintosh, Windows, and PS1 shows that these values never changed.
+                    // assert(face_override_type.zero_0 == 0);
+                    // assert(face_override_type.one == 1);
+                    // assert(face_override_type.zero_1 == 0);
 
                     face_type_overrides.push_back(face_override_type);
                 }
