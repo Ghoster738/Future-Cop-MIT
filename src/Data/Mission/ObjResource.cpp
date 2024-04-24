@@ -1815,6 +1815,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
                 metadata[1] = point.face_override_index;
 
+                std::cout << "Obj "<< std::dec << getResourceID() << "\n";
                 std::cout << std::dec << point.face_override_index << " <= " << std::dec << 4 * face_type_overrides.size() << std::endl;
 
                 assert(point.face_override_index <= 4 * face_type_overrides.size());
