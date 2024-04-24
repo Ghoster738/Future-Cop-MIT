@@ -36,11 +36,14 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
         draw_triangles_r[ i ] = triangles[ i ];
 
         for( unsigned t = 0; t < 3; t++ ) {
-            const auto texture_coord_index = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
+            const auto texture_animation_data = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
 
-            if(texture_coord_index != 0) {
-                assert(texture_coord_index < uv_frame_buffer_r->size());
-                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_coord_index - 1];
+            if(texture_animation_data != 0) {
+                const auto texture_animation_index = texture_animation_data - 1;
+
+                assert(texture_animation_index < uv_frame_buffer_r->size());
+
+                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_animation_index];
             }
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
