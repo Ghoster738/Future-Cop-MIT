@@ -19,10 +19,6 @@ public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 
-    struct TriangleIndex {
-        uint_fast16_t texture_coords[3];
-    };
-
     struct ModelArray {
         ModelArray( Program *program ) : mesh( program ) {}
         
@@ -30,7 +26,6 @@ public:
         std::vector<glm::u8vec2> uv_animation_data;
         std::vector<Data::Mission::ObjResource::FaceOverrideType> uv_animation_info;
         std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
-        std::vector<TriangleIndex> triangle_texture_indexes;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
 
         void bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const;
@@ -39,7 +34,6 @@ public:
     public:
         glm::vec2 texture_offset;
         std::vector<glm::vec2> *uv_frame_buffer_r;
-        std::vector<TriangleIndex> *triangle_texture_indexes_r;
 
         virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
     };
@@ -67,8 +61,6 @@ protected:
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
-
-
     
 public:
     StaticModelDraw();
