@@ -31,6 +31,11 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
 
     this->switch_to_platform = this->platform;
 
+    if(this->options.getLoadAllMaps())
+        this->importance_level = Data::Manager::Importance::NOT_NEEDED;
+    else
+        this->importance_level = Data::Manager::Importance::NEEDED;
+
     setupLogging();
     initGraphics();
     setupGraphics();
@@ -115,7 +120,7 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         return false;
     }
 
-    this->manager.setLoad( Data::Manager::Importance::NEEDED );
+    this->manager.setLoad( this->importance_level );
 
     // Check if the given resource successfully loaded if not return false.
     auto switch_resource_r = manager.getIFFEntry( switch_resource_identifier ).getIFF( switch_platform );
@@ -143,7 +148,7 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         this->manager.togglePlatform( this->platform, false );
     }
 
-    this->manager.setLoad( Data::Manager::Importance::NEEDED );
+    this->manager.setLoad( this->importance_level );
 
     if( switch_platform != this->platform ) {
         auto switch_global_resource_r = manager.getIFFEntry( Data::Manager::global ).getIFF( switch_platform );
@@ -322,7 +327,7 @@ void MainProgram::loadResources() {
 
     manager.togglePlatform( this->platform, true );
 
-    manager.setLoad( Data::Manager::Importance::NEEDED );
+    manager.setLoad( this->importance_level );
 
     this->global_r = manager.getIFFEntry( Data::Manager::global ).getIFF( this->platform );
     if( this->global_r == nullptr ) {

@@ -65,6 +65,7 @@ protected:
 protected:
     std::string switch_to_resource_identifier;
     Data::Manager::Platform switch_to_platform;
+    Data::Manager::Importance importance_level;
 
 public:
     MainProgram( int argc, char** argv );
