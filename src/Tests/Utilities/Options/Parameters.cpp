@@ -121,15 +121,16 @@ int main( int argc, char *argv[] ) {
 
         int found_problem = 0;
 
-        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
-        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.help,          "Help",        test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,   "FullScreen",  test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,     "Width",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,    "Height",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_dir,    "ConfigDir",   test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,      "UserDir",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir,  "WinDataDir",  test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir,  "MacDataDir",  test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir,  "PSXDataDir",  test_name, std::cout );
 
         if( found_problem ) {
             displayParameters( default_parameters, std::cout );
@@ -159,6 +160,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -191,6 +193,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -223,6 +226,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -255,6 +259,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -291,6 +296,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -332,6 +338,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -365,6 +372,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -398,6 +406,50 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
+
+        if( found_problem ) {
+            displayParameters( default_parameters, std::cout );
+            problem |= 1;
+        }
+    }
+
+    std::vector<std::pair<std::string, bool>> load_all_maps_array = {
+        {"true", true},
+        {"tr",   true},
+        {"t",    true},
+        {"TRUE", true},
+        {"TR",   true},
+        {"T",    true},
+        {"1",    true},
+        {"rest", false} // Everything else is false.
+    };
+    for(auto i = load_all_maps_array.cbegin(); i != load_all_maps_array.cend(); i++) {
+        std::string test_name = "load all maps true";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--load-all-maps" );
+        parameters.addArgument( (*i).first );
+
+        Utilities::Options::Parameters default_parameters( parameters.getParamAmount(), parameters.getParamPointers() );
+
+        int found_problem = 0;
+
+        if( found_problem == 0 && default_parameters.load_all_maps.wasModified() && default_parameters.load_all_maps.getValue() != (*i).second ) {
+            std::cout << "Error: LoadAllMaps \"" << (*i).first << "\" was not modified or set properly in \"" << test_name << "\" case when it should of.\n";
+
+            found_problem |= 1;
+        }
+        found_problem |= testModParam( found_problem, default_parameters.help,         "Help",       test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.full_screen,  "FullScreen", test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_width,    "Width",      test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
@@ -432,6 +484,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
@@ -465,6 +518,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir",  test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.psx_data_dir, "PSXDataDir", test_name, std::cout );
 
@@ -498,6 +552,7 @@ int main( int argc, char *argv[] ) {
         found_problem |= testModParam( found_problem, default_parameters.res_height,   "Height",     test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.config_dir,   "ConfigDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.user_dir,     "UserDir",    test_name, std::cout );
+        found_problem |= testModParam( found_problem, default_parameters.load_all_maps, "LoadAllMaps", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.win_data_dir, "WinDataDir", test_name, std::cout );
         found_problem |= testModParam( found_problem, default_parameters.mac_data_dir, "MacDataDir", test_name, std::cout );
 
@@ -738,6 +793,31 @@ int main( int argc, char *argv[] ) {
         catch( std::invalid_argument const &arg )
         {
             if( std::string( arg.what() ).find( "multiple height/resolution parameters specified in commandline" ) != 0 ) {
+                std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
+                problem |= 1;
+            }
+        }
+    }
+
+    {
+        std::string test_name = "multi load all maps case";
+        ParametersGiven parameters;
+
+        parameters.addArgument( program_name );
+        parameters.addArgument( "--load-all-maps" );
+        parameters.addArgument( "true" );
+        parameters.addArgument( "--load-all-maps" );
+        parameters.addArgument( "true" );
+
+        try {
+            Utilities::Options::Parameters default_parameters;
+            default_parameters.getParameters( parameters.getParamAmount(), parameters.getParamPointers(), std::cout );
+            problem |= 1;
+            std::cout << "\"" << test_name << "\" should of caught the error by now." << std::endl;
+        }
+        catch( std::invalid_argument const &arg )
+        {
+            if( std::string( arg.what() ).find( "multiple load all map boolean parameters specified in commandline" ) != 0 ) {
                 std::cout << arg.what() << "\n This output is invalid for \"" << test_name << "\"" << std::endl;
                 problem |= 1;
             }

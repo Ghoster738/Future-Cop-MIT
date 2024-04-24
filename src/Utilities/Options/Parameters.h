@@ -81,18 +81,19 @@ public:
     };
 
     // These should be "read only public members", if the code is correct
-    const BoolParam&   help         = p_help;         // Help screen
-    const BoolParam&   full_screen  = p_full_screen;  // If the game should run in full-screen mode
-    const IntParam&    res_width    = p_res_width;    // Display resolution width
-    const IntParam&    res_height   = p_res_height;   // Display resolution height
-    const StringParam& config_dir   = p_config_dir;  // Game configuration directory
-    const StringParam& export_path  = p_export_path;  // The export path to where the exported resources go.
-    const StringParam& user_dir     = p_user_dir;     // User directory (mods, screenshots, etc)
-    const StringParam& win_data_dir = p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
-    const StringParam& mac_data_dir = p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
-    const StringParam& psx_data_dir = p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
-    const StringParam& global_path  = p_global_path;
-    const StringParam& mission_path = p_mission_path;
+    const BoolParam&   help          = p_help;         // Help screen
+    const BoolParam&   full_screen   = p_full_screen;  // If the game should run in full-screen mode
+    const IntParam&    res_width     = p_res_width;    // Display resolution width
+    const IntParam&    res_height    = p_res_height;   // Display resolution height
+    const StringParam& config_dir    = p_config_dir;  // Game configuration directory
+    const StringParam& export_path   = p_export_path;  // The export path to where the exported resources go.
+    const StringParam& user_dir      = p_user_dir;     // User directory (mods, screenshots, etc)
+    const StringParam& win_data_dir  = p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
+    const StringParam& mac_data_dir  = p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
+    const StringParam& psx_data_dir  = p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
+    const BoolParam&   load_all_maps = p_load_all_maps;
+    const StringParam& global_path   = p_global_path;
+    const StringParam& mission_path  = p_mission_path;
 
 // Internal stuff
 private:
@@ -108,6 +109,7 @@ private:
     StringParam p_win_data_dir; // Windows Game data directory (original Future Cop LAPD game data)
     StringParam p_mac_data_dir; // Macintosh Game data directory (original Future Cop LAPD game data)
     StringParam p_psx_data_dir; // Playstation Game data directory (original Future Cop LAPD game data)
+    BoolParam   p_load_all_maps;
     StringParam p_global_path;
     StringParam p_mission_path;
 
@@ -130,6 +132,7 @@ private:
     virtual void parseWindowsDataDir( std::string directory );
     virtual void parseMacintoshDataDir( std::string directory );
     virtual void parsePlaystationDataDir( std::string directory );
+    virtual void parseLoadAllMaps( std::string value );
     virtual void parseGlobalPath( std::string path );
     virtual void parseMissionPath( std::string path );
 
