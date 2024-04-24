@@ -17,6 +17,7 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static std::map<uint8_t, uint32_t> unknowns;
+    static uint32_t max_3dta_frames;
 
     static const std::string METADATA_COMPONENT_NAME;
 

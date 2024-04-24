@@ -662,6 +662,7 @@ const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // wh
 const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
 std::map<uint8_t, uint32_t> Data::Mission::ObjResource::unknowns;
+uint32_t Data::Mission::ObjResource::max_3dta_frames = 0;
 
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
 const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
@@ -1176,6 +1177,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 uint32_t number_of_face_overrides = reader3DTA.readU32( settings.endian );
 
                 FaceOverrideType face_override_type;
+
+                max_3dta_frames = std::max(max_3dta_frames, number_of_face_overrides);
 
                 for( unsigned int i = 0; i < number_of_face_overrides; i++ ) {
                     face_override_type.number_of_frames = reader3DTA.readU8();
