@@ -305,6 +305,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
+    int16_t     tex_animation_index[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center, morph_center;
     float length, morph_length;
@@ -357,6 +358,23 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
     }
 
+    if(face_type_r != nullptr && face_type_r->face_override_index != 0) {
+        tex_animation_index[0][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][0] + 1;
+        tex_animation_index[0][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][1] + 1;
+        tex_animation_index[0][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][2] + 1;
+        tex_animation_index[1][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][0] + 1;
+        tex_animation_index[1][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][1] + 1;
+        tex_animation_index[1][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+    }
+    else {
+        // No tex animation index.
+        for(int i = 0; i < 2; i++) {
+            for(int t = 0; t < 3; t++) {
+                tex_animation_index[i][t] = 0;
+            }
+        }
+    }
+
      // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
     handlePositions( center, positions.data(), v[0] );
     length = lengths[ v[2] ] * FIXED_POINT_UNIT;
@@ -383,6 +401,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[0][i]];
             triangle.points[i].coords = coords[0][i];
+            triangle.points[i].face_override_index = tex_animation_index[0][i];
         }
 
         triangles.push_back( triangle );
@@ -414,6 +433,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[1][i]];
             triangle.points[i].coords = coords[1][i];
+            triangle.points[i].face_override_index = tex_animation_index[1][i];
         }
 
         triangles.push_back( triangle );
@@ -1557,8 +1577,6 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-#include <iostream>
-
 bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &textures ) {
     if( textures.size() != 0 ) {
         bool valid = true;
@@ -1833,9 +1851,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 const Point point = (*triangle).points[vertex_index];
 
                 metadata[1] = point.face_override_index;
-
-                std::cout << "Obj "<< std::dec << getResourceID() << "\n";
-                std::cout << std::dec << point.face_override_index << " <= " << std::dec << 4 * face_type_overrides.size() << std::endl;
 
                 assert(point.face_override_index <= 4 * face_type_overrides.size());
 
