@@ -3,7 +3,6 @@
 
 #include "ModelResource.h"
 #include "BMPResource.h"
-#include <map>
 
 #include "../../Utilities/Image2D.h"
 #include "../../Utilities/DataTypes.h"
@@ -16,8 +15,6 @@ class ObjResource : public ModelResource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
-    static std::map<uint8_t, uint32_t> unknowns;
-    static uint32_t max_3dta_frames;
 
     static const std::string METADATA_COMPONENT_NAME;
 
@@ -53,9 +50,9 @@ public:
         static constexpr float UNITS_TO_SECONDS = 0.001652018;
 
         uint8_t number_of_frames;
-        uint8_t zero_0; // Guess
-        uint8_t one; // Guess
-        uint8_t unknown;
+        uint8_t zero_0;
+        uint8_t one;
+        uint8_t unknown_bitfield;
         uint16_t frame_duration;
         uint16_t zero_1;
         uint32_t uv_data_offset;

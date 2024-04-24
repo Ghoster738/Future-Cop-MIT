@@ -661,9 +661,6 @@ const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
 const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
-std::map<uint8_t, uint32_t> Data::Mission::ObjResource::unknowns;
-uint32_t Data::Mission::ObjResource::max_3dta_frames = 0;
-
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
 const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
 
@@ -1178,17 +1175,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 FaceOverrideType face_override_type;
 
-                max_3dta_frames = std::max(max_3dta_frames, number_of_face_overrides);
-
                 for( unsigned int i = 0; i < number_of_face_overrides; i++ ) {
                     face_override_type.number_of_frames = reader3DTA.readU8();
                     face_override_type.zero_0 = reader3DTA.readU8();
                     face_override_type.one = reader3DTA.readU8();
-                    face_override_type.unknown = reader3DTA.readU8();
-
-                    if(unknowns.find(face_override_type.unknown) == unknowns.end())
-                        unknowns[face_override_type.unknown] = 0;
-                    unknowns[face_override_type.unknown]++;
+                    face_override_type.unknown_bitfield = reader3DTA.readU8();
 
                     face_override_type.frame_duration = reader3DTA.readU16( settings.endian );
                     face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
@@ -1197,9 +1188,21 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     face_override_type.offset_to_3DTL_uv = reader3DTA.readU32( settings.endian );
 
                     // Macintosh, Windows, and PS1 shows that these values never changed.
-                    // assert(face_override_type.zero_0 == 0);
-                    // assert(face_override_type.one == 1);
-                    // assert(face_override_type.zero_1 == 0);
+                    if(face_override_type.zero_0 != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 BYTE, but got " << static_cast<uint32_t>(face_override_type.zero_0) << " instead.\n";
+                    }
+                    if(face_override_type.one != 1) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 1, but got " << static_cast<uint32_t>(face_override_type.one) << " instead.\n";
+                    }
+                    if((face_override_type.unknown_bitfield & 0xC6) != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " has an unusual bitfield. This might cause inaccuracies in the frame by frame animation.\n";
+                    }
+                    if((face_override_type.unknown_bitfield & 0x01) != 1) {
+                        warning_log.output << "3DTA index " << std::dec << i << " animation type not supported. An incorrect animation will be shown.\n";
+                    }
+                    if(face_override_type.zero_1 != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 SHORT, but got " << static_cast<uint32_t>(face_override_type.zero_1) << " instead.\n";
+                    }
 
                     face_type_overrides.push_back(face_override_type);
                 }

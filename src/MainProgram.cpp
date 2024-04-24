@@ -43,14 +43,6 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     loadGraphics();
     setupCamera();
     setupControls();
-
-    auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-    log.output << "There are about " << Data::Mission::ObjResource::unknowns.size() << " unique unknown values.\n";
-    log.output << "There are about " << Data::Mission::ObjResource::max_3dta_frames << " maxiunum frames used.\n";
-
-    for(auto i = Data::Mission::ObjResource::unknowns.begin(); i != Data::Mission::ObjResource::unknowns.end(); i++) {
-        log.output << "Unknown value " << static_cast<uint32_t>((*i).first) << ": " << static_cast<uint32_t>((*i).second) << "\n";
-    }
 }
 
 void MainProgram::displayLoop() {
