@@ -309,9 +309,6 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].coordinate = coordinate;
                     triangle.vertices[t].vertex_metadata = metadata;
 
-                    if(face_override_amount == 0)
-                        triangle.vertices[t].vertex_metadata[1] = 0;
-
                     if(face_override_amount != 0 && triangle.vertices[t].vertex_metadata[1] > face_override_amount) {
                         for(int a = 0; a < t + 1; a++)
                             std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
