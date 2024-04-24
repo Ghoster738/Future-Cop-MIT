@@ -1195,7 +1195,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         warning_log.output << "3DTA index " << std::dec << i << " expected 1, but got " << static_cast<uint32_t>(face_override_type.one) << " instead.\n";
                     }
                     if((face_override_type.unknown_bitfield & 0xC6) != 0) {
-                        warning_log.output << "3DTA index " << std::dec << i << " has an unusual bitfield. This might cause inaccuracies in the frame by frame animation.\n";
+                        warning_log.output << "3DTA index " << std::dec << i << " has an unusual bitfield 0x" << std::hex << static_cast<uint32_t>(face_override_type.unknown_bitfield) << ". This might cause inaccuracies in the frame by frame animation.\n";
                     }
                     if((face_override_type.unknown_bitfield & 0x01) != 1) {
                         warning_log.output << "3DTA index " << std::dec << i << " animation type not supported. An incorrect animation will be shown.\n";
