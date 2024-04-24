@@ -446,9 +446,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 }
 
 int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
-    Triangle triangle;
+    Triangle      triangle;
     MorphTriangle morph_triangle;
-    glm::u8vec2 coords[2][3];
+    glm::u8vec2   coords[2][3];
+    int16_t       tex_animation_index[2][3];
 
     triangle.bmp_id = getBmpID();
     triangle.visual.uses_texture       = visual.uses_texture;
@@ -486,6 +487,23 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         coords[1][0] = glm::u8vec2( 0x00, 0x00 );
         coords[1][1] = glm::u8vec2( 0x00, 0xFF );
         coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
+    }
+
+    if(face_type_r != nullptr && face_type_r->face_override_index != 0) {
+        tex_animation_index[0][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][0] + 1;
+        tex_animation_index[0][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][1] + 1;
+        tex_animation_index[0][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][2] + 1;
+        tex_animation_index[1][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][0] + 1;
+        tex_animation_index[1][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][1] + 1;
+        tex_animation_index[1][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+    }
+    else {
+        // No tex animation index.
+        for(int i = 0; i < 2; i++) {
+            for(int t = 0; t < 3; t++) {
+                tex_animation_index[i][t] = 0;
+            }
+        }
     }
 
     glm::vec3 segments[2];
@@ -589,6 +607,7 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
             for( unsigned i = 0; i < 3; i++ ) {
                 triangle.points[i].position = segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
                 triangle.points[i].coords = coords[t][i];
+                triangle.points[i].face_override_index = tex_animation_index[t][i];
                 triangle.points[i].joints = joints[QUAD_TABLE[t][i] / 2]; // Untested.
             }
             triangles.push_back( triangle );
