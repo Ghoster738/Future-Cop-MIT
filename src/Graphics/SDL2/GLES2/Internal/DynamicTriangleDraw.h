@@ -19,10 +19,8 @@ public:
     static const GLchar* default_fragment_shader;
 
     enum PolygonType {
-        MIX             = 0,
-        ADDITION        = 1,
-        SUBTRACTION     = 2,
-        LESSER_ADDITION = 3
+        MIX      = 0,
+        ADDITION = 1
     };
 
     struct Vertex {
