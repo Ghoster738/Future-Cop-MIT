@@ -28,9 +28,20 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
                 draw_triangles_r[ i ].vertices[ t ].position   += delta_triangle_r[ i ].vertices[ t ];
             }
         }
-        draw_triangles_r[ i ].vertices[ 0 ].coordinate += texture_offset;
-        draw_triangles_r[ i ].vertices[ 1 ].coordinate += texture_offset;
-        draw_triangles_r[ i ].vertices[ 2 ].coordinate += texture_offset;
+
+        for( unsigned t = 0; t < 3; t++ ) {
+            const auto texture_animation_data = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
+
+            if(texture_animation_data != 0) {
+                const auto texture_animation_index = texture_animation_data - 1;
+
+                assert(texture_animation_index < uv_frame_buffer_r->size());
+
+                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_animation_index];
+            }
+
+            draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+        }
         
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
     }
@@ -283,6 +294,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                     dynamic.transform = camera_3D_model_transform;
                     dynamic.morph_info_r = (*accessor).second;
                     dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
+                    dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                     dynamic.texture_offset = texture_offset;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }

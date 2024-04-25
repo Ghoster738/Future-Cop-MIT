@@ -24,6 +24,7 @@ public:
         public:
             Animation *morph_info_r;
             unsigned int frame_index;
+            std::vector<glm::vec2> *uv_frame_buffer_r;
             glm::vec2 texture_offset;
 
             virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
