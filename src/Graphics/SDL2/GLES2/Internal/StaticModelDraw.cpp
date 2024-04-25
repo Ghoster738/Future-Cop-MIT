@@ -385,9 +385,6 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
 
                 (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
 
-                dynamic.texture_offset = texture_offset;
-                dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
-
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
@@ -406,6 +403,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 // Finally we can draw the mesh!
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
                 
+                dynamic.texture_offset = texture_offset;
+                dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                 dynamic.transform = camera_3D_model_transform;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
@@ -442,7 +441,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
         // Get the mesh.
         Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
 
-        if( mesh_r->getFrameAmount() > 0 ) {
+        if( mesh_r->getFrameAmount() != 0 ) {
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
                 (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
             }
