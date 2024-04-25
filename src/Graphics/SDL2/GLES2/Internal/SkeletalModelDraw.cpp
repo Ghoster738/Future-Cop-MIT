@@ -53,6 +53,16 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
             draw_triangles_r[ i ].vertices[ t ].position.y = position.y * (1. / position.w);
             draw_triangles_r[ i ].vertices[ t ].position.z = position.z * (1. / position.w);
 
+            const auto texture_animation_data = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
+
+            if(texture_animation_data != 0) {
+                const auto texture_animation_index = texture_animation_data - 1;
+
+                assert(texture_animation_index < uv_frame_buffer_r->size());
+
+                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_animation_index];
+            }
+
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
         }
 
@@ -289,6 +299,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     dynamic.transform = camera_3D_model_transform;
                     dynamic.skeletal_info_r = animate_r;
                     dynamic.current_frame = current_frame;
+                    dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                     dynamic.texture_offset = texture_offset;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }
