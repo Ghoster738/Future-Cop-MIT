@@ -994,7 +994,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         default: // Nothing
                             break;
                     }
-                    visability_mode   = VisabilityMode::ADDITION;
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
                     const uint8_t face_type =  (opcode_1 & 0x07);
@@ -1414,44 +1413,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "This is not a valid Obj file!\n";
                 reader.setPosition( 0, Utilities::Buffer::END );
             }
-        }
-
-
-        if(true && face_type_overrides.empty()) {
-            FaceOverrideType face_override_type;
-
-            face_override_type.number_of_frames = 4;
-            face_override_type.zero_0           = 0;
-            face_override_type.one              = 0;
-            face_override_type.unknown_bitfield = 9;
-
-            face_override_type.frame_duration = 0x100;
-            face_override_type.zero_1         = 0;
-
-            face_override_type.uv_data_offset    = 0;
-            face_override_type.offset_to_3DTL_uv = 4;
-
-            face_type_overrides.push_back(face_override_type);
-
-            override_uvs.push_back({0x00, 0x00});
-            override_uvs.push_back({0xFF, 0x00});
-            override_uvs.push_back({0x00, 0x40});
-            override_uvs.push_back({0xFF, 0x40});
-
-            override_uvs.push_back({0x00, 0x40});
-            override_uvs.push_back({0xFF, 0x40});
-            override_uvs.push_back({0x00, 0x80});
-            override_uvs.push_back({0xFF, 0x80});
-
-            override_uvs.push_back({0x00, 0x80});
-            override_uvs.push_back({0xFF, 0x80});
-            override_uvs.push_back({0x00, 0xB0});
-            override_uvs.push_back({0xFF, 0xB0});
-
-            override_uvs.push_back({0x00, 0xB0});
-            override_uvs.push_back({0xFF, 0xB0});
-            override_uvs.push_back({0x00, 0xFF});
-            override_uvs.push_back({0xFF, 0xFF});
         }
 
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
