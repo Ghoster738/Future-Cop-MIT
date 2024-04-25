@@ -311,5 +311,10 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds
                 (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
             }
         }
+        else {
+            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
+            }
+        }
     }
 }
