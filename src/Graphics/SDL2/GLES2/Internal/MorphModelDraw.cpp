@@ -28,9 +28,20 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
                 draw_triangles_r[ i ].vertices[ t ].position   += delta_triangle_r[ i ].vertices[ t ];
             }
         }
-        draw_triangles_r[ i ].vertices[ 0 ].coordinate += texture_offset;
-        draw_triangles_r[ i ].vertices[ 1 ].coordinate += texture_offset;
-        draw_triangles_r[ i ].vertices[ 2 ].coordinate += texture_offset;
+
+        for( unsigned t = 0; t < 3; t++ ) {
+            const auto texture_animation_data = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
+
+            if(texture_animation_data != 0) {
+                const auto texture_animation_index = texture_animation_data - 1;
+
+                assert(texture_animation_index < uv_frame_buffer_r->size());
+
+                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_animation_index];
+            }
+
+            draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+        }
         
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
     }
@@ -95,6 +106,10 @@ const Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::DeltaTriangle 
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_shader =
+    "const int ANIMATED_UV_FRAME_AMOUNT = 64;\n"
+    "const int QUAD_VERTEX_AMOUNT = 4;\n"
+    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
+
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
@@ -103,6 +118,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     // These uniforms are for modifiying the morph attributes
     "uniform float SampleNext;\n"
     "uniform float SampleLast;\n"
+    "uniform vec2 AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
     "void main()\n"
     "{\n"
@@ -116,8 +132,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     // Find a way to use the spherical projection properly.
     "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
-    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
     "   specular = _METADATA[0];\n"
+    "   texture_coord_1 = TEXCOORD_0 * float( _METADATA[1] == 0. );\n"
+    "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
+    "   texture_coord_1 += TextureTranslation;\n"
+    "   in_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw() {
@@ -167,8 +186,8 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj_identifier, textures );
+int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj_identifier, textures, face_override_animation, face_override_uvs );
     
     if( ret >= 0 )
     {
@@ -213,7 +232,6 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
 
     camera.getView3D( view );
     
-    // Use the static shader for the static models.
     program.use();
 
     // Check if there is even a shiney texture.
@@ -236,6 +254,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                 const auto texture_offset = (*instance)->getTextureOffset();
                 glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
 
+                (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
+
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
@@ -255,7 +275,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                 // We now draw the the mesh!
                 mesh_r->bindArray();
 
-                int current_last_frame = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) ) - 1;
+                int current_last_frame = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) ) - 1;
 
                 if( current_last_frame < 0 )
                 {
@@ -273,7 +293,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                 if( accessor != model_animation_p.end() ) {
                     dynamic.transform = camera_3D_model_transform;
                     dynamic.morph_info_r = (*accessor).second;
-                    dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getTimeline() ) );
+                    dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
+                    dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                     dynamic.texture_offset = texture_offset;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }
@@ -298,7 +319,13 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds
 
             // Go through every instance of the model.
             for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->setTimeline( fmod( (*instance)->getTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
+                (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
+                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
+            }
+        }
+        else {
+            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
             }
         }
     }

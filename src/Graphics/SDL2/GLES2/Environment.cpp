@@ -249,12 +249,12 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             if( model_r != nullptr )
             {
                 if( model_r->getNumJoints() > 0 )
-                    this->skeletal_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures );
+                    this->skeletal_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
                 else
                 if( model_r->getNumMorphFrames() > 0)
-                    this->morph_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures );
+                    this->morph_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
                 else
-                    this->static_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures );
+                    this->static_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
             }
         }
     }
@@ -422,6 +422,7 @@ bool Environment::screenshot( Utilities::Image2D &image ) const {
 
 void Environment::advanceTime( float seconds_passed ) {
     // For animatable meshes advance the time
+    this->static_model_draw_routine.advanceTime( seconds_passed );
     this->morph_model_draw_routine.advanceTime( seconds_passed );
     this->skeletal_model_draw_routine.advanceTime( seconds_passed );
 

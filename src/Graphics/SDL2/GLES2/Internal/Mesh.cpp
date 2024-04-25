@@ -140,7 +140,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
-    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    for( auto i = draw_command.begin(); i != draw_command.end(); i++ )
     {
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
@@ -154,7 +154,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
-    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    for( auto i = draw_command.begin(); i != draw_command.end(); i++ )
     {
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
@@ -169,7 +169,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_s
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
-    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    for( auto i = draw_command.begin(); i != draw_command.end(); i++ )
     {
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );

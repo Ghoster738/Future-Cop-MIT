@@ -18,16 +18,22 @@ class StaticModelDraw {
 public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
+
     struct ModelArray {
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
+        std::vector<glm::u8vec2> uv_animation_data;
+        std::vector<Data::Mission::ObjResource::FaceOverrideType> uv_animation_info;
         std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
+
+        void bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const;
     };
     class Dynamic : public Mesh::DynamicNormal {
     public:
         glm::vec2 texture_offset;
+        std::vector<glm::vec2> *uv_frame_buffer_r;
 
         virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
     };
@@ -42,6 +48,7 @@ protected:
     GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
     GLuint texture_offset_uniform_id;
+    GLuint animated_uv_frames_id;
     
     // These are used for speculars
     GLuint view_uniform_id;
@@ -49,6 +56,8 @@ protected:
 
     // The models need to be accessed.
     std::map<uint32_t, ModelArray*> models_p;
+
+    std::vector<glm::vec2> uv_frame_buffer;
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
@@ -119,11 +128,14 @@ public:
 
     /**
      * This handles the loading of the models.
-     * @param These are the models to load.
-     * @param This is the amount of models to load.
+     * @param model_type Holds the model information.
+     * @param resource_cobj The id associated with the model.
+     * @param textures The accessor of the textures available for the models.
+     * @param face_override_animation UV animation information info.
+     * @param face_override_uvs UV override information.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs );
 
     void clearModels();
 

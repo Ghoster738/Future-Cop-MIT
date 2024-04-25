@@ -22,26 +22,28 @@ const int OPT_USER_DIR        = 'u';
 const int OPT_WIN_DATA_DIR    = 'd';
 const int OPT_MAC_DATA_DIR    = 'm';
 const int OPT_PSX_DATA_DIR    = 'p';
+const int OPT_LOAD_ALL_MAPS   = 'a';
 const int OPT_GLOBAL_PATH     = 'g';
 const int OPT_MAP_PATH        = 'M';
 
 const char* const short_options = "h"; // The only short option is for the help parameter
 
 const option long_options[] = {
-    {"help",         no_argument,       nullptr, OPT_HELP         },
-    {"width",        required_argument, nullptr, OPT_RES_WIDTH    },
-    {"height",       required_argument, nullptr, OPT_RES_HEIGHT   },
-    {"res",          required_argument, nullptr, OPT_RES          },
-    {"fullscreen",   no_argument,       nullptr, OPT_FULLSCREEN   },
-    {"window",       no_argument,       nullptr, OPT_WINDOW       },
-    {"config",       required_argument, nullptr, OPT_CONFIG_DIR   },
-    {"export-path",  required_argument, nullptr, OPT_EXPORT_DIR   },
-    {"user",         required_argument, nullptr, OPT_USER_DIR     },
-    {"win-data",     required_argument, nullptr, OPT_WIN_DATA_DIR },
-    {"mac-data",     required_argument, nullptr, OPT_MAC_DATA_DIR },
-    {"psx-data",     required_argument, nullptr, OPT_PSX_DATA_DIR },
-    {"global",       required_argument, nullptr, OPT_GLOBAL_PATH  },
-    {"path",         required_argument, nullptr, OPT_MAP_PATH     },
+    {"help",          no_argument,       nullptr, OPT_HELP         },
+    {"width",         required_argument, nullptr, OPT_RES_WIDTH    },
+    {"height",        required_argument, nullptr, OPT_RES_HEIGHT   },
+    {"res",           required_argument, nullptr, OPT_RES          },
+    {"fullscreen",    no_argument,       nullptr, OPT_FULLSCREEN   },
+    {"window",        no_argument,       nullptr, OPT_WINDOW       },
+    {"config",        required_argument, nullptr, OPT_CONFIG_DIR   },
+    {"export-path",   required_argument, nullptr, OPT_EXPORT_DIR   },
+    {"user",          required_argument, nullptr, OPT_USER_DIR     },
+    {"win-data",      required_argument, nullptr, OPT_WIN_DATA_DIR },
+    {"mac-data",      required_argument, nullptr, OPT_MAC_DATA_DIR },
+    {"psx-data",      required_argument, nullptr, OPT_PSX_DATA_DIR },
+    {"load-all-maps", required_argument, nullptr, OPT_LOAD_ALL_MAPS },
+    {"global",        required_argument, nullptr, OPT_GLOBAL_PATH  },
+    {"path",          required_argument, nullptr, OPT_MAP_PATH     },
 
     {0, 0, 0, 0} // Required as last option
 };
@@ -114,8 +116,9 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --psx-data    <path> Path to directory - Future Cop LAPD original Playstation data" << "\n"
         << "    --export-path <path> Path to directory - path to where exported files go" << "\n"
         << "  Maps:" << "\n"
-        << "    --path        <file path> Path to a map file" << "\n"
-        << "    --global      <file path> Path to the global file" << "\n"
+        << "    --load-all-maps <true|false> If true then every map of the game would be loaded at once." << "\n"
+        << "    --path          <file path> Path to a map file" << "\n"
+        << "    --global        <file path> Path to the global file" << "\n"
         << "\n";
 }
 
@@ -152,6 +155,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
             case OPT_MAC_DATA_DIR:    parseMacintoshDataDir(optarg);   break;
             case OPT_PSX_DATA_DIR:    parsePlaystationDataDir(optarg); break;
+            case OPT_LOAD_ALL_MAPS:   parseLoadAllMaps(optarg);        break;
             case OPT_GLOBAL_PATH:     parseGlobalPath(optarg);         break;
             case OPT_MAP_PATH:        parseMissionPath(optarg);        break;
                 
@@ -159,18 +163,19 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case ':':
                 // Handle missing arguments or unknown options
                 switch (optopt) {
-                    case OPT_RES_WIDTH:    storeError("resolution width not specified in commandline");                break;
-                    case OPT_RES_HEIGHT:   storeError("resolution height not specified in commandline");               break;
-                    case OPT_RES:          storeError("resolution (width and height) not specified in commandline");   break;
-                    case OPT_CONFIG_DIR:   storeError("configuration directory not specified in commandline");         break;
-                    case OPT_EXPORT_DIR:   storeError("export directory not specified in commandline");                break;
-                    case OPT_USER_DIR:     storeError("user data directory not specified in commandline");             break;
-                    case OPT_WIN_DATA_DIR: storeError("Windows game data directory not specified in commandline");     break;
-                    case OPT_MAC_DATA_DIR: storeError("Macintosh game data directory not specified in commandline");   break;
-                    case OPT_PSX_DATA_DIR: storeError("Playstation game data directory not specified in commandline"); break;
-                    case OPT_GLOBAL_PATH:  storeError("Global path not specified in commandline");                     break;
-                    case OPT_MAP_PATH:     storeError("Map path not specified in commandline");                        break;
-                    default:               storeError("unsupported option \"" + std::string( argv[ (optind - 1) % argc ] ) + "\" specified in commandline, use --help to list valid options");
+                    case OPT_RES_WIDTH:     storeError("resolution width not specified in commandline");                break;
+                    case OPT_RES_HEIGHT:    storeError("resolution height not specified in commandline");               break;
+                    case OPT_RES:           storeError("resolution (width and height) not specified in commandline");   break;
+                    case OPT_CONFIG_DIR:    storeError("configuration directory not specified in commandline");         break;
+                    case OPT_EXPORT_DIR:    storeError("export directory not specified in commandline");                break;
+                    case OPT_USER_DIR:      storeError("user data directory not specified in commandline");             break;
+                    case OPT_WIN_DATA_DIR:  storeError("Windows game data directory not specified in commandline");     break;
+                    case OPT_MAC_DATA_DIR:  storeError("Macintosh game data directory not specified in commandline");   break;
+                    case OPT_PSX_DATA_DIR:  storeError("Playstation game data directory not specified in commandline"); break;
+                    case OPT_LOAD_ALL_MAPS: storeError("Load all maps boolean is expected in commandline");             break;
+                    case OPT_GLOBAL_PATH:   storeError("Global path not specified in commandline");                     break;
+                    case OPT_MAP_PATH:      storeError("Map path not specified in commandline");                        break;
+                    default:                storeError("unsupported option \"" + std::string( argv[ (optind - 1) % argc ] ) + "\" specified in commandline, use --help to list valid options");
                 }
                 
                 break;
@@ -450,6 +455,18 @@ void Utilities::Options::Parameters::parsePlaystationDataDir( std::string direct
     }
 
     storeError("non-directory Playstation game data path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parseLoadAllMaps( std::string value ) {
+    if (p_load_all_maps.wasModified()) {
+        storeError("multiple load all map boolean parameters specified in commandline");
+        return;
+    }
+
+    if(!value.empty() && value[0] == 't' || value[0] == 'T' || value[0] == '1')
+        p_load_all_maps = BoolParam(true);
+    else
+        p_load_all_maps = BoolParam(false);
 }
 
 void Utilities::Options::Parameters::parseGlobalPath( std::string path ) {

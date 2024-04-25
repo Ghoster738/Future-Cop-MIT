@@ -33,7 +33,7 @@ float Utilities::Collision::Plane::getIntersectionDistance( const Ray& ray ) con
     // First calculate the distance_denominator
     distance_denominator = direction.x * ( C.x - P.x ) + direction.y * ( C.y - P.y ) + direction.z * ( C.z - P.z );
     
-    // Abort if the denominator is -1.
+    // Abort if the denominator is 0.
     if( distance_denominator == 0 )
         return -1;
     else {

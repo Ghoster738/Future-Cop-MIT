@@ -175,6 +175,20 @@ namespace DataTypes {
         Type getType() const;
         ComponentType getComponentType() const;
     };
+    class Vec2SShortType : public DataType {
+    public:
+        glm::i16vec2 data;
+
+        Vec2SShortType(){}
+        Vec2SShortType( const glm::i16vec2   &value ) : data( value ) {}
+        Vec2SShortType( const Vec2SShortType &value ) : data( value.data ) {}
+
+        void writeBuffer( uint32_t *buffer ) const;
+        void writeBuffer( std::vector<uint32_t> &buffer ) const;
+        void writeJSON( Json::Value &json ) const;
+        Type getType() const;
+        ComponentType getComponentType() const;
+    };
     class ScalarUIntType : public DataType {
     public:
         uint32_t data;

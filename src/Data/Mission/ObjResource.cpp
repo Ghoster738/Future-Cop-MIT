@@ -42,12 +42,19 @@ namespace {
 
     const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
 
-    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords )
+    void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords, int16_t *face_override_index )
     {
+        assert(coords != nullptr);
+        assert(face_override_index != nullptr);
+
         if( !triangle.visual.uses_texture ) {
             coords[0] = glm::u8vec2(0, 0);
             coords[1] = glm::u8vec2(0, 0);
             coords[2] = glm::u8vec2(0, 0);
+
+            face_override_index[0] = 0;
+            face_override_index[1] = 0;
+            face_override_index[2] = 0;
         }
         else
         if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
@@ -55,12 +62,34 @@ namespace {
             coords[0] = texture_quad.coords[QUAD_TABLE[0][0]];
             coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
             coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
+
+            if(texture_quad.face_override_index != 0) {
+                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][0] + 1;
+                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][1] + 1;
+                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][2] + 1;
+            }
+            else {
+                face_override_index[0] = 0;
+                face_override_index[1] = 0;
+                face_override_index[2] = 0;
+            }
         }
         else
         {
             coords[0] = texture_quad.coords[QUAD_TABLE[1][0]];
             coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
             coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
+
+            if(texture_quad.face_override_index != 0) {
+                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][0] + 1;
+                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][1] + 1;
+                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+            }
+            else {
+                face_override_index[0] = 0;
+                face_override_index[1] = 0;
+                face_override_index[2] = 0;
+            }
         }
     }
 
@@ -83,6 +112,34 @@ namespace {
         b = (b & 0b10101010) >> 1 | (b & 0b01010101) << 1;
         return b;
     }
+}
+
+glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) const {
+    glm::u8vec4 color;
+
+    const uint_fast16_t max_number = 0xFF;
+
+    if( material.polygon_color_type == VertexColorMode::FULL ) {
+        if( material.visability == ADDITION) {
+            color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+            color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+            color.b = std::min( (static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
+        }
+        else {
+            color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+            color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+            color.b = 0;
+        }
+    }
+    else {
+        color.r = max_number;
+        color.g = max_number;
+        color.b = max_number;
+    }
+
+    color.a = max_number;
+
+    return color;
 }
 
 void Data::Mission::ObjResource::Triangle::switchPoints() {
@@ -134,6 +191,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[3];
+    int16_t face_override_indexes[3];
     glm::u8vec4 weights, joints;
 
     // Future Cop only uses one joint, so it only needs one weight.
@@ -150,6 +208,8 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     triangle.visual.polygon_color_type = visual.polygon_color_type;
     triangle.visual.visability         = visual.visability;
 
+    triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
+
     handlePositions( triangle.points[0].position, positions.data(), v[2] );
     handlePositions( triangle.points[1].position, positions.data(), v[1] );
     handlePositions( triangle.points[2].position, positions.data(), v[0] );
@@ -160,9 +220,15 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
         handleNormals( triangle.points[2].normal, normals.data(), n[0] );
     }
 
-    triangleToCoords( *this, *face_type_r, coords );
+    triangleToCoords( *this, *face_type_r, coords, face_override_indexes );
+
+    if( face_type_r != nullptr ) {
+        triangle.color = face_type_r->getColor( triangle.visual );
+    }
+
     for( unsigned t = 0; t < 3; t++ ) {
         triangle.points[t].coords = coords[2 - t];
+        triangle.points[t].face_override_index = face_override_indexes[2 - t];
     }
 
     for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
@@ -239,6 +305,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
+    int16_t     tex_animation_index[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center, morph_center;
     float length, morph_length;
@@ -271,6 +338,8 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     triangle.points[2].normal = glm::vec3(0, 1, 0);
 
     if( face_type_r != nullptr ) {
+        triangle.color = face_type_r->getColor( triangle.visual );
+
         coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
         coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
         coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
@@ -279,12 +348,31 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
     }
     else {
+        triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
+
         coords[0][0] = glm::u8vec2( 0x00, 0x00 );
         coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
         coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
         coords[1][0] = glm::u8vec2( 0x00, 0x00 );
         coords[1][1] = glm::u8vec2( 0x00, 0xFF );
         coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
+    }
+
+    if(face_type_r != nullptr && face_type_r->face_override_index != 0) {
+        tex_animation_index[0][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][0] + 1;
+        tex_animation_index[0][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][1] + 1;
+        tex_animation_index[0][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][2] + 1;
+        tex_animation_index[1][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][0] + 1;
+        tex_animation_index[1][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][1] + 1;
+        tex_animation_index[1][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+    }
+    else {
+        // No tex animation index.
+        for(int i = 0; i < 2; i++) {
+            for(int t = 0; t < 3; t++) {
+                tex_animation_index[i][t] = 0;
+            }
+        }
     }
 
      // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
@@ -313,6 +401,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[0][i]];
             triangle.points[i].coords = coords[0][i];
+            triangle.points[i].face_override_index = tex_animation_index[0][i];
         }
 
         triangles.push_back( triangle );
@@ -344,6 +433,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[1][i]];
             triangle.points[i].coords = coords[1][i];
+            triangle.points[i].face_override_index = tex_animation_index[1][i];
         }
 
         triangles.push_back( triangle );
@@ -376,9 +466,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
 }
 
 int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
-    Triangle triangle;
+    Triangle      triangle;
     MorphTriangle morph_triangle;
-    glm::u8vec2 coords[2][3];
+    glm::u8vec2   coords[2][3];
+    int16_t       tex_animation_index[2][3];
 
     triangle.bmp_id = getBmpID();
     triangle.visual.uses_texture       = visual.uses_texture;
@@ -398,6 +489,8 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     morph_triangle.points[2].normal = triangle.points[2].normal;
 
     if( face_type_r != nullptr ) {
+        triangle.color = face_type_r->getColor( triangle.visual );
+
         coords[0][0] = face_type_r->coords[QUAD_TABLE[0][0]];
         coords[0][1] = face_type_r->coords[QUAD_TABLE[0][1]];
         coords[0][2] = face_type_r->coords[QUAD_TABLE[0][2]];
@@ -406,12 +499,31 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
         coords[1][2] = face_type_r->coords[QUAD_TABLE[1][2]];
     }
     else {
+        triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
+
         coords[0][0] = glm::u8vec2( 0x00, 0x00 );
         coords[0][1] = glm::u8vec2( 0xFF, 0x00 );
         coords[0][2] = glm::u8vec2( 0xFF, 0xFF );
         coords[1][0] = glm::u8vec2( 0x00, 0x00 );
         coords[1][1] = glm::u8vec2( 0x00, 0xFF );
         coords[1][2] = glm::u8vec2( 0xFF, 0xFF );
+    }
+
+    if(face_type_r != nullptr && face_type_r->face_override_index != 0) {
+        tex_animation_index[0][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][0] + 1;
+        tex_animation_index[0][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][1] + 1;
+        tex_animation_index[0][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[0][2] + 1;
+        tex_animation_index[1][0] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][0] + 1;
+        tex_animation_index[1][1] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][1] + 1;
+        tex_animation_index[1][2] = 4 * (face_type_r->face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+    }
+    else {
+        // No tex animation index.
+        for(int i = 0; i < 2; i++) {
+            for(int t = 0; t < 3; t++) {
+                tex_animation_index[i][t] = 0;
+            }
+        }
     }
 
     glm::vec3 segments[2];
@@ -515,6 +627,7 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
             for( unsigned i = 0; i < 3; i++ ) {
                 triangle.points[i].position = segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
                 triangle.points[i].coords = coords[t][i];
+                triangle.points[i].face_override_index = tex_animation_index[t][i];
                 triangle.points[i].joints = joints[QUAD_TABLE[t][i] / 2]; // Untested.
             }
             triangles.push_back( triangle );
@@ -747,6 +860,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     face_types[offset].has_transparent_pixel_t0 = false;
                     face_types[offset].has_transparent_pixel_t1 = false;
 
+                    face_types[offset].face_override_index = 0;
+
                     switch( face_types[offset].opcodes[0] ) {
                         case 1:
                         {
@@ -874,11 +989,15 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         case 0b1101:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::ADDITION;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::FULL;
                             break;
                         default: // Nothing
                             break;
                     }
+
+                    // TODO Remove this workaround
+                    if(visability_mode != VisabilityMode::ADDITION)
+                        vertex_color_mode = VertexColorMode::NON;
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
                     const uint8_t face_type =  (opcode_1 & 0x07);
@@ -1092,7 +1211,48 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DTA ) {
                 auto reader3DTA = reader.getReader( data_tag_size );
                 
-                debug_log.output << "3DTA is not handled yet.\n";
+                uint32_t number_of_face_overrides = reader3DTA.readU32( settings.endian );
+
+                FaceOverrideType face_override_type;
+
+                for( unsigned int i = 0; i < number_of_face_overrides; i++ ) {
+                    face_override_type.number_of_frames = reader3DTA.readU8();
+                    face_override_type.zero_0 = reader3DTA.readU8();
+                    face_override_type.one = reader3DTA.readU8();
+                    face_override_type.unknown_bitfield = reader3DTA.readU8();
+
+                    face_override_type.frame_duration = reader3DTA.readU16( settings.endian );
+                    face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
+
+                    face_override_type.uv_data_offset = reader3DTA.readU32( settings.endian );
+                    face_override_type.offset_to_3DTL_uv = reader3DTA.readU32( settings.endian );
+
+                    // Macintosh, Windows, and PS1 shows that these values never changed.
+                    if(face_override_type.zero_0 != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 BYTE, but got " << static_cast<uint32_t>(face_override_type.zero_0) << " instead.\n";
+                    }
+                    if(face_override_type.one != 1) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 1, but got " << static_cast<uint32_t>(face_override_type.one) << " instead.\n";
+                    }
+                    if((face_override_type.unknown_bitfield & 0xC6) != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " has an unusual bitfield 0x" << std::hex << static_cast<uint32_t>(face_override_type.unknown_bitfield) << ". This might cause inaccuracies in the frame by frame animation.\n";
+                    }
+                    if((face_override_type.unknown_bitfield & 0x01) != 1) {
+                        warning_log.output << "3DTA index " << std::dec << i << " animation type not supported. An incorrect animation will be shown.\n";
+                    }
+                    if(face_override_type.zero_1 != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 SHORT, but got " << static_cast<uint32_t>(face_override_type.zero_1) << " instead.\n";
+                    }
+
+                    face_type_overrides.push_back(face_override_type);
+                }
+
+                this->override_uvs.resize((reader3DTA.totalSize() - reader3DTA.getPosition()) / sizeof(glm::u8vec2));
+
+                for(auto i = this->override_uvs.begin(); i != this->override_uvs.end(); i++) {
+                    (*i).x = reader3DTA.readU8();
+                    (*i).y = reader3DTA.readU8();
+                }
             }
             else
             if( identifier == TAG_3DAL ) {
@@ -1258,6 +1418,38 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 reader.setPosition( 0, Utilities::Buffer::END );
             }
         }
+
+        for( auto i = face_type_overrides.size(); i != 0; i-- ) {
+            FaceOverrideType &face_override = face_type_overrides[ i - 1 ];
+
+            size_t data_size = 4 * face_override.number_of_frames;
+
+            if(face_override.uv_data_offset % sizeof(glm::u8vec2) != 0) {
+                error_log.output << "UV data offset 0x" << std::hex << face_override.uv_data_offset << " is not even\n";
+                error_log.output << "  Culling 3DTL index " << std::dec << (i - 1) << "\n";
+
+                face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
+                continue;
+            }
+
+            if(override_uvs.size() < data_size + face_override.uv_data_offset / sizeof(glm::u8vec2)) {
+                error_log.output << "UV data offset 0x" << std::hex << face_override.uv_data_offset << " is too big for size 0x" << override_uvs.size() << "\n";
+                error_log.output << "  Culling 3DTL index " << std::dec << (i - 1) << "\n";
+
+                face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
+                continue;
+            }
+
+            if(face_types.find(face_override.offset_to_3DTL_uv - 4) == face_types.end()) {
+                error_log.output << "Offset to 3DTL 0x" << std::hex << face_override.offset_to_3DTL_uv << " is not found.\n";
+                error_log.output << "  Anyways culling 3DTL index " << std::dec << (i - 1) << ". It might be a feature that I do not know about yet.\n";
+
+                face_type_overrides.erase(face_type_overrides.begin() + (i - 1));
+                continue;
+            }
+
+            face_types[face_override.offset_to_3DTL_uv - 4].face_override_index = i;
+        }
         
         // This warning tells that there are only two options for animations either morphing or bone animation.
         if( !( !(( bytes_per_frame_3DMI > 0 ) & ( vertex_anm_positions.size() > 0 )) ) )
@@ -1281,6 +1473,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI frames is " << std::dec << num_frames_4DGI << "\n";
                 error_log.output << "4DGI frames not equal to " << bone_frames << "\n";
             }
+
+            if(!override_uvs.empty()) {
+                debug_log.output << "3DTA is with bone animation data!\n";
+            }
         }
         else
         if( vertex_anm_positions.size() > 0 )
@@ -1298,6 +1494,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             {
                 error_log.output << "4DGI frames is " << std::dec << num_frames_4DGI << "\n";
                 error_log.output << "4DGI frames not equal to " << (vertex_anm_positions.size() + 1) << "\n";
+            }
+
+            if(!override_uvs.empty()) {
+                debug_log.output << "3DTA is with morph data!\n";
             }
         }
         else
@@ -1527,8 +1727,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
+    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
 
@@ -1599,7 +1800,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     if( texture_references.size() == 0 )
         model_output->setMaterial( "" );
 
-    glm::u8vec4 metadata;
+    glm::i16vec2 metadata;
 
     auto triangle = triangle_buffer.begin();
     auto previous_triangle = triangle_buffer.begin();
@@ -1634,15 +1835,13 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
         {
             assert( triangle != triangle_buffer.end() );
 
-            if( (*triangle).visual.is_reflective )
-                metadata[0] = 0xFF;
-            else
-                metadata[0] = 0x00;
-
             if( (*triangle).visual.normal_shading )
-                metadata[1] = 0xFF;
+                metadata[0] = 2;
             else
-                metadata[1] = 0x00;
+                metadata[0] = 1;
+
+            if( !(*triangle).visual.is_reflective )
+                metadata[0] = -metadata[0];
 
             if( triangle != previous_triangle ) {
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
@@ -1663,12 +1862,17 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
             for( unsigned vertex_index = 0; vertex_index < 3; vertex_index++ ) {
                 const Point point = (*triangle).points[vertex_index];
 
+                metadata[1] = point.face_override_index;
+
+                assert(point.face_override_index <= 4 * face_type_overrides.size());
+
                 model_output->startVertex();
 
-                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(      point.position ) );
-                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(      point.normal ) );
-                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType( point.coords ) );
-                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec4UByteType( metadata ) );
+                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
+                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
+                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType(  (*triangle).color ) );
+                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
+                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
 
                 auto morph_triangle_frame = morph_triangle;
 

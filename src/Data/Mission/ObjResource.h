@@ -39,7 +39,30 @@ public:
         BILLBOARD      = 5,
         LINE           = 7
     };
+    struct Material {
+        uint8_t uses_texture:       1; // Does the face use a texture or not?
+        uint8_t normal_shading:     1;
+        uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
+        uint8_t visability:         2; // Please see enum VisabilityMode
+        uint8_t is_reflective:      1;
+    };
+    struct FaceOverrideType {
+        static constexpr float UNITS_TO_SECONDS = 0.001652018;
 
+        uint8_t number_of_frames;
+        uint8_t zero_0;
+        uint8_t one;
+        uint8_t unknown_bitfield;
+        uint16_t frame_duration;
+        uint16_t zero_1;
+        uint32_t uv_data_offset;
+        uint32_t offset_to_3DTL_uv;
+
+        float getFrameDuration() const { return static_cast<float>(frame_duration) * UNITS_TO_SECONDS; }
+        float getEntireDuration() const { return getFrameDuration() * number_of_frames; }
+
+        uint_fast32_t getEntireDurationUnits() const { return static_cast<uint_fast32_t>(frame_duration) * static_cast<uint_fast32_t>(number_of_frames); }
+    };
     struct FaceType {
         uint8_t opcodes[4];
 
@@ -50,20 +73,18 @@ public:
         bool has_transparent_pixel_t1;
 
         glm::u8vec2 coords[4];
-    };
-    struct Material {
-        uint8_t uses_texture:       1; // Does the face use a texture or not?
-        uint8_t normal_shading:     1;
-        uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
-        uint8_t visability:         2; // Please see enum VisabilityMode
-        uint8_t is_reflective:      1;
+
+        int16_t face_override_index;
+
+        glm::u8vec4 getColor( Material material ) const;
     };
     struct Point {
         glm::vec3 position;
         glm::vec3 normal;
-        glm::u8vec2 coords;
         glm::u8vec4 weights;
         glm::u8vec4 joints;
+        glm::u8vec2 coords;
+        int16_t     face_override_index;
     };
     struct MorphPoint {
         glm::vec3 position;
@@ -71,6 +92,7 @@ public:
     };
     struct Triangle {
         uint32_t bmp_id;
+        glm::u8vec4 color;
         Material visual;
         Point points[3];
 
@@ -150,7 +172,9 @@ private:
     std::vector<glm::i16vec3> vertex_normals;
     std::vector<uint16_t>     lengths;
 
-    std::map<uint_fast16_t, FaceType>  face_types;
+    std::map<uint_fast16_t, FaceType> face_types;
+    std::vector<FaceOverrideType>     face_type_overrides;
+    std::vector<glm::u8vec2>          override_uvs;
 
     std::vector<Primitive>    face_triangles;
     std::vector<Primitive>    face_quads;
@@ -175,7 +199,7 @@ private:
     
     /**
      * This gets the bytes per frame rating for the specific opcode.
-     * @param opecode The opcode value to get the bytes per frame from.
+     * @param opcode The opcode value to get the bytes per frame from.
      * @note This method does not tell you if the opcode exists. There are opcodes with bytes per frame with a zero value.
      * @return A zero if either the opcode does not exist or the bytes per frame rating for the opcode.
      */
@@ -196,6 +220,9 @@ public:
     bool isPositionValid( unsigned index ) const;
 
     glm::vec3 getPosition( unsigned index ) const;
+
+    const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
+    const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 

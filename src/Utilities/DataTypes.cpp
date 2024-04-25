@@ -245,6 +245,32 @@ Utilities::DataTypes::ComponentType Utilities::DataTypes::Vec4UByteType::getComp
     return DataTypes::ComponentType::UNSIGNED_BYTE;
 }
 
+void Utilities::DataTypes::Vec2SShortType::writeBuffer( uint32_t *buffer ) const {
+    auto p = reinterpret_cast<uint16_t*>( buffer );
+
+    p[0] = data.x;
+    p[1] = data.y;
+}
+
+void Utilities::DataTypes::Vec2SShortType::writeBuffer(std::vector<uint32_t> &buffer) const {
+    buffer.push_back(0);
+
+    writeBuffer(&buffer.back());
+}
+
+void Utilities::DataTypes::Vec2SShortType::writeJSON( Json::Value &json ) const {
+    json.append( data.x );
+    json.append( data.y );
+}
+
+Utilities::DataTypes::Type Utilities::DataTypes::Vec2SShortType::getType() const {
+    return DataTypes::Type::VEC2;
+}
+
+Utilities::DataTypes::ComponentType Utilities::DataTypes::Vec2SShortType::getComponentType() const{
+    return DataTypes::ComponentType::SHORT;
+}
+
 void Utilities::DataTypes::ScalarUIntType::writeBuffer( uint32_t *buffer ) const {
     buffer[0] = data;
 }

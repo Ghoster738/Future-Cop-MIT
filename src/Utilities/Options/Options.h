@@ -25,6 +25,9 @@ public:
     std::string getCurrentPlatform();
     void setCurrentPlatform(std::string value);
 
+    bool getLoadAllMaps();
+    void setLoadAllMaps(bool load_all_maps);
+
     int getVideoWidth();
     void setVideoWidth(int value);
 

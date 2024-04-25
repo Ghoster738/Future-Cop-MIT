@@ -19,24 +19,22 @@ public:
     static const GLchar* default_fragment_shader;
 
     enum PolygonType {
-        MIX             = 0,
-        ADDITION        = 1,
-        SUBTRACTION     = 2,
-        LESSER_ADDITION = 3
+        MIX      = 0,
+        ADDITION = 1
     };
 
     struct Vertex {
-        glm::vec3   position;
-        glm::vec3   normal;
-        glm::vec4   color;
-        glm::vec2   coordinate;
-        glm::u8vec4 vertex_metadata;
+        glm::vec3    position;
+        glm::vec3    normal;
+        glm::vec4    color;
+        glm::vec2    coordinate;
+        glm::i16vec2 vertex_metadata;
 
         // OpenGL should ignore these values.
         union {
             struct {
                 uint32_t texture_id : 30;
-                uint32_t polygon_type : 2; // https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#semi-transparency
+                uint32_t polygon_type : 2;
             } bitfield;
             float distance_from_camera;
         } metadata;

@@ -37,6 +37,10 @@ void Graphics::ModelInstance::setTextureOffset( const glm::vec2 &texture_offset 
     this->texture_offset = texture_offset;
 }
 
+void Graphics::ModelInstance::addTextureTransformTimelineSeconds( float texture_transform_timeline_seconds ) {
+    this->texture_transform_timeline += texture_transform_timeline_seconds / Data::Mission::ObjResource::FaceOverrideType::UNITS_TO_SECONDS;
+}
+
 glm::vec3 Graphics::ModelInstance::getPosition() const {
     return this->position;
 }
