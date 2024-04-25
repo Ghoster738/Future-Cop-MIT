@@ -995,6 +995,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             break;
                     }
 
+                    // TODO Remove this workaround
+                    if(visability_mode != VisabilityMode::ADDITION)
+                        vertex_color_mode = VertexColorMode::NON;
+
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
                     const uint8_t face_type =  (opcode_1 & 0x07);
 
