@@ -441,10 +441,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
         // Get the mesh.
         Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
 
-        if( mesh_r->getFrameAmount() != 0 ) {
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
+        for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+            (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
         }
     }
 }
