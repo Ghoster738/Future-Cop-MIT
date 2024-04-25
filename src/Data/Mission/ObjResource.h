@@ -199,7 +199,7 @@ private:
     
     /**
      * This gets the bytes per frame rating for the specific opcode.
-     * @param opecode The opcode value to get the bytes per frame from.
+     * @param opcode The opcode value to get the bytes per frame from.
      * @note This method does not tell you if the opcode exists. There are opcodes with bytes per frame with a zero value.
      * @return A zero if either the opcode does not exist or the bytes per frame rating for the opcode.
      */

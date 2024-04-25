@@ -1469,6 +1469,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI frames is " << std::dec << num_frames_4DGI << "\n";
                 error_log.output << "4DGI frames not equal to " << bone_frames << "\n";
             }
+
+            if(!override_uvs.empty()) {
+                debug_log.output << "3DTA is with bone animation data!\n";
+            }
         }
         else
         if( vertex_anm_positions.size() > 0 )
@@ -1486,6 +1490,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             {
                 error_log.output << "4DGI frames is " << std::dec << num_frames_4DGI << "\n";
                 error_log.output << "4DGI frames not equal to " << (vertex_anm_positions.size() + 1) << "\n";
+            }
+
+            if(!override_uvs.empty()) {
+                debug_log.output << "3DTA is with morph data!\n";
             }
         }
         else
