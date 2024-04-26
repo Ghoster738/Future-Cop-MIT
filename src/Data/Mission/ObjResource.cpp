@@ -1230,12 +1230,19 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DRF ) {
                 auto reader3DRF = reader.getReader( data_tag_size );
 
-                debug_log.output << "3DRF" << std::hex << "\n"
-                    << "Index " << getIndexNumber() << "\n"
-                    << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << "\n";
+                auto reference_number = reader3DRF.readU32( settings.endian );
+                auto reference_to     = reader3DRF.readU32( settings.endian );
+                auto reference_count  = reader3DRF.readU32( settings.endian );
 
-                if( reader3DRF.totalSize() != 0x10 )
-                    warning_log.output << "reader3DRF.totalSize() is not 0x10, but 0x" << std::hex << reader3DRF.totalSize() << ".\n";
+                std::vector<uint32_t> id_array;
+
+                id_array.resize(reference_count);
+
+                for(auto i = id_array.begin(); i != id_array.end(); i++) {
+                    (*i) = reader3DRF.readU32( settings.endian );
+
+                    assert((*i) == i - id_array.begin() + 1);
+                }
             }
             else
             if( identifier == TAG_4DVL ) {
