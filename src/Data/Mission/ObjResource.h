@@ -121,7 +121,7 @@ public:
          */
         unsigned int getNumAttributes() const;
     };
-    class VertexDataReference {
+    class VertexData {
     private:
         std::vector<uint32_t>     reference_ids;
         std::vector<glm::i16vec3> positions;
@@ -140,7 +140,7 @@ public:
         };
 
     public:
-        VertexDataReference();
+        VertexData();
 
         uint32_t get3DRFSize() const;
         void     set3DRFSize(uint32_t size);
@@ -178,10 +178,10 @@ public:
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
-        int setTriangle(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
-        int setQuad(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
-        int setBillboard(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
-        int setLine(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setTriangle(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setQuad(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setBillboard(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setLine(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
 
         static size_t getTriangleAmount( PrimitiveType type );
 
@@ -212,7 +212,7 @@ private:
     } info;
     unsigned position_indexes[4];
 
-    VertexDataReference vertex_data_reference;
+    VertexData vertex_data_reference;
 
     std::map<uint_fast16_t, FaceType> face_types;
     std::vector<FaceOverrideType>     face_type_overrides;

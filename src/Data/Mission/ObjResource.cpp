@@ -184,7 +184,7 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
-int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     if( !isWithinBounds( vertex_data_reference.get4DVLSize(), vertex_data_reference.get4DNLSize() ) )
         return 0;
 
@@ -210,7 +210,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference
 
     triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
 
-    const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 0);
+    const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 0);
     const glm::i16vec3* const positions_r = vertex_data_reference.get4DVLPointer(id_position);
 
     handlePositions( triangle.points[0].position, positions_r, v[2] );
@@ -218,7 +218,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference
     handlePositions( triangle.points[2].position, positions_r, v[0] );
 
     if( vertex_data_reference.get4DNLSize() > 0 ) {
-        const uint32_t id_normal = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DNL, 0);
+        const uint32_t id_normal = vertex_data_reference.get3DRFItem(VertexData::C_4DNL, 0);
         const glm::i16vec3* const normals_r = vertex_data_reference.get4DNLPointer(id_normal);
 
         handleNormals( triangle.points[0].normal, normals_r, n[2] );
@@ -238,7 +238,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference
     }
 
     for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-        const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+        const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
         const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
 
         handlePositions( morph_triangle.points[0].position, anm_positions_r, v[2] );
@@ -246,7 +246,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference
         handlePositions( morph_triangle.points[2].position, anm_positions_r, v[0] );
 
         if( vertex_data_reference.get4DNLSize() > 0 ) {
-            const uint32_t id_normal = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DNL, 1 + morph_frames);
+            const uint32_t id_normal = vertex_data_reference.get3DRFItem(VertexData::C_4DNL, 1 + morph_frames);
             const glm::i16vec3* const anm_normals_r = vertex_data_reference.get4DNLPointer(id_normal);
 
             handleNormals( morph_triangle.points[0].normal, anm_normals_r, n[2] );
@@ -278,7 +278,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference
     return 1;
 }
 
-int Data::Mission::ObjResource::Primitive::setQuad(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
     Primitive new_tri;
@@ -313,7 +313,7 @@ int Data::Mission::ObjResource::Primitive::setQuad(const VertexDataReference& ve
     return counter;
 }
 
-int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
@@ -387,9 +387,9 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReferenc
         }
     }
 
-    const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 0);
+    const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 0);
     const glm::i16vec3* const positions_r = vertex_data_reference.get4DVLPointer(id_position);
-    const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 0);
+    const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 0);
     const uint16_t* const lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
      // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
@@ -424,9 +424,9 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReferenc
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
             const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
             const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
             handlePositions( morph_center, anm_positions_r, v[0] );
@@ -442,9 +442,9 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReferenc
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
             const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
             const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
             handlePositions( morph_center, anm_positions_r, v[0] );
@@ -466,9 +466,9 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReferenc
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
             const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
             const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
             handlePositions( morph_center, anm_positions_r, v[0] );
@@ -484,9 +484,9 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReferenc
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+            const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
             const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
             const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
             handlePositions( morph_center, anm_positions_r, v[0] );
@@ -502,7 +502,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReferenc
     return getTriangleAmount( PrimitiveType::BILLBOARD );
 }
 
-int Data::Mission::ObjResource::Primitive::setLine(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle      triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2   coords[2][3];
@@ -566,9 +566,9 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexDataReference& ve
     glm::vec3 segments[2];
     glm::vec3 &offset = segments[0];
 
-    const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 0);
+    const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 0);
     const glm::i16vec3* const positions_r = vertex_data_reference.get4DVLPointer(id_position);
-    const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 0);
+    const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 0);
     const uint16_t* const lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
     // v[0] and v[1] are vertex position offsets, v[2] and v[3] are width offsets. All normals are 0 probably unused.
@@ -677,9 +677,9 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexDataReference& ve
 
             // TODO THIS IS A NULL STATEMENT
             for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-                const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+                const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
                 const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
-                const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+                const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
                 const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
                 glm::vec3 morph_segments[2];
@@ -702,9 +702,9 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexDataReference& ve
 
             // TODO THIS IS A NULL STATEMENT
             for( unsigned morph_frames = 0; morph_frames < vertex_data_reference.get3DRFSize() - 1; morph_frames++ ) {
-                const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 1 + morph_frames);
+                const uint32_t id_position = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
                 const glm::i16vec3* const anm_positions_r = vertex_data_reference.get4DVLPointer(id_position);
-                const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+                const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
                 const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
 
                 glm::vec3 morph_segments[2];
@@ -742,58 +742,58 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
     }
 }
 
-Data::Mission::ObjResource::VertexDataReference::VertexDataReference() {
+Data::Mission::ObjResource::VertexData::VertexData() {
     size_of_4DVL = -1;
     size_of_4DNL = -1;
     size_of_3DRL = -1;
 }
 
-uint32_t Data::Mission::ObjResource::VertexDataReference::get3DRFSize() const {
+uint32_t Data::Mission::ObjResource::VertexData::get3DRFSize() const {
     return reference_ids.size() / 3;
 }
 
-void Data::Mission::ObjResource::VertexDataReference::set3DRFSize(uint32_t size) {
+void Data::Mission::ObjResource::VertexData::set3DRFSize(uint32_t size) {
     reference_ids.resize(size * 3);
 }
 
-void Data::Mission::ObjResource::VertexDataReference::set3DRFItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index, uint32_t id) {
+void Data::Mission::ObjResource::VertexData::set3DRFItem(Data::Mission::ObjResource::VertexData::Tag tag, uint32_t index, uint32_t id) {
     reference_ids[tag * (reference_ids.size() / 3) + index] = id;
 }
-uint32_t Data::Mission::ObjResource::VertexDataReference::get3DRFItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index) const {
+uint32_t Data::Mission::ObjResource::VertexData::get3DRFItem(Data::Mission::ObjResource::VertexData::Tag tag, uint32_t index) const {
     return reference_ids[tag * (reference_ids.size() / 3) + index];
 }
 
-void Data::Mission::ObjResource::VertexDataReference::set4DVLSize(int32_t size_of_4DVL) {
+void Data::Mission::ObjResource::VertexData::set4DVLSize(int32_t size_of_4DVL) {
     this->size_of_4DVL = size_of_4DVL;
 
     positions.resize(size_of_4DVL * get3DRFSize());
 }
-void Data::Mission::ObjResource::VertexDataReference::set4DNLSize(int32_t size_of_4DNL) {
+void Data::Mission::ObjResource::VertexData::set4DNLSize(int32_t size_of_4DNL) {
     this->size_of_4DNL = size_of_4DNL;
 
     normals.resize(size_of_4DNL * get3DRFSize());
 }
-void Data::Mission::ObjResource::VertexDataReference::set3DRLSize(int32_t size_of_3DRL) {
+void Data::Mission::ObjResource::VertexData::set3DRLSize(int32_t size_of_3DRL) {
     this->size_of_3DRL = size_of_3DRL;
 
     lengths.resize(size_of_3DRL * get3DRFSize());
 }
 
-int32_t Data::Mission::ObjResource::VertexDataReference::get4DVLSize() const {
+int32_t Data::Mission::ObjResource::VertexData::get4DVLSize() const {
     return this->size_of_4DVL;
 }
-int32_t Data::Mission::ObjResource::VertexDataReference::get4DNLSize() const {
+int32_t Data::Mission::ObjResource::VertexData::get4DNLSize() const {
     return this->size_of_4DNL;
 }
-int32_t Data::Mission::ObjResource::VertexDataReference::get3DRLSize() const {
+int32_t Data::Mission::ObjResource::VertexData::get3DRLSize() const {
     return this->size_of_3DRL;
 }
 
-glm::i16vec3* Data::Mission::ObjResource::VertexDataReference::get4DVLPointer(uint32_t id) {
-    return const_cast<glm::i16vec3*>(const_cast<const VertexDataReference *const>(this)->get4DVLPointer(id));
+glm::i16vec3* Data::Mission::ObjResource::VertexData::get4DVLPointer(uint32_t id) {
+    return const_cast<glm::i16vec3*>(const_cast<const VertexData *const>(this)->get4DVLPointer(id));
 }
 
-const glm::i16vec3* const Data::Mission::ObjResource::VertexDataReference::get4DVLPointer(uint32_t id) const {
+const glm::i16vec3* const Data::Mission::ObjResource::VertexData::get4DVLPointer(uint32_t id) const {
     for(int32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_4DVL, index) == id)
@@ -803,11 +803,11 @@ const glm::i16vec3* const Data::Mission::ObjResource::VertexDataReference::get4D
     return nullptr;
 }
 
-glm::i16vec3* Data::Mission::ObjResource::VertexDataReference::get4DNLPointer(uint32_t id) {
-    return const_cast<glm::i16vec3*>(const_cast<const VertexDataReference *const>(this)->get4DNLPointer(id));
+glm::i16vec3* Data::Mission::ObjResource::VertexData::get4DNLPointer(uint32_t id) {
+    return const_cast<glm::i16vec3*>(const_cast<const VertexData *const>(this)->get4DNLPointer(id));
 }
 
-const glm::i16vec3* const Data::Mission::ObjResource::VertexDataReference::get4DNLPointer(uint32_t id) const {
+const glm::i16vec3* const Data::Mission::ObjResource::VertexData::get4DNLPointer(uint32_t id) const {
     for(int32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_4DVL, index) == id)
@@ -817,11 +817,11 @@ const glm::i16vec3* const Data::Mission::ObjResource::VertexDataReference::get4D
     return nullptr;
 }
 
-uint16_t* Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) {
-    return const_cast<uint16_t*>(const_cast<const VertexDataReference *const>(this)->get3DRLPointer(id));
+uint16_t* Data::Mission::ObjResource::VertexData::get3DRLPointer(uint32_t id) {
+    return const_cast<uint16_t*>(const_cast<const VertexData *const>(this)->get3DRLPointer(id));
 }
 
-const uint16_t* const Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) const {
+const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uint32_t id) const {
     for(int32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_3DRL, index) == id)
@@ -1364,18 +1364,18 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reference_tag    = reader3DRF.readU32( settings.endian );
                 auto reference_count  = reader3DRF.readU32( settings.endian );
 
-                VertexDataReference::Tag tag;
+                VertexData::Tag tag;
 
                 switch(reference_tag) {
                     case TAG_3DRL:
-                        tag = VertexDataReference::C_3DRL;
+                        tag = VertexData::C_3DRL;
                         break;
                     case TAG_4DNL:
-                        tag = VertexDataReference::C_4DNL;
+                        tag = VertexData::C_4DNL;
                         break;
                     default:
                     case TAG_4DVL:
-                        tag = VertexDataReference::C_4DVL;
+                        tag = VertexData::C_4DVL;
                         break;
                 }
 
@@ -1697,7 +1697,7 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
     glm::vec3 position(0, 0, 0);
 
     if( isPositionValid( index ) ) {
-        const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DVL, 0);
+        const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexData::C_4DVL, 0);
         const glm::i16vec3* const vertex_positions_r = vertex_data_reference.get4DVLPointer(id_length);
 
         position  = vertex_positions_r[ position_indexes[index] ];
