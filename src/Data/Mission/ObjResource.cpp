@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <cassert>
 
 namespace {
@@ -689,19 +690,45 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
     }
 }
 
-uint32_t Data::Mission::ObjResource::VertexDataReference::getSize() const {
-    return reference_ids.size();
+Data::Mission::ObjResource::VertexDataReference::VertexDataReference() {
+    size_of_4DVL = -1;
+    size_of_4DNL = -1;
+    size_of_3DRL = -1;
 }
 
-void Data::Mission::ObjResource::VertexDataReference::setSize(uint32_t size) {
+uint32_t Data::Mission::ObjResource::VertexDataReference::get3DRFSize() const {
+    return reference_ids.size() / 3;
+}
+
+void Data::Mission::ObjResource::VertexDataReference::set3DRFSize(uint32_t size) {
     reference_ids.resize(size * 3);
 }
 
-void Data::Mission::ObjResource::VertexDataReference::setItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index, uint32_t id) {
+void Data::Mission::ObjResource::VertexDataReference::set3DRFItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index, uint32_t id) {
     reference_ids[tag * (reference_ids.size() / 3) + index] = id;
 }
-uint32_t Data::Mission::ObjResource::VertexDataReference::getItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index) {
+uint32_t Data::Mission::ObjResource::VertexDataReference::get3DRFItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index) const {
     return reference_ids[tag * (reference_ids.size() / 3) + index];
+}
+
+void Data::Mission::ObjResource::VertexDataReference::set4DVLSize(int32_t size_of_4DVL) {
+    this->size_of_4DVL = size_of_4DVL;
+}
+void Data::Mission::ObjResource::VertexDataReference::set4DNLSize(int32_t size_of_4DNL) {
+    this->size_of_4DNL = size_of_4DNL;
+}
+void Data::Mission::ObjResource::VertexDataReference::set3DRLSize(int32_t size_of_3DRL) {
+    this->size_of_3DRL = size_of_3DRL;
+}
+
+int32_t Data::Mission::ObjResource::VertexDataReference::get4DVLSize() const {
+    return this->size_of_4DVL;
+}
+int32_t Data::Mission::ObjResource::VertexDataReference::get4DNLSize() const {
+    return this->size_of_4DNL;
+}
+int32_t Data::Mission::ObjResource::VertexDataReference::get3DRLSize() const {
+    return this->size_of_3DRL;
 }
 
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
@@ -1252,12 +1279,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         break;
                 }
 
-                if(vertex_data_reference.getSize() == 0) {
-                    vertex_data_reference.setSize(reference_count);
+                if(vertex_data_reference.get3DRFSize() == 0) {
+                    vertex_data_reference.set3DRFSize(reference_count);
                 }
 
                 for(uint32_t i = 0; i < reference_count; i++) {
-                    vertex_data_reference.setItem(tag, i, reader3DRF.readU32( settings.endian ));
+                    vertex_data_reference.set3DRFItem(tag, i, reader3DRF.readU32( settings.endian ));
                 }
 
                 // assert(reference_count > 0);
@@ -1271,6 +1298,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto frame_id = reader4DVL.readU32( settings.endian );
 
                 auto amount_of_vertices = reader4DVL.readU32( settings.endian );
+
+                if(vertex_data_reference.get4DVLSize() < 0)
+                    vertex_data_reference.set4DVLSize(amount_of_vertices);
 
                 auto positions_pointer = &vertex_positions;
 
@@ -1296,6 +1326,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto frame_id = reader4DNL.readU32( settings.endian );
 
                 auto amount_of_normals = reader4DNL.readU32( settings.endian );
+
+                if(vertex_data_reference.get4DNLSize() < 0)
+                    vertex_data_reference.set4DNLSize(amount_of_normals);
 
                 auto normals_pointer = &vertex_normals;
 
@@ -1323,6 +1356,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto frame_id = reader3DRL.readU32(settings.endian);
 
                 auto count = reader3DRL.readU32(settings.endian);
+
+                if(vertex_data_reference.get3DRLSize() < 0)
+                    vertex_data_reference.set3DRLSize(count);
 
                 if( count != 0 ) {
                     auto lengths_pointer = &lengths;
@@ -1445,6 +1481,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 reader.setPosition( 0, Utilities::Buffer::END );
             }
         }
+
+        assert(vertex_data_reference.get4DVLSize() == vertex_positions.size());
+        assert(vertex_data_reference.get4DNLSize() == vertex_normals.size());
+        assert(vertex_data_reference.get3DRLSize() == lengths.size());
+        assert(vertex_data_reference.get3DRFSize() == 1 + vertex_anm_positions.size());
 
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
             FaceOverrideType &face_override = face_type_overrides[ i - 1 ];

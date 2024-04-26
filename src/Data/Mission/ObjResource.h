@@ -161,6 +161,9 @@ public:
     class VertexDataReference {
     private:
         std::vector<uint32_t> reference_ids;
+        int32_t size_of_4DVL;
+        int32_t size_of_4DNL;
+        int32_t size_of_3DRL;
 
     public:
         enum Tag {
@@ -170,11 +173,21 @@ public:
         };
 
     public:
-        uint32_t getSize() const;
-        void     setSize(uint32_t size);
+        VertexDataReference();
 
-        void     setItem(Tag tag, uint32_t index, uint32_t id);
-        uint32_t getItem(Tag tag, uint32_t index);
+        uint32_t get3DRFSize() const;
+        void     set3DRFSize(uint32_t size);
+
+        void     set3DRFItem(Tag tag, uint32_t index, uint32_t id);
+        uint32_t get3DRFItem(Tag tag, uint32_t index) const;
+
+        void set4DVLSize(int32_t size_of_4DVL);
+        void set4DNLSize(int32_t size_of_4DNL);
+        void set3DRLSize(int32_t size_of_3DRL);
+
+        int32_t get4DVLSize() const;
+        int32_t get4DNLSize() const;
+        int32_t get3DRLSize() const;
     };
 private:
     struct {
