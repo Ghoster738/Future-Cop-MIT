@@ -758,13 +758,7 @@ int32_t Data::Mission::ObjResource::VertexDataReference::get3DRLSize() const {
 }
 
 uint16_t* Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) {
-    for(int32_t index = 0; index < get3DRFSize(); index++)
-    {
-        if(get3DRFItem(C_3DRL, index) == id)
-            return &lengths[index * this->size_of_3DRL];
-    }
-
-    return nullptr;
+    return const_cast<uint16_t*>(const_cast<const VertexDataReference *const>(this)->get3DRLPointer(id));
 }
 
 const uint16_t* const Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) const {
