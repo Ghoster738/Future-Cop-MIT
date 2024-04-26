@@ -689,6 +689,21 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
     }
 }
 
+uint32_t Data::Mission::ObjResource::VertexDataReference::getSize() const {
+    return reference_ids.size();
+}
+
+void Data::Mission::ObjResource::VertexDataReference::setSize(uint32_t size) {
+    reference_ids.resize(size * 3);
+}
+
+void Data::Mission::ObjResource::VertexDataReference::setItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index, uint32_t id) {
+    reference_ids[tag * (reference_ids.size() / 3) + index] = id;
+}
+uint32_t Data::Mission::ObjResource::VertexDataReference::getItem(Data::Mission::ObjResource::VertexDataReference::Tag tag, uint32_t index) {
+    return reference_ids[tag * (reference_ids.size() / 3) + index];
+}
+
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
     return (getOpcodeBytesPerFrame( this->opcode ) / 2);
 }
@@ -704,18 +719,6 @@ Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
     this->max_bone_childern = 0;
     this->bone_animation_data = nullptr;
-}
-
-Data::Mission::ObjResource::ObjResource( const ObjResource &obj ) : ModelResource( obj ) {
-    this->bounding_box_frames = 0;
-    this->bone_frames = 0;
-    this->max_bone_childern = 0;
-    this->bone_animation_data = nullptr;
-    if( obj.bone_animation_data != nullptr )
-    {
-        this->bone_animation_data_size = obj.bone_animation_data_size;
-        this->bone_animation_data = new int16_t [ obj.bone_animation_data_size ];
-    }
 }
 
 Data::Mission::ObjResource::~ObjResource() {
@@ -1234,18 +1237,32 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reference_tag    = reader3DRF.readU32( settings.endian );
                 auto reference_count  = reader3DRF.readU32( settings.endian );
 
-                assert(reference_count > 0);
-                assert((reference_tag == TAG_4DVL && reference_number == 1) || (reference_tag == TAG_4DNL && reference_number == 2) || (reference_tag == TAG_3DRL && reference_number == 3));
+                VertexDataReference::Tag tag;
 
-                std::vector<uint32_t> id_array;
-
-                id_array.resize(reference_count);
-
-                for(auto i = id_array.begin(); i != id_array.end(); i++) {
-                    (*i) = reader3DRF.readU32( settings.endian );
-
-                    assert((*i) == i - id_array.begin() + 1);
+                switch(reference_tag) {
+                    case TAG_3DRL:
+                        tag = VertexDataReference::C_3DRL;
+                        break;
+                    case TAG_4DNL:
+                        tag = VertexDataReference::C_4DNL;
+                        break;
+                    default:
+                    case TAG_4DVL:
+                        tag = VertexDataReference::C_4DVL;
+                        break;
                 }
+
+                if(vertex_data_reference.getSize() == 0) {
+                    vertex_data_reference.setSize(reference_count);
+                }
+
+                for(uint32_t i = 0; i < reference_count; i++) {
+                    vertex_data_reference.setItem(tag, i, reader3DRF.readU32( settings.endian ));
+                }
+
+                // assert(reference_count > 0);
+                // assert((reference_tag == TAG_4DVL && reference_number == 1) || (reference_tag == TAG_4DNL && reference_number == 2) || (reference_tag == TAG_3DRL && reference_number == 3));
+
             }
             else
             if( identifier == TAG_4DVL ) {

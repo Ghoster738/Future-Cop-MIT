@@ -158,6 +158,24 @@ public:
         uint32_t resource_id;
         std::string name;
     };
+    class VertexDataReference {
+    private:
+        std::vector<uint32_t> reference_ids;
+
+    public:
+        enum Tag {
+            C_4DVL = 0,
+            C_4DNL = 1,
+            C_3DRL = 2
+        };
+
+    public:
+        uint32_t getSize() const;
+        void     setSize(uint32_t size);
+
+        void     setItem(Tag tag, uint32_t index, uint32_t id);
+        uint32_t getItem(Tag tag, uint32_t index);
+    };
 private:
     struct {
         unsigned has_skeleton:     1;
@@ -167,6 +185,8 @@ private:
         unsigned animation:        1;
     } info;
     unsigned position_indexes[4];
+
+    VertexDataReference vertex_data_reference;
 
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
@@ -206,7 +226,6 @@ private:
     static unsigned int getOpcodeBytesPerFrame( Bone::Opcode opcode );
 public:
     ObjResource();
-    ObjResource( const ObjResource &obj );
     virtual ~ObjResource();
 
     virtual std::string getFileExtension() const;
