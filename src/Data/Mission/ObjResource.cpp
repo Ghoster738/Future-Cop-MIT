@@ -719,6 +719,8 @@ void Data::Mission::ObjResource::VertexDataReference::set4DNLSize(int32_t size_o
 }
 void Data::Mission::ObjResource::VertexDataReference::set3DRLSize(int32_t size_of_3DRL) {
     this->size_of_3DRL = size_of_3DRL;
+
+    lengths.resize(size_of_3DRL * get3DRFSize());
 }
 
 int32_t Data::Mission::ObjResource::VertexDataReference::get4DVLSize() const {
@@ -729,6 +731,17 @@ int32_t Data::Mission::ObjResource::VertexDataReference::get4DNLSize() const {
 }
 int32_t Data::Mission::ObjResource::VertexDataReference::get3DRLSize() const {
     return this->size_of_3DRL;
+}
+
+uint16_t* Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) {
+
+    for(int32_t index = 0; index < get3DRFSize(); index++)
+    {
+        if(get3DRFItem(C_3DRL, index) == id)
+            return &lengths[index * this->size_of_3DRL];
+    }
+
+    return nullptr;
 }
 
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
@@ -1369,8 +1382,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         lengths_pointer = &anm_lengths.back();
                     }
 
+                    uint16_t *length_data_r = vertex_data_reference.get3DRLPointer(frame_id);
+
                     for( uint32_t i = 0; i < count; i++ ) {
                         lengths_pointer->push_back( reader3DRL.readU16(settings.endian) );
+                        length_data_r[i] = lengths_pointer->back();
                     }
                 }
             }

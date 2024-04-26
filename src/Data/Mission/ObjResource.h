@@ -160,7 +160,10 @@ public:
     };
     class VertexDataReference {
     private:
-        std::vector<uint32_t> reference_ids;
+        std::vector<uint32_t>     reference_ids;
+        std::vector<glm::i16vec3> vertex_data; // Stores both positions and normals
+        std::vector<uint16_t>     lengths;
+
         int32_t size_of_4DVL;
         int32_t size_of_4DNL;
         int32_t size_of_3DRL;
@@ -188,6 +191,8 @@ public:
         int32_t get4DVLSize() const;
         int32_t get4DNLSize() const;
         int32_t get3DRLSize() const;
+
+        uint16_t* get3DRLPointer(uint32_t id);
     };
 private:
     struct {
