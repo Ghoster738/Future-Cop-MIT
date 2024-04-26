@@ -738,6 +738,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
+    int count_of_3drf = 0;
+
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -1068,6 +1070,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if( reader3DRF.totalSize() != 0x10 )
                     warning_log.output << "reader3DRF.totalSize() is not 0x10, but 0x" << std::hex << reader3DRF.totalSize() << ".\n";
+
+                count_of_3drf++;
             }
             else
             if( identifier == TAG_3DRL ) {
@@ -1527,6 +1531,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
+
+        assert(count_of_3drf == 3);
 
         return !file_is_not_valid;
     }
