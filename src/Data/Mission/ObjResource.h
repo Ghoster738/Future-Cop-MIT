@@ -178,10 +178,10 @@ public:
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
-        int setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
-        int setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
-        int setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
-        int setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
 
         static size_t getTriangleAmount( PrimitiveType type );
 
@@ -214,7 +214,6 @@ private:
 
     VertexDataReference vertex_data_reference;
 
-    std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
 
     std::map<uint_fast16_t, FaceType> face_types;
@@ -232,7 +231,6 @@ private:
     int16_t                  *bone_animation_data; // Where the animation data is stored.
     unsigned int              bone_animation_data_size;
 
-    std::vector<std::vector<glm::i16vec3>> vertex_anm_positions;
     std::vector<std::vector<glm::i16vec3>> vertex_anm_normals;
     
     unsigned int bounding_box_per_frame;
