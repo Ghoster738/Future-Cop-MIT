@@ -189,13 +189,16 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
     "void main()\n"
     "{\n"
     "  vec4 other = texture2D(Texture, texture_coord_1) * color;\n"
-    "  if( other.a < 0.015625 )\n"
-    "    discard;\n"
     "  float BLENDING = 1.0 - other.a;\n"
-    "  if( specular > 0.5 )\n"
+    "  if( specular > 0.5 ) {\n"
+    "    if( other.a < 0.5 )\n"
+    "      other.a = 0.5;\n"
     "    gl_FragColor = vec4(texture2D(Shine, world_reflection.xz).rgb * BLENDING + other.rgb, other.a);\n"
-    "  else\n"
+    "  } else {\n"
+    "    if( other.a < 0.015625 )\n"
+    "      discard;\n"
     "    gl_FragColor = other;\n"
+    "  }\n"
     "}\n";
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type ) {

@@ -89,13 +89,14 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
     "void main()\n"
     "{\n"
     "  vec4 color = texture2D(Texture, texture_coord_1) * in_color;\n"
-    "  if( color.a < 0.015625 )\n"
-    "    discard;\n"
     "  float BLENDING = 1.0 - color.a;\n"
     "  if( specular > 0.5 )\n"
     "    gl_FragColor = texture2D(Shine, world_reflection.xz) * BLENDING + vec4(color.rgb, 1.0);\n"
-    "  else\n"
+    "  else {\n"
+    "    if( color.a < 0.015625 )\n"
+    "      discard;\n"
     "    gl_FragColor = color;\n"
+    "  }\n"
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
