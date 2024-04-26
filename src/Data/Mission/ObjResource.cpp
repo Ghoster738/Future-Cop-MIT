@@ -1231,8 +1231,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reader3DRF = reader.getReader( data_tag_size );
 
                 auto reference_number = reader3DRF.readU32( settings.endian );
-                auto reference_to     = reader3DRF.readU32( settings.endian );
+                auto reference_tag    = reader3DRF.readU32( settings.endian );
                 auto reference_count  = reader3DRF.readU32( settings.endian );
+
+                assert((reference_tag == TAG_4DVL && reference_number == 1) || (reference_tag == TAG_4DNL && reference_number == 2) || (reference_tag == TAG_3DRL && reference_number == 3));
 
                 std::vector<uint32_t> id_array;
 
