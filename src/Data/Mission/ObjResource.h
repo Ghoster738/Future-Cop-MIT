@@ -156,11 +156,11 @@ public:
         int32_t get4DNLSize() const;
         int32_t get3DRLSize() const;
 
-        uint16_t* get4DVLPointer(uint32_t id);
-        const uint16_t* const get4DVLPointer(uint32_t id) const;
+        glm::i16vec3* get4DVLPointer(uint32_t id);
+        const glm::i16vec3* const get4DVLPointer(uint32_t id) const;
 
-        uint16_t* get4DNLPointer(uint32_t id);
-        const uint16_t* const get4DNLPointer(uint32_t id) const;
+        glm::i16vec3* get4DNLPointer(uint32_t id);
+        const glm::i16vec3* const get4DNLPointer(uint32_t id) const;
 
         uint16_t* get3DRLPointer(uint32_t id);
         const uint16_t* const get3DRLPointer(uint32_t id) const;

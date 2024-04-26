@@ -737,9 +737,13 @@ uint32_t Data::Mission::ObjResource::VertexDataReference::get3DRFItem(Data::Miss
 
 void Data::Mission::ObjResource::VertexDataReference::set4DVLSize(int32_t size_of_4DVL) {
     this->size_of_4DVL = size_of_4DVL;
+
+    positions.resize(size_of_4DVL * get3DRFSize());
 }
 void Data::Mission::ObjResource::VertexDataReference::set4DNLSize(int32_t size_of_4DNL) {
     this->size_of_4DNL = size_of_4DNL;
+
+    normals.resize(size_of_4DNL * get3DRFSize());
 }
 void Data::Mission::ObjResource::VertexDataReference::set3DRLSize(int32_t size_of_3DRL) {
     this->size_of_3DRL = size_of_3DRL;
@@ -755,6 +759,34 @@ int32_t Data::Mission::ObjResource::VertexDataReference::get4DNLSize() const {
 }
 int32_t Data::Mission::ObjResource::VertexDataReference::get3DRLSize() const {
     return this->size_of_3DRL;
+}
+
+glm::i16vec3* Data::Mission::ObjResource::VertexDataReference::get4DVLPointer(uint32_t id) {
+    return const_cast<glm::i16vec3*>(const_cast<const VertexDataReference *const>(this)->get4DVLPointer(id));
+}
+
+const glm::i16vec3* const Data::Mission::ObjResource::VertexDataReference::get4DVLPointer(uint32_t id) const {
+    for(int32_t index = 0; index < get3DRFSize(); index++)
+    {
+        if(get3DRFItem(C_4DVL, index) == id)
+            return &positions[index * this->size_of_4DVL];
+    }
+
+    return nullptr;
+}
+
+glm::i16vec3* Data::Mission::ObjResource::VertexDataReference::get4DNLPointer(uint32_t id) {
+    return const_cast<glm::i16vec3*>(const_cast<const VertexDataReference *const>(this)->get4DNLPointer(id));
+}
+
+const glm::i16vec3* const Data::Mission::ObjResource::VertexDataReference::get4DNLPointer(uint32_t id) const {
+    for(int32_t index = 0; index < get3DRFSize(); index++)
+    {
+        if(get3DRFItem(C_4DVL, index) == id)
+            return &normals[index * this->size_of_4DNL];
+    }
+
+    return nullptr;
 }
 
 uint16_t* Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) {
