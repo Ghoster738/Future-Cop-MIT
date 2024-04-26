@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <cassert>
 
 namespace {
@@ -185,7 +184,7 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
-int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
     if( !isWithinBounds( positions.size(), normals.size() ) )
         return 0;
 
@@ -267,7 +266,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     return 1;
 }
 
-int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
     const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
     Primitive new_tri;
@@ -296,13 +295,13 @@ int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &trian
         new_tri.n[1] = n[QUAD_TABLE[i][1]];
         new_tri.n[2] = n[QUAD_TABLE[i][2]];
 
-        counter += new_tri.setTriangle(triangles, positions, normals, lengths, morph_triangles, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones);
+        counter += new_tri.setTriangle(triangles, positions, normals, vertex_data_reference, morph_triangles, vertex_anm_positions, vertex_anm_normals, bones);
     }
 
     return counter;
 }
 
-int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
@@ -376,9 +375,12 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         }
     }
 
+    const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 0);
+    const uint16_t* const lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
      // v[0] is a vertex position and v[2] is a width offset. v[1] and v[3] are just 0xFF. All normals are 0 probably unused.
     handlePositions( center, positions.data(), v[0] );
-    length = lengths[ v[2] ] * FIXED_POINT_UNIT;
+    length = lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
     // Bone animation.
     if( !bones.empty() ) {
@@ -408,8 +410,11 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
-            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
+            morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][i]];
@@ -421,8 +426,11 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
-            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
+            morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][2 - i]];
@@ -440,8 +448,11 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
-            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
+            morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][i]];
@@ -453,8 +464,11 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+            const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
             handlePositions( morph_center, vertex_anm_positions.at(morph_frames).data(), v[0] );
-            morph_length = anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT;
+            morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
             for( unsigned i = 0; i < 3; i++ )
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][2 - i]];
@@ -466,7 +480,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     return getTriangleAmount( PrimitiveType::BILLBOARD );
 }
 
-int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
     Triangle      triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2   coords[2][3];
@@ -533,9 +547,13 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
     // v[0] and v[1] are vertex position offsets, v[2] and v[3] are width offsets. All normals are 0 probably unused.
     handlePositions( segments[0], positions.data(), v[0] );
     handlePositions( segments[1], positions.data(), v[1] );
+
+    const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 0);
+    const uint16_t* const lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
     const float thickness[2] = {
-        lengths[ v[2] ] * FIXED_POINT_UNIT,
-        lengths[ v[3] ] * FIXED_POINT_UNIT };
+        lengths_r[ v[2] ] * FIXED_POINT_UNIT,
+        lengths_r[ v[3] ] * FIXED_POINT_UNIT };
 
     glm::u8vec4 joints[2];
 
@@ -635,13 +653,16 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
             // TODO THIS IS A NULL STATEMENT
             for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
                 glm::vec3 morph_segments[2];
                 handlePositions( morph_segments[0], vertex_anm_positions[morph_frames].data(), v[0] );
                 handlePositions( morph_segments[1], vertex_anm_positions[morph_frames].data(), v[1] );
 
                 const float morph_thickness[2] = {
-                    anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT,
-                    anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
+                    anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT,
+                    anm_lengths_r[ v[3] ] * FIXED_POINT_UNIT };
 
                 for( unsigned i = 0; i < 3; i++ )
                     morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
@@ -655,13 +676,16 @@ int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &trian
 
             // TODO THIS IS A NULL STATEMENT
             for( unsigned morph_frames = 0; morph_frames < vertex_anm_positions.size(); morph_frames++ ) {
+                const uint32_t id_length = vertex_data_reference.get3DRFItem(VertexDataReference::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data_reference.get3DRLPointer(id_length);
+
                 glm::vec3 morph_segments[2];
                 handlePositions( morph_segments[0], vertex_anm_positions[morph_frames].data(), v[0] );
                 handlePositions( morph_segments[1], vertex_anm_positions[morph_frames].data(), v[1] );
 
                 const float morph_thickness[2] = {
-                    anm_lengths[morph_frames][ v[2] ] * FIXED_POINT_UNIT,
-                    anm_lengths[morph_frames][ v[3] ] * FIXED_POINT_UNIT };
+                    anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT,
+                    anm_lengths_r[ v[3] ] * FIXED_POINT_UNIT };
 
                 for( unsigned i = 0; i < 3; i++ )
                     morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][2 - i] / 2] + quaderlateral[QUAD_TABLE[t][2 - i]];
@@ -734,7 +758,16 @@ int32_t Data::Mission::ObjResource::VertexDataReference::get3DRLSize() const {
 }
 
 uint16_t* Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) {
+    for(int32_t index = 0; index < get3DRFSize(); index++)
+    {
+        if(get3DRFItem(C_3DRL, index) == id)
+            return &lengths[index * this->size_of_3DRL];
+    }
 
+    return nullptr;
+}
+
+const uint16_t* const Data::Mission::ObjResource::VertexDataReference::get3DRLPointer(uint32_t id) const {
     for(int32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_3DRL, index) == id)
@@ -1374,19 +1407,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     vertex_data_reference.set3DRLSize(count);
 
                 if( count != 0 ) {
-                    auto lengths_pointer = &lengths;
-
-                    // If lengths is not empty then it is a morph target.
-                    if( lengths_pointer->size() != 0 ) {
-                        anm_lengths.push_back( std::vector<uint16_t>() );
-                        lengths_pointer = &anm_lengths.back();
-                    }
-
                     uint16_t *length_data_r = vertex_data_reference.get3DRLPointer(frame_id);
 
                     for( uint32_t i = 0; i < count; i++ ) {
-                        lengths_pointer->push_back( reader3DRL.readU16(settings.endian) );
-                        length_data_r[i] = lengths_pointer->back();
+                        length_data_r[i] = reader3DRL.readU16(settings.endian);
                     }
                 }
             }
@@ -1500,7 +1524,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
         assert(vertex_data_reference.get4DVLSize() == vertex_positions.size());
         assert(vertex_data_reference.get4DNLSize() == vertex_normals.size());
-        assert(vertex_data_reference.get3DRLSize() == lengths.size());
         assert(vertex_data_reference.get3DRFSize() == 1 + vertex_anm_positions.size());
 
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
@@ -1799,13 +1822,13 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
             if( (*i).type == PrimitiveType::TRIANGLE )
-                (*i).setTriangle( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+                (*i).setTriangle( triangle_buffer, vertex_positions, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, bones );
             else if( (*i).type == PrimitiveType::QUAD )
-                (*i).setQuad( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+                (*i).setQuad( triangle_buffer, vertex_positions, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, bones );
             else if( (*i).type == PrimitiveType::BILLBOARD )
-                (*i).setBillboard( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+                (*i).setBillboard( triangle_buffer, vertex_positions, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, bones );
             else if( (*i).type == PrimitiveType::LINE )
-                (*i).setLine( triangle_buffer, vertex_positions, vertex_normals, lengths, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, anm_lengths, bones );
+                (*i).setLine( triangle_buffer, vertex_positions, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_positions, vertex_anm_normals, bones );
         }
     }
 

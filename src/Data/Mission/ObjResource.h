@@ -121,43 +121,6 @@ public:
          */
         unsigned int getNumAttributes() const;
     };
-    struct Primitive {
-        PrimitiveType type;
-
-        Material visual;
-
-        uint16_t  face_type_offset;
-        FaceType *face_type_r;
-
-        uint8_t v[4], n[4];
-
-        uint32_t getBmpID() const;
-        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
-
-        int setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-        int setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-        int setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-        int setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-
-        static size_t getTriangleAmount( PrimitiveType type );
-
-        bool operator() ( const Primitive &l_operand, const Primitive &r_operand ) const;
-    };
-    // Warning: I do not know if this is actually the bounding box's data structure.
-    struct BoundingBox3D {
-        int16_t x;
-        int16_t y;
-        int16_t z;
-        uint16_t length_x;
-        uint16_t length_y;
-        uint16_t length_z;
-        uint16_t rotation_x;
-        uint16_t rotation_y;
-    };
-    struct TextureReference {
-        uint32_t resource_id;
-        std::string name;
-    };
     class VertexDataReference {
     private:
         std::vector<uint32_t>     reference_ids;
@@ -193,6 +156,44 @@ public:
         int32_t get3DRLSize() const;
 
         uint16_t* get3DRLPointer(uint32_t id);
+        const uint16_t* const get3DRLPointer(uint32_t id) const;
+    };
+    struct Primitive {
+        PrimitiveType type;
+
+        Material visual;
+
+        uint16_t  face_type_offset;
+        FaceType *face_type_r;
+
+        uint8_t v[4], n[4];
+
+        uint32_t getBmpID() const;
+        bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
+
+        int setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+        int setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const;
+
+        static size_t getTriangleAmount( PrimitiveType type );
+
+        bool operator() ( const Primitive &l_operand, const Primitive &r_operand ) const;
+    };
+    // Warning: I do not know if this is actually the bounding box's data structure.
+    struct BoundingBox3D {
+        int16_t x;
+        int16_t y;
+        int16_t z;
+        uint16_t length_x;
+        uint16_t length_y;
+        uint16_t length_z;
+        uint16_t rotation_x;
+        uint16_t rotation_y;
+    };
+    struct TextureReference {
+        uint32_t resource_id;
+        std::string name;
     };
 private:
     struct {
@@ -208,7 +209,6 @@ private:
 
     std::vector<glm::i16vec3> vertex_positions;
     std::vector<glm::i16vec3> vertex_normals;
-    std::vector<uint16_t>     lengths;
 
     std::map<uint_fast16_t, FaceType> face_types;
     std::vector<FaceOverrideType>     face_type_overrides;
@@ -227,7 +227,6 @@ private:
 
     std::vector<std::vector<glm::i16vec3>> vertex_anm_positions;
     std::vector<std::vector<glm::i16vec3>> vertex_anm_normals;
-    std::vector<std::vector<uint16_t>>     anm_lengths;
     
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;
