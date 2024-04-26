@@ -184,8 +184,8 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
-int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
-    if( !isWithinBounds( vertex_data_reference.get4DVLSize(), normals.size() ) )
+int Data::Mission::ObjResource::Primitive::setTriangle(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+    if( !isWithinBounds( vertex_data_reference.get4DVLSize(), vertex_data_reference.get4DNLSize() ) )
         return 0;
 
     Triangle triangle;
@@ -217,10 +217,13 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     handlePositions( triangle.points[1].position, positions_r, v[1] );
     handlePositions( triangle.points[2].position, positions_r, v[0] );
 
-    if( normals.size() != 0 ) {
-        handleNormals( triangle.points[0].normal, normals.data(), n[2] );
-        handleNormals( triangle.points[1].normal, normals.data(), n[1] );
-        handleNormals( triangle.points[2].normal, normals.data(), n[0] );
+    if( vertex_data_reference.get4DNLSize() > 0 ) {
+        const uint32_t id_normal = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DNL, 0);
+        const glm::i16vec3* const normals_r = vertex_data_reference.get4DNLPointer(id_normal);
+
+        handleNormals( triangle.points[0].normal, normals_r, n[2] );
+        handleNormals( triangle.points[1].normal, normals_r, n[1] );
+        handleNormals( triangle.points[2].normal, normals_r, n[0] );
     }
 
     triangleToCoords( *this, *face_type_r, coords, face_override_indexes );
@@ -242,10 +245,13 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
         handlePositions( morph_triangle.points[1].position, anm_positions_r, v[1] );
         handlePositions( morph_triangle.points[2].position, anm_positions_r, v[0] );
 
-        if( normals.size() != 0 ) {
-            handleNormals( morph_triangle.points[0].normal, vertex_anm_normals.at(morph_frames).data(), n[2] );
-            handleNormals( morph_triangle.points[1].normal, vertex_anm_normals.at(morph_frames).data(), n[1] );
-            handleNormals( morph_triangle.points[2].normal, vertex_anm_normals.at(morph_frames).data(), n[0] );
+        if( vertex_data_reference.get4DNLSize() > 0 ) {
+            const uint32_t id_normal = vertex_data_reference.get3DRFItem(VertexDataReference::C_4DNL, 1 + morph_frames);
+            const glm::i16vec3* const anm_normals_r = vertex_data_reference.get4DNLPointer(id_normal);
+
+            handleNormals( morph_triangle.points[0].normal, anm_normals_r, n[2] );
+            handleNormals( morph_triangle.points[1].normal, anm_normals_r, n[1] );
+            handleNormals( morph_triangle.points[2].normal, anm_normals_r, n[0] );
         }
 
         morph_triangles.push_back( morph_triangle );
@@ -272,7 +278,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle( std::vector<Triangle> &t
     return 1;
 }
 
-int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setQuad(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
     Primitive new_tri;
@@ -301,13 +307,13 @@ int Data::Mission::ObjResource::Primitive::setQuad( std::vector<Triangle> &trian
         new_tri.n[1] = n[QUAD_TABLE[i][1]];
         new_tri.n[2] = n[QUAD_TABLE[i][2]];
 
-        counter += new_tri.setTriangle(triangles, normals, vertex_data_reference, morph_triangles, vertex_anm_normals, bones);
+        counter += new_tri.setTriangle(vertex_data_reference, triangles, morph_triangles, bones);
     }
 
     return counter;
 }
 
-int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setBillboard(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2 coords[2][3];
@@ -496,7 +502,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard( std::vector<Triangle> &
     return getTriangleAmount( PrimitiveType::BILLBOARD );
 }
 
-int Data::Mission::ObjResource::Primitive::setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &normals, const VertexDataReference& vertex_data_reference, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<Bone> &bones ) const {
+int Data::Mission::ObjResource::Primitive::setLine(const VertexDataReference& vertex_data_reference, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle      triangle;
     MorphTriangle morph_triangle;
     glm::u8vec2   coords[2][3];
@@ -1418,22 +1424,17 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 if(vertex_data_reference.get4DNLSize() < 0)
                     vertex_data_reference.set4DNLSize(amount_of_normals);
 
-                auto normals_pointer = &vertex_normals;
+                if(vertex_data_reference.get4DNLSize() > 0) {
+                    glm::i16vec3 *normals_r = vertex_data_reference.get4DNLPointer(frame_id);
 
-                if( normals_pointer->size() != 0 ) {
-                    vertex_anm_normals.push_back( std::vector< glm::i16vec3 >() );
-                    normals_pointer = &vertex_anm_normals.back();
-                }
+                    assert(normals_r != nullptr);
 
-                normals_pointer->resize( amount_of_normals );
-
-                for( unsigned int i = 0; i < amount_of_normals; i++ ) {
-                    normals_pointer->at(i).x = reader4DNL.readI16( settings.endian );
-                    normals_pointer->at(i).y = reader4DNL.readI16( settings.endian );
-                    normals_pointer->at(i).z = reader4DNL.readI16( settings.endian );
-
-                    // normals_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
-                    reader4DNL.readI16( settings.endian );
+                    for( unsigned int i = 0; i < amount_of_normals; i++ ) {
+                        normals_r[i].x = reader4DNL.readI16( settings.endian );
+                        normals_r[i].y = reader4DNL.readI16( settings.endian );
+                        normals_r[i].z = reader4DNL.readI16( settings.endian );
+                        reader4DNL.readI16( settings.endian );
+                    }
                 }
             }
             else
@@ -1565,8 +1566,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 reader.setPosition( 0, Utilities::Buffer::END );
             }
         }
-
-        assert(vertex_data_reference.get4DNLSize() == vertex_normals.size());
 
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
             FaceOverrideType &face_override = face_type_overrides[ i - 1 ];
@@ -1867,13 +1866,13 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
             if( (*i).type == PrimitiveType::TRIANGLE )
-                (*i).setTriangle( triangle_buffer, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_normals, bones );
+                (*i).setTriangle(vertex_data_reference, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::QUAD )
-                (*i).setQuad( triangle_buffer, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_normals, bones );
+                (*i).setQuad(vertex_data_reference, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::BILLBOARD )
-                (*i).setBillboard( triangle_buffer, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_normals, bones );
+                (*i).setBillboard(vertex_data_reference, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::LINE )
-                (*i).setLine( triangle_buffer, vertex_normals, vertex_data_reference, morph_triangle_buffer, vertex_anm_normals, bones );
+                (*i).setLine(vertex_data_reference, triangle_buffer, morph_triangle_buffer, bones);
         }
     }
 
