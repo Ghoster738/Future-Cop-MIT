@@ -738,8 +738,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    int count_of_3drf = 0;
-
     if( this->data_p != nullptr )
     {
         auto reader = this->data_p->getReader();
@@ -896,6 +894,53 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             valid_opcodes = false;
                         }
                     }
+                }
+            }
+            else
+            if( identifier == TAG_3DTA ) {
+                auto reader3DTA = reader.getReader( data_tag_size );
+
+                uint32_t number_of_face_overrides = reader3DTA.readU32( settings.endian );
+
+                FaceOverrideType face_override_type;
+
+                for( unsigned int i = 0; i < number_of_face_overrides; i++ ) {
+                    face_override_type.number_of_frames = reader3DTA.readU8();
+                    face_override_type.zero_0 = reader3DTA.readU8();
+                    face_override_type.one = reader3DTA.readU8();
+                    face_override_type.unknown_bitfield = reader3DTA.readU8();
+
+                    face_override_type.frame_duration = reader3DTA.readU16( settings.endian );
+                    face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
+
+                    face_override_type.uv_data_offset = reader3DTA.readU32( settings.endian );
+                    face_override_type.offset_to_3DTL_uv = reader3DTA.readU32( settings.endian );
+
+                    // Macintosh, Windows, and PS1 shows that these values never changed.
+                    if(face_override_type.zero_0 != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 BYTE, but got " << static_cast<uint32_t>(face_override_type.zero_0) << " instead.\n";
+                    }
+                    if(face_override_type.one != 1) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 1, but got " << static_cast<uint32_t>(face_override_type.one) << " instead.\n";
+                    }
+                    if((face_override_type.unknown_bitfield & 0xC6) != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " has an unusual bitfield 0x" << std::hex << static_cast<uint32_t>(face_override_type.unknown_bitfield) << ". This might cause inaccuracies in the frame by frame animation.\n";
+                    }
+                    if((face_override_type.unknown_bitfield & 0x01) != 1) {
+                        warning_log.output << "3DTA index " << std::dec << i << " animation type not supported. An incorrect animation will be shown.\n";
+                    }
+                    if(face_override_type.zero_1 != 0) {
+                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 SHORT, but got " << static_cast<uint32_t>(face_override_type.zero_1) << " instead.\n";
+                    }
+
+                    face_type_overrides.push_back(face_override_type);
+                }
+
+                this->override_uvs.resize((reader3DTA.totalSize() - reader3DTA.getPosition()) / sizeof(glm::u8vec2));
+
+                for(auto i = this->override_uvs.begin(); i != this->override_uvs.end(); i++) {
+                    (*i).x = reader3DTA.readU8();
+                    (*i).y = reader3DTA.readU8();
                 }
             }
             else
@@ -1061,42 +1106,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 }
             }
             else
-            if( identifier == TAG_3DRF ) {
-                auto reader3DRF = reader.getReader( data_tag_size );
-                
-                debug_log.output << "3DRF" << std::hex << "\n"
-                    << "Index " << getIndexNumber() << "\n"
-                    << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << "\n";
-
-                if( reader3DRF.totalSize() != 0x10 )
-                    warning_log.output << "reader3DRF.totalSize() is not 0x10, but 0x" << std::hex << reader3DRF.totalSize() << ".\n";
-
-                count_of_3drf++;
-            }
-            else
-            if( identifier == TAG_3DRL ) {
-                debug_log.output << "3DRL" << std::endl;
-                auto reader3DRL = reader.getReader(data_tag_size);
-
-                auto frame_number = reader3DRL.readU32(settings.endian);
-
-                auto count = reader3DRL.readU32(settings.endian);
-
-                if( count != 0 ) {
-                    auto lengths_pointer = &lengths;
-
-                    // If lengths is not empty then it is a morph target.
-                    if( lengths_pointer->size() != 0 ) {
-                        anm_lengths.push_back( std::vector<uint16_t>() );
-                        lengths_pointer = &anm_lengths.back();
-                    }
-
-                    for( uint32_t i = 0; i < count; i++ ) {
-                        lengths_pointer->push_back( reader3DRL.readU16(settings.endian) );
-                    }
-                }
-            }
-            else
             if( identifier == TAG_3DHY ) {
                 auto reader3DHY = reader.getReader( data_tag_size );
                 
@@ -1212,63 +1221,27 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     this->bone_animation_data[ d ] = reader3DMI.readU16( settings.endian );
             }
             else
-            if( identifier == TAG_3DTA ) {
-                auto reader3DTA = reader.getReader( data_tag_size );
-                
-                uint32_t number_of_face_overrides = reader3DTA.readU32( settings.endian );
-
-                FaceOverrideType face_override_type;
-
-                for( unsigned int i = 0; i < number_of_face_overrides; i++ ) {
-                    face_override_type.number_of_frames = reader3DTA.readU8();
-                    face_override_type.zero_0 = reader3DTA.readU8();
-                    face_override_type.one = reader3DTA.readU8();
-                    face_override_type.unknown_bitfield = reader3DTA.readU8();
-
-                    face_override_type.frame_duration = reader3DTA.readU16( settings.endian );
-                    face_override_type.zero_1 = reader3DTA.readU16( settings.endian );
-
-                    face_override_type.uv_data_offset = reader3DTA.readU32( settings.endian );
-                    face_override_type.offset_to_3DTL_uv = reader3DTA.readU32( settings.endian );
-
-                    // Macintosh, Windows, and PS1 shows that these values never changed.
-                    if(face_override_type.zero_0 != 0) {
-                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 BYTE, but got " << static_cast<uint32_t>(face_override_type.zero_0) << " instead.\n";
-                    }
-                    if(face_override_type.one != 1) {
-                        warning_log.output << "3DTA index " << std::dec << i << " expected 1, but got " << static_cast<uint32_t>(face_override_type.one) << " instead.\n";
-                    }
-                    if((face_override_type.unknown_bitfield & 0xC6) != 0) {
-                        warning_log.output << "3DTA index " << std::dec << i << " has an unusual bitfield 0x" << std::hex << static_cast<uint32_t>(face_override_type.unknown_bitfield) << ". This might cause inaccuracies in the frame by frame animation.\n";
-                    }
-                    if((face_override_type.unknown_bitfield & 0x01) != 1) {
-                        warning_log.output << "3DTA index " << std::dec << i << " animation type not supported. An incorrect animation will be shown.\n";
-                    }
-                    if(face_override_type.zero_1 != 0) {
-                        warning_log.output << "3DTA index " << std::dec << i << " expected 0 SHORT, but got " << static_cast<uint32_t>(face_override_type.zero_1) << " instead.\n";
-                    }
-
-                    face_type_overrides.push_back(face_override_type);
-                }
-
-                this->override_uvs.resize((reader3DTA.totalSize() - reader3DTA.getPosition()) / sizeof(glm::u8vec2));
-
-                for(auto i = this->override_uvs.begin(); i != this->override_uvs.end(); i++) {
-                    (*i).x = reader3DTA.readU8();
-                    (*i).y = reader3DTA.readU8();
-                }
-            }
-            else
             if( identifier == TAG_3DAL ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
                 
                 debug_log.output << "3DAL is not handled yet.\n";
             }
             else
+            if( identifier == TAG_3DRF ) {
+                auto reader3DRF = reader.getReader( data_tag_size );
+
+                debug_log.output << "3DRF" << std::hex << "\n"
+                    << "Index " << getIndexNumber() << "\n"
+                    << "reader3DRF.totalSize() = " << reader3DRF.totalSize() << "\n";
+
+                if( reader3DRF.totalSize() != 0x10 )
+                    warning_log.output << "reader3DRF.totalSize() is not 0x10, but 0x" << std::hex << reader3DRF.totalSize() << ".\n";
+            }
+            else
             if( identifier == TAG_4DVL ) {
                 auto reader4DVL = reader.getReader( data_tag_size );
                 
-                auto frame_number = reader4DVL.readU32( settings.endian );
+                auto frame_id = reader4DVL.readU32( settings.endian );
 
                 auto amount_of_vertices = reader4DVL.readU32( settings.endian );
 
@@ -1293,7 +1266,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_4DNL ) {
                 auto reader4DNL = reader.getReader( data_tag_size );
                 
-                auto frame_number = reader4DNL.readU32( settings.endian );
+                auto frame_id = reader4DNL.readU32( settings.endian );
 
                 auto amount_of_normals = reader4DNL.readU32( settings.endian );
 
@@ -1313,6 +1286,29 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     // normals_pointer->at(i).w = Utilities::DataHandler::read_16( start_data, settings.is_opposite_endian );
                     reader4DNL.readI16( settings.endian );
+                }
+            }
+            else
+            if( identifier == TAG_3DRL ) {
+                debug_log.output << "3DRL" << std::endl;
+                auto reader3DRL = reader.getReader(data_tag_size);
+
+                auto frame_id = reader3DRL.readU32(settings.endian);
+
+                auto count = reader3DRL.readU32(settings.endian);
+
+                if( count != 0 ) {
+                    auto lengths_pointer = &lengths;
+
+                    // If lengths is not empty then it is a morph target.
+                    if( lengths_pointer->size() != 0 ) {
+                        anm_lengths.push_back( std::vector<uint16_t>() );
+                        lengths_pointer = &anm_lengths.back();
+                    }
+
+                    for( uint32_t i = 0; i < count; i++ ) {
+                        lengths_pointer->push_back( reader3DRL.readU16(settings.endian) );
+                    }
                 }
             }
             else
@@ -1531,8 +1527,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
-
-        assert(count_of_3drf == 3);
 
         return !file_is_not_valid;
     }
