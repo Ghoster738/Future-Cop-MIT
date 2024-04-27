@@ -1365,31 +1365,67 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reference_count  = reader3DRF.readU32( settings.endian );
 
                 VertexData::Tag tag;
+                uint32_t expected_reference_number;
+                bool tag_not_recognized = false;
 
                 switch(reference_tag) {
                     case TAG_3DRL:
                         tag = VertexData::C_3DRL;
+                        expected_reference_number = 3;
                         break;
                     case TAG_4DNL:
                         tag = VertexData::C_4DNL;
+                        expected_reference_number = 2;
                         break;
-                    default:
                     case TAG_4DVL:
                         tag = VertexData::C_4DVL;
+                        expected_reference_number = 1;
                         break;
+                    default:
+                        tag_not_recognized = true;
+                }
+
+                if(expected_reference_number != reference_number) {
+                    warning_log.output << "3DRF reference number on tag 0x" << std::hex << reference_tag << " has an unexpected reference number " << std::dec << reference_number << "! Expected " << expected_reference_number << ". However, this parser will ignore this value.\n";
+                }
+
+                if(reference_count == 0) {
+                    error_log.output << "3DRF reference tag 0x" << std::hex << reference_tag << " has a zero reference count!\n";
+                    file_is_not_valid = true;
                 }
 
                 if(vertex_data.get3DRFSize() == 0) {
                     vertex_data.set3DRFSize(reference_count);
                 }
 
-                for(uint32_t i = 0; i < reference_count; i++) {
-                    vertex_data.set3DRFItem(tag, i, reader3DRF.readU32( settings.endian ));
+                bool has_unnormalized_number = false;
+                bool id_beyond_ff_ff = false; // For some reason Future Cop does not like ids beyond 0xFFFF despite the storage medium having 32 bits.
+
+                if(tag_not_recognized) {
+                    error_log.output << "3DRF has a reference tag 0x" << std::hex << reference_tag << " that is not recognized. Ignoring the rest of this chunk.\n";
+                    file_is_not_valid = true;
+                }
+                else {
+                    for(uint32_t i = 0; i < reference_count; i++) {
+                        const auto current_id_number = reader3DRF.readU32( settings.endian );
+
+                        vertex_data.set3DRFItem(tag, i, current_id_number);
+
+                        if(current_id_number != i + 1)
+                            has_unnormalized_number = true;
+
+                        if(current_id_number > 0xFFFF)
+                            id_beyond_ff_ff = true;
+                    }
                 }
 
-                // assert(reference_count > 0);
-                // assert((reference_tag == TAG_4DVL && reference_number == 1) || (reference_tag == TAG_4DNL && reference_number == 2) || (reference_tag == TAG_3DRL && reference_number == 3));
+                if(has_unnormalized_number) {
+                    warning_log.output << "3DRF reference number on tag 0x" << std::hex << reference_tag << " contains chunk id(s) that are not normalized. Future Cop will most likely accept them.\n";
+                }
 
+                if(id_beyond_ff_ff) {
+                    warning_log.output << "3DRF reference number on tag 0x" << std::hex << reference_tag << " contains chunk id(s) that exceed(s) 0xFFFF. The original Future Cop engine will most likely CRASH with id(s) that high.\n";
+                }
             }
             else
             if( identifier == TAG_4DVL ) {
