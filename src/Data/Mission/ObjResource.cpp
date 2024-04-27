@@ -810,7 +810,7 @@ glm::i16vec3* Data::Mission::ObjResource::VertexData::get4DNLPointer(uint32_t id
 const glm::i16vec3* const Data::Mission::ObjResource::VertexData::get4DNLPointer(uint32_t id) const {
     for(int32_t index = 0; index < get3DRFSize(); index++)
     {
-        if(get3DRFItem(C_4DVL, index) == id)
+        if(get3DRFItem(C_4DNL, index) == id)
             return &normals[index * this->size_of_4DNL];
     }
 
