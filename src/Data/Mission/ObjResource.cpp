@@ -766,17 +766,17 @@ uint32_t Data::Mission::ObjResource::VertexData::get3DRFItem(Data::Mission::ObjR
 void Data::Mission::ObjResource::VertexData::set4DVLSize(int32_t size_of_4DVL) {
     this->size_of_4DVL = size_of_4DVL;
 
-    positions.resize(size_of_4DVL * get3DRFSize());
+    positions.resize(size_of_4DVL * get3DRFSize(), glm::i16vec3(0, 0, 0));
 }
 void Data::Mission::ObjResource::VertexData::set4DNLSize(int32_t size_of_4DNL) {
     this->size_of_4DNL = size_of_4DNL;
 
-    normals.resize(size_of_4DNL * get3DRFSize());
+    normals.resize(size_of_4DNL * get3DRFSize(), glm::i16vec3(0, 0x1000, 0));
 }
 void Data::Mission::ObjResource::VertexData::set3DRLSize(int32_t size_of_3DRL) {
     this->size_of_3DRL = size_of_3DRL;
 
-    lengths.resize(size_of_3DRL * get3DRFSize());
+    lengths.resize(size_of_3DRL * get3DRFSize(), 0x100);
 }
 
 int32_t Data::Mission::ObjResource::VertexData::get4DVLSize() const {
@@ -879,7 +879,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         int frames_gen_3DHS      = -1;
         uint16_t num_frames_4DGI =  0;
 
-        while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
+        while(reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize()) {
             auto identifier    = reader.readU32( settings.endian );
             auto tag_size      = reader.readU32( settings.endian );
             auto data_tag_size = tag_size - sizeof( uint32_t ) * 2;
@@ -1401,16 +1401,26 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if(vertex_data.get4DVLSize() < 0)
                     vertex_data.set4DVLSize(amount_of_vertices);
+                else if(vertex_data.get4DVLSize() != amount_of_vertices) {
+                    error_log.output << "4DVL has a sizing problem expected " << vertex_data.get4DVLSize() << " but got " << amount_of_vertices  << ". It will be capped.\n";
+
+                    amount_of_vertices = std::min(static_cast<uint32_t>(vertex_data.get4DVLSize()), amount_of_vertices);
+                    file_is_not_valid = true;
+                }
 
                 glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(frame_id);
 
-                assert(positions_r != nullptr);
-
-                for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                    positions_r[i].x = reader4DVL.readI16( settings.endian );
-                    positions_r[i].y = reader4DVL.readI16( settings.endian );
-                    positions_r[i].z = reader4DVL.readI16( settings.endian );
-                    reader4DVL.readI16( settings.endian );
+                if(positions_r == nullptr) {
+                    error_log.output << "4DVL: Cannot find identifier " << frame_id << " for positions.\n";
+                    file_is_not_valid = true;
+                }
+                else {
+                    for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
+                        positions_r[i].x = reader4DVL.readI16( settings.endian );
+                        positions_r[i].y = reader4DVL.readI16( settings.endian );
+                        positions_r[i].z = reader4DVL.readI16( settings.endian );
+                        reader4DVL.readI16( settings.endian );
+                    }
                 }
             }
             else
@@ -1423,12 +1433,20 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if(vertex_data.get4DNLSize() < 0)
                     vertex_data.set4DNLSize(amount_of_normals);
+                else if(vertex_data.get4DNLSize() != amount_of_normals) {
+                    error_log.output << "4DNL has a sizing problem expected " << vertex_data.get4DNLSize() << " but got " << amount_of_normals << ". It will be capped.\n";
 
-                if(vertex_data.get4DNLSize() > 0) {
-                    glm::i16vec3 *normals_r = vertex_data.get4DNLPointer(frame_id);
+                    amount_of_normals = std::min(static_cast<uint32_t>(vertex_data.get4DNLSize()), amount_of_normals);
+                    file_is_not_valid = true;
+                }
 
-                    assert(normals_r != nullptr);
+                glm::i16vec3 *normals_r = vertex_data.get4DNLPointer(frame_id);
 
+                if(vertex_data.get4DNLSize() != 0 && normals_r == nullptr) {
+                    error_log.output << "4DNL: Cannot find identifier " << frame_id << " for normals.\n";
+                    file_is_not_valid = true;
+                }
+                else if(normals_r != nullptr) {
                     for( unsigned int i = 0; i < amount_of_normals; i++ ) {
                         normals_r[i].x = reader4DNL.readI16( settings.endian );
                         normals_r[i].y = reader4DNL.readI16( settings.endian );
@@ -1448,12 +1466,20 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if(vertex_data.get3DRLSize() < 0)
                     vertex_data.set3DRLSize(count);
+                else if(vertex_data.get3DRLSize() != count) {
+                    error_log.output << "3DRL has a sizing problem expected " << vertex_data.get3DRLSize() << " but got " << count  << ". It will be capped.\n";
 
-                if( count != 0 ) {
-                    uint16_t *length_data_r = vertex_data.get3DRLPointer(frame_id);
+                    count = std::min(static_cast<uint32_t>(vertex_data.get3DRLSize()), count);
+                    file_is_not_valid = true;
+                }
 
-                    assert(length_data_r != nullptr);
+                uint16_t *length_data_r = vertex_data.get3DRLPointer(frame_id);
 
+                if(vertex_data.get3DRLSize() != 0 && length_data_r == nullptr) {
+                    error_log.output << "3DRL: Cannot find identifier " << frame_id << " for normals.\n";
+                    file_is_not_valid = true;
+                }
+                else if(length_data_r != nullptr) {
                     for( uint32_t i = 0; i < count; i++ ) {
                         length_data_r[i] = reader3DRL.readU16(settings.endian);
                     }
