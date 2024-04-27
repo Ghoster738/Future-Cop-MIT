@@ -121,6 +121,50 @@ public:
          */
         unsigned int getNumAttributes() const;
     };
+    class VertexData {
+    private:
+        std::vector<uint32_t>     reference_ids;
+        std::vector<glm::i16vec3> positions;
+        std::vector<glm::i16vec3> normals;
+        std::vector<uint16_t>     lengths;
+
+        int32_t size_of_4DVL;
+        int32_t size_of_4DNL;
+        int32_t size_of_3DRL;
+
+    public:
+        enum Tag {
+            C_4DVL = 0,
+            C_4DNL = 1,
+            C_3DRL = 2
+        };
+
+    public:
+        VertexData();
+
+        uint32_t get3DRFSize() const;
+        void     set3DRFSize(uint32_t size);
+
+        void     set3DRFItem(Tag tag, uint32_t index, uint32_t id);
+        uint32_t get3DRFItem(Tag tag, uint32_t index) const;
+
+        void set4DVLSize(int32_t size_of_4DVL);
+        void set4DNLSize(int32_t size_of_4DNL);
+        void set3DRLSize(int32_t size_of_3DRL);
+
+        int32_t get4DVLSize() const;
+        int32_t get4DNLSize() const;
+        int32_t get3DRLSize() const;
+
+        glm::i16vec3* get4DVLPointer(uint32_t id);
+        const glm::i16vec3* const get4DVLPointer(uint32_t id) const;
+
+        glm::i16vec3* get4DNLPointer(uint32_t id);
+        const glm::i16vec3* const get4DNLPointer(uint32_t id) const;
+
+        uint16_t* get3DRLPointer(uint32_t id);
+        const uint16_t* const get3DRLPointer(uint32_t id) const;
+    };
     struct Primitive {
         PrimitiveType type;
 
@@ -134,10 +178,10 @@ public:
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
-        int setTriangle( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-        int setQuad( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-        int setBillboard( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
-        int setLine( std::vector<Triangle> &triangles, const std::vector<glm::i16vec3> &positions, const std::vector<glm::i16vec3> &normals, const std::vector<uint16_t> &lengths, std::vector<MorphTriangle> &morph_triangles, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_positions, const std::vector<std::vector<glm::i16vec3>> &vertex_anm_normals, const std::vector<std::vector<uint16_t>> &anm_lengths, const std::vector<Bone> &bones ) const;
+        int setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setBillboard(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setLine(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
 
         static size_t getTriangleAmount( PrimitiveType type );
 
@@ -168,9 +212,7 @@ private:
     } info;
     unsigned position_indexes[4];
 
-    std::vector<glm::i16vec3> vertex_positions;
-    std::vector<glm::i16vec3> vertex_normals;
-    std::vector<uint16_t>     lengths;
+    VertexData vertex_data;
 
     std::map<uint_fast16_t, FaceType> face_types;
     std::vector<FaceOverrideType>     face_type_overrides;
@@ -186,10 +228,6 @@ private:
     unsigned int              bone_frames;
     int16_t                  *bone_animation_data; // Where the animation data is stored.
     unsigned int              bone_animation_data_size;
-
-    std::vector<std::vector<glm::i16vec3>> vertex_anm_positions;
-    std::vector<std::vector<glm::i16vec3>> vertex_anm_normals;
-    std::vector<std::vector<uint16_t>>     anm_lengths;
     
     unsigned int bounding_box_per_frame;
     unsigned int bounding_box_frames;
@@ -206,7 +244,6 @@ private:
     static unsigned int getOpcodeBytesPerFrame( Bone::Opcode opcode );
 public:
     ObjResource();
-    ObjResource( const ObjResource &obj );
     virtual ~ObjResource();
 
     virtual std::string getFileExtension() const;
