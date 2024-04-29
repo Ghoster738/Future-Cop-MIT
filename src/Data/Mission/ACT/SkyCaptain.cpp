@@ -173,9 +173,9 @@ Data::Mission::ACT::SkyCaptain::Internal Data::Mission::ACT::SkyCaptain::getInte
 
 glm::vec2 Data::Mission::ACT::SkyCaptain::getSpawnPosition() const {
     if((internal.position_bitfield & 0x08) == 0)
-        return getSpawnPosition();
-    else
-        return (1.f / 16.f) * glm::vec2(internal.alt_position_x, internal.alt_position_y);
+        return Data::Mission::ACTResource::getPosition();
+
+    return (1.f / 16.f) * glm::vec2(internal.alt_position_x, internal.alt_position_y);
 }
 
 std::vector<Data::Mission::ACT::SkyCaptain*> Data::Mission::ACT::SkyCaptain::getVector( Data::Mission::ACTManager& act_manager ) {

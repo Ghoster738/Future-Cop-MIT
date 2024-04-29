@@ -95,6 +95,9 @@ public:
 
     glm::vec2 getSpawnPosition() const;
 
+    bool hasModelID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getModelID() const { return rsl_data[0].resource_id; }
+
     static std::vector<SkyCaptain*> getVector( Data::Mission::ACTManager& act_manager );
 
     static const std::vector<SkyCaptain*> getVector( const Data::Mission::ACTManager& act_manager );

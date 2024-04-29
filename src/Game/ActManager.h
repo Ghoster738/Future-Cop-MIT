@@ -10,6 +10,7 @@
 #include "ACT/BaseTurret.h"
 #include "ACT/ItemPickup.h"
 #include "ACT/NeutralTurret.h"
+#include "ACT/SkyCaptain.h"
 
 namespace Game {
 
@@ -31,6 +32,7 @@ private:
     SpawnableActor<ACT::BaseTurret> base_turrets;
     SpawnableActor<ACT::ItemPickup> item_pickups;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
+    SpawnableActor<ACT::SkyCaptain> sky_captains;
 
 public:
     ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor );
