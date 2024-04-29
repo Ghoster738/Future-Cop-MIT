@@ -32,7 +32,7 @@ Json::Value Data::Mission::ACT::SkyCaptain::makeJson() const {
     root["ACT"][NAME]["uint8_9"] = internal.uint8_9;
     root["ACT"][NAME]["uint16_8"] = internal.uint16_8;
     root["ACT"][NAME]["uint8_10"] = internal.uint8_10;
-    root["ACT"][NAME]["uint8_11"] = internal.uint8_11;
+    root["ACT"][NAME]["position_bitfield"] = internal.position_bitfield;
     root["ACT"][NAME]["uint16_9"] = internal.uint16_9;
     root["ACT"][NAME]["uint16_10"] = internal.uint16_10;
     root["ACT"][NAME]["uint16_11"] = internal.uint16_11;
@@ -43,8 +43,8 @@ Json::Value Data::Mission::ACT::SkyCaptain::makeJson() const {
     root["ACT"][NAME]["uint32_2"] = internal.uint32_2;
     root["ACT"][NAME]["uint16_16"] = internal.uint16_16;
     root["ACT"][NAME]["uint16_17"] = internal.uint16_17;
-    root["ACT"][NAME]["uint16_18"] = internal.uint16_18;
-    root["ACT"][NAME]["uint16_19"] = internal.uint16_19;
+    root["ACT"][NAME]["alt_position_x"] = internal.alt_position_x;
+    root["ACT"][NAME]["alt_position_y"] = internal.alt_position_y;
     root["ACT"][NAME]["uint8_12"] = internal.uint8_12;
     root["ACT"][NAME]["zero_3"] = internal.zero_3;
     root["ACT"][NAME]["zero_4"] = internal.zero_4;
@@ -96,7 +96,7 @@ bool Data::Mission::ACT::SkyCaptain::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint8_9 = data_reader.readU8(); // Always 4
     internal.uint16_8 = data_reader.readU16( endian ); // Always 1
     internal.uint8_10 = data_reader.readU8(); // Always 1
-    internal.uint8_11 = data_reader.readU8(); // Values: 0, 8, 12, 
+    internal.position_bitfield = data_reader.readU8(); // Values: 0, 8, 12,
     internal.uint16_9 = data_reader.readU16( endian ); // Always 32358
     internal.uint16_10 = data_reader.readU16( endian ); // Always 512
     internal.uint16_11 = data_reader.readU16( endian ); // Values: 614, 675, 
@@ -107,8 +107,8 @@ bool Data::Mission::ACT::SkyCaptain::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint32_2 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
     internal.uint16_16 = data_reader.readU16( endian ); // Always 7680
     internal.uint16_17 = data_reader.readU16( endian ); // Always 1280
-    internal.uint16_18 = data_reader.readU16( endian ); // Values: 0, 1920, 2049, 3303, 
-    internal.uint16_19 = data_reader.readU16( endian ); // Values: 0, 1912, 2799, 3537, 
+    internal.alt_position_x = data_reader.readU16( endian ); // Values: 0, 1920, 2049, 3303,
+    internal.alt_position_y = data_reader.readU16( endian ); // Values: 0, 1912, 2799, 3537,
     internal.uint8_12 = data_reader.readU8(); // Always 1
     internal.zero_3 = data_reader.readU16( endian ); // Always 0
     internal.zero_4 = data_reader.readU8(); // Always 0
@@ -169,6 +169,13 @@ Data::Mission::ACTResource* Data::Mission::ACT::SkyCaptain::duplicate( const ACT
 
 Data::Mission::ACT::SkyCaptain::Internal Data::Mission::ACT::SkyCaptain::getInternal() const {
     return internal;
+}
+
+glm::vec2 Data::Mission::ACT::SkyCaptain::getSpawnPosition() const {
+    if((internal.position_bitfield & 0x08) == 0)
+        return getSpawnPosition();
+    else
+        return (1.f / 16.f) * glm::vec2(internal.alt_position_x, internal.alt_position_y);
 }
 
 std::vector<Data::Mission::ACT::SkyCaptain*> Data::Mission::ACT::SkyCaptain::getVector( Data::Mission::ACTManager& act_manager ) {
