@@ -187,7 +187,6 @@ public:
 
         bool operator() ( const Primitive &l_operand, const Primitive &r_operand ) const;
     };
-    // Warning: I do not know if this is actually the bounding box's data structure.
     struct BoundingBox3D {
         int16_t x;
         int16_t y;
@@ -195,8 +194,8 @@ public:
         uint16_t length_x;
         uint16_t length_y;
         uint16_t length_z;
-        uint16_t rotation_x;
-        uint16_t rotation_y;
+        uint16_t length_pyth_3; // (length_x^2 + length_y^2 + length_z^2) square rooted.
+        uint16_t length_pyth_2; // (length_x^2 + length_z^2) square rooted.
     };
     struct TextureReference {
         uint32_t resource_id;
