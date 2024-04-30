@@ -1584,30 +1584,32 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         for( size_t box_index = 0; box_index < bounding_box_per_frame; box_index++ )
                         {
                             bounding_boxes.push_back( BoundingBox3D() );
+
+                            // NOTE: To convert these variables to floating point multiply them be the FIXED_POINT_UNIT.
                             
-                            // Fact Positive and negative: Assumption position x
+                            // Fact Positive and negative: position x
                             bounding_boxes.back().x = reader3DBB.readI16( settings.endian );
                             
-                            // Fact Positive and negative: Assumption position y
+                            // Fact Positive and negative: position y
                             bounding_boxes.back().y = reader3DBB.readI16( settings.endian );
                             
-                            // Fact Positive and negative: Assumption position z
+                            // Fact Positive and negative: position z
                             bounding_boxes.back().z = reader3DBB.readI16( settings.endian );
                             
-                            // Fact [0, 4224]: Assumption length x
+                            // Fact [0, 4224]: length x
                             bounding_boxes.back().length_x = reader3DBB.readU16( settings.endian );
                             
-                            // Fact [0, 1438]: Assumption length y
+                            // Fact [0, 1438]: length y
                             bounding_boxes.back().length_y = reader3DBB.readU16( settings.endian );
                             
-                            // Fact [0, 3584]: Assumption length z
+                            // Fact [0, 3584]: length z
                             bounding_boxes.back().length_z = reader3DBB.readU16( settings.endian );
                             
-                            // Fact [0, 4293]: Assumption rotation x
-                            bounding_boxes.back().rotation_x = reader3DBB.readU16( settings.endian );
+                            // Fact [0, 4293]: This uses the pythagorean theorem on the three lengths. Roughly (length_x^2 + length_y^2 + length_z^2) square rooted.
+                            bounding_boxes.back().length_pyth_3 = reader3DBB.readU16( settings.endian );
                             
-                            // Fact [0, 4293]: Assumption rotation y
-                            bounding_boxes.back().rotation_y = reader3DBB.readU16( settings.endian );
+                            // Fact [0, 4293]: This uses the pythagorean theorem on length_x and length_z. Roughly (length_x^2 + length_z^2) square rooted.
+                            bounding_boxes.back().length_pyth_2 = reader3DBB.readU16( settings.endian );
                         }
                     }
                 }
