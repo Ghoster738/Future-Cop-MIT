@@ -2149,8 +2149,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC3, true );
         unsigned int position_morph_component_index = 0;
 
-        //if( bounding_box_frames > 1 )
-        //    position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
+        if( bounding_box_frames > 1 )
+            position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
 
         glm::vec3 position;
         glm::vec3 morph_position;
@@ -2158,9 +2158,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
 
         // At this point it is time to start generating bounding box.
 
-        box_output->setupVertexComponents();// bounding_box_per_frame - 1 );
+        box_output->setupVertexComponents(bounding_box_frames - 1);
 
-        box_output->allocateVertices( bounding_box_per_frame * BOX_EDGES * EDGE_AMOUNT );
+        box_output->allocateVertices(bounding_box_per_frame * BOX_EDGES * EDGE_AMOUNT);
 
         // No texture should be used for this bounding box.
         box_output->setMaterial( "" );
@@ -2200,9 +2200,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 box_output->startVertex();
                 box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
                 box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
-
-                if(position_morph_component_index == 0)
-                    return;
 
                 for(unsigned int f = 1; f < bounding_box_frames; f++) {
                     const BoundingBox3D &morph_box = this->bounding_boxes[ box_index + f * bounding_box_per_frame ];
