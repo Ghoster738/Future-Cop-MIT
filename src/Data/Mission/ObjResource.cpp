@@ -1883,7 +1883,10 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
-    Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
+    Utilities::ModelBuilder *model_output = createBoundingBoxes();
+
+    if(model_output != nullptr)
+        return model_output;
 
     // This buffer will be used to store every triangle that the write function has.
     std::vector<Triangle> triangle_buffer;
@@ -2120,6 +2123,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() const {
+    const unsigned int BOX_EDGES = 12;
+    const unsigned int EDGE_AMOUNT = 2;
+
     if(bounding_box_per_frame > 0 && bounding_box_frames > 0) {
         Utilities::ModelBuilder *box_output = new Utilities::ModelBuilder( Utilities::ModelBuilder::LINES );
         
@@ -2135,6 +2141,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         glm::u8vec4 color(0, 255, 0, 255);
         
         // At this point it is time to start generating bounding box.
+
+        box_output->setupVertexComponents( bounding_box_per_frame - 1 );
+
+        box_output->allocateVertices( bounding_box_frames * BOX_EDGES * EDGE_AMOUNT );
         
         // No texture should be used for this bounding box.
         box_output->setMaterial( "" );
@@ -2175,7 +2185,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
                 box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
 
-                for(unsigned int f = 0; f < bounding_box_frames; f++) {
+                if(position_morph_component_index == 0)
+                    return;
+
+                for(unsigned int f = 1; f < bounding_box_frames; f++) {
                     const BoundingBox3D &morph_box = this->bounding_boxes[ box_index + f * bounding_box_per_frame ];
                     const glm::vec3 morph_center = FIXED_POINT_UNIT * glm::vec3(morph_box.x, morph_box.y, morph_box.z);
                     const glm::vec3 morph_scale  = FIXED_POINT_UNIT * glm::vec3(morph_box.length_x, morph_box.length_y, morph_box.length_z);
@@ -2193,7 +2206,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
 
                     morph_position += morph_center;
 
-                    box_output->addMorphVertexData( position_morph_component_index, f, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( morph_position ) );
+                    box_output->addMorphVertexData( position_morph_component_index, f - 1, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( morph_position ) );
                 }
             };
             bool is_upper = false;
