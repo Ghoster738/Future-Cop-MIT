@@ -44,7 +44,6 @@ protected:
     VertexAttributeArray morph_attribute_array_next;
 
     // uniforms are used for morpth attributes.
-    GLuint sample_next_uniform_id;
     GLuint sample_last_uniform_id;
     
     std::map<uint32_t, Animation*> model_animation_p;
