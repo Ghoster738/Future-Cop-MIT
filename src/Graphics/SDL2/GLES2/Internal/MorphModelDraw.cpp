@@ -116,14 +116,13 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "uniform mat4 Transform;\n" // projection * view * model.
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for modifiying the morph attributes
-    "uniform float SampleNext;\n"
     "uniform float SampleLast;\n"
     "uniform vec2 AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
     "void main()\n"
     "{\n"
-    "   vec4 current_position = POSITION + POSITION_Last * vec4( SampleLast ) + POSITION_Next * vec4( SampleNext );\n"
-    "   vec3 current_normal   = NORMAL   + NORMAL_Last   * vec3( SampleLast ) + NORMAL_Next   * vec3( SampleNext );\n"
+    "   vec4 current_position = POSITION + POSITION_Last * vec4( SampleLast );\n"
+    "   vec3 current_normal   = NORMAL   + NORMAL_Last   * vec3( SampleLast );\n"
     // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
     "   vec3 eye_coord_position = vec3( ModelView * current_position );\n" // Model View multiplied by Model Position.
     "   vec3 eye_coord_normal   = vec3( ModelView * vec4(current_normal, 0.0));\n"
@@ -160,7 +159,6 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
     bool uniform_failed = false;
     bool attribute_failed = false;
 
-    sample_next_uniform_id = program.getUniform( "SampleNext", &std::cout, &uniform_failed );
     sample_last_uniform_id = program.getUniform( "SampleLast", &std::cout, &uniform_failed );
 
     morph_attribute_array_last.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );
