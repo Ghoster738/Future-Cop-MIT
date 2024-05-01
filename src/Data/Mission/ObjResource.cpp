@@ -1796,7 +1796,26 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
                 resource.close();
             }
         }
-            
+
+        if(iff_options.obj.export_bounding_box) {
+            Utilities::ModelBuilder *bounding_boxes_p = createBoundingBoxes();
+
+            if(bounding_boxes_p != nullptr) {
+                bounding_boxes_p->write( std::string( file_path + "_bb"), "Bounding Boxes " + std::to_string( getResourceID() ) );
+
+                delete bounding_boxes_p;
+            }
+            else {
+            std::ofstream resource;
+
+            resource.open( std::string(file_path) + "_empty_bb.txt", std::ios::out );
+
+            if( resource.is_open() ) {
+                resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " has failed!" << std::endl;
+                resource.close();
+            }
+            }
+        }
     }
 
     delete model_output;
@@ -1883,10 +1902,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
-    Utilities::ModelBuilder *model_output = createBoundingBoxes();
-
-    if(model_output != nullptr)
-        return model_output;
+    Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
     std::vector<Triangle> triangle_buffer;
@@ -2128,32 +2144,32 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
 
     if(bounding_box_per_frame > 0 && bounding_box_frames > 0) {
         Utilities::ModelBuilder *box_output = new Utilities::ModelBuilder( Utilities::ModelBuilder::LINES );
-        
+
         unsigned int position_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC3, true );
         unsigned int position_morph_component_index = 0;
-        
-        if( bounding_box_frames > 1 )
-            position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
-        
+
+        //if( bounding_box_frames > 1 )
+        //    position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
+
         glm::vec3 position;
         glm::vec3 morph_position;
         glm::u8vec4 color(0, 255, 0, 255);
-        
+
         // At this point it is time to start generating bounding box.
 
-        box_output->setupVertexComponents( bounding_box_per_frame - 1 );
+        box_output->setupVertexComponents();// bounding_box_per_frame - 1 );
 
-        box_output->allocateVertices( bounding_box_frames * BOX_EDGES * EDGE_AMOUNT );
-        
+        box_output->allocateVertices( bounding_box_per_frame * BOX_EDGES * EDGE_AMOUNT );
+
         // No texture should be used for this bounding box.
         box_output->setMaterial( "" );
-        
+
         for( unsigned int box_index = 0; box_index < this->bounding_box_per_frame; box_index++ )
         {
             const BoundingBox3D &current_box = this->bounding_boxes[ box_index ];
             const glm::vec3 bb_center = FIXED_POINT_UNIT * glm::vec3(current_box.x, current_box.y, current_box.z);
-            const glm::vec3 bb_scale  = FIXED_POINT_UNIT * glm::vec3(current_box.length_x, current_box.length_y, current_box.length_z);
+            const glm::vec3 bb_scale  = FIXED_POINT_UNIT * glm::vec3(current_box.length_x + 1, current_box.length_y + 1, current_box.length_z + 1);
 
             auto buildPoint = [&](bool x, bool y, bool z) {
                 position = bb_scale;
@@ -2165,21 +2181,21 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 else
                     color.r = 0;
 
-                if(y)
-                    color.g = 255;
-                else {
+                if(y) {
                     position.y = -position.y;
+                    color.g = 255;
+                }
+                else
                     color.g = 0;
-                }
 
-                if(z)
-                    color.b = 255;
-                else {
+                if(z) {
                     position.z = -position.z;
-                    color.b = 0;
+                    color.b = 255;
                 }
+                else
+                    color.b = 0;
 
-                position += bb_center;
+                position += bb_center * glm::vec3(-1.0,1.0,1.0);
 
                 box_output->startVertex();
                 box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
@@ -2241,7 +2257,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         }
 
         box_output->finish();
-        
+
         return box_output;
     }
     else
@@ -2287,11 +2303,16 @@ const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVe
 }
 
 bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_BOUNDING_BOXES", output_r, export_bounding_box ) )
+        return false; // The single argument is not valid.
+
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
 
 std::string Data::Mission::IFFOptions::ObjOption::getOptions() const {
     std::string information_text = getBuiltInOptions();
+
+    information_text += "  --OBJ_EXPORT_BOUNDING_BOXES Export a glTF file per resource containing bounding boxes.\n";
 
     return information_text;
 }
