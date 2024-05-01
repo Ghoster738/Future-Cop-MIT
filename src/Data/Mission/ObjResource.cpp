@@ -2124,43 +2124,110 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         Utilities::ModelBuilder *box_output = new Utilities::ModelBuilder( Utilities::ModelBuilder::LINES );
         
         unsigned int position_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC2 );
-        // unsigned int position_morph_component_index = 0;
+        unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC3, true );
+        unsigned int position_morph_component_index = 0;
         
-        // TODO Add morph animations.
-        // if( bounding_box_frames > 1 )
-        //    position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
+        if( bounding_box_frames > 1 )
+            position_morph_component_index = box_output->setVertexComponentMorph( position_component_index );
         
         glm::vec3 position;
-        glm::vec3 color(0.0f, 1.0f, 0.0f);
+        glm::vec3 morph_position;
+        glm::u8vec4 color(0, 255, 0, 255);
         
         // At this point it is time to start generating bounding box.
         
         // No texture should be used for this bounding box.
         box_output->setMaterial( "" );
         
-        for( unsigned int box_index = 0; box_index < bounding_box_per_frame; box_index++ )
+        for( unsigned int box_index = 0; box_index < this->bounding_box_per_frame; box_index++ )
         {
-            // TODO This is right now a line not a box.
-            
-            const BoundingBox3D &current_box = bounding_boxes[ box_index ];
-            
-            position.x = -(current_box.x + current_box.length_x) * FIXED_POINT_UNIT;
-            position.y =  (current_box.y + current_box.length_y) * FIXED_POINT_UNIT;
-            position.z =  (current_box.z + current_box.length_z) * FIXED_POINT_UNIT;
-            
-            box_output->startVertex();
-            box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec3Type( color ) );
-            
-            position.x = -(current_box.x - current_box.length_x) * FIXED_POINT_UNIT;
-            position.y =  (current_box.y - current_box.length_y) * FIXED_POINT_UNIT;
-            position.z =  (current_box.z - current_box.length_z) * FIXED_POINT_UNIT;
-            
-            box_output->startVertex();
-            box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
-            box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec3Type( color ) );
+            const BoundingBox3D &current_box = this->bounding_boxes[ box_index ];
+            const glm::vec3 bb_center = FIXED_POINT_UNIT * glm::vec3(current_box.x, current_box.y, current_box.z);
+            const glm::vec3 bb_scale  = FIXED_POINT_UNIT * glm::vec3(current_box.length_x, current_box.length_y, current_box.length_z);
+
+            auto buildPoint = [&](bool x, bool y, bool z) {
+                position = bb_scale;
+
+                if(x) {
+                    position.x = -position.x;
+                    color.r = 255;
+                }
+                else
+                    color.r = 0;
+
+                if(y)
+                    color.g = 255;
+                else {
+                    position.y = -position.y;
+                    color.g = 0;
+                }
+
+                if(z)
+                    color.b = 255;
+                else {
+                    position.z = -position.z;
+                    color.b = 0;
+                }
+
+                position += bb_center;
+
+                box_output->startVertex();
+                box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
+                box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
+
+                for(unsigned int f = 0; f < bounding_box_frames; f++) {
+                    const BoundingBox3D &morph_box = this->bounding_boxes[ box_index + f * bounding_box_per_frame ];
+                    const glm::vec3 morph_center = FIXED_POINT_UNIT * glm::vec3(morph_box.x, morph_box.y, morph_box.z);
+                    const glm::vec3 morph_scale  = FIXED_POINT_UNIT * glm::vec3(morph_box.length_x, morph_box.length_y, morph_box.length_z);
+
+                    morph_position = morph_scale;
+
+                    if(x)
+                        morph_position.x = -morph_position.x;
+
+                    if(!y)
+                        morph_position.y = -morph_position.y;
+
+                    if(!z)
+                        morph_position.z = -morph_position.z;
+
+                    morph_position += morph_center;
+
+                    box_output->addMorphVertexData( position_morph_component_index, f, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( morph_position ) );
+                }
+            };
+            bool is_upper = false;
+
+            for(int i = 0; i < 2; i++) {
+                buildPoint( true, is_upper,  true);
+                buildPoint(false, is_upper,  true);
+
+                buildPoint(false, is_upper,  true);
+                buildPoint(false, is_upper, false);
+
+                buildPoint(false, is_upper, false);
+                buildPoint( true, is_upper, false);
+
+                buildPoint( true, is_upper, false);
+                buildPoint( true, is_upper,  true);
+
+                is_upper = true;
+            }
+
+            buildPoint( true,  true,  true);
+            buildPoint( true, false,  true);
+
+            buildPoint(false,  true,  true);
+            buildPoint(false, false,  true);
+
+            buildPoint(false,  true, false);
+            buildPoint(false, false, false);
+
+            buildPoint( true,  true, false);
+            buildPoint( true, false, false);
         }
+
+        box_output->finish();
         
         return box_output;
     }
