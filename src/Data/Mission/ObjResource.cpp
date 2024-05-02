@@ -1774,7 +1774,7 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    Utilities::ModelBuilder *model_output = createModel();
+    Utilities::ModelBuilder *model_output = createMesh(iff_options.obj.export_no_metadata);
 
     if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
@@ -1902,6 +1902,10 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
+    return createMesh( false ); // False as metadata would NOT be excluded.
+}
+
+Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata ) const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
@@ -1963,9 +1967,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-    unsigned int metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
+    unsigned int metadata_component_index = -1;
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
+
+    if(!exclude_metadata)
+        metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
 
     if( !bones.empty() ) {
         joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
@@ -2106,7 +2113,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
                 model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
                 model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType(  (*triangle).color ) );
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
-                model_output->setVertexData(  metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
+
+                if(!exclude_metadata)
+                    model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
 
                 auto morph_triangle_frame = morph_triangle;
 
@@ -2300,6 +2309,8 @@ const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVe
 }
 
 bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_NO_METADATA", output_r, export_no_metadata ) )
+        return false; // The single argument is not valid.
     if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_BOUNDING_BOXES", output_r, export_bounding_box ) )
         return false; // The single argument is not valid.
 
@@ -2309,6 +2320,7 @@ bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std
 std::string Data::Mission::IFFOptions::ObjOption::getOptions() const {
     std::string information_text = getBuiltInOptions();
 
+    information_text += "  --OBJ_EXPORT_NO_METADATA Export the primary glTF file without its metadata.\n";
     information_text += "  --OBJ_EXPORT_BOUNDING_BOXES Export a glTF file per resource containing bounding boxes.\n";
 
     return information_text;
