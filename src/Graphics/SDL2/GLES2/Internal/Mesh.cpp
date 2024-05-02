@@ -34,6 +34,30 @@ void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opa
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    switch(model.getPrimativeMode()) {
+        case Utilities::ModelBuilder::MeshPrimativeMode::POINTS:
+            draw_command_array_mode = GL_POINTS;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINES:
+            draw_command_array_mode = GL_LINES;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINE_LOOP:
+            draw_command_array_mode = GL_LINE_LOOP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINE_STRIP:
+            draw_command_array_mode = GL_LINE_STRIP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLES:
+            draw_command_array_mode = GL_TRIANGLES;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLE_STRIP:
+            draw_command_array_mode = GL_TRIANGLE_STRIP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLE_FAN:
+            draw_command_array_mode = GL_TRIANGLE_FAN;
+            break;
+    }
+
     void * vertex_buffer_data = model.getBuffer( vertex_buffer_size );
     bool bounds;
     
