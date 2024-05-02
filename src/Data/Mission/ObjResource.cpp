@@ -2204,7 +2204,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 else
                     color.b = 0;
 
-                position += bb_center * glm::vec3(-1.0,1.0,1.0);
+                position += bb_center;
+
+                position.x = -position.x;
 
                 box_output->startVertex();
                 box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
@@ -2220,13 +2222,15 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                     if(x)
                         morph_position.x = -morph_position.x;
 
-                    if(!y)
+                    if(y)
                         morph_position.y = -morph_position.y;
 
-                    if(!z)
+                    if(z)
                         morph_position.z = -morph_position.z;
 
                     morph_position += morph_center;
+
+                    morph_position.x = -morph_position.x;
 
                     box_output->addMorphVertexData( position_morph_component_index, f - 1, Utilities::DataTypes::Vec3Type( position ), Utilities::DataTypes::Vec3Type( morph_position ) );
                 }
