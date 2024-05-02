@@ -1218,7 +1218,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
                 
                 for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).position.at( joint_frame ).x ), 3 * sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).position.at( joint_frame ) ), 3 * sizeof( float ));
                 }
                 index++;
                 
@@ -1227,7 +1227,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
                 
                 for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).x ), 4 * sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ) ), 4 * sizeof( float ));
                 }
                 index++;
             }
