@@ -266,6 +266,7 @@ public:
 
     virtual Utilities::ModelBuilder * createModel() const;
     
+    Utilities::ModelBuilder * createMesh( bool exclude_metadata ) const;
     Utilities::ModelBuilder * createBoundingBoxes() const;
 
     static std::vector<ObjResource*> getVector( Data::Mission::IFF &mission_file );
