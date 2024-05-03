@@ -19,6 +19,7 @@ Environment::Environment() {
 
     this->display_world = false;
     this->has_initialized_routines = false;
+    this->draw_bounding_boxes = false;
 }
 
 Environment::~Environment() {
@@ -335,6 +336,14 @@ int Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
         return -1; // The world_p needs allocating first!
 }
 
+bool Environment::getBoundingBoxDraw() const {
+    return this->draw_bounding_boxes;
+}
+
+void Environment::setBoundingBoxDraw(bool draw) {
+    this->draw_bounding_boxes = draw;
+}
+
 void Environment::setupFrame() {
     for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ )
     {
@@ -402,12 +411,14 @@ void Environment::drawFrame() {
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
 
-            glDisable( GL_CULL_FACE );
-            glDisable( GL_BLEND );
-            this->static_model_draw_bb_routine.draw(   *current_camera_r );
-            this->morph_model_draw_bb_routine.draw(    *current_camera_r );
-            glEnable( GL_CULL_FACE );
-            glEnable( GL_BLEND );
+            if(draw_bounding_boxes) {
+                glDisable( GL_CULL_FACE );
+                glDisable( GL_BLEND );
+                this->static_model_draw_bb_routine.draw(   *current_camera_r );
+                this->morph_model_draw_bb_routine.draw(    *current_camera_r );
+                glEnable( GL_CULL_FACE );
+                glEnable( GL_BLEND );
+            }
 
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 

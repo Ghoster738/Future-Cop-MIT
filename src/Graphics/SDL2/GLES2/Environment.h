@@ -33,6 +33,7 @@ public:
     Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
+    bool draw_bounding_boxes;
     Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_bb_routine;
     Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_bb_routine = Graphics::SDL2::GLES2::Internal::MorphModelDraw(false);
 
@@ -49,6 +50,8 @@ public:
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
+    virtual bool getBoundingBoxDraw() const;
+    virtual void setBoundingBoxDraw(bool draw);
     virtual void setupFrame();
     virtual void drawFrame();
     virtual bool screenshot( Utilities::Image2D &image ) const;
