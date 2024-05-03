@@ -188,6 +188,11 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
                 is_camera_moving = false;
         }
 
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::CHANGE_TARGET );
+        if( input_r->isChanged() && input_r->getState() < 0.5 ) {
+            main_program.environment_p->setBoundingBoxDraw(!main_program.environment_p->getBoundingBoxDraw());
+        }
+
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ROTATE_LEFT );
         if( input_r->isChanged() && input_r->getState() > 0.5 )
         {
