@@ -1801,7 +1801,7 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
             Utilities::ModelBuilder *bounding_boxes_p = createBoundingBoxes();
 
             if(bounding_boxes_p != nullptr) {
-                bounding_boxes_p->write( std::string( file_path + "_bb"), "Bounding Boxes " + std::to_string( getResourceID() ) );
+                bounding_boxes_p->write( std::string( file_path + "_bb"), "cobj_" + std::to_string( getResourceID() )+ "_bb"  );
 
                 delete bounding_boxes_p;
             }
