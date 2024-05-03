@@ -66,6 +66,27 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         return false;
 }
 
+int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::combineFrom(const VertexAttributeArray& combine) {
+    int added_attributes = 0;
+
+    for( auto c = combine.attributes.begin(); c != combine.attributes.end(); c++) {
+        bool missing_attribute = true;
+
+        for( auto s = attributes.begin(); s != attributes.end(); s++) {
+            if( (*s).name.compare((*c).name) == 0 ) {
+                missing_attribute = false;
+            }
+        }
+
+        if( missing_attribute ) {
+            attributes.push_back( (*c) );
+            added_attributes++;
+        }
+    }
+
+    return added_attributes;
+}
+
 int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::allocate( Graphics::SDL2::GLES2::Internal::Program & program ) {
     int found_attributes = 0;
 

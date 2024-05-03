@@ -52,6 +52,12 @@ public:
     bool addAttribute( const std::basic_string<GLchar>& name, GLint size, float values[4] );
 
     /**
+     * Add attributes that are not found.
+     * @return The number of missing attributes that where added.
+     */
+    int combineFrom(const VertexAttributeArray& combine);
+
+    /**
      * The VertexAttributeArray has to be filled in order for this method to work.
      * @return The number of successfull attributeTypeBinds.
      */
