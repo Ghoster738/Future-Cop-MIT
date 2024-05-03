@@ -349,6 +349,7 @@ void MainProgram::loadResources() {
 void MainProgram::loadGraphics( bool show_map ) {
     this->environment_p->loadResources( this->accessor );
     this->environment_p->displayMap( show_map );
+    this->environment_p->setBoundingBoxDraw( false );
 
     // Get the font from the resource file.
     if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, this->accessor ) == 0 ) {

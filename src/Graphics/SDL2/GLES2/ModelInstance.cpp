@@ -12,6 +12,7 @@
 Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::Environment &environment, uint32_t obj_identifier, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param ) :
     Graphics::ModelInstance( position_param, rotation_param, texture_offset_param ),
     array_r( nullptr ),
+    bb_array_r( nullptr ),
     culling_sphere_position(),
     culling_sphere_radius()
 {
@@ -37,11 +38,28 @@ Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::Environment &envi
         
     if( model_state == 0 )
         throw std::invalid_argument( "Cobj identifier " + std::to_string( obj_identifier ) + " does not exist in the routine");
+
+    model_draw_r = nullptr;
+
+    if( gl_environment->morph_model_draw_bb_routine.containsModel( obj_identifier ) )
+        model_draw_r = &gl_environment->morph_model_draw_bb_routine;
+    else
+    if( gl_environment->static_model_draw_bb_routine.containsModel( obj_identifier ) )
+        model_draw_r = &gl_environment->static_model_draw_bb_routine;
+
+    if( model_draw_r == nullptr )
+        throw std::invalid_argument( "There is no routine Cobj identifier " + std::to_string( obj_identifier ) + " for bounding boxes does not exist in the graphics");
+
+    model_state = model_draw_r->allocateObjBBModel( obj_identifier, *this );
+
+    if( model_state == 0 )
+        throw std::invalid_argument( "Cobj identifier " + std::to_string( obj_identifier ) + " for bounding boxes does not exist in the routine");
 }
 
 Graphics::SDL2::GLES2::ModelInstance::~ModelInstance() {
     // Simply remove this entry from the model instances.
     this->array_r->instances_r.erase( this );
+    this->bb_array_r->instances_r.erase( this );
 }
 
 bool Graphics::SDL2::GLES2::ModelInstance::exists( Graphics::Environment &environment, uint32_t obj_identifier ) {

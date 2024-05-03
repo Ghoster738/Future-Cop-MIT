@@ -19,6 +19,7 @@ Environment::Environment() {
 
     this->display_world = false;
     this->has_initialized_routines = false;
+    this->draw_bounding_boxes = false;
 }
 
 Environment::~Environment() {
@@ -197,6 +198,16 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         if( err != GL_NO_ERROR )
             std::cout << "Static Model shader is broken!: " << err << std::endl;
 
+        // Setup the vertex and fragment shaders
+        this->static_model_draw_bb_routine.setVertexShader();
+        this->static_model_draw_bb_routine.setFragmentShader();
+        this->static_model_draw_bb_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Static Model Bounding Box shader is broken!: " << err << std::endl;
+
         this->morph_model_draw_routine.setVertexShader();
         this->morph_model_draw_routine.setFragmentShader();
         this->morph_model_draw_routine.compileProgram();
@@ -205,6 +216,16 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
         if( err != GL_NO_ERROR )
             std::cout << "Morph Model shader is broken!: " << err << std::endl;
+
+        // Setup the vertex and fragment shaders
+        this->morph_model_draw_bb_routine.setVertexShader();
+        this->morph_model_draw_bb_routine.setFragmentShader();
+        this->morph_model_draw_bb_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Morph Model Bounding Box shader is broken!: " << err << std::endl;
 
         this->skeletal_model_draw_routine.setVertexShader();
         this->skeletal_model_draw_routine.setFragmentShader();
@@ -230,6 +251,9 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         this->skeletal_model_draw_routine.clearModels();
         this->morph_model_draw_routine.clearModels();
         this->static_model_draw_routine.clearModels();
+
+        this->static_model_draw_bb_routine.clearModels();
+        this->morph_model_draw_bb_routine.clearModels();
     }
 
     this->static_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
@@ -242,12 +266,10 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllOBJ();
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
-        if( model_types[ i ] != nullptr )
-        {
+        if( model_types[ i ] != nullptr ) {
             model_r = model_types[ i ]->createModel();
 
-            if( model_r != nullptr )
-            {
+            if( model_r != nullptr ) {
                 if( model_r->getNumJoints() > 0 )
                     this->skeletal_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
                 else
@@ -255,6 +277,15 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                     this->morph_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
                 else
                     this->static_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
+            }
+
+            model_r = model_types[ i ]->createBoundingBoxes();
+
+            if( model_r != nullptr ) {
+                if( model_r->getNumMorphFrames() > 0)
+                    this->morph_model_draw_bb_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
+                else
+                    this->static_model_draw_bb_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
             }
         }
     }
@@ -306,6 +337,14 @@ int Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
     }
     else
         return -1; // The world_p needs allocating first!
+}
+
+bool Environment::getBoundingBoxDraw() const {
+    return this->draw_bounding_boxes;
+}
+
+void Environment::setBoundingBoxDraw(bool draw) {
+    this->draw_bounding_boxes = draw;
 }
 
 void Environment::setupFrame() {
@@ -374,6 +413,16 @@ void Environment::drawFrame() {
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
+
+            if(draw_bounding_boxes) {
+                glDisable( GL_CULL_FACE );
+                glDisable( GL_BLEND );
+                this->static_model_draw_bb_routine.draw( *current_camera_r );
+                this->morph_model_draw_bb_routine.draw(  *current_camera_r );
+                glEnable( GL_CULL_FACE );
+                glEnable( GL_BLEND );
+            }
+
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
             current_camera_r->getProjectionView2D( camera_3D_projection_view_model );

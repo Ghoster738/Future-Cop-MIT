@@ -33,7 +33,31 @@ void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opa
     draw_command.back().texture_r = texture_r;
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures, const VertexAttributeArray *const default_vertex_array_r ) {
+    switch(model.getPrimativeMode()) {
+        case Utilities::ModelBuilder::MeshPrimativeMode::POINTS:
+            draw_command_array_mode = GL_POINTS;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINES:
+            draw_command_array_mode = GL_LINES;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINE_LOOP:
+            draw_command_array_mode = GL_LINE_LOOP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINE_STRIP:
+            draw_command_array_mode = GL_LINE_STRIP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLES:
+            draw_command_array_mode = GL_TRIANGLES;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLE_STRIP:
+            draw_command_array_mode = GL_TRIANGLE_STRIP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLE_FAN:
+            draw_command_array_mode = GL_TRIANGLE_FAN;
+            break;
+    }
+
     void * vertex_buffer_data = model.getBuffer( vertex_buffer_size );
     bool bounds;
     
@@ -86,7 +110,10 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     }
 
     vertex_array.getAttributesFrom( *program_r, model );
-    
+
+    if(default_vertex_array_r != nullptr)
+        vertex_array.combineFrom(*default_vertex_array_r);
+
     vertex_array.allocate( *program_r );
     
     // If there is some kind of bug where there are some attributes not recognized

@@ -56,7 +56,7 @@ public:
     Mesh( Program *program_r );
     virtual ~Mesh();
 
-    void setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    void setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures, const VertexAttributeArray *const default_vertex_array_r );
 
     void setDrawCommandArrayMode( GLenum draw_command_array_mode ) { this->draw_command_array_mode = draw_command_array_mode; }
 

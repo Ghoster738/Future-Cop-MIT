@@ -28,6 +28,9 @@ protected:
         GLsizei stride;
         
         void *offset_r;
+
+        bool is_generic;
+        float values[4];
     };
     std::vector<AttributeType> attributes;
 public:
@@ -36,11 +39,23 @@ public:
 
     /**
      * Add an attribute to this class.
-     * The program must be set first though.
+     * The program must be set first.
      * @note The parameters will be directly passed into an AttributeType.
      * @return If a name already exists then return false.
      */
     bool addAttribute( const std::basic_string<GLchar>& name, GLint size, GLenum type, GLboolean normalized, GLsizei stride, void *pointer_r );
+
+    /**
+     * Add an attribute to this class.
+     * @return If a name already exists then return false.
+     */
+    bool addAttribute( const std::basic_string<GLchar>& name, GLint size, glm::vec4 value );
+
+    /**
+     * Add attributes that are not found.
+     * @return The number of missing attributes that where added.
+     */
+    int combineFrom(const VertexAttributeArray& combine);
 
     /**
      * The VertexAttributeArray has to be filled in order for this method to work.

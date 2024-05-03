@@ -1801,7 +1801,7 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
             Utilities::ModelBuilder *bounding_boxes_p = createBoundingBoxes();
 
             if(bounding_boxes_p != nullptr) {
-                bounding_boxes_p->write( std::string( file_path + "_bb"), "Bounding Boxes " + std::to_string( getResourceID() ) );
+                bounding_boxes_p->write( std::string( file_path + "_bb"), "cobj_" + std::to_string( getResourceID() )+ "_bb"  );
 
                 delete bounding_boxes_p;
             }
@@ -2155,7 +2155,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
         Utilities::ModelBuilder *box_output = new Utilities::ModelBuilder( Utilities::ModelBuilder::LINES );
 
         unsigned int position_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-        unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC3, true );
+        unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
         unsigned int position_morph_component_index = 0;
 
         if( bounding_box_frames > 1 )
@@ -2176,7 +2176,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
 
         for( unsigned int box_index = 0; box_index < this->bounding_box_per_frame; box_index++ )
         {
-            const BoundingBox3D &current_box = this->bounding_boxes[ box_index ];
+            const BoundingBox3D &current_box = this->bounding_boxes[ box_index * bounding_box_frames ];
             const glm::vec3 bb_center = FIXED_POINT_UNIT * glm::vec3(current_box.x, current_box.y, current_box.z);
             const glm::vec3 bb_scale  = FIXED_POINT_UNIT * glm::vec3(current_box.length_x + 1, current_box.length_y + 1, current_box.length_z + 1);
 
@@ -2213,7 +2213,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
 
                 for(unsigned int f = 1; f < bounding_box_frames; f++) {
-                    const BoundingBox3D &morph_box = this->bounding_boxes[ box_index + f * bounding_box_per_frame ];
+                    const BoundingBox3D &morph_box = this->bounding_boxes[ box_index * bounding_box_frames + f ];
                     const glm::vec3 morph_center = FIXED_POINT_UNIT * glm::vec3(morph_box.x, morph_box.y, morph_box.z);
                     const glm::vec3 morph_scale  = FIXED_POINT_UNIT * glm::vec3(morph_box.length_x, morph_box.length_y, morph_box.length_z);
 

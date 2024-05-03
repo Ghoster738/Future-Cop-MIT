@@ -54,7 +54,6 @@ protected:
     GLuint view_uniform_id;
     GLuint view_inv_uniform_id;
 
-    // The models need to be accessed.
     std::map<uint32_t, ModelArray*> models_p;
 
     std::vector<glm::vec2> uv_frame_buffer;
@@ -142,11 +141,13 @@ public:
     /**
      * This draws all the models that are opeqe.
      * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and setWorld in this order are called SUCCESSFULLY.
-     * @param This is the camera data to be passed into world.
+     * @param camera This is the camera data to be passed into world.
      */
     void draw( Graphics::SDL2::GLES2::Camera &camera );
 
     int allocateObjModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
+
+    int allocateObjBBModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
 
     /**
      * This advances the time of every instance.

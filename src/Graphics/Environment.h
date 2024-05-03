@@ -102,6 +102,18 @@ public:
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f) = 0;
 
     /**
+     * @return If bounding box drawing is enabled then this is true.
+     */
+    virtual bool getBoundingBoxDraw() const = 0;
+
+    /**
+     * This sets up bounding box rendering.
+     * @note This feature is optional, it is only there for debugging purposes.
+     * @param draw If true then bounding boes
+     */
+    virtual void setBoundingBoxDraw(bool draw) = 0;
+
+    /**
      * Setup the draw graph for the renderer.
      */
     virtual void setupFrame() = 0;

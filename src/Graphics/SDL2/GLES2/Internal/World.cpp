@@ -257,7 +257,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         if( vertex_animation_p == nullptr)
             vertex_animation_p = (*i).animation_slfx.getImage();
 
-        (*i).mesh_p->setup( *model_p, textures );
+        (*i).mesh_p->setup( *model_p, textures, nullptr ); // TODO Replace the nullptr with something more important.
 
         // TODO Add addition render path for "light".
         Utilities::ModelBuilder::TextureMaterial material;
