@@ -251,6 +251,9 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         this->skeletal_model_draw_routine.clearModels();
         this->morph_model_draw_routine.clearModels();
         this->static_model_draw_routine.clearModels();
+
+        this->static_model_draw_bb_routine.clearModels();
+        this->morph_model_draw_bb_routine.clearModels();
     }
 
     this->static_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
@@ -414,8 +417,8 @@ void Environment::drawFrame() {
             if(draw_bounding_boxes) {
                 glDisable( GL_CULL_FACE );
                 glDisable( GL_BLEND );
-                this->static_model_draw_bb_routine.draw(   *current_camera_r );
-                this->morph_model_draw_bb_routine.draw(    *current_camera_r );
+                this->static_model_draw_bb_routine.draw( *current_camera_r );
+                this->morph_model_draw_bb_routine.draw(  *current_camera_r );
                 glEnable( GL_CULL_FACE );
                 glEnable( GL_BLEND );
             }
