@@ -33,7 +33,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opa
     draw_command.back().texture_r = texture_r;
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures, const VertexAttributeArray *const default_vertex_array ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures, const VertexAttributeArray *const default_vertex_array_r ) {
     switch(model.getPrimativeMode()) {
         case Utilities::ModelBuilder::MeshPrimativeMode::POINTS:
             draw_command_array_mode = GL_POINTS;
@@ -110,7 +110,10 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     }
 
     vertex_array.getAttributesFrom( *program_r, model );
-    
+
+    if(default_vertex_array_r != nullptr)
+        vertex_array.combineFrom(*default_vertex_array_r);
+
     vertex_array.allocate( *program_r );
     
     // If there is some kind of bug where there are some attributes not recognized

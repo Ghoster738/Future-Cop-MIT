@@ -221,8 +221,15 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
     if( model_type_r->getNumVertices() > 0 )
     {
+        VertexAttributeArray vertex_array;
+
+        vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+        vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+        vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
         models_p[ obj_identifier ] = new ModelArray( &program );
-        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures );
+        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
         state =  1;
 
         Utilities::ModelBuilder::TextureMaterial material;

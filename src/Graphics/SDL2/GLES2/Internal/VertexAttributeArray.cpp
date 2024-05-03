@@ -37,7 +37,7 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         return false;
 }
 
-bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const std::basic_string<GLchar>& name, GLint size, float values[4] ) {
+bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const std::basic_string<GLchar>& name, GLint size, glm::vec4 value ) {
     bool name_is_not_found = true;
 
     for( unsigned int i = 0; i < attributes.size(); i++ )
@@ -55,10 +55,10 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         attributes.back().index = -1; // This will be set by allocate.
         attributes.back().size = size;
 
-        attributes.back().values[0] = values[0];
-        attributes.back().values[1] = values[1];
-        attributes.back().values[2] = values[2];
-        attributes.back().values[3] = values[3];
+        attributes.back().values[0] = value[0];
+        attributes.back().values[1] = value[1];
+        attributes.back().values[2] = value[2];
+        attributes.back().values[3] = value[3];
 
         return true;
     }

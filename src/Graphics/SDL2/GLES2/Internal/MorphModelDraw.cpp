@@ -143,7 +143,6 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw(bool has_normals
 
     const size_t MORPH_BUFFER_NO_NORMALS_SIZE = 3 * sizeof( float );
     const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
-    float normal_default[4] = {1.0f, 0.0f, 0.0f, 0.0f};
 
     if(has_normals) {
         morph_attribute_array.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );
@@ -151,7 +150,7 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw(bool has_normals
     }
     else {
         morph_attribute_array.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_NO_NORMALS_SIZE, 0 );
-        morph_attribute_array.addAttribute( "NORMAL_Last",   3, normal_default );
+        morph_attribute_array.addAttribute( "NORMAL_Last",   3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f) );
     }
 }
 

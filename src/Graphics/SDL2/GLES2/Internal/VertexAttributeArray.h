@@ -49,7 +49,7 @@ public:
      * Add an attribute to this class.
      * @return If a name already exists then return false.
      */
-    bool addAttribute( const std::basic_string<GLchar>& name, GLint size, float values[4] );
+    bool addAttribute( const std::basic_string<GLchar>& name, GLint size, glm::vec4 value );
 
     /**
      * Add attributes that are not found.
