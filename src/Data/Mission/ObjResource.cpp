@@ -2176,7 +2176,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
 
         for( unsigned int box_index = 0; box_index < this->bounding_box_per_frame; box_index++ )
         {
-            const BoundingBox3D &current_box = this->bounding_boxes[ box_index ];
+            const BoundingBox3D &current_box = this->bounding_boxes[ box_index * bounding_box_frames ];
             const glm::vec3 bb_center = FIXED_POINT_UNIT * glm::vec3(current_box.x, current_box.y, current_box.z);
             const glm::vec3 bb_scale  = FIXED_POINT_UNIT * glm::vec3(current_box.length_x + 1, current_box.length_y + 1, current_box.length_z + 1);
 
@@ -2213,7 +2213,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
 
                 for(unsigned int f = 1; f < bounding_box_frames; f++) {
-                    const BoundingBox3D &morph_box = this->bounding_boxes[ box_index + f * bounding_box_per_frame ];
+                    const BoundingBox3D &morph_box = this->bounding_boxes[ box_index * bounding_box_frames + f ];
                     const glm::vec3 morph_center = FIXED_POINT_UNIT * glm::vec3(morph_box.x, morph_box.y, morph_box.z);
                     const glm::vec3 morph_scale  = FIXED_POINT_UNIT * glm::vec3(morph_box.length_x, morph_box.length_y, morph_box.length_z);
 
