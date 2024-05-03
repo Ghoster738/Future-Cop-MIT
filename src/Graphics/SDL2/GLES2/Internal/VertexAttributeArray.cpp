@@ -22,6 +22,7 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         attributes.push_back( AttributeType() );
 
         attributes.back().name = name;
+        attributes.back().is_generic = false;
 
         attributes.back().index = -1; // This will be set by allocate.
         attributes.back().size = size;
@@ -29,6 +30,35 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         attributes.back().normalized = normalized;
         attributes.back().stride = stride;
         attributes.back().offset_r = pointer_r;
+
+        return true;
+    }
+    else
+        return false;
+}
+
+bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const std::basic_string<GLchar>& name, GLint size, float values[4] ) {
+    bool name_is_not_found = true;
+
+    for( unsigned int i = 0; i < attributes.size(); i++ )
+    {
+        name_is_not_found &= (attributes[i].name.compare( name ) != 0 );
+    }
+
+    if( name_is_not_found )
+    {
+        attributes.push_back( AttributeType() );
+
+        attributes.back().name = name;
+        attributes.back().is_generic = true;
+
+        attributes.back().index = -1; // This will be set by allocate.
+        attributes.back().size = size;
+
+        attributes.back().values[0] = values[0];
+        attributes.back().values[1] = values[1];
+        attributes.back().values[2] = values[2];
+        attributes.back().values[3] = values[3];
 
         return true;
     }
@@ -109,7 +139,28 @@ int Graphics::SDL2::GLES2::Internal::VertexAttributeArray::getAttributesFrom( Gr
 void Graphics::SDL2::GLES2::Internal::VertexAttributeArray::bind( size_t buffer_offset ) const {
     for( auto i = attributes.begin(); i < attributes.end(); i++ )
     {
-        glEnableVertexAttribArray( (*i).index );
-        glVertexAttribPointer( (*i).index, (*i).size, (*i).type, (*i).normalized, (*i).stride, reinterpret_cast<void*>( reinterpret_cast<size_t>( (*i).offset_r ) + buffer_offset ) );
+        if((*i).is_generic) {
+            glDisableVertexAttribArray( (*i).index );
+
+            switch((*i).size) {
+                case 1:
+                    glVertexAttrib1fv((*i).index, (*i).values);
+                    break;
+                case 2:
+                    glVertexAttrib2fv((*i).index, (*i).values);
+                    break;
+                case 3:
+                    glVertexAttrib3fv((*i).index, (*i).values);
+                    break;
+                default:
+                case 4:
+                    glVertexAttrib4fv((*i).index, (*i).values);
+                    break;
+            }
+        }
+        else {
+            glEnableVertexAttribArray( (*i).index );
+            glVertexAttribPointer( (*i).index, (*i).size, (*i).type, (*i).normalized, (*i).stride, reinterpret_cast<void*>( reinterpret_cast<size_t>( (*i).offset_r ) + buffer_offset ) );
+        }
     }
 }

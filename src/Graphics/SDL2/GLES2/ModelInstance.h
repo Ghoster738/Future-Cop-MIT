@@ -15,6 +15,7 @@ namespace GLES2 {
 class ModelInstance : public Graphics::ModelInstance {
 public:
     Internal::StaticModelDraw::ModelArray *array_r;
+    Internal::StaticModelDraw::ModelArray *bb_array_r;
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
     

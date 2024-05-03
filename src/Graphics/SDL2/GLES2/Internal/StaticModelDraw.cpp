@@ -436,6 +436,29 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
         return -1; // The requested index_obj does not exist
 }
 
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjBBModel( uint32_t obj_identifier, GLES2::ModelInstance &model_instance ) {
+    if( models_p.find( obj_identifier ) != models_p.end() ) // Do some bounds checking!
+    {
+        // This holds the model instance sheet.
+        ModelArray *model_array_r = models_p[ obj_identifier ];
+
+        model_instance.bb_array_r = model_array_r;
+
+        if( !models_p[ obj_identifier ]->mesh.getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius ) )
+        {
+            model_instance.culling_sphere_position = glm::vec3( 0, 0, 0 );
+            model_instance.culling_sphere_radius = 1.0f;
+        }
+
+        // Finally added the instance.
+        model_array_r->instances_r.insert( &model_instance );
+
+        return 1; // The instance is successfully allocated.
+    }
+    else
+        return -1; // The requested index_obj does not exist
+}
+
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float seconds_passed ) {
     // Go through every model array.
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {

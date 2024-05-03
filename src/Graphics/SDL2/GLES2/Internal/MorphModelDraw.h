@@ -40,8 +40,7 @@ public:
         const DeltaTriangle *const getFrame( unsigned frame_index ) const;
     };
 protected:
-    VertexAttributeArray morph_attribute_array_last;
-    VertexAttributeArray morph_attribute_array_next;
+    VertexAttributeArray morph_attribute_array;
 
     // uniforms are used for morpth attributes.
     GLuint sample_last_uniform_id;
@@ -49,7 +48,7 @@ protected:
     std::map<uint32_t, Animation*> model_animation_p;
     
 public:
-    MorphModelDraw();
+    MorphModelDraw(bool has_normals = true);
     virtual ~MorphModelDraw();
 
     /**

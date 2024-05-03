@@ -33,6 +33,9 @@ public:
     Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
+    Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_bb_routine;
+    Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_bb_routine = Graphics::SDL2::GLES2::Internal::MorphModelDraw(false);
+
 public:
     Environment();
     virtual ~Environment();

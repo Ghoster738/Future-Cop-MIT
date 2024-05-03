@@ -6,10 +6,6 @@
 
 #include "../Camera.h"
 
-namespace {
-    const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
-}
-
 void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTriangles(
             const std::vector<DynamicTriangleDraw::Triangle> &triangles,
             DynamicTriangleDraw::DrawCommand &triangles_draw ) const
@@ -138,12 +134,25 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "   in_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
     "}\n";
-Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw() {
+Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw(bool has_normals) {
     // These inputs are for the morph attributes
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION_Next" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL_Next" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION_Last" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL_Last" ) );
+
+    const size_t MORPH_BUFFER_NO_NORMALS_SIZE = 3 * sizeof( float );
+    const size_t MORPH_BUFFER_SIZE = (3 + 3) * sizeof( float );
+    float normal_default[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+
+    if(has_normals) {
+        morph_attribute_array.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );
+        morph_attribute_array.addAttribute( "NORMAL_Last",   3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, (void*)(3 * sizeof( float )) );
+    }
+    else {
+        morph_attribute_array.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_NO_NORMALS_SIZE, 0 );
+        morph_attribute_array.addAttribute( "NORMAL_Last",   3, normal_default );
+    }
 }
 
 Graphics::SDL2::GLES2::Internal::MorphModelDraw::~MorphModelDraw() {
@@ -160,15 +169,12 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
     bool attribute_failed = false;
 
     sample_last_uniform_id = program.getUniform( "SampleLast", &std::cout, &uniform_failed );
-
-    morph_attribute_array_last.addAttribute( "POSITION_Last", 3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, 0 );
-    morph_attribute_array_last.addAttribute( "NORMAL_Last",   3, GL_FLOAT, GL_FALSE, MORPH_BUFFER_SIZE, (void*)(3 * sizeof( float )) );
     
     attribute_failed |= !program.isAttribute( "POSITION_Last", &std::cout );
     attribute_failed |= !program.isAttribute( "NORMAL_Last", &std::cout );
 
-    morph_attribute_array_last.allocate( program );
-    morph_attribute_array_last.cullUnfound();
+    morph_attribute_array.allocate( program );
+    morph_attribute_array.cullUnfound();
 
     if( !uniform_failed && !attribute_failed )
         return ret;
@@ -283,7 +289,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::draw( Graphics::SDL2::GLES
                 else
                     glUniform1f( sample_last_uniform_id, 1.0f );
 
-                morph_attribute_array_last.bind( mesh_r->getMorphOffset( current_last_frame ) );
+                morph_attribute_array.bind( mesh_r->getMorphOffset( current_last_frame ) );
 
                 mesh_r->noPreBindDrawOpaque( 0, diffusive_texture_uniform_id );
                 
