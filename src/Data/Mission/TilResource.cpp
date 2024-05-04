@@ -676,11 +676,7 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
     }
 
     if( iff_options.til.enable_til_export_model ) {
-        Utilities::ModelBuilder *model_output_p = nullptr;
-
-        if( iff_options.til.enable_til_backface_culling ) {
-            model_output_p = createCulledModel();
-        }
+        Utilities::ModelBuilder *model_output_p = createModel(iff_options.til.enable_til_backface_culling, iff_options.til.export_metadata);
 
         if( model_output_p == nullptr )
             model_output_p = createModel();
@@ -696,7 +692,7 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culled, Utilities::Logger &logger ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culled, bool metadata, Utilities::Logger &logger ) const {
     auto error_log = logger.getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -706,7 +702,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
         std::vector<Utilities::ModelBuilder*> texture_models;
         
         for( unsigned int i = 0; i < TEXTURE_INFO_AMOUNT; i++ ) {
-            auto texture_model_p = createPartial( i, is_culled );
+            auto texture_model_p = createPartial( i, is_culled, metadata );
             
             if( texture_model_p != nullptr )
                 texture_models.push_back( texture_model_p );
@@ -731,7 +727,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createModel( bool is_culle
         return nullptr;
 }
 
-Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, float x_offset, float y_offset, Utilities::Logger &logger ) const {
+Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned int texture_index, bool is_culled, bool metadata, float x_offset, float y_offset, Utilities::Logger &logger ) const {
     auto error_log = logger.getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -745,7 +741,10 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         unsigned int normal_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int tex_coord_0_compon_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
-        unsigned int tile_type_compon_index = model_output_p->addVertexComponent( TILE_TYPE_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC4, false );
+        unsigned int tile_type_compon_index = 0;
+
+        if(metadata)
+            tile_type_compon_index = model_output_p->addVertexComponent( TILE_TYPE_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::VEC4, false );
 
         model_output_p->setupVertexComponents();
 
@@ -894,7 +893,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( normal[p] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type( color[p] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p], uv_positions[p] ) ) );
+
+                                        if(metadata)
+                                            model_output_p->setVertexData( tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p], uv_positions[p] ) ) );
                                     }
                                 }
 
@@ -908,7 +909,9 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                                         model_output_p->setVertexData(      normal_compon_index, Utilities::DataTypes::Vec3Type( -normal[p - 1] ) );
                                         model_output_p->setVertexData(       color_compon_index, Utilities::DataTypes::Vec3Type(  color[p - 1] ) );
                                         model_output_p->setVertexData( tex_coord_0_compon_index, Utilities::DataTypes::Vec2UByteType( coord[p - 1] ) );
-                                        model_output_p->setVertexData(   tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p - 1], uv_positions[p - 1] ) ) );
+
+                                        if(metadata)
+                                            model_output_p->setVertexData( tile_type_compon_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4( current_tile.mesh_type + 128 * (tile_graphics.type == 3), tile_graphics.animated, stca_animation_index[p - 1], uv_positions[p - 1] ) ) );
                                     }
                                 }
                             }
@@ -1115,6 +1118,8 @@ const std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVe
 bool Data::Mission::IFFOptions::TilOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_MODEL", output_r, enable_til_export_model ) )
         return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_METADATA", output_r, export_metadata ) )
+        return false; // The single argument is not valid.
     if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_CULL", output_r, enable_til_backface_culling ) )
         return false; // The single argument is not valid.
     if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_HEIGHT_MAP", output_r, enable_height_map_export ) )
@@ -1128,7 +1133,8 @@ bool Data::Mission::IFFOptions::TilOption::readParams( std::map<std::string, std
 std::string Data::Mission::IFFOptions::TilOption::getOptions() const {
     std::string information_text = getBuiltInOptions( 16 );
 
-    information_text += "  --" + getNameSpace() + "_EXPORT_MODEL           Export the Til as in the glTF model format. There you will see a piece of the map\n";
+    information_text += "  --" + getNameSpace() + "_EXPORT_MODEL           Export the Til as in the glTF model format. There you will see a piece of the map.\n";
+    information_text += "  --" + getNameSpace() + "_METADATA               The Til that is exported also comes with SOME of the metadata in the glTF files.\n";
     information_text += "  --" + getNameSpace() + "_EXPORT_CULL            If " + getNameSpace() + "_EXPORT_MODEL is enabled then it will export a backface culled Ctil for faster rendering speeds.\n";
     information_text += "  --" + getNameSpace() + "_EXPORT_HEIGHT_MAP      Export the raycasted Til, so you could see a piece of the map\n";
     information_text += "  --" + getNameSpace() + "_EXPORT_POINT_CLOUD_MAP Export the point cloud spanning the this Til\n";

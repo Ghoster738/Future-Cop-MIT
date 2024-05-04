@@ -1774,26 +1774,28 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    Utilities::ModelBuilder *model_output = createMesh(iff_options.obj.export_no_metadata);
+    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata);
 
     if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
-        if( model_output->getNumVertices() >= 3 ) {
-            
-            if( !bones.empty() )
-                model_output->applyJointTransforms( 0 );
-            
-            glTF_return = model_output->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
-        }
-        else {
-            // Make it easier on the user to identify empty Obj's
-            std::ofstream resource;
-            
-            resource.open( std::string(file_path) + "_empty.txt", std::ios::out );
-            
-            if( resource.is_open() ) {
-                resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " is empty." << std::endl;
-                resource.close();
+        if( !iff_options.obj.no_model ) {
+            if( model_output->getNumVertices() >= 3 ) {
+
+                if( !bones.empty() )
+                    model_output->applyJointTransforms( 0 );
+
+                glTF_return = model_output->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
+            }
+            else {
+                // Make it easier on the user to identify empty Obj's
+                std::ofstream resource;
+
+                resource.open( std::string(file_path) + "_empty.txt", std::ios::out );
+
+                if( resource.is_open() ) {
+                    resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " is empty." << std::endl;
+                    resource.close();
+                }
             }
         }
 
@@ -1806,14 +1808,14 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
                 delete bounding_boxes_p;
             }
             else {
-            std::ofstream resource;
+                std::ofstream resource;
 
-            resource.open( std::string(file_path) + "_empty_bb.txt", std::ios::out );
+                resource.open( std::string(file_path) + "_empty_bb.txt", std::ios::out );
 
-            if( resource.is_open() ) {
-                resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " has failed!" << std::endl;
-                resource.close();
-            }
+                if( resource.is_open() ) {
+                    resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " has failed!" << std::endl;
+                    resource.close();
+                }
             }
         }
     }
@@ -2313,19 +2315,22 @@ const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVe
 }
 
 bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
-    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_NO_METADATA", output_r, export_no_metadata ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_NO_MODEL", output_r, no_model ) )
         return false; // The single argument is not valid.
-    if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_BOUNDING_BOXES", output_r, export_bounding_box ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_METADATA", output_r, export_metadata ) )
+        return false; // The single argument is not valid.
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_BOUNDING_BOXES", output_r, export_bounding_box ) )
         return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
 
 std::string Data::Mission::IFFOptions::ObjOption::getOptions() const {
-    std::string information_text = getBuiltInOptions();
+    std::string information_text = getBuiltInOptions(8);
 
-    information_text += "  --OBJ_EXPORT_NO_METADATA Export the primary glTF file without its metadata.\n";
-    information_text += "  --OBJ_EXPORT_BOUNDING_BOXES Export a glTF file per resource containing bounding boxes.\n";
+    information_text += "  --" + getNameSpace() + "_NO_MODEL       Disable model exporting for the map.\n";
+    information_text += "  --" + getNameSpace() + "_METADATA       Export the primary glTF file without its metadata.\n";
+    information_text += "  --" + getNameSpace() + "_BOUNDING_BOXES Export a glTF file per resource containing bounding boxes.\n";
 
     return information_text;
 }
