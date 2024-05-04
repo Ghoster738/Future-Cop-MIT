@@ -110,10 +110,11 @@ struct IFFOptions {
     } net;
 
     struct ObjOption : public ResourceOption {
+        bool no_model;
         bool export_metadata;
         bool export_bounding_box;
 
-        ObjOption() : ResourceOption(), export_metadata( false ), export_bounding_box( false ) {}
+        ObjOption() : ResourceOption(), no_model(false), export_metadata( false ), export_bounding_box( false ) {}
         std::string getNameSpace() const { return "OBJ"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;
