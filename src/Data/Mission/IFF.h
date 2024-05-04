@@ -19,11 +19,9 @@ class Resource;
  */
 class IFF {
 public:
-    enum EndianType {FILE_IS_LITTLE_ENDIAN, FILE_IS_BIG_ENDIAN, UNKNOWN};
     enum IFFType {GLOBAL, CRIME_WAR, PRECINCT_ASSUALT};
-private:
-    EndianType endian_type;
 
+private:
     std::string name;
 
     std::map< uint32_t, std::vector<Resource*> > resource_map; // This holds the data the resource_types holds.
