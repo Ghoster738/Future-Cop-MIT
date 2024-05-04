@@ -107,12 +107,12 @@ bool Data::Mission::IFF::compareFunction( const Data::Mission::Resource *const l
 }
 
 Data::Mission::IFF::IFF() {
-    type = UNKNOWN;
+    endian_type = UNKNOWN;
     resource_amount = 0;
 }
 
 Data::Mission::IFF::IFF( const std::string &file_path ) {
-    type = UNKNOWN;
+    endian_type = UNKNOWN;
     resource_amount = 0;
     open( file_path );
 }
@@ -214,20 +214,20 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
-                    this->type = FILE_IS_LITTLE_ENDIAN;
+                    this->endian_type = FILE_IS_LITTLE_ENDIAN;
                     info_log.output << "This IFF file is little endian (Windows/Playstation) formated.\n";
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
                 if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
-                    this->type = FILE_IS_BIG_ENDIAN;
+                    this->endian_type = FILE_IS_BIG_ENDIAN;
                     info_log.output << "This IFF file is big endian (Macintosh) formated.\n";
                     default_settings.type = Resource::ParseSettings::Macintosh;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
                 else
-                    this->type = UNKNOWN;
+                    this->endian_type = UNKNOWN;
 
                 const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
                 file.seekg( chunkToDataSize( CHUNK_SIZE ), std::ios_base::cur );

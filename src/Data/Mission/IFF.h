@@ -19,9 +19,10 @@ class Resource;
  */
 class IFF {
 public:
-    enum Type {FILE_IS_LITTLE_ENDIAN, FILE_IS_BIG_ENDIAN, UNKNOWN};
+    enum EndianType {FILE_IS_LITTLE_ENDIAN, FILE_IS_BIG_ENDIAN, UNKNOWN};
+    enum IFFType {GLOBAL, CRIME_WAR, PRECINCT_ASSUALT};
 private:
-    Type type;
+    EndianType endian_type;
 
     std::string name;
 
