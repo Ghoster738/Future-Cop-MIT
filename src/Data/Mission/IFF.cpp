@@ -18,6 +18,7 @@
 #include "RPNSResource.h"
 
 #include "ACT/Unknown.h"
+#include "ACT/SkyCaptain.h"
 
 #include "../../Utilities/Buffer.h"
 
@@ -95,9 +96,9 @@ namespace {
     class AutoDelete {
     public:
         ~AutoDelete() {
-        for( auto &i : file_type_list ) {
-            delete i.second;
-        }
+            for( auto &i : file_type_list ) {
+                delete i.second;
+            }
         }
     } auto_delete_file_type_list;
 }
@@ -613,6 +614,22 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
     }
     else
         return false;
+}
+
+Data::Mission::IFF::DataType Data::Mission::IFF::getDataType() const {
+    // Check if PTC is present.
+    if(resource_map.find(PTCResource::IDENTIFIER_TAG) == resource_map.end())
+        return DataType::GLOBALS;
+
+    std::vector<ACTResource*> act_resources = ACTResource::getVector( *this );
+
+    // Find if Sky Captain exists. If he does then this IFF file is deemed to be a Precinct Assualt Map.
+    for( auto act = act_resources.begin(); act != act_resources.end(); act++ ) {
+        if((*act)->getTypeID() == ACT::SkyCaptain::TYPE_ID)
+            return DataType::PRECINCT_ASSUALT;
+    }
+
+    return DataType::CRIME_WAR;
 }
 
 int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
