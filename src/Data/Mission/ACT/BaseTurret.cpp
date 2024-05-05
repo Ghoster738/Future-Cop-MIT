@@ -2,7 +2,6 @@
 
 #include "../ObjResource.h"
 
-#include <iostream>
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::BaseTurret::TYPE_ID = 8;
@@ -97,8 +96,6 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint8_14 = data_reader.readU8(); // Values: 0, 1, 
     internal.zero_2 = data_reader.readU8(); // Always 0
     internal.base_rotation = data_reader.readU16( endian ); // Values: 0, 200, 256, 300, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3060, 3072, 3200, 3400, 3572, 3584, 3600, 3700,
-
-    std::cout << "PlaceBaseTurret(" << std::dec << getID() << ")" << std::endl;
 
     return true;
 }

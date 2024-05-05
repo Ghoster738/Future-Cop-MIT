@@ -28,6 +28,9 @@ private:
     std::vector<Function> functions;
     std::vector<uint8_t> ext_bytes;
 
+    // TODO Remove these temporary variables.
+    std::vector<uint32_t> spawn_actors_now;
+    bool spawn_all_neutral_turrets;
 public:
     FUNResource();
     FUNResource( const FUNResource &obj );
@@ -45,6 +48,10 @@ public:
     
     std::vector<uint8_t> getFunctionParameters( unsigned index ) const;
     std::vector<uint8_t> getFunctionCode( unsigned index ) const;
+
+    // TODO Remove these temporary variables.
+    const std::vector<uint32_t>& getSpawnActorsNow() const { return spawn_actors_now; }
+    bool getSpawnAllNeutralTurrets() const { return spawn_all_neutral_turrets; }
 };
 
 }

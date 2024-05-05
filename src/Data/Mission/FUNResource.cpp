@@ -31,9 +31,11 @@ uint32_t Data::Mission::FUNResource::getNumber(uint8_t *bytes_r, size_t &positio
 }
 
 Data::Mission::FUNResource::FUNResource() {
+    spawn_all_neutral_turrets = false;
 }
 
 Data::Mission::FUNResource::FUNResource( const FUNResource &obj ) {
+    spawn_all_neutral_turrets = false;
 }
 
 std::string Data::Mission::FUNResource::getFileExtension() const {
@@ -89,9 +91,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     data_id = reader_ext.readU32( settings.endian );
                     
                     ext_bytes = reader_ext.getBytes();
-
-                    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-                    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
                     
                     for( size_t i = 0; i < functions.size(); i++ ) {
                         auto parameters = getFunctionParameters( i );
@@ -101,7 +100,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
 
                         if(parameters.size() == 5 && parameters[1] == p[0] && parameters[2] == p[1] && parameters[3] == p[2]) {
                             const uint8_t spawn_opcode[2] = {0xc7, 0x80};
-                            const uint8_t spawn_base_turrect = 0x3c;
+                            const uint8_t spawn_actor = 0x3c;
                             const uint8_t spawn_neutral = 0x3d;
                             size_t position = 0;
                             uint8_t opcodes[3];
@@ -126,16 +125,10 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
 
                                 if(opcodes[0] == spawn_opcode[0] && opcodes[1] == spawn_opcode[1]) {
                                     if(opcodes[2] == spawn_neutral) {
-                                        if(not_first_time)
-                                            error_log.output << "# ----- Function Index " << std::dec << i << " ----- #\n";
-                                        error_log.output << "SpawnAllNeutrals(" << std::dec << number << ")\n";
-                                        not_first_time = false;
+                                        spawn_all_neutral_turrets = true;
                                     }
-                                    else if(opcodes[2] == spawn_base_turrect) {
-                                        if(not_first_time)
-                                            error_log.output << "# ----- Function Index " << std::dec << i << " ----- #\n";
-                                        error_log.output << "SpawnActorNow(" << std::dec << number << ")\n";
-                                        not_first_time = false;
+                                    else if(opcodes[2] == spawn_actor) {
+                                        spawn_actors_now.push_back( number );
                                     }
                                 }
                             }
