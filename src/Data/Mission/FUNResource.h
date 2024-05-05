@@ -19,6 +19,8 @@ public:
         uint32_t start_parameter_offset;
         uint32_t start_code_offset;
     };
+
+    static uint32_t getNumber(uint8_t *bytes_r, size_t &position);
     
 private:
     std::vector<Function> functions;

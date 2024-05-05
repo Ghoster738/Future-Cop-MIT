@@ -5,6 +5,28 @@ const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
+uint32_t Data::Mission::FUNResource::getNumber(uint8_t *bytes_r, size_t &position) {
+    uint32_t number = 0;
+
+    while(*bytes_r != 0) {
+        position++;
+
+        if((*bytes_r & 0x80) == 0) {
+            number |= *bytes_r;
+
+            number = number << 7;
+        }
+        else {
+            number |= (*bytes_r & 0x7F);
+            return number;
+        }
+
+        bytes_r++;
+    }
+
+    return number;
+}
+
 Data::Mission::FUNResource::FUNResource() {
 }
 
@@ -71,72 +93,51 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     for( size_t i = 0; i < functions.size(); i++ ) {
                         auto parameters = getFunctionParameters( i );
                         auto code       = getFunctionCode( i );
-                        
-                        // Detect neutral turret spawn.
-                        {
-                            uint8_t p[] = { 0x86, 0x12, 0x80, 0x21, 0x00 };
-                            uint8_t param_2 = 0x88;
-                            uint8_t c[] = { 0xb2, 0xc7, 0x80, 0x3d, 0x00 };
 
-                            if( parameters.size() == 5 && (parameters[0] == p[0] || parameters[0] == param_2) && parameters[1] == p[1] && parameters[2] == p[2] && parameters[3] == p[3] ) {
-                                error_log.output << "Function Index = " << i << "\n";
-                                error_log.output << "  Faction = " << functions[ i ].faction << "\n";
-                                error_log.output << "  Identifier = " << functions[ i ].identifier << "\n";
-                                error_log.output << "  Parameter Offset = 0x" << std::hex << functions[ i ].start_parameter_offset << "\n";
-                                error_log.output << "  Code Offset = 0x" << functions[ i ].start_code_offset << std::dec << "\n";
 
-                                error_log.output << "Neutral Parameters!" << std::hex;
-                                for( auto param = parameters.begin(); param != parameters.end(); param++ ) {
-                                    error_log.output << " 0x" << (unsigned)(*param);
+                        const static uint8_t p[] = {0x12, 0x80, 0x21};
+
+                        if(parameters.size() == 5 && parameters[1] == p[0] && parameters[2] == p[1] && parameters[3] == p[2]) {
+                            const uint8_t spawn_opcode[2] = {0xc7, 0x80};
+                            const uint8_t spawn_base_turrect = 0x3c;
+                            const uint8_t spawn_neutral = 0x3d;
+                            size_t position = 0;
+                            uint8_t opcodes[3];
+                            uint32_t number = 0;
+
+                            bool not_first_time = true;
+
+                            while(code.at(position) != 0 && code.size() > position) {
+                                number = getNumber(code.data() + position, position);
+                                opcodes[0] = code.at(position);
+                                if(opcodes[0] == 0)
+                                    continue;
+                                position++;
+                                opcodes[1] = code.at(position);
+                                if(opcodes[1] == 0)
+                                    continue;
+                                position++;
+                                opcodes[2] = code.at(position);
+                                if(opcodes[2] == 0)
+                                    continue;
+                                position++;
+
+                                if(opcodes[0] == spawn_opcode[0] && opcodes[1] == spawn_opcode[1]) {
+                                    if(opcodes[2] == spawn_neutral) {
+                                        if(not_first_time)
+                                            error_log.output << "# ----- Function Index " << i << " ----- #\n";
+                                        error_log.output << "SpawnAllNeutrals(" << std::dec << number << ")\n";
+                                        not_first_time = false;
+                                    }
+                                    else if(opcodes[2] == spawn_base_turrect) {
+                                        if(not_first_time)
+                                            error_log.output << "# ----- Function Index " << i << " ----- #\n";
+                                        error_log.output << "SpawnActorNow(" << std::dec << number << ")\n";
+                                        not_first_time = false;
+                                    }
                                 }
-                                error_log.output << "\n" << std::dec;
-
-                                if( code.size() >= 5 && code[0] == c[0] && code[1] == c[1] && code[2] == c[2] && code[3] == c[3] ) {
-                                    error_log.output << "Command: NeutralInitAll()";
-                                }
-
-                                error_log.output << std::hex;
-                                for( auto param = code.begin(); param != code.end(); param++ ) {
-                                    error_log.output << " 0x" << (unsigned)(*param);
-                                }
-                                error_log.output << "\n\n" << std::dec;
                             }
                         }
-
-                        {
-                            uint8_t p[] = { 0x86, 0x12, 0x80, 0x21, 0x00 };
-                            uint8_t c[] = { 0xC7, 0x80, 0x3C };
-
-                            if( parameters.size() == 5 && parameters[1] == p[1] && parameters[2] == p[2] && parameters[3] == p[3] &&
-                                code.size() > 4 && code[1] == c[0] && code[2] == c[1] && code[3] == c[2] ) {
-                                error_log.output << "Function Index = " << i << "\n";
-                                error_log.output << "  Faction = " << functions[ i ].faction << "\n";
-                                error_log.output << "  Identifier = " << functions[ i ].identifier << "\n";
-                                error_log.output << "  Parameter Offset = 0x" << std::hex << functions[ i ].start_parameter_offset << "\n";
-                                error_log.output << "  Code Offset = 0x" << functions[ i ].start_code_offset << std::dec << "\n";
-
-                                error_log.output << "Neutral Parameters!" << std::hex;
-                                for( auto param = parameters.begin(); param != parameters.end(); param++ ) {
-                                    error_log.output << " 0x" << (unsigned)(*param);
-                                }
-                                error_log.output << "\n" << std::dec;
-
-                                error_log.output << "Command: Init an Actor( id )";
-                                error_log.output << std::hex;
-                                for( auto param = code.begin(); param != code.end(); param++ ) {
-                                    error_log.output << " 0x" << (unsigned)(*param);
-                                }
-                                error_log.output << "\n\n" << std::dec;
-
-                            }
-                        }
-
-                        // faction = 1, identifier = 5 Probably means initialization!
-                        // FORCE_ACTOR_SPAWN = NUMBER, { 0xC7, 0x80, 0x3C }
-                        // NEUTRAL_TURRET_INIT = NUMBER, { 0xC7, 0x80, 0x3D }
-
-                        // JOKE/SLIM has faction 1 and identifier 5, and it appears to be something else. I can deduce no pattern in this sequence.
-                        // However, I have enough knowedge to write an inaccurate parser.
                     }
 
                     

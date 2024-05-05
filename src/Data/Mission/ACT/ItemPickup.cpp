@@ -2,6 +2,7 @@
 
 #include "../ObjResource.h"
 
+#include <iostream>
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::ItemPickup::TYPE_ID = 16;
@@ -50,6 +51,8 @@ bool Data::Mission::ACT::ItemPickup::readACTType( uint_fast8_t act_type, Utiliti
     internal.type = data_reader.readU32( endian ); // Values: 50331649, 50331650, 50331652, 50331664, 50331680, 50331712, 50462720, 50593792,
     internal.uint16_5 = data_reader.readU16( endian ); // Always 65535
     internal.unknown = data_reader.readU16( endian ); // Values: 1228, 60620,
+
+    std::cout << "PlaceItemPickup(" << std::dec << getID() << ")" << std::endl;
 
     return true;
 }
