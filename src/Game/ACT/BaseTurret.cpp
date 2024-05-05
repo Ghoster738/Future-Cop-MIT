@@ -4,7 +4,7 @@ namespace Game {
 
 namespace ACT {
 
-BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj ) {
+BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj ) : Actor( obj.getID() ) {
     Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
 
     this->position = obj.getPosition( ptc );

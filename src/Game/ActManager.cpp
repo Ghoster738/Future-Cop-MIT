@@ -77,6 +77,18 @@ void ActManager::initialize( MainProgram &main_program ) {
                 }
             }
         }
+
+        auto spawn_ids = Cfun[0]->getSpawnActorsNow();
+        for( auto &identifer : spawn_ids ) {
+            for( auto &spawner : base_turrets.spawners ) {
+                if(spawner.actor.getID() == identifer)
+                    spawner.time = std::chrono::microseconds(0);
+            }
+            for( auto &spawner : item_pickups.spawners ) {
+                if(spawner.actor.getID() == identifer)
+                    spawner.time = std::chrono::microseconds(0);
+            }
+        }
     }
 }
 

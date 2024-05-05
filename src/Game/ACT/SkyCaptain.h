@@ -12,7 +12,7 @@ namespace Game {
 
 namespace ACT {
 
-class SkyCaptain : Actor {
+class SkyCaptain : public Actor {
 private:
     uint32_t model_id; bool model;
     Graphics::ModelInstance *model_p;

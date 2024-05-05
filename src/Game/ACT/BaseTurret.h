@@ -13,7 +13,7 @@ namespace Game {
 
 namespace ACT {
 
-class BaseTurret : Actor {
+class BaseTurret : public Actor {
 private:
     glm::quat rest_gun_rotation, gun_rotation, base_rotation;
     glm::vec2 texture_offset;

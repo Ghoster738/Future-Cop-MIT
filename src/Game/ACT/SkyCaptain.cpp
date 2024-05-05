@@ -4,7 +4,7 @@ namespace Game {
 
 namespace ACT {
 
-SkyCaptain::SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj ) {
+SkyCaptain::SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj ) : Actor( obj.getID() ) {
     Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
 
     {

@@ -13,7 +13,7 @@ namespace Game {
 
 namespace ACT {
 
-class ItemPickup : Actor {
+class ItemPickup : public Actor {
 private:
     float speed_per_second_radians;
     float rotation_radians;

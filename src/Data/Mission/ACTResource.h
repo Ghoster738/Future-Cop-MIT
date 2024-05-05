@@ -108,8 +108,8 @@ public:
     
     virtual ACTResource* duplicate( const ACTResource &original ) const = 0;
 
-    uint_fast32_t getID() { return matching_number; }
-    int_fast16_t getMatchingNumber() { return matching_number; }
+    uint_fast32_t getID() const { return matching_number; }
+    int_fast16_t getMatchingNumber() const { return matching_number; }
     const tSAC_chunk& getSpawnChunk() const { return tSAC; }
     virtual uint_fast8_t getTypeID() const = 0;
     virtual size_t getSize() const = 0;

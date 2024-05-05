@@ -4,7 +4,7 @@ namespace Game {
 
 namespace ACT {
 
-ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) {
+ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : Actor( obj.getID() ) {
     Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
 
     this->position = obj.getPosition( ptc );
