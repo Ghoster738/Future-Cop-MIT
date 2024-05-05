@@ -1,5 +1,7 @@
 #include "ActManager.h"
 
+#include "../Data/Mission/FUNResource.h"
+
 namespace {
 
 template<class data_act, class game_act>
@@ -64,6 +66,18 @@ void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::BaseTurret>(    main_program,    base_turrets );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
     updateGraphics<ACT::SkyCaptain>(    main_program,    sky_captains );
+
+    auto Cfun = main_program.accessor.getAllFUN();
+
+    if(Cfun.size() != 0) {
+        if(Cfun[0]->getSpawnAllNeutralTurrets()) {
+            for( auto &spawner : neutral_turrets.spawners ) {
+                if( spawner.timings.isAutomatic() && spawner.current_actors.size() < spawner.timings.spawn_limit ) {
+                    spawner.time = std::chrono::microseconds(0);
+                }
+            }
+        }
+    }
 }
 
 void ActManager::update( MainProgram &main_program, std::chrono::microseconds delta ) {
