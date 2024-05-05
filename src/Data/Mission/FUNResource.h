@@ -11,10 +11,12 @@ class FUNResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
+
+    static const float FUNCTION_TIME_UNITS_TO_SECONDS;
     
     struct Function {
-        int32_t faction; //    Wild Guess
-        int32_t identifier; // Wild Guess
+        int32_t how_many_times;
+        int32_t time_units;
         int32_t zero; // Always zero.
         uint32_t start_parameter_offset;
         uint32_t start_code_offset;

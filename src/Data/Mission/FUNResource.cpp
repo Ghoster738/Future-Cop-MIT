@@ -5,6 +5,9 @@ const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
+// TODO Do a further study on how that works.
+const float Data::Mission::FUNResource::FUNCTION_TIME_UNITS_TO_SECONDS = 0.016424851;
+
 uint32_t Data::Mission::FUNResource::getNumber(uint8_t *bytes_r, size_t &position) {
     uint32_t number = 0;
 
@@ -67,8 +70,8 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 data_id = reader_tfun.readU32( settings.endian );
 
                 while( !reader_tfun.ended() ) {
-                    fun_struct.faction    = reader_tfun.readI32( settings.endian );
-                    fun_struct.identifier = reader_tfun.readI32( settings.endian );
+                    fun_struct.how_many_times = reader_tfun.readI32( settings.endian );
+                    fun_struct.time_units     = reader_tfun.readI32( settings.endian );
 
                     fun_struct.zero       = reader_tfun.readI32( settings.endian );
                     fun_struct.start_parameter_offset = reader_tfun.readU32( settings.endian );
@@ -93,7 +96,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                     for( size_t i = 0; i < functions.size(); i++ ) {
                         auto parameters = getFunctionParameters( i );
                         auto code       = getFunctionCode( i );
-
 
                         const static uint8_t p[] = {0x12, 0x80, 0x21};
 
@@ -125,13 +127,13 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                                 if(opcodes[0] == spawn_opcode[0] && opcodes[1] == spawn_opcode[1]) {
                                     if(opcodes[2] == spawn_neutral) {
                                         if(not_first_time)
-                                            error_log.output << "# ----- Function Index " << i << " ----- #\n";
+                                            error_log.output << "# ----- Function Index " << std::dec << i << " ----- #\n";
                                         error_log.output << "SpawnAllNeutrals(" << std::dec << number << ")\n";
                                         not_first_time = false;
                                     }
                                     else if(opcodes[2] == spawn_base_turrect) {
                                         if(not_first_time)
-                                            error_log.output << "# ----- Function Index " << i << " ----- #\n";
+                                            error_log.output << "# ----- Function Index " << std::dec << i << " ----- #\n";
                                         error_log.output << "SpawnActorNow(" << std::dec << number << ")\n";
                                         not_first_time = false;
                                     }
