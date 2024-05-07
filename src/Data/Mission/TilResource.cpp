@@ -427,20 +427,22 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 }
                 
                 // These bytes seems to be only five zero bytes
-                auto value_of_32 = reader_sect.readU32(settings.endian); // Skip 4 bytes
-
-                if( value_of_32 != 0 ) {
-                    std::cout << "Value of 32 has problem!\n";
-                    std::cout << "value_of_32 = " << std::dec << value_of_32 << std::endl;
-                    assert(false); // NOT ZERO
-                }
+                auto value_of_32 = 0;
 
                 value_of_32 = reader_sect.readU8();  // Skip 1 byte
 
                 if( value_of_32 != 0 ) {
                     std::cout << "Value of 8 has problem!\n";
                     std::cout << "value_of_8 = " << std::dec << value_of_32 << std::endl;
-                    assert(false); // NOT ZERO
+                    assert(false); // IT IS ZERO
+                }
+
+                value_of_32 = reader_sect.readU32(settings.endian); // Skip 4 bytes
+
+                if( value_of_32 != 0 ) {
+                    std::cout << "Value of 32 has problem!\n";
+                    std::cout << "value_of_32 = " << std::dec << value_of_32 << std::endl;
+                    // assert(false); // NOT ZERO
                 }
                 
                 this->culling_distance = reader_sect.readU16( settings.endian );
