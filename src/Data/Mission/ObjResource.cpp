@@ -9,6 +9,7 @@
 #include <cmath>
 #include <fstream>
 #include <cassert>
+#include <iostream>
 
 namespace {
     // The header
@@ -1610,6 +1611,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             
                             // Fact [0, 4293]: This uses the pythagorean theorem on length_x and length_z. Roughly (length_x^2 + length_z^2) square rooted.
                             bounding_boxes.back().length_pyth_2 = reader3DBB.readU16( settings.endian );
+
+                            //uint32_t x_c = bounding_boxes.back().length_x * bounding_boxes.back().length_x;
+                            //uint32_t y_c = bounding_boxes.back().length_y * bounding_boxes.back().length_y;
+                            //uint32_t z_c = bounding_boxes.back().length_z * bounding_boxes.back().length_z;
+
+                            //assert( std::abs((FIXED_POINT_UNIT * std::sqrt(x_c + y_c + z_c)) - (FIXED_POINT_UNIT * static_cast<double>(bounding_boxes.back().length_pyth_3))) < 0.125 );
+                            //assert( std::abs((FIXED_POINT_UNIT * std::sqrt(x_c    +    z_c)) - (FIXED_POINT_UNIT * static_cast<double>(bounding_boxes.back().length_pyth_2))) < 0.125 );
                         }
                     }
                 }
