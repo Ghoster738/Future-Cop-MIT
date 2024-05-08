@@ -1,6 +1,8 @@
 #include "TilResource.h"
-#include "Til/Mesh.h"
+
 #include "Til/Colorizer.h"
+#include "Til/CullingGenerator.h"
+#include "Til/Mesh.h"
 
 #include "IFF.h"
 
