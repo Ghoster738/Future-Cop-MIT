@@ -122,13 +122,13 @@ glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) 
 
     if( material.polygon_color_type == VertexColorMode::FULL ) {
         if( material.visability == ADDITION) {
-            color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
-            color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
-            color.b = std::min( (static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
+            color.r = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+            color.g = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+            color.b = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
         }
         else {
-            color.r = std::min( (static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
-            color.g = std::min( (static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
+            color.r = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
+            color.g = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
             color.b = 0;
         }
     }
