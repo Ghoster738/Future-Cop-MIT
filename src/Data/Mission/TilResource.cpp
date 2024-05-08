@@ -255,7 +255,7 @@ Data::Mission::TilResource::TilResource() {
     this->slfx_bitfield = info_slfx.get();
 }
 
-Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data( obj.culling_data ), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
+Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data( obj.culling_data ), uv_animation( obj.uv_animation ), mesh_library_size( obj.mesh_library_size ), mesh_reference_grid(), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
             mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
@@ -326,7 +326,7 @@ void Data::Mission::TilResource::makeEmpty() {
     // I decided to set these anyways.
     culling_data = CullingData();
     
-    this->texture_reference = 0;
+    this->mesh_library_size = 1;
     
     for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
         for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
@@ -461,24 +461,15 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 if( uv_animation.y != 0 )
                     debug_log.output << "uv_animation.y has " << (unsigned)uv_animation.y << ".\n";
                 
-                this->texture_reference = reader_sect.readU16( settings.endian );
+                this->mesh_library_size = reader_sect.readU16( settings.endian );
+                uint16_t actual_mesh_library_size = 0;
 
-                this->mesh_library_size = 0;
-                
                 for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
                     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
                         mesh_reference_grid[x][y].set( reader_sect.readU16( settings.endian ) );
 
-                        this->mesh_library_size += mesh_reference_grid[x][y].tile_amount;
+                        actual_mesh_library_size += mesh_reference_grid[x][y].tile_amount;
                     }
-                }
-
-                bool descrept = false;
-
-                if(this->mesh_library_size != texture_reference) {
-                    error_log.output << "texture_reference has " << std::dec << this->texture_reference << ".\n";
-                    error_log.output << "mesh_library_size has " << std::dec << this->mesh_library_size << ".\n";
-                    descrept = true;
                 }
                 
                 // It turned out that Future Cop: LAPD does not care about this value.
@@ -487,6 +478,13 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // the size of the mesh_tiles for the vector.
                 auto predicted_mesh_library_size = reader_sect.readU16( settings.endian );
                 const size_t PREDICTED_POLYGON_TILE_AMOUNT = predicted_mesh_library_size >> 6;
+
+                if( actual_mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
+                    warning_log.output << "\n"
+                        << "This custom resource detected, and it is probably not an issue.\n"
+                        << " The amount of used polygons are " << std::dec << actual_mesh_library_size << "\n"
+                        << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
+                }
                 
                 // Skip 2 bytes
                 reader_sect.readU16( settings.endian );
@@ -497,35 +495,6 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
                 }
-
-                if( this->mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
-                    warning_log.output << "\n"
-                        << "This custom resource detected, and it is probably not an issue.\n"
-                        << " The amount of polygons are " << std::dec << this->mesh_library_size << "\n"
-                        << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
-                }
-                
-                int skipped_space = 0;
-
-                // There are dead uvs that are not being used!
-                while( reader_sect.readU32( settings.endian ) == 0 )
-                    skipped_space++;
-
-                // Undo the read after the bytes are skipped.
-                reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
-
-                assert(skipped_space + this->mesh_library_size + 1 == texture_reference);
-
-                if(skipped_space != 0)
-                {
-                    warning_log.output << "\n"
-                        << "This resource has " << skipped_space << " skipped.\n"
-                        << "mesh_library_size is 0x" << std::hex << this->mesh_library_size << "\n";
-
-                    assert(descrept);
-                }
-                else
-                    assert(!descrept);
 
                 // Read the UV's
                 texture_cords.reserve( texture_cordinates_amount );
