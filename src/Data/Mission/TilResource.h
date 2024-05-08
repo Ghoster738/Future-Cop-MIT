@@ -241,11 +241,9 @@ public:
 private:
     Utilities::GridBase2D<HeightmapPixel> point_cloud_3_channel; // I liked the Point Cloud Name. These are 3 channel signed bytes.
 
-    uint16_t culling_distance; // This affects the radius of the circle where the culling happens
-    CullingTile culling_top_left;
-    CullingTile culling_top_right;
-    CullingTile culling_bottom_left;
-    CullingTile culling_bottom_right;
+    uint8_t polygon_action_types[4];
+
+    uint16_t culling_data_raw[42];
 
     glm::i8vec2 uv_animation;
 

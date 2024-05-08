@@ -16,20 +16,6 @@ uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S',
 uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX"; // Vertex Color Animations.
 uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Vertex UV Animation frames.
 
-void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
-    tile.top_left = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-    
-    tile.top_right = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-    
-    tile.bottom_left = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-    
-    tile.bottom_right = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-}
-
 const Utilities::PixelFormatColor_W8 SLFX_COLOR;
 }
 
@@ -245,7 +231,11 @@ Data::Mission::TilResource::TilResource() {
     this->slfx_bitfield = info_slfx.get();
 }
 
-Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_distance( obj.culling_distance ), culling_top_left( obj.culling_top_left ), culling_top_right( obj.culling_top_right ), culling_bottom_left( obj.culling_bottom_left ), culling_bottom_right( obj.culling_bottom_right ), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
+Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data_raw(), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
+
+    for(size_t i = 0; i < 42; i++) {
+        culling_data_raw[i] = obj.culling_data_raw[i];
+    }
 
     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
@@ -315,15 +305,9 @@ void Data::Mission::TilResource::makeEmpty() {
     }
     
     // I decided to set these anyways.
-    this->culling_distance = 0;
-    this->culling_top_left.primary = 0;
-    this->culling_top_left.top_left = 0;
-    this->culling_top_left.top_right = 0;
-    this->culling_top_left.bottom_left = 0;
-    this->culling_top_left.bottom_right = 0;
-    this->culling_top_right    = this->culling_top_left;
-    this->culling_bottom_left  = this->culling_top_left;
-    this->culling_bottom_right = this->culling_top_left;
+    for(size_t i = 0; i < 42; i++) {
+        culling_data_raw[i] = 0;
+    }
     
     this->texture_reference = 0;
     
@@ -427,42 +411,16 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 }
                 
                 // These bytes seems to be only five zero bytes
-                reader_sect.readU8();  // Skip 1 zero byte
                 reader_sect.readU8();  // Skip 1 zero byte TODO Add warning system for this value if it is not zero.
 
-                uint8_t culling[3];
+                polygon_action_types[0] = reader_sect.readU8();
+                polygon_action_types[1] = reader_sect.readU8();
+                polygon_action_types[2] = reader_sect.readU8();
+                polygon_action_types[3] = reader_sect.readU8();
 
-                culling[0] = reader_sect.readU8();
-                culling[1] = reader_sect.readU8();
-                culling[2] = reader_sect.readU8();
-
-                if( culling[0] != 0 || culling[1] != 0 || culling[2] != 0 ) {
-                    std::cout << "These bytes are not zero.\n";
-                    std::cout << "culling[0] = 0x" << std::hex << static_cast<uint32_t>(culling[0]) << "\n";
-                    std::cout << "culling[1] = 0x" << std::hex << static_cast<uint32_t>(culling[1]) << "\n";
-                    std::cout << "culling[2] = 0x" << std::hex << static_cast<uint32_t>(culling[2]) << std::endl;
+                for(size_t i = 0; i < 42; i++) {
+                    culling_data_raw[i] = reader_sect.readU16( settings.endian );
                 }
-                
-                this->culling_distance = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_top_left.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_top_right.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_bottom_left.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_bottom_right.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-
-                readCullingTile( culling_top_left,     reader_sect, settings.endian );
-                readCullingTile( culling_top_right,    reader_sect, settings.endian );
-                readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
-                readCullingTile( culling_bottom_right, reader_sect, settings.endian );
                 
                 // These are most likely bytes.
                 uv_animation.x = std::abs( reader_sect.readI8() );
