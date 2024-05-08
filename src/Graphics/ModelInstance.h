@@ -5,7 +5,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Graphics {
 

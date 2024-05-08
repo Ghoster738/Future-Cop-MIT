@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 #include <json/value.h>
-#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Data {
 
