@@ -587,7 +587,7 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
                     (*i).frame_uv_times[ info_index ] -= info.getFrameCount();
 
                 if( int(last_time) != int( (*i).frame_uv_times[ info_index ] ) ) {
-                    const unsigned frame_index = unsigned( (*i).frame_uv_times[ info_index ] ) * 4;
+                    const unsigned frame_index = 4 * ((info.getFrameCount() - 1) - unsigned( (*i).frame_uv_times[ info_index ] ));
 
                     for( unsigned a = 0; a < 4; a++ ) {
                         (*i).current_frame_uvs[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;
