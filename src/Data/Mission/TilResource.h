@@ -26,13 +26,17 @@ public:
     struct HeightmapPixel {
         int8_t channel[3];
     };
-    struct CullingTile {
-        uint16_t primary;
+    struct CullingChunk {
+        int16_t radius; // The radius of the bounding sphere. Let w be the height and depth of chunk (w^2 + w^2 + h^2). Optain h by getting the distance between the highest of heights and the lowest of the height of the chunk).
+        int16_t height; // This is the median between the heightest point and the lowest point of the polygons this chunk contains.
+    };
+    struct CullingData {
+        CullingChunk primary;
+        CullingChunk secondary[4];
+        CullingChunk third[16];
 
-        uint16_t top_left;
-        uint16_t top_right;
-        uint16_t bottom_left;
-        uint16_t bottom_right;
+        CullingData();
+        CullingData(const CullingData& data);
     };
     struct Floor {
         uint16_t tile_amount : 6;
@@ -243,7 +247,7 @@ private:
 
     uint8_t polygon_action_types[4];
 
-    uint16_t culling_data_raw[42];
+    CullingData culling_data;
 
     glm::i8vec2 uv_animation;
 

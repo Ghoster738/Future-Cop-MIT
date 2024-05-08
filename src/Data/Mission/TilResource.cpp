@@ -19,6 +19,30 @@ uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S',
 const Utilities::PixelFormatColor_W8 SLFX_COLOR;
 }
 
+Data::Mission::TilResource::CullingData::CullingData() {
+    CullingChunk empty_chunk;
+    empty_chunk.radius = 0;
+    empty_chunk.height = 0;
+
+    primary = empty_chunk;
+    for(size_t i = 0; i < 4; i++) {
+        secondary[i] = empty_chunk;
+    }
+    for(size_t i = 0; i < 16; i++) {
+        third[i] = empty_chunk;
+    }
+}
+
+Data::Mission::TilResource::CullingData::CullingData(const CullingData& data) {
+    primary = data.primary;
+    for(size_t i = 0; i < 4; i++) {
+        secondary[i] = data.secondary[i];
+    }
+    for(size_t i = 0; i < 16; i++) {
+        third[i] = data.third[i];
+    }
+}
+
 std::string Data::Mission::TilResource::InfoSLFX::getString() const {
     std::stringstream stream;
 
@@ -231,12 +255,7 @@ Data::Mission::TilResource::TilResource() {
     this->slfx_bitfield = info_slfx.get();
 }
 
-Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data_raw(), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
-
-    for(size_t i = 0; i < 42; i++) {
-        culling_data_raw[i] = obj.culling_data_raw[i];
-    }
-
+Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data( obj.culling_data ), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
             mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
@@ -303,11 +322,9 @@ void Data::Mission::TilResource::makeEmpty() {
             point_cloud_3_channel.setValue( x, y, height );
         }
     }
-    
+
     // I decided to set these anyways.
-    for(size_t i = 0; i < 42; i++) {
-        culling_data_raw[i] = 0;
-    }
+    culling_data = CullingData();
     
     this->texture_reference = 0;
     
@@ -418,8 +435,16 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 polygon_action_types[2] = reader_sect.readU8();
                 polygon_action_types[3] = reader_sect.readU8();
 
-                for(size_t i = 0; i < 42; i++) {
-                    culling_data_raw[i] = reader_sect.readU16( settings.endian );
+                // Thank you BajKooJ for the better looking structs.
+                culling_data.primary.radius = reader_sect.readU16( settings.endian );
+                culling_data.primary.height = reader_sect.readU16( settings.endian );
+                for(size_t i = 0; i < 4; i++) {
+                    culling_data.secondary[i].radius = reader_sect.readU16( settings.endian );
+                    culling_data.secondary[i].height = reader_sect.readU16( settings.endian );
+                }
+                for(size_t i = 0; i < 16; i++) {
+                    culling_data.third[i].radius = reader_sect.readU16( settings.endian );
+                    culling_data.third[i].height = reader_sect.readU16( settings.endian );
                 }
                 
                 // These are most likely bytes.
