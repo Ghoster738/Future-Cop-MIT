@@ -438,13 +438,17 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // Thank you BajKooJ for the better looking structs.
                 culling_data.primary.radius = reader_sect.readU16( settings.endian );
                 culling_data.primary.height = reader_sect.readU16( settings.endian );
+
+                // assert(culling_data.primary.radius >= 5792);
                 for(size_t i = 0; i < 4; i++) {
                     culling_data.secondary[i].radius = reader_sect.readU16( settings.endian );
                     culling_data.secondary[i].height = reader_sect.readU16( settings.endian );
+                    // assert(culling_data.secondary[i].radius >= 2896);
                 }
                 for(size_t i = 0; i < 16; i++) {
                     culling_data.third[i].radius = reader_sect.readU16( settings.endian );
                     culling_data.third[i].height = reader_sect.readU16( settings.endian );
+                    // assert(culling_data.third[i].radius >= 1448);
                 }
                 
                 // These are most likely bytes.
