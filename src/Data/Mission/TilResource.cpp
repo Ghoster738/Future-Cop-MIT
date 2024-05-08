@@ -427,22 +427,20 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 }
                 
                 // These bytes seems to be only five zero bytes
+                reader_sect.readU8();  // Skip 1 zero byte
                 reader_sect.readU8();  // Skip 1 zero byte TODO Add warning system for this value if it is not zero.
 
-                uint8_t culling[4];
+                uint8_t culling[3];
 
-                culling[0] = reader_sect.readU8(); // Another zero byte.
+                culling[0] = reader_sect.readU8();
                 culling[1] = reader_sect.readU8();
                 culling[2] = reader_sect.readU8();
-                culling[3] = reader_sect.readU8();
 
-                if( culling[0] != 0 ) {
-                    std::cout << "culling has problem!\n";
-                    std::cout << "culling[0] = 0x" << std::hex << static_cast<uint32_t>(culling[0]) << std::endl;
-                    std::cout << "culling[1] = 0x" << std::hex << static_cast<uint32_t>(culling[1]) << std::endl;
+                if( culling[0] != 0 || culling[1] != 0 || culling[2] != 0 ) {
+                    std::cout << "These bytes are not zero.\n";
+                    std::cout << "culling[0] = 0x" << std::hex << static_cast<uint32_t>(culling[0]) << "\n";
+                    std::cout << "culling[1] = 0x" << std::hex << static_cast<uint32_t>(culling[1]) << "\n";
                     std::cout << "culling[2] = 0x" << std::hex << static_cast<uint32_t>(culling[2]) << std::endl;
-                    std::cout << "culling[3] = 0x" << std::hex << static_cast<uint32_t>(culling[3]) << std::endl;
-                     assert(false); // NOT ZERO
                 }
                 
                 this->culling_distance = reader_sect.readU16( settings.endian );
