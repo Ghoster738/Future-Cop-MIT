@@ -7,3 +7,6 @@ Be sure to set FCOption_GLM_VENDORED to ON and to make sure that the glm folder 
 #GIT instructions#
 Call this command bellow at the root of this project if you want to compile some of these libraries.
 git submodule update --init --recursive --progress --depth 1
+
+To update the version of the libraries.
+git clone --branch TAG_NAME --depth 1 URL_TO_SOURCE NAME_OF_DIR
