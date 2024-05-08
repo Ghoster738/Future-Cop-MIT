@@ -31,9 +31,9 @@ public:
         int16_t height; // This is the median between the heightest point and the lowest point of the polygons this chunk contains.
     };
     struct CullingData {
-        CullingChunk primary;
-        CullingChunk secondary[4];
-        CullingChunk third[16];
+        CullingChunk trunk;
+        CullingChunk branches[4];
+        CullingChunk leaves[16];
 
         CullingData();
         CullingData(const CullingData& data);

@@ -24,22 +24,22 @@ Data::Mission::TilResource::CullingData::CullingData() {
     empty_chunk.radius = 0;
     empty_chunk.height = 0;
 
-    primary = empty_chunk;
+    trunk = empty_chunk;
     for(size_t i = 0; i < 4; i++) {
-        secondary[i] = empty_chunk;
+        branches[i] = empty_chunk;
     }
     for(size_t i = 0; i < 16; i++) {
-        third[i] = empty_chunk;
+        leaves[i] = empty_chunk;
     }
 }
 
 Data::Mission::TilResource::CullingData::CullingData(const CullingData& data) {
-    primary = data.primary;
+    trunk = data.trunk;
     for(size_t i = 0; i < 4; i++) {
-        secondary[i] = data.secondary[i];
+        branches[i] = data.branches[i];
     }
     for(size_t i = 0; i < 16; i++) {
-        third[i] = data.third[i];
+        leaves[i] = data.leaves[i];
     }
 }
 
@@ -436,19 +436,19 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 polygon_action_types[3] = reader_sect.readU8();
 
                 // Thank you BajKooJ for the better looking structs.
-                culling_data.primary.radius = reader_sect.readU16( settings.endian );
-                culling_data.primary.height = reader_sect.readU16( settings.endian );
+                culling_data.trunk.radius = reader_sect.readU16( settings.endian );
+                culling_data.trunk.height = reader_sect.readU16( settings.endian );
 
                 // assert(culling_data.primary.radius >= 5792);
                 for(size_t i = 0; i < 4; i++) {
-                    culling_data.secondary[i].radius = reader_sect.readU16( settings.endian );
-                    culling_data.secondary[i].height = reader_sect.readU16( settings.endian );
-                    // assert(culling_data.secondary[i].radius >= 2896);
+                    culling_data.branches[i].radius = reader_sect.readU16( settings.endian );
+                    culling_data.branches[i].height = reader_sect.readU16( settings.endian );
+                    // assert(culling_data.branches[i].radius >= 2896);
                 }
                 for(size_t i = 0; i < 16; i++) {
-                    culling_data.third[i].radius = reader_sect.readU16( settings.endian );
-                    culling_data.third[i].height = reader_sect.readU16( settings.endian );
-                    // assert(culling_data.third[i].radius >= 1448);
+                    culling_data.leaves[i].radius = reader_sect.readU16( settings.endian );
+                    culling_data.leaves[i].height = reader_sect.readU16( settings.endian );
+                    // assert(culling_data.leaves[i].radius >= 1448);
                 }
                 
                 // These are most likely bytes.
