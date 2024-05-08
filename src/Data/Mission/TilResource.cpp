@@ -429,12 +429,20 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // These bytes seems to be only five zero bytes
                 reader_sect.readU8();  // Skip 1 zero byte TODO Add warning system for this value if it is not zero.
 
-                auto value_of_32 = reader_sect.readU32(Utilities::Buffer::BIG); // Skip 4 bytes
+                uint8_t culling[4];
 
-                if( value_of_32 != 0 ) {
-                    std::cout << "Value of 32 has problem!\n";
-                    std::cout << "value_of_32 = 0x" << std::hex << value_of_32 << std::endl;
-                    // assert(false); // NOT ZERO
+                culling[0] = reader_sect.readU8(); // Another zero byte.
+                culling[1] = reader_sect.readU8();
+                culling[2] = reader_sect.readU8();
+                culling[3] = reader_sect.readU8();
+
+                if( culling[0] != 0 ) {
+                    std::cout << "culling has problem!\n";
+                    std::cout << "culling[0] = 0x" << std::hex << static_cast<uint32_t>(culling[0]) << std::endl;
+                    std::cout << "culling[1] = 0x" << std::hex << static_cast<uint32_t>(culling[1]) << std::endl;
+                    std::cout << "culling[2] = 0x" << std::hex << static_cast<uint32_t>(culling[2]) << std::endl;
+                    std::cout << "culling[3] = 0x" << std::hex << static_cast<uint32_t>(culling[3]) << std::endl;
+                     assert(false); // NOT ZERO
                 }
                 
                 this->culling_distance = reader_sect.readU16( settings.endian );
