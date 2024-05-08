@@ -498,6 +498,19 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
                 }
 
+                // Test culling data.
+                CullingData generated_culling_data = Til::CullingGenerator::create(point_cloud_3_channel, mesh_tiles, mesh_reference_grid);
+
+                {
+                    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+                    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+                    error_log.output << "\n"
+                        << " culling_data.trunk.radius = " << std::dec << culling_data.trunk.radius << " = " << (culling_data.trunk.radius / 512.) << "\n"
+                        << " culling_data.trunk.height = " << std::dec << culling_data.trunk.height << " = " << (culling_data.trunk.height / 512.) << "\n"
+                        << " generated_culling_data.trunk.radius = " << std::dec << generated_culling_data.trunk.radius << " = " << (generated_culling_data.trunk.radius / 512.) << "\n"
+                        << " generated_culling_data.trunk.height = " << std::dec << generated_culling_data.trunk.height << " = " << (generated_culling_data.trunk.height / 512.) << "\n";
+                }
+
                 // Read the UV's
                 texture_cords.reserve( texture_cordinates_amount );
                 
