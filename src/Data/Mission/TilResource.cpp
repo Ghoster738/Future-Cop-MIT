@@ -472,6 +472,14 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                         this->mesh_library_size += mesh_reference_grid[x][y].tile_amount;
                     }
                 }
+
+                bool descrept = false;
+
+                if(this->mesh_library_size != texture_reference) {
+                    error_log.output << "texture_reference has " << std::dec << this->texture_reference << ".\n";
+                    error_log.output << "mesh_library_size has " << std::dec << this->mesh_library_size << ".\n";
+                    descrept = true;
+                }
                 
                 // It turned out that Future Cop: LAPD does not care about this value.
                 // Since, every original map that I encounted seemed to have this value,
@@ -497,21 +505,27 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                         << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
                 }
                 
-                bool skipped_space = false;
+                int skipped_space = 0;
 
                 // There are dead uvs that are not being used!
                 while( reader_sect.readU32( settings.endian ) == 0 )
-                    skipped_space = true;
+                    skipped_space++;
 
                 // Undo the read after the bytes are skipped.
                 reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
 
-                if( skipped_space )
+                assert(skipped_space + this->mesh_library_size + 1 == texture_reference);
+
+                if(skipped_space != 0)
                 {
                     warning_log.output << "\n"
                         << "This resource has " << skipped_space << " skipped.\n"
                         << "mesh_library_size is 0x" << std::hex << this->mesh_library_size << "\n";
+
+                    assert(descrept);
                 }
+                else
+                    assert(!descrept);
 
                 // Read the UV's
                 texture_cords.reserve( texture_cordinates_amount );
