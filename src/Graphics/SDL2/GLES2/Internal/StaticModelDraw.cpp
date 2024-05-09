@@ -53,8 +53,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     }
 }
 
+const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
-    "const int ANIMATED_UV_FRAME_AMOUNT = 64;\n"
+    "const int ANIMATED_UV_FRAME_AMOUNT = 8;\n"
     "const int QUAD_VERTEX_AMOUNT = 4;\n"
     "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
 
@@ -250,8 +251,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
         const size_t face_override_amount = 4 * face_override_animation.size();
 
-        if(uv_frame_buffer.size() < face_override_amount )
-            uv_frame_buffer.resize( face_override_amount );
+        if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
+            uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );
 
         GLsizei material_count = 0;
 

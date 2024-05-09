@@ -19,6 +19,8 @@ public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 
+    static const size_t UV_FRAME_BUFFER_SIZE_LIMIT;
+
     struct ModelArray {
         ModelArray( Program *program ) : mesh( program ) {}
         
