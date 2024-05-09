@@ -4,6 +4,8 @@
 
 #include "TileSet.h"
 
+#include <iostream>
+
 using Data::Mission::Til::Mesh::BACK_LEFT;
 using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
@@ -27,7 +29,7 @@ Data::Mission::TilResource::CullingData Data::Mission::Til::CullingGenerator::cr
 
     for(int_fast16_t y = 0; y < TilResource::AMOUNT_OF_TILES; y++) {
         for(int_fast16_t x = 0; x < TilResource::AMOUNT_OF_TILES; x++) {
-            current_floor = mesh_reference_grid[y][x];
+            current_floor = mesh_reference_grid[x][y];
 
             pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );
             pixels[  BACK_LEFT  ] = point_cloud_3_channel.getRef( y + 1, x + 0 );
@@ -55,8 +57,10 @@ Data::Mission::TilResource::CullingData Data::Mission::Til::CullingGenerator::cr
         }
     }
 
+    auto midvalue = std::abs(highest_point - lowest_point) / 2;
+
     culling_data.trunk.height = std::abs(highest_point - lowest_point) / 2 + lowest_point;
-    culling_data.trunk.radius = 512 * std::sqrt(8*8 + 8*8 + culling_data.trunk.height * culling_data.trunk.height);
+    culling_data.trunk.radius = std::sqrt((8*512)*(8*512) + (8*512)*(8*512) + midvalue * midvalue);
 
     return culling_data;
 }
