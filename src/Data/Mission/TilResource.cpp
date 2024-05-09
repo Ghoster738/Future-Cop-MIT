@@ -510,7 +510,7 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                         //<< " generated_culling_data.trunk.radius = " << std::dec << generated_culling_data.trunk.radius << " = " << (generated_culling_data.trunk.radius / 512.) << "\n"
                         << " generated_culling_data.trunk.height = " << std::dec << generated_culling_data.trunk.height << " = " << (generated_culling_data.trunk.height / 512.) << "\n";
                 }
-                if(culling_data.trunk.radius != generated_culling_data.trunk.radius) {
+                else if( std::abs(culling_data.trunk.radius - generated_culling_data.trunk.radius) > 1 ) {
                     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
                     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
                     error_log.output << "\n"
