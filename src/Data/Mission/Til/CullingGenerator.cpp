@@ -4,8 +4,6 @@
 
 #include "TileSet.h"
 
-#include <iostream>
-
 using Data::Mission::Til::Mesh::BACK_LEFT;
 using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
