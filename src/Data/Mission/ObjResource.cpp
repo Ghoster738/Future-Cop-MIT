@@ -676,7 +676,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
             }
             triangles.push_back( triangle );
 
-            // TODO THIS IS A NULL STATEMENT
+            // TODO morph_thickness is not used. Make a test case to fix this.
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
                 const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
                 const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
@@ -701,7 +701,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 
             triangles.push_back( triangle );
 
-            // TODO THIS IS A NULL STATEMENT
+            // TODO morph_thickness is not used. Make a test case to fix this.
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
                 const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
                 const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
@@ -795,7 +795,7 @@ glm::i16vec3* Data::Mission::ObjResource::VertexData::get4DVLPointer(uint32_t id
 }
 
 const glm::i16vec3* const Data::Mission::ObjResource::VertexData::get4DVLPointer(uint32_t id) const {
-    for(int32_t index = 0; index < get3DRFSize(); index++)
+    for(uint32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_4DVL, index) == id)
             return &positions[index * this->size_of_4DVL];
@@ -809,7 +809,7 @@ glm::i16vec3* Data::Mission::ObjResource::VertexData::get4DNLPointer(uint32_t id
 }
 
 const glm::i16vec3* const Data::Mission::ObjResource::VertexData::get4DNLPointer(uint32_t id) const {
-    for(int32_t index = 0; index < get3DRFSize(); index++)
+    for(uint32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_4DNL, index) == id)
             return &normals[index * this->size_of_4DNL];
@@ -823,7 +823,7 @@ uint16_t* Data::Mission::ObjResource::VertexData::get3DRLPointer(uint32_t id) {
 }
 
 const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uint32_t id) const {
-    for(int32_t index = 0; index < get3DRFSize(); index++)
+    for(uint32_t index = 0; index < get3DRFSize(); index++)
     {
         if(get3DRFItem(C_3DRL, index) == id)
             return &lengths[index * this->size_of_3DRL];
@@ -1107,9 +1107,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     const uint16_t face_type_offset = reader3DQL.readU16( settings.endian );
 
                     // Read the opcodes
-                    const bool is_texture      = ((opcode_0 & 0x80) != 0);
-                    const uint8_t array_amount =  (opcode_0 & 0x07);
-                    const uint8_t bitfield     =  (opcode_0 & 0x78) >> 3;
+                    const bool is_texture         = ((opcode_0 & 0x80) != 0);
+                    const uint8_t un_array_amount =  (opcode_0 & 0x07);
+                    const uint8_t bitfield        =  (opcode_0 & 0x78) >> 3;
 
                     bool            normal_shadows = false;
                     VisabilityMode  visability_mode = VisabilityMode::OPAQUE;
@@ -1268,8 +1268,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     bones.at(i).normal_stride = reader3DHY.readU8();
                     bones.at(i).vertex_start  = reader3DHY.readU8();
                     bones.at(i).vertex_stride = reader3DHY.readU8();
-                    auto byte0 = reader3DHY.readU8();
-                    auto byte1 = reader3DHY.readU8();
+                    auto un_byte0 = reader3DHY.readU8();
+                    auto un_byte1 = reader3DHY.readU8();
                     // assert( Utilities::DataHandler::read_u8(start_data + 0x5) ); // can be zero
                     // assert( Utilities::DataHandler::read_u8(start_data + 0x6) ); // can be zero
                     auto opcode = reader3DHY.readU8();
@@ -1438,7 +1438,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if(vertex_data.get4DVLSize() < 0)
                     vertex_data.set4DVLSize(amount_of_vertices);
-                else if(vertex_data.get4DVLSize() != amount_of_vertices) {
+                else if(static_cast<uint32_t>(vertex_data.get4DVLSize()) != amount_of_vertices) {
                     error_log.output << "4DVL has a sizing problem expected " << vertex_data.get4DVLSize() << " but got " << amount_of_vertices  << ". It will be capped.\n";
 
                     amount_of_vertices = std::min(static_cast<uint32_t>(vertex_data.get4DVLSize()), amount_of_vertices);
@@ -1470,7 +1470,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if(vertex_data.get4DNLSize() < 0)
                     vertex_data.set4DNLSize(amount_of_normals);
-                else if(vertex_data.get4DNLSize() != amount_of_normals) {
+                else if(static_cast<uint32_t>(vertex_data.get4DNLSize()) != amount_of_normals) {
                     error_log.output << "4DNL has a sizing problem expected " << vertex_data.get4DNLSize() << " but got " << amount_of_normals << ". It will be capped.\n";
 
                     amount_of_normals = std::min(static_cast<uint32_t>(vertex_data.get4DNLSize()), amount_of_normals);
@@ -1503,7 +1503,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 if(vertex_data.get3DRLSize() < 0)
                     vertex_data.set3DRLSize(count);
-                else if(vertex_data.get3DRLSize() != count) {
+                else if(static_cast<uint32_t>(vertex_data.get3DRLSize()) != count) {
                     error_log.output << "3DRL has a sizing problem expected " << vertex_data.get3DRLSize() << " but got " << count  << ". It will be capped.\n";
 
                     count = std::min(static_cast<uint32_t>(vertex_data.get3DRLSize()), count);
@@ -1536,11 +1536,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 
                 for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
                     auto u0 = readerAnmD.readU8();
-                    auto speed = readerAnmD.readU8(); // The bigger the slower
+                    auto un_speed = readerAnmD.readU8(); // The bigger the slower
                     auto u2 = readerAnmD.readU8();
-                    auto skip_frame = readerAnmD.readU8(); // Wild guess.
-                    auto from_frame = readerAnmD.readU16( settings.endian );
-                    auto to_frame   = readerAnmD.readU16( settings.endian );
+                    auto un_skip_frame = readerAnmD.readU8(); // Wild guess.
+                    auto un_from_frame = readerAnmD.readU16( settings.endian );
+                    auto un_to_frame   = readerAnmD.readU16( settings.endian );
                     auto u6 = readerAnmD.readU8();
                     auto u7 = readerAnmD.readU8();
                     auto u8 = readerAnmD.readU16( settings.endian );
@@ -1759,7 +1759,7 @@ Data::Mission::Resource * Data::Mission::ObjResource::duplicate() const {
 }
 
 bool Data::Mission::ObjResource::isPositionValid( unsigned index ) const {
-    if( index < 4 && vertex_data.get4DVLSize() > position_indexes[index] )
+    if( index < 4 && vertex_data.get4DVLSize() >= 0 && static_cast<uint32_t>(vertex_data.get4DVLSize()) > position_indexes[index] )
         return true;
     else
         return false;

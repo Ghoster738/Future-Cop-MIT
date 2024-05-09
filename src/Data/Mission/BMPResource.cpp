@@ -121,7 +121,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 zeros[5] = cbb_reader.readU16( settings.endian );
                 
                 cbb_reader.setPosition( 0x2A, Utilities::Buffer::BEGIN );
-                auto bitfield_byte = cbb_reader.readU8();
+                auto un_bitfield_byte = cbb_reader.readU8();
                 
                 zeros[6] = cbb_reader.readU8();
                 
@@ -141,17 +141,17 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                         warning_log.output << "CCB: number_eight is actually " << number_eight << ".\n";
                 
                 cbb_reader.setPosition( 0x34, Utilities::Buffer::BEGIN );
-                auto first_u32 = cbb_reader.readU32( settings.endian );
+                auto un_first_u32 = cbb_reader.readU32( settings.endian );
                 
-                uint8_t array[4];
+                uint8_t un_array[4];
                 
-                array[ 0 ] = cbb_reader.readU8();
-                array[ 1 ] = cbb_reader.readU8();
-                array[ 2 ] = cbb_reader.readU8();
-                array[ 3 ] = cbb_reader.readU8();
+                un_array[ 0 ] = cbb_reader.readU8();
+                un_array[ 1 ] = cbb_reader.readU8();
+                un_array[ 2 ] = cbb_reader.readU8();
+                un_array[ 3 ] = cbb_reader.readU8();
                 
-                auto second_u32 = cbb_reader.readU32( settings.endian );
-                auto third_u32 = cbb_reader.readU32( settings.endian );
+                auto un_second_u32 = cbb_reader.readU32( settings.endian );
+                auto un_third_u32 = cbb_reader.readU32( settings.endian );
             }
             else
             if( identifier == LKUP_TAG ) {

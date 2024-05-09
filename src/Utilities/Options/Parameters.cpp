@@ -463,7 +463,7 @@ void Utilities::Options::Parameters::parseLoadAllMaps( std::string value ) {
         return;
     }
 
-    if(!value.empty() && value[0] == 't' || value[0] == 'T' || value[0] == '1')
+    if(!value.empty() && (value[0] == 't' || value[0] == 'T' || value[0] == '1'))
         p_load_all_maps = BoolParam(true);
     else
         p_load_all_maps = BoolParam(false);

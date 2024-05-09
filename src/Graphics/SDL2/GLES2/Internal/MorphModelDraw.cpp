@@ -26,10 +26,10 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
         }
 
         for( unsigned t = 0; t < 3; t++ ) {
-            const auto texture_animation_data = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
+            const uint16_t texture_animation_data = static_cast<uint16_t>(draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1]);
 
             if(texture_animation_data != 0) {
-                const auto texture_animation_index = texture_animation_data - 1;
+                const uint16_t texture_animation_index = texture_animation_data - 1;
 
                 assert(texture_animation_index < uv_frame_buffer_r->size());
 

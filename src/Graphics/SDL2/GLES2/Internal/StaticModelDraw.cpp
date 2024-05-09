@@ -36,10 +36,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
         draw_triangles_r[ i ] = triangles[ i ];
 
         for( unsigned t = 0; t < 3; t++ ) {
-            const auto texture_animation_data = draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1];
+            const uint16_t texture_animation_data = static_cast<uint16_t>(draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1]);
 
             if(texture_animation_data != 0) {
-                const auto texture_animation_index = texture_animation_data - 1;
+                const uint16_t texture_animation_index = texture_animation_data - 1;
 
                 assert(texture_animation_index < uv_frame_buffer_r->size());
 
@@ -307,7 +307,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
-                for( unsigned t = 0; t < 3; t++ ) {
+                for(unsigned t = 0; t < 3; t++) {
                     model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
                     model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
                     model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
@@ -320,8 +320,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
                     triangle.vertices[t].coordinate = coordinate;
                     triangle.vertices[t].vertex_metadata = metadata;
 
-                    if(face_override_amount != 0 && triangle.vertices[t].vertex_metadata[1] > face_override_amount) {
-                        for(int a = 0; a < t + 1; a++)
+                    if(face_override_amount != 0 && static_cast<uint16_t>(triangle.vertices[t].vertex_metadata[1]) > face_override_amount) {
+                        for(unsigned a = 0; a < t + 1; a++)
                             std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
                         std::cout << "face_override_amount = " << face_override_amount << std::endl;
                         assert(false);
@@ -469,9 +469,6 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjBBModel( uint32
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float seconds_passed ) {
     // Go through every model array.
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
-        // Get the mesh.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
-
         for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
             (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
         }

@@ -565,11 +565,11 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
 
                 for( uint32_t i = 0; i < number_of_animations; i++ ) {
                     uint8_t number_of_frames = reader_scta.readU8();
-                    uint8_t single_zero = reader_scta.readU8();
-                    uint8_t one = reader_scta.readU8();
-                    uint8_t nine8 = reader_scta.readU8();
+                    uint8_t un_single_zero = reader_scta.readU8();
+                    uint8_t un_one = reader_scta.readU8();
+                    uint8_t un_nine8 = reader_scta.readU8();
                     uint16_t duration_per_frame = reader_scta.readU16( settings.endian );
-                    uint16_t zeros = reader_scta.readU16( settings.endian );
+                    uint16_t un_zeros = reader_scta.readU16( settings.endian );
                     uint32_t animated_uv_offset = reader_scta.readU32( settings.endian );
                     uint32_t source_uv_offset = reader_scta.readU32( settings.endian );
 

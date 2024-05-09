@@ -25,8 +25,8 @@ Data::Mission::TilResource::CullingData Data::Mission::Til::CullingGenerator::cr
 
     const TilResource::HeightmapPixel* pixels[4];
 
-    for(int_fast16_t y = 0; y < TilResource::AMOUNT_OF_TILES; y++) {
-        for(int_fast16_t x = 0; x < TilResource::AMOUNT_OF_TILES; x++) {
+    for(size_t y = 0; y < TilResource::AMOUNT_OF_TILES; y++) {
+        for(size_t x = 0; x < TilResource::AMOUNT_OF_TILES; x++) {
             current_floor = mesh_reference_grid[x][y];
 
             pixels[ FRONT_LEFT  ] = point_cloud_3_channel.getRef( y + 0, x + 0 );

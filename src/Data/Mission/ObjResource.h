@@ -74,7 +74,7 @@ public:
 
         glm::u8vec2 coords[4];
 
-        int16_t face_override_index;
+        uint16_t face_override_index;
 
         glm::u8vec4 getColor( Material material ) const;
     };
@@ -84,7 +84,7 @@ public:
         glm::u8vec4 weights;
         glm::u8vec4 joints;
         glm::u8vec2 coords;
-        int16_t     face_override_index;
+        uint16_t    face_override_index;
     };
     struct MorphPoint {
         glm::vec3 position;

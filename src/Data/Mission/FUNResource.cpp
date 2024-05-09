@@ -55,7 +55,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     const uint32_t TAG_tEXT = 0x74455854;
     // which is { 0x74, 0x45, 0x58, 0x54 } or { 't', 'E', 'X', 'T' } or "tEXT"
     
-    uint32_t data_id;
+    uint32_t un_data_id;
     Function fun_struct;
     
     if( this->data_p != nullptr )
@@ -69,7 +69,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
             if( header == TAG_tFUN ) {
                 auto reader_tfun = reader.getReader( size - TAG_HEADER_SIZE );
                 
-                data_id = reader_tfun.readU32( settings.endian );
+                un_data_id = reader_tfun.readU32( settings.endian );
 
                 while( !reader_tfun.ended() ) {
                     fun_struct.how_many_times = reader_tfun.readI32( settings.endian );
@@ -88,7 +88,7 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                 if( header == TAG_tEXT ) {
                     auto reader_ext = reader.getReader( size - TAG_HEADER_SIZE );
                     
-                    data_id = reader_ext.readU32( settings.endian );
+                    un_data_id = reader_ext.readU32( settings.endian );
                     
                     ext_bytes = reader_ext.getBytes();
                     
@@ -105,8 +105,6 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
                             size_t position = 0;
                             uint8_t opcodes[3];
                             uint32_t number = 0;
-
-                            bool not_first_time = true;
 
                             while(code.at(position) != 0 && code.size() > position) {
                                 number = getNumber(code.data() + position, position);
