@@ -583,7 +583,7 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
 
                 (*i).frame_uv_times[ info_index ] += seconds_passed * info.getDurationToSeconds();
 
-                if( (*i).frame_uv_times[ info_index ] >= info.getFrameCount() )
+                while( (*i).frame_uv_times[ info_index ] >= info.getFrameCount() )
                     (*i).frame_uv_times[ info_index ] -= info.getFrameCount();
 
                 if( int(last_time) != int( (*i).frame_uv_times[ info_index ] ) ) {
