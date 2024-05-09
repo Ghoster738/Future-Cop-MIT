@@ -55,6 +55,7 @@ ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, Data::Mission::ACT::ItemPickup::getVector(    actor_array_r ) );
     base_turrets    = initializeActors<Data::Mission::ACT::BaseTurret,    ACT::BaseTurret>(    accessor, Data::Mission::ACT::BaseTurret::getVector(    actor_array_r ) );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, Data::Mission::ACT::NeutralTurret::getVector( actor_array_r ) );
+    props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, Data::Mission::ACT::Prop::getVector(          actor_array_r ) );
     sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    accessor, Data::Mission::ACT::SkyCaptain::getVector(    actor_array_r ) );
 }
 
@@ -65,6 +66,7 @@ void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
     updateGraphics<ACT::BaseTurret>(    main_program,    base_turrets );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
+    updateGraphics<ACT::Prop>(          main_program,           props );
     updateGraphics<ACT::SkyCaptain>(    main_program,    sky_captains );
 
     auto Cfun = main_program.accessor.getAllFUN();
@@ -96,6 +98,7 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateSpawn<ACT::ItemPickup>(    main_program,    item_pickups, delta );
     updateSpawn<ACT::BaseTurret>(    main_program,    base_turrets, delta );
     updateSpawn<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
+    updateSpawn<ACT::Prop>(          main_program,           props, delta );
     updateSpawn<ACT::SkyCaptain>(    main_program,    sky_captains, delta );
 }
 

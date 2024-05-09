@@ -89,41 +89,10 @@ void PrimaryGame::load( MainProgram &main_program ) {
         this->act_manager_p = new Game::ActManager( *main_program.resource_r, main_program.accessor );
 
         this->act_manager_p->initialize( main_program );
-
-        auto ptc_array_r = Data::Mission::PTCResource::getVector( *main_program.resource_r );
-
-        Data::Mission::PTCResource &ptc = *ptc_array_r.at(0);
-
-        auto actor_array_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
-
-        Data::Mission::ACTManager actor_manager( actor_array_r );
-
-        auto prop_array_r = Data::Mission::ACT::Prop::getVector( actor_array_r );
-
-        for( auto i : prop_array_r ) {
-            try {
-                auto prop_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, i->getObjResourceID(), i->getPosition( ptc ) );
-
-                props_p.push_back( prop_instance_p );
-
-                props_p.back()->setRotation( i->getRotationQuaternion() );
-            }
-            catch( const std::invalid_argument& argument ) {
-                auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-                log.output << "Cobj with resource id " << i->getObjResourceID() << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
-            }
-        }
     }
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {
-
-    for( auto single_prop_p : props_p ) {
-        delete single_prop_p;
-    }
-
-    props_p.clear();
-
     if( this->act_manager_p != nullptr )
         delete this->act_manager_p;
     this->act_manager_p = nullptr;

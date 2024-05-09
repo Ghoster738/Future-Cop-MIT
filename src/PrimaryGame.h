@@ -33,8 +33,6 @@ private:
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
 
-    std::vector<Graphics::ModelInstance*> props_p;
-
     Game::ActManager *act_manager_p;
 
 public:
