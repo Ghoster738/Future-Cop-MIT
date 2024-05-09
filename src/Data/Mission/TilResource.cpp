@@ -1,6 +1,8 @@
 #include "TilResource.h"
-#include "Til/Mesh.h"
+
 #include "Til/Colorizer.h"
+#include "Til/CullingGenerator.h"
+#include "Til/Mesh.h"
 
 #include "IFF.h"
 
@@ -16,21 +18,31 @@ uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S',
 uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX"; // Vertex Color Animations.
 uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Vertex UV Animation frames.
 
-void readCullingTile( Data::Mission::TilResource::CullingTile &tile, Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
-    tile.top_left = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-    
-    tile.top_right = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-    
-    tile.bottom_left = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
-    
-    tile.bottom_right = reader.readU16( endian );
-    reader.readU16(); // Skip Unknown data.
+const Utilities::PixelFormatColor_W8 SLFX_COLOR;
 }
 
-const Utilities::PixelFormatColor_W8 SLFX_COLOR;
+Data::Mission::TilResource::CullingData::CullingData() {
+    CullingChunk empty_chunk;
+    empty_chunk.radius = 0;
+    empty_chunk.height = 0;
+
+    trunk = empty_chunk;
+    for(size_t i = 0; i < 4; i++) {
+        branches[i] = empty_chunk;
+    }
+    for(size_t i = 0; i < 16; i++) {
+        leaves[i] = empty_chunk;
+    }
+}
+
+Data::Mission::TilResource::CullingData::CullingData(const CullingData& data) {
+    trunk = data.trunk;
+    for(size_t i = 0; i < 4; i++) {
+        branches[i] = data.branches[i];
+    }
+    for(size_t i = 0; i < 16; i++) {
+        leaves[i] = data.leaves[i];
+    }
 }
 
 std::string Data::Mission::TilResource::InfoSLFX::getString() const {
@@ -245,8 +257,7 @@ Data::Mission::TilResource::TilResource() {
     this->slfx_bitfield = info_slfx.get();
 }
 
-Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_distance( obj.culling_distance ), culling_top_left( obj.culling_top_left ), culling_top_right( obj.culling_top_right ), culling_bottom_left( obj.culling_bottom_left ), culling_bottom_right( obj.culling_bottom_right ), uv_animation( obj.uv_animation ), texture_reference( obj.texture_reference ), mesh_reference_grid(), mesh_library_size( obj.mesh_library_size ), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
-
+Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data( obj.culling_data ), uv_animation( obj.uv_animation ), mesh_library_size( obj.mesh_library_size ), mesh_reference_grid(), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
             mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
@@ -313,19 +324,11 @@ void Data::Mission::TilResource::makeEmpty() {
             point_cloud_3_channel.setValue( x, y, height );
         }
     }
-    
+
     // I decided to set these anyways.
-    this->culling_distance = 0;
-    this->culling_top_left.primary = 0;
-    this->culling_top_left.top_left = 0;
-    this->culling_top_left.top_right = 0;
-    this->culling_top_left.bottom_left = 0;
-    this->culling_top_left.bottom_right = 0;
-    this->culling_top_right    = this->culling_top_left;
-    this->culling_bottom_left  = this->culling_top_left;
-    this->culling_bottom_right = this->culling_top_left;
+    culling_data = CullingData();
     
-    this->texture_reference = 0;
+    this->mesh_library_size = 1;
     
     for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
         for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
@@ -427,29 +430,28 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 }
                 
                 // These bytes seems to be only five zero bytes
-                reader_sect.readU32(); // Skip 4 bytes
-                reader_sect.readU8();  // Skip 1 byte
-                
-                this->culling_distance = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_top_left.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_top_right.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_bottom_left.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
-                this->culling_bottom_right.primary = reader_sect.readU16( settings.endian );
-                // Padding?
-                reader_sect.readU16(); // Skip 2 bytes
+                reader_sect.readU8();  // Skip 1 zero byte TODO Add warning system for this value if it is not zero.
 
-                readCullingTile( culling_top_left,     reader_sect, settings.endian );
-                readCullingTile( culling_top_right,    reader_sect, settings.endian );
-                readCullingTile( culling_bottom_left,  reader_sect, settings.endian );
-                readCullingTile( culling_bottom_right, reader_sect, settings.endian );
+                polygon_action_types[0] = reader_sect.readU8();
+                polygon_action_types[1] = reader_sect.readU8();
+                polygon_action_types[2] = reader_sect.readU8();
+                polygon_action_types[3] = reader_sect.readU8();
+
+                // Thank you BajKooJ for the better looking structs.
+                culling_data.trunk.radius = reader_sect.readU16( settings.endian );
+                culling_data.trunk.height = reader_sect.readU16( settings.endian );
+
+                // assert(culling_data.primary.radius >= 5792);
+                for(size_t i = 0; i < 4; i++) {
+                    culling_data.branches[i].radius = reader_sect.readU16( settings.endian );
+                    culling_data.branches[i].height = reader_sect.readU16( settings.endian );
+                    // assert(culling_data.branches[i].radius >= 2896);
+                }
+                for(size_t i = 0; i < 16; i++) {
+                    culling_data.leaves[i].radius = reader_sect.readU16( settings.endian );
+                    culling_data.leaves[i].height = reader_sect.readU16( settings.endian );
+                    // assert(culling_data.leaves[i].radius >= 1448);
+                }
                 
                 // These are most likely bytes.
                 uv_animation.x = std::abs( reader_sect.readI8() );
@@ -461,15 +463,14 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 if( uv_animation.y != 0 )
                     debug_log.output << "uv_animation.y has " << (unsigned)uv_animation.y << ".\n";
                 
-                this->texture_reference = reader_sect.readU16( settings.endian );
+                this->mesh_library_size = reader_sect.readU16( settings.endian );
+                uint16_t actual_mesh_library_size = 0;
 
-                this->mesh_library_size = 0;
-                
                 for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
                     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
                         mesh_reference_grid[x][y].set( reader_sect.readU16( settings.endian ) );
 
-                        this->mesh_library_size += mesh_reference_grid[x][y].tile_amount;
+                        actual_mesh_library_size += mesh_reference_grid[x][y].tile_amount;
                     }
                 }
                 
@@ -479,6 +480,13 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 // the size of the mesh_tiles for the vector.
                 auto predicted_mesh_library_size = reader_sect.readU16( settings.endian );
                 const size_t PREDICTED_POLYGON_TILE_AMOUNT = predicted_mesh_library_size >> 6;
+
+                if( actual_mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
+                    warning_log.output << "\n"
+                        << "This custom resource detected, and it is probably not an issue.\n"
+                        << " The amount of used polygons are " << std::dec << actual_mesh_library_size << "\n"
+                        << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
+                }
                 
                 // Skip 2 bytes
                 reader_sect.readU16( settings.endian );
@@ -490,27 +498,23 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                     mesh_tiles.push_back( { reader_sect.readU32( settings.endian ) } );
                 }
 
-                if( this->mesh_library_size != PREDICTED_POLYGON_TILE_AMOUNT ) {
-                    warning_log.output << "\n"
-                        << "This custom resource detected, and it is probably not an issue.\n"
-                        << " The amount of polygons are " << std::dec << this->mesh_library_size << "\n"
-                        << " The polygons according to the strange variable are " << PREDICTED_POLYGON_TILE_AMOUNT << "\n";
+                // Test culling data.
+                CullingData generated_culling_data = culling_data; // Til::CullingGenerator::create(point_cloud_3_channel, mesh_tiles, mesh_reference_grid);
+
+                if(culling_data.trunk.height != generated_culling_data.trunk.height){
+                    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+                    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+                    error_log.output << "\n"
+                        << " culling_data.trunk.height = " << std::dec << culling_data.trunk.height << " = " << (culling_data.trunk.height / 512.) << "\n"
+                        << " generated_culling_data.trunk.height = " << std::dec << generated_culling_data.trunk.height << " = " << (generated_culling_data.trunk.height / 512.) << "\n";
                 }
-                
-                bool skipped_space = false;
-
-                // There are dead uvs that are not being used!
-                while( reader_sect.readU32( settings.endian ) == 0 )
-                    skipped_space = true;
-
-                // Undo the read after the bytes are skipped.
-                reader_sect.setPosition( -static_cast<int>(sizeof( uint32_t )), Utilities::Buffer::CURRENT );
-
-                if( skipped_space )
-                {
-                    warning_log.output << "\n"
-                        << "This resource has " << skipped_space << " skipped.\n"
-                        << "mesh_library_size is 0x" << std::hex << this->mesh_library_size << "\n";
+                else if( std::abs(culling_data.trunk.radius - generated_culling_data.trunk.radius) > 1 ) {
+                    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
+                    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+                    error_log.output << "\n"
+                        << " culling_data.trunk.radius = " << std::dec << culling_data.trunk.radius << " = " << (culling_data.trunk.radius / 512.) << "\n"
+                        << " generated_culling_data.trunk.radius = " << std::dec << generated_culling_data.trunk.radius << " = " << (generated_culling_data.trunk.radius / 512.) << "\n"
+                        << " error = " << std::dec << std::abs(culling_data.trunk.radius - generated_culling_data.trunk.radius) << "\n";
                 }
 
                 // Read the UV's

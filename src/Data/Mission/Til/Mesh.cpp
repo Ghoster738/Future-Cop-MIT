@@ -1,11 +1,11 @@
 #include "Mesh.h"
 #include <fstream>
 
+#include "TileSet.h"
+
 namespace {
     const float TILE_CORNER_POSITION_X[4] = { 0.5, -0.5,  0.5, -0.5 };
     const float TILE_CORNER_POSITION_Z[4] = { 0.5,  0.5, -0.5, -0.5 };
-
-    #include "TileSet.h"
 }
 
 
@@ -24,7 +24,7 @@ unsigned int Data::Mission::Til::Mesh::getNeighboor( unsigned int index, int nex
         while( not_found ) {
             index -= increment;
             index = index & 0x7F;
-            not_found = default_mesh[index].points[0].heightmap_channel == NO_ELEMENT;
+            not_found = Data::Mission::Til::TileSet::default_mesh[index].points[0].heightmap_channel == NO_ELEMENT;
         }
     }
 
@@ -96,7 +96,7 @@ unsigned int Data::Mission::Til::Mesh::createTile( const Input &input, VertexDat
     unsigned number_of_written_vertices = 0;
     Polygon tile_polygon;
 
-    tile_polygon = default_mesh[ tileType ];
+    tile_polygon = Data::Mission::Til::TileSet::default_mesh[ tileType ];
 
     if( tile_polygon.points[0].heightmap_channel != NO_ELEMENT )
     {
@@ -129,17 +129,17 @@ bool Data::Mission::Til::Mesh::isWall( unsigned int tile_type ) {
     unsigned number_of_ones = 0;
 
     // Buffer overflow check.
-    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+    if( tile_type >= Data::Mission::Til::TileSet::POLYGON_COUNT ) {
         return false;
     }
 
     unsigned number_of_corners = 4;
 
-    if( default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
+    if( Data::Mission::Til::TileSet::default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
         number_of_corners = 3;
 
     for( unsigned i = 0; i < number_of_corners; i++ ) {
-        number_array[ default_mesh[tile_type].points[i].facing_direction ]++;
+        number_array[ Data::Mission::Til::TileSet::default_mesh[tile_type].points[i].facing_direction ]++;
     }
 
     if( number_of_corners == 3 ) { // 3 side case.
@@ -184,18 +184,18 @@ bool Data::Mission::Til::Mesh::isSlope( unsigned int tile_type ) {
     unsigned number_of_corners = 4;
 
     // Buffer overflow check.
-    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+    if( tile_type >= Data::Mission::Til::TileSet::POLYGON_COUNT ) {
         return false;
     }
 
-    if( default_mesh[tile_type].points[0].heightmap_channel == NO_ELEMENT )
+    if( Data::Mission::Til::TileSet::default_mesh[tile_type].points[0].heightmap_channel == NO_ELEMENT )
         return false;
 
-    if( default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
+    if( Data::Mission::Til::TileSet::default_mesh[tile_type].points[3].heightmap_channel == NO_ELEMENT )
         number_of_corners = 3;
 
     for( unsigned i = 1; i < number_of_corners; i++ ) {
-        if( default_mesh[tile_type].points[ 0 ].heightmap_channel != default_mesh[tile_type].points[ i ].heightmap_channel )
+        if( Data::Mission::Til::TileSet::default_mesh[tile_type].points[ 0 ].heightmap_channel != Data::Mission::Til::TileSet::default_mesh[tile_type].points[ i ].heightmap_channel )
             return true;
     }
     return false;
@@ -204,9 +204,9 @@ bool Data::Mission::Til::Mesh::isSlope( unsigned int tile_type ) {
 
 bool Data::Mission::Til::Mesh::isFlipped( unsigned int tile_type ) {
     // Buffer overflow check.
-    if( tile_type >= sizeof( default_mesh ) / sizeof( default_mesh[0] ) ) {
+    if( tile_type >= Data::Mission::Til::TileSet::POLYGON_COUNT ) {
         return false;
     }
 
-    return default_mesh[tile_type].is_opposite;
+    return Data::Mission::Til::TileSet::default_mesh[tile_type].is_opposite;
 }
