@@ -28,7 +28,13 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     // TODO: Use venice beach as this map has all three types vertex animations.
     this->resource_identifier = Data::Manager::pa_urban_jungle;
     this->platform = Data::Manager::getPlatformFromString( this->options.getCurrentPlatform() );
+
     this->switch_to_platform = this->platform;
+
+    if(this->options.getLoadAllMaps())
+        this->importance_level = Data::Manager::Importance::NOT_NEEDED;
+    else
+        this->importance_level = Data::Manager::Importance::NEEDED;
 
     setupLogging();
     initGraphics();
@@ -114,7 +120,7 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         return false;
     }
 
-    this->manager.setLoad( Data::Manager::Importance::NEEDED );
+    this->manager.setLoad( this->importance_level );
 
     // Check if the given resource successfully loaded if not return false.
     auto switch_resource_r = manager.getIFFEntry( switch_resource_identifier ).getIFF( switch_platform );
@@ -142,7 +148,7 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         this->manager.togglePlatform( this->platform, false );
     }
 
-    this->manager.setLoad( Data::Manager::Importance::NEEDED );
+    this->manager.setLoad( this->importance_level );
 
     if( switch_platform != this->platform ) {
         auto switch_global_resource_r = manager.getIFFEntry( Data::Manager::global ).getIFF( switch_platform );
@@ -158,6 +164,11 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
 
     this->resource_r = switch_resource_r;
     this->resource_identifier = switch_resource_identifier;
+
+    // Update the accessor
+    accessor.clear();
+    accessor.load( *this->global_r );
+    accessor.load( *this->resource_r );
 
     if( this->primary_game_r != nullptr ) {
         this->primary_game_r->unload( *this );
@@ -284,6 +295,8 @@ void MainProgram::setupGraphics() {
 }
 
 void MainProgram::loadResources() {
+    accessor.clear();
+
     manager.autoSetEntries( options.getWindowsDataDirectory(),     Data::Manager::Platform::WINDOWS );
     manager.autoSetEntries( options.getMacintoshDataDirectory(),   Data::Manager::Platform::MACINTOSH );
     manager.autoSetEntries( options.getPlaystationDataDirectory(), Data::Manager::Platform::PLAYSTATION );
@@ -314,63 +327,32 @@ void MainProgram::loadResources() {
 
     manager.togglePlatform( this->platform, true );
 
-    manager.setLoad( Data::Manager::Importance::NEEDED );
+    manager.setLoad( this->importance_level );
 
     this->global_r = manager.getIFFEntry( Data::Manager::global ).getIFF( this->platform );
     if( this->global_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The global IFF " << Data::Manager::global << " did not load.";
     }
+    else
+        accessor.load( *this->global_r );
 
     this->resource_r = manager.getIFFEntry( this->resource_identifier ).getIFF( this->platform );
     if( this->resource_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The mission IFF " << this->resource_identifier << " did not load.";
     }
+    else
+        accessor.load( *this->resource_r );
 }
 
 void MainProgram::loadGraphics( bool show_map ) {
-    if( this->resource_r != nullptr ) {
-        // First get the model textures from the resource file.
-        auto cbmp_resources = Data::Mission::BMPResource::getVector( *this->resource_r );
-
-        int status = this->environment_p->setupTextures( cbmp_resources );
-
-        if( status < 0 ) {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << (-status) << " general textures had failed to load out of " << cbmp_resources.size();
-        }
-
-        // Load all the 3D meshes from the resource as well.
-        auto cobj_resources = Data::Mission::ObjResource::getVector( *this->resource_r );
-
-        status = this->environment_p->setModelTypes( cobj_resources );
-
-        if( status < 0 ) {
-            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-            log.output << (-status) << " 3d meshes had failed to load out of " << cobj_resources.size();
-        }
-
-        if( !show_map )
-            this->environment_p->setMap( nullptr, nullptr );
-        else {
-            std::vector<Data::Mission::TilResource*> til_resources = Data::Mission::TilResource::getVector( *this->resource_r );
-            std::vector<Data::Mission::PTCResource*> ptc_resources = Data::Mission::PTCResource::getVector( *this->resource_r );
-
-            this->environment_p->setMap( ptc_resources.at( 0 ), &til_resources );
-        }
-
-    }
-
-    std::vector<Data::Mission::IFF*> loaded_IFFs;
-
-    if( this->global_r != nullptr )
-        loaded_IFFs.push_back( this->global_r );
-    if( this->resource_r != nullptr )
-        loaded_IFFs.push_back( this->resource_r );
+    this->environment_p->loadResources( this->accessor );
+    this->environment_p->displayMap( show_map );
+    this->environment_p->setBoundingBoxDraw( false );
 
     // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, loaded_IFFs ) == 0 ) {
+    if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, this->accessor ) == 0 ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "Fonts are missing.";
     }

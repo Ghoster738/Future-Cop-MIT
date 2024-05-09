@@ -104,7 +104,7 @@ bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] == nullptr ) {
         this->iff_p[ platform ] = new Mission::IFF;
         
-        auto result = this->iff_p[ platform ]->open( paths[ platform ].c_str() );
+        auto result = this->iff_p[ platform ]->open( paths[ platform ] );
         
         if( result == 1 )
             return true;

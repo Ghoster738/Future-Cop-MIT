@@ -47,6 +47,8 @@ void InputMenu::update( MainProgram &main_program, std::chrono::microseconds del
                 main_program.control_system_p->write( name );
 
                 main_program.switchMenu( this->menu_r );
+
+                return;
             }
         }
     }

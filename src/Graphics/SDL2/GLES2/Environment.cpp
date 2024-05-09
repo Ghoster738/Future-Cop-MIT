@@ -17,7 +17,9 @@ Environment::Environment() {
     this->text_draw_routine_p = nullptr;
     this->shiney_texture_p    = nullptr;
 
-    this->has_initialized_models = false;
+    this->display_world = false;
+    this->has_initialized_routines = false;
+    this->draw_bounding_boxes = false;
 }
 
 Environment::~Environment() {
@@ -56,7 +58,9 @@ std::string Environment::getEnvironmentIdentifier() const {
     return Graphics::Environment::SDL2_WITH_GLES_2;
 }
 
-int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
+int Environment::loadResources( const Data::Accessor &accessor ) {
+    std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllBMP();
+
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
     int shine_index = -1;
@@ -69,7 +73,43 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
     if( this->shiney_texture_p != nullptr )
         delete this->shiney_texture_p;
     this->shiney_texture_p = nullptr;
-    
+
+    // Make a no texture texture. Yes, it is easier to make a texture than to attempt to make a no texture state in OpenGLES 2.
+    // The 32x32 image has 8x8 white squares at each four corners of the image. The rest of the image is filled with a checker board of purple and violet.
+    // TODO Maybe make it so that this texture is not regenerated each time.
+    {
+        const unsigned DIMENSION = 32;
+        const unsigned CORNER    = DIMENSION / 4;
+        const auto WHITE = Utilities::PixelFormatColor::GenericColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        const Utilities::PixelFormatColor::GenericColor CHECKER[2] = {
+            Utilities::PixelFormatColor::GenericColor( 1.0f, 0.0f, 1.0f, 1.0f ),
+            Utilities::PixelFormatColor::GenericColor( 0.5f, 0.0f, 1.0f, 1.0f ) };
+
+
+        Utilities::Image2D image_accessor( DIMENSION, DIMENSION, Utilities::PixelFormatColor_R8G8B8A8() );
+
+        for( unsigned y = 0; y < DIMENSION; y++ ) {
+            for( unsigned x = 0; x < DIMENSION; x++ ) {
+                if( x < CORNER && y < CORNER )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x >= CORNER * 3 && y < CORNER )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x >= CORNER * 3 && y >= CORNER * 3 )
+                    image_accessor.writePixel( x, y, WHITE );
+                else if( x < CORNER      && y >= CORNER * 3 )
+                    image_accessor.writePixel( x, y, WHITE );
+                else
+                    image_accessor.writePixel( x, y, CHECKER[(x + y) % 2] );
+            }
+        }
+
+        this->textures[ 0 ] = new SDL2::GLES2::Internal::Texture2D;
+
+        this->textures[ 0 ]->setCBMPResourceID( 0 );
+        this->textures[ 0 ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
+        this->textures[ 0 ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
+    }
+
     for( unsigned int i = 0; i < textures.size(); i++ )
     {
         auto converted_texture = textures[i];
@@ -106,13 +146,6 @@ int Environment::setupTextures( const std::vector<Data::Mission::BMPResource*> &
         this->shiney_texture_p->setImage( 1, 0, GL_RGBA, environment_image.getWidth(), environment_image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, environment_image.getDirectGridData() );
     }
 
-    if( failed_texture_loads == 0 )
-        return 1;
-    else
-        return -failed_texture_loads;
-}
-
-void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) {
     // Erase the culling data.
     if( this->window_p != nullptr ) {
         for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ ) {
@@ -123,36 +156,37 @@ void Environment::setMap( const Data::Mission::PTCResource *ptc_r, const std::ve
         }
     }
 
+    // Destory the last world.
     if( this->world_p != nullptr )
         delete this->world_p;
-
     this->world_p = nullptr;
 
-    if( ptc_r == nullptr || tiles_r == nullptr )
-        return;
+    Data::Mission::PTCResource* ptc_r = accessor.getPTC( 1 );
+    std::vector<const Data::Mission::TilResource*> tiles = accessor.getAllTIL();
 
-    // Allocate the world
-    this->world_p = new Internal::World();
-    
-    // Setup the vertex and fragment shaders
-    this->world_p->setVertexShader();
-    this->world_p->setFragmentShader();
-    this->world_p->compilieProgram();
+    // Make sure that the pointers are not pointers.
+    if( ptc_r != nullptr && tiles.size() != 0 ) {
+        // Allocate the world
+        this->world_p = new Internal::World();
 
-    this->map_section_width  = ptc_r->getWidth();
-    this->map_section_height = ptc_r->getHeight();
-    
-    // Turn the map into a world.
-    this->world_p->setWorld( *ptc_r, *tiles_r, this->textures );
-}
+        // Setup the vertex and fragment shaders
+        this->world_p->setVertexShader();
+        this->world_p->setFragmentShader();
+        this->world_p->compileProgram();
 
-int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) {
+        this->map_section_width  = ptc_r->getWidth();
+        this->map_section_height = ptc_r->getHeight();
+
+        // Turn the map into a world.
+        this->world_p->setWorld( *ptc_r, tiles, this->textures );
+    }
+
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
         std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
-    if( !this->has_initialized_models ) {
+    if( !this->has_initialized_routines ) {
 
         // Setup the vertex and fragment shaders
         this->static_model_draw_routine.setVertexShader();
@@ -164,6 +198,16 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         if( err != GL_NO_ERROR )
             std::cout << "Static Model shader is broken!: " << err << std::endl;
 
+        // Setup the vertex and fragment shaders
+        this->static_model_draw_bb_routine.setVertexShader();
+        this->static_model_draw_bb_routine.setFragmentShader();
+        this->static_model_draw_bb_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Static Model Bounding Box shader is broken!: " << err << std::endl;
+
         this->morph_model_draw_routine.setVertexShader();
         this->morph_model_draw_routine.setFragmentShader();
         this->morph_model_draw_routine.compileProgram();
@@ -172,6 +216,16 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
 
         if( err != GL_NO_ERROR )
             std::cout << "Morph Model shader is broken!: " << err << std::endl;
+
+        // Setup the vertex and fragment shaders
+        this->morph_model_draw_bb_routine.setVertexShader();
+        this->morph_model_draw_bb_routine.setFragmentShader();
+        this->morph_model_draw_bb_routine.compileProgram();
+
+        err = glGetError();
+
+        if( err != GL_NO_ERROR )
+            std::cout << "Morph Model Bounding Box shader is broken!: " << err << std::endl;
 
         this->skeletal_model_draw_routine.setVertexShader();
         this->skeletal_model_draw_routine.setFragmentShader();
@@ -191,35 +245,47 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         if( err != GL_NO_ERROR )
             std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
 
-        this->has_initialized_models = true;
+        this->has_initialized_routines = true;
     }
     else {
         this->skeletal_model_draw_routine.clearModels();
         this->morph_model_draw_routine.clearModels();
         this->static_model_draw_routine.clearModels();
+
+        this->static_model_draw_bb_routine.clearModels();
+        this->morph_model_draw_bb_routine.clearModels();
     }
 
-    this->static_model_draw_routine.setTextures( this->shiney_texture_p );
-    this->morph_model_draw_routine.setTextures( this->shiney_texture_p );
-    this->skeletal_model_draw_routine.setTextures( this->shiney_texture_p );
+    this->static_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
+    this->morph_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
+    this->skeletal_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
+    this->dynamic_triangle_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
 
     int number_of_failures = 0; // TODO make sure that this gets set.
-    Utilities::ModelBuilder* model_r;
+    Utilities::ModelBuilder *model_r;
+    std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllOBJ();
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
-        if( model_types[ i ] != nullptr )
-        {
+        if( model_types[ i ] != nullptr ) {
             model_r = model_types[ i ]->createModel();
 
-            if( model_r != nullptr )
-            {
+            if( model_r != nullptr ) {
                 if( model_r->getNumJoints() > 0 )
-                    this->skeletal_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures );
+                    this->skeletal_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
                 else
                 if( model_r->getNumMorphFrames() > 0)
-                    this->morph_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures );
+                    this->morph_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
                 else
-                    this->static_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures );
+                    this->static_model_draw_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
+            }
+
+            model_r = model_types[ i ]->createBoundingBoxes();
+
+            if( model_r != nullptr ) {
+                if( model_r->getNumMorphFrames() > 0)
+                    this->morph_model_draw_bb_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
+                else
+                    this->static_model_draw_bb_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
             }
         }
     }
@@ -230,6 +296,20 @@ int Environment::setModelTypes( const std::vector<Data::Mission::ObjResource*> &
         std::cout << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << std::endl;
 
     return number_of_failures;
+
+    if( failed_texture_loads == 0 )
+        return 1;
+    else
+        return -failed_texture_loads;
+}
+
+bool Environment::displayMap( bool state ) {
+    if( this->world_p != nullptr ) {
+        display_world = state;
+        return true;
+    }
+    else
+        return false;
 }
 
 size_t Environment::getTilAmount() const {
@@ -257,6 +337,14 @@ int Environment::setTilPolygonBlink( unsigned polygon_type, float rate ) {
     }
     else
         return -1; // The world_p needs allocating first!
+}
+
+bool Environment::getBoundingBoxDraw() const {
+    return this->draw_bounding_boxes;
+}
+
+void Environment::setBoundingBoxDraw(bool draw) {
+    this->draw_bounding_boxes = draw;
 }
 
 void Environment::setupFrame() {
@@ -299,16 +387,14 @@ void Environment::drawFrame() {
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);
 
-            // This is very crude blending.
-            glEnable( GL_BLEND );
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-
-            // Enable culling on the world map.
+            // Enable culling on the opaque rendering path.
             glEnable( GL_CULL_FACE );
 
+            // Also there will be no blending as well.
+            glDisable( GL_BLEND );
+
             // Draw the map if available.
-            if( this->world_p != nullptr )
+            if( this->world_p != nullptr && this->display_world )
             {
                 // Draw the map.
                 this->world_p->draw( *current_camera_r );
@@ -318,15 +404,25 @@ void Environment::drawFrame() {
             this->morph_model_draw_routine.draw(    *current_camera_r );
             this->skeletal_model_draw_routine.draw( *current_camera_r );
 
+            glEnable( GL_BLEND );
+            glDepthMask(GL_FALSE);
+
             this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
-
-            // Disable culling on the world map.
-            glDisable( GL_CULL_FACE );
+            glDepthMask(GL_TRUE);
 
             // When drawing the GUI elements depth test must be turned off.
             glDisable(GL_DEPTH_TEST);
-            glEnable( GL_BLEND ); // Easier to implement blending here.
+
+            if(draw_bounding_boxes) {
+                glDisable( GL_CULL_FACE );
+                glDisable( GL_BLEND );
+                this->static_model_draw_bb_routine.draw( *current_camera_r );
+                this->morph_model_draw_bb_routine.draw(  *current_camera_r );
+                glEnable( GL_CULL_FACE );
+                glEnable( GL_BLEND );
+            }
+
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
             current_camera_r->getProjectionView2D( camera_3D_projection_view_model );
@@ -375,6 +471,7 @@ bool Environment::screenshot( Utilities::Image2D &image ) const {
 
 void Environment::advanceTime( float seconds_passed ) {
     // For animatable meshes advance the time
+    this->static_model_draw_routine.advanceTime( seconds_passed );
     this->morph_model_draw_routine.advanceTime( seconds_passed );
     this->skeletal_model_draw_routine.advanceTime( seconds_passed );
 

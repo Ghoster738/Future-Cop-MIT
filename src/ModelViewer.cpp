@@ -4,6 +4,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include "Data/Mission/ACTResource.h"
 #include "Data/Mission/TilResource.h"
 
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -17,18 +18,7 @@ ModelViewer::ModelViewer() {
 ModelViewer::~ModelViewer() {}
 
 void ModelViewer::load( MainProgram &main_program ) {
-
     this->cobj_index = 0;
-    this->obj_vector = Data::Mission::ObjResource::getVector( *main_program.resource_r );
-
-    if( this->displayed_instance_p != nullptr )
-        delete this->displayed_instance_p;
-
-    main_program.loadGraphics( false );
-
-    this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
-    this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
-    this->displayed_instance_p->setPosition( -this->position );
 
     this->count_down = 0;
     this->rotation = 0;
@@ -45,6 +35,28 @@ void ModelViewer::load( MainProgram &main_program ) {
 
     glm::u32vec2 scale = main_program.getWindowScale();
     this->font_height = (1. / 30.) * static_cast<float>( scale.y );
+
+    if( this->displayed_instance_p != nullptr )
+        delete this->displayed_instance_p;
+    this->displayed_instance_p = nullptr;
+
+    // Do not load from resource if it does not exist.
+    if( main_program.resource_r == nullptr )
+        return;
+
+    this->obj_vector = main_program.accessor.getAllOBJ();
+
+    main_program.loadGraphics( false );
+
+    // cobj_index needs to be restricted to the obj_vector size
+    if( this->obj_vector.size() <= cobj_index )
+        cobj_index = this->obj_vector.size() - 1;
+
+    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) ) {
+        this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+        this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
+        this->displayed_instance_p->setPosition( -this->position );
+    }
 
     if( !main_program.text_2d_buffer_r->selectFont( this->font, 0.8 * this->font_height, this->font_height ) ) {
         this->font = 1;
@@ -112,9 +124,42 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
             main_program.switchMenu( &MainMenu::main_menu );
         }
 
-        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::JUMP );
+        if( input_r->isChanged() && input_r->getState() < 0.5 )
+        {
+            auto act_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
+
+            auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+
+            bool displayed = false;
+
+            for( auto i : act_r ) {
+                if( i->hasRSL( Data::Mission::ObjResource::IDENTIFIER_TAG, this->obj_vector[cobj_index]->getResourceID() ) ) {
+                    if( !displayed ) {
+                        log.output << "Resource ID: " << std::dec << this->obj_vector[cobj_index]->getResourceID() << "\n";
+                        log.output << "Type ID: "<< (unsigned)i->getTypeID() << "\n";
+                        log.output << "Type ID Name: "<< i->getTypeIDName() << "\n";
+                        log.output << "Size: 0x" << std::hex << i->getSize() << "\n";
+                        displayed = true;
+                    }
+                    log.output << "  ID: "<< std::dec << i->getID() << "\n";
+                    log.output << "  Offset: 0x" << std::hex << i->getOffset() << "\n";
+                    log.output << "  SAC: " << i->getSpawnChunk().getString() << "\n";
+                    log.output << "  JSON: " << i->makeJson() << "\n";
+                }
+            }
+        }
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::CHANGE_TARGET );
+
+        if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f ) {
+            main_program.environment_p->setBoundingBoxDraw(!main_program.environment_p->getBoundingBoxDraw());
+            this->count_down = 0.5f;
+        }
 
         int next = 0;
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
 
         if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
             next++;

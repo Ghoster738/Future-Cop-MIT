@@ -3,6 +3,8 @@
 #include "MainMenu.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
+#include "Data/Mission/PTCResource.h"
+#include "Data/Mission/ACT/Prop.h"
 
 #include <ratio>
 
@@ -38,6 +40,8 @@ PrimaryGame::PrimaryGame() {
     this->counter = std::chrono::seconds(0);
     this->map_index = 0;
     this->platform_index = 0;
+
+    this->act_manager_p = nullptr;
 }
 
 PrimaryGame::~PrimaryGame() {
@@ -78,14 +82,28 @@ void PrimaryGame::load( MainProgram &main_program ) {
             this->font.scale = 1;
         }
     }
+
+    if( main_program.resource_r != nullptr && !Data::Mission::PTCResource::getVector( *main_program.resource_r ).empty() ) {
+        if( this->act_manager_p != nullptr )
+            delete this->act_manager_p;
+        this->act_manager_p = new Game::ActManager( *main_program.resource_r, main_program.accessor );
+
+        this->act_manager_p->initialize( main_program );
+    }
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {
+    if( this->act_manager_p != nullptr )
+        delete this->act_manager_p;
+    this->act_manager_p = nullptr;
 }
 
 void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     if( main_program.getMenu() != nullptr )
         return;
+
+    if( this->act_manager_p != nullptr )
+        this->act_manager_p->update( main_program, delta );
 
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
@@ -137,6 +155,11 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
                 is_camera_moving = true;
             else
                 is_camera_moving = false;
+        }
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::CHANGE_TARGET );
+        if( input_r->isChanged() && input_r->getState() < 0.5 ) {
+            main_program.environment_p->setBoundingBoxDraw(!main_program.environment_p->getBoundingBoxDraw());
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ROTATE_LEFT );

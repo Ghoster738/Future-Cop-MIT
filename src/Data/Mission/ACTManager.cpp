@@ -1,21 +1,14 @@
 #include "ACTManager.h"
 
-Data::Mission::ACTManager::ACTManager() {}
+Data::Mission::ACTManager::ACTManager( const std::vector<ACTResource*> &acts_array ) {
+    for( auto actor_r : acts_array ) {
+        act_type_map[ actor_r->getTypeID() ].push_back( actor_r );
+
+        act_id_map[ actor_r->getID() ] = actor_r;
+    }
+}
 
 Data::Mission::ACTManager::~ACTManager() {}
-
-bool Data::Mission::ACTManager::addACT( Data::Mission::ACTResource *act_r ) {
-    if( act_r == nullptr )
-        return false;
-    if( act_type_map.find( act_r->getID() ) != act_type_map.end() )
-        return false;
-
-    act_type_map[ act_r->getTypeID() ].push_back( act_r );
-
-    act_id_map[ act_r->getID() ] = act_r;
-
-    return true;
-}
 
 std::vector<Data::Mission::ACTResource*> Data::Mission::ACTManager::getACTs( uint_fast8_t type ) {
     // O( log n ) for n = the amount of ID's.

@@ -17,7 +17,7 @@ class Mesh {
 public:
     struct DrawCommand {
         GLint first;
-        GLsizei opeque_count;
+        GLsizei opaque_count;
         GLsizei count;
         const Texture2D *texture_r;
     };
@@ -51,12 +51,12 @@ protected:
     glm::vec3 culling_sphere_position;
     float culling_sphere_radius;
 
-    void addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r );
+    void addCommand( GLint first, GLsizei opaque_count, GLsizei count, const Texture2D *texture_r );
 public:
     Mesh( Program *program_r );
     virtual ~Mesh();
 
-    void setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    void setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures, const VertexAttributeArray *const default_vertex_array_r );
 
     void setDrawCommandArrayMode( GLenum draw_command_array_mode ) { this->draw_command_array_mode = draw_command_array_mode; }
 

@@ -18,6 +18,7 @@
 #include "RPNSResource.h"
 
 #include "ACT/Unknown.h"
+#include "ACT/SkyCaptain.h"
 
 #include "../../Utilities/Buffer.h"
 
@@ -95,9 +96,9 @@ namespace {
     class AutoDelete {
     public:
         ~AutoDelete() {
-        for( auto &i : file_type_list ) {
-            delete i.second;
-        }
+            for( auto &i : file_type_list ) {
+                delete i.second;
+            }
         }
     } auto_delete_file_type_list;
 }
@@ -107,12 +108,10 @@ bool Data::Mission::IFF::compareFunction( const Data::Mission::Resource *const l
 }
 
 Data::Mission::IFF::IFF() {
-    type = UNKNOWN;
     resource_amount = 0;
 }
 
 Data::Mission::IFF::IFF( const std::string &file_path ) {
-    type = UNKNOWN;
     resource_amount = 0;
     open( file_path );
 }
@@ -214,20 +213,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
-                    this->type = FILE_IS_LITTLE_ENDIAN;
                     info_log.output << "This IFF file is little endian (Windows/Playstation) formated.\n";
                     default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
                 if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
-                    this->type = FILE_IS_BIG_ENDIAN;
                     info_log.output << "This IFF file is big endian (Macintosh) formated.\n";
                     default_settings.type = Resource::ParseSettings::Macintosh;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
-                else
-                    this->type = UNKNOWN;
 
                 const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
                 file.seekg( chunkToDataSize( CHUNK_SIZE ), std::ios_base::cur );
@@ -619,6 +614,22 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
     }
     else
         return false;
+}
+
+Data::Mission::IFF::DataType Data::Mission::IFF::getDataType() const {
+    // Check if PTC is present.
+    if(resource_map.find(PTCResource::IDENTIFIER_TAG) == resource_map.end())
+        return DataType::GLOBALS;
+
+    std::vector<ACTResource*> act_resources = ACTResource::getVector( *this );
+
+    // Find if Sky Captain exists. If he does then this IFF file is deemed to be a Precinct Assualt Map.
+    for( auto act = act_resources.begin(); act != act_resources.end(); act++ ) {
+        if((*act)->getTypeID() == ACT::SkyCaptain::TYPE_ID)
+            return DataType::PRECINCT_ASSUALT;
+    }
+
+    return DataType::CRIME_WAR;
 }
 
 int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {

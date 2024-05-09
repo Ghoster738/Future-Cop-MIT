@@ -26,13 +26,17 @@ public:
     struct HeightmapPixel {
         int8_t channel[3];
     };
-    struct CullingTile {
-        uint16_t primary;
+    struct CullingChunk {
+        int16_t radius; // The radius of the bounding sphere. Let w be the height and depth of chunk (w^2 + w^2 + h^2). Optain h by getting the distance between the highest of heights and the lowest of the height of the chunk).
+        int16_t height; // This is the median between the heightest point and the lowest point of the polygons this chunk contains.
+    };
+    struct CullingData {
+        CullingChunk trunk;
+        CullingChunk branches[4];
+        CullingChunk leaves[16];
 
-        uint16_t top_left;
-        uint16_t top_right;
-        uint16_t bottom_left;
-        uint16_t bottom_right;
+        CullingData();
+        CullingData(const CullingData& data);
     };
     struct Floor {
         uint16_t tile_amount : 6;
@@ -235,24 +239,21 @@ public:
     static const std::string TILE_TYPE_COMPONENT_NAME;
     static constexpr size_t AMOUNT_OF_TILES = 16;
     static constexpr float  SPAN_OF_TIL = AMOUNT_OF_TILES / 2;
-    static constexpr float MAX_HEIGHT = 6.0f; // The highest value is actually MAX_HEIGHT - SAMPLE_HEIGHT due to the span of the pixels being [127, -128].
+    static constexpr float MAX_HEIGHT = 4.0f; // The highest value is actually MAX_HEIGHT - SAMPLE_HEIGHT due to the span of the pixels being [127, -128].
     static constexpr float MIN_HEIGHT = -MAX_HEIGHT;
     static constexpr float SAMPLE_HEIGHT = (2.0 * MAX_HEIGHT) / 256.0f; // 256 values is contained in a pixel.
 private:
     Utilities::GridBase2D<HeightmapPixel> point_cloud_3_channel; // I liked the Point Cloud Name. These are 3 channel signed bytes.
 
-    uint16_t culling_distance; // This affects the radius of the circle where the culling happens
-    CullingTile culling_top_left;
-    CullingTile culling_top_right;
-    CullingTile culling_bottom_left;
-    CullingTile culling_bottom_right;
+    uint8_t polygon_action_types[4];
+
+    CullingData culling_data;
 
     glm::i8vec2 uv_animation;
 
-    uint16_t texture_reference; // This is an unknown number, but it affects all the textures in the resource. One change will mess up the tiles.
+    uint16_t mesh_library_size;
     Floor mesh_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 
-    uint16_t mesh_library_size;
     std::vector<Tile> mesh_tiles; // These are descriptions of tiles that are used to make up the map format. The 32 bit numbers are packed with information
 
     std::vector<glm::u8vec2> texture_cords; // They contain the UV's for the tiles, they are often read as quads
@@ -292,12 +293,12 @@ public:
 
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
-    virtual Utilities::ModelBuilder * createModel() const { return createModel( false ); }
-    virtual Utilities::ModelBuilder * createCulledModel() const { return createModel( true ); }
+    virtual Utilities::ModelBuilder * createModel() const { return createModel( false, true ); }
+    virtual Utilities::ModelBuilder * createCulledModel() const { return createModel( true, true ); }
 
-    virtual Utilities::ModelBuilder * createModel( bool is_culled, Utilities::Logger &logger = Utilities::logger ) const;
+    virtual Utilities::ModelBuilder * createModel( bool is_culled, bool metadata, Utilities::Logger &logger = Utilities::logger ) const;
     
-    Utilities::ModelBuilder * createPartial( unsigned int texture_index, bool is_culled = false, float x_offset = 0.0f, float z_offset = 0.0f, Utilities::Logger &logger = Utilities::logger ) const;
+    Utilities::ModelBuilder * createPartial( unsigned int texture_index, bool is_culled, bool metadata, float x_offset = 0.0f, float z_offset = 0.0f, Utilities::Logger &logger = Utilities::logger ) const;
     
     void createPhysicsCell( unsigned int x, unsigned int z );
     

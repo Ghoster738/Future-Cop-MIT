@@ -17,8 +17,7 @@ private:
     // I made this conclusion because I see a pattern of this byte directly affects the size of the tACT chunk.
     uint_fast8_t act_type;
 
-    // This stores the size of the bytes after the type byte and, the three padding bytes.
-    size_t act_size;
+    std::vector<uint8_t> act_buffer;
 protected:
     virtual Json::Value makeJson() const;
 
@@ -38,6 +37,8 @@ public:
     virtual Resource* duplicate() const;
     
     virtual ACTResource* duplicate( const ACTResource &original ) const;
+
+    static std::vector<std::string> getStructure( uint_fast8_t type_id, const std::vector<const Data::Mission::IFF*> &little_endian, const std::vector<const Data::Mission::IFF*> &big_endian );
 };
 
 }

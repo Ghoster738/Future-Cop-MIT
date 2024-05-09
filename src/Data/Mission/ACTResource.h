@@ -2,12 +2,14 @@
 #define MISSION_RESOURCE_ACT_HEADER
 
 #include "Resource.h"
+#include "PTCResource.h"
 #include "../../Utilities/DataTypes.h"
 
 #include <vector>
 #include <stdint.h>
 
 #include <json/value.h>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Data {
 
@@ -26,8 +28,19 @@ public:
     
     static const double SECONDS_PER_GAME_TICK;
     
-    
     static constexpr uint32_t RSL_NULL_TAG = 0x4E554C4C;
+
+    struct tSAC_chunk {
+        bool exists; // This tells if the struct is found.
+        int16_t   game_ticks;
+        uint16_t spawn_limit;
+        uint16_t unk_2;
+        uint16_t unk_3;
+
+        bool isAutomatic() const { return game_ticks < 0; };
+        double getSpawnTime() const { return SECONDS_PER_GAME_TICK * std::abs( game_ticks ); }
+        std::string getString() const;
+    };
 
 protected:
     static const uint32_t ACT_CHUNK_ID;
@@ -36,15 +49,7 @@ protected:
 
     struct RSLEntry {
         uint32_t type;
-        uint32_t index;
-    };
-
-    struct tSAC_chunk {
-        bool exists; // This tells if the struct is found.
-        int16_t   game_ticks;
-        uint16_t spawn_limit;
-        uint16_t unk_2;
-        uint16_t unk_3;
+        uint32_t resource_id;
     };
 
     // This might be the unique identifieyer for ACTResource.
@@ -60,13 +65,14 @@ protected:
     int32_t position_height; // This is likely just zero.
     int32_t position_x;
 
-    virtual Json::Value makeJson() const;
-
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) = 0;
 
     uint32_t readACTChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
     uint32_t readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
     uint32_t readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
+
+    static float getRotation( uint16_t rotation_value );
+    static glm::quat getRotationQuaternion( float rotation );
 public:
     ACTResource();
     ACTResource( const ACTResource *const obj );
@@ -102,14 +108,20 @@ public:
     
     virtual ACTResource* duplicate( const ACTResource &original ) const = 0;
 
-    uint_fast32_t getID() { return matching_number; }
-    int_fast16_t getMatchingNumber() { return matching_number; }
-    int_fast16_t getGameTicks() { return tSAC.game_ticks; }
+    uint_fast32_t getID() const { return matching_number; }
+    int_fast16_t getMatchingNumber() const { return matching_number; }
+    const tSAC_chunk& getSpawnChunk() const { return tSAC; }
     virtual uint_fast8_t getTypeID() const = 0;
     virtual size_t getSize() const = 0;
 
     std::string displayRSL() const;
+    bool hasRSL( uint32_t type_id, uint32_t resource_id ) const;
     virtual bool checkRSL() const = 0;
+
+    virtual Json::Value makeJson() const;
+
+    glm::vec2 getPosition() const;
+    glm::vec3 getPosition( const PTCResource &ptc ) const;
 
     static std::vector<ACTResource*> getVector( IFF &mission_file );
     static const std::vector<ACTResource*> getVector( const IFF &mission_file );

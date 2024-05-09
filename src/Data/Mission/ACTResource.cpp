@@ -17,6 +17,23 @@ const uint32_t Data::Mission::ACTResource::ACT_CHUNK_ID = 0x74414354; // which i
 const uint32_t Data::Mission::ACTResource::RSL_CHUNK_ID = 0x6152534c; // which is { 0x61, 0x52, 0x53, 0x4c } or { 'a', 'R', 'S', 'L' } or "aRSL"
 const uint32_t Data::Mission::ACTResource::SAC_CHUNK_ID = 0x74534143; // which is { 0x74, 0x53, 0x41, 0x43 } or { 't', 'S', 'A', 'C' } or "tSAC"
 
+
+std::string Data::Mission::ACTResource::tSAC_chunk::getString() const {
+    std::stringstream sac;
+
+    if( !this->exists )
+        sac << "DOES NOT EXIST\n";
+    else {
+        sac << "\n";
+        sac << "game_ticks  = " << this->game_ticks  << "\n";
+        sac << "spawn_limit = " << this->spawn_limit << "\n";
+        sac << "unk_2       = " << this->unk_2       << "\n";
+        sac << "unk_3       = " << this->unk_3       << "\n";
+    }
+
+    return sac.str();
+}
+
 Data::Mission::ACTResource::ACTResource() : matching_number( 0xFFFFF ), rsl_data(), tSAC( {false, 0, 1, 2, 3} ) {
 }
 
@@ -48,7 +65,7 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     Json::Value root;
 
     root["FutureCopAsset"]["type"] = "ACT Resource";
-    root["FutureCopAsset"]["major"] = 1;
+    root["FutureCopAsset"]["major"] = 2;
     root["FutureCopAsset"]["minor"] = 0;
 
     for( unsigned i = 0; i < rsl_data.size(); i++ )
@@ -61,8 +78,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
 
         root["RSL"][ i ]["type"]  = reinterpret_cast<char*>( type );
 
-        if( rsl_data[ i ].type != NULL_INT && rsl_data[ i ].index != 0x0 )
-            root["RSL"][ i ]["index"] = rsl_data[ i ].index;
+        if( rsl_data[ i ].type != NULL_INT && rsl_data[ i ].resource_id != 0x0 )
+            root["RSL"][ i ]["resource_id"] = rsl_data[ i ].resource_id;
     }
 
     root["resource"]["id"] = static_cast<unsigned int>( this->matching_number );
@@ -95,7 +112,7 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
 
         debug_log.output << "matching_number = " << matching_number << std::endl;
 
-        const uint32_t ACT_SIZE = chunk_size - sizeof( uint32_t ) * 7;
+        const uint32_t ACT_SIZE = chunk_size - 7 * sizeof( uint32_t );
         const uint_fast8_t act_type = data_reader.readU8(); // 12
 
         //data_reader.setPosition( 3, Utilities::Buffer::Reader::CURRENT );
@@ -110,22 +127,21 @@ uint32_t Data::Mission::ACTResource::readACTChunk( Utilities::Buffer::Reader &da
         // Since 8192 is equal to 2^13. We can treat these numbers as
         // fixed points. My engine for now will simply use floating
         // points, but position_y and position_x will be treated like this.
-        position_y      = data_reader.readI32(); // 16
-        position_height = data_reader.readI32(); // 20
-        position_x      = data_reader.readI32(); // 24
-        // 28
+        position_y      = data_reader.readI32( endian ); // 16
+        position_height = data_reader.readI32( endian ); // 20
+        position_x      = data_reader.readI32( endian ); // 24
         
         auto reader_act = data_reader.getReader( ACT_SIZE );
         
         if( dynamic_cast<ACT::Unknown*>(this) == nullptr ) {
-            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << ".\n";
         }
         
         if( !readACTType( act_type, reader_act, endian ) )
-            error_log.output << getTypeIDName() << " ACT Type failed to parse.\n";
+            error_log.output << getTypeIDName() << " ACT Type failed to parse. Size:" << ACT_SIZE << "\n";
         
         if( dynamic_cast<ACT::Unknown*>(this) != nullptr ) {
-            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << "\n.";
+            debug_log.output << getTypeIDName() << "; Size: " << ACT_SIZE << ".\n";
         }
         
         return chunk_size;
@@ -216,6 +232,16 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
+
+float Data::Mission::ACTResource::getRotation( uint16_t rotation_value ) {
+    int32_t rotation = rotation_value;
+    return -glm::pi<float>() / 2048.0f * (rotation - 1024);
+}
+
+glm::quat Data::Mission::ACTResource::getRotationQuaternion( float rotation ) {
+    return glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+}
+
 bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
@@ -290,6 +316,14 @@ Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Ut
     return new Data::Mission::ACT::Unknown( *this );
 }
 
+bool Data::Mission::ACTResource::hasRSL( uint32_t type_id, uint32_t resource_id ) const {
+    for( auto i = rsl_data.begin(); i != rsl_data.end(); i++ ) {
+        if( (*i).type == type_id && (*i).resource_id == resource_id )
+            return true;
+    }
+    return false;
+}
+
 std::string Data::Mission::ACTResource::displayRSL() const {
     std::string rsl_text = "";
     
@@ -301,7 +335,7 @@ std::string Data::Mission::ACTResource::displayRSL() const {
         rsl_text += static_cast<char>( ((*i).type >>  8) & 0xFF );
         rsl_text += static_cast<char>( ((*i).type >>  0) & 0xFF );
         
-        rsl_text += ", Resource ID: " + std::to_string((*i).index);
+        rsl_text += ", Resource ID: " + std::to_string((*i).resource_id);
         
         rsl_text += "};\n";
     }
@@ -320,6 +354,15 @@ std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( 
         copy.push_back( dynamic_cast<ACTResource*>( (*it) ) );
 
     return copy;
+}
+
+glm::vec2 Data::Mission::ACTResource::getPosition() const {
+    return (1.f / 8192.f) * glm::vec2( position_x, position_y );
+}
+
+glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) const {
+    const auto v = this->getPosition();
+    return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
 }
 
 const std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( const Data::Mission::IFF &mission_file ) {

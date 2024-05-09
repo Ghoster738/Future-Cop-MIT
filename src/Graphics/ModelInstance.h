@@ -5,7 +5,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Graphics {
 
@@ -16,7 +16,8 @@ protected:
     glm::quat rotation; // This value is a quaterion.
     glm::vec2 texture_offset;
     
-    float timeline;
+    float position_transform_timeline;
+    unsigned int texture_transform_timeline;
     
     ModelInstance(
         const glm::vec3 &pos,
@@ -25,7 +26,8 @@ protected:
             position( pos ),
             rotation( rot ),
             texture_offset( offset ),
-            timeline( 0.0f ) {}
+            position_transform_timeline( 0.0f ),
+            texture_transform_timeline( 0 ) {}
 public:
     /**
      * This method is to be called only in Environment, because this class is responsiable for handling the position and rotation of the model.
@@ -69,9 +71,21 @@ public:
 
     /**
      * This sets the time of the instance.
-     * @param timeline set the timeline of the instance.
+     * @param position_transform_timeline set the timeline of the instance.
      */
-    virtual void setTimeline( float timeline ) { this->timeline = timeline; }
+    virtual void setPositionTransformTimeline( float position_transform_timeline ) { this->position_transform_timeline = position_transform_timeline; }
+
+    /**
+     * This sets the time of the instance.
+     * @param texture_transform_timeline set the timeline of the instance.
+     */
+    virtual void setTextureTransformTimeline( unsigned int texture_transform_timeline ) { this->texture_transform_timeline = texture_transform_timeline; }
+
+    /**
+     * This sets the time of the instance.
+     * @param texture_transform_timeline set the timeline of the instance.
+     */
+    virtual void addTextureTransformTimelineSeconds( float texture_transform_timeline );
 
     /**
      * This gets the position of the model.
@@ -90,13 +104,14 @@ public:
      * @return texture_offset the offset to the texture.
      */
     glm::vec2 getTextureOffset() const;
+
+    float getPositionTransformTimeline() const { return position_transform_timeline; }
+    unsigned int getTextureTransformTimeline() const { return texture_transform_timeline; }
     
     /**
      * Get the regular bounding sphere of the model instance.
      */
     virtual bool getBoundingSphere( glm::vec3 &position, float &radius ) const = 0;
-
-    float getTimeline() const { return timeline; }
 };
 
 }

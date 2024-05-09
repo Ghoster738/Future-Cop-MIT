@@ -24,6 +24,8 @@ public:
         public:
             Animation *morph_info_r;
             unsigned int frame_index;
+            std::vector<glm::vec2> *uv_frame_buffer_r;
+            glm::vec2 texture_offset;
 
             virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
@@ -38,17 +40,15 @@ public:
         const DeltaTriangle *const getFrame( unsigned frame_index ) const;
     };
 protected:
-    VertexAttributeArray morph_attribute_array_last;
-    VertexAttributeArray morph_attribute_array_next;
+    VertexAttributeArray morph_attribute_array;
 
     // uniforms are used for morpth attributes.
-    GLuint sample_next_uniform_id;
     GLuint sample_last_uniform_id;
     
     std::map<uint32_t, Animation*> model_animation_p;
     
 public:
-    MorphModelDraw();
+    MorphModelDraw(bool has_normals = true);
     virtual ~MorphModelDraw();
 
     /**
@@ -84,13 +84,13 @@ public:
      * @param This is the amount of models to load.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs );
 
     void clearModels();
 
     /**
      * This draws all of the models with the morph attribute.
-     * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and setWorld in this order are called SUCCESSFULLY.
+     * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and setWorld in this order are called SUCCESSFULLY.
      * @param This is the camera data to be passed into world.
      */
     void draw( Graphics::SDL2::GLES2::Camera &camera );

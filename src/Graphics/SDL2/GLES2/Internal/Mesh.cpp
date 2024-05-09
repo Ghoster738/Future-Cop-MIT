@@ -25,15 +25,39 @@ Graphics::SDL2::GLES2::Internal::Mesh::~Mesh() {
     glDeleteBuffers( 1, &vertex_buffer_object );
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opeque_count, GLsizei count, const Texture2D *texture_r ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::addCommand( GLint first, GLsizei opaque_count, GLsizei count, const Texture2D *texture_r ) {
     draw_command.push_back( DrawCommand() );
     draw_command.back().first = first;
-    draw_command.back().opeque_count = opeque_count;
     draw_command.back().count = count;
+    draw_command.back().opaque_count = opaque_count;
     draw_command.back().texture_r = texture_r;
 }
 
-void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &model, const std::map<uint32_t, Internal::Texture2D*>& textures, const VertexAttributeArray *const default_vertex_array_r ) {
+    switch(model.getPrimativeMode()) {
+        case Utilities::ModelBuilder::MeshPrimativeMode::POINTS:
+            draw_command_array_mode = GL_POINTS;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINES:
+            draw_command_array_mode = GL_LINES;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINE_LOOP:
+            draw_command_array_mode = GL_LINE_LOOP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::LINE_STRIP:
+            draw_command_array_mode = GL_LINE_STRIP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLES:
+            draw_command_array_mode = GL_TRIANGLES;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLE_STRIP:
+            draw_command_array_mode = GL_TRIANGLE_STRIP;
+            break;
+        case Utilities::ModelBuilder::MeshPrimativeMode::TRIANGLE_FAN:
+            draw_command_array_mode = GL_TRIANGLE_FAN;
+            break;
+    }
+
     void * vertex_buffer_data = model.getBuffer( vertex_buffer_size );
     bool bounds;
     
@@ -86,7 +110,10 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     }
 
     vertex_array.getAttributesFrom( *program_r, model );
-    
+
+    if(default_vertex_array_r != nullptr)
+        vertex_array.combineFrom(*default_vertex_array_r);
+
     vertex_array.allocate( *program_r );
     
     // If there is some kind of bug where there are some attributes not recognized
@@ -106,9 +133,11 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
             texture_2d_r = const_cast<Internal::Texture2D *>( textures.begin()->second );
         }
 
-        GLsizei opeque_count = std::min( material.count, material.opeque_count );
+        GLsizei addition_index = std::min( material.count, material.addition_index );
+        GLsizei mix_index = std::min( material.count, material.mix_index );
+        GLsizei opaque_count = std::min(addition_index, mix_index);
 
-        addCommand( material.starting_vertex_index, opeque_count, material.count, texture_2d_r );
+        addCommand( material.starting_vertex_index, opaque_count, material.count, texture_2d_r );
     }
 }
 
@@ -131,14 +160,14 @@ void Graphics::SDL2::GLES2::Internal::Mesh::bindArray() const {
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
     vertex_array.bind();
 
-   auto  err = glGetError();
+   auto err = glGetError();
 
     if( err != GL_NO_ERROR )
         std::cout << "This vertex_array has a problem " << err << std::endl;
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
-    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    for( auto i = draw_command.begin(); i != draw_command.end(); i++ )
     {
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
@@ -152,13 +181,14 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDraw( GLuint active_switch_
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
-    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    for( auto i = draw_command.begin(); i != draw_command.end(); i++ )
     {
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
-        glDrawArrays( draw_command_array_mode, (*i).first, (*i).opeque_count );
+        glDrawArrays( draw_command_array_mode, (*i).first, (*i).opaque_count );
         auto err = glGetError();
+        assert( (*i).texture_r != nullptr );
 
         if( err != GL_NO_ERROR )
             std::cout << "glDrawArrays could have a problem! " << err << std::endl;
@@ -166,12 +196,12 @@ void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawOpaque( GLuint active_s
 }
 
 void Graphics::SDL2::GLES2::Internal::Mesh::noPreBindDrawTransparent( GLuint active_switch_texture, GLuint texture_switch_uniform ) const {
-    for( auto i = draw_command.begin(); i < draw_command.end(); i++ )
+    for( auto i = draw_command.begin(); i != draw_command.end(); i++ )
     {
         if( (*i).texture_r != nullptr )
             (*i).texture_r->bind( active_switch_texture, texture_switch_uniform );
 
-        glDrawArrays( draw_command_array_mode, (*i).first + (*i).opeque_count, (*i).count - (*i).opeque_count );
+        glDrawArrays( draw_command_array_mode, (*i).first + (*i).opaque_count, (*i).count - (*i).opaque_count );
         auto err = glGetError();
 
         if( err != GL_NO_ERROR )

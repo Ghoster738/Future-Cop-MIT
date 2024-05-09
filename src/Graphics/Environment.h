@@ -10,6 +10,7 @@
 #include "../Data/Mission/PTCResource.h"
 #include "../Data/Mission/TilResource.h"
 #include "../Data/Mission/ObjResource.h"
+#include "../Data/Accessor.h"
 
 namespace Graphics {
 
@@ -39,7 +40,7 @@ public:
     virtual ~Environment();
     
     /**
-     * This gets all the identifiers that is optionaly complied.
+     * This gets all the identifiers that is optionaly compiled.
      * Identifiers are used to support different rendering schemes.
      */
     static std::vector<std::string> getAvailableIdentifiers();
@@ -75,28 +76,10 @@ public:
      */
     virtual std::string getEnvironmentIdentifier() const = 0;
 
-    /**
-     * This is used to setup the textures.
-     * @param textures The pointer vector to the textures for the models.
-     * @return It will return 1 for success or a negative number stating how many textures failed to load.
-     */
-    virtual int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures ) = 0;
+    virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
-    /**
-     * This is used to setup the textures for the 3D models.
-     * @param ptc_r The grid of pointers which makes up the entire map. This references the tiles (which is actually a 16x16 grid of a complex hightmap triangle grid).
-     * @param tiles_r The tiles to be referenced by the ptc.
-     */
-    virtual void setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r ) = 0;
-    
-    /**
-     * This is used to setup the 3D models.
-     * @param model_types All the objects that are 3D models goes here.
-     * @param model_amount The amount of the objects.
-     * @return It will return 1 for success or a negative number stating how many textures failed to load.
-     */
-    virtual int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types ) = 0;
-    
+    virtual bool displayMap( bool state ) = 0;
+
     /**
      * @return The number of Ctils in the environment.
      */
@@ -117,6 +100,18 @@ public:
      * @return -1 if there is no functionality to set the polygon type. 0 if the end of the types has been reached. Otherwise just 1.
      */
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f) = 0;
+
+    /**
+     * @return If bounding box drawing is enabled then this is true.
+     */
+    virtual bool getBoundingBoxDraw() const = 0;
+
+    /**
+     * This sets up bounding box rendering.
+     * @note This feature is optional, it is only there for debugging purposes.
+     * @param draw If true then bounding boes
+     */
+    virtual void setBoundingBoxDraw(bool draw) = 0;
 
     /**
      * Setup the draw graph for the renderer.

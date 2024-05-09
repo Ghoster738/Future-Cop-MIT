@@ -36,7 +36,7 @@ Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
 }
 
 
-int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &environment, const std::vector<Data::Mission::IFF*> &data ) {
+int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &environment, const Data::Accessor &accessor ) {
     auto gl_environment_r = dynamic_cast<Graphics::SDL2::GLES2::Environment*>(&environment);
 
     assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
@@ -44,29 +44,13 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     if( gl_environment_r->text_draw_routine_p != nullptr )
         delete gl_environment_r->text_draw_routine_p;
     
-    std::vector<Data::Mission::FontResource*> fonts_r;
-    bool has_resource_id_1 = false;
-    bool has_resource_id_2 = false;
-
-    for( auto i = data.begin(); i != data.end(); i++ ) {
-        auto font_resources = Data::Mission::FontResource::getVector( *(*i) );
-        
-        for( auto f = font_resources.begin(); f != font_resources.end(); f++ ) {
-            fonts_r.push_back( (*f) );
-
-            if( (*f)->getResourceID() == 1 )
-                has_resource_id_1 = true;
-            else
-            if( (*f)->getResourceID() == 2 )
-                has_resource_id_2 = true;
-        }
-    }
+    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllFNT();
 
     // If no fonts are found then add one.
-    if( !has_resource_id_1 ) {
+    if( accessor.getFNT( 1 ) == nullptr ) {
         fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
     }
-    if( !has_resource_id_2 ) {
+    if( accessor.getFNT( 2 ) == nullptr ) {
         fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
     }
 

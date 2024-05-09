@@ -7,7 +7,10 @@
 #include <glm/vec2.hpp>
 #include <vector>
 #include "Data/Mission/TilResource.h"
+#include "Graphics/ModelInstance.h"
 #include "Graphics/Text2DBuffer.h"
+
+#include "Game/ActManager.h"
 
 
 class PrimaryGame : public GameState {
@@ -29,6 +32,8 @@ private:
 
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
+
+    Game::ActManager *act_manager_p;
 
 public:
     PrimaryGame();

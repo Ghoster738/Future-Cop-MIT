@@ -19,10 +19,9 @@ class Resource;
  */
 class IFF {
 public:
-    enum Type {FILE_IS_LITTLE_ENDIAN, FILE_IS_BIG_ENDIAN, UNKNOWN};
-private:
-    Type type;
+    enum DataType {GLOBALS, CRIME_WAR, PRECINCT_ASSUALT};
 
+private:
     std::string name;
 
     std::map< uint32_t, std::vector<Resource*> > resource_map; // This holds the data the resource_types holds.
@@ -31,7 +30,6 @@ private:
 
     static bool compareFunction( const Resource *const res_a, const Resource *const res_b );
 public:
-
     IFF();
     IFF( const std::string &file_path );
     virtual ~IFF();
@@ -67,6 +65,12 @@ public:
 
     std::vector<Resource*> getAllResources();
     const std::vector<Resource*> getAllResources() const;
+
+    /**
+     * This gets the data type of the IFF file.
+     * @return The DataType of the IFF file which can be GLOBALS, CRIME_WAR, or PRECINCT_ASSUALT.
+     */
+    DataType getDataType() const;
 
     /**
      * This opens the mission file and reads every resource in that file.

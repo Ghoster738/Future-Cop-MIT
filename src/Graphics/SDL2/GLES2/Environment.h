@@ -25,12 +25,17 @@ public:
     std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> textures;
     Graphics::SDL2::GLES2::Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
     Graphics::SDL2::GLES2::Internal::World              *world_p; // This handles drawing the whole world.
+    bool display_world;
 
-    bool has_initialized_models;
+    bool has_initialized_routines;
     Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
+
+    bool draw_bounding_boxes;
+    Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_bb_routine;
+    Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_bb_routine = Graphics::SDL2::GLES2::Internal::MorphModelDraw(false);
 
 public:
     Environment();
@@ -40,12 +45,13 @@ public:
     static int deinitEntireSystem();
 
     virtual std::string getEnvironmentIdentifier() const;
-    virtual int setupTextures( const std::vector<Data::Mission::BMPResource*> &textures );
-    virtual void setMap( const Data::Mission::PTCResource *ptc_r, const std::vector<Data::Mission::TilResource*> *tiles_r );
-    virtual int setModelTypes( const std::vector<Data::Mission::ObjResource*> &model_types );
+    virtual int loadResources( const Data::Accessor &accessor );
+    virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
+    virtual bool getBoundingBoxDraw() const;
+    virtual void setBoundingBoxDraw(bool draw);
     virtual void setupFrame();
     virtual void drawFrame();
     virtual bool screenshot( Utilities::Image2D &image ) const;

@@ -232,7 +232,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                 // However by XORing the mac and windows version of the files I had determined that these are 16 bit numbers. I am thankful for the big endian macs systems of the 1990's.
 
                 for( unsigned int i = 0; i < amount_of_tiles; i++ ) {
-                    uint16_t first_zero = readerPYPL.readU16( settings.endian );
+                    uint16_t un_first_zero = readerPYPL.readU16( settings.endian );
                     uint16_t id = readerPYPL.readU16( settings.endian );
 
                     debug_log.output << "PYPL ID: " << std::dec << id << "\n";

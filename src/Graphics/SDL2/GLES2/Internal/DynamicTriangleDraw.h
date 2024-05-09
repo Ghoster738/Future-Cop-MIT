@@ -18,16 +18,23 @@ public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
 
+    enum PolygonType {
+        MIX      = 0,
+        ADDITION = 1
+    };
+
     struct Vertex {
-        glm::vec3 position;
-        glm::vec4 color;
-        glm::vec2 coordinate;
+        glm::vec3    position;
+        glm::vec3    normal;
+        glm::vec4    color;
+        glm::vec2    coordinate;
+        glm::i16vec2 vertex_metadata;
 
         // OpenGL should ignore these values.
         union {
             struct {
                 uint32_t texture_id : 30;
-                uint32_t polygon_type : 2; // https://psx-spx.consoledev.net/graphicsprocessingunitgpu/#semi-transparency
+                uint32_t polygon_type : 2;
             } bitfield;
             float distance_from_camera;
         } metadata;
@@ -35,7 +42,7 @@ public:
     struct Triangle {
         Vertex vertices[3];
 
-        void setup( uint32_t texture_id, const glm::vec3 &camera_position );
+        void setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type );
 
         float genDistanceSq( const glm::vec3 &camera_position ) const;
 
@@ -93,8 +100,14 @@ protected:
     Shader fragment_shader;
 
     GLuint diffusive_texture_uniform_id;
+    GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
+    GLuint view_uniform_id;
+    GLuint view_inv_uniform_id;
     
+    // The textures will also need to be accessed.
+    Texture2D *env_texture_r;
+
     VertexAttributeArray vertex_array;
 public:
 
@@ -148,8 +161,14 @@ public:
     int compileProgram();
 
     /**
+     * This sets the environement texture.
+     * @param env_texture_ref This stores the shiney texture.
+     */
+    void setEnvironmentTexture( Texture2D *env_texture_ref );
+
+    /**
      * This draws all the stored triangles.
-     * @note Make sure setFragmentShader, loadFragmentShader, compilieProgram and allocateTriangles in this order are called SUCCESSFULLY.
+     * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and allocateTriangles in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into this routine.
      * @param textures This is the camera data to be passed into this routine.
      */

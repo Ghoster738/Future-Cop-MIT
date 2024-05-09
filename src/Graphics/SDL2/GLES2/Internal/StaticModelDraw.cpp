@@ -6,12 +6,65 @@
 #include <iostream>
 #include "SDL.h"
 
+
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const {
+    for(auto i = uv_animation_info.cbegin(); i != uv_animation_info.cend(); i++) {
+        const size_t index = 4 * (i - uv_animation_info.begin());
+        const uint_fast32_t duration = time % (*i).getEntireDurationUnits();
+        const uint_fast32_t frame_index = ((*i).number_of_frames - 1) - duration / (*i).frame_duration;
+
+        const size_t uv_data_index = (*i).uv_data_offset / sizeof(glm::u8vec2) + 4 * frame_index;
+
+        uv_frame_buffer[index + 0] = glm::vec2(uv_animation_data[uv_data_index + 0].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 0].y * 1.0 / 256.0);
+        uv_frame_buffer[index + 1] = glm::vec2(uv_animation_data[uv_data_index + 1].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 1].y * 1.0 / 256.0);
+        uv_frame_buffer[index + 2] = glm::vec2(uv_animation_data[uv_data_index + 2].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 2].y * 1.0 / 256.0);
+        uv_frame_buffer[index + 3] = glm::vec2(uv_animation_data[uv_data_index + 3].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 3].y * 1.0 / 256.0);
+    }
+
+    glUniform2fv( animated_uv_frames_id, uv_frame_buffer.size(), reinterpret_cast<float*>(uv_frame_buffer.data()) );
+}
+
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
+            const std::vector<DynamicTriangleDraw::Triangle> &triangles,
+            DynamicTriangleDraw::DrawCommand &triangles_draw ) const
+{
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+
+    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+
+    for( size_t i = 0; i < number_of_triangles; i++ ) {
+        draw_triangles_r[ i ] = triangles[ i ];
+
+        for( unsigned t = 0; t < 3; t++ ) {
+            const uint16_t texture_animation_data = static_cast<uint16_t>(draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1]);
+
+            if(texture_animation_data != 0) {
+                const uint16_t texture_animation_index = texture_animation_data - 1;
+
+                assert(texture_animation_index < uv_frame_buffer_r->size());
+
+                draw_triangles_r[ i ].vertices[ t ].coordinate = (*uv_frame_buffer_r)[texture_animation_index];
+            }
+
+            draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+        }
+
+        draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
+    }
+}
+
+const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
+    "const int ANIMATED_UV_FRAME_AMOUNT = 8;\n"
+    "const int QUAD_VERTEX_AMOUNT = 4;\n"
+    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
+
     // Vertex shader uniforms
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
     "uniform vec2 TextureTranslation;\n"
+    "uniform vec2 AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
     "void main()\n"
     "{\n"
@@ -23,8 +76,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     // Find a way to use the spherical projection properly.
     "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
     "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
-    "   texture_coord_1 = TEXCOORD_0 + TextureTranslation;\n"
-    "   specular = _Specular\n;"
+    "   specular = _METADATA[0];\n"
+    "   texture_coord_1 = TEXCOORD_0 * float( _METADATA[1] == 0. );\n"
+    "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
+    "   texture_coord_1 += TextureTranslation;\n"
+    "   in_color = COLOR_0;\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
@@ -33,14 +89,15 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 
     "void main()\n"
     "{\n"
-    "  vec4 color = texture2D(Texture, texture_coord_1);\n"
-    "   if( color.a < 0.015625 )\n"
-    "       discard;\n"
+    "  vec4 color = texture2D(Texture, texture_coord_1) * in_color;\n"
     "  float BLENDING = 1.0 - color.a;\n"
     "  if( specular > 0.5 )\n"
     "    gl_FragColor = texture2D(Shine, world_reflection.xz) * BLENDING + vec4(color.rgb, 1.0);\n"
-    "  else\n"
+    "  else {\n"
+    "    if( color.a < 0.015625 )\n"
+    "      discard;\n"
     "    gl_FragColor = color;\n"
+    "  }\n"
     "}\n";
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
@@ -48,12 +105,14 @@ Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "float _Specular" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 _METADATA" ) );
 
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec4 in_color" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec3 world_reflection" ) );
     varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "float specular" ) );
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec2 texture_coord_1" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::~StaticModelDraw() {
@@ -106,16 +165,18 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
         {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
-            sepecular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
+            specular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
             texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
             view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
             view_inv_uniform_id = program.getUniform( "ModelViewInv", &std::cout, &uniform_failed );
+            animated_uv_frames_id = program.getUniform( "AnimatedUVFrames", &std::cout, &uniform_failed );
             
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
             attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
+            attribute_failed |= !program.isAttribute( "COLOR_0", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute( "_Specular", &std::cout );
+            attribute_failed |= !program.isAttribute( "_METADATA", &std::cout );
 
             link_success = true;
         }
@@ -145,8 +206,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setTextures( Texture2D *shiney_texture_r ) {
-    this->shiney_texture_r = shiney_texture_r;
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::setEnvironmentTexture( Texture2D *env_texture_ref ) {
+    this->shiney_texture_r = env_texture_ref;
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t obj_identifier ) const {
@@ -156,13 +217,20 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t o
         return false;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
     int state = 0;
 
     if( model_type_r->getNumVertices() > 0 )
     {
+        VertexAttributeArray vertex_array;
+
+        vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+        vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+        vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
         models_p[ obj_identifier ] = new ModelArray( &program );
-        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures );
+        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
         state =  1;
 
         Utilities::ModelBuilder::TextureMaterial material;
@@ -170,14 +238,29 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
         for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
             model_type_r->getMaterial( a, material );
-            transparent_count += material.count - material.opeque_count;
+
+            GLsizei addition_index = std::min( material.count, material.addition_index );
+            GLsizei mix_index = std::min( material.count, material.mix_index );
+            GLsizei transparent_index = std::min( mix_index, addition_index );
+
+            transparent_count += material.count - transparent_index;
         }
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
+        models_p[ obj_identifier ]->uv_animation_data = face_override_uvs;
+        models_p[ obj_identifier ]->uv_animation_info = face_override_animation;
+
+        const size_t face_override_amount = 4 * face_override_animation.size();
+
+        if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
+            uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );
 
         GLsizei material_count = 0;
 
         unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
+        unsigned     normal_compenent_index = position_compenent_index;
+        unsigned      color_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
+        unsigned   metadata_compenent_index = position_compenent_index;
 
         Utilities::ModelBuilder::VertexComponent element("EMPTY");
         for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
@@ -185,8 +268,14 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
                 position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+                normal_compenent_index = i;
+            if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
+                color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
                 coordinate_compenent_index = i;
+            if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
+                metadata_compenent_index = i;
         }
 
         for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
@@ -202,27 +291,50 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             else
                 cbmp_id = 0;
 
-            GLsizei opeque_count = std::min( material.count, material.opeque_count );
+            unsigned addition_index = std::min( material.count, material.addition_index );
+            unsigned mix_index = std::min( material.count, material.mix_index );
+            unsigned transparent_index = std::min( mix_index, addition_index );
 
-            glm::vec4   positions[3] = {glm::vec4(0, 0, 0, 1)};
-            glm::vec4      color     =  glm::vec4(1, 1, 1, 1);
-            glm::vec4 coordinates[3] = {glm::vec4(0, 0, 0, 1)};
+            DynamicTriangleDraw::PolygonType polygon_type;
+
+            glm::vec4   position = glm::vec4(0, 0, 0, 1);
+            glm::vec4     normal = glm::vec4(0, 0, 0, 1);
+            glm::vec4      color = glm::vec4(1, 1, 1, 1);
+            glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
+            glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
-                for( unsigned t = 0; t < 3; t++ ) {
-                    model_type_r->getTransformation(   positions[t],   position_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation( coordinates[t], coordinate_compenent_index, material_count + m + t );
+                for(unsigned t = 0; t < 3; t++) {
+                    model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
+                    model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
 
-                    triangle.vertices[t].position = { positions[t].x, positions[t].y, positions[t].z };
+                    triangle.vertices[t].position = { position.x, position.y, position.z };
+                    triangle.vertices[t].normal = normal;
                     triangle.vertices[t].color = color;
-                    triangle.vertices[t].coordinate = coordinates[t];
+                    triangle.vertices[t].coordinate = coordinate;
+                    triangle.vertices[t].vertex_metadata = metadata;
+
+                    if(face_override_amount != 0 && static_cast<uint16_t>(triangle.vertices[t].vertex_metadata[1]) > face_override_amount) {
+                        for(unsigned a = 0; a < t + 1; a++)
+                            std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
+                        std::cout << "face_override_amount = " << face_override_amount << std::endl;
+                        assert(false);
+                    }
                 }
 
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+                if( m < mix_index )
+                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                else
+                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
 
                 models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
             }
@@ -262,9 +374,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
 
     // Check if there is even a shiney texture.
     if( shiney_texture_r != nullptr )
-        shiney_texture_r->bind( 1, sepecular_texture_uniform_id );
+        shiney_texture_r->bind( 1, specular_texture_uniform_id );
 
-    Mesh::DynamicNormal dynamic;
+    Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
 
     // Traverse the models.
@@ -277,12 +389,17 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
         for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
             if( camera.isVisible( *(*instance) ) ) {
+                const auto texture_offset = (*instance)->getTextureOffset();
+                glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
+
+                (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
+
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
-                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() );
+                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() );
                 
                 // Then multiply it to the projection, and view to get projection, view, and model matrix.
-                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::toMat4( (*instance)->getRotation() ));
+                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ));
                 
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
@@ -295,6 +412,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 // Finally we can draw the mesh!
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
                 
+                dynamic.texture_offset = texture_offset;
+                dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                 dynamic.transform = camera_3D_model_transform;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
@@ -325,8 +444,36 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
         return -1; // The requested index_obj does not exist
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float time_seconds ) {
-    // No operation. Static Meshes do not have the concept of time.
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjBBModel( uint32_t obj_identifier, GLES2::ModelInstance &model_instance ) {
+    if( models_p.find( obj_identifier ) != models_p.end() ) // Do some bounds checking!
+    {
+        // This holds the model instance sheet.
+        ModelArray *model_array_r = models_p[ obj_identifier ];
+
+        model_instance.bb_array_r = model_array_r;
+
+        if( !models_p[ obj_identifier ]->mesh.getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius ) )
+        {
+            model_instance.culling_sphere_position = glm::vec3( 0, 0, 0 );
+            model_instance.culling_sphere_radius = 1.0f;
+        }
+
+        // Finally added the instance.
+        model_array_r->instances_r.insert( &model_instance );
+
+        return 1; // The instance is successfully allocated.
+    }
+    else
+        return -1; // The requested index_obj does not exist
+}
+
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float seconds_passed ) {
+    // Go through every model array.
+    for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
+        for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+            (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
+        }
+    }
 }
 
 bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::getBoundingSphere( uint32_t obj_identifier, glm::vec3 &position, float &radius ) const {

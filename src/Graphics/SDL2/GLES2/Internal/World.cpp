@@ -64,12 +64,16 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
+    "const int ANIMATED_UV_FRAME_AMOUNT = 16;\n"
+    "const int QUAD_VERTEX_AMOUNT = 4;\n"
+    "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
+
     // Vertex shader uniforms
     "uniform mat4  Transform;\n" // projection * view * model.
     "uniform vec2  AnimatedUVDestination;\n"
     "uniform float GlowTime;\n"
     "uniform float SelectedTile;\n"
-    "uniform vec2  AnimatedUVFrames[ 16 * 4 ];\n"
+    "uniform vec2  AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
     "uniform sampler2D VertexAnimation;\n"
 
@@ -90,7 +94,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   vertex_colors = (1.0 - flashing) * normal_color + 2.0 * flashing * inverse_color;\n"
 
     "   vec2 tex_coord_pos = TEXCOORD_0 * float( FRAME_BY_FRAME == 0. );\n"
-    "   tex_coord_pos += AnimatedUVFrames[ int( clamp( FRAME_BY_FRAME - 1., 0., 16. * 4. ) ) ] * float( FRAME_BY_FRAME != 0. );\n"
+    "   tex_coord_pos += AnimatedUVFrames[ int( clamp( FRAME_BY_FRAME - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( FRAME_BY_FRAME != 0. );\n"
     "   texture_coord_1 = tex_coord_pos + AnimatedUVDestination * DISPLACEMENT;\n"
     "   texture_coord_1 = fract( texture_coord_1 ) + vec2( float( texture_coord_1.x == 1. ), float( texture_coord_1.y == 1. ) );\n"
 
@@ -156,7 +160,7 @@ int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *cons
     return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
 }
 
-int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
+int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
     bool link_success     = true;
     bool uniform_failed   = false;
     bool attribute_failed = false;
@@ -210,7 +214,7 @@ int Graphics::SDL2::GLES2::Internal::World::compilieProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<Data::Mission::TilResource*> resources_til,  const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, std::vector<const Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     tiles.resize( resources_til.size() );
 
     // Set up the primary tiles. O(n)
@@ -253,14 +257,15 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         if( vertex_animation_p == nullptr)
             vertex_animation_p = (*i).animation_slfx.getImage();
 
-        (*i).mesh_p->setup( *model_p, textures );
+        (*i).mesh_p->setup( *model_p, textures, nullptr ); // TODO Replace the nullptr with something more important.
 
+        // TODO Add addition render path for "light".
         Utilities::ModelBuilder::TextureMaterial material;
         GLsizei transparent_count = 0;
 
         for( unsigned int a = 0; a < model_p->getNumMaterials(); a++ ) {
             model_p->getMaterial( a, material );
-            transparent_count += material.count - material.opeque_count;
+            transparent_count += material.count - material.mix_index;
         }
 
         (*i).transparent_triangles.reserve(     transparent_count );
@@ -269,6 +274,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         GLsizei material_count = 0;
 
         unsigned   position_compenent_index = model_p->getNumVertexComponents();
+        unsigned     normal_compenent_index = position_compenent_index;
         unsigned      color_compenent_index = position_compenent_index;
         unsigned coordinate_compenent_index = position_compenent_index;
         unsigned  tile_type_compenent_index = position_compenent_index;
@@ -279,6 +285,8 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
 
             if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
                 position_compenent_index = i;
+            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+                normal_compenent_index = i;
             if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
                 color_compenent_index = i;
             if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
@@ -300,28 +308,32 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             else
                 cbmp_id = 0;
 
-            unsigned opeque_count = std::min( material.count, material.opeque_count );
+            unsigned mix_index = std::min( material.count, material.mix_index );
 
             glm::vec4   positions = glm::vec4(0, 0, 0, 1);
+            glm::vec4     normals = glm::vec4(0, 0, 0, 1);
             glm::vec4      colors = glm::vec4(0.5, 0.5, 0.5, 0.5); // Just in case if the mesh does not have vertex color information.
             glm::vec4 coordinates = glm::vec4(0, 0, 0, 1);
             glm::vec4   tile_type = glm::vec4(0, 0, 0, 1);
 
             const unsigned vertex_per_triangle = 3;
 
-            for( unsigned m = opeque_count; m < material.count; m += vertex_per_triangle ) {
+            for( unsigned m = mix_index; m < material.count; m += vertex_per_triangle ) {
                 DynamicTriangleDraw::Triangle triangle;
 
                 for( unsigned t = 0; t < 3; t++ ) {
                     model_p->getTransformation(   positions,   position_compenent_index, material_count + m + t );
+                    model_p->getTransformation(     normals,     normal_compenent_index, material_count + m + t );
                     model_p->getTransformation(      colors,      color_compenent_index, material_count + m + t );
                     model_p->getTransformation( coordinates, coordinate_compenent_index, material_count + m + t );
                     model_p->getTransformation(   tile_type,  tile_type_compenent_index, material_count + m + t );
 
                     triangle.vertices[t].position = { positions.x, positions.y, positions.z };
-                    triangle.vertices[t].color = 2.0f * colors;
-                    triangle.vertices[t].color.w = 1;
+                    triangle.vertices[t].normal   = {   normals.x,   normals.y,   normals.z };
+                    triangle.vertices[t].color    = 2.0f * colors;
+                    triangle.vertices[t].color.w  = 1;
                     triangle.vertices[t].coordinate = coordinates;
+                    triangle.vertices[t].vertex_metadata = { 0, 0 };
 
                     if( t == 0 ) {
                         MeshDraw::Info info;
@@ -344,7 +356,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
                     (*i).transparent_triangle_info.back().vertex_animation_index[t] = tile_type.w;
                 }
 
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0) );
+                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), DynamicTriangleDraw::PolygonType::MIX );
 
                 (*i).transparent_triangles.push_back( triangle );
             }
@@ -571,11 +583,11 @@ void Graphics::SDL2::GLES2::Internal::World::advanceTime( float seconds_passed )
 
                 (*i).frame_uv_times[ info_index ] += seconds_passed * info.getDurationToSeconds();
 
-                if( (*i).frame_uv_times[ info_index ] >= info.getFrameCount() )
+                while( (*i).frame_uv_times[ info_index ] >= info.getFrameCount() )
                     (*i).frame_uv_times[ info_index ] -= info.getFrameCount();
 
                 if( int(last_time) != int( (*i).frame_uv_times[ info_index ] ) ) {
-                    const unsigned frame_index = unsigned( (*i).frame_uv_times[ info_index ] ) * 4;
+                    const unsigned frame_index = 4 * ((info.getFrameCount() - 1) - unsigned( (*i).frame_uv_times[ info_index ] ) % info.getFrameCount());
 
                     for( unsigned a = 0; a < 4; a++ ) {
                         (*i).current_frame_uvs[ info_index * 4 + a ] = glm::vec2( uv_frames[ info.animated_uv_offset / 2 + a + frame_index ].x, uv_frames[ info.animated_uv_offset / 2 + a + frame_index].y ) * factor;

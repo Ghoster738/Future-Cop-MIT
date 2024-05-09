@@ -17,9 +17,9 @@ Graphics::Text2DBuffer* Graphics::Text2DBuffer::alloc( Graphics::Environment &en
 Graphics::Text2DBuffer::~Text2DBuffer() {
 }
 
-int Graphics::Text2DBuffer::loadFonts( Graphics::Environment &env_r, const std::vector<Data::Mission::IFF*> &data_r ) {
+int Graphics::Text2DBuffer::loadFonts( Graphics::Environment &env_r, const Data::Accessor &accessor ) {
     if( env_r.getEnvironmentIdentifier().compare( Environment::SDL2_WITH_GLES_2 ) == 0 ) {
-        return Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( env_r, data_r );
+        return Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( env_r, accessor );
     }
     else
         return -1;

@@ -110,8 +110,11 @@ struct IFFOptions {
     } net;
 
     struct ObjOption : public ResourceOption {
+        bool no_model;
+        bool export_metadata;
+        bool export_bounding_box;
 
-        ObjOption() : ResourceOption() {}
+        ObjOption() : ResourceOption(), no_model(false), export_metadata( false ), export_bounding_box( false ) {}
         std::string getNameSpace() const { return "OBJ"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;
@@ -155,12 +158,13 @@ struct IFFOptions {
     } snds;
 
     struct TilOption : public ResourceOption {
+        bool export_metadata;
         bool enable_point_cloud_export;
         bool enable_height_map_export;
         bool enable_til_export_model;
         bool enable_til_backface_culling;
 
-        TilOption() : ResourceOption(), enable_point_cloud_export( false ), enable_height_map_export( false ), enable_til_export_model( false ), enable_til_backface_culling(false) {}
+        TilOption() : ResourceOption(), export_metadata( false ), enable_point_cloud_export( false ), enable_height_map_export( false ), enable_til_export_model( false ), enable_til_backface_culling(false) {}
         std::string getNameSpace() const { return "TIL"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;

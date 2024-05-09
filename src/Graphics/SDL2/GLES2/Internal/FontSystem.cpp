@@ -201,10 +201,10 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
                 pen_position.x += static_cast<float>( glyph_r->x_advance ) * scale;
 
                 char_vertex_buffer_r[0].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
-                char_vertex_buffer_r[1].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
+                char_vertex_buffer_r[1].set(  lower_font.x, higher_font.y,  texture_low.x, texture_high.y, pen_color );
                 char_vertex_buffer_r[2].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
                 char_vertex_buffer_r[3].set( higher_font.x, higher_font.y, texture_high.x, texture_high.y, pen_color );
-                char_vertex_buffer_r[4].set(  lower_font.x, higher_font.y,  texture_low.x, texture_high.y, pen_color );
+                char_vertex_buffer_r[4].set( higher_font.x,  lower_font.y, texture_high.x,  texture_low.y, pen_color );
                 char_vertex_buffer_r[5].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
 
                 char_vertex_buffer_r += 6;
@@ -257,7 +257,7 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
     glDrawArrays( GL_TRIANGLES, 0, amount_of_characters * 6 );
 }
 
-Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<Data::Mission::FontResource*> &font_resources ) {
+Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );

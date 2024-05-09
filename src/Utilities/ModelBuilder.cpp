@@ -75,7 +75,8 @@ Utilities::ModelBuilder::TextureMaterial::TextureMaterial( const TextureMaterial
     file_name( mat.file_name ),
     starting_vertex_index( mat.starting_vertex_index ),
     count( mat.count ),
-    opeque_count( mat.opeque_count ),
+    addition_index( mat.addition_index ),
+    mix_index( mat.mix_index ),
     min( mat.min ),
     max( mat.max ),
     has_culling( mat.has_culling ),
@@ -423,7 +424,8 @@ bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_
         texture_materials.back().cbmp_resource_id = cbmp_resource_id;
         texture_materials.back().starting_vertex_index = current_vertex_index;
         texture_materials.back().count = 0;
-        texture_materials.back().opeque_count = std::numeric_limits<unsigned>::max();
+        texture_materials.back().addition_index = std::numeric_limits<unsigned>::max();
+        texture_materials.back().mix_index = std::numeric_limits<unsigned>::max();
         texture_materials.back().has_culling = culling_enabled;
         
         // Allocate morph_bounds.
@@ -449,7 +451,8 @@ bool Utilities::ModelBuilder::getMaterial(unsigned material_index, TextureMateri
     if( material_index < texture_materials.size() ) {
 
         element.count                 = texture_materials[material_index].count;
-        element.opeque_count          = texture_materials[material_index].opeque_count;
+        element.addition_index        = texture_materials[material_index].addition_index;
+        element.mix_index             = texture_materials[material_index].mix_index;
         element.starting_vertex_index = texture_materials[material_index].starting_vertex_index;
         element.file_name             = texture_materials[material_index].file_name;
         element.cbmp_resource_id      = texture_materials[material_index].cbmp_resource_id;
@@ -461,8 +464,12 @@ bool Utilities::ModelBuilder::getMaterial(unsigned material_index, TextureMateri
         return false;
 }
 
-void Utilities::ModelBuilder::beginSemiTransperency() {
-    texture_materials.back().opeque_count = texture_materials.back().count;
+void Utilities::ModelBuilder::beginSemiTransperency( bool is_light ) {
+    if( is_light && texture_materials.back().addition_index == std::numeric_limits<unsigned>::max() )
+        texture_materials.back().addition_index = texture_materials.back().count;
+
+    if( !is_light && texture_materials.back().mix_index == std::numeric_limits<unsigned>::max() )
+        texture_materials.back().mix_index = texture_materials.back().count;
 }
 
 void Utilities::ModelBuilder::startVertex() {
@@ -1211,7 +1218,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
                 
                 for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).position.at( joint_frame ).x ), 3 * sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).position.at( joint_frame ) ), 3 * sizeof( float ));
                 }
                 index++;
                 
@@ -1220,7 +1227,10 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
                 root["bufferViews"][index]["byteOffset"] = static_cast<unsigned>( binary.tellp() );
                 
                 for( unsigned joint_frame = 0; joint_frame < this->getNumJointFrames(); joint_frame++ ) {
-                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).x ), 4 * sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).x ), sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).y ), sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).z ), sizeof( float ));
+                    binary.write( reinterpret_cast<const char*>( &joints.at( joint_index ).rotation.at( joint_frame ).w ), sizeof( float ));
                 }
                 index++;
             }
@@ -1241,36 +1251,40 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
     root["samplers"][0]["wrapS"] = 10497;
     root["samplers"][0]["wrapT"] = 10497;
 
+    unsigned texture_index = 0;
     for( auto i = texture_materials.begin(); i != texture_materials.end(); i++ ) {
-        unsigned position = i - texture_materials.begin();
+        unsigned material_index = i - texture_materials.begin();
         
         if( mesh_primative_mode != MeshPrimativeMode::TRIANGLES )
-            root["meshes"][0]["primitives"][position]["mode"] = mesh_primative_mode;
+            root["meshes"][0]["primitives"][material_index]["mode"] = mesh_primative_mode;
 
         if( !(*i).file_name.empty() )
         {
-            root["images"][position]["uri"] = (*i).file_name;
+            root["images"][texture_index]["uri"] = (*i).file_name;
 
-            root["textures"][position]["source"]  = position;
-            root["textures"][position]["sampler"] = 0;
+            root["textures"][texture_index]["source"]  = texture_index;
+            root["textures"][texture_index]["sampler"] = 0;
 
-            if( (*i).has_culling )
-                root["materials"][position]["doubleSided"] = false;
-            else
-                root["materials"][position]["doubleSided"] = true;
+            root["materials"][material_index]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = texture_index;
 
-            root["materials"][position]["pbrMetallicRoughness"]["baseColorTexture"]["index"] = position;
-            root["materials"][position]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
-            root["materials"][position]["pbrMetallicRoughness"]["roughnessFactor"] = 0.8125;
-
-            root["meshes"][0]["primitives"][position]["material"] = position;
+            texture_index++;
         }
+
+        if( (*i).has_culling )
+            root["materials"][material_index]["doubleSided"] = false;
+        else
+            root["materials"][material_index]["doubleSided"] = true;
+
+        root["materials"][material_index]["pbrMetallicRoughness"]["metallicFactor"] = 0.125;
+        root["materials"][material_index]["pbrMetallicRoughness"]["roughnessFactor"] = 0.8125;
+
+        root["meshes"][0]["primitives"][material_index]["material"] = material_index;
 
         unsigned vertex_component_index = 0;
 
         for( auto d = vertex_components.begin(); d != vertex_components.end(); d++ ) {
 
-            root["meshes"][0]["primitives"][position]["attributes"][ (*d).getName() ] = accessors_amount;
+            root["meshes"][0]["primitives"][material_index]["attributes"][ (*d).getName() ] = accessors_amount;
 
             // Write the accessor
             root["accessors"][accessors_amount]["bufferView"] = vertex_component_index;
@@ -1295,7 +1309,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
         for( unsigned b = 0; b < vertex_morph_components.size(); b++ ) {
             for( unsigned a = 0; a < morph_frame_buffers.size(); a++ ) {
-                root["meshes"][0]["primitives"][position]["targets"][a][vertex_morph_components[b].getName()] = accessors_amount;
+                root["meshes"][0]["primitives"][material_index]["targets"][a][vertex_morph_components[b].getName()] = accessors_amount;
 
                 auto comp = vertex_morph_components.begin() + b;
 
@@ -1605,9 +1619,11 @@ Utilities::ModelBuilder* Utilities::ModelBuilder::combine( const std::vector<Mod
                 new_model->texture_materials.back().count++;
             }
 
-            if( (*it)->texture_materials.back().opeque_count != std::numeric_limits<unsigned>::max() ) {
-                new_model->texture_materials.back().opeque_count = (*it)->texture_materials.back().opeque_count;
-            }
+            if( (*it)->texture_materials.back().addition_index != std::numeric_limits<unsigned>::max() )
+                new_model->texture_materials.back().addition_index = (*it)->texture_materials.back().addition_index;
+
+            if( (*it)->texture_materials.back().mix_index != std::numeric_limits<unsigned>::max() )
+                new_model->texture_materials.back().mix_index = (*it)->texture_materials.back().mix_index;
         }
         
         if( !new_model->finish() ) {

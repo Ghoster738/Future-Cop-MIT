@@ -92,6 +92,20 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
     glBufferSubData( GL_ARRAY_BUFFER, 0, triangles_amount * sizeof(Triangle), triangles_p );
     vertex_array.bind();
 
+    PolygonType current_polygon_type = PolygonType::MIX;
+    if( triangles_amount != 0 ) {
+        current_polygon_type = static_cast<PolygonType>( triangles_p[0].vertices[0].metadata.bitfield.polygon_type );
+
+        if( current_polygon_type == PolygonType::MIX ) {
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+        }
+        else {
+            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+        }
+    }
+
     uint32_t texture_id = 0;
     Graphics::SDL2::GLES2::Internal::Texture2D* current_texture_r = nullptr;
     if( textures.size() != 0 ) {
@@ -121,6 +135,25 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
                 current_texture_r->bind( 0, diffusive_texture_uniform_id );
             }
         }
+
+        if( current_polygon_type != static_cast<PolygonType>( triangles_p[t].vertices[0].metadata.bitfield.polygon_type ) ) {
+            if( t_last != t ) {
+                glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
+
+                t_last = t;
+            }
+
+            current_polygon_type = static_cast<PolygonType>( triangles_p[t].vertices[0].metadata.bitfield.polygon_type );
+
+            if( current_polygon_type == PolygonType::MIX ) {
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+            }
+            else {
+                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+            }
+        }
     }
 
     if( t_last < triangles_amount ) {
@@ -130,27 +163,47 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
 
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_vertex_shader =
     // Vertex shader uniforms
+    "uniform mat4 ModelViewInv;\n"
+    "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
 
     "void main()\n"
     "{\n"
+    // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
+    "   vec3 eye_coord_position = vec3( ModelView * vec4(POSITION, 1) );\n" // Model View multiplied by Model Position.
+    "   vec3 eye_coord_normal   = vec3( ModelView * vec4(NORMAL, 0.0));\n"
+    "   eye_coord_normal        = normalize( eye_coord_normal );\n"
+    "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
+    // Find a way to use the spherical projection properly.
+    "   world_reflection        = vec3( ModelViewInv * vec4(eye_reflection, 0.0 ));\n"
+    "   world_reflection        = normalize( world_reflection ) * 0.5 + vec3( 0.5, 0.5, 0.5 );\n"
     "   texture_coord_1 = TEXCOORD_0;\n"
     "   color = COLOR_0;\n"
+    "   specular = _METADATA[0];\n"
     "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_fragment_shader =
     "uniform sampler2D Texture;\n"
+    "uniform sampler2D Shine;\n"
 
     "void main()\n"
     "{\n"
-    "  vec4 texture_color = texture2D(Texture, texture_coord_1);\n"
-    "   if( texture_color.a < 0.015625 )\n"
-    "       discard;\n"
-    "   gl_FragColor = texture_color * color;\n"
+    "  vec4 other = texture2D(Texture, texture_coord_1) * color;\n"
+    "  float BLENDING = 1.0 - other.a;\n"
+    "  if( specular > 0.5 ) {\n"
+    "    if( other.a < 0.5 )\n"
+    "      other.a = 0.5;\n"
+    "    gl_FragColor = vec4(texture2D(Shine, world_reflection.xz).rgb * BLENDING + other.rgb, other.a);\n"
+    "  } else {\n"
+    "    if( other.a < 0.015625 )\n"
+    "      discard;\n"
+    "    gl_FragColor = other;\n"
+    "  }\n"
     "}\n";
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type ) {
     vertices[0].metadata.bitfield.texture_id = texture_id;
+    vertices[0].metadata.bitfield.polygon_type = poly_type;
     vertices[1].metadata.distance_from_camera = genDistanceSq( camera_position );
 }
 
@@ -176,11 +229,13 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
     Triangle triangle = *this;
 
     for( unsigned i = 0; i < 3; i++ ) {
-        auto position = matrix * glm::vec4( triangle.vertices[i].position, 1 );
+        const auto position = matrix * glm::vec4( triangle.vertices[i].position, 1 );
+        const auto normal   = matrix * glm::vec4( triangle.vertices[i].normal,   0 );
 
-        auto scale = 1.0f / position.w;
+        const auto scale = 1.0f / position.w;
 
         triangle.vertices[i].position = glm::vec3( position.x, position.y, position.z ) * scale;
+        triangle.vertices[i].normal   = glm::vec3(   normal.x,   normal.y,   normal.z );
     }
 
     triangle.vertices[1].metadata.distance_from_camera = triangle.genDistanceSq( camera_position );
@@ -190,14 +245,20 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
 
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
     vertex_array.addAttribute( "POSITION",   3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, position) ) );
+    vertex_array.addAttribute( "NORMAL",     3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, normal) ) );
     vertex_array.addAttribute( "COLOR_0",    4, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, color) ) );
     vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, coordinate) ) );
+    vertex_array.addAttribute( "_METADATA",  2, GL_SHORT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, vertex_metadata) ) );
 
     attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 _METADATA" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
+    varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "float specular" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 color" ) );
 }
 
@@ -250,11 +311,16 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
         {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
+            specular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
+            view_inv_uniform_id = program.getUniform( "ModelViewInv", &std::cout, &uniform_failed );
 
             attribute_failed |= !program.isAttribute( "POSITION", &std::cout );
+            attribute_failed |= !program.isAttribute( "NORMAL", &std::cout );
             attribute_failed |= !program.isAttribute( "COLOR_0", &std::cout );
             attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= !program.isAttribute( "_METADATA", &std::cout );
 
             vertex_array.allocate( program );
             vertex_array.cullUnfound( &std::cout );
@@ -263,7 +329,7 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
         }
 
         if( !link_success || uniform_failed || attribute_failed ) {
-            std::cout << "StaticModelDraw program has failed." << std::endl;
+            std::cout << "DynamicTriangleDraw program has failed." << std::endl;
 
             if( !link_success )
                 std::cout << "There is trouble with linking." << std::endl;
@@ -287,16 +353,31 @@ int Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::compileProgram() {
     }
 }
 
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::setEnvironmentTexture( Texture2D *env_texture_ref ) {
+    this->env_texture_r = env_texture_ref;
+}
+
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
     if( camera.transparent_triangles.triangles_amount == 0 )
         return; // There is no semi-transparent triangle to draw.
 
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
+    glm::mat4 model_view;
+    glm::mat4 model_view_inv;
 
     camera.getProjectionView3D( camera_3D_projection_view ); // camera_3D_projection_view = current_camera 3D matrix.
 
     // Use the static shader for the static models.
     program.use();
+
+    // Check if there is even a shiney texture.
+    if( env_texture_r != nullptr )
+        env_texture_r->bind( 1, specular_texture_uniform_id );
+
+    camera.getView3D( model_view );
+    model_view_inv = glm::inverse( model_view );
+    glUniformMatrix4fv( view_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view[0][0] ) );
+    glUniformMatrix4fv( view_inv_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &model_view_inv[0][0] ) );
 
     // We can now send the matrix to the program.
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );

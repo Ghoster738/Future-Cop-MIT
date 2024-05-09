@@ -1,10 +1,13 @@
 #include "Hash.h"
 
-#include "../X1Alpha.h"
-#include "../BaseTurret.h"
 #include "../Aircraft.h"
-#include "../Skycaptin.h"
+#include "../BaseTurret.h"
+#include "../ItemPickup.h"
+#include "../NeutralTurret.h"
 #include "../Prop.h"
+#include "../SkyCaptain.h"
+#include "../Trigger.h"
+#include "../X1Alpha.h"
 
 namespace {
 
@@ -14,15 +17,17 @@ private:
 
     Data::Mission::ACTResource* table_p[ TABLE_SIZE ];
     
-    // Type ID 16 - 36 Unknown bytes - Precinct Assault Powerups.
     // Type ID 32 - 32 Unknown bytes - Police Locker Unit Contianing Powerups.
 
     void setupTable() {
-        table_p[ Data::Mission::ACT::X1Alpha::TYPE_ID ] = new Data::Mission::ACT::X1Alpha();
-        table_p[ Data::Mission::ACT::BaseTurret::TYPE_ID ] = new Data::Mission::ACT::BaseTurret();
         table_p[ Data::Mission::ACT::Aircraft::TYPE_ID ] = new Data::Mission::ACT::Aircraft();
-        table_p[ Data::Mission::ACT::Skycaptin::TYPE_ID ] = new Data::Mission::ACT::Skycaptin();
+        table_p[ Data::Mission::ACT::BaseTurret::TYPE_ID ] = new Data::Mission::ACT::BaseTurret();
+        table_p[ Data::Mission::ACT::ItemPickup::TYPE_ID ] = new Data::Mission::ACT::ItemPickup();
+        table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
+        table_p[ Data::Mission::ACT::SkyCaptain::TYPE_ID ] = new Data::Mission::ACT::SkyCaptain();
+        table_p[ Data::Mission::ACT::Trigger::TYPE_ID ] = new Data::Mission::ACT::Trigger();
+        table_p[ Data::Mission::ACT::X1Alpha::TYPE_ID ] = new Data::Mission::ACT::X1Alpha();
     }
 public:
     Declaration() {

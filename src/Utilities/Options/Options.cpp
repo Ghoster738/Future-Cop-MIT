@@ -7,7 +7,8 @@ const std::string VIDEO_HEIGHT     = "height";
 const std::string VIDEO_FULLSCREEN = "fullscreen";
 
 const std::string DATA = "data";
-const std::string DATA_PLATFORM = "current_platform";
+const std::string DATA_LOAD_ALL_MAPS = "load_all_maps";
+const std::string DATA_PLATFORM      = "current_platform";
 
 const std::string DIRECTORIES = "directories";
 const std::string DIRECTORIES_SAVES       = "user_saved_games";
@@ -39,6 +40,7 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
     init( DIRECTORIES, DIRECTORIES_PSX_DATA, paths.getDataDirPath( Paths::PLAYSTATION ));
 
     init( DATA, DATA_PLATFORM, "windows" );
+    init( DATA, DATA_LOAD_ALL_MAPS, "false" ); // Loads all maps from storage memory to Random Access Memory. Set to false by default.
 };
 
 void Options::saveOptions() {
@@ -54,6 +56,17 @@ std::string Options::getCurrentPlatform() {
     return getString( DATA, DATA_PLATFORM );
 }
 void Options::setCurrentPlatform( std::string value ) { setString( DATA, DATA_PLATFORM, value); }
+
+
+bool Options::getLoadAllMaps() {
+    if( this->modified.count( DATA + DATA_LOAD_ALL_MAPS ) == 1 )
+        return getBool( DATA, DATA_LOAD_ALL_MAPS);
+
+    return parameters.load_all_maps.wasModified()
+        ? parameters.load_all_maps.getValue()
+        : getBool( DATA, DATA_LOAD_ALL_MAPS);
+}
+void Options::setLoadAllMaps(bool load_all_maps) { setBool(DATA, DATA_LOAD_ALL_MAPS, load_all_maps); this->modified.insert( DATA + DATA_LOAD_ALL_MAPS ); }
 
 int Options::getVideoWidth() {
     if( this->modified.count( VIDEO + VIDEO_WIDTH ) == 1 )

@@ -16,6 +16,7 @@ option(FCOption_ZLIB_VENDORED "Use zlib vendored library. Make sure the submodul
 option(FCOption_RELATIVE_PATHS_ONLY "This disables the complex file searchs inside the file structure of the operating system. Use this if you are making a headless version of this engine." OFF)
 option(FCOption_AUTOMATIC_MAP_SWITCHING "This makes the primary game switch maps every 10 seconds. This is for debugging purposes." OFF)
 option(FCOption_PREGCC_9_1_LIBRARIES "This configures this project to work with pre g++ 9.1. This is a workaround to get the filesystem working." OFF)
+option(FCOption_ACTOR_FACTORY "Enables compiling the actor factory which is for development use." OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -120,6 +121,11 @@ endif()
 add_executable( FCMissionReader src/FCMissionReader.cpp )
 target_link_libraries( FCMissionReader PRIVATE FC_IFF_IO )
 
+if( FCOption_ACTOR_FACTORY )
+  add_executable( FCActorFactory src/FCActorFactory.cpp )
+  target_link_libraries( FCActorFactory PRIVATE FC_IFF_IO )
+endif()
+
 include(${CMAKE_SOURCE_DIR}/cmake/GenerateVersionHeader.cmake)
 
 set (FUTURE_COP_MIT_VERSION "${FUTURE_COP_MIT_VERSION_FOUND}" CACHE STRING "Project version, autodetected if possible from")
@@ -147,7 +153,9 @@ file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} src/InputMenu.cpp src/MainProgram.cpp )
 
-add_executable( FCopMIT WIN32 src/FCopMIT.cpp src/PrimaryGame.cpp src/ModelViewer.cpp src/Menu.cpp src/MainMenu.cpp src/OptionsMenu.cpp src/MapSelectorMenu.cpp )
+file(GLOB_RECURSE FCOP_MIT_GAME src/Game/*.cpp )
+
+add_executable( FCopMIT WIN32 src/FCopMIT.cpp src/PrimaryGame.cpp src/ModelViewer.cpp src/Menu.cpp src/MainMenu.cpp src/OptionsMenu.cpp src/MapSelectorMenu.cpp ${FCOP_MIT_GAME} )
 
 if( TARGET SDL2::SDL2main )
   target_link_libraries (FCopMIT PRIVATE SDL2::SDL2main)

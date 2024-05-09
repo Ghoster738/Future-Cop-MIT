@@ -5,5 +5,8 @@ If there is no such thing as FindSDL2 in the compiling environment then the SDL2
 Be sure to set FCOption_GLM_VENDORED to ON and to make sure that the glm folder has the GLM sources inside. See GIT instructions to receive source code.
 
 #GIT instructions#
-Call this command bellow at the root of this project if you want to complie some of these libraries.
+Call this command bellow at the root of this project if you want to compile some of these libraries.
 git submodule update --init --recursive --progress --depth 1
+
+To update the version of the libraries.
+git clone --branch TAG_NAME --depth 1 URL_TO_SOURCE NAME_OF_DIR
