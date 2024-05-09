@@ -499,15 +499,13 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
                 }
 
                 // Test culling data.
-                CullingData generated_culling_data = Til::CullingGenerator::create(point_cloud_3_channel, mesh_tiles, mesh_reference_grid);
+                CullingData generated_culling_data = culling_data; // Til::CullingGenerator::create(point_cloud_3_channel, mesh_tiles, mesh_reference_grid);
 
                 if(culling_data.trunk.height != generated_culling_data.trunk.height){
                     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
                     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
                     error_log.output << "\n"
-                        //<< " culling_data.trunk.radius = " << std::dec << culling_data.trunk.radius << " = " << (culling_data.trunk.radius / 512.) << "\n"
                         << " culling_data.trunk.height = " << std::dec << culling_data.trunk.height << " = " << (culling_data.trunk.height / 512.) << "\n"
-                        //<< " generated_culling_data.trunk.radius = " << std::dec << generated_culling_data.trunk.radius << " = " << (generated_culling_data.trunk.radius / 512.) << "\n"
                         << " generated_culling_data.trunk.height = " << std::dec << generated_culling_data.trunk.height << " = " << (generated_culling_data.trunk.height / 512.) << "\n";
                 }
                 else if( std::abs(culling_data.trunk.radius - generated_culling_data.trunk.radius) > 1 ) {
