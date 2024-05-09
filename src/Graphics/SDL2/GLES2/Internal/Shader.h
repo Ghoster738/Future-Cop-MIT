@@ -1,9 +1,10 @@
 #ifndef GL_SHADER_4853_INCLUDE
 #define GL_SHADER_4853_INCLUDE
 
-#include "GLES2.h"
 #include <vector>
 #include <string>
+
+#include "GLES2.h"
 
 namespace Graphics {
 namespace SDL2 {
