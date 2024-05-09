@@ -64,7 +64,7 @@ public:
         * @param limit The number of triangles that dynamic triangle draw would support.
         * @return The number of triangles that where allocated.
         */
-        size_t allocateBuffer( size_t limit = 8738 );
+        size_t allocateBuffer( size_t limit = 8738 * 16 );
 
         /**
          * This method deletes the OpenGL allocations and resets the status of this struct.
