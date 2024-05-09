@@ -37,7 +37,7 @@ Data::Mission::TilResource::CullingData Data::Mission::Til::CullingGenerator::cr
             pixels[ FRONT_RIGHT ] = point_cloud_3_channel.getRef( y + 0, x + 1 );
 
             for(int_fast16_t f = 0; f < current_floor.tile_amount; f++) {
-                current_tile = mesh_tiles.at(current_floor.tiles_start);
+                current_tile = mesh_tiles.at(current_floor.tiles_start + f);
 
                 current_polygon = TileSet::default_mesh[current_tile.mesh_type];
 
