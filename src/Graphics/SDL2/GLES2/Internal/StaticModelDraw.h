@@ -57,11 +57,14 @@ protected:
     GLuint view_inv_uniform_id;
 
     std::map<uint32_t, ModelArray*> models_p;
+    std::map<uint32_t, ModelArray*> bounding_boxes_p;
 
     std::vector<glm::vec2> uv_frame_buffer;
 
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
+
+    void draw( Graphics::SDL2::GLES2::Camera &camera, std::map<uint32_t, ModelArray*> &model_array_p );
     
 public:
     StaticModelDraw();
@@ -138,14 +141,30 @@ public:
      */
     int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs );
 
+    /**
+     * This handles the loading of the models.
+     * @param model_type Holds the model information.
+     * @param resource_cobj The id associated with the model.
+     * @param textures The accessor of the textures available for the models. Only nothing texture is used.
+     * @return 1 for success, or -1 for failure.
+     */
+    int inputBoundingBoxes( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
+
     void clearModels();
 
     /**
-     * This draws all the models that are opeqe.
+     * This draws all the models that are opaque.
      * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and setWorld in this order are called SUCCESSFULLY.
      * @param camera This is the camera data to be passed into world.
      */
-    void draw( Graphics::SDL2::GLES2::Camera &camera );
+    void draw( Graphics::SDL2::GLES2::Camera &camera ) { draw( camera, models_p ); }
+
+    /**
+     * This draws all the bounding boxes.
+     * @note Make sure setFragmentShader, loadFragmentShader, compileProgram and setWorld in this order are called SUCCESSFULLY.
+     * @param camera This is the camera data to be passed into world.
+     */
+    void drawBoundingBoxes( Graphics::SDL2::GLES2::Camera &camera ) { draw( camera, bounding_boxes_p ); }
 
     int allocateObjModel( uint32_t resource_cobj, GLES2::ModelInstance &model_instance );
 

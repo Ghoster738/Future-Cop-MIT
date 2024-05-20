@@ -44,8 +44,8 @@ Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::Environment &envi
     if( gl_environment->morph_model_draw_bb_routine.containsModel( obj_identifier ) )
         model_draw_r = &gl_environment->morph_model_draw_bb_routine;
     else
-    if( gl_environment->static_model_draw_bb_routine.containsModel( obj_identifier ) )
-        model_draw_r = &gl_environment->static_model_draw_bb_routine;
+    if( gl_environment->static_model_draw_routine.containsModel( obj_identifier ) )
+        model_draw_r = &gl_environment->static_model_draw_routine;
 
     if( model_draw_r == nullptr )
         throw std::invalid_argument( "There is no routine Cobj identifier " + std::to_string( obj_identifier ) + " for bounding boxes does not exist in the graphics");

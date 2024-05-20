@@ -347,6 +347,29 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
     return state;
 }
+
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputBoundingBoxes( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    int state = 0;
+
+    if( model_type_r->getNumVertices() > 0 ) {
+        VertexAttributeArray vertex_array;
+
+        vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+        vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+        vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+        bounding_boxes_p[ obj_identifier ] = new ModelArray( &program );
+        bounding_boxes_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
+
+        state =  1;
+    }
+    else
+        state = -1;
+
+    return state;
+}
+
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::clearModels() {
     // Delete the models first.
     for( auto i = models_p.begin(); i != models_p.end(); i++ )
@@ -357,7 +380,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::clearModels() {
     models_p.clear();
 }
 
-void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera ) {
+void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera, std::map<uint32_t, ModelArray*> &model_array_p ) {
     glm::mat4 camera_3D_model_transform; // This holds the model transform like the position rotation and scale.
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
     glm::mat4 camera_3D_projection_view; // This holds the camera transform along with the view.
@@ -380,7 +403,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
     dynamic.camera_position = camera.getPosition();
 
     // Traverse the models.
-    for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
+    for( auto d = model_array_p.begin(); d != model_array_p.end(); d++ ) // Go through every model that has an instance.
     {
         // Get the mesh information.
         Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*d).second->mesh;
@@ -445,14 +468,14 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
 }
 
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjBBModel( uint32_t obj_identifier, GLES2::ModelInstance &model_instance ) {
-    if( models_p.find( obj_identifier ) != models_p.end() ) // Do some bounds checking!
+    if( bounding_boxes_p.find( obj_identifier ) != bounding_boxes_p.end() ) // Do some bounds checking!
     {
         // This holds the model instance sheet.
-        ModelArray *model_array_r = models_p[ obj_identifier ];
+        ModelArray *model_array_r = bounding_boxes_p[ obj_identifier ];
 
         model_instance.bb_array_r = model_array_r;
 
-        if( !models_p[ obj_identifier ]->mesh.getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius ) )
+        if( !bounding_boxes_p[ obj_identifier ]->mesh.getBoundingSphere( model_instance.culling_sphere_position, model_instance.culling_sphere_radius ) )
         {
             model_instance.culling_sphere_position = glm::vec3( 0, 0, 0 );
             model_instance.culling_sphere_radius = 1.0f;
