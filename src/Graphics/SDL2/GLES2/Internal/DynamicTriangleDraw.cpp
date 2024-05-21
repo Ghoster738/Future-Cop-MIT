@@ -155,6 +155,10 @@ bool getDrawCommand(Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triang
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const {
+    // Do not bother rendering triangles if there are non.
+    if( triangles_amount == 0 )
+        return;
+
     // Bind the array buffer.
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
 
@@ -164,72 +168,25 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
     // Bind the vertex array for the triangles.
     vertex_array.bind();
 
-    PolygonType current_polygon_type = PolygonType::MIX;
-    if( triangles_amount != 0 ) {
-        current_polygon_type = static_cast<PolygonType>( triangles_p[0].vertices[0].metadata.bitfield.polygon_type );
+    DrawTriangleCommand draw_command;
 
-        if( current_polygon_type == PolygonType::MIX ) {
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-        }
-        else {
-            glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
-        }
-    }
+    draw_command.triangle_index = 0;
 
-    uint32_t texture_id = 0;
-    Graphics::SDL2::GLES2::Internal::Texture2D* current_texture_r = nullptr;
-    if( textures.size() != 0 ) {
-        texture_id = textures.begin()->first;
-        current_texture_r = textures.begin()->second;
+    while(getDrawCommand(triangles_p, triangles_amount, draw_command)) {
+        BlendModeCommand &blend_mode = draw_command.blend_mode;
 
-        current_texture_r->bind( 0, diffusive_texture_uniform_id );
-    }
+        glBlendEquationSeparate(blend_mode.es_modeRGB, blend_mode.es_modeAlpha);
+        glBlendFuncSeparate(blend_mode.fs_srcRGB, blend_mode.fs_dstRGB, blend_mode.fs_srcAlpha, blend_mode.fs_dstAlpha);
 
-    size_t t_last = 0;
+        auto current_texture_r = textures.find( draw_command.texture_id );
 
-    for( size_t t = 0; t < triangles_amount; t++ ) {
-        if( texture_id != triangles_p[t].vertices[0].metadata.bitfield.texture_id ) {
-            texture_id = triangles_p[t].vertices[0].metadata.bitfield.texture_id;
-
-            auto item = textures.find( texture_id );
-
-            if( item != textures.end() ) {
-                current_texture_r = item->second;
-
-                if( t_last != t ) {
-                    glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
-
-                    t_last = t;
-                }
-
-                current_texture_r->bind( 0, diffusive_texture_uniform_id );
-            }
+        if( current_texture_r != textures.end() ) {
+            current_texture_r->second->bind( 0, diffusive_texture_uniform_id );
         }
 
-        if( current_polygon_type != static_cast<PolygonType>( triangles_p[t].vertices[0].metadata.bitfield.polygon_type ) ) {
-            if( t_last != t ) {
-                glDrawArrays( GL_TRIANGLES, t_last * 3, (t - t_last) * 3 );
+        glDrawArrays( GL_TRIANGLES, 3 * draw_command.triangle_index, 3 * draw_command.triangle_count );
 
-                t_last = t;
-            }
-
-            current_polygon_type = static_cast<PolygonType>( triangles_p[t].vertices[0].metadata.bitfield.polygon_type );
-
-            if( current_polygon_type == PolygonType::MIX ) {
-                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-            }
-            else {
-                glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
-            }
-        }
-    }
-
-    if( t_last < triangles_amount ) {
-        glDrawArrays( GL_TRIANGLES, t_last * 3, (triangles_amount - t_last) * 3 );
+        draw_command.triangle_index += draw_command.triangle_count;
     }
 }
 
