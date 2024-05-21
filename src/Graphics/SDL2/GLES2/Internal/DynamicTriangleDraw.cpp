@@ -86,10 +86,82 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::sortTria
     std::sort( triangles_p, triangles_p + triangles_amount, compare );
 }
 
+namespace {
+struct BlendModeCommand {
+    GLenum es_modeRGB;
+    GLenum es_modeAlpha;
+    GLenum fs_srcRGB;
+    GLenum fs_dstRGB;
+    GLenum fs_srcAlpha;
+    GLenum fs_dstAlpha;
+};
+
+struct DrawTriangleCommand {
+    BlendModeCommand blend_mode;
+    uint32_t texture_id;
+
+    size_t triangle_index;
+    size_t triangle_count;
+};
+
+bool getDrawCommand(Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle *triangles_r, size_t triangles_amount, DrawTriangleCommand &draw_command) {
+    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType current_polygon_type;
+
+    if(draw_command.triangle_index == triangles_amount)
+        return false;
+
+    assert(draw_command.triangle_index < triangles_amount);
+
+    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &vertex = triangles_r[draw_command.triangle_index].vertices[0];
+
+    current_polygon_type = static_cast<Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType>( vertex.metadata.bitfield.polygon_type );
+
+    switch( current_polygon_type ) {
+        case Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType::ADDITION:
+            draw_command.blend_mode.es_modeRGB = GL_FUNC_ADD;
+            draw_command.blend_mode.es_modeAlpha = GL_FUNC_ADD;
+            draw_command.blend_mode.fs_srcRGB = GL_SRC_ALPHA;
+            draw_command.blend_mode.fs_dstRGB = GL_ONE;
+            draw_command.blend_mode.fs_srcAlpha = GL_ONE;
+            draw_command.blend_mode.fs_dstAlpha = GL_ZERO;
+            break;
+        default:
+        case Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType::MIX:
+            draw_command.blend_mode.es_modeRGB = GL_FUNC_ADD;
+            draw_command.blend_mode.es_modeAlpha = GL_FUNC_ADD;
+            draw_command.blend_mode.fs_srcRGB = GL_SRC_ALPHA;
+            draw_command.blend_mode.fs_dstRGB = GL_ONE_MINUS_SRC_ALPHA;
+            draw_command.blend_mode.fs_srcAlpha = GL_ONE;
+            draw_command.blend_mode.fs_dstAlpha = GL_ZERO;
+    };
+
+    draw_command.texture_id = vertex.metadata.bitfield.texture_id;
+
+    draw_command.triangle_count = 0;
+
+    while(draw_command.triangle_index + draw_command.triangle_count < triangles_amount) {
+        draw_command.triangle_count++;
+
+        Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &next_vertex = triangles_r[draw_command.triangle_index + draw_command.triangle_count].vertices[0];
+
+        if(vertex.metadata.bitfield.texture_id != next_vertex.metadata.bitfield.texture_id)
+            return true;
+        else
+        if(vertex.metadata.bitfield.polygon_type != next_vertex.metadata.bitfield.polygon_type)
+            return true;
+    }
+    return true;
+}
+}
+
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const {
-    // Finally, we can draw the triangles.
+    // Bind the array buffer.
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+
+    // Upload the triangle data to the array buffer.
     glBufferSubData( GL_ARRAY_BUFFER, 0, triangles_amount * sizeof(Triangle), triangles_p );
+
+    // Bind the vertex array for the triangles.
     vertex_array.bind();
 
     PolygonType current_polygon_type = PolygonType::MIX;
