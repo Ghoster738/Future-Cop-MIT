@@ -34,7 +34,6 @@ public:
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
     bool draw_bounding_boxes;
-    Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_bb_routine = Graphics::SDL2::GLES2::Internal::MorphModelDraw(false);
 
 public:
     Environment();

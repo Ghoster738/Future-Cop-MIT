@@ -41,10 +41,10 @@ Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::Environment &envi
 
     model_draw_r = nullptr;
 
-    if( gl_environment->morph_model_draw_bb_routine.containsModel( obj_identifier ) )
-        model_draw_r = &gl_environment->morph_model_draw_bb_routine;
+    if( gl_environment->morph_model_draw_routine.containsBBModel( obj_identifier ) )
+        model_draw_r = &gl_environment->morph_model_draw_routine;
     else
-    if( gl_environment->static_model_draw_routine.containsModel( obj_identifier ) )
+    if( gl_environment->static_model_draw_routine.containsBBModel( obj_identifier ) )
         model_draw_r = &gl_environment->static_model_draw_routine;
 
     if( model_draw_r == nullptr )

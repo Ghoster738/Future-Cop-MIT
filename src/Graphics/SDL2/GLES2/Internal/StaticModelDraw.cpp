@@ -217,6 +217,13 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsModel( uint32_t o
         return false;
 }
 
+bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsBBModel( uint32_t obj_identifier ) const {
+    if( bounding_boxes_p.find( obj_identifier ) != bounding_boxes_p.end() )
+        return ( bounding_boxes_p.at( obj_identifier ) != nullptr );
+    else
+        return false;
+}
+
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
     int state = 0;
 
@@ -378,6 +385,13 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::clearModels() {
         (*i).second = nullptr; // Then set the pointer to null.
     }
     models_p.clear();
+    // Simiualar, but different.
+    for( auto i = bounding_boxes_p.begin(); i != bounding_boxes_p.end(); i++ )
+    {
+        delete (*i).second;
+        (*i).second = nullptr;
+    }
+    bounding_boxes_p.clear();
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLES2::Camera &camera, std::map<uint32_t, ModelArray*> &model_array_p ) {

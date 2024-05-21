@@ -207,16 +207,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         if( err != GL_NO_ERROR )
             std::cout << "Morph Model shader is broken!: " << err << std::endl;
 
-        // Setup the vertex and fragment shaders
-        this->morph_model_draw_bb_routine.setVertexShader();
-        this->morph_model_draw_bb_routine.setFragmentShader();
-        this->morph_model_draw_bb_routine.compileProgram();
-
-        err = glGetError();
-
-        if( err != GL_NO_ERROR )
-            std::cout << "Morph Model Bounding Box shader is broken!: " << err << std::endl;
-
         this->skeletal_model_draw_routine.setVertexShader();
         this->skeletal_model_draw_routine.setFragmentShader();
         this->skeletal_model_draw_routine.compileProgram();
@@ -241,8 +231,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         this->skeletal_model_draw_routine.clearModels();
         this->morph_model_draw_routine.clearModels();
         this->static_model_draw_routine.clearModels();
-
-        this->morph_model_draw_bb_routine.clearModels();
     }
 
     this->static_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
@@ -272,7 +260,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
             if( model_r != nullptr ) {
                 if( model_r->getNumMorphFrames() > 0)
-                    this->morph_model_draw_bb_routine.inputModel( model_r, model_types[ i ]->getResourceID(), this->textures, model_types[ i ]->getFaceOverrideTypes(), model_types[ i ]->getFaceOverrideData() );
+                    this->morph_model_draw_routine.inputBoundingBoxes( model_r, model_types[ i ]->getResourceID(), this->textures );
                 else
                     this->static_model_draw_routine.inputBoundingBoxes( model_r, model_types[ i ]->getResourceID(), this->textures );
             }
@@ -407,7 +395,7 @@ void Environment::drawFrame() {
                 glDisable( GL_CULL_FACE );
                 glDisable( GL_BLEND );
                 this->static_model_draw_routine.drawBoundingBoxes( *current_camera_r );
-                this->morph_model_draw_bb_routine.draw(  *current_camera_r );
+                this->morph_model_draw_routine.drawBoundingBoxes(  *current_camera_r );
                 glEnable( GL_CULL_FACE );
                 glEnable( GL_BLEND );
             }

@@ -64,6 +64,7 @@ protected:
     // The textures will also need to be accessed.
     Texture2D *shiney_texture_r; // This holds the environment map.
 
+private:
     void draw( Graphics::SDL2::GLES2::Camera &camera, std::map<uint32_t, ModelArray*> &model_array_p );
     
 public:
@@ -124,11 +125,18 @@ public:
     void setEnvironmentTexture( Texture2D *env_texture_ref );
 
     /**
-     * This checks for the existence of the model inside the Draw routine.
+     * This checks for the existence of the model inside the draw routine.
      * @note This is meant to tell Environment whether or not the model is contained within a *ModelDraw class.
      * @return True if the model exists in the class.
      */
     bool containsModel( uint32_t obj_identifier ) const;
+
+    /**
+     * This checks for the existence of the specific bounding boxes inside the draw routine.
+     * @note This is meant to tell Environment whether or not the model is contained within a *ModelDraw class.
+     * @return True if the model exists in the class.
+     */
+    bool containsBBModel( uint32_t obj_identifier ) const;
 
     /**
      * This handles the loading of the models.
