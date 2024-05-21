@@ -104,18 +104,19 @@ struct DrawTriangleCommand {
     size_t triangle_count;
 };
 
-bool getDrawCommand(Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle *triangles_r, size_t triangles_amount, DrawTriangleCommand &draw_command) {
-    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType current_polygon_type;
-
+bool getDrawCommand(const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle *const triangles_r, const size_t triangles_amount, DrawTriangleCommand &draw_command) {
+    // If the triangle index is equal to the triangles amount then we are done.
     if(draw_command.triangle_index == triangles_amount)
-        return false;
+        return false; // Return false there is no other drawing command. We are done.
 
+    // In no circumstances should the triangle index exceed the amount of triangles.
     assert(draw_command.triangle_index < triangles_amount);
 
-    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &vertex = triangles_r[draw_command.triangle_index].vertices[0];
+    const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &vertex = triangles_r[draw_command.triangle_index].vertices[0];
 
-    current_polygon_type = static_cast<Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType>( vertex.metadata.bitfield.polygon_type );
+    auto current_polygon_type = static_cast<Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType>( vertex.metadata.bitfield.polygon_type );
 
+    // This affects the blending code. Redundent, but I would like my code to be expandable.
     switch( current_polygon_type ) {
         case Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType::ADDITION:
             draw_command.blend_mode.es_modeRGB = GL_FUNC_ADD;
@@ -135,27 +136,33 @@ bool getDrawCommand(Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triang
             draw_command.blend_mode.fs_dstAlpha = GL_ZERO;
     };
 
+    // Get the texture id.
     draw_command.texture_id = vertex.metadata.bitfield.texture_id;
 
+    // This line of code is very important. It resets the triangle count.
     draw_command.triangle_count = 0;
 
+    // Go through every triangle.
     while(draw_command.triangle_index + draw_command.triangle_count < triangles_amount) {
+
+        // Increment the triangle count by one.
         draw_command.triangle_count++;
 
-        Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &next_vertex = triangles_r[draw_command.triangle_index + draw_command.triangle_count].vertices[0];
+        const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &current_vertex = triangles_r[draw_command.triangle_index + draw_command.triangle_count].vertices[0];
 
-        if(vertex.metadata.bitfield.texture_id != next_vertex.metadata.bitfield.texture_id)
-            return true;
+        // Check if the drawing mode differs for each triangle.
+        if(vertex.metadata.bitfield.texture_id != current_vertex.metadata.bitfield.texture_id)
+            return true; // exit the loop and return true to tell that there might be another draw command.
         else
-        if(vertex.metadata.bitfield.polygon_type != next_vertex.metadata.bitfield.polygon_type)
-            return true;
+        if(vertex.metadata.bitfield.polygon_type != current_vertex.metadata.bitfield.polygon_type)
+            return true; // exit the loop and return true to tell that there might be another draw command.
     }
-    return true;
+    return true; // Return true to tell that there might be another draw command?
 }
 }
 
 void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const {
-    // Do not bother rendering triangles if there are non.
+    // Do not bother rendering triangles if there are none.
     if( triangles_amount == 0 )
         return;
 
@@ -172,20 +179,26 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
 
     draw_command.triangle_index = 0;
 
+    // Loop until every draw command has been decoded.
     while(getDrawCommand(triangles_p, triangles_amount, draw_command)) {
-        BlendModeCommand &blend_mode = draw_command.blend_mode;
 
+        // Blend mode can affect the rendering.
+        const BlendModeCommand &blend_mode = draw_command.blend_mode;
+
+        // Set the blend method.
         glBlendEquationSeparate(blend_mode.es_modeRGB, blend_mode.es_modeAlpha);
         glBlendFuncSeparate(blend_mode.fs_srcRGB, blend_mode.fs_dstRGB, blend_mode.fs_srcAlpha, blend_mode.fs_dstAlpha);
 
+        // Set the texture.
         auto current_texture_r = textures.find( draw_command.texture_id );
-
         if( current_texture_r != textures.end() ) {
             current_texture_r->second->bind( 0, diffusive_texture_uniform_id );
         }
 
+        // Draw the triangles.
         glDrawArrays( GL_TRIANGLES, 3 * draw_command.triangle_index, 3 * draw_command.triangle_count );
 
+        // Increment the triangle index of the draw command. Unless you like infinite cycles.
         draw_command.triangle_index += draw_command.triangle_count;
     }
 }
