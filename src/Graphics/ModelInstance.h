@@ -19,6 +19,8 @@ public:
     
     float position_transform_timeline;
     unsigned int texture_transform_timeline;
+    float texture_transform_remainder;
+
 protected:
     
     ModelInstance(
