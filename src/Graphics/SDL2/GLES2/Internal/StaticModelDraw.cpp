@@ -1,18 +1,21 @@
 #include "StaticModelDraw.h"
 #include "../ModelInstance.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath> // fmod()
 #include <iostream>
+
+#include <glm/gtc/type_ptr.hpp>
 #include "SDL.h"
 
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const {
     for(auto i = uv_animation_info.cbegin(); i != uv_animation_info.cend(); i++) {
-        const size_t index = 4 * (i - uv_animation_info.begin());
         const uint_fast32_t duration = time % (*i).getEntireDurationUnits();
-        const uint_fast32_t frame_index = ((*i).number_of_frames - 1) - duration / (*i).frame_duration;
-
+        const uint_fast32_t frame_index = ((*i).number_of_frames - 1) - (duration / (*i).frame_duration);
+        
+        const size_t index = 4 * (i - uv_animation_info.cbegin());
         const size_t uv_data_index = (*i).uv_data_offset / sizeof(glm::u8vec2) + 4 * frame_index;
 
         uv_frame_buffer[index + 0] = glm::vec2(uv_animation_data[uv_data_index + 0].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 0].y * 1.0 / 256.0);
@@ -21,7 +24,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::ModelArray::bindUVAnimati
         uv_frame_buffer[index + 3] = glm::vec2(uv_animation_data[uv_data_index + 3].x * 1.0 / 256.0, uv_animation_data[uv_data_index + 3].y * 1.0 / 256.0);
     }
 
-    glUniform2fv( animated_uv_frames_id, uv_frame_buffer.size(), reinterpret_cast<float*>(uv_frame_buffer.data()) );
+    if(uv_frame_buffer.size() != 0)
+        glUniform2fv( animated_uv_frames_id, uv_frame_buffer.size(), reinterpret_cast<float*>(glm::value_ptr(uv_frame_buffer[0])) );
+    else
+        glUniform2f( animated_uv_frames_id, 0, 0);
 }
 
 void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
@@ -427,9 +433,15 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
         {
             if( camera.isVisible( *(*instance) ) ) {
                 const auto texture_offset = (*instance)->getTextureOffset();
-                glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
-
-                (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
+                
+                if(&models_p == &model_array_p) {
+                    glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
+                    (*d).second->bindUVAnimation(this->animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
+                }
+                else {
+                    glUniform2f( this->texture_offset_uniform_id, 0, 0 );
+                    glUniform2f( this->animated_uv_frames_id, 0, 0 );
+                }
 
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.

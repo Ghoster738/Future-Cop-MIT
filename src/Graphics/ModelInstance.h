@@ -18,6 +18,7 @@ protected:
     
     float position_transform_timeline;
     unsigned int texture_transform_timeline;
+    float texture_transform_remainder;
     
     ModelInstance(
         const glm::vec3 &pos,
