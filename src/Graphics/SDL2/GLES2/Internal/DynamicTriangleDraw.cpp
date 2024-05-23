@@ -195,6 +195,9 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
             current_texture_r->second->bind( 0, diffusive_texture_uniform_id );
         }
 
+        // Tell OpenGL to be finished with all the rendering commands before rendering semi-transparent triangles.
+        glFinish();
+
         // Draw the triangles.
         glDrawArrays( GL_TRIANGLES, 3 * draw_command.triangle_index, 3 * draw_command.triangle_count );
 
