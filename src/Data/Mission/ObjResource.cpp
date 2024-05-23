@@ -2173,7 +2173,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
 
         glm::vec3 position;
         glm::vec3 morph_position;
-        glm::u8vec4 color(255, 255, 255, 255);
+        glm::u8vec4 color(0, 255, 0, 255);
 
         // At this point it is time to start generating bounding box.
 

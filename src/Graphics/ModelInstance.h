@@ -15,13 +15,10 @@ protected:
     glm::vec3 position;
     glm::quat rotation; // This value is a quaterion.
     glm::vec2 texture_offset;
-public:
     
     float position_transform_timeline;
     unsigned int texture_transform_timeline;
     float texture_transform_remainder;
-
-protected:
     
     ModelInstance(
         const glm::vec3 &pos,
