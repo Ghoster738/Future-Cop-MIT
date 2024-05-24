@@ -23,13 +23,13 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
 
         attributes.back().name = name;
         attributes.back().is_generic = false;
-
         attributes.back().index = -1; // This will be set by allocate.
         attributes.back().size = size;
-        attributes.back().type = type;
-        attributes.back().normalized = normalized;
-        attributes.back().stride = stride;
-        attributes.back().offset_r = pointer_r;
+        
+        attributes.back().type.attribute_data.type = type;
+        attributes.back().type.attribute_data.normalized = normalized;
+        attributes.back().type.attribute_data.stride = stride;
+        attributes.back().type.attribute_data.offset_r = pointer_r;
 
         return true;
     }
@@ -55,10 +55,10 @@ bool Graphics::SDL2::GLES2::Internal::VertexAttributeArray::addAttribute( const 
         attributes.back().index = -1; // This will be set by allocate.
         attributes.back().size = size;
 
-        attributes.back().values[0] = value[0];
-        attributes.back().values[1] = value[1];
-        attributes.back().values[2] = value[2];
-        attributes.back().values[3] = value[3];
+        attributes.back().type.generic.values[0] = value[0];
+        attributes.back().type.generic.values[1] = value[1];
+        attributes.back().type.generic.values[2] = value[2];
+        attributes.back().type.generic.values[3] = value[3];
 
         return true;
     }
@@ -165,23 +165,53 @@ void Graphics::SDL2::GLES2::Internal::VertexAttributeArray::bind( size_t buffer_
 
             switch((*i).size) {
                 case 1:
-                    glVertexAttrib1fv((*i).index, (*i).values);
+                    glVertexAttrib1fv((*i).index, (*i).type.generic.values);
                     break;
                 case 2:
-                    glVertexAttrib2fv((*i).index, (*i).values);
+                    glVertexAttrib2fv((*i).index, (*i).type.generic.values);
                     break;
                 case 3:
-                    glVertexAttrib3fv((*i).index, (*i).values);
+                    glVertexAttrib3fv((*i).index, (*i).type.generic.values);
                     break;
                 default:
                 case 4:
-                    glVertexAttrib4fv((*i).index, (*i).values);
+                    glVertexAttrib4fv((*i).index, (*i).type.generic.values);
                     break;
             }
         }
         else {
             glEnableVertexAttribArray( (*i).index );
-            glVertexAttribPointer( (*i).index, (*i).size, (*i).type, (*i).normalized, (*i).stride, reinterpret_cast<void*>( reinterpret_cast<size_t>( (*i).offset_r ) + buffer_offset ) );
+            glVertexAttribPointer( (*i).index, (*i).size, (*i).type.attribute_data.type, (*i).type.attribute_data.normalized, (*i).type.attribute_data.stride, reinterpret_cast<void*>( reinterpret_cast<size_t>( (*i).type.attribute_data.offset_r ) + buffer_offset ) );
         }
     }
 }
+
+std::string Graphics::SDL2::GLES2::Internal::VertexAttributeArray::getBindLayout( size_t buffer_offset ) const {
+    std::stringstream string_data;
+    
+    for( auto i = attributes.begin(); i < attributes.end(); i++ )
+    {
+        if((*i).is_generic) {
+            string_data << "glVertexAttrib" << (*i).size << "fv(" << (*i).index << " or \"" << (*i).name << "\", { ";
+            
+            for(int d = 0; d < (*i).size; d++) {
+                string_data << (*i).type.generic.values[d] << " ";
+            }
+            
+            string_data << "});\n";
+        }
+        else {
+            string_data << "glVertexAttribPointer( " << (*i).index << " or \"" << (*i).name << "\", " << (*i).size << ", ";
+            string_data << (*i).type.attribute_data.type << ", ";
+            if((*i).type.attribute_data.normalized)
+                string_data << "true, ";
+            else
+                string_data << "false, ";
+            string_data << (*i).type.attribute_data.stride << ", ";
+            string_data << (reinterpret_cast<size_t>( (*i).type.attribute_data.offset_r ) + buffer_offset) << ");\n";
+        }
+    }
+    
+    return string_data.str();
+}
+

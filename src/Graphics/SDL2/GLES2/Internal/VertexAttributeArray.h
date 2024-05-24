@@ -19,18 +19,24 @@ class VertexAttributeArray {
 protected:
     struct AttributeType {
         std::basic_string<GLchar> name;
-
-        // These are the parameters for glVertexAttribPointer.
+        
+        bool is_generic;
+        
         GLint index;
         GLint size;
-        GLenum type;
-        GLboolean normalized;
-        GLsizei stride;
-        
-        void *offset_r;
 
-        bool is_generic;
-        float values[4];
+        // These are the parameters for glVertexAttribPointer.
+        union {
+            struct {
+                GLenum type;
+                GLboolean normalized;
+                GLsizei stride;
+                void *offset_r;
+            } attribute_data;
+            struct {
+                float values[4];
+            } generic;
+        } type;
     };
     std::vector<AttributeType> attributes;
 public:
@@ -82,6 +88,8 @@ public:
      * @param buffer_offset This is where to start reading the buffer.
      */
     void bind( size_t buffer_offset = 0 ) const;
+    
+    std::string getBindLayout( size_t buffer_offset ) const;
 };
 
 }

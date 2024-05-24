@@ -392,12 +392,8 @@ void Environment::drawFrame() {
             glDisable(GL_DEPTH_TEST);
 
             if(draw_bounding_boxes) {
-                glDisable( GL_CULL_FACE );
-                glDisable( GL_BLEND );
                 this->static_model_draw_routine.drawBoundingBoxes( *current_camera_r );
                 this->morph_model_draw_routine.drawBoundingBoxes(  *current_camera_r );
-                glEnable( GL_CULL_FACE );
-                glEnable( GL_BLEND );
             }
 
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
