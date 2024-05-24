@@ -267,6 +267,8 @@ void MainProgram::setupGraphics() {
     if( this->environment_p == nullptr )
         throwException( "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " + this->graphics_identifier );
 
+    this->environment_p->setDynamicTriangleFinalizeBitfield(options.getTemporaryBitfield());
+
     // Declare a pointer
     Graphics::Window *window_r = Graphics::Window::alloc( *this->environment_p );
 
