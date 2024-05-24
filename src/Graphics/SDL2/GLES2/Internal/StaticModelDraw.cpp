@@ -159,6 +159,12 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
 
         // Allocate the opengl program for the map.
         program.allocate();
+        
+        glBindAttribLocation( program.getProgramID(), 0, "POSITION" );
+        glBindAttribLocation( program.getProgramID(), 1, "COLOR_0" );
+        glBindAttribLocation( program.getProgramID(), 2, "NORMAL" );
+        glBindAttribLocation( program.getProgramID(), 3, "TEXCOORD_0" );
+        glBindAttribLocation( program.getProgramID(), 4, "_METADATA" );
 
         // Give the program these two shaders.
         program.setVertexShader( &vertex_shader );
