@@ -98,6 +98,8 @@ public:
      * @return true if a bounding sphere is generated.
      */
     bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
+    
+    std::string getVertexLayout() const { return vertex_array.getBindLayout(0); }
 };
 
 }

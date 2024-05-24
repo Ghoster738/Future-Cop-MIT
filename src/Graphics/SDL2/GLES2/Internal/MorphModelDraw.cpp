@@ -117,10 +117,10 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
 
     "void main()\n"
     "{\n"
-    "   vec4 current_position = POSITION + POSITION_Last * vec4( SampleLast );\n"
+    "   vec3 current_position = POSITION + POSITION_Last * vec3( SampleLast );\n"
     "   vec3 current_normal   = NORMAL   + NORMAL_Last   * vec3( SampleLast );\n"
     // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
-    "   vec3 eye_coord_position = vec3( ModelView * current_position );\n" // Model View multiplied by Model Position.
+    "   vec3 eye_coord_position = vec3( ModelView * vec4(current_position, 1.0) );\n" // Model View multiplied by Model Position.
     "   vec3 eye_coord_normal   = vec3( ModelView * vec4(current_normal, 0.0));\n"
     "   eye_coord_normal        = normalize( eye_coord_normal );\n"
     "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
@@ -132,13 +132,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
+    "   gl_Position = Transform * vec4(current_position, 1.0);\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::MorphModelDraw::MorphModelDraw() {
     // These inputs are for the morph attributes
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION_Next" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL_Next" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION_Last" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION_Last" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL_Last" ) );
 
     const size_t MORPH_BUFFER_NO_NORMALS_SIZE = 3 * sizeof( float );

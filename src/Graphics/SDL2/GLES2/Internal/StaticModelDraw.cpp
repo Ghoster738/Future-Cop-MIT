@@ -75,7 +75,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "void main()\n"
     "{\n"
     // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
-    "   vec3 eye_coord_position = vec3( ModelView * POSITION );\n" // Model View multiplied by Model Position.
+    "   vec3 eye_coord_position = vec3( ModelView * vec4(POSITION, 1.0) );\n" // Model View multiplied by Model Position.
     "   vec3 eye_coord_normal   = vec3( ModelView * vec4(NORMAL, 0.0));\n"
     "   eye_coord_normal        = normalize( eye_coord_normal );\n"
     "   vec3 eye_reflection     = reflect( eye_coord_position, eye_coord_normal);\n"
@@ -109,7 +109,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
     shiney_texture_r = nullptr;
 
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
     attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
@@ -159,6 +159,12 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
 
         // Allocate the opengl program for the map.
         program.allocate();
+        
+        glBindAttribLocation( program.getProgramID(), 0, "POSITION" );
+        glBindAttribLocation( program.getProgramID(), 1, "COLOR_0" );
+        glBindAttribLocation( program.getProgramID(), 2, "NORMAL" );
+        glBindAttribLocation( program.getProgramID(), 3, "TEXCOORD_0" );
+        glBindAttribLocation( program.getProgramID(), 4, "_METADATA" );
 
         // Give the program these two shaders.
         program.setVertexShader( &vertex_shader );
