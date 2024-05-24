@@ -85,7 +85,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
 
     "void main()\n"
     "{\n"
-    "   vec4 current_position = Bone[ int( JOINTS_0.x ) ] * POSITION;\n"
+    "   vec4 current_position = Bone[ int( JOINTS_0.x ) ] * vec4(POSITION, 1.0);\n"
     "   vec3 current_normal   = NORMAL;\n"
     // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
     "   vec3 eye_coord_position = vec3( ModelView * current_position );\n" // Model View multiplied by Model Position.
