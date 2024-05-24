@@ -89,7 +89,7 @@ public:
 
         // The following methods are for internal use only.
         void sortTriangles();
-        void draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const;
+        void draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id, unsigned finalize_bitfield ) const;
     };
 protected:
 
@@ -172,7 +172,7 @@ public:
      * @param camera This is the camera data to be passed into this routine.
      * @param textures This is the camera data to be passed into this routine.
      */
-    void draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures );
+    void draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, unsigned finalize_bitfield );
 
     /**
      * @return the program that this World uses.
