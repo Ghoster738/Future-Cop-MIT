@@ -207,7 +207,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
         const BlendModeCommand &blend_mode = draw_command.blend_mode;
 
         // Set the blend method if the draw command is first or if blend method has changed.
-        if(draw_command.triangle_index == 0 && !last_draw_command.blend_mode.isEqual(blend_mode)) {
+        if(draw_command.triangle_index == 0 || !last_draw_command.blend_mode.isEqual(blend_mode)) {
             glBlendEquationSeparate(blend_mode.es_modeRGB, blend_mode.es_modeAlpha);
             glBlendFuncSeparate(blend_mode.fs_srcRGB, blend_mode.fs_dstRGB, blend_mode.fs_srcAlpha, blend_mode.fs_dstAlpha);
 
@@ -216,7 +216,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
                 should_call_finalize = true;
         }
 
-        if(draw_command.triangle_index == 0 && draw_command.texture_id != last_draw_command.texture_id) {
+        if(draw_command.triangle_index == 0 || draw_command.texture_id != last_draw_command.texture_id) {
             // Set the texture if it exists.
             auto current_texture_r = textures.find( draw_command.texture_id );
             if( current_texture_r != textures.end() ) {
