@@ -2160,14 +2160,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() const {
     const unsigned int BOX_EDGES = 12;
     const unsigned int EDGE_AMOUNT = 2;
-    glm::i16vec2 metadata = {0, 0};
 
     if(bounding_box_per_frame > 0 && bounding_box_frames > 0) {
         Utilities::ModelBuilder *box_output = new Utilities::ModelBuilder( Utilities::ModelBuilder::LINES );
 
         unsigned int position_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
         unsigned int color_coord_component_index = box_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
-        unsigned int metadata_component_index = box_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
         unsigned int position_morph_component_index = 0;
 
         if( bounding_box_frames > 1 )
@@ -2223,7 +2221,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() cons
                 box_output->startVertex();
                 box_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( position ) );
                 box_output->setVertexData( color_coord_component_index, Utilities::DataTypes::Vec4UByteType( color ) );
-                box_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
 
                 for(unsigned int f = 1; f < bounding_box_frames; f++) {
                     const BoundingBox3D &morph_box = this->bounding_boxes[ box_index * bounding_box_frames + f ];

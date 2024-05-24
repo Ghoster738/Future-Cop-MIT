@@ -161,8 +161,6 @@ void Graphics::SDL2::GLES2::Internal::VertexAttributeArray::bind( size_t buffer_
     for( auto i = attributes.begin(); i < attributes.end(); i++ )
     {
         if((*i).is_generic) {
-            glDisableVertexAttribArray( (*i).index );
-
             switch((*i).size) {
                 case 1:
                     glVertexAttrib1fv((*i).index, (*i).type.generic.values);
@@ -178,10 +176,11 @@ void Graphics::SDL2::GLES2::Internal::VertexAttributeArray::bind( size_t buffer_
                     glVertexAttrib4fv((*i).index, (*i).type.generic.values);
                     break;
             }
+            glDisableVertexAttribArray( (*i).index );
         }
         else {
-            glEnableVertexAttribArray( (*i).index );
             glVertexAttribPointer( (*i).index, (*i).size, (*i).type.attribute_data.type, (*i).type.attribute_data.normalized, (*i).type.attribute_data.stride, reinterpret_cast<void*>( reinterpret_cast<size_t>( (*i).type.attribute_data.offset_r ) + buffer_offset ) );
+            glEnableVertexAttribArray( (*i).index );
         }
     }
 }
