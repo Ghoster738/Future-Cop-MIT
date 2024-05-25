@@ -397,7 +397,8 @@ void MainProgram::loadSound() {
 
     auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
 
-    log.output << "Sound did not load. Error code: " << result;
+    if( result < 0 )
+        log.output << "Sound did not load. Error code: " << result;
 }
 
 void MainProgram::setupCamera() {
