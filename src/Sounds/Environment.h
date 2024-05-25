@@ -65,6 +65,11 @@ public:
      */
     virtual std::string getEnvironmentIdentifier() const = 0;
 
+    /**
+     * This loads the resources and initializes this environment if not initialized before.
+     * @param accessor This is the data accessor to both globals and maps.
+     * @return The amount of resources successfully loaded. A negative number indicates error codes.
+     */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 };
 
