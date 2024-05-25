@@ -67,6 +67,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
         this->til_resources = std::vector<Data::Mission::TilResource*>();
 
     main_program.loadGraphics();
+    main_program.loadSound();
 
     glm::u32vec2 scale = main_program.getWindowScale();
     this->font_height = (1. / 30.) * static_cast<float>( scale.y );

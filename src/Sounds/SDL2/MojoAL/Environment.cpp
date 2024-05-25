@@ -74,6 +74,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     std::vector<const Data::Mission::MSICResource*> misc = accessor.getAllMISC();
 
+    if(music_source != 0)
+        alDeleteSources(1, &music_source);
+    if(music_buffer != 0)
+        alDeleteBuffers(1, &music_buffer);
+
     if(misc.size() != 0) {
         const Data::Mission::WAVResource *const sound = misc[0]->soundAccessor();
 
