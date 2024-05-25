@@ -18,6 +18,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     this->text_2d_buffer_r = nullptr;
     this->first_person_r   = nullptr;
     this->control_system_p = nullptr;
+    this->sound_system_p   = nullptr;
     this->menu_r           = nullptr;
     this->primary_game_r   = nullptr;
 
@@ -39,8 +40,11 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     setupLogging();
     initGraphics();
     setupGraphics();
+    initSound();
+    setupSound();
     loadResources();
     loadGraphics();
+    loadSound();
     setupCamera();
     setupControls();
 }
@@ -296,6 +300,27 @@ void MainProgram::setupGraphics() {
     window_r->setFullScreen( options.getVideoFullscreen() );
 }
 
+void MainProgram::initSound() {
+    auto sound_identifiers = Sounds::Environment::getAvailableIdentifiers();
+
+    if( sound_identifiers.empty() )
+        throwException( "Sound has no available identifiers." );
+
+    if( !Sounds::Environment::isIdentifier( sound_identifiers[0] ) )
+        throwException( "The sound identifier \"" + sound_identifiers[0] + "\" is not a valid identifer." );
+
+    this->sound_identifier = sound_identifiers[0];
+
+    Sounds::Environment::initSystem( this->sound_identifier );
+}
+
+void MainProgram::setupSound() {
+    this->sound_system_p = Sounds::Environment::alloc( this->sound_identifier );
+
+    if( this->sound_system_p == nullptr )
+        throwException( "Sound system does not work. Identifier: " + this->sound_identifier );
+}
+
 void MainProgram::loadResources() {
     accessor.clear();
 
@@ -365,6 +390,14 @@ void MainProgram::loadGraphics( bool show_map ) {
         throwException( "The Graphics::Text2DBuffer has failed to allocate." );
 
     this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
+}
+
+void MainProgram::loadSound() {
+    auto result = this->sound_system_p->loadResources( this->accessor );
+
+    auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+
+    log.output << "Sound did not load. Error code: " << result;
 }
 
 void MainProgram::setupCamera() {

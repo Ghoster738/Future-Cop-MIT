@@ -265,11 +265,13 @@ This is list of exported resource formats and the corresponding internal format 
 
 * GLAD2
 
+* mojoAL
+
+* OpenGL Mathematics Library (GLM)
+
 * mINI
 
 * JsonCPP
-
-* OpenGL Mathematics Library (GLM)
 
 * libpng
 

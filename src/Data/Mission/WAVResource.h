@@ -36,6 +36,12 @@ public:
     void setBitsPerSample( int bits_per_sample );
     void updateDependices();
 
+    int getChannelNumber() const { return channel_number; }
+    int getSampleRate() const { return sample_rate; }
+    int getBitsPerSample() const { return bits_per_sample; }
+    int getTotalPCMBytes() const { return audio_stream_length; }
+    const uint8_t *const getPCMData() const { return audio_stream.data(); }
+
     /**
      * This adds new data to the back of the member variable audio_stream.
      * @note This function will advance the reader!

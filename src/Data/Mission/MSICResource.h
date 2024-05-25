@@ -9,10 +9,12 @@ namespace Mission {
 
 class MSICResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::string FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
+
 private:
     WAVResource sound;
+
 public:
     MSICResource();
     MSICResource( const MSICResource &obj );
@@ -22,6 +24,8 @@ public:
     virtual uint32_t getResourceTagID() const;
 
     virtual bool noResourceID() const;
+
+    const WAVResource *const soundAccessor() const { return &sound; }
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
