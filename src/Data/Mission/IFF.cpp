@@ -11,6 +11,7 @@
 #include "PTCResource.h"
 #include "PYRResource.h"
 #include "TilResource.h"
+#include "TOSResource.h"
 #include "SNDSResource.h"
 #include "WAVResource.h"
 #include "ObjResource.h"
@@ -75,8 +76,7 @@ namespace {
         // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
         { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // Holds programmer settings?  // Resource ID missing
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
-        // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
-        { 0x43746F73, new Data::Mission::UnkResource( 0x43746F73, "tos" ) },  // time of sounds?
+        { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
         // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
         { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
