@@ -74,12 +74,16 @@ bool TOSResource::parse( const ParseSettings &settings ) {
             warning_log.output << "  actual_size_of_data = " << reader.totalSize() << "\n";
         }
 
+        this->offsets.resize(number_of_entries);
+
         bool found_problem = false;
 
         for(uint32_t n = 0; n < number_of_entries; n++) {
             const auto unknown  = reader.readU32( settings.endian );
             const auto unused_0 = reader.readU32( settings.endian );
             const auto unused_1 = reader.readU32( settings.endian );
+
+            this->offsets[n] = unknown;
 
             if(!found_problem && (unused_0 != 0 || unused_1 != 0)) {
                 auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
