@@ -47,6 +47,7 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->obj_vector = main_program.accessor.getAllOBJ();
 
     main_program.loadGraphics( false );
+    main_program.loadSound();
 
     // cobj_index needs to be restricted to the obj_vector size
     if( this->obj_vector.size() <= cobj_index )
