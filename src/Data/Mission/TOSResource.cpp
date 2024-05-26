@@ -9,7 +9,7 @@ const std::string TOSResource::FILE_EXTENSION = "tos";
 const uint32_t TOSResource::IDENTIFIER_TAG = 0x43746F73; // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
 
 TOSResource::TOSResource() {}
-TOSResource::TOSResource( const TOSResource &obj ) {}
+TOSResource::TOSResource( const TOSResource &obj ) : Resource( obj ) {}
 
 std::string TOSResource::getFileExtension() const {
     return FILE_EXTENSION;
