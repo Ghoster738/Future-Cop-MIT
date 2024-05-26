@@ -72,21 +72,21 @@ void Accessor::clear() {
     search.clear();
 }
 
-SEARCH(ANMResource, getANM, getAllANM)
-SEARCH(BMPResource, getBMP, getAllBMP)
-SEARCH(DCSResource, getDCS, getAllDCS)
-SEARCH(FUNResource, getFUN, getAllFUN)
-SEARCH(FontResource, getFNT, getAllFNT)
-SEARCH(MSICResource, getMISC, getAllMISC)
-SEARCH(NetResource, getNET, getAllNET)
-SEARCH(ObjResource, getOBJ, getAllOBJ)
-SEARCH(PTCResource, getPTC, getAllPTC)
-SEARCH(PYRResource, getPYR, getAllPYR)
-SEARCH(RPNSResource, getRPNS, getAllRPNS)
-SEARCH(SNDSResource, getSNDS, getAllSNDS)
-SEARCH(TilResource, getTIL, getAllTIL)
-SEARCH(TOSResource, getTOS, getAllTOS)
-SEARCH(WAVResource, getWAV, getAllWAV)
+SEARCH(ANMResource, getANM, getAllConstANM)
+SEARCH(BMPResource, getBMP, getAllConstBMP)
+SEARCH(DCSResource, getDCS, getAllConstDCS)
+SEARCH(FUNResource, getFUN, getAllConstFUN)
+SEARCH(FontResource, getFNT, getAllConstFNT)
+SEARCH(MSICResource, getMISC, getAllConstMISC)
+SEARCH(NetResource, getNET, getAllConstNET)
+SEARCH(ObjResource, getOBJ, getAllConstOBJ)
+SEARCH(PTCResource, getPTC, getAllConstPTC)
+SEARCH(PYRResource, getPYR, getAllConstPYR)
+SEARCH(RPNSResource, getRPNS, getAllConstRPNS)
+SEARCH(SNDSResource, getSNDS, getAllConstSNDS)
+SEARCH(TilResource, getTIL, getAllConstTIL)
+SEARCH(TOSResource, getTOS, getAllConstTOS)
+SEARCH(WAVResource, getWAV, getAllConstWAV)
 
 }
 

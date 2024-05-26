@@ -44,7 +44,7 @@ void ModelViewer::load( MainProgram &main_program ) {
     if( main_program.resource_r == nullptr )
         return;
 
-    this->obj_vector = main_program.accessor.getAllOBJ();
+    this->obj_vector = main_program.accessor.getAllConstOBJ();
 
     main_program.loadGraphics( false );
     main_program.loadSound();

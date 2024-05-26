@@ -69,7 +69,7 @@ void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::Prop>(          main_program,           props );
     updateGraphics<ACT::SkyCaptain>(    main_program,    sky_captains );
 
-    auto Cfun = main_program.accessor.getAllFUN();
+    auto Cfun = main_program.accessor.getAllConstFUN();
 
     if(Cfun.size() != 0) {
         if(Cfun[0]->getSpawnAllNeutralTurrets()) {

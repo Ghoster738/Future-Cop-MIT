@@ -44,7 +44,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     if( gl_environment_r->text_draw_routine_p != nullptr )
         delete gl_environment_r->text_draw_routine_p;
     
-    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllFNT();
+    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
 
     // If no fonts are found then add one.
     if( accessor.getFNT( 1 ) == nullptr ) {

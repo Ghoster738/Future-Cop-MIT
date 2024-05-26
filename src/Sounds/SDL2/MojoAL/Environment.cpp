@@ -72,7 +72,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     ALenum error_state = alGetError();
 
-    std::vector<const Data::Mission::MSICResource*> misc = accessor.getAllMISC();
+    std::vector<const Data::Mission::MSICResource*> misc = accessor.getAllConstMISC();
 
     if(music_source != 0)
         alDeleteSources(1, &music_source);
