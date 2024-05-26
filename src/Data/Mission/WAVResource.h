@@ -78,9 +78,6 @@ public:
      * @return 1 if the file is written to the filesystem. 0 if nothing has been written.
      */
     int writeAudio( const std::string& file_path, bool is_dry = false ) const;
-
-    static std::vector<WAVResource*> getVector( IFF &mission_file );
-    static const std::vector<WAVResource*> getVector( const IFF &mission_file );
 };
 
 }

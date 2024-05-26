@@ -1,5 +1,7 @@
 #include "IFF.h"
 
+#include "../Accessor.h"
+
 #include "ANMResource.h"
 #include "ACTResource.h"
 #include "BMPResource.h"
@@ -488,25 +490,28 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             addResource( msic_p );
         }
 
-        std::vector<PTCResource*> pyr_pointer_r = Data::Mission::PTCResource::getVector( *this );
+        Data::Accessor accessor;
+        accessor.load( *this );
 
-        if( pyr_pointer_r.size() != 0 ) {
-            if( !pyr_pointer_r[0]->makeTiles( Data::Mission::TilResource::getVector( *this ) ) )
+        auto ptc_pointers_r = accessor.getAllPTC();
+
+        if( ptc_pointers_r.size() != 0 ) {
+            if( !ptc_pointers_r[0]->makeTiles( accessor.getAllTIL() ) )
             {
-                error_log.output << "PYR resource is found, but there are no Til resources.\n";
+                error_log.output << "PTC resource is found, but there are no Til resources.\n";
             }
         }
         else
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr )
-            error_log.output << "PYR resource is not found, but the Til resources are in the file.\n";
+            error_log.output << "PTC resource is not found, but the Til resources are in the file.\n";
 
         if( getResource( Data::Mission::ObjResource::IDENTIFIER_TAG ) != nullptr ) {
-            std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
+            auto textures_from_prime = accessor.getAllBMP();
 
             // TODO add optional global file.
             // textures.insert( textures.end(), textures.begin(), textures.end() );
 
-            std::vector<Data::Mission::ObjResource*> objects = Data::Mission::ObjResource::getVector( *this );
+            auto objects = accessor.getAllOBJ();
 
             for( auto it = objects.begin(); it != objects.end(); it++ ) {
                 (*it)->loadTextures( textures_from_prime );
@@ -514,12 +519,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         }
 
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr ) {
-            std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
+            auto textures_from_prime = accessor.getAllBMP();
 
             // TODO add optional global file.
             // textures.insert( textures.end(), textures.begin(), textures.end() );
 
-            std::vector<Data::Mission::TilResource*> sections = Data::Mission::TilResource::getVector( *this );
+            auto sections = accessor.getAllTIL();
 
             for( auto section = sections.begin(); section != sections.end(); section++ ) {
                 if( !(*section)->loadTextures( textures_from_prime ) )

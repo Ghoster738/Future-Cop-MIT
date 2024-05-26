@@ -421,16 +421,12 @@ void MainProgram::setupCamera() {
 }
 
 void MainProgram::centerCamera() {
-    if( this->resource_r != nullptr ) {
-        Data::Mission::PTCResource *map_r = Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 );
+    auto *map_r = accessor.getConstPTC( 1 );
 
-        if( map_r != nullptr ) {
-            this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-            this->camera_position.y = 0;
-            this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-        }
-        else
-            this->camera_position = { 0, 0, 0 };
+    if( map_r != nullptr ) {
+        this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+        this->camera_position.y = 0;
+        this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
     }
     else
         this->camera_position = { 0, 0, 0 };

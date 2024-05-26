@@ -1099,26 +1099,6 @@ Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_p
     return heightmap;
 }
 
-std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::TilResource::IDENTIFIER_TAG );
-
-    std::vector<TilResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( Data::Mission::Resource* it : to_copy )
-    {
-        assert( dynamic_cast<TilResource*>( it ) != nullptr );
-        copy.push_back( dynamic_cast<TilResource*>( it ) );
-    }
-
-    return copy;
-}
-
-const std::vector<Data::Mission::TilResource*> Data::Mission::TilResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::TilResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
-}
-
 bool Data::Mission::IFFOptions::TilOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_EXPORT_MODEL", output_r, enable_til_export_model ) )
         return false; // The single argument is not valid.

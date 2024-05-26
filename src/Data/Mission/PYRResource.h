@@ -67,9 +67,6 @@ public:
     virtual Resource * duplicate() const;
 
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_option = IFFOptions() ) const;
-
-    static std::vector<PYRResource*> getVector( IFF &mission_file );
-    static const std::vector<PYRResource*> getVector( const IFF &mission_file );
 };
 
 }

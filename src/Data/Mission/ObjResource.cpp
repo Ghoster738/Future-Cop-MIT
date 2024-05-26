@@ -2305,23 +2305,6 @@ unsigned int Data::Mission::ObjResource::getOpcodeBytesPerFrame( Data::Mission::
     return 2 * number_of_16bit_numbers;
 }
 
-std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::ObjResource::IDENTIFIER_TAG );
-
-    std::vector<ObjResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<ObjResource*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ObjResource*> Data::Mission::ObjResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::ObjResource::getVector( const_cast< IFF& >( mission_file ) );
-}
-
 bool Data::Mission::IFFOptions::ObjOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_NO_MODEL", output_r, no_model ) )
         return false; // The single argument is not valid.

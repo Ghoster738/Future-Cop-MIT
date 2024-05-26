@@ -314,9 +314,6 @@ public:
     const std::vector<glm::u8vec2>& getSCTATextureCords() const { return scta_texture_cords; }
 
     const InfoSLFX getInfoSLFX() const { return InfoSLFX( slfx_bitfield ); }
-
-    static std::vector<TilResource*> getVector( IFF &mission_file );
-    static const std::vector<TilResource*> getVector( const IFF &mission_file );
 };
 
 }

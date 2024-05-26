@@ -62,9 +62,6 @@ public:
      * @return If there was an error while writing it will return false.
      */
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
-
-    static std::vector<NetResource*> getVector( IFF &mission_file );
-    static const std::vector<NetResource*> getVector( const IFF &mission_file );
 };
 
 }

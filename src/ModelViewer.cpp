@@ -99,7 +99,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         if( input_r->isChanged() && input_r->getState() < 0.5 && !resource_export_path.empty() ) {
             // Export the textures from the mission file.
             if(!this->exported_textures) {
-                auto bmps = Data::Mission::BMPResource::getVector( *main_program.resource_r );
+                auto bmps = main_program.accessor.getAllConstBMP();
 
                 for( auto it : bmps ) {
                     auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );

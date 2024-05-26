@@ -32,9 +32,6 @@ public:
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Resource * duplicate() const;
-
-    static std::vector<MSICResource*> getVector( IFF &mission_file );
-    static const std::vector<MSICResource*> getVector( const IFF &mission_file );
 };
 
 }

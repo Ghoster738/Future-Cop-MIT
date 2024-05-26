@@ -28,9 +28,6 @@ public:
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Resource * duplicate() const;
-
-    static std::vector<SNDSResource*> getVector( IFF &mission_file );
-    static const std::vector<SNDSResource*> getVector( const IFF &mission_file );
 };
 
 }

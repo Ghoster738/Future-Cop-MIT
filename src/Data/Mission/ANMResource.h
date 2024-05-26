@@ -82,9 +82,6 @@ public:
     
     const Utilities::ColorPalette& getColorPalette() const { return palette; }
     void setColorPalette( Utilities::ColorPalette &rgba_palette ) const;
-
-    static std::vector<ANMResource*> getVector( Data::Mission::IFF &mission_file );
-    static const std::vector<ANMResource*> getVector( const Data::Mission::IFF &mission_file );
 };
 
 }
