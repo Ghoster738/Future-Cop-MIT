@@ -13,6 +13,7 @@
 #include "Mission/RPNSResource.h"
 #include "Mission/SNDSResource.h"
 #include "Mission/TilResource.h"
+#include "Mission/TOSResource.h"
 #include "Mission/WAVResource.h"
 
 #define SEARCH( CLASS_NAME, GET_METHOD_NAME, ALL_METHOD_NAME ) \
@@ -84,6 +85,7 @@ SEARCH(PYRResource, getPYR, getAllPYR)
 SEARCH(RPNSResource, getRPNS, getAllRPNS)
 SEARCH(SNDSResource, getSNDS, getAllSNDS)
 SEARCH(TilResource, getTIL, getAllTIL)
+SEARCH(TOSResource, getTOS, getAllTOS)
 SEARCH(WAVResource, getWAV, getAllWAV)
 
 }

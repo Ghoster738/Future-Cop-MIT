@@ -12,7 +12,7 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
-    // These probably are offsets to SWVR/SNDS sound data and ANM data.
+    // These probably are offsets or identifiers to SWVR/SNDS sound data and ANM data.
     std::vector<uint32_t> offsets;
 
 public:
@@ -30,9 +30,6 @@ public:
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     const std::vector<uint32_t>& getOffsets() const { return offsets; }
-
-    static std::vector<TOSResource*> getVector( IFF &mission_file );
-    static const std::vector<TOSResource*> getVector( const IFF &mission_file );
 };
 
 }

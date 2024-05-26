@@ -23,6 +23,7 @@ namespace Mission {
     class RPNSResource;
     class SNDSResource;
     class TilResource;
+    class TOSResource;
     class WAVResource;
 }
 
@@ -83,6 +84,9 @@ public:
 
     Mission::TilResource*  getTIL( uint32_t resource_id ) const;
     std::vector<const Mission::TilResource*> getAllTIL() const;
+
+    Mission::TOSResource*  getTOS( uint32_t resource_id ) const;
+    std::vector<const Mission::TOSResource*> getAllTOS() const;
 
     Mission::WAVResource*  getWAV( uint32_t resource_id ) const;
     std::vector<const Mission::WAVResource*> getAllWAV() const;
