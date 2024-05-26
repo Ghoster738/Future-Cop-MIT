@@ -28,6 +28,7 @@ public:
 
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+    virtual bool setMusic(Sounds::PlayerState player_state);
 };
 
 }

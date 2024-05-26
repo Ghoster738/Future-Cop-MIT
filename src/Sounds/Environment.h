@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "PlayerState.h"
+
 #include "../Data/Accessor.h"
 
 namespace Sounds {
@@ -71,6 +73,13 @@ public:
      * @return The amount of resources successfully loaded. A negative number indicates error codes.
      */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
+
+    /**
+     * This changes music state.
+     * @param player_state The music status.
+     * @return If the music is successfully set return true.
+     */
+    virtual bool setMusic(PlayerState player_state) = 0;
 };
 
 }

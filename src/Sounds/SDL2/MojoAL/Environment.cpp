@@ -113,9 +113,32 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     alSourcei(music_source, AL_BUFFER, music_buffer);
 
-    alSourcePlay(music_source);
+    alSourcei(music_source, AL_LOOPING, AL_TRUE);
 
     return 1;
+}
+
+bool Environment::setMusic(Sounds::PlayerState player_state) {
+    switch(player_state) {
+        case Sounds::PlayerState::STOP:
+            alSourceStop(music_source);
+            break;
+        case Sounds::PlayerState::PAUSE:
+            alSourcePause(music_source);
+            break;
+        case Sounds::PlayerState::PLAY:
+            alSourcePlay(music_source);
+            break;
+        default:
+            return false;
+    }
+
+    ALenum error_state = alGetError();
+
+    if(error_state == AL_NO_ERROR)
+        return true;
+    else
+        return false;
 }
 
 }

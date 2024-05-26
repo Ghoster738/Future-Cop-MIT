@@ -23,6 +23,10 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return 0;
 }
 
+bool Environment::setMusic(Sounds::PlayerState player_state) {
+    return false;
+}
+
 }
 }
 }
