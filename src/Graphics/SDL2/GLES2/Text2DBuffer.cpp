@@ -47,10 +47,10 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
 
     // If no fonts are found then add one.
-    if( accessor.getFNT( 1 ) == nullptr ) {
+    if( accessor.getConstFNT( 1 ) == nullptr ) {
         fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
     }
-    if( accessor.getFNT( 2 ) == nullptr ) {
+    if( accessor.getConstFNT( 2 ) == nullptr ) {
         fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
     }
 

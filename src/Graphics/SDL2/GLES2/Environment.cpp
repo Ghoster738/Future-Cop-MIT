@@ -162,7 +162,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         delete this->world_p;
     this->world_p = nullptr;
 
-    Data::Mission::PTCResource* ptc_r = accessor.getPTC( 1 );
+    const Data::Mission::PTCResource* ptc_r = accessor.getConstPTC( 1 );
     std::vector<const Data::Mission::TilResource*> tiles = accessor.getAllConstTIL();
 
     // Make sure that the pointers are not pointers.

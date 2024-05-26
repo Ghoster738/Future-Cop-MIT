@@ -18,7 +18,7 @@
 
 #define SEARCH( CLASS_NAME, GET_METHOD_NAME, ALL_METHOD_NAME ) \
 \
-Mission::CLASS_NAME* Accessor::GET_METHOD_NAME( uint32_t resource_id ) const {\
+const Mission::CLASS_NAME* Accessor::GET_METHOD_NAME( uint32_t resource_id ) const {\
     Mission::Resource *resource_r = nullptr;\
     SearchValue search_value = { Mission::CLASS_NAME::IDENTIFIER_TAG, resource_id };\
 \
@@ -72,21 +72,21 @@ void Accessor::clear() {
     search.clear();
 }
 
-SEARCH(ANMResource, getANM, getAllConstANM)
-SEARCH(BMPResource, getBMP, getAllConstBMP)
-SEARCH(DCSResource, getDCS, getAllConstDCS)
-SEARCH(FUNResource, getFUN, getAllConstFUN)
-SEARCH(FontResource, getFNT, getAllConstFNT)
-SEARCH(MSICResource, getMISC, getAllConstMISC)
-SEARCH(NetResource, getNET, getAllConstNET)
-SEARCH(ObjResource, getOBJ, getAllConstOBJ)
-SEARCH(PTCResource, getPTC, getAllConstPTC)
-SEARCH(PYRResource, getPYR, getAllConstPYR)
-SEARCH(RPNSResource, getRPNS, getAllConstRPNS)
-SEARCH(SNDSResource, getSNDS, getAllConstSNDS)
-SEARCH(TilResource, getTIL, getAllConstTIL)
-SEARCH(TOSResource, getTOS, getAllConstTOS)
-SEARCH(WAVResource, getWAV, getAllConstWAV)
+SEARCH(ANMResource, getConstANM, getAllConstANM)
+SEARCH(BMPResource, getConstBMP, getAllConstBMP)
+SEARCH(DCSResource, getConstDCS, getAllConstDCS)
+SEARCH(FUNResource, getConstFUN, getAllConstFUN)
+SEARCH(FontResource, getConstFNT, getAllConstFNT)
+SEARCH(MSICResource, getConstMISC, getAllConstMISC)
+SEARCH(NetResource, getConstNET, getAllConstNET)
+SEARCH(ObjResource, getConstOBJ, getAllConstOBJ)
+SEARCH(PTCResource, getConstPTC, getAllConstPTC)
+SEARCH(PYRResource, getConstPYR, getAllConstPYR)
+SEARCH(RPNSResource, getConstRPNS, getAllConstRPNS)
+SEARCH(SNDSResource, getConstSNDS, getAllConstSNDS)
+SEARCH(TilResource, getConstTIL, getAllConstTIL)
+SEARCH(TOSResource, getConstTOS, getAllConstTOS)
+SEARCH(WAVResource, getConstWAV, getAllConstWAV)
 
 }
 
