@@ -119,6 +119,9 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 }
 
 bool Environment::setMusic(Sounds::PlayerState player_state) {
+    if(music_source == 0)
+        return false;
+
     switch(player_state) {
         case Sounds::PlayerState::STOP:
             alSourceStop(music_source);
