@@ -1,6 +1,13 @@
 #include "ActorAccessor.h"
 
 #include "Mission/ACT/Aircraft.h"
+#include "Mission/ACT/BaseTurret.h"
+#include "Mission/ACT/ItemPickup.h"
+#include "Mission/ACT/NeutralTurret.h"
+#include "Mission/ACT/Prop.h"
+#include "Mission/ACT/SkyCaptain.h"
+#include "Mission/ACT/Trigger.h"
+#include "Mission/ACT/X1Alpha.h"
 
 #define SEARCH( CLASS_NAME, GET_METHOD_NAME, ALL_METHOD_NAME, GET_CONST_METHOD_NAME, ALL_CONST_METHOD_NAME ) \
 \
@@ -88,6 +95,13 @@ void ActorAccessor::clear() {
 }
 
 SEARCH(Aircraft, getAircraft, getAllAircraft, getConstAircraft, getAllConstAircraft)
+SEARCH(BaseTurret, getBaseTurret, getAllBaseTurret, getConstBaseTurret, getAllConstBaseTurret)
+SEARCH(ItemPickup, getItemPickup, getAllItemPickup, getConstItemPickup, getAllConstItemPickup)
+SEARCH(NeutralTurret, getNeutralTurret, getAllNeutralTurret, getConstNeutralTurret, getAllConstNeutralTurret)
+SEARCH(Prop, getProp, getAllProp, getConstProp, getAllConstProp)
+SEARCH(SkyCaptain, getSkyCaptain, getAllSkyCaptain, getConstSkyCaptain, getAllConstSkyCaptain)
+SEARCH(Trigger, getTrigger, getAllTrigger, getConstTrigger, getAllConstTrigger)
+SEARCH(X1Alpha, getX1Alpha, getAllX1Alpha, getConstX1Alpha, getAllConstX1Alpha)
 
 }
 

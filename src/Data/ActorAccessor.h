@@ -52,6 +52,41 @@ public:
     const Mission::ACT::Aircraft* getConstAircraft( uint32_t resource_id ) const;
     std::vector<Mission::ACT::Aircraft*> getAllAircraft();
     std::vector<const Mission::ACT::Aircraft*> getAllConstAircraft() const;
+
+    Mission::ACT::BaseTurret* getBaseTurret( uint32_t resource_id );
+    const Mission::ACT::BaseTurret* getConstBaseTurret( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::BaseTurret*> getAllBaseTurret();
+    std::vector<const Mission::ACT::BaseTurret*> getAllConstBaseTurret() const;
+
+    Mission::ACT::ItemPickup* getItemPickup( uint32_t resource_id );
+    const Mission::ACT::ItemPickup* getConstItemPickup( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::ItemPickup*> getAllItemPickup();
+    std::vector<const Mission::ACT::ItemPickup*> getAllConstItemPickup() const;
+
+    Mission::ACT::NeutralTurret* getNeutralTurret( uint32_t resource_id );
+    const Mission::ACT::NeutralTurret* getConstNeutralTurret( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::NeutralTurret*> getAllNeutralTurret();
+    std::vector<const Mission::ACT::NeutralTurret*> getAllConstNeutralTurret() const;
+
+    Mission::ACT::Prop* getProp( uint32_t resource_id );
+    const Mission::ACT::Prop* getConstProp( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::Prop*> getAllProp();
+    std::vector<const Mission::ACT::Prop*> getAllConstProp() const;
+
+    Mission::ACT::SkyCaptain* getSkyCaptain( uint32_t resource_id );
+    const Mission::ACT::SkyCaptain* getConstSkyCaptain( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::SkyCaptain*> getAllSkyCaptain();
+    std::vector<const Mission::ACT::SkyCaptain*> getAllConstSkyCaptain() const;
+
+    Mission::ACT::Trigger* getTrigger( uint32_t resource_id );
+    const Mission::ACT::Trigger* getConstTrigger( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::Trigger*> getAllTrigger();
+    std::vector<const Mission::ACT::Trigger*> getAllConstTrigger() const;
+
+    Mission::ACT::X1Alpha* getX1Alpha( uint32_t resource_id );
+    const Mission::ACT::X1Alpha* getConstX1Alpha( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::X1Alpha*> getAllX1Alpha();
+    std::vector<const Mission::ACT::X1Alpha*> getAllConstX1Alpha() const;
 };
 
 } // Data
