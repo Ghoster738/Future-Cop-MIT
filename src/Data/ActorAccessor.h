@@ -44,6 +44,7 @@ public:
     ActorAccessor();
     virtual ~ActorAccessor();
 
+    // These three methods should only be called by Accessor.
     void emplaceActorConstant( const Mission::ACTResource *resource_r );
     void emplaceActor( Mission::ACTResource *resource_r );
     void clear();

@@ -123,6 +123,7 @@ void Accessor::load( Mission::IFF &resource_r ) {
 
 void Accessor::clear() {
     search.clear();
+    actor_accessor.clear();
 }
 
 SEARCH(ANMResource,   getANM,  getAllANM, getConstANM, getAllConstANM)
