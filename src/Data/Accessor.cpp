@@ -25,28 +25,28 @@ Mission::CLASS_NAME* Accessor::GET_METHOD_NAME( uint32_t resource_id ) {\
     auto result = search.find(search_value);\
 \
     if( result != search.end() )\
-        resource_r = (*result).second;\
+        resource_r = (*result).second.changable;\
 \
     return dynamic_cast<Mission::CLASS_NAME*>( resource_r );\
 }\
 const Mission::CLASS_NAME* Accessor::GET_CONST_METHOD_NAME( uint32_t resource_id ) const {\
-    Mission::Resource *resource_r = nullptr;\
+    const Mission::Resource *resource_r = nullptr;\
     SearchValue search_value = { Mission::CLASS_NAME::IDENTIFIER_TAG, resource_id };\
 \
     auto result = search.find(search_value);\
 \
     if( result != search.end() )\
-        resource_r = (*result).second;\
+        resource_r = (*result).second.constant;\
 \
-    return dynamic_cast<Mission::CLASS_NAME*>( resource_r );\
+    return dynamic_cast<const Mission::CLASS_NAME*>( resource_r );\
 }\
 std::vector<Mission::CLASS_NAME*> Accessor::ALL_METHOD_NAME() {\
     std::vector<Mission::CLASS_NAME*> array;\
 \
     for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {\
         if( (*r_it).first.type == Mission::CLASS_NAME::IDENTIFIER_TAG ) {\
-            assert( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second ) );\
-            array.emplace_back( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second ) );\
+            assert( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second.changable ) );\
+            array.emplace_back( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second.changable ) );\
         }\
     }\
 \
@@ -57,8 +57,8 @@ std::vector<const Mission::CLASS_NAME*> Accessor::ALL_CONST_METHOD_NAME() const 
 \
     for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {\
         if( (*r_it).first.type == Mission::CLASS_NAME::IDENTIFIER_TAG ) {\
-            assert( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second ) );\
-            array.emplace_back( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second ) );\
+            assert( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second.constant ) );\
+            array.emplace_back( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second.constant ) );\
         }\
     }\
 \
@@ -79,6 +79,20 @@ Accessor::Accessor() {
 
 Accessor::~Accessor() {}
 
+void Accessor::loadConstant( const Mission::IFF &resource_r ) {
+    SearchValue search_value;
+    std::vector<const Mission::Resource*> array = resource_r.getAllResources();
+
+    for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
+        search_value.type = (*r_it)->getResourceTagID();
+        search_value.resource_id = (*r_it)->getResourceID();
+
+        const Mission::Resource* constant_resource_r = (*r_it);
+
+        search[ search_value ] = {nullptr, constant_resource_r};
+    }
+}
+
 void Accessor::load( Mission::IFF &resource_r ) {
     SearchValue search_value;
     std::vector<Mission::Resource*> array = resource_r.getAllResources();
@@ -87,7 +101,7 @@ void Accessor::load( Mission::IFF &resource_r ) {
         search_value.type = (*r_it)->getResourceTagID();
         search_value.resource_id = (*r_it)->getResourceID();
 
-        search[ search_value ] = (*r_it);
+        search[ search_value ] = {(*r_it), (*r_it)};
     }
 }
 

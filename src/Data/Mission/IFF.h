@@ -64,7 +64,7 @@ public:
     const std::vector<Resource*> getResources( uint32_t type ) const;
 
     std::vector<Resource*> getAllResources();
-    const std::vector<Resource*> getAllResources() const;
+    std::vector<const Resource*> getAllResources() const;
 
     /**
      * This gets the data type of the IFF file.

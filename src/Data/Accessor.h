@@ -35,14 +35,19 @@ public:
 
         bool operator< ( const SearchValue & operand ) const;
     };
+    struct DataValue {
+        Mission::Resource*       changable;
+        const Mission::Resource* constant;
+    };
 
 private:
-    std::map<SearchValue, Mission::Resource*> search;
+    std::map<SearchValue, DataValue> search;
 
 public:
     Accessor();
     virtual ~Accessor();
 
+    void loadConstant( const Mission::IFF &resource_r );
     void load( Mission::IFF &resource_r );
     void clear();
 

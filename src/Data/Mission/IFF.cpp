@@ -582,8 +582,17 @@ std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() {
 
     return entire_resource;
 }
-const std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
-    return const_cast<Data::Mission::IFF*>( this )->getAllResources();
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
+    std::vector<const Data::Mission::Resource*> entire_resource;
+
+    entire_resource.reserve( resource_amount );
+
+    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
+        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+            entire_resource.push_back( (*it) );
+    }
+
+    return entire_resource;
 }
 
 int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
