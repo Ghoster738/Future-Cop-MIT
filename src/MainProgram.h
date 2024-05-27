@@ -15,6 +15,8 @@
 
 #include "Graphics/Environment.h"
 
+#include "Sounds/Environment.h"
+
 #include "Utilities/Options/Parameters.h"
 #include "Utilities/Options/Paths.h"
 #include "Utilities/Options/Options.h"
@@ -56,6 +58,10 @@ public:
     glm::vec2 camera_rotation;
     float     camera_distance;
 
+    // Sounds API variables goes here.
+    std::string sound_identifier;
+    Sounds::Environment *sound_system_p;
+
     bool play_loop;
 
 protected:
@@ -77,6 +83,8 @@ public:
     void centerCamera();
 
     void loadGraphics( bool show_map = true );
+
+    void loadSound();
 
     glm::u32vec2 getWindowScale() const;
 
@@ -103,7 +111,11 @@ private:
 
     void initGraphics();
 
+    void initSound();
+
     void setupGraphics();
+
+    void setupSound();
 
     void loadResources();
 

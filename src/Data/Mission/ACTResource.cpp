@@ -343,19 +343,6 @@ std::string Data::Mission::ACTResource::displayRSL() const {
     return rsl_text;
 }
 
-std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::ACTResource::IDENTIFIER_TAG );
-
-    std::vector<ACTResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<ACTResource*>( (*it) ) );
-
-    return copy;
-}
-
 glm::vec2 Data::Mission::ACTResource::getPosition() const {
     return (1.f / 8192.f) * glm::vec2( position_x, position_y );
 }
@@ -363,10 +350,6 @@ glm::vec2 Data::Mission::ACTResource::getPosition() const {
 glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) const {
     const auto v = this->getPosition();
     return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
-}
-
-const std::vector<Data::Mission::ACTResource*> Data::Mission::ACTResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::ACTResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
 }
 
 bool Data::Mission::IFFOptions::ACTOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

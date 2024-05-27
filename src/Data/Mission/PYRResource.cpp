@@ -329,23 +329,6 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
     return return_value;
 }
 
-std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVector( IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::PYRResource::IDENTIFIER_TAG );
-
-    std::vector<PYRResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<PYRResource*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::PYRResource*> Data::Mission::PYRResource::getVector( const IFF &mission_file ) {
-    return Data::Mission::PYRResource::getVector( const_cast< IFF& >( mission_file ) );
-}
-
 bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_PRIME_BLACK_WHITE", output_r, export_prime_bw ) )
         return false; // The single argument is not valid.

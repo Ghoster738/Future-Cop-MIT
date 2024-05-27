@@ -1,6 +1,6 @@
 #include "Unknown.h"
 
-#include "../ACTManager.h"
+#include "../../Accessor.h"
 
 #include "Internal/Hash.h"
 
@@ -67,14 +67,13 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
     }
 
     for( size_t iff_index = 0; limit == 0 && iff_index < little_endian.size(); iff_index++ ) {
-        auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( iff_index ) );
-        auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( iff_index ) );
+        Data::Accessor big_endian_accessor, little_endian_accessor;
 
-        Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
-        Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
+        little_endian_accessor.loadConstant( *little_endian.at(iff_index) );
+        big_endian_accessor.loadConstant( *big_endian.at(iff_index) );
 
-        std::vector<ACTResource*> little_endian_act = little_endian_manager.getACTs( type_id );
-        std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
+        std::vector<const ACTResource*> little_endian_act = little_endian_accessor.getActorAccessor().getAllConstTypeID( type_id );
+        std::vector<const ACTResource*>    big_endian_act = big_endian_accessor.getActorAccessor().getAllConstTypeID( type_id );
 
         if( little_endian_act.size() != big_endian_act.size() ) {
             std::stringstream stream;
@@ -84,10 +83,10 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
         }
 
         if( !little_endian_act.empty() ) {
-            if( dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) ) == nullptr )
+            if( dynamic_cast<const Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) ) == nullptr )
                 return { "ERROR: Please enter a non existing Act resource\n" };
 
-            limit = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
+            limit = dynamic_cast<const Data::Mission::ACT::Unknown*>( little_endian_act.at( 0 ) )->act_buffer.size();
         }
     }
 
@@ -112,18 +111,17 @@ std::vector<std::string> Data::Mission::ACT::Unknown::getStructure( uint_fast8_t
         bool always_8_bit  = true;
 
         for( size_t iff_index = 0; iff_index < little_endian.size(); iff_index++ ) {
-            auto little_endian_array_r = Data::Mission::ACTResource::getVector( *little_endian.at( iff_index ) );
-            auto    big_endian_array_r = Data::Mission::ACTResource::getVector(    *big_endian.at( iff_index ) );
+            Data::Accessor big_endian_accessor, little_endian_accessor;
 
-            Data::Mission::ACTManager little_endian_manager( little_endian_array_r );
-            Data::Mission::ACTManager    big_endian_manager(    big_endian_array_r );
+            little_endian_accessor.loadConstant( *little_endian.at(iff_index) );
+            big_endian_accessor.loadConstant( *big_endian.at(iff_index) );
 
-            std::vector<ACTResource*> little_endian_act = little_endian_manager.getACTs( type_id );
-            std::vector<ACTResource*>    big_endian_act =    big_endian_manager.getACTs( type_id );
+            std::vector<const ACTResource*> little_endian_act = little_endian_accessor.getActorAccessor().getAllConstTypeID( type_id );
+            std::vector<const ACTResource*>    big_endian_act = big_endian_accessor.getActorAccessor().getAllConstTypeID( type_id );
 
             for( size_t i = 0; i < little_endian_act.size(); i++ ) {
-                auto little_endian_r = dynamic_cast<Data::Mission::ACT::Unknown*>( little_endian_act.at( i ) );
-                auto big_endian_r    = dynamic_cast<Data::Mission::ACT::Unknown*>(    big_endian_act.at( i ) );
+                auto little_endian_r = dynamic_cast<const Data::Mission::ACT::Unknown*>( little_endian_act.at( i ) );
+                auto big_endian_r    = dynamic_cast<const Data::Mission::ACT::Unknown*>(    big_endian_act.at( i ) );
 
                 Utilities::Buffer::Reader little_reader( little_endian_r->act_buffer.data() + buffer_offset, little_endian_r->act_buffer.size() - buffer_offset );
                 Utilities::Buffer::Reader    big_reader(    big_endian_r->act_buffer.data() + buffer_offset,    big_endian_r->act_buffer.size() - buffer_offset );

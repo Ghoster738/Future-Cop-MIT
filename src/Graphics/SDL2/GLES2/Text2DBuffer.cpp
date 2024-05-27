@@ -44,13 +44,13 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     if( gl_environment_r->text_draw_routine_p != nullptr )
         delete gl_environment_r->text_draw_routine_p;
     
-    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllFNT();
+    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
 
     // If no fonts are found then add one.
-    if( accessor.getFNT( 1 ) == nullptr ) {
+    if( accessor.getConstFNT( 1 ) == nullptr ) {
         fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
     }
-    if( accessor.getFNT( 2 ) == nullptr ) {
+    if( accessor.getConstFNT( 2 ) == nullptr ) {
         fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
     }
 

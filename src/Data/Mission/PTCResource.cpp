@@ -269,23 +269,6 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
 }
 
-std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::PTCResource::IDENTIFIER_TAG );
-
-    std::vector<PTCResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<PTCResource*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::PTCResource*> Data::Mission::PTCResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::PTCResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
-}
-
 bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_NO_MODEL", output_r, no_model ) )
         return false; // The single argument is not valid.

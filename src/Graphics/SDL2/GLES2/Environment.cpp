@@ -60,7 +60,7 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
-    std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllBMP();
+    std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
 
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
@@ -162,8 +162,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         delete this->world_p;
     this->world_p = nullptr;
 
-    Data::Mission::PTCResource* ptc_r = accessor.getPTC( 1 );
-    std::vector<const Data::Mission::TilResource*> tiles = accessor.getAllTIL();
+    const Data::Mission::PTCResource* ptc_r = accessor.getConstPTC( 1 );
+    std::vector<const Data::Mission::TilResource*> tiles = accessor.getAllConstTIL();
 
     // Make sure that the pointers are not pointers.
     if( ptc_r != nullptr && tiles.size() != 0 ) {
@@ -241,7 +241,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder *model_r;
-    std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllOBJ();
+    std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllConstOBJ();
 
     for( unsigned int i = 0; i < model_types.size(); i++ ) {
         if( model_types[ i ] != nullptr ) {

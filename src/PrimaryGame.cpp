@@ -61,12 +61,10 @@ void PrimaryGame::load( MainProgram &main_program ) {
     main_program.camera_distance = -20;
     main_program.centerCamera();
 
-    if( main_program.resource_r != nullptr )
-        this->til_resources = Data::Mission::TilResource::getVector( *main_program.resource_r );
-    else
-        this->til_resources = std::vector<Data::Mission::TilResource*>();
+    this->til_resources = main_program.accessor.getAllConstTIL();
 
     main_program.loadGraphics();
+    main_program.loadSound();
 
     glm::u32vec2 scale = main_program.getWindowScale();
     this->font_height = (1. / 30.) * static_cast<float>( scale.y );
@@ -83,13 +81,16 @@ void PrimaryGame::load( MainProgram &main_program ) {
         }
     }
 
-    if( main_program.resource_r != nullptr && !Data::Mission::PTCResource::getVector( *main_program.resource_r ).empty() ) {
+    if( main_program.accessor.getConstPTC(1) != nullptr ) {
         if( this->act_manager_p != nullptr )
             delete this->act_manager_p;
+
         this->act_manager_p = new Game::ActManager( *main_program.resource_r, main_program.accessor );
 
         this->act_manager_p->initialize( main_program );
     }
+
+    main_program.sound_system_p->setMusic(Sounds::PlayerState::PLAY);
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {

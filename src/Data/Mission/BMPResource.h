@@ -51,9 +51,6 @@ public:
     Utilities::Image2D *const getImage() const;
     Utilities::ImagePalette2D *const getPaletteImage() const;
 
-    static std::vector<BMPResource*> getVector( IFF &mission_file );
-    static const std::vector<BMPResource*> getVector( const IFF &mission_file );
-
     static bool isSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[3] );
     static bool isAreaSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[2] );
 };

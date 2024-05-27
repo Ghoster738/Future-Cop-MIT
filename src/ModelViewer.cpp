@@ -44,9 +44,10 @@ void ModelViewer::load( MainProgram &main_program ) {
     if( main_program.resource_r == nullptr )
         return;
 
-    this->obj_vector = main_program.accessor.getAllOBJ();
+    this->obj_vector = main_program.accessor.getAllConstOBJ();
 
     main_program.loadGraphics( false );
+    main_program.loadSound();
 
     // cobj_index needs to be restricted to the obj_vector size
     if( this->obj_vector.size() <= cobj_index )
@@ -98,7 +99,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         if( input_r->isChanged() && input_r->getState() < 0.5 && !resource_export_path.empty() ) {
             // Export the textures from the mission file.
             if(!this->exported_textures) {
-                auto bmps = Data::Mission::BMPResource::getVector( *main_program.resource_r );
+                auto bmps = main_program.accessor.getAllConstBMP();
 
                 for( auto it : bmps ) {
                     auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
@@ -127,7 +128,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::JUMP );
         if( input_r->isChanged() && input_r->getState() < 0.5 )
         {
-            auto act_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
+            auto act_r = main_program.accessor.getActorAccessor().getAllConst();
 
             auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
 

@@ -5,7 +5,7 @@ namespace Game {
 namespace ACT {
 
 SkyCaptain::SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj ) : Actor( obj.getID() ) {
-    Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
+    const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     {
         auto v = obj.getSpawnPosition();

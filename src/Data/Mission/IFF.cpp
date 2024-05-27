@@ -1,5 +1,7 @@
 #include "IFF.h"
 
+#include "../Accessor.h"
+
 #include "ANMResource.h"
 #include "ACTResource.h"
 #include "BMPResource.h"
@@ -11,6 +13,7 @@
 #include "PTCResource.h"
 #include "PYRResource.h"
 #include "TilResource.h"
+#include "TOSResource.h"
 #include "SNDSResource.h"
 #include "WAVResource.h"
 #include "ObjResource.h"
@@ -75,8 +78,7 @@ namespace {
         // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
         { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // Holds programmer settings?  // Resource ID missing
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
-        // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
-        { 0x43746F73, new Data::Mission::UnkResource( 0x43746F73, "tos" ) },  // time of sounds?
+        { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
         // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
         { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
@@ -488,25 +490,28 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             addResource( msic_p );
         }
 
-        std::vector<PTCResource*> pyr_pointer_r = Data::Mission::PTCResource::getVector( *this );
+        Data::Accessor accessor;
+        accessor.load( *this );
 
-        if( pyr_pointer_r.size() != 0 ) {
-            if( !pyr_pointer_r[0]->makeTiles( Data::Mission::TilResource::getVector( *this ) ) )
+        auto ptc_pointers_r = accessor.getAllPTC();
+
+        if( ptc_pointers_r.size() != 0 ) {
+            if( !ptc_pointers_r[0]->makeTiles( accessor.getAllTIL() ) )
             {
-                error_log.output << "PYR resource is found, but there are no Til resources.\n";
+                error_log.output << "PTC resource is found, but there are no Til resources.\n";
             }
         }
         else
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr )
-            error_log.output << "PYR resource is not found, but the Til resources are in the file.\n";
+            error_log.output << "PTC resource is not found, but the Til resources are in the file.\n";
 
         if( getResource( Data::Mission::ObjResource::IDENTIFIER_TAG ) != nullptr ) {
-            std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
+            auto textures_from_prime = accessor.getAllBMP();
 
             // TODO add optional global file.
             // textures.insert( textures.end(), textures.begin(), textures.end() );
 
-            std::vector<Data::Mission::ObjResource*> objects = Data::Mission::ObjResource::getVector( *this );
+            auto objects = accessor.getAllOBJ();
 
             for( auto it = objects.begin(); it != objects.end(); it++ ) {
                 (*it)->loadTextures( textures_from_prime );
@@ -514,12 +519,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         }
 
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr ) {
-            std::vector<Data::Mission::BMPResource*> textures_from_prime = Data::Mission::BMPResource::getVector( *this );
+            auto textures_from_prime = accessor.getAllBMP();
 
             // TODO add optional global file.
             // textures.insert( textures.end(), textures.begin(), textures.end() );
 
-            std::vector<Data::Mission::TilResource*> sections = Data::Mission::TilResource::getVector( *this );
+            auto sections = accessor.getAllTIL();
 
             for( auto section = sections.begin(); section != sections.end(); section++ ) {
                 if( !(*section)->loadTextures( textures_from_prime ) )
@@ -577,8 +582,17 @@ std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() {
 
     return entire_resource;
 }
-const std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
-    return const_cast<Data::Mission::IFF*>( this )->getAllResources();
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
+    std::vector<const Data::Mission::Resource*> entire_resource;
+
+    entire_resource.reserve( resource_amount );
+
+    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
+        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+            entire_resource.push_back( (*it) );
+    }
+
+    return entire_resource;
 }
 
 int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
@@ -621,13 +635,12 @@ Data::Mission::IFF::DataType Data::Mission::IFF::getDataType() const {
     if(resource_map.find(PTCResource::IDENTIFIER_TAG) == resource_map.end())
         return DataType::GLOBALS;
 
-    std::vector<ACTResource*> act_resources = ACTResource::getVector( *this );
+    Data::Accessor accessor;
+    accessor.loadConstant(*this);
 
-    // Find if Sky Captain exists. If he does then this IFF file is deemed to be a Precinct Assualt Map.
-    for( auto act = act_resources.begin(); act != act_resources.end(); act++ ) {
-        if((*act)->getTypeID() == ACT::SkyCaptain::TYPE_ID)
-            return DataType::PRECINCT_ASSUALT;
-    }
+    // If Sky Captain exists does then this IFF file is deemed to be a Precinct Assualt Map.
+    if(!accessor.getActorAccessor().getAllConstSkyCaptain().empty())
+        return DataType::PRECINCT_ASSUALT;
 
     return DataType::CRIME_WAR;
 }

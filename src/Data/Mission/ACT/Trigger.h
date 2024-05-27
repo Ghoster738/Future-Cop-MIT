@@ -1,7 +1,7 @@
 #ifndef DATA_MISSION_ACTOR_ID_95_HEADER
 #define DATA_MISSION_ACTOR_ID_95_HEADER
 
-#include "../ACTManager.h"
+#include "../ACTResource.h"
 #include <json/json.h>
 
 namespace Data {
@@ -45,10 +45,6 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
-
-    static std::vector<Trigger*> getVector( Data::Mission::ACTManager& act_manager );
-
-    static const std::vector<Trigger*> getVector( const Data::Mission::ACTManager& act_manager );
 
 };
 }

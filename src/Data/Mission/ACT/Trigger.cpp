@@ -74,20 +74,3 @@ Data::Mission::ACTResource* Data::Mission::ACT::Trigger::duplicate( const ACTRes
 Data::Mission::ACT::Trigger::Internal Data::Mission::ACT::Trigger::getInternal() const {
     return internal;
 }
-
-std::vector<Data::Mission::ACT::Trigger*> Data::Mission::ACT::Trigger::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::Trigger::TYPE_ID );
-
-    std::vector<Trigger*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<Trigger*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::Trigger*> Data::Mission::ACT::Trigger::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::Trigger::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

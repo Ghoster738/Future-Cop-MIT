@@ -101,20 +101,3 @@ Data::Mission::ACTResource* Data::Mission::ACT::ItemPickup::duplicate( const ACT
 Data::Mission::ACT::ItemPickup::Internal Data::Mission::ACT::ItemPickup::getInternal() const {
     return internal;
 }
-
-std::vector<Data::Mission::ACT::ItemPickup*> Data::Mission::ACT::ItemPickup::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::ItemPickup::TYPE_ID );
-
-    std::vector<ItemPickup*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<ItemPickup*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::ItemPickup*> Data::Mission::ACT::ItemPickup::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::ItemPickup::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

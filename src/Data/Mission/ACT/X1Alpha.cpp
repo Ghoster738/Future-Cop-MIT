@@ -95,20 +95,3 @@ Data::Mission::ACTResource* Data::Mission::ACT::X1Alpha::duplicate( const ACTRes
 Data::Mission::ACT::X1Alpha::Internal Data::Mission::ACT::X1Alpha::getInternal() const {
     return internal;
 }
-
-std::vector<Data::Mission::ACT::X1Alpha*> Data::Mission::ACT::X1Alpha::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::X1Alpha::TYPE_ID );
-
-    std::vector<X1Alpha*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<X1Alpha*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::X1Alpha*> Data::Mission::ACT::X1Alpha::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::X1Alpha::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

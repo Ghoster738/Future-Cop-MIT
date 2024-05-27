@@ -5,7 +5,7 @@ namespace Game {
 namespace ACT {
 
 Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj ) : Actor( obj.getID() ) {
-    Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
+    const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc );
 

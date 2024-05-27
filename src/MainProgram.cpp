@@ -18,6 +18,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     this->text_2d_buffer_r = nullptr;
     this->first_person_r   = nullptr;
     this->control_system_p = nullptr;
+    this->sound_system_p   = nullptr;
     this->menu_r           = nullptr;
     this->primary_game_r   = nullptr;
 
@@ -39,8 +40,11 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     setupLogging();
     initGraphics();
     setupGraphics();
+    initSound();
+    setupSound();
     loadResources();
     loadGraphics();
+    loadSound();
     setupCamera();
     setupControls();
 }
@@ -296,6 +300,27 @@ void MainProgram::setupGraphics() {
     window_r->setFullScreen( options.getVideoFullscreen() );
 }
 
+void MainProgram::initSound() {
+    auto sound_identifiers = Sounds::Environment::getAvailableIdentifiers();
+
+    if( sound_identifiers.empty() )
+        throwException( "Sound has no available identifiers." );
+
+    if( !Sounds::Environment::isIdentifier( sound_identifiers[0] ) )
+        throwException( "The sound identifier \"" + sound_identifiers[0] + "\" is not a valid identifer." );
+
+    this->sound_identifier = sound_identifiers[0];
+
+    Sounds::Environment::initSystem( this->sound_identifier );
+}
+
+void MainProgram::setupSound() {
+    this->sound_system_p = Sounds::Environment::alloc( this->sound_identifier );
+
+    if( this->sound_system_p == nullptr )
+        throwException( "Sound system does not work. Identifier: " + this->sound_identifier );
+}
+
 void MainProgram::loadResources() {
     accessor.clear();
 
@@ -367,6 +392,15 @@ void MainProgram::loadGraphics( bool show_map ) {
     this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
 }
 
+void MainProgram::loadSound() {
+    auto result = this->sound_system_p->loadResources( this->accessor );
+
+    auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+
+    if( result < 0 )
+        log.output << "Sound did not load. Error code: " << result;
+}
+
 void MainProgram::setupCamera() {
     this->first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
     this->first_person_r->setViewportDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
@@ -387,16 +421,12 @@ void MainProgram::setupCamera() {
 }
 
 void MainProgram::centerCamera() {
-    if( this->resource_r != nullptr ) {
-        Data::Mission::PTCResource *map_r = Data::Mission::PTCResource::getVector( *this->resource_r ).at( 0 );
+    auto *map_r = accessor.getConstPTC( 1 );
 
-        if( map_r != nullptr ) {
-            this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-            this->camera_position.y = 0;
-            this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
-        }
-        else
-            this->camera_position = { 0, 0, 0 };
+    if( map_r != nullptr ) {
+        this->camera_position.x = static_cast<float>( map_r->getWidth()  - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
+        this->camera_position.y = 0;
+        this->camera_position.z = static_cast<float>( map_r->getHeight() - 1 ) / 2.0f * Data::Mission::TilResource::AMOUNT_OF_TILES;
     }
     else
         this->camera_position = { 0, 0, 0 };

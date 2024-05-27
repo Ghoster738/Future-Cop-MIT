@@ -5,7 +5,7 @@ namespace Game {
 namespace ACT {
 
 BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj ) : Actor( obj.getID() ) {
-    Data::Mission::PTCResource &ptc = *accessor.getPTC( 1 );
+    const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc );
     this->rest_gun_rotation = obj.getGunRotationQuaternion();
@@ -29,16 +29,16 @@ BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT
     this->dead_base_cobj_r  = nullptr;
 
     if( this->alive_gun )
-        this->alive_gun_cobj_r = accessor.getOBJ( this->alive_gun_id );
+        this->alive_gun_cobj_r = accessor.getConstOBJ( this->alive_gun_id );
 
     if( this->alive_base )
-        this->alive_base_cobj_r = accessor.getOBJ( this->alive_base_id );
+        this->alive_base_cobj_r = accessor.getConstOBJ( this->alive_base_id );
 
     if( this->dead_gun )
-        this->dead_gun_cobj_r = accessor.getOBJ( this->dead_gun_id );
+        this->dead_gun_cobj_r = accessor.getConstOBJ( this->dead_gun_id );
 
     if( this->dead_base )
-        this->dead_base_cobj_r = accessor.getOBJ( this->dead_base_id );
+        this->dead_base_cobj_r = accessor.getConstOBJ( this->dead_base_id );
 
     this->base_p = nullptr;
     this->gun_p = nullptr;

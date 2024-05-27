@@ -94,20 +94,3 @@ float Data::Mission::ACT::Prop::getRotation() const {
 glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
     return ACTResource::getRotationQuaternion( this->getRotation() );
 }
-
-std::vector<Data::Mission::ACT::Prop*> Data::Mission::ACT::Prop::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::Prop::TYPE_ID );
-
-    std::vector<Prop*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<Prop*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::Prop*> Data::Mission::ACT::Prop::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::Prop::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

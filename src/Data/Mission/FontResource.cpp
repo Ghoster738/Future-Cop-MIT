@@ -339,23 +339,6 @@ int Data::Mission::FontResource::write( const std::string& file_path, const Data
         return 0; // A parameter stopped the exporting.
 }
 
-std::vector<Data::Mission::FontResource*> Data::Mission::FontResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::FontResource::IDENTIFIER_TAG );
-
-    std::vector<FontResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<FontResource*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::FontResource*> Data::Mission::FontResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::FontResource::getVector( const_cast< Data::Mission::IFF& >( mission_file ) );
-}
-
 Data::Mission::FontResource* Data::Mission::FontResource::getWindows( Utilities::Logger &logger ) {
     Data::Mission::FontResource* windows_font_p = new Data::Mission::FontResource;
 

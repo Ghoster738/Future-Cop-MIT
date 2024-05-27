@@ -55,23 +55,6 @@ Data::Mission::Resource * Data::Mission::SNDSResource::duplicate() const {
     return new Data::Mission::SNDSResource( *this );
 }
 
-std::vector<Data::Mission::SNDSResource*> Data::Mission::SNDSResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::SNDSResource::IDENTIFIER_TAG );
-
-    std::vector<SNDSResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<SNDSResource*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::SNDSResource*> Data::Mission::SNDSResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::SNDSResource::getVector( const_cast< IFF& >( mission_file ) );
-}
-
 bool Data::Mission::IFFOptions::SNDSOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );

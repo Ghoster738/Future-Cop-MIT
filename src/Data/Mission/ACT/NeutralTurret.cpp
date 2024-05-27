@@ -154,20 +154,3 @@ float Data::Mission::ACT::NeutralTurret::getBaseRotation() const {
 glm::quat Data::Mission::ACT::NeutralTurret::getBaseRotationQuaternion() const {
     return getRotationQuaternion( this->getBaseRotation() );
 }
-
-std::vector<Data::Mission::ACT::NeutralTurret*> Data::Mission::ACT::NeutralTurret::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::NeutralTurret::TYPE_ID );
-
-    std::vector<NeutralTurret*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<NeutralTurret*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::NeutralTurret*> Data::Mission::ACT::NeutralTurret::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::NeutralTurret::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

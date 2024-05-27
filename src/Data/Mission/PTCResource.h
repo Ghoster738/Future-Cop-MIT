@@ -84,9 +84,6 @@ public:
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float y ) const;
     float getRayCastDownward( float x, float y, float from_highest_point ) const;
-
-    static std::vector<PTCResource*> getVector( IFF &mission_file );
-    static const std::vector<PTCResource*> getVector( const IFF &mission_file );
 };
 
 }

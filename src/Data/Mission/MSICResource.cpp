@@ -94,23 +94,6 @@ Data::Mission::Resource * Data::Mission::MSICResource::duplicate() const {
     return new MSICResource( *this );
 }
 
-std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::getVector( Data::Mission::IFF &mission_file ) {
-    std::vector<Resource*> to_copy = mission_file.getResources( Data::Mission::MSICResource::IDENTIFIER_TAG );
-
-    std::vector<MSICResource*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<MSICResource*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::MSICResource*> Data::Mission::MSICResource::getVector( const Data::Mission::IFF &mission_file ) {
-    return Data::Mission::MSICResource::getVector( const_cast< IFF& >( mission_file ) );
-}
-
 bool Data::Mission::IFFOptions::MSICOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
