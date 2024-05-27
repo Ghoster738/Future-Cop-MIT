@@ -138,20 +138,3 @@ Data::Mission::ACTResource* Data::Mission::ACT::Aircraft::duplicate( const ACTRe
 Data::Mission::ACT::Aircraft::Internal Data::Mission::ACT::Aircraft::getInternal() const {
     return internal;
 }
-
-std::vector<Data::Mission::ACT::Aircraft*> Data::Mission::ACT::Aircraft::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::Aircraft::TYPE_ID );
-
-    std::vector<Aircraft*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<Aircraft*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::Aircraft*> Data::Mission::ACT::Aircraft::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::Aircraft::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

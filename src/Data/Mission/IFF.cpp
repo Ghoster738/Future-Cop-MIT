@@ -635,13 +635,12 @@ Data::Mission::IFF::DataType Data::Mission::IFF::getDataType() const {
     if(resource_map.find(PTCResource::IDENTIFIER_TAG) == resource_map.end())
         return DataType::GLOBALS;
 
-    std::vector<ACTResource*> act_resources = ACTResource::getVector( *this );
+    Data::Accessor accessor;
+    accessor.loadConstant(*this);
 
-    // Find if Sky Captain exists. If he does then this IFF file is deemed to be a Precinct Assualt Map.
-    for( auto act = act_resources.begin(); act != act_resources.end(); act++ ) {
-        if((*act)->getTypeID() == ACT::SkyCaptain::TYPE_ID)
-            return DataType::PRECINCT_ASSUALT;
-    }
+    // If Sky Captain exists does then this IFF file is deemed to be a Precinct Assualt Map.
+    if(!accessor.getActorAccessor().getAllConstSkyCaptain().empty())
+        return DataType::PRECINCT_ASSUALT;
 
     return DataType::CRIME_WAR;
 }

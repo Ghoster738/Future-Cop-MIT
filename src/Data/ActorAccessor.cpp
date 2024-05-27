@@ -94,6 +94,52 @@ void ActorAccessor::clear() {
     search.clear();
 }
 
+std::vector<Mission::ACTResource*> ActorAccessor::getAll() {
+    std::vector<Mission::ACTResource*> array;
+
+    for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {
+        if((*r_it).second.changable_r != nullptr)
+            array.emplace_back( (*r_it).second.changable_r );
+    }
+
+    return array;
+}
+
+std::vector<const Mission::ACTResource*> ActorAccessor::getAllConst() const {
+    std::vector<const Mission::ACTResource*> array;
+
+    for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {
+        if((*r_it).second.changable_r != nullptr)
+            array.emplace_back( (*r_it).second.changable_r );
+    }
+
+    return array;
+}
+
+std::vector<Mission::ACTResource*> ActorAccessor::getAllTypeID( uint_fast8_t type_id ) {
+    std::vector<Mission::ACTResource*> array;
+
+    for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {
+        if( (*r_it).first.actor_type == type_id ) {
+            array.emplace_back( (*r_it).second.changable_r );
+        }
+    }
+
+    return array;
+}
+
+std::vector<const Mission::ACTResource*> ActorAccessor::getAllConstTypeID( uint_fast8_t type_id ) const {
+    std::vector<const Mission::ACTResource*> array;
+
+    for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {
+        if( (*r_it).first.actor_type == type_id ) {
+            array.emplace_back( (*r_it).second.constant_r );
+        }
+    }
+
+    return array;
+}
+
 SEARCH(Aircraft, getAircraft, getAllAircraft, getConstAircraft, getAllConstAircraft)
 SEARCH(BaseTurret, getBaseTurret, getAllBaseTurret, getConstBaseTurret, getAllConstBaseTurret)
 SEARCH(ItemPickup, getItemPickup, getAllItemPickup, getConstItemPickup, getAllConstItemPickup)

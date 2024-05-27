@@ -122,9 +122,6 @@ public:
 
     glm::vec2 getPosition() const;
     glm::vec3 getPosition( const PTCResource &ptc ) const;
-
-    static std::vector<ACTResource*> getVector( IFF &mission_file );
-    static const std::vector<ACTResource*> getVector( const IFF &mission_file );
 };
 
 }

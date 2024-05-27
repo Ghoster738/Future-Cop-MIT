@@ -1,7 +1,7 @@
 #ifndef DATA_MISSION_ACTOR_ID_96_HEADER
 #define DATA_MISSION_ACTOR_ID_96_HEADER
 
-#include "../ACTManager.h"
+#include "../ACTResource.h"
 #include <json/json.h>
 
 namespace Data {
@@ -56,10 +56,6 @@ public:
     float getRotation() const;
 
     glm::quat getRotationQuaternion() const;
-
-    static std::vector<Prop*> getVector( Data::Mission::ACTManager& act_manager );
-
-    static const std::vector<Prop*> getVector( const Data::Mission::ACTManager& act_manager );
 
 };
 }

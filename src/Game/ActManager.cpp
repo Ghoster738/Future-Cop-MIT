@@ -5,7 +5,7 @@
 namespace {
 
 template<class data_act, class game_act>
-Game::ActManager::SpawnableActor<game_act> initializeActors( const Data::Accessor& accessor, const std::vector<data_act*>& actor_array_r ) {
+Game::ActManager::SpawnableActor<game_act> initializeActors( const Data::Accessor& accessor, std::vector<const data_act*> actor_array_r ) {
     Game::ActManager::SpawnableActor<game_act> game_actors;
 
     for( const data_act *const actor_r : actor_array_r ) {
@@ -50,13 +50,13 @@ void updateSpawn( MainProgram &main_program, Game::ActManager::SpawnableActor<ga
 namespace Game {
 
 ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor ) {
-    auto actor_array_r = Data::Mission::ACTResource::getVector( resource );
+    auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
-    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, Data::Mission::ACT::ItemPickup::getVector(    actor_array_r ) );
-    base_turrets    = initializeActors<Data::Mission::ACT::BaseTurret,    ACT::BaseTurret>(    accessor, Data::Mission::ACT::BaseTurret::getVector(    actor_array_r ) );
-    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, Data::Mission::ACT::NeutralTurret::getVector( actor_array_r ) );
-    props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, Data::Mission::ACT::Prop::getVector(          actor_array_r ) );
-    sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    accessor, Data::Mission::ACT::SkyCaptain::getVector(    actor_array_r ) );
+    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
+    base_turrets    = initializeActors<Data::Mission::ACT::BaseTurret,    ACT::BaseTurret>(    accessor, accessor.getActorAccessor().getAllConstBaseTurret() );
+    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
+    props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, accessor.getActorAccessor().getAllConstProp() );
+    sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
 }
 
 ActManager::~ActManager() {

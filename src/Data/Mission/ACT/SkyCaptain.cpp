@@ -177,20 +177,3 @@ glm::vec2 Data::Mission::ACT::SkyCaptain::getSpawnPosition() const {
 
     return (1.f / 16.f) * glm::vec2(internal.alt_position_x, internal.alt_position_y);
 }
-
-std::vector<Data::Mission::ACT::SkyCaptain*> Data::Mission::ACT::SkyCaptain::getVector( Data::Mission::ACTManager& act_manager ) {
-    std::vector<ACTResource*> to_copy = act_manager.getACTs( Data::Mission::ACT::SkyCaptain::TYPE_ID );
-
-    std::vector<SkyCaptain*> copy;
-
-    copy.reserve( to_copy.size() );
-
-    for( auto it = to_copy.begin(); it != to_copy.end(); it++ )
-        copy.push_back( dynamic_cast<SkyCaptain*>( (*it) ) );
-
-    return copy;
-}
-
-const std::vector<Data::Mission::ACT::SkyCaptain*> Data::Mission::ACT::SkyCaptain::getVector( const Data::Mission::ACTManager& act_manager ) {
-    return Data::Mission::ACT::SkyCaptain::getVector( const_cast< Data::Mission::ACTManager& >( act_manager ) );
-}

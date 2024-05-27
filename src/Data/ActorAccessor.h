@@ -48,6 +48,12 @@ public:
     void emplaceActor( Mission::ACTResource *resource_r );
     void clear();
 
+    std::vector<Mission::ACTResource*> getAll();
+    std::vector<const Mission::ACTResource*> getAllConst() const;
+
+    std::vector<Mission::ACTResource*> getAllTypeID( uint_fast8_t type_id );
+    std::vector<const Mission::ACTResource*> getAllConstTypeID( uint_fast8_t type_id ) const;
+
     Mission::ACT::Aircraft* getAircraft( uint32_t resource_id );
     const Mission::ACT::Aircraft* getConstAircraft( uint32_t resource_id ) const;
     std::vector<Mission::ACT::Aircraft*> getAllAircraft();

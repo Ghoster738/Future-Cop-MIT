@@ -128,7 +128,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::JUMP );
         if( input_r->isChanged() && input_r->getState() < 0.5 )
         {
-            auto act_r = Data::Mission::ACTResource::getVector( *main_program.resource_r );
+            auto act_r = main_program.accessor.getActorAccessor().getAllConst();
 
             auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
 
