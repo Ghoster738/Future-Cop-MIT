@@ -16,6 +16,8 @@
 #include "Mission/TOSResource.h"
 #include "Mission/WAVResource.h"
 
+#include "Mission/ACTResource.h"
+
 #define SEARCH( CLASS_NAME, GET_METHOD_NAME, ALL_METHOD_NAME, GET_CONST_METHOD_NAME, ALL_CONST_METHOD_NAME ) \
 \
 Mission::CLASS_NAME* Accessor::GET_METHOD_NAME( uint32_t resource_id ) {\
@@ -84,12 +86,18 @@ void Accessor::loadConstant( const Mission::IFF &resource_r ) {
     std::vector<const Mission::Resource*> array = resource_r.getAllResources();
 
     for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-        search_value.type = (*r_it)->getResourceTagID();
-        search_value.resource_id = (*r_it)->getResourceID();
+        const Mission::ACTResource *actor_resource_r = dynamic_cast<const Mission::ACTResource*>((*r_it));
 
-        const Mission::Resource* constant_resource_r = (*r_it);
+        if(actor_resource_r != nullptr)
+            actor_accessor.emplaceActorConstant(actor_resource_r);
+        else {
+            const Mission::Resource* constant_resource_r = (*r_it);
 
-        search[ search_value ] = {nullptr, constant_resource_r};
+            search_value.type = constant_resource_r->getResourceTagID();
+            search_value.resource_id = constant_resource_r->getResourceID();
+
+            search[ search_value ] = {nullptr, constant_resource_r};
+        }
     }
 }
 
@@ -98,10 +106,18 @@ void Accessor::load( Mission::IFF &resource_r ) {
     std::vector<Mission::Resource*> array = resource_r.getAllResources();
 
     for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-        search_value.type = (*r_it)->getResourceTagID();
-        search_value.resource_id = (*r_it)->getResourceID();
+        Mission::ACTResource *actor_resource_r = dynamic_cast<Mission::ACTResource*>((*r_it));
 
-        search[ search_value ] = {(*r_it), (*r_it)};
+        if(actor_resource_r != nullptr)
+            actor_accessor.emplaceActor(actor_resource_r);
+        else {
+            Mission::Resource* resource_r = (*r_it);
+
+            search_value.type = resource_r->getResourceTagID();
+            search_value.resource_id = resource_r->getResourceID();
+
+            search[ search_value ] = {resource_r, resource_r};
+        }
     }
 }
 

@@ -3,6 +3,8 @@
 
 #include "Mission/IFF.h"
 
+#include "ActorAccessor.h"
+
 #include <vector>
 #include <map>
 
@@ -42,6 +44,7 @@ public:
 
 private:
     std::map<SearchValue, DataValue> search;
+    ActorAccessor actor_accessor;
 
 public:
     Accessor();
@@ -50,6 +53,9 @@ public:
     void loadConstant( const Mission::IFF &resource_r );
     void load( Mission::IFF &resource_r );
     void clear();
+
+    ActorAccessor& getActorAccessor() { return actor_accessor; }
+    const ActorAccessor& getActorAccessor() const { return actor_accessor; }
 
     Mission::ANMResource* getANM( uint32_t resource_id );
     const Mission::ANMResource* getConstANM( uint32_t resource_id ) const;
