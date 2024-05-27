@@ -36,8 +36,8 @@ public:
         bool operator< ( const SearchValue & operand ) const;
     };
     struct DataValue {
-        Mission::Resource*       changable;
-        const Mission::Resource* constant;
+        Mission::Resource*       changable_r;
+        const Mission::Resource* constant_r;
     };
 
 private:

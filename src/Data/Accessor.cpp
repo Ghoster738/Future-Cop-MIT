@@ -25,7 +25,7 @@ Mission::CLASS_NAME* Accessor::GET_METHOD_NAME( uint32_t resource_id ) {\
     auto result = search.find(search_value);\
 \
     if( result != search.end() )\
-        resource_r = (*result).second.changable;\
+        resource_r = (*result).second.changable_r;\
 \
     return dynamic_cast<Mission::CLASS_NAME*>( resource_r );\
 }\
@@ -36,7 +36,7 @@ const Mission::CLASS_NAME* Accessor::GET_CONST_METHOD_NAME( uint32_t resource_id
     auto result = search.find(search_value);\
 \
     if( result != search.end() )\
-        resource_r = (*result).second.constant;\
+        resource_r = (*result).second.constant_r;\
 \
     return dynamic_cast<const Mission::CLASS_NAME*>( resource_r );\
 }\
@@ -45,8 +45,8 @@ std::vector<Mission::CLASS_NAME*> Accessor::ALL_METHOD_NAME() {\
 \
     for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {\
         if( (*r_it).first.type == Mission::CLASS_NAME::IDENTIFIER_TAG ) {\
-            assert( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second.changable ) );\
-            array.emplace_back( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second.changable ) );\
+            assert( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second.changable_r ) );\
+            array.emplace_back( dynamic_cast<Mission::CLASS_NAME*>( (*r_it).second.changable_r ) );\
         }\
     }\
 \
@@ -57,8 +57,8 @@ std::vector<const Mission::CLASS_NAME*> Accessor::ALL_CONST_METHOD_NAME() const 
 \
     for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {\
         if( (*r_it).first.type == Mission::CLASS_NAME::IDENTIFIER_TAG ) {\
-            assert( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second.constant ) );\
-            array.emplace_back( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second.constant ) );\
+            assert( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second.constant_r ) );\
+            array.emplace_back( dynamic_cast<const Mission::CLASS_NAME*>( (*r_it).second.constant_r ) );\
         }\
     }\
 \
