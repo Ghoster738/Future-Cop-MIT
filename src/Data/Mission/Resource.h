@@ -26,6 +26,21 @@ public:
         ParseSettings();
     };
     static const ParseSettings DEFAULT_PARSE_SETTINGS;
+
+    struct SWVREntry {
+        uint32_t offset; // The offset value in the IFF file of the SWVR chunk.
+        uint32_t tos_offset; // The offset value from the TOSResource.
+        std::string name;
+
+        SWVREntry() : offset(0), tos_offset(1) {}
+
+        bool isPresent() const {
+            if( tos_offset > offset )
+                return false; // If the tos_offset is greater than offset, then the entry is not present.
+            else
+                return true;
+        }
+    };
 protected:
     Utilities::Buffer *header_p;
     Utilities::Buffer *data_p;
@@ -38,7 +53,7 @@ private:
     // This data is contained within the tag.
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
 
-    std::string swvr_name; // This is the SWVR name of the resource.
+    SWVREntry swvr_entry;
 public:
     Resource();
     Resource( const Resource &obj );
@@ -57,14 +72,17 @@ public:
     virtual uint32_t getResourceTagID() const = 0;
 
     /**
-     * Sets the SWVR string. To be used by loaders only.
+     * This gets the SWVR entry.
+     * @return The swvr_entry which holds swvr offset, tos offset, and name.
      */
-    void setSWVRName( std::string name );
+    SWVREntry& getSWVREntry() { return swvr_entry; }
 
     /**
-     * This gets the SWVR name.
+     * This gets the SWVR entry.
+     * @note This method is constant.
+     * @return The swvr_entry which holds swvr offset, tos offset, and name.
      */
-    std::string getSWVRName() const;
+    const SWVREntry& getSWVREntry() const { return swvr_entry; }
 
     /**
      * Sets the index number of the file. To be used by loaders only.
