@@ -16,7 +16,7 @@ int Environment::deinitEntireSystem() {
 }
 
 std::string Environment::getEnvironmentIdentifier() const {
-    return SDL2_WITH_NO_AUDIO;
+    return NO_AUDIO;
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {

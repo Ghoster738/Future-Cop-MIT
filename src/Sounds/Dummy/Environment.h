@@ -1,7 +1,7 @@
 #ifndef SOUNDS_ENVIRONMENT_DUMMY_H
 #define SOUNDS_ENVIRONMENT_DUMMY_H
 
-#include "../../Environment.h"
+#include "../Environment.h"
 
 namespace Sounds {
 namespace SDL2 {

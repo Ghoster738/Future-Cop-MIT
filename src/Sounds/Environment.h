@@ -23,7 +23,7 @@ protected:
 
 public:
     static const std::string SDL2_WITH_MOJO_AL;
-    static const std::string SDL2_WITH_NO_AUDIO;
+    static const std::string NO_AUDIO;
     
     /**
      * When you are done with the program this should clean up the rest of the graphics.
