@@ -114,7 +114,7 @@ void Accessor::load( Mission::IFF &resource_r ) {
             actor_accessor.emplaceActor(actor_resource_r);
         else
         if(resource_r->getSWVREntry().isPresent())
-            swvr_accessor.emplaceConstant(resource_r);
+            swvr_accessor.emplace(resource_r);
         else {
 
             search_value.type = resource_r->getResourceTagID();
