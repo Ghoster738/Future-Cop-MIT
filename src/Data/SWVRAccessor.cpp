@@ -1,6 +1,7 @@
 #include "SWVRAccessor.h"
 
 #include "Mission/ANMResource.h"
+#include "Mission/MSICResource.h"
 #include "Mission/SNDSResource.h"
 
 #include <cassert>
@@ -63,13 +64,18 @@ bool SWVRAccessor::SearchValue::operator< ( const SWVRAccessor::SearchValue & op
         return (tos_offset < operand.tos_offset);
 }
 
-SWVRAccessor::SWVRAccessor() {}
+SWVRAccessor::SWVRAccessor() : msic_resource({nullptr, nullptr}) {}
 
 SWVRAccessor::~SWVRAccessor() {}
 
 void SWVRAccessor::emplaceConstant( const Mission::Resource *constant_resource_r ) {
     assert(constant_resource_r != nullptr);
     assert(constant_resource_r->getSWVREntry().isPresent());
+
+    if(dynamic_cast<const Mission::MSICResource*>(constant_resource_r) != nullptr) {
+        msic_resource.changable_r = nullptr;
+        msic_resource.constant_r = dynamic_cast<const Mission::MSICResource*>(constant_resource_r);
+    }
 
     SearchValue search_value;
 
@@ -82,6 +88,11 @@ void SWVRAccessor::emplaceConstant( const Mission::Resource *constant_resource_r
 void SWVRAccessor::emplace( Mission::Resource *resource_r ) {
     assert(resource_r != nullptr);
     assert(resource_r->getSWVREntry().isPresent());
+
+    if(dynamic_cast<Mission::MSICResource*>(resource_r) != nullptr) {
+        msic_resource.changable_r = dynamic_cast<Mission::MSICResource*>(resource_r);
+        msic_resource.constant_r = msic_resource.changable_r;
+    }
 
     SearchValue search_value;
 
@@ -137,7 +148,7 @@ std::vector<const Mission::Resource*> SWVRAccessor::getAllConstType( uint32_t ty
     return array;
 }
 
-SEARCH(ANMResource,   getANM,  getAllANM, getConstANM, getAllConstANM)
+SEARCH(ANMResource,   getANM,  getAllANM, getConstANM,  getAllConstANM)
 SEARCH(SNDSResource, getSNDS, getAllSNDS, getConstSNDS, getAllConstSNDS)
 
 }

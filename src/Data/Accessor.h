@@ -17,7 +17,6 @@ namespace Mission {
     class DCSResource;
     class FUNResource;
     class FontResource;
-    class MSICResource;
     class NetResource;
     class ObjResource;
     class PTCResource;
@@ -79,11 +78,6 @@ public:
     const Mission::FontResource* getConstFNT( uint32_t resource_id ) const;
     std::vector<Mission::FontResource*> getAllFNT();
     std::vector<const Mission::FontResource*> getAllConstFNT() const;
-
-    Mission::MSICResource* getMISC( uint32_t resource_id );
-    const Mission::MSICResource* getConstMISC( uint32_t resource_id ) const;
-    std::vector<Mission::MSICResource*> getAllMISC();
-    std::vector<const Mission::MSICResource*> getAllConstMISC() const;
 
     Mission::NetResource* getNET( uint32_t resource_id );
     const Mission::NetResource* getConstNET( uint32_t resource_id ) const;

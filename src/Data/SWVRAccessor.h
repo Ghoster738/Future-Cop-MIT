@@ -11,6 +11,7 @@ namespace Data {
 // These are prototypes, so I do not have to include each of them. This is to save compilation time.
 namespace Mission {
     class ANMResource;
+    class MSICResource;
     class SNDSResource;
 }
 
@@ -22,13 +23,16 @@ public:
 
         bool operator< ( const SearchValue & operand ) const;
     };
+    template <class resource>
     struct DataValue {
-        Mission::Resource*       changable_r;
-        const Mission::Resource* constant_r;
+        resource*       changable_r;
+        const resource* constant_r;
     };
 
 private:
-    std::map<SearchValue, DataValue> search;
+    std::map<SearchValue, DataValue<Mission::Resource>> search;
+
+    DataValue<Mission::MSICResource> msic_resource;
 
 public:
     SWVRAccessor();
@@ -49,6 +53,9 @@ public:
     const Mission::ANMResource* getConstANM( uint32_t resource_id ) const;
     std::vector<Mission::ANMResource*> getAllANM();
     std::vector<const Mission::ANMResource*> getAllConstANM() const;
+
+    Mission::MSICResource* getMSIC() { return msic_resource.changable_r; }
+    const Mission::MSICResource* getConstMSIC() const { return msic_resource.constant_r; }
 
     Mission::SNDSResource* getSNDS( uint32_t resource_id );
     const Mission::SNDSResource* getConstSNDS( uint32_t resource_id ) const;

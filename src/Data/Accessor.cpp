@@ -4,7 +4,6 @@
 #include "Mission/DCSResource.h"
 #include "Mission/FUNResource.h"
 #include "Mission/FontResource.h"
-#include "Mission/MSICResource.h"
 #include "Mission/NetResource.h"
 #include "Mission/ObjResource.h"
 #include "Mission/PTCResource.h"
@@ -90,7 +89,7 @@ void Accessor::loadConstant( const Mission::IFF &resource_r ) {
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActorConstant(actor_resource_r);
         else
-        if(dynamic_cast<const Mission::MSICResource*>(constant_resource_r) == nullptr && constant_resource_r->getSWVREntry().isPresent())
+        if(constant_resource_r->getSWVREntry().isPresent())
             swvr_accessor.emplaceConstant(constant_resource_r);
         else {
 
@@ -113,7 +112,7 @@ void Accessor::load( Mission::IFF &resource_r ) {
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActor(actor_resource_r);
         else
-        if(dynamic_cast<Mission::MSICResource*>(resource_r) == nullptr && resource_r->getSWVREntry().isPresent())
+        if(resource_r->getSWVREntry().isPresent())
             swvr_accessor.emplace(resource_r);
         else {
 
@@ -134,7 +133,6 @@ SEARCH(BMPResource,   getBMP,  getAllBMP, getConstBMP, getAllConstBMP)
 SEARCH(DCSResource,   getDCS,  getAllDCS, getConstDCS, getAllConstDCS)
 SEARCH(FUNResource,   getFUN,  getAllFUN, getConstFUN, getAllConstFUN)
 SEARCH(FontResource,  getFNT,  getAllFNT, getConstFNT, getAllConstFNT)
-SEARCH(MSICResource, getMISC, getAllMISC, getConstMISC, getAllConstMISC)
 SEARCH(NetResource,   getNET,  getAllNET, getConstNET, getAllConstNET)
 SEARCH(ObjResource,   getOBJ,  getAllOBJ, getConstOBJ, getAllConstOBJ)
 SEARCH(PTCResource,   getPTC,  getAllPTC, getConstPTC, getAllConstPTC)

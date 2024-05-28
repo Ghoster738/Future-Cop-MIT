@@ -72,17 +72,17 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     ALenum error_state = alGetError();
 
-    std::vector<const Data::Mission::MSICResource*> misc = accessor.getAllConstMISC();
+    const Data::Mission::MSICResource* misc_r = accessor.getSWVRAccessor().getConstMSIC();
 
     if(music_source != 0)
         alDeleteSources(1, &music_source);
     if(music_buffer != 0)
         alDeleteBuffers(1, &music_buffer);
 
-    if(misc.size() != 0) {
-        const Data::Mission::WAVResource *const sound = misc[0]->soundAccessor();
+    if(misc_r != nullptr) {
+        const Data::Mission::WAVResource *const sound_r = misc_r->soundAccessor();
 
-        ALenum format = getFormat(sound->getChannelNumber(), sound->getBitsPerSample());
+        ALenum format = getFormat(sound_r->getChannelNumber(), sound_r->getBitsPerSample());
 
         if(format == AL_INVALID_ENUM)
             return -5;
@@ -100,7 +100,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 return -8;
         }
 
-        alBufferData(music_buffer, format, sound->getPCMData(), sound->getTotalPCMBytes(), sound->getSampleRate());
+        alBufferData(music_buffer, format, sound_r->getPCMData(), sound_r->getTotalPCMBytes(), sound_r->getSampleRate());
     }
 
     alGenSources(1,&music_source);
