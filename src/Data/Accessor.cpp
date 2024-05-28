@@ -84,13 +84,13 @@ void Accessor::loadConstant( const Mission::IFF &resource_r ) {
     std::vector<const Mission::Resource*> array = resource_r.getAllResources();
 
     for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-        const Mission::ACTResource *actor_resource_r = dynamic_cast<const Mission::ACTResource*>((*r_it));
         const Mission::Resource* constant_resource_r = (*r_it);
+        const Mission::ACTResource *actor_resource_r = dynamic_cast<const Mission::ACTResource*>(constant_resource_r);
 
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActorConstant(actor_resource_r);
         else
-        if(constant_resource_r->getSWVREntry().isPresent())
+        if(dynamic_cast<const Mission::MSICResource*>(constant_resource_r) == nullptr && constant_resource_r->getSWVREntry().isPresent())
             swvr_accessor.emplaceConstant(constant_resource_r);
         else {
 
@@ -107,13 +107,13 @@ void Accessor::load( Mission::IFF &resource_r ) {
     std::vector<Mission::Resource*> array = resource_r.getAllResources();
 
     for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-        Mission::ACTResource *actor_resource_r = dynamic_cast<Mission::ACTResource*>((*r_it));
         Mission::Resource* resource_r = (*r_it);
+        Mission::ACTResource *actor_resource_r = dynamic_cast<Mission::ACTResource*>(resource_r);
 
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActor(actor_resource_r);
         else
-        if(resource_r->getSWVREntry().isPresent())
+        if(dynamic_cast<Mission::MSICResource*>(resource_r) == nullptr && resource_r->getSWVREntry().isPresent())
             swvr_accessor.emplace(resource_r);
         else {
 
