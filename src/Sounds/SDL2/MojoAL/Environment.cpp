@@ -115,6 +115,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     alSourcei(music_source, AL_LOOPING, AL_TRUE);
 
+    alSourcei(music_source, AL_SOURCE_RELATIVE, AL_TRUE);
+
     return 1;
 }
 
