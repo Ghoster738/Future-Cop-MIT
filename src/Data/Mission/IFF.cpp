@@ -499,6 +499,29 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Data::Accessor accessor;
         accessor.load( *this );
 
+        auto tos_pointers_r = accessor.getAllConstTOS();
+
+        if( !tos_pointers_r.empty() ) {
+            std::vector<uint32_t> offsets = tos_pointers_r[0]->getOffsets();
+
+            auto snds_pointers_r = accessor.getAllConstSNDS();
+
+            // This will crash on the ps1 iff.
+            assert(snds_pointers_r.size() == offsets.size());
+
+            for( auto it : snds_pointers_r ) {
+                bool found_tos = false;
+
+                for( auto of : offsets ) {
+                    if(it->getSWVREntry().tos_offset == of) {
+                        found_tos = true;
+                    }
+                }
+
+                assert(found_tos);
+            }
+        }
+
         auto ptc_pointers_r = accessor.getAllPTC();
 
         if( ptc_pointers_r.size() != 0 ) {
