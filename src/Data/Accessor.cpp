@@ -1,6 +1,5 @@
 #include "Accessor.h"
 
-#include "Mission/ANMResource.h"
 #include "Mission/BMPResource.h"
 #include "Mission/DCSResource.h"
 #include "Mission/FUNResource.h"
@@ -11,7 +10,6 @@
 #include "Mission/PTCResource.h"
 #include "Mission/PYRResource.h"
 #include "Mission/RPNSResource.h"
-#include "Mission/SNDSResource.h"
 #include "Mission/TilResource.h"
 #include "Mission/TOSResource.h"
 #include "Mission/WAVResource.h"
@@ -87,11 +85,14 @@ void Accessor::loadConstant( const Mission::IFF &resource_r ) {
 
     for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
         const Mission::ACTResource *actor_resource_r = dynamic_cast<const Mission::ACTResource*>((*r_it));
+        const Mission::Resource* constant_resource_r = (*r_it);
 
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActorConstant(actor_resource_r);
+        else
+        if(constant_resource_r->getSWVREntry().isPresent())
+            swvr_accessor.emplaceConstant(constant_resource_r);
         else {
-            const Mission::Resource* constant_resource_r = (*r_it);
 
             search_value.type = constant_resource_r->getResourceTagID();
             search_value.resource_id = constant_resource_r->getResourceID();
@@ -107,11 +108,14 @@ void Accessor::load( Mission::IFF &resource_r ) {
 
     for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
         Mission::ACTResource *actor_resource_r = dynamic_cast<Mission::ACTResource*>((*r_it));
+        Mission::Resource* resource_r = (*r_it);
 
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActor(actor_resource_r);
+        else
+        if(resource_r->getSWVREntry().isPresent())
+            swvr_accessor.emplaceConstant(resource_r);
         else {
-            Mission::Resource* resource_r = (*r_it);
 
             search_value.type = resource_r->getResourceTagID();
             search_value.resource_id = resource_r->getResourceID();
@@ -126,7 +130,6 @@ void Accessor::clear() {
     actor_accessor.clear();
 }
 
-SEARCH(ANMResource,   getANM,  getAllANM, getConstANM, getAllConstANM)
 SEARCH(BMPResource,   getBMP,  getAllBMP, getConstBMP, getAllConstBMP)
 SEARCH(DCSResource,   getDCS,  getAllDCS, getConstDCS, getAllConstDCS)
 SEARCH(FUNResource,   getFUN,  getAllFUN, getConstFUN, getAllConstFUN)
@@ -137,7 +140,6 @@ SEARCH(ObjResource,   getOBJ,  getAllOBJ, getConstOBJ, getAllConstOBJ)
 SEARCH(PTCResource,   getPTC,  getAllPTC, getConstPTC, getAllConstPTC)
 SEARCH(PYRResource,   getPYR,  getAllPYR, getConstPYR, getAllConstPYR)
 SEARCH(RPNSResource, getRPNS, getAllRPNS, getConstRPNS, getAllConstRPNS)
-SEARCH(SNDSResource, getSNDS, getAllSNDS, getConstSNDS, getAllConstSNDS)
 SEARCH(TilResource,   getTIL,  getAllTIL, getConstTIL, getAllConstTIL)
 SEARCH(TOSResource,   getTOS,  getAllTOS, getConstTOS, getAllConstTOS)
 SEARCH(WAVResource,   getWAV,  getAllWAV, getConstWAV, getAllConstWAV)

@@ -4,6 +4,7 @@
 #include "Mission/IFF.h"
 
 #include "ActorAccessor.h"
+#include "SWVRAccessor.h"
 
 #include <vector>
 #include <map>
@@ -12,7 +13,6 @@ namespace Data {
 
 // These are prototypes, so I do not have to include each of them. This is to save compilation time.
 namespace Mission {
-    class ANMResource;
     class BMPResource;
     class DCSResource;
     class FUNResource;
@@ -23,7 +23,6 @@ namespace Mission {
     class PTCResource;
     class PYRResource;
     class RPNSResource;
-    class SNDSResource;
     class TilResource;
     class TOSResource;
     class WAVResource;
@@ -45,6 +44,7 @@ public:
 private:
     std::map<SearchValue, DataValue> search;
     ActorAccessor actor_accessor;
+    SWVRAccessor swvr_accessor;
 
 public:
     Accessor();
@@ -57,10 +57,8 @@ public:
     ActorAccessor& getActorAccessor() { return actor_accessor; }
     const ActorAccessor& getActorAccessor() const { return actor_accessor; }
 
-    Mission::ANMResource* getANM( uint32_t resource_id );
-    const Mission::ANMResource* getConstANM( uint32_t resource_id ) const;
-    std::vector<Mission::ANMResource*> getAllANM();
-    std::vector<const Mission::ANMResource*> getAllConstANM() const;
+    SWVRAccessor& getSWVRAccessor() { return swvr_accessor; }
+    const SWVRAccessor& getSWVRAccessor() const { return swvr_accessor; }
 
     Mission::BMPResource* getBMP( uint32_t resource_id );
     const Mission::BMPResource* getConstBMP( uint32_t resource_id ) const;
@@ -111,11 +109,6 @@ public:
     const Mission::RPNSResource* getConstRPNS( uint32_t resource_id ) const;
     std::vector<Mission::RPNSResource*> getAllRPNS();
     std::vector<const Mission::RPNSResource*> getAllConstRPNS() const;
-
-    Mission::SNDSResource* getSNDS( uint32_t resource_id );
-    const Mission::SNDSResource* getConstSNDS( uint32_t resource_id ) const;
-    std::vector<Mission::SNDSResource*> getAllSNDS();
-    std::vector<const Mission::SNDSResource*> getAllConstSNDS() const;
 
     Mission::TilResource* getTIL( uint32_t resource_id );
     const Mission::TilResource* getConstTIL( uint32_t resource_id ) const;
