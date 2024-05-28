@@ -1,6 +1,7 @@
 #ifndef SOUNDS_ENVIRONMENT_H
 #define SOUNDS_ENVIRONMENT_H
 
+#include <chrono>
 #include <vector>
 #include <string>
 
@@ -111,6 +112,12 @@ public:
      * @return The state of the track player.
      */
     virtual PlayerState getTrackPlayerState() const = 0;
+
+    /**
+     * Advance the time.
+     * @param duration The delta seconds.
+     */
+    virtual void advanceTime( std::chrono::high_resolution_clock::duration duration ) = 0;
 };
 
 }

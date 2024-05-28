@@ -183,6 +183,9 @@ Sounds::PlayerState Environment::getTrackPlayerState() const {
     return Sounds::PlayerState::STOP;
 }
 
+void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
+}
+
 }
 }
 }
