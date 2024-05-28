@@ -79,7 +79,38 @@ public:
      * @param player_state The music status.
      * @return If the music is successfully set return true.
      */
-    virtual bool setMusic(PlayerState player_state) = 0;
+    virtual bool setMusicState(PlayerState player_state) = 0;
+
+    /**
+     * This method gets the music state.
+     * @return The music's state.
+     */
+    virtual PlayerState getMusicState() const = 0;
+
+    /**
+     * This method sets the audio track by its TOS offset. First-In-First-Out
+     * @param tos_offset The offset to the SWVR resource to play.
+     * @return True if the track was added to the queue.
+     */
+    virtual bool queueTrack(uint32_t track_offset) = 0;
+
+    /**
+     * This clears the track queue.
+     */
+    virtual void clearTrackQueue() = 0;
+
+    /**
+     * Set the track player state.
+     * @param player_state Get the track player state.
+     * @return if the track player is present and set return true.
+     */
+    virtual bool setTrackPlayerState(PlayerState player_state) = 0;
+
+    /**
+     * Get the track player state.
+     * @return The state of the track player.
+     */
+    virtual PlayerState getTrackPlayerState() const = 0;
 };
 
 }

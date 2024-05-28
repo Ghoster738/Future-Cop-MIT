@@ -118,7 +118,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return 1;
 }
 
-bool Environment::setMusic(Sounds::PlayerState player_state) {
+bool Environment::setMusicState(Sounds::PlayerState player_state) {
     if(music_source == 0)
         return false;
 
@@ -142,6 +142,45 @@ bool Environment::setMusic(Sounds::PlayerState player_state) {
         return true;
     else
         return false;
+}
+
+Sounds::PlayerState Environment::getMusicState() const {
+    if(music_source == 0)
+        return Sounds::PlayerState::STOP;
+
+    ALint state = -1;
+
+    alGetSourcei(music_source, AL_SOURCE_STATE, &state);
+
+    switch(state) {
+        case AL_STOPPED:
+            return Sounds::PlayerState::STOP;
+            break;
+        case AL_PAUSED:
+            return Sounds::PlayerState::PAUSE;
+            break;
+        case AL_PLAYING:
+            return Sounds::PlayerState::PLAY;
+            break;
+        default:
+            return Sounds::PlayerState::STOP;
+    }
+}
+
+bool Environment::queueTrack(uint32_t track_offset) {
+    return false;
+}
+
+void Environment::clearTrackQueue() {
+    // There is no queue.
+}
+
+bool Environment::setTrackPlayerState(PlayerState player_state) {
+    return false;
+}
+
+Sounds::PlayerState Environment::getTrackPlayerState() const {
+    return Sounds::PlayerState::STOP;
 }
 
 }
