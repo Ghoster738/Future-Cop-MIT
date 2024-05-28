@@ -34,7 +34,7 @@ bool Environment::isIdentifier( const std::string &identifier ) {
 
 Environment* Environment::alloc( const std::string &identifier ) {
     if( identifier.compare( NO_AUDIO ) == 0 ) {
-        return new SDL2::Dummy::Environment();
+        return new Dummy::Environment();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
         return new SDL2::MojoAL::Environment();
@@ -45,7 +45,7 @@ Environment* Environment::alloc( const std::string &identifier ) {
 
 int Environment::initSystem( const std::string &identifier ) {
     if( identifier.compare( NO_AUDIO ) == 0 ) {
-        return SDL2::Dummy::Environment::initSystem();
+        return Dummy::Environment::initSystem();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
         return SDL2::MojoAL::Environment::initSystem();
@@ -56,7 +56,7 @@ int Environment::initSystem( const std::string &identifier ) {
 
 int Environment::deinitEntireSystem( const std::string &identifier ) {
     if( identifier.compare( NO_AUDIO ) == 0 ) {
-        return SDL2::Dummy::Environment::deinitEntireSystem();
+        return Dummy::Environment::deinitEntireSystem();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
         return SDL2::MojoAL::Environment::deinitEntireSystem();

@@ -1,7 +1,6 @@
 #include "Environment.h"
 
 namespace Sounds {
-namespace SDL2 {
 namespace Dummy {
 
 Environment::Environment() {}
@@ -50,6 +49,5 @@ Sounds::PlayerState Environment::getTrackPlayerState() const {
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
 }
 
-}
 }
 }

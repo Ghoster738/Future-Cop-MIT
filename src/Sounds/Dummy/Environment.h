@@ -4,7 +4,6 @@
 #include "../Environment.h"
 
 namespace Sounds {
-namespace SDL2 {
 namespace Dummy {
 
 class Environment : public Sounds::Environment {
@@ -29,7 +28,6 @@ public:
     virtual void advanceTime(std::chrono::high_resolution_clock::duration duration);
 };
 
-}
 }
 }
 
