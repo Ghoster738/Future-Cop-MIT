@@ -119,7 +119,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     alSourcei(music_source, AL_SOURCE_RELATIVE, AL_TRUE);
 
     for(auto key: tos_to_swvr)
-        alDeleteBuffers(1, &key.second);
+        alDeleteBuffers(1, &key.second.first);
 
     tos_to_swvr.clear();
 
@@ -129,16 +129,27 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         uint32_t tos_offset = track_r->getSWVREntry().tos_offset;
 
         if(tos_to_swvr.find(tos_offset) == tos_to_swvr.end()) {
-            tos_to_swvr[tos_offset] = 0;
+            auto data_unit = std::pair<ALuint, std::chrono::high_resolution_clock::duration>(0,0);
 
-            alGenBuffers(1, &tos_to_swvr[tos_offset]);
+            alGenBuffers(1, &data_unit.first);
 
             const Data::Mission::WAVResource *const sound_r = track_r->soundAccessor();
 
             ALenum format = getFormat(sound_r->getChannelNumber(), sound_r->getBitsPerSample());
 
-            if(format != AL_INVALID_ENUM)
-                alBufferData(tos_to_swvr[tos_offset], format, sound_r->getPCMData(), sound_r->getTotalPCMBytes(), sound_r->getSampleRate());
+            if(format != AL_INVALID_ENUM) {
+                alBufferData(data_unit.first, format, sound_r->getPCMData(), sound_r->getTotalPCMBytes(), sound_r->getSampleRate());
+
+                uint64_t size_of_demonator = sound_r->getChannelNumber() * (sound_r->getBitsPerSample() / 8) * sound_r->getSampleRate();
+
+                std::chrono::duration<double> duration_second(static_cast<double>(sound_r->getTotalPCMBytes()) / static_cast<double>(size_of_demonator));
+
+                auto conversion = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(duration_second);
+
+                data_unit.second = conversion;
+
+                tos_to_swvr[tos_offset] = data_unit;
+            }
         }
     }
 

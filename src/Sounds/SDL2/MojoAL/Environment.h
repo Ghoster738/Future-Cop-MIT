@@ -4,6 +4,7 @@
 #include "../../Environment.h"
 
 #include <map>
+#include <utility>
 
 #include "al.h"
 #include "alc.h"
@@ -17,7 +18,7 @@ public:
     ALCdevice *alc_device_p;
     ALCcontext *alc_context_p;
 
-    std::map<uint32_t, ALuint> tos_to_swvr;
+    std::map<uint32_t, std::pair<ALuint, std::chrono::high_resolution_clock::duration>> tos_to_swvr;
 
     ALuint music_buffer;
     ALuint music_source;
