@@ -1,5 +1,6 @@
 #include "Environment.h"
 #include "../../../Data/Mission/MSICResource.h"
+#include "../../../Data/Mission/SNDSResource.h"
 
 namespace Sounds {
 namespace SDL2 {
@@ -116,6 +117,30 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     alSourcei(music_source, AL_LOOPING, AL_TRUE);
 
     alSourcei(music_source, AL_SOURCE_RELATIVE, AL_TRUE);
+
+    for(auto key: tos_to_swvr)
+        alDeleteBuffers(1, &key.second);
+
+    tos_to_swvr.clear();
+
+    auto snds_r = accessor.getSWVRAccessor().getAllConstSNDS();
+
+    for(const Data::Mission::SNDSResource *track_r : snds_r) {
+        uint32_t tos_offset = track_r->getSWVREntry().tos_offset;
+
+        if(tos_to_swvr.find(tos_offset) == tos_to_swvr.end()) {
+            tos_to_swvr[tos_offset] = 0;
+
+            alGenBuffers(1, &tos_to_swvr[tos_offset]);
+
+            const Data::Mission::WAVResource *const sound_r = track_r->soundAccessor();
+
+            ALenum format = getFormat(sound_r->getChannelNumber(), sound_r->getBitsPerSample());
+
+            if(format != AL_INVALID_ENUM)
+                alBufferData(tos_to_swvr[tos_offset], format, sound_r->getPCMData(), sound_r->getTotalPCMBytes(), sound_r->getSampleRate());
+        }
+    }
 
     return 1;
 }
