@@ -104,6 +104,8 @@ void SWVRAccessor::emplace( Mission::Resource *resource_r ) {
 
 void SWVRAccessor::clear() {
     search.clear();
+    msic_resource.changable_r = nullptr;
+    msic_resource.constant_r = nullptr;
 }
 
 std::vector<Mission::Resource*> SWVRAccessor::getAll() {
