@@ -11,7 +11,7 @@
 #include "alc.h"
 
 namespace Sound {
-namespace SDL2 {
+namespace OpenAL {
 namespace MojoAL {
 
 class Environment : public Sound::Environment {

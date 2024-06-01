@@ -7,7 +7,7 @@
 #include <cassert>
 
 namespace Sound {
-namespace SDL2 {
+namespace OpenAL {
 namespace MojoAL {
 
 Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), music_buffer(0), music_source(0) {}

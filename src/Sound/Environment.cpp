@@ -37,7 +37,7 @@ Environment* Environment::alloc( const std::string &identifier ) {
         return new Dummy::Environment();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
-        return new SDL2::MojoAL::Environment();
+        return new OpenAL::MojoAL::Environment();
     }
     else
         return nullptr;
@@ -48,7 +48,7 @@ int Environment::initSystem( const std::string &identifier ) {
         return Dummy::Environment::initSystem();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
-        return SDL2::MojoAL::Environment::initSystem();
+        return OpenAL::MojoAL::Environment::initSystem();
     }
     else
         return -1;
@@ -59,7 +59,7 @@ int Environment::deinitEntireSystem( const std::string &identifier ) {
         return Dummy::Environment::deinitEntireSystem();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
-        return SDL2::MojoAL::Environment::deinitEntireSystem();
+        return OpenAL::MojoAL::Environment::deinitEntireSystem();
     }
     else
         return -1;

@@ -7,7 +7,7 @@
 #include "al.h"
 
 namespace Sound {
-namespace SDL2 {
+namespace OpenAL {
 namespace MojoAL {
 namespace Internal {
 
