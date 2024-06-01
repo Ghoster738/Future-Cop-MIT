@@ -15,7 +15,7 @@
 
 #include "Graphics/Environment.h"
 
-#include "Sounds/Environment.h"
+#include "Sound/Environment.h"
 
 #include "Utilities/Options/Parameters.h"
 #include "Utilities/Options/Paths.h"
