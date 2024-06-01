@@ -7,11 +7,10 @@
 
 #include "SoundBuffer.h"
 
-#include "../../../PlayerState.h"
+#include "../../PlayerState.h"
 
 namespace Sound {
 namespace OpenAL {
-namespace MojoAL {
 namespace Internal {
 
 class SoundQueue {
@@ -41,7 +40,6 @@ public:
     void update(std::chrono::high_resolution_clock::duration duration);
 };
 
-}
 }
 }
 }

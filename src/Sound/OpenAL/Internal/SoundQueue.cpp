@@ -2,7 +2,6 @@
 
 namespace Sound {
 namespace OpenAL {
-namespace MojoAL {
 namespace Internal {
 
 SoundQueue::SoundQueue(unsigned p_queue_limit) : queue_limit(p_queue_limit), sound_queue(), current_sound_element(), player_state(Sound::PlayerState::STOP), allocated_queue_source(false), queue_source() {
@@ -124,7 +123,6 @@ void SoundQueue::update(std::chrono::high_resolution_clock::duration duration) {
         current_sound_element.duration -= duration;
 }
 
-}
 }
 }
 }

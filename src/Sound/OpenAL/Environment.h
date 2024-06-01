@@ -1,7 +1,7 @@
 #ifndef SOUNDS_ENVIRONMENT_MOJO_AL_H
 #define SOUNDS_ENVIRONMENT_MOJO_AL_H
 
-#include "../../Environment.h"
+#include "../Environment.h"
 
 #include "Internal/SoundQueue.h"
 
@@ -12,7 +12,6 @@
 
 namespace Sound {
 namespace OpenAL {
-namespace MojoAL {
 
 class Environment : public Sound::Environment {
 public:
@@ -45,7 +44,6 @@ public:
     virtual void advanceTime( std::chrono::high_resolution_clock::duration duration );
 };
 
-}
 }
 }
 

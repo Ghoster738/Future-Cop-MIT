@@ -1,14 +1,13 @@
 #include "Environment.h"
 
-#include "../../../Data/Mission/MSICResource.h"
-#include "../../../Data/Mission/TOSResource.h"
-#include "../../../Data/Mission/SNDSResource.h"
+#include "../../Data/Mission/MSICResource.h"
+#include "../../Data/Mission/TOSResource.h"
+#include "../../Data/Mission/SNDSResource.h"
 
 #include <cassert>
 
 namespace Sound {
 namespace OpenAL {
-namespace MojoAL {
 
 Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), music_buffer(0), music_source(0) {}
 
@@ -250,6 +249,5 @@ void Environment::advanceTime(std::chrono::high_resolution_clock::duration durat
     sound_queue.update(duration);
 }
 
-}
 }
 }

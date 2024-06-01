@@ -2,7 +2,6 @@
 
 namespace Sound {
 namespace OpenAL {
-namespace MojoAL {
 namespace Internal {
 
 ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound) {
@@ -75,7 +74,6 @@ ALenum SoundBuffer::getFormat(unsigned int number_of_channels, unsigned int bits
         return AL_INVALID_ENUM;
 }
 
-}
 }
 }
 }
