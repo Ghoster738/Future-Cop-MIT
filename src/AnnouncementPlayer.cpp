@@ -7,8 +7,7 @@
 
 AnnouncementPlayer AnnouncementPlayer::announcement_player;
 
-AnnouncementPlayer::AnnouncementPlayer() {
-}
+AnnouncementPlayer::AnnouncementPlayer() {}
 
 AnnouncementPlayer::~AnnouncementPlayer() {}
 
@@ -126,7 +125,31 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
 
     if(!this->announcements.empty())
-        text_2d_buffer_r->print( "SWVR name = " + this->announcements.at( this->announcement_index )->getSWVREntry().name );
+        text_2d_buffer_r->print( "Subfile name = " + this->announcements.at( this->announcement_index )->getSWVREntry().name );
     else
-        text_2d_buffer_r->print( "No Announcements are loaded. (PS1 file sounds are not supported yet)." );
+        text_2d_buffer_r->print( "No Announcements are loaded." );
+
+    text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
+
+    if(!this->announcements.empty()) {
+        std::stringstream new_stream;
+
+        new_stream << "SWVR tos offset = 0x" << std::hex << this->announcements.at( this->announcement_index )->getSWVREntry().tos_offset;
+
+        text_2d_buffer_r->print( new_stream.str() );
+    }
+    else
+        text_2d_buffer_r->print( "Note PS1 file sounds are not supported yet." );
+
+    if(!this->announcements.empty()) {
+        text_2d_buffer_r->setColor( glm::vec4( 0, 1, 0, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 2 * this->font_height ) );
+
+        std::stringstream new_stream;
+
+        new_stream << "SWVR offset = 0x" << std::hex << this->announcements.at( this->announcement_index )->getSWVREntry().offset;
+
+        text_2d_buffer_r->print( new_stream.str() );
+    }
 }
