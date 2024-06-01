@@ -1,7 +1,7 @@
 #include "Environment.h"
 
 #include "Dummy/Environment.h"
-#include "SDL2/MojoAL/Environment.h"
+#include "OpenAL/MojoAL/Environment.h"
 
 namespace Sound {
 

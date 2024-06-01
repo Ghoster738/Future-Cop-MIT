@@ -154,8 +154,8 @@ file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp
 
 file(GLOB_RECURSE SOUND_SDL2_DUMMY_SOURCE_FILES src/Sound/Dummy/*.cpp )
 
-file(GLOB_RECURSE SOUND_SDL2_MOJO_AL_SOURCE_FILES src/Sound/SDL2/*.cpp src/Sound/SDL2/*.c )
-include_directories( src/Sound/SDL2/MojoAL/library/AL/ )
+file(GLOB_RECURSE SOUND_SDL2_MOJO_AL_SOURCE_FILES src/Sound/OpenAL/*.cpp src/Sound/OpenAL/*.c )
+include_directories( src/Sound/OpenAL/MojoAL/library/AL/ )
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} ${SOUND_SOURCE_FILES} ${SOUND_SDL2_DUMMY_SOURCE_FILES} ${SOUND_SDL2_MOJO_AL_SOURCE_FILES} src/InputMenu.cpp src/MainProgram.cpp )
 
