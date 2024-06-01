@@ -11,8 +11,10 @@ class SNDSResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
+
 private:
     WAVResource sound;
+
 public:
     SNDSResource();
     SNDSResource( const SNDSResource &obj );
@@ -22,6 +24,8 @@ public:
     virtual uint32_t getResourceTagID() const;
     
     virtual bool noResourceID() const;
+
+    const WAVResource *const soundAccessor() const { return &sound; }
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 

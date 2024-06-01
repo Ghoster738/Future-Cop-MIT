@@ -9,6 +9,7 @@
 
 #include "PrimaryGame.h"
 #include "ModelViewer.h"
+#include "AnnouncementPlayer.h"
 
 #include "Config.h"
 
@@ -40,7 +41,8 @@ public:
     }
 }
 item_click_map_spectator(   "Map Spectator", &PrimaryGame::primary_game ),
-item_click_view_game_models( "Model Viewer", &ModelViewer::model_viewer );
+item_click_view_game_models( "Model Viewer", &ModelViewer::model_viewer ),
+item_click_player_announcement( "Announcement Player", &AnnouncementPlayer::announcement_player );
 
 
 class ItemClickExitGame : public Menu::ItemClick {
@@ -89,10 +91,11 @@ void MainMenu::load( MainProgram &main_program ) {
     this->items.clear();
 
     if( !this->is_game_on ) {
-        this->items.emplace_back( new Menu::TextButton( "Map Spectator",    glm::vec2( center, scale.y - 6 * step ), 3, 0, 1, 0, &item_click_map_spectator,    prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "View Game Models", glm::vec2( center, scale.y - 5 * step ), 0, 1, 2, 1, &item_click_view_game_models, prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center, scale.y - 4 * step ), 1, 2, 3, 2, &item_click_options,          prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, scale.y - 3 * step ), 2, 3, 0, 3, &item_click_exit_game,        prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Map Spectator",       glm::vec2( center, scale.y - 6 * step ), 4, 0, 1, 0, &item_click_map_spectator,       prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "View Game Models",    glm::vec2( center, scale.y - 5 * step ), 0, 1, 2, 1, &item_click_view_game_models,    prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Announcement Player", glm::vec2( center, scale.y - 4 * step ), 1, 2, 3, 2, &item_click_player_announcement, prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Options",             glm::vec2( center, scale.y - 3 * step ), 2, 3, 4, 3, &item_click_options,             prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y - 2 * step ), 3, 4, 0, 4, &item_click_exit_game,           prime_font, selected_font ) );
 
         if( main_program.text_2d_buffer_r->getLineLength( title_font, "Future Cop: MIT" ) > scale.x ) {
             this->items.emplace_back( new Menu::TextButton( "Future Cop:",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, &Menu::null_item_click, title_font, title_font ) );
@@ -109,11 +112,12 @@ void MainMenu::load( MainProgram &main_program ) {
         this->current_item_index = 0;
     }
     else {
-        this->items.emplace_back( new Menu::TextButton( "Back to Session",  glm::vec2( center, scale.y - 8 * step ), 4, 0, 1, 0, &item_click_menu_done,        prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Map Spectator",    glm::vec2( center, scale.y - 6 * step ), 0, 1, 2, 1, &item_click_map_spectator,    prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "View Game Models", glm::vec2( center, scale.y - 5 * step ), 1, 2, 3, 2, &item_click_view_game_models, prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Options",          glm::vec2( center, scale.y - 4 * step ), 2, 3, 4, 3, &item_click_options,          prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Exit to OS",       glm::vec2( center, scale.y - 3 * step ), 3, 4, 0, 4, &item_click_exit_game,        prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Back to Session",     glm::vec2( center, scale.y - 8 * step ), 5, 0, 1, 0, &item_click_menu_done,           prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Map Spectator",       glm::vec2( center, scale.y - 6 * step ), 0, 1, 2, 1, &item_click_map_spectator,       prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "View Game Models",    glm::vec2( center, scale.y - 5 * step ), 1, 2, 3, 2, &item_click_view_game_models,    prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Announcement Player", glm::vec2( center, scale.y - 4 * step ), 2, 3, 4, 3, &item_click_player_announcement, prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Options",             glm::vec2( center, scale.y - 3 * step ), 3, 4, 5, 4, &item_click_options,             prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y - 2 * step ), 4, 5, 0, 5, &item_click_exit_game,           prime_font, selected_font ) );
         this->current_item_index = 0;
     }
 }

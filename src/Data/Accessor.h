@@ -46,6 +46,11 @@ private:
     std::map<SearchValue, DataValue> search;
     ActorAccessor actor_accessor;
 
+    std::map<uint32_t, Accessor> swvr_files;
+
+    void emplaceConstant( const Mission::Resource *resource_r );
+    void emplace( Mission::Resource *resource_r );
+
 public:
     Accessor();
     virtual ~Accessor();
@@ -53,6 +58,9 @@ public:
     void loadConstant( const Mission::IFF &resource_r );
     void load( Mission::IFF &resource_r );
     void clear();
+
+    Accessor* getSWVRAccessor(uint32_t tos_offset);
+    const Accessor* getSWVRAccessor(uint32_t tos_offset) const;
 
     ActorAccessor& getActorAccessor() { return actor_accessor; }
     const ActorAccessor& getActorAccessor() const { return actor_accessor; }
@@ -82,10 +90,10 @@ public:
     std::vector<Mission::FontResource*> getAllFNT();
     std::vector<const Mission::FontResource*> getAllConstFNT() const;
 
-    Mission::MSICResource* getMISC( uint32_t resource_id );
-    const Mission::MSICResource* getConstMISC( uint32_t resource_id ) const;
-    std::vector<Mission::MSICResource*> getAllMISC();
-    std::vector<const Mission::MSICResource*> getAllConstMISC() const;
+    Mission::MSICResource* getMSIC( uint32_t resource_id );
+    const Mission::MSICResource* getConstMSIC( uint32_t resource_id ) const;
+    std::vector<Mission::MSICResource*> getAllMSIC();
+    std::vector<const Mission::MSICResource*> getAllConstMSIC() const;
 
     Mission::NetResource* getNET( uint32_t resource_id );
     const Mission::NetResource* getConstNET( uint32_t resource_id ) const;

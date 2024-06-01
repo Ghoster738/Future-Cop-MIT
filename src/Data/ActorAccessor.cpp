@@ -109,8 +109,8 @@ std::vector<const Mission::ACTResource*> ActorAccessor::getAllConst() const {
     std::vector<const Mission::ACTResource*> array;
 
     for( auto r_it = search.begin(); r_it != search.end(); r_it++ ) {
-        if((*r_it).second.changable_r != nullptr)
-            array.emplace_back( (*r_it).second.changable_r );
+        if((*r_it).second.constant_r != nullptr)
+            array.emplace_back( (*r_it).second.constant_r );
     }
 
     return array;

@@ -141,7 +141,7 @@ namespace {
         uint32_t offset;
         uint32_t iff_index;
         uint32_t resource_id;
-        std::string name_swvr;
+        Data::Mission::Resource::SWVREntry swvr_entry;
         Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
     };
@@ -234,7 +234,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         }
 
         int file_offset = 0;
-        std::string name_swvr = "";
+        uint32_t first_swvr_offset;
+        Resource::SWVREntry swvr_entry;
 
         while( file && !error_in_read ) {
             file_offset = file.tellg();
@@ -306,7 +307,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 resource_pool.back().offset    = file_offset;
                                 resource_pool.back().iff_index = resource_pool.size() - 1;
                                 resource_pool.back().resource_id = data_reader.readU32( default_settings.endian );
-                                resource_pool.back().name_swvr = name_swvr;
+                                resource_pool.back().swvr_entry = swvr_entry;
 
                                 resource_pool.back().data_p = new Utilities::Buffer();
                                 if( resource_pool.back().data_p != nullptr )
@@ -333,7 +334,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             msic_p = new MSICResource();
                             msic_p->setIndexNumber( 0 );
                             msic_p->setResourceID( 1 );
-                            msic_p->setSWVRName( name_swvr );
+                            msic_p->getSWVREntry() = swvr_entry;
                             msic_p->setOffset( file_offset );
 
                             msic_data_p = new Utilities::Buffer();
@@ -347,7 +348,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         if( DATA_SIZE != 28 || DATA_SIZE >= data_reader.totalSize() || amount_written != DATA_SIZE )
                             error_log.output << "SWVR chunk: DATA_SIZE = " << std::dec << DATA_SIZE << "amount_written is " << amount_written << "\n";
                         else {
-                            name_swvr = "";
+                            if(!swvr_entry.isPresent())
+                                first_swvr_offset = file_offset;
+
+                            swvr_entry.offset = file_offset;
+                            swvr_entry.tos_offset = file_offset - first_swvr_offset;
+                            swvr_entry.name = "";
 
                             data_reader.setPosition( 8 );
 
@@ -369,33 +375,33 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                     dot_position = i;
 
                                 if(some_char != '\0')
-                                    name_swvr += some_char;
+                                    swvr_entry.name += some_char;
                             }
 
                             // Now, the swvr name must be cleaned up.
 
-                            // If dot_position is beyond name_swvr then, there is not stream ending to cut out.
-                            if( name_swvr.length() > dot_position )
+                            // If dot_position is beyond swvr_entry.name then, there is not stream ending to cut out.
+                            if( swvr_entry.name.length() > dot_position )
                             {
                                 // Get the ".stream" ending cut out of the swvr name.
 
-                                const std::string ending = name_swvr.substr( dot_position );
+                                const std::string ending = swvr_entry.name.substr( dot_position );
                                 const std::string expecting = std::string(".stream").substr( 0, ending.length() );
 
                                 if( ending.compare(expecting) != 0 ) {
                                     warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
-                                        << "  \"" << name_swvr << "\" is the name of the SWVR chunk.\n"
+                                        << "  \"" << swvr_entry.name << "\" is the name of the SWVR chunk.\n"
                                         << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
                                 }
                                 else {
-                                    name_swvr = name_swvr.substr( 0, dot_position );
+                                    swvr_entry.name = swvr_entry.name.substr( 0, dot_position );
                                 }
                             }
                             else
                             {
-                                if( name_swvr.length() != STRING_LIMIT - 1 ) {
+                                if( swvr_entry.name.length() != STRING_LIMIT - 1 ) {
                                     warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
-                                        << "  SWVR name \"" << name_swvr << "\" probably invalid.\n";
+                                        << "  SWVR name \"" << swvr_entry.name << "\" probably invalid.\n";
                                 }
                             }
                         }
@@ -454,7 +460,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
-            new_resource_p->setSWVRName( i.name_swvr );
+            new_resource_p->getSWVREntry() = i.swvr_entry;
 
             new_resource_p->setMemory( i.header_p, i.data_p );
             new_resource_p->processHeader( default_settings );

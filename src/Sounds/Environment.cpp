@@ -1,12 +1,12 @@
 #include "Environment.h"
 
-#include "SDL2/Dummy/Environment.h"
+#include "Dummy/Environment.h"
 #include "SDL2/MojoAL/Environment.h"
 
 namespace Sounds {
 
 const std::string Environment::SDL2_WITH_MOJO_AL = "MojoAL";
-const std::string Environment::SDL2_WITH_NO_AUDIO = "DUMMY Audio";
+const std::string Environment::NO_AUDIO = "DUMMY Audio";
 
 Environment::Environment() {
 }
@@ -18,13 +18,13 @@ std::vector<std::string> Environment::getAvailableIdentifiers() {
     std::vector<std::string> identifiers;
 
     identifiers.push_back( SDL2_WITH_MOJO_AL );
-    identifiers.push_back( SDL2_WITH_NO_AUDIO );
+    identifiers.push_back( NO_AUDIO );
 
     return identifiers;
 }
 
 bool Environment::isIdentifier( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_NO_AUDIO ) == 0 )
+    if( identifier.compare( NO_AUDIO ) == 0 )
         return true;
     else if ( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 )
         return true;
@@ -33,8 +33,8 @@ bool Environment::isIdentifier( const std::string &identifier ) {
 }
 
 Environment* Environment::alloc( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_NO_AUDIO ) == 0 ) {
-        return new SDL2::Dummy::Environment();
+    if( identifier.compare( NO_AUDIO ) == 0 ) {
+        return new Dummy::Environment();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
         return new SDL2::MojoAL::Environment();
@@ -44,8 +44,8 @@ Environment* Environment::alloc( const std::string &identifier ) {
 }
 
 int Environment::initSystem( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_NO_AUDIO ) == 0 ) {
-        return SDL2::Dummy::Environment::initSystem();
+    if( identifier.compare( NO_AUDIO ) == 0 ) {
+        return Dummy::Environment::initSystem();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
         return SDL2::MojoAL::Environment::initSystem();
@@ -55,8 +55,8 @@ int Environment::initSystem( const std::string &identifier ) {
 }
 
 int Environment::deinitEntireSystem( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_NO_AUDIO ) == 0 ) {
-        return SDL2::Dummy::Environment::deinitEntireSystem();
+    if( identifier.compare( NO_AUDIO ) == 0 ) {
+        return Dummy::Environment::deinitEntireSystem();
     }
     else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
         return SDL2::MojoAL::Environment::deinitEntireSystem();
