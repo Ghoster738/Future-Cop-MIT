@@ -1,14 +1,17 @@
 #include "Accessor.h"
 
+#include "Mission/ANMResource.h"
 #include "Mission/BMPResource.h"
 #include "Mission/DCSResource.h"
 #include "Mission/FUNResource.h"
 #include "Mission/FontResource.h"
+#include "Mission/MSICResource.h"
 #include "Mission/NetResource.h"
 #include "Mission/ObjResource.h"
 #include "Mission/PTCResource.h"
 #include "Mission/PYRResource.h"
 #include "Mission/RPNSResource.h"
+#include "Mission/SNDSResource.h"
 #include "Mission/TilResource.h"
 #include "Mission/TOSResource.h"
 #include "Mission/WAVResource.h"
@@ -73,8 +76,29 @@ bool Accessor::SearchValue::operator< ( const Accessor::SearchValue & operand ) 
         return (resource_id < operand.resource_id);
 }
 
-Accessor::Accessor() {
+void Accessor::emplaceConstant( const Mission::Resource *constant_resource_r ) {
+    assert(constant_resource_r != nullptr);
+
+    SearchValue search_value;
+
+    search_value.type = constant_resource_r->getResourceTagID();
+    search_value.resource_id = constant_resource_r->getResourceID();
+
+    search[ search_value ] = {nullptr, constant_resource_r};
 }
+
+void Accessor::emplace( Mission::Resource *resource_r ) {
+    assert(resource_r != nullptr);
+
+    SearchValue search_value;
+
+    search_value.type = resource_r->getResourceTagID();
+    search_value.resource_id = resource_r->getResourceID();
+
+    search[ search_value ] = {resource_r, resource_r};
+}
+
+Accessor::Accessor() {}
 
 Accessor::~Accessor() {}
 
@@ -89,8 +113,12 @@ void Accessor::loadConstant( const Mission::IFF &resource_r ) {
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActorConstant(actor_resource_r);
         else
-        if(constant_resource_r->getSWVREntry().isPresent())
-            swvr_accessor.emplaceConstant(constant_resource_r);
+        if(dynamic_cast<const Mission::MSICResource*>(constant_resource_r) == nullptr && constant_resource_r->getSWVREntry().isPresent()) {
+            if(swvr_files.find(constant_resource_r->getSWVREntry().tos_offset) == swvr_files.end())
+                swvr_files[constant_resource_r->getSWVREntry().tos_offset] = Accessor();
+
+            swvr_files[constant_resource_r->getSWVREntry().tos_offset].emplaceConstant(constant_resource_r);
+        }
         else {
 
             search_value.type = constant_resource_r->getResourceTagID();
@@ -112,8 +140,12 @@ void Accessor::load( Mission::IFF &resource_r ) {
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActor(actor_resource_r);
         else
-        if(resource_r->getSWVREntry().isPresent())
-            swvr_accessor.emplace(resource_r);
+        if(dynamic_cast<Mission::MSICResource*>(resource_r) == nullptr && resource_r->getSWVREntry().isPresent()) {
+            if(swvr_files.find(resource_r->getSWVREntry().tos_offset) == swvr_files.end())
+                swvr_files[resource_r->getSWVREntry().tos_offset] = Accessor();
+
+            swvr_files[resource_r->getSWVREntry().tos_offset].emplaceConstant(resource_r);
+        }
         else {
 
             search_value.type = resource_r->getResourceTagID();
@@ -127,18 +159,36 @@ void Accessor::load( Mission::IFF &resource_r ) {
 void Accessor::clear() {
     search.clear();
     actor_accessor.clear();
-    swvr_accessor.clear();
 }
 
+
+Accessor* Accessor::getSWVRAccessor(uint32_t tos_offset) {
+    if(swvr_files.find(tos_offset) == swvr_files.end())
+        return nullptr;
+    return &swvr_files[tos_offset];
+}
+
+const Accessor* Accessor::getSWVRAccessor(uint32_t tos_offset) const {
+    auto swvr_accessor = swvr_files.find(tos_offset);
+
+    if(swvr_accessor == swvr_files.end())
+        return nullptr;
+
+    return const_cast<const Accessor*>(&(*swvr_accessor).second);
+}
+
+SEARCH(ANMResource,   getANM,  getAllANM, getConstANM,  getAllConstANM)
 SEARCH(BMPResource,   getBMP,  getAllBMP, getConstBMP, getAllConstBMP)
 SEARCH(DCSResource,   getDCS,  getAllDCS, getConstDCS, getAllConstDCS)
 SEARCH(FUNResource,   getFUN,  getAllFUN, getConstFUN, getAllConstFUN)
 SEARCH(FontResource,  getFNT,  getAllFNT, getConstFNT, getAllConstFNT)
+SEARCH(MSICResource, getMSIC, getAllMSIC, getConstMSIC, getAllConstMSIC)
 SEARCH(NetResource,   getNET,  getAllNET, getConstNET, getAllConstNET)
 SEARCH(ObjResource,   getOBJ,  getAllOBJ, getConstOBJ, getAllConstOBJ)
 SEARCH(PTCResource,   getPTC,  getAllPTC, getConstPTC, getAllConstPTC)
 SEARCH(PYRResource,   getPYR,  getAllPYR, getConstPYR, getAllConstPYR)
 SEARCH(RPNSResource, getRPNS, getAllRPNS, getConstRPNS, getAllConstRPNS)
+SEARCH(SNDSResource, getSNDS, getAllSNDS, getConstSNDS, getAllConstSNDS)
 SEARCH(TilResource,   getTIL,  getAllTIL, getConstTIL, getAllConstTIL)
 SEARCH(TOSResource,   getTOS,  getAllTOS, getConstTOS, getAllConstTOS)
 SEARCH(WAVResource,   getWAV,  getAllWAV, getConstWAV, getAllConstWAV)

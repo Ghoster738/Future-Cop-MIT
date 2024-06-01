@@ -1,7 +1,10 @@
 #include "Environment.h"
 
 #include "../../../Data/Mission/MSICResource.h"
+#include "../../../Data/Mission/TOSResource.h"
 #include "../../../Data/Mission/SNDSResource.h"
+
+#include <cassert>
 
 namespace Sounds {
 namespace SDL2 {
@@ -52,7 +55,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     ALenum error_state = alGetError();
 
-    const Data::Mission::MSICResource* misc_r = accessor.getSWVRAccessor().getConstMSIC();
+    const Data::Mission::MSICResource* misc_r = accessor.getConstMSIC(1);
 
     if(music_source != 0)
         alDeleteSources(1, &music_source);
@@ -116,20 +119,29 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     tos_to_swvr.clear();
 
-    auto snds_r = accessor.getSWVRAccessor().getAllConstSNDS();
+    auto tos_resource_r = accessor.getConstTOS( 1 );
 
-    for(const Data::Mission::SNDSResource *track_r : snds_r) {
-        uint32_t tos_offset = track_r->getSWVREntry().tos_offset;
+    for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
+        const Data::Accessor *swvr_accessor_r = accessor.getSWVRAccessor(tos_offset);
 
-        if(tos_to_swvr.find(tos_offset) == tos_to_swvr.end()) {
-            const Data::Mission::WAVResource *const sound_r = track_r->soundAccessor();
+        assert(swvr_accessor_r != nullptr);
 
-            tos_to_swvr[tos_offset] = Internal::SoundBuffer();
+        if(swvr_accessor_r != nullptr) {
+            auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
 
-            ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
+            for(auto snds_r : snds_array_r) {
+                if(tos_to_swvr.find(tos_offset) != tos_to_swvr.end())
+                    continue;
 
-            if(current_error_state != AL_NO_ERROR) {
-                error_state = current_error_state;
+                const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
+
+                tos_to_swvr[tos_offset] = Internal::SoundBuffer();
+
+                ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
+
+                if(current_error_state != AL_NO_ERROR) {
+                    error_state = current_error_state;
+                }
             }
         }
     }

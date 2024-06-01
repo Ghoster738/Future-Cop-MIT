@@ -4,7 +4,6 @@
 #include "Mission/IFF.h"
 
 #include "ActorAccessor.h"
-#include "SWVRAccessor.h"
 
 #include <vector>
 #include <map>
@@ -13,15 +12,18 @@ namespace Data {
 
 // These are prototypes, so I do not have to include each of them. This is to save compilation time.
 namespace Mission {
+    class ANMResource;
     class BMPResource;
     class DCSResource;
     class FUNResource;
     class FontResource;
+    class MSICResource;
     class NetResource;
     class ObjResource;
     class PTCResource;
     class PYRResource;
     class RPNSResource;
+    class SNDSResource;
     class TilResource;
     class TOSResource;
     class WAVResource;
@@ -43,7 +45,11 @@ public:
 private:
     std::map<SearchValue, DataValue> search;
     ActorAccessor actor_accessor;
-    SWVRAccessor swvr_accessor;
+
+    std::map<uint32_t, Accessor> swvr_files;
+
+    void emplaceConstant( const Mission::Resource *resource_r );
+    void emplace( Mission::Resource *resource_r );
 
 public:
     Accessor();
@@ -53,11 +59,16 @@ public:
     void load( Mission::IFF &resource_r );
     void clear();
 
+    Accessor* getSWVRAccessor(uint32_t tos_offset);
+    const Accessor* getSWVRAccessor(uint32_t tos_offset) const;
+
     ActorAccessor& getActorAccessor() { return actor_accessor; }
     const ActorAccessor& getActorAccessor() const { return actor_accessor; }
 
-    SWVRAccessor& getSWVRAccessor() { return swvr_accessor; }
-    const SWVRAccessor& getSWVRAccessor() const { return swvr_accessor; }
+    Mission::ANMResource* getANM( uint32_t resource_id );
+    const Mission::ANMResource* getConstANM( uint32_t resource_id ) const;
+    std::vector<Mission::ANMResource*> getAllANM();
+    std::vector<const Mission::ANMResource*> getAllConstANM() const;
 
     Mission::BMPResource* getBMP( uint32_t resource_id );
     const Mission::BMPResource* getConstBMP( uint32_t resource_id ) const;
@@ -84,6 +95,11 @@ public:
     std::vector<Mission::NetResource*> getAllNET();
     std::vector<const Mission::NetResource*> getAllConstNET() const;
 
+    Mission::MSICResource* getMSIC( uint32_t resource_id );
+    const Mission::MSICResource* getConstMSIC( uint32_t resource_id ) const;
+    std::vector<Mission::MSICResource*> getAllMSIC();
+    std::vector<const Mission::MSICResource*> getAllConstMSIC() const;
+
     Mission::ObjResource* getOBJ( uint32_t resource_id );
     const Mission::ObjResource* getConstOBJ( uint32_t resource_id ) const;
     std::vector<Mission::ObjResource*> getAllOBJ();
@@ -103,6 +119,11 @@ public:
     const Mission::RPNSResource* getConstRPNS( uint32_t resource_id ) const;
     std::vector<Mission::RPNSResource*> getAllRPNS();
     std::vector<const Mission::RPNSResource*> getAllConstRPNS() const;
+
+    Mission::SNDSResource* getSNDS( uint32_t resource_id );
+    const Mission::SNDSResource* getConstSNDS( uint32_t resource_id ) const;
+    std::vector<Mission::SNDSResource*> getAllSNDS();
+    std::vector<const Mission::SNDSResource*> getAllConstSNDS() const;
 
     Mission::TilResource* getTIL( uint32_t resource_id );
     const Mission::TilResource* getConstTIL( uint32_t resource_id ) const;
