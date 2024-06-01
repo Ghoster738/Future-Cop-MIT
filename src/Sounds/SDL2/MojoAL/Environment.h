@@ -3,8 +3,9 @@
 
 #include "../../Environment.h"
 
+#include "Internal/SoundQueue.h"
+
 #include <map>
-#include <utility>
 
 #include "al.h"
 #include "alc.h"
@@ -18,12 +19,12 @@ public:
     ALCdevice *alc_device_p;
     ALCcontext *alc_context_p;
 
-    std::map<uint32_t, std::pair<ALuint, std::chrono::high_resolution_clock::duration>> tos_to_swvr;
+    std::map<uint32_t, Internal::SoundBuffer> tos_to_swvr;
 
-    ALuint music_buffer;
+    Internal::SoundQueue sound_queue;
+
+    Internal::SoundBuffer music_buffer;
     ALuint music_source;
-
-    static ALenum getFormat(unsigned int number_of_channels, unsigned int bits_per_sample);
 public:
     Environment();
     virtual ~Environment();
@@ -38,7 +39,6 @@ public:
     virtual PlayerState getMusicState() const;
 
     virtual bool queueTrack(uint32_t track_offset);
-    virtual void clearTrackQueue();
     virtual bool setTrackPlayerState(PlayerState player_state);
     virtual PlayerState getTrackPlayerState() const;
 

@@ -91,6 +91,8 @@ void PrimaryGame::load( MainProgram &main_program ) {
     }
 
     main_program.sound_system_p->setMusicState(Sounds::PlayerState::PLAY);
+    main_program.sound_system_p->setTrackPlayerState(Sounds::PlayerState::PLAY);
+    assert(main_program.sound_system_p->queueTrack(0) == true);
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {

@@ -21,7 +21,6 @@ public:
     virtual PlayerState getMusicState() const;
 
     virtual bool queueTrack(uint32_t track_offset);
-    virtual void clearTrackQueue();
     virtual bool setTrackPlayerState(PlayerState player_state);
     virtual PlayerState getTrackPlayerState() const;
 

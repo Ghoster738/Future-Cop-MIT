@@ -96,13 +96,8 @@ public:
     virtual bool queueTrack(uint32_t track_offset) = 0;
 
     /**
-     * This clears the track queue.
-     */
-    virtual void clearTrackQueue() = 0;
-
-    /**
      * Set the track player state.
-     * @param player_state Get the track player state.
+     * @param player_state Get the track player state. STOP command clears.
      * @return if the track player is present and set return true.
      */
     virtual bool setTrackPlayerState(PlayerState player_state) = 0;

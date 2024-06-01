@@ -80,6 +80,8 @@ void MainProgram::displayLoop() {
         environment_p->advanceTime( delta_f );
         environment_p->drawFrame();
 
+        sound_system_p->advanceTime( delta );
+
         text_2d_buffer_r->reset();
 
         last_time = this_time;

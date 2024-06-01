@@ -34,10 +34,6 @@ bool Environment::queueTrack(uint32_t track_offset) {
     return false;
 }
 
-void Environment::clearTrackQueue() {
-    // There is no queue.
-}
-
 bool Environment::setTrackPlayerState(PlayerState player_state) {
     return false;
 }
