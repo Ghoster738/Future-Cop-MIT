@@ -108,7 +108,7 @@ void SoundQueue::update(std::chrono::high_resolution_clock::duration duration) {
         return;
     else if(duration.count() >= current_sound_element.duration.count()) {
         if(!sound_queue.empty()) {
-            current_sound_element = sound_queue.back();
+            current_sound_element = sound_queue.front();
             sound_queue.pop();
 
             alSourceStop(queue_source);

@@ -3,6 +3,7 @@
 #include "MainMenu.h"
 
 #include "Utilities/ImageFormat/Chooser.h"
+#include "Data/Mission/TOSResource.h"
 #include "Data/Mission/PTCResource.h"
 #include "Data/Mission/ACT/Prop.h"
 
@@ -92,7 +93,12 @@ void PrimaryGame::load( MainProgram &main_program ) {
 
     main_program.sound_system_p->setMusicState(Sounds::PlayerState::PLAY);
     main_program.sound_system_p->setTrackPlayerState(Sounds::PlayerState::PLAY);
-    assert(main_program.sound_system_p->queueTrack(0) == true);
+
+    auto tos_resource_r = main_program.accessor.getTOS( 1 );
+
+    for( auto i: tos_resource_r->getOffsets()) {
+        main_program.sound_system_p->queueTrack(i);
+    }
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {
