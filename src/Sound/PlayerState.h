@@ -1,7 +1,7 @@
 #ifndef SOUNDS_PLAYER_STATE_H
 #define SOUNDS_PLAYER_STATE_H
 
-namespace Sounds {
+namespace Sound {
 
 enum PlayerState {
     STOP,

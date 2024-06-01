@@ -60,7 +60,7 @@ public:
 
     // Sounds API variables goes here.
     std::string sound_identifier;
-    Sounds::Environment *sound_system_p;
+    Sound::Environment *sound_system_p;
 
     bool play_loop;
 

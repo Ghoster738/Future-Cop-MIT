@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-namespace Sounds {
+namespace Sound {
 namespace SDL2 {
 namespace MojoAL {
 
@@ -156,7 +156,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         return -14;
     }
 
-    sound_queue.setPlayerState(Sounds::PlayerState::STOP);
+    sound_queue.setPlayerState(Sound::PlayerState::STOP);
 
     error_state = alGetError();
 
@@ -173,18 +173,18 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return 1;
 }
 
-bool Environment::setMusicState(Sounds::PlayerState player_state) {
+bool Environment::setMusicState(Sound::PlayerState player_state) {
     if(music_source == 0)
         return false;
 
     switch(player_state) {
-        case Sounds::PlayerState::STOP:
+        case Sound::PlayerState::STOP:
             alSourceStop(music_source);
             break;
-        case Sounds::PlayerState::PAUSE:
+        case Sound::PlayerState::PAUSE:
             alSourcePause(music_source);
             break;
-        case Sounds::PlayerState::PLAY:
+        case Sound::PlayerState::PLAY:
             alSourcePlay(music_source);
             break;
         default:
@@ -199,9 +199,9 @@ bool Environment::setMusicState(Sounds::PlayerState player_state) {
         return false;
 }
 
-Sounds::PlayerState Environment::getMusicState() const {
+Sound::PlayerState Environment::getMusicState() const {
     if(music_source == 0)
-        return Sounds::PlayerState::STOP;
+        return Sound::PlayerState::STOP;
 
     ALint state = -1;
 
@@ -209,16 +209,16 @@ Sounds::PlayerState Environment::getMusicState() const {
 
     switch(state) {
         case AL_STOPPED:
-            return Sounds::PlayerState::STOP;
+            return Sound::PlayerState::STOP;
             break;
         case AL_PAUSED:
-            return Sounds::PlayerState::PAUSE;
+            return Sound::PlayerState::PAUSE;
             break;
         case AL_PLAYING:
-            return Sounds::PlayerState::PLAY;
+            return Sound::PlayerState::PLAY;
             break;
         default:
-            return Sounds::PlayerState::STOP;
+            return Sound::PlayerState::STOP;
     }
 }
 
@@ -242,7 +242,7 @@ bool Environment::setTrackPlayerState(PlayerState player_state) {
     return true;
 }
 
-Sounds::PlayerState Environment::getTrackPlayerState() const {
+Sound::PlayerState Environment::getTrackPlayerState() const {
     return sound_queue.getPlayerState();
 }
 

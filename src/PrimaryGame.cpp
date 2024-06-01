@@ -90,7 +90,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
         this->act_manager_p->initialize( main_program );
     }
 
-    main_program.sound_system_p->setMusicState(Sounds::PlayerState::PLAY);
+    main_program.sound_system_p->setMusicState(Sound::PlayerState::PLAY);
 }
 
 void PrimaryGame::unload( MainProgram &main_program ) {

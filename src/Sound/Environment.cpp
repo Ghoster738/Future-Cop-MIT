@@ -3,7 +3,7 @@
 #include "Dummy/Environment.h"
 #include "SDL2/MojoAL/Environment.h"
 
-namespace Sounds {
+namespace Sound {
 
 const std::string Environment::SDL2_WITH_MOJO_AL = "MojoAL";
 const std::string Environment::NO_AUDIO = "DUMMY Audio";

@@ -1,6 +1,6 @@
 #include "SoundBuffer.h"
 
-namespace Sounds {
+namespace Sound {
 namespace SDL2 {
 namespace MojoAL {
 namespace Internal {

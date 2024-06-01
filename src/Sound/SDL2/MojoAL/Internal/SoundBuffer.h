@@ -6,7 +6,7 @@
 #include <chrono>
 #include "al.h"
 
-namespace Sounds {
+namespace Sound {
 namespace SDL2 {
 namespace MojoAL {
 namespace Internal {
