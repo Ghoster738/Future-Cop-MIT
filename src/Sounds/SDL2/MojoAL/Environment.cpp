@@ -124,7 +124,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
         const Data::Accessor *swvr_accessor_r = accessor.getSWVRAccessor(tos_offset);
 
-        assert(swvr_accessor_r != nullptr);
+        // assert(swvr_accessor_r != nullptr);
 
         if(swvr_accessor_r != nullptr) {
             auto snds_array_r = swvr_accessor_r->getAllConstSNDS();

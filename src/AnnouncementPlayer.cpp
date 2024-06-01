@@ -22,7 +22,7 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
     for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
         const Data::Accessor *swvr_accessor_r = main_program.accessor.getSWVRAccessor(tos_offset);
 
-        assert(swvr_accessor_r != nullptr);
+        // assert(swvr_accessor_r != nullptr);
 
         if(swvr_accessor_r != nullptr) {
             auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
@@ -70,7 +70,7 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() )
     {
         auto input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ACTION );
-        if( input_r->isChanged() && this->count_down < 0.0f ) {
+        if( input_r->isChanged() && this->count_down < 0.0f && !this->announcements.empty() ) {
             main_program.sound_system_p->setTrackPlayerState(Sounds::PlayerState::PLAY);
             main_program.sound_system_p->queueTrack(this->announcements.at(this->announcement_index)->getSWVREntry().tos_offset);
 
@@ -124,5 +124,9 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
     text_2d_buffer_r->setFont( this->font );
     text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
-    text_2d_buffer_r->print( "SWVR name = " + this->announcements.at( this->announcement_index )->getSWVREntry().name );
+
+    if(!this->announcements.empty())
+        text_2d_buffer_r->print( "SWVR name = " + this->announcements.at( this->announcement_index )->getSWVREntry().name );
+    else
+        text_2d_buffer_r->print( "No Announcements are loaded. (PS1 file sounds are not supported yet)." );
 }
