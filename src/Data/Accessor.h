@@ -90,15 +90,15 @@ public:
     std::vector<Mission::FontResource*> getAllFNT();
     std::vector<const Mission::FontResource*> getAllConstFNT() const;
 
-    Mission::NetResource* getNET( uint32_t resource_id );
-    const Mission::NetResource* getConstNET( uint32_t resource_id ) const;
-    std::vector<Mission::NetResource*> getAllNET();
-    std::vector<const Mission::NetResource*> getAllConstNET() const;
-
     Mission::MSICResource* getMSIC( uint32_t resource_id );
     const Mission::MSICResource* getConstMSIC( uint32_t resource_id ) const;
     std::vector<Mission::MSICResource*> getAllMSIC();
     std::vector<const Mission::MSICResource*> getAllConstMSIC() const;
+
+    Mission::NetResource* getNET( uint32_t resource_id );
+    const Mission::NetResource* getConstNET( uint32_t resource_id ) const;
+    std::vector<Mission::NetResource*> getAllNET();
+    std::vector<const Mission::NetResource*> getAllConstNET() const;
 
     Mission::ObjResource* getOBJ( uint32_t resource_id );
     const Mission::ObjResource* getConstOBJ( uint32_t resource_id ) const;
