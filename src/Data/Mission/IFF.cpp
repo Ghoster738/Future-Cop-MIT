@@ -121,7 +121,7 @@ Data::Mission::IFF::IFF( const std::string &file_path ) {
 
 Data::Mission::IFF::~IFF() {
     // Delete every allocated resource in std::map
-    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
+    for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
         for( auto it = map_it->second.begin(); it < map_it->second.end(); it++ )
             delete ( *it );
     }
@@ -458,7 +458,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             new_resource_p->setOffset( i.offset );
             new_resource_p->setMisIndexNumber( i.iff_index );
-            new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
+            new_resource_p->setIndexNumber( id_to_resource_p[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
             new_resource_p->getSWVREntry() = i.swvr_entry;
 
@@ -547,15 +547,15 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 void Data::Mission::IFF::addResource( Data::Mission::Resource* resource ) {
     // Get a vector according to the key, the resource tag id.
     // Put this resource into the resources_allocated dynamic array
-    resource_map[ resource->getResourceTagID() ].push_back( resource );
+    id_to_resource_p[ resource->getResourceTagID() ].push_back( resource );
     resource_amount++;
 }
 
 Data::Mission::Resource* Data::Mission::IFF::getResource( uint32_t type, unsigned int index ) {
     // O( log n ) for n = the amount of types.
-    auto map_it = resource_map.find( type );
+    auto map_it = id_to_resource_p.find( type );
 
-    if( map_it != resource_map.end() && (*map_it).second.size() > index )
+    if( map_it != id_to_resource_p.end() && (*map_it).second.size() > index )
         return (*map_it).second[ index ];
     else
         return nullptr;
@@ -565,9 +565,9 @@ const Data::Mission::Resource* Data::Mission::IFF::getResource( uint32_t type, u
 }
 
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) {
-    auto vector_it = resource_map.find( type );
+    auto vector_it = id_to_resource_p.find( type );
 
-    if( vector_it != resource_map.end() )
+    if( vector_it != id_to_resource_p.end() )
         return std::vector<Data::Mission::Resource*>( (*vector_it).second );
     else // Return all the elements in the array.
         return std::vector<Data::Mission::Resource*>();
@@ -581,7 +581,7 @@ std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() {
 
     entire_resource.reserve( resource_amount );
 
-    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
+    for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
         for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
             entire_resource.push_back( (*it) );
     }
@@ -593,7 +593,7 @@ std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResources(
 
     entire_resource.reserve( resource_amount );
 
-    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
+    for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
         for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
             entire_resource.push_back( (*it) );
     }
@@ -614,7 +614,7 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
 
         if( iff_options.readParams( arguments, &std::cout ) ) {
             // For every resource type categories in the Mission file.
-            for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
+            for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ )
             {
                 for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
                 {
@@ -638,7 +638,7 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
 
 Data::Mission::IFF::DataType Data::Mission::IFF::getDataType() const {
     // Check if PTC is present.
-    if(resource_map.find(PTCResource::IDENTIFIER_TAG) == resource_map.end())
+    if(id_to_resource_p.find(PTCResource::IDENTIFIER_TAG) == id_to_resource_p.end())
         return DataType::GLOBALS;
 
     Data::Accessor accessor;

@@ -24,7 +24,7 @@ public:
 private:
     std::string name;
 
-    std::map< uint32_t, std::vector<Resource*> > resource_map; // This holds the data the resource_types holds.
+    std::map<uint32_t, std::vector<Resource*>> id_to_resource_p; // This holds the data the resource_types.
 
     unsigned resource_amount;
 
@@ -47,9 +47,9 @@ public:
     /**
      * This adds a resource to the IFF. This is primarly for interal use for now.
      * @note right now there is no way to delete a resource, because deleting a certain file could have dependencies to it. Which could cause crashes.
-     * @param resource The resource to be added to the list.
+     * @param resource_p The resource to be added to the list.
      */
-    void addResource( Resource* resource );
+    void addResource( Resource* resource_p );
 
     /**
      * This method gets the resource from the list.
