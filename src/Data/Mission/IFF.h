@@ -29,6 +29,10 @@ private:
     unsigned resource_amount;
 
     static bool compareFunction( const Resource *const res_a, const Resource *const res_b );
+
+    Resource* getResourceFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type, unsigned int index = 0 );
+    std::vector<Resource*> getResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type );
+    std::vector<Resource*> getAllResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource );
 public:
     IFF();
     IFF( const std::string &file_path );
