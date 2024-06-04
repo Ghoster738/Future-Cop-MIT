@@ -84,8 +84,6 @@ namespace {
         { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
         { Data::Mission::RPNSResource::IDENTIFIER_TAG, new Data::Mission::RPNSResource() },
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() }, // Resource ID missing
-        // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
-        { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
         { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
         { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
