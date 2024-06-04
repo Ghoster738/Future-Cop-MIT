@@ -25,11 +25,13 @@ private:
     std::string name;
 
     std::map<uint32_t, std::vector<Resource*>> id_to_resource_p; // This holds the data the resource_types.
+    std::map<uint32_t, std::map<uint32_t, std::vector<Resource*>>> tos_to_map_p;
 
     unsigned resource_amount;
 
     static bool compareFunction( const Resource *const res_a, const Resource *const res_b );
 
+    void addResourceTo( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, Resource* resource_p );
     Resource* getResourceFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type, unsigned int index = 0 );
     std::vector<Resource*> getResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type );
     std::vector<const Resource*> getResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type ) const;
@@ -71,6 +73,15 @@ public:
 
     std::vector<Resource*> getAllResources();
     std::vector<const Resource*> getAllResources() const;
+
+    Resource* getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index = 0 );
+    const Resource* getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index = 0 ) const;
+
+    std::vector<Resource*> getSWVRResources( uint32_t tos_offset, uint32_t type );
+    std::vector<const Resource*> getSWVRResources( uint32_t tos_offset, uint32_t type ) const;
+
+    std::vector<Resource*> getAllSWVRResources( uint32_t tos_offset );
+    std::vector<const Resource*> getAllSWVRResources( uint32_t tos_offset ) const;
 
     /**
      * This gets the data type of the IFF file.

@@ -120,6 +120,13 @@ Data::Mission::Resource* Data::Mission::IFF::getResourceFrom( std::map<uint32_t,
         return nullptr;
 }
 
+void Data::Mission::IFF::addResourceTo( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, Data::Mission::Resource* resource_p ) {
+    // Get a vector according to the key, the resource tag id.
+    // Put this resource into the resources_allocated dynamic array
+    id_to_resource[ resource_p->getResourceTagID() ].push_back( resource_p );
+    resource_amount++;
+}
+
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResourcesFrom( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, uint32_t type ) {
     auto vector_it = id_to_resource.find( type );
 
@@ -182,10 +189,16 @@ Data::Mission::IFF::IFF( const std::string &file_path ) {
 
 
 Data::Mission::IFF::~IFF() {
-    // Delete every allocated resource in std::map
+    // Delete every allocated resource
     for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
         for( auto it = map_it->second.begin(); it < map_it->second.end(); it++ )
             delete ( *it );
+    }
+    for( auto tos_it = tos_to_map_p.begin(); tos_it != tos_to_map_p.end(); tos_it++ ) {
+        for( auto map_it = (*tos_it).second.begin(); map_it != (*tos_it).second.end(); map_it++ ) {
+            for( auto it = map_it->second.begin(); it < map_it->second.end(); it++ )
+                delete ( *it );
+        }
     }
 }
 
@@ -606,11 +619,20 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         return -1;
 }
 
-void Data::Mission::IFF::addResource( Data::Mission::Resource* resource ) {
-    // Get a vector according to the key, the resource tag id.
-    // Put this resource into the resources_allocated dynamic array
-    id_to_resource_p[ resource->getResourceTagID() ].push_back( resource );
-    resource_amount++;
+void Data::Mission::IFF::addResource( Data::Mission::Resource* resource_p ) {
+    assert(resource_p != nullptr);
+
+    if(!resource_p->getSWVREntry().isPresent())
+        addResourceTo(id_to_resource_p, resource_p);
+    else {
+        const auto tos_offset = resource_p->getSWVREntry().tos_offset;
+        auto id_to_resource_it = tos_to_map_p.find(tos_offset);
+
+        if(id_to_resource_it == tos_to_map_p.end())
+            tos_to_map_p[tos_offset] = std::map<uint32_t, std::vector<Resource*>>();
+
+        addResourceTo(tos_to_map_p[tos_offset], resource_p);
+    }
 }
 
 Data::Mission::Resource* Data::Mission::IFF::getResource( uint32_t type, unsigned int index ) {
@@ -633,6 +655,29 @@ std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() {
 std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
     return getAllResourcesFrom( id_to_resource_p );
 }
+
+Data::Mission::Resource* Data::Mission::IFF::getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index ) {
+    return getResourceFrom(tos_to_map_p.at(tos_offset), type, index);
+}
+const Data::Mission::Resource* Data::Mission::IFF::getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index ) const {
+    return const_cast<Data::Mission::IFF*>( this )->getSWVRResource( tos_offset, type, index );
+}
+
+std::vector<Data::Mission::Resource*> Data::Mission::IFF::getSWVRResources( uint32_t tos_offset, uint32_t type ) {
+    return getResourcesFrom(tos_to_map_p.at(tos_offset), type);
+}
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getSWVRResources( uint32_t tos_offset, uint32_t type ) const {
+    return getResourcesFrom(tos_to_map_p.at(tos_offset), type);
+}
+
+std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResources( uint32_t tos_offset ) {
+    return getAllResourcesFrom( tos_to_map_p.at(tos_offset) );
+}
+
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResources( uint32_t tos_offset ) const {
+    return getAllResourcesFrom( tos_to_map_p.at(tos_offset) );
+}
+
 
 int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
     // This algorithm is an O(n) algorithm and it is as good as it is going to get in terms of data complexity. :)
