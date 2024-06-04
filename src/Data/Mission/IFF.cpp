@@ -129,6 +129,22 @@ std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResourcesFrom( std:
         return std::vector<Data::Mission::Resource*>();
 }
 
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getResourcesFrom( const std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, uint32_t type ) const {
+    auto vector_it = id_to_resource.find( type );
+
+    if( vector_it != id_to_resource.end() ) {
+        auto res_vec = std::vector<const Data::Mission::Resource*>();
+
+        for( auto i: (*vector_it).second) {
+            res_vec.push_back( i );
+        }
+
+        return res_vec;
+    }
+    else // Return all the elements in the array.
+        return std::vector<const Data::Mission::Resource*>();
+}
+
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResourcesFrom( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource ) {
     std::vector<Data::Mission::Resource*> entire_resource;
 
@@ -142,6 +158,18 @@ std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResourcesFrom( s
     return entire_resource;
 }
 
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource ) const {
+    std::vector<const Data::Mission::Resource*> entire_resource;
+
+    entire_resource.reserve( resource_amount );
+
+    for( auto map_it = id_to_resource.begin(); map_it != id_to_resource.end(); map_it++ ) {
+        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+            entire_resource.push_back( (*it) );
+    }
+
+    return entire_resource;
+}
 
 Data::Mission::IFF::IFF() {
     resource_amount = 0;
@@ -595,24 +623,15 @@ const Data::Mission::Resource* Data::Mission::IFF::getResource( uint32_t type, u
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) {
     return getResourcesFrom(id_to_resource_p, type);
 }
-const std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) const {
-    return const_cast<Data::Mission::IFF*>( this )->getResources( type );
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) const {
+    return const_cast<Data::Mission::IFF*>( this )->getResourcesFrom( id_to_resource_p, type );
 }
 
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() {
     return getAllResourcesFrom( id_to_resource_p );
 }
 std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
-    std::vector<const Data::Mission::Resource*> entire_resource;
-
-    entire_resource.reserve( resource_amount );
-
-    for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
-        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
-            entire_resource.push_back( (*it) );
-    }
-
-    return entire_resource;
+    return getAllResourcesFrom( id_to_resource_p );
 }
 
 int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {

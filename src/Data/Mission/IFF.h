@@ -32,7 +32,9 @@ private:
 
     Resource* getResourceFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type, unsigned int index = 0 );
     std::vector<Resource*> getResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type );
+    std::vector<const Resource*> getResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type ) const;
     std::vector<Resource*> getAllResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource );
+    std::vector<const Resource*> getAllResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource ) const;
 public:
     IFF();
     IFF( const std::string &file_path );
@@ -65,7 +67,7 @@ public:
     const Resource* getResource( uint32_t type, unsigned int index = 0 ) const;
 
     std::vector<Resource*> getResources( uint32_t type );
-    const std::vector<Resource*> getResources( uint32_t type ) const;
+    std::vector<const Resource*> getResources( uint32_t type ) const;
 
     std::vector<Resource*> getAllResources();
     std::vector<const Resource*> getAllResources() const;
