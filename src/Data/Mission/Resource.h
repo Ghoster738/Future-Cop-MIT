@@ -114,6 +114,12 @@ public:
      * @return The resource id for this resource.
      */
     virtual uint32_t getResourceID() const;
+    
+    /**
+     * @note If this value is true then the method getResourceID() would use getIndexNumber() added by one to get a resource id.
+     * @return true if the resource ID is either not read properely or does not exist.
+     */
+    virtual bool noResourceID() const;
 
     /**
      * Sets the offset in which this file starts. To be used by loaders only.
