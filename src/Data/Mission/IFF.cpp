@@ -2,6 +2,7 @@
 
 #include "../Accessor.h"
 
+#include "AIFFResource.h"
 #include "ANMResource.h"
 #include "ACTResource.h"
 #include "BMPResource.h"
@@ -80,8 +81,7 @@ namespace {
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
-        // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
-        { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
+        { Data::Mission::AIFFResource::IDENTIFIER_TAG, new Data::Mission::AIFFResource() },
         { Data::Mission::RPNSResource::IDENTIFIER_TAG, new Data::Mission::RPNSResource() },
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() }, // Resource ID missing
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
