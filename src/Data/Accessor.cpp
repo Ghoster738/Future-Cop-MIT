@@ -119,15 +119,24 @@ void Accessor::loadConstant( const Mission::IFF &iff ) {
         }
     }
 
+    if(iff.getMSICResource() != nullptr) {
+        auto constant_resource_r = iff.getMSICResource();
+
+        search_value.type = constant_resource_r->getResourceTagID();
+        search_value.resource_id = constant_resource_r->getResourceID();
+
+        search[ search_value ] = {nullptr, constant_resource_r};
+    }
+
     auto tos_array = getAllConstTOS();
 
     if(!tos_array.empty()) {
         for(auto tos_offset : tos_array[0]->getOffsets()) {
-            for( auto resource_r : iff.getAllSWVRResources( tos_offset ) ) {
+            for( auto constant_resource_r : iff.getAllSWVRResources( tos_offset ) ) {
                 if(swvr_files.find(tos_offset) == swvr_files.end())
                     swvr_files[tos_offset] = Accessor();
 
-                swvr_files[tos_offset].emplaceConstant(resource_r);
+                swvr_files[tos_offset].emplaceConstant(constant_resource_r);
             }
         }
     }
@@ -147,6 +156,15 @@ void Accessor::load( Mission::IFF &iff ) {
 
             search[ search_value ] = {resource_r, resource_r};
         }
+    }
+
+    if(iff.getMSICResource() != nullptr) {
+        auto resource_r = iff.getMSICResource();
+
+        search_value.type = resource_r->getResourceTagID();
+        search_value.resource_id = resource_r->getResourceID();
+
+        search[ search_value ] = {resource_r, resource_r};
     }
 
     auto tos_array = getAllConstTOS();

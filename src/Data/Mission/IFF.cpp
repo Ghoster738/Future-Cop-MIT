@@ -179,11 +179,13 @@ std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResourcesF
 }
 
 Data::Mission::IFF::IFF() {
-    resource_amount = 0;
+    this->resource_amount = 0;
+    this->music_p = nullptr;
 }
 
 Data::Mission::IFF::IFF( const std::string &file_path ) {
-    resource_amount = 0;
+    this->resource_amount = 0;
+    this->music_p = nullptr;
     open( file_path );
 }
 
@@ -624,6 +626,11 @@ void Data::Mission::IFF::addResource( Data::Mission::Resource* resource_p ) {
 
     if(!resource_p->getSWVREntry().isPresent())
         addResourceTo(id_to_resource_p, resource_p);
+    else if(dynamic_cast<Data::Mission::MSICResource*>(resource_p) != nullptr) {
+        if(this->music_p != nullptr)
+            delete this->music_p;
+        this->music_p = dynamic_cast<Data::Mission::MSICResource*>(resource_p);
+    }
     else {
         const auto tos_offset = resource_p->getSWVREntry().tos_offset;
         auto id_to_resource_it = tos_to_map_p.find(tos_offset);

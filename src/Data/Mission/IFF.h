@@ -12,6 +12,7 @@ namespace Data {
 namespace Mission {
 
 class Resource;
+class MSICResource;
 
 /**
  * This class reads an IFF file.
@@ -26,6 +27,7 @@ private:
 
     std::map<uint32_t, std::vector<Resource*>> id_to_resource_p; // This holds the data the resource_types.
     std::map<uint32_t, std::map<uint32_t, std::vector<Resource*>>> tos_to_map_p;
+    MSICResource* music_p;
 
     unsigned resource_amount;
 
@@ -38,6 +40,7 @@ private:
     std::vector<Resource*> getAllResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource );
     std::vector<const Resource*> getAllResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource ) const;
 public:
+
     IFF();
     IFF( const std::string &file_path );
     virtual ~IFF();
@@ -82,6 +85,9 @@ public:
 
     std::vector<Resource*> getAllSWVRResources( uint32_t tos_offset );
     std::vector<const Resource*> getAllSWVRResources( uint32_t tos_offset ) const;
+
+    MSICResource* getMSICResource() { return music_p; }
+    const MSICResource* getMSICResource() const { return music_p; }
 
     /**
      * This gets the data type of the IFF file.
