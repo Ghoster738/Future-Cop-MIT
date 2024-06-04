@@ -678,10 +678,16 @@ std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getSWVRResources
 }
 
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResources( uint32_t tos_offset ) {
+    if(tos_to_map_p.find(tos_offset) == tos_to_map_p.end())
+        return std::vector<Data::Mission::Resource*>(); // Empty vector.
+
     return getAllResourcesFrom( tos_to_map_p.at(tos_offset) );
 }
 
 std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResources( uint32_t tos_offset ) const {
+    if(tos_to_map_p.find(tos_offset) == tos_to_map_p.end())
+        return std::vector<const Data::Mission::Resource*>(); // Empty vector.
+
     return getAllResourcesFrom( tos_to_map_p.at(tos_offset) );
 }
 
