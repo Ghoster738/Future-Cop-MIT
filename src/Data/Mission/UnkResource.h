@@ -13,11 +13,11 @@ namespace Mission {
  */
 class UnkResource : public Resource {
 private:
-	std::string file_extension; // This holds the declared extension to the unknown file.
-	uint32_t identifier_tag;
-    bool no_resource_id;
+    std::string file_extension; // This holds the declared extension to the unknown file.
+    uint32_t identifier_tag;
+
 public:
-    UnkResource( uint32_t identifier_tag, const std::string &file_extension, bool no_resource_id = false );
+    UnkResource( uint32_t identifier_tag, const std::string &file_extension );
     UnkResource( const UnkResource &obj );
 
     /**
@@ -41,8 +41,6 @@ public:
      * This returns the resource tag id of the unknown resource file.
      */
     virtual uint32_t getResourceTagID() const;
-    
-    virtual bool noResourceID() const;
 
     // virtual bool parse(); See Resource for documentation.
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );

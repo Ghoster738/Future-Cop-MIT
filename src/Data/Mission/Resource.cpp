@@ -60,14 +60,7 @@ void Data::Mission::Resource::setResourceID( uint32_t resource_id ) {
 }
 
 uint32_t Data::Mission::Resource::getResourceID() const {
-    if( !noResourceID() )
-        return resource_id;
-    
-    return resource_id + getIndexNumber();
-}
-
-bool Data::Mission::Resource::noResourceID() const {
-    return false;
+    return resource_id;
 }
 
 std::string Data::Mission::Resource::getFullName( unsigned int index ) const {

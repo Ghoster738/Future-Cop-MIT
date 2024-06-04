@@ -22,8 +22,6 @@ public:
     virtual std::string getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
-    
-    virtual bool noResourceID() const;
 
     const WAVResource *const soundAccessor() const { return &sound; }
 

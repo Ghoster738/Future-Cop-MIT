@@ -1,15 +1,13 @@
 #include "UnkResource.h"
 
-Data::Mission::UnkResource::UnkResource( uint32_t identifier_tag, const std::string &file_extension, bool no_resource_id ) {
+Data::Mission::UnkResource::UnkResource( uint32_t identifier_tag, const std::string &file_extension ) {
     setResourceTagID( identifier_tag );
-	setFileExtension( file_extension );
-    this->no_resource_id = no_resource_id;
+    setFileExtension( file_extension );
 }
 
 Data::Mission::UnkResource::UnkResource( const Data::Mission::UnkResource &obj ) {
     setResourceTagID( obj.identifier_tag );
-	setFileExtension( obj.file_extension );
-    this->no_resource_id = obj.no_resource_id;
+    setFileExtension( obj.file_extension );
 }
 
 void Data::Mission::UnkResource::setFileExtension( const std::string & file_extension ) {
@@ -26,10 +24,6 @@ void Data::Mission::UnkResource::setResourceTagID( uint32_t tagID ) {
 
 uint32_t Data::Mission::UnkResource::getResourceTagID() const {
     return identifier_tag;
-}
-
-bool Data::Mission::UnkResource::noResourceID() const {
-    return no_resource_id;
 }
 
 bool Data::Mission::UnkResource::parse( const ParseSettings &settings ) {
