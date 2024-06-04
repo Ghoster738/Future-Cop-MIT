@@ -102,23 +102,14 @@ Accessor::Accessor() {}
 
 Accessor::~Accessor() {}
 
-void Accessor::loadConstant( const Mission::IFF &resource_r ) {
+void Accessor::loadConstant( const Mission::IFF &iff ) {
     SearchValue search_value;
-    std::vector<const Mission::Resource*> array = resource_r.getAllResources();
 
-    for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-        const Mission::Resource* constant_resource_r = (*r_it);
+    for( auto constant_resource_r : iff.getAllResources() ) {
         const Mission::ACTResource *actor_resource_r = dynamic_cast<const Mission::ACTResource*>(constant_resource_r);
 
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActorConstant(actor_resource_r);
-        else
-        if(dynamic_cast<const Mission::MSICResource*>(constant_resource_r) == nullptr && constant_resource_r->getSWVREntry().isPresent()) {
-            if(swvr_files.find(constant_resource_r->getSWVREntry().tos_offset) == swvr_files.end())
-                swvr_files[constant_resource_r->getSWVREntry().tos_offset] = Accessor();
-
-            swvr_files[constant_resource_r->getSWVREntry().tos_offset].emplaceConstant(constant_resource_r);
-        }
         else {
 
             search_value.type = constant_resource_r->getResourceTagID();
@@ -127,31 +118,47 @@ void Accessor::loadConstant( const Mission::IFF &resource_r ) {
             search[ search_value ] = {nullptr, constant_resource_r};
         }
     }
+
+    auto tos_array = getAllConstTOS();
+
+    if(!tos_array.empty()) {
+        for(auto tos_offset : tos_array[0]->getOffsets()) {
+            for( auto resource_r : iff.getAllSWVRResources( tos_offset ) ) {
+                if(swvr_files.find(tos_offset) == swvr_files.end())
+                    swvr_files[tos_offset] = Accessor();
+
+                swvr_files[tos_offset].emplaceConstant(resource_r);
+            }
+        }
+    }
 }
 
-void Accessor::load( Mission::IFF &resource_r ) {
+void Accessor::load( Mission::IFF &iff ) {
     SearchValue search_value;
-    std::vector<Mission::Resource*> array = resource_r.getAllResources();
 
-    for( auto r_it = array.begin(); r_it != array.end(); r_it++ ) {
-        Mission::Resource* resource_r = (*r_it);
+    for( auto resource_r : iff.getAllResources() ) {
         Mission::ACTResource *actor_resource_r = dynamic_cast<Mission::ACTResource*>(resource_r);
 
         if(actor_resource_r != nullptr)
             actor_accessor.emplaceActor(actor_resource_r);
-        else
-        if(dynamic_cast<Mission::MSICResource*>(resource_r) == nullptr && resource_r->getSWVREntry().isPresent()) {
-            if(swvr_files.find(resource_r->getSWVREntry().tos_offset) == swvr_files.end())
-                swvr_files[resource_r->getSWVREntry().tos_offset] = Accessor();
-
-            swvr_files[resource_r->getSWVREntry().tos_offset].emplaceConstant(resource_r);
-        }
         else {
-
             search_value.type = resource_r->getResourceTagID();
             search_value.resource_id = resource_r->getResourceID();
 
             search[ search_value ] = {resource_r, resource_r};
+        }
+    }
+
+    auto tos_array = getAllConstTOS();
+
+    if(!tos_array.empty()) {
+        for(auto tos_offset : tos_array[0]->getOffsets()) {
+            for( auto resource_r : iff.getAllSWVRResources( tos_offset ) ) {
+                if(swvr_files.find(tos_offset) == swvr_files.end())
+                    swvr_files[tos_offset] = Accessor();
+
+                swvr_files[tos_offset].emplace(resource_r);
+            }
         }
     }
 }
@@ -178,7 +185,7 @@ const Accessor* Accessor::getSWVRAccessor(uint32_t tos_offset) const {
     return const_cast<const Accessor*>(&(*swvr_accessor).second);
 }
 
-SEARCH(ANMResource,   getANM,  getAllANM, getConstANM,  getAllConstANM)
+SEARCH(ANMResource,   getANM,  getAllANM, getConstANM, getAllConstANM)
 SEARCH(BMPResource,   getBMP,  getAllBMP, getConstBMP, getAllConstBMP)
 SEARCH(DCSResource,   getDCS,  getAllDCS, getConstDCS, getAllConstDCS)
 SEARCH(FUNResource,   getFUN,  getAllFUN, getConstFUN, getAllConstFUN)
