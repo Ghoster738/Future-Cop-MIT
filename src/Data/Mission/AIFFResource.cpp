@@ -6,6 +6,14 @@ namespace {
     const uint32_t TAG_COMM_ID = 0x434F4D4D; // which is { 0x43, 0x4F, 0x4D, 0x4D } or { 'C', 'O', 'M', 'M' } or "COMM"
     const uint32_t TAG_SSND_ID = 0x53534E44; // which is { 0x53, 0x53, 0x4E, 0x44 } or { 'S', 'S', 'N', 'D' } or "SSND"
     const uint32_t TAG_INST_ID = 0x494E5354; // which is { 0x49, 0x4E, 0x53, 0x54 } or { 'I', 'N', 'S', 'T' } or "INST"
+
+    // The data is not placed in the order that they are in the file format.
+    struct COMMData {
+        uint64_t decoded_sample_rate;
+        uint32_t num_sample_frames;
+        uint16_t num_channels;
+        uint16_t sample_bit_size;
+    };
 }
 
 namespace Data {
@@ -48,6 +56,7 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
         return false;
     }
 
+    COMMData comm_data;
     bool found_comm_chunk = false;
     bool found_ssnd_chunk = false;
     bool found_inst_chunk = false;
@@ -62,13 +71,13 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
             case TAG_COMM_ID:
             {
                 if(found_comm_chunk) {
-                    error_log.output << "Only one COMM for each AIFF file.\n";
+                    error_log.output << "Only one COMM chunk for each AIFF file.\n";
                     return false;
                 }
 
-                const uint16_t num_channels = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
-                const uint32_t num_sample_frames = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
-                const uint16_t sample_bit_size = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                comm_data.num_channels = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                comm_data.num_sample_frames = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
+                comm_data.sample_bit_size = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
 
                 // AIFF uses Extended precision IEEE 754 format. Which takes 10 bytes.
                 // WARNING This is just good enough for optaining the sample rate in integer format. In some cases, DATA WILL BE LOST.
@@ -101,8 +110,8 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                     decoded_integer = fraction >> bitshift;
                 }
 
-                if( num_channels > 2 || num_channels == 0 ) {
-                    error_log.output << "Number of channels is invalid. Which is " << std::dec << num_channels << ".\n";
+                if( comm_data.num_channels > 2 || comm_data.num_channels == 0 ) {
+                    error_log.output << "Number of channels is invalid. Which is " << std::dec << comm_data.num_channels << ".\n";
                     return false;
                 }
 
@@ -111,23 +120,20 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                     return false;
                 }
 
-                if( sample_bit_size != 16 && sample_bit_size != 8 ) {
-                    error_log.output << "Sample bit size " << std::dec << sample_bit_size << " is not supported.\n";
+                comm_data.decoded_sample_rate = decoded_integer;
+
+                if( comm_data.sample_bit_size != 16 && comm_data.sample_bit_size != 8 ) {
+                    error_log.output << "Sample bit size " << std::dec << comm_data.sample_bit_size << " is not supported.\n";
                     return false;
                 }
-
-                setChannelNumber( num_channels );
-                setSampleRate( decoded_integer );
-                setBitsPerSample( sample_bit_size );
 
                 found_comm_chunk = true;
             }
             break;
             case TAG_SSND_ID:
             {
-
-                if(found_comm_chunk) {
-                    error_log.output << "COMM chunk not declared yet.\n";
+                if(found_ssnd_chunk) {
+                    error_log.output << "Only one SSND chunk for each AIFF file.\n";
                     return false;
                 }
 
@@ -142,6 +148,14 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
             default:
                 ; // Do nothing.
         }
+
+        if(!found_comm_chunk) {
+            error_log.output << "COMM chunk is not found.\n";
+            return false;
+        }
+        setChannelNumber( comm_data.num_channels );
+        setSampleRate( comm_data.decoded_sample_rate );
+        setBitsPerSample( comm_data.sample_bit_size );
     }
 
     return true;
