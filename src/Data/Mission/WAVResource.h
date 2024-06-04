@@ -9,10 +9,10 @@ namespace Mission {
 
 class WAVResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
-protected:
+    static const std::string FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
 
+protected:
     unsigned int audio_format; // Should be 1
     unsigned int channel_number; // 1 for mono.
     unsigned int sample_rate; // For example 44100
@@ -23,7 +23,9 @@ protected:
     std::vector<uint8_t> audio_stream;
     // This is the amount of bytes that the wav says. So it can be smaller than the audio_stream.
     unsigned int audio_stream_length;
+
 public:
+
     WAVResource();
     WAVResource( const WAVResource &obj );
 
