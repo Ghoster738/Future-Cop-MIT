@@ -202,7 +202,8 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
             }
             break;
             default:
-                ; // Do nothing.
+                error_log.output << "Unrecognized chunk " << static_cast<char>(identifier >> 24) << static_cast<char>(identifier >> 16) << static_cast<char>(identifier >> 8)<< static_cast<char>(identifier) << ".\n";
+
         }
     }
     if(!found_comm_chunk) {
