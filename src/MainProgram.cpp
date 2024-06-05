@@ -303,21 +303,21 @@ void MainProgram::setupGraphics() {
 }
 
 void MainProgram::initSound() {
-    auto sound_identifiers = Sounds::Environment::getAvailableIdentifiers();
+    auto sound_identifiers = Sound::Environment::getAvailableIdentifiers();
 
     if( sound_identifiers.empty() )
         throwException( "Sound has no available identifiers." );
 
-    if( !Sounds::Environment::isIdentifier( sound_identifiers[0] ) )
+    if( !Sound::Environment::isIdentifier( sound_identifiers[0] ) )
         throwException( "The sound identifier \"" + sound_identifiers[0] + "\" is not a valid identifer." );
 
     this->sound_identifier = sound_identifiers[0];
 
-    Sounds::Environment::initSystem( this->sound_identifier );
+    Sound::Environment::initSystem( this->sound_identifier );
 }
 
 void MainProgram::setupSound() {
-    this->sound_system_p = Sounds::Environment::alloc( this->sound_identifier );
+    this->sound_system_p = Sound::Environment::alloc( this->sound_identifier );
 
     if( this->sound_system_p == nullptr )
         throwException( "Sound system does not work. Identifier: " + this->sound_identifier );

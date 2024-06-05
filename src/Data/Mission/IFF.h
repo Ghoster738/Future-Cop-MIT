@@ -12,6 +12,7 @@ namespace Data {
 namespace Mission {
 
 class Resource;
+class MSICResource;
 
 /**
  * This class reads an IFF file.
@@ -24,12 +25,22 @@ public:
 private:
     std::string name;
 
-    std::map< uint32_t, std::vector<Resource*> > resource_map; // This holds the data the resource_types holds.
+    std::map<uint32_t, std::vector<Resource*>> id_to_resource_p; // This holds the data the resource_types.
+    std::map<uint32_t, std::map<uint32_t, std::vector<Resource*>>> tos_to_map_p;
+    MSICResource* music_p;
 
     unsigned resource_amount;
 
     static bool compareFunction( const Resource *const res_a, const Resource *const res_b );
+
+    void addResourceTo( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, Resource* resource_p );
+    Resource* getResourceFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type, unsigned int index = 0 );
+    std::vector<Resource*> getResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type );
+    std::vector<const Resource*> getResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource, uint32_t type ) const;
+    std::vector<Resource*> getAllResourcesFrom( std::map<uint32_t, std::vector<Resource*>> &id_to_resource );
+    std::vector<const Resource*> getAllResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource ) const;
 public:
+
     IFF();
     IFF( const std::string &file_path );
     virtual ~IFF();
@@ -47,9 +58,9 @@ public:
     /**
      * This adds a resource to the IFF. This is primarly for interal use for now.
      * @note right now there is no way to delete a resource, because deleting a certain file could have dependencies to it. Which could cause crashes.
-     * @param resource The resource to be added to the list.
+     * @param resource_p The resource to be added to the list.
      */
-    void addResource( Resource* resource );
+    void addResource( Resource* resource_p );
 
     /**
      * This method gets the resource from the list.
@@ -61,10 +72,22 @@ public:
     const Resource* getResource( uint32_t type, unsigned int index = 0 ) const;
 
     std::vector<Resource*> getResources( uint32_t type );
-    const std::vector<Resource*> getResources( uint32_t type ) const;
+    std::vector<const Resource*> getResources( uint32_t type ) const;
 
     std::vector<Resource*> getAllResources();
     std::vector<const Resource*> getAllResources() const;
+
+    Resource* getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index = 0 );
+    const Resource* getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index = 0 ) const;
+
+    std::vector<Resource*> getSWVRResources( uint32_t tos_offset, uint32_t type );
+    std::vector<const Resource*> getSWVRResources( uint32_t tos_offset, uint32_t type ) const;
+
+    std::vector<Resource*> getAllSWVRResources( uint32_t tos_offset );
+    std::vector<const Resource*> getAllSWVRResources( uint32_t tos_offset ) const;
+
+    MSICResource* getMSICResource() { return music_p; }
+    const MSICResource* getMSICResource() const { return music_p; }
 
     /**
      * This gets the data type of the IFF file.

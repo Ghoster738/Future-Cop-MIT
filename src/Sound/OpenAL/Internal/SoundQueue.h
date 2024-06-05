@@ -7,11 +7,10 @@
 
 #include "SoundBuffer.h"
 
-#include "../../../PlayerState.h"
+#include "../../PlayerState.h"
 
-namespace Sounds {
-namespace SDL2 {
-namespace MojoAL {
+namespace Sound {
+namespace OpenAL {
 namespace Internal {
 
 class SoundQueue {
@@ -21,7 +20,7 @@ protected:
     std::queue<SoundBuffer> sound_queue;
 
     SoundBuffer current_sound_element;
-    Sounds::PlayerState player_state;
+    Sound::PlayerState player_state;
 
     bool allocated_queue_source;
 public:
@@ -35,13 +34,12 @@ public:
 
     void push(SoundBuffer sound_buffer);
 
-    void setPlayerState(Sounds::PlayerState player_state);
-    Sounds::PlayerState getPlayerState() const { return player_state; }
+    void setPlayerState(Sound::PlayerState player_state);
+    Sound::PlayerState getPlayerState() const { return player_state; }
 
     void update(std::chrono::high_resolution_clock::duration duration);
 };
 
-}
 }
 }
 }

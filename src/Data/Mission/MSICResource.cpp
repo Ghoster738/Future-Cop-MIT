@@ -25,10 +25,6 @@ uint32_t Data::Mission::MSICResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-bool Data::Mission::MSICResource::noResourceID() const {
-    return true;
-}
-
 bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";

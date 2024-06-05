@@ -1,11 +1,10 @@
 #include "SoundQueue.h"
 
-namespace Sounds {
-namespace SDL2 {
-namespace MojoAL {
+namespace Sound {
+namespace OpenAL {
 namespace Internal {
 
-SoundQueue::SoundQueue(unsigned p_queue_limit) : queue_limit(p_queue_limit), sound_queue(), current_sound_element(), player_state(Sounds::PlayerState::STOP), allocated_queue_source(false), queue_source() {
+SoundQueue::SoundQueue(unsigned p_queue_limit) : queue_limit(p_queue_limit), sound_queue(), current_sound_element(), player_state(Sound::PlayerState::STOP), allocated_queue_source(false), queue_source() {
     current_sound_element.buffer_index = 0;
     current_sound_element.duration = std::chrono::high_resolution_clock::duration(0);
 }
@@ -67,12 +66,12 @@ void SoundQueue::push(SoundBuffer new_sound) {
     sound_queue.push(new_sound);
 }
 
-void SoundQueue::setPlayerState(Sounds::PlayerState player_state) {
+void SoundQueue::setPlayerState(Sound::PlayerState player_state) {
     if(!allocated_queue_source)
         return;
 
     switch(player_state) {
-        case Sounds::PlayerState::STOP:
+        case Sound::PlayerState::STOP:
             {
                 alSourceStop(queue_source);
 
@@ -83,13 +82,13 @@ void SoundQueue::setPlayerState(Sounds::PlayerState player_state) {
                 current_sound_element.duration = std::chrono::high_resolution_clock::duration(0);
             }
             break;
-        case Sounds::PlayerState::PAUSE:
+        case Sound::PlayerState::PAUSE:
             {
                 if(this->player_state != player_state)
                     alSourcePause(queue_source);
             }
             break;
-        case Sounds::PlayerState::PLAY:
+        case Sound::PlayerState::PLAY:
             {
                 if(this->player_state != player_state)
                     alSourcePlay(queue_source);
@@ -104,7 +103,7 @@ void SoundQueue::update(std::chrono::high_resolution_clock::duration duration) {
     alGetError();
 
     // There is nothing to update.
-    if(duration.count() == 0 || player_state != Sounds::PlayerState::PLAY)
+    if(duration.count() == 0 || player_state != Sound::PlayerState::PLAY)
         return;
     else if(duration.count() >= current_sound_element.duration.count()) {
         if(!sound_queue.empty()) {
@@ -124,7 +123,6 @@ void SoundQueue::update(std::chrono::high_resolution_clock::duration duration) {
         current_sound_element.duration -= duration;
 }
 
-}
 }
 }
 }

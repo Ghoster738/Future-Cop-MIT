@@ -9,7 +9,7 @@
 
 #include "../Data/Accessor.h"
 
-namespace Sounds {
+namespace Sound {
 
 /**
  * This is holds the interface to the sound system.

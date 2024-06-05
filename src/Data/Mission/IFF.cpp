@@ -2,6 +2,7 @@
 
 #include "../Accessor.h"
 
+#include "AIFFResource.h"
 #include "ANMResource.h"
 #include "ACTResource.h"
 #include "BMPResource.h"
@@ -74,18 +75,15 @@ namespace {
         { Data::Mission::PYRResource::IDENTIFIER_TAG,  new Data::Mission::PYRResource() },
         { Data::Mission::ACTResource::SAC_IDENTI_TAG,  new Data::Mission::ACT::Unknown() },
         // which is { 0x43, 0x73, 0x66, 0x78 } or { 'C', 's', 'f', 'x' } or "Csfx"
-        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true ) },  // Resource ID missing
+        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true) },  // Resource ID missing
         // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
         { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // Holds programmer settings?  // Resource ID missing
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
-        // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
-        { 0x43616966, new Data::Mission::UnkResource( 0x43616966, "aif" ) },
+        { Data::Mission::AIFFResource::IDENTIFIER_TAG, new Data::Mission::AIFFResource() },
         { Data::Mission::RPNSResource::IDENTIFIER_TAG, new Data::Mission::RPNSResource() },
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() }, // Resource ID missing
-        // which is { 0x53, 0x57, 0x56, 0x52 } or { 'S', 'W', 'V', 'R' } or "SWVR"
-        { 0x53575652, new Data::Mission::UnkResource( 0x53575652, "swvr" ) },
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
         { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
         { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
@@ -109,21 +107,98 @@ bool Data::Mission::IFF::compareFunction( const Data::Mission::Resource *const l
     return ( *l_operand < *r_operand );
 }
 
+
+Data::Mission::Resource* Data::Mission::IFF::getResourceFrom( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, uint32_t type, unsigned int index ) {
+    // O( log n ) for n = the amount of types.
+    auto map_it = id_to_resource.find( type );
+
+    if( map_it != id_to_resource.end() && (*map_it).second.size() > index )
+        return (*map_it).second[ index ];
+    else
+        return nullptr;
+}
+
+void Data::Mission::IFF::addResourceTo( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, Data::Mission::Resource* resource_p ) {
+    // Get a vector according to the key, the resource tag id.
+    // Put this resource into the resources_allocated dynamic array
+    id_to_resource[ resource_p->getResourceTagID() ].push_back( resource_p );
+    resource_amount++;
+}
+
+std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResourcesFrom( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, uint32_t type ) {
+    auto vector_it = id_to_resource.find( type );
+
+    if( vector_it != id_to_resource.end() )
+        return std::vector<Data::Mission::Resource*>( (*vector_it).second );
+    else // Return all the elements in the array.
+        return std::vector<Data::Mission::Resource*>();
+}
+
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getResourcesFrom( const std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource, uint32_t type ) const {
+    auto vector_it = id_to_resource.find( type );
+
+    if( vector_it != id_to_resource.end() ) {
+        auto res_vec = std::vector<const Data::Mission::Resource*>();
+
+        for( auto i: (*vector_it).second) {
+            res_vec.push_back( i );
+        }
+
+        return res_vec;
+    }
+    else // Return all the elements in the array.
+        return std::vector<const Data::Mission::Resource*>();
+}
+
+std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResourcesFrom( std::map<uint32_t, std::vector<Data::Mission::Resource*>> &id_to_resource ) {
+    std::vector<Data::Mission::Resource*> entire_resource;
+
+    entire_resource.reserve( resource_amount );
+
+    for( auto map_it = id_to_resource.begin(); map_it != id_to_resource.end(); map_it++ ) {
+        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+            entire_resource.push_back( (*it) );
+    }
+
+    return entire_resource;
+}
+
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResourcesFrom( const std::map<uint32_t, std::vector<Resource*>> &id_to_resource ) const {
+    std::vector<const Data::Mission::Resource*> entire_resource;
+
+    entire_resource.reserve( resource_amount );
+
+    for( auto map_it = id_to_resource.begin(); map_it != id_to_resource.end(); map_it++ ) {
+        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
+            entire_resource.push_back( (*it) );
+    }
+
+    return entire_resource;
+}
+
 Data::Mission::IFF::IFF() {
-    resource_amount = 0;
+    this->resource_amount = 0;
+    this->music_p = nullptr;
 }
 
 Data::Mission::IFF::IFF( const std::string &file_path ) {
-    resource_amount = 0;
+    this->resource_amount = 0;
+    this->music_p = nullptr;
     open( file_path );
 }
 
 
 Data::Mission::IFF::~IFF() {
-    // Delete every allocated resource in std::map
-    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
+    // Delete every allocated resource
+    for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
         for( auto it = map_it->second.begin(); it < map_it->second.end(); it++ )
             delete ( *it );
+    }
+    for( auto tos_it = tos_to_map_p.begin(); tos_it != tos_to_map_p.end(); tos_it++ ) {
+        for( auto map_it = (*tos_it).second.begin(); map_it != (*tos_it).second.end(); map_it++ ) {
+            for( auto it = map_it->second.begin(); it < map_it->second.end(); it++ )
+                delete ( *it );
+        }
     }
 }
 
@@ -458,7 +533,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             new_resource_p->setOffset( i.offset );
             new_resource_p->setMisIndexNumber( i.iff_index );
-            new_resource_p->setIndexNumber( resource_map[ i.type_enum ].size() );
+            new_resource_p->setIndexNumber( id_to_resource_p[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
             new_resource_p->getSWVREntry() = i.swvr_entry;
 
@@ -544,62 +619,76 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         return -1;
 }
 
-void Data::Mission::IFF::addResource( Data::Mission::Resource* resource ) {
-    // Get a vector according to the key, the resource tag id.
-    // Put this resource into the resources_allocated dynamic array
-    resource_map[ resource->getResourceTagID() ].push_back( resource );
-    resource_amount++;
+void Data::Mission::IFF::addResource( Data::Mission::Resource* resource_p ) {
+    assert(resource_p != nullptr);
+
+    if(!resource_p->getSWVREntry().isPresent())
+        addResourceTo(id_to_resource_p, resource_p);
+    else if(dynamic_cast<Data::Mission::MSICResource*>(resource_p) != nullptr) {
+        if(this->music_p != nullptr)
+            delete this->music_p;
+        this->music_p = dynamic_cast<Data::Mission::MSICResource*>(resource_p);
+    }
+    else {
+        const auto tos_offset = resource_p->getSWVREntry().tos_offset;
+        auto id_to_resource_it = tos_to_map_p.find(tos_offset);
+
+        if(id_to_resource_it == tos_to_map_p.end())
+            tos_to_map_p[tos_offset] = std::map<uint32_t, std::vector<Resource*>>();
+
+        addResourceTo(tos_to_map_p[tos_offset], resource_p);
+    }
 }
 
 Data::Mission::Resource* Data::Mission::IFF::getResource( uint32_t type, unsigned int index ) {
-    // O( log n ) for n = the amount of types.
-    auto map_it = resource_map.find( type );
-
-    if( map_it != resource_map.end() && (*map_it).second.size() > index )
-        return (*map_it).second[ index ];
-    else
-        return nullptr;
+    return getResourceFrom(id_to_resource_p, type, index);
 }
 const Data::Mission::Resource* Data::Mission::IFF::getResource( uint32_t type, unsigned int index ) const {
     return const_cast<Data::Mission::IFF*>( this )->getResource( type, index );
 }
 
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) {
-    auto vector_it = resource_map.find( type );
-
-    if( vector_it != resource_map.end() )
-        return std::vector<Data::Mission::Resource*>( (*vector_it).second );
-    else // Return all the elements in the array.
-        return std::vector<Data::Mission::Resource*>();
+    return getResourcesFrom(id_to_resource_p, type);
 }
-const std::vector<Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) const {
-    return const_cast<Data::Mission::IFF*>( this )->getResources( type );
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getResources( uint32_t type ) const {
+    return const_cast<Data::Mission::IFF*>( this )->getResourcesFrom( id_to_resource_p, type );
 }
 
 std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllResources() {
-    std::vector<Data::Mission::Resource*> entire_resource;
-
-    entire_resource.reserve( resource_amount );
-
-    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
-        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
-            entire_resource.push_back( (*it) );
-    }
-
-    return entire_resource;
+    return getAllResourcesFrom( id_to_resource_p );
 }
 std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllResources() const {
-    std::vector<const Data::Mission::Resource*> entire_resource;
-
-    entire_resource.reserve( resource_amount );
-
-    for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ ) {
-        for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
-            entire_resource.push_back( (*it) );
-    }
-
-    return entire_resource;
+    return getAllResourcesFrom( id_to_resource_p );
 }
+
+Data::Mission::Resource* Data::Mission::IFF::getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index ) {
+    return getResourceFrom(tos_to_map_p.at(tos_offset), type, index);
+}
+const Data::Mission::Resource* Data::Mission::IFF::getSWVRResource( uint32_t tos_offset, uint32_t type, unsigned int index ) const {
+    return const_cast<Data::Mission::IFF*>( this )->getSWVRResource( tos_offset, type, index );
+}
+
+std::vector<Data::Mission::Resource*> Data::Mission::IFF::getSWVRResources( uint32_t tos_offset, uint32_t type ) {
+    return getResourcesFrom(tos_to_map_p.at(tos_offset), type);
+}
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getSWVRResources( uint32_t tos_offset, uint32_t type ) const {
+    return getResourcesFrom(tos_to_map_p.at(tos_offset), type);
+}
+
+std::vector<Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResources( uint32_t tos_offset ) {
+    if(tos_to_map_p.find(tos_offset) == tos_to_map_p.end())
+        return std::vector<Data::Mission::Resource*>(); // Empty vector.
+
+    return getAllResourcesFrom( tos_to_map_p.at(tos_offset) );
+}
+
+std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResources( uint32_t tos_offset ) const {
+    if(tos_to_map_p.find(tos_offset) == tos_to_map_p.end())
+        return std::vector<const Data::Mission::Resource*>(); // Empty vector.
+
+    return getAllResourcesFrom( tos_to_map_p.at(tos_offset) );
+}
+
 
 int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
     // This algorithm is an O(n) algorithm and it is as good as it is going to get in terms of data complexity. :)
@@ -614,10 +703,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
 
         if( iff_options.readParams( arguments, &std::cout ) ) {
             // For every resource type categories in the Mission file.
-            for( auto map_it = resource_map.begin(); map_it != resource_map.end(); map_it++ )
-            {
-                for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
-                {
+            for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
+                for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ ) {
                     std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
 
                     if( raw_file_mode )
@@ -626,6 +713,28 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
                     if( !iff_options.enable_global_dry_default )
                         (*it)->writeRaw( full_path, iff_options );
                 }
+            }
+            for( auto tos_it : tos_to_map_p ) {
+                for( auto map_it : tos_it.second ) {
+                    for( auto it : map_it.second ) {
+                        std::string full_path = path + it->getFullName( it->getResourceID() );
+
+                        if( raw_file_mode )
+                            it->write( full_path, iff_options );
+                        else
+                        if( !iff_options.enable_global_dry_default )
+                            it->writeRaw( full_path, iff_options );
+                    }
+                }
+            }
+            if( this->music_p != nullptr ) {
+                std::string full_path = path + this->music_p->getFullName( this->music_p->getResourceID() );
+
+                if( raw_file_mode )
+                    this->music_p->write( full_path, iff_options );
+                else
+                if( !iff_options.enable_global_dry_default )
+                    this->music_p->writeRaw( full_path, iff_options );
             }
             return true;
         }
@@ -638,7 +747,7 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
 
 Data::Mission::IFF::DataType Data::Mission::IFF::getDataType() const {
     // Check if PTC is present.
-    if(resource_map.find(PTCResource::IDENTIFIER_TAG) == resource_map.end())
+    if(id_to_resource_p.find(PTCResource::IDENTIFIER_TAG) == id_to_resource_p.end())
         return DataType::GLOBALS;
 
     Data::Accessor accessor;

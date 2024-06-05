@@ -1,8 +1,7 @@
 #include "SoundBuffer.h"
 
-namespace Sounds {
-namespace SDL2 {
-namespace MojoAL {
+namespace Sound {
+namespace OpenAL {
 namespace Internal {
 
 ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound) {
@@ -75,7 +74,6 @@ ALenum SoundBuffer::getFormat(unsigned int number_of_channels, unsigned int bits
         return AL_INVALID_ENUM;
 }
 
-}
 }
 }
 }

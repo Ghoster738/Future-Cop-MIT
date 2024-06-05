@@ -1,14 +1,13 @@
 #ifndef SOUND_OPENAL_INTERNAL_SOUND_BUFFER
 #define SOUND_OPENAL_INTERNAL_SOUND_BUFFER
 
-#include "../../../../Data/Mission/WAVResource.h"
+#include "../../../Data/Mission/WAVResource.h"
 
 #include <chrono>
 #include "al.h"
 
-namespace Sounds {
-namespace SDL2 {
-namespace MojoAL {
+namespace Sound {
+namespace OpenAL {
 namespace Internal {
 
 struct SoundBuffer {
@@ -24,7 +23,6 @@ struct SoundBuffer {
     static ALenum getFormat(unsigned int number_of_channels, unsigned int bits_per_sample);
 };
 
-}
 }
 }
 }

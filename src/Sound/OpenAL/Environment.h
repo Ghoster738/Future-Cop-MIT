@@ -1,7 +1,7 @@
 #ifndef SOUNDS_ENVIRONMENT_MOJO_AL_H
 #define SOUNDS_ENVIRONMENT_MOJO_AL_H
 
-#include "../../Environment.h"
+#include "../Environment.h"
 
 #include "Internal/SoundQueue.h"
 
@@ -10,11 +10,10 @@
 #include "al.h"
 #include "alc.h"
 
-namespace Sounds {
-namespace SDL2 {
-namespace MojoAL {
+namespace Sound {
+namespace OpenAL {
 
-class Environment : public Sounds::Environment {
+class Environment : public Sound::Environment {
 public:
     ALCdevice *alc_device_p;
     ALCcontext *alc_context_p;
@@ -35,7 +34,7 @@ public:
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
 
-    virtual bool setMusicState(Sounds::PlayerState player_state);
+    virtual bool setMusicState(Sound::PlayerState player_state);
     virtual PlayerState getMusicState() const;
 
     virtual bool queueTrack(uint32_t track_offset);
@@ -45,7 +44,6 @@ public:
     virtual void advanceTime( std::chrono::high_resolution_clock::duration duration );
 };
 
-}
 }
 }
 

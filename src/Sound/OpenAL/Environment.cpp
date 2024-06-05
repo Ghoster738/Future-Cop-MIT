@@ -1,14 +1,13 @@
 #include "Environment.h"
 
-#include "../../../Data/Mission/MSICResource.h"
-#include "../../../Data/Mission/TOSResource.h"
-#include "../../../Data/Mission/SNDSResource.h"
+#include "../../Data/Mission/MSICResource.h"
+#include "../../Data/Mission/TOSResource.h"
+#include "../../Data/Mission/SNDSResource.h"
 
 #include <cassert>
 
-namespace Sounds {
-namespace SDL2 {
-namespace MojoAL {
+namespace Sound {
+namespace OpenAL {
 
 Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), music_buffer(0), music_source(0) {}
 
@@ -127,21 +126,19 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         // assert(swvr_accessor_r != nullptr);
 
         if(swvr_accessor_r != nullptr) {
-            auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
+            auto snds_r = swvr_accessor_r->getConstSNDS(1);
 
-            for(auto snds_r : snds_array_r) {
-                if(tos_to_swvr.find(tos_offset) != tos_to_swvr.end())
-                    continue;
+            if(snds_r == nullptr)
+                continue;
 
-                const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
+            const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
 
-                tos_to_swvr[tos_offset] = Internal::SoundBuffer();
+            tos_to_swvr[tos_offset] = Internal::SoundBuffer();
 
-                ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
+            ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
 
-                if(current_error_state != AL_NO_ERROR) {
-                    error_state = current_error_state;
-                }
+            if(current_error_state != AL_NO_ERROR) {
+                error_state = current_error_state;
             }
         }
     }
@@ -156,7 +153,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         return -14;
     }
 
-    sound_queue.setPlayerState(Sounds::PlayerState::STOP);
+    sound_queue.setPlayerState(Sound::PlayerState::STOP);
 
     error_state = alGetError();
 
@@ -173,18 +170,18 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return 1;
 }
 
-bool Environment::setMusicState(Sounds::PlayerState player_state) {
+bool Environment::setMusicState(Sound::PlayerState player_state) {
     if(music_source == 0)
         return false;
 
     switch(player_state) {
-        case Sounds::PlayerState::STOP:
+        case Sound::PlayerState::STOP:
             alSourceStop(music_source);
             break;
-        case Sounds::PlayerState::PAUSE:
+        case Sound::PlayerState::PAUSE:
             alSourcePause(music_source);
             break;
-        case Sounds::PlayerState::PLAY:
+        case Sound::PlayerState::PLAY:
             alSourcePlay(music_source);
             break;
         default:
@@ -199,9 +196,9 @@ bool Environment::setMusicState(Sounds::PlayerState player_state) {
         return false;
 }
 
-Sounds::PlayerState Environment::getMusicState() const {
+Sound::PlayerState Environment::getMusicState() const {
     if(music_source == 0)
-        return Sounds::PlayerState::STOP;
+        return Sound::PlayerState::STOP;
 
     ALint state = -1;
 
@@ -209,16 +206,16 @@ Sounds::PlayerState Environment::getMusicState() const {
 
     switch(state) {
         case AL_STOPPED:
-            return Sounds::PlayerState::STOP;
+            return Sound::PlayerState::STOP;
             break;
         case AL_PAUSED:
-            return Sounds::PlayerState::PAUSE;
+            return Sound::PlayerState::PAUSE;
             break;
         case AL_PLAYING:
-            return Sounds::PlayerState::PLAY;
+            return Sound::PlayerState::PLAY;
             break;
         default:
-            return Sounds::PlayerState::STOP;
+            return Sound::PlayerState::STOP;
     }
 }
 
@@ -242,7 +239,7 @@ bool Environment::setTrackPlayerState(PlayerState player_state) {
     return true;
 }
 
-Sounds::PlayerState Environment::getTrackPlayerState() const {
+Sound::PlayerState Environment::getTrackPlayerState() const {
     return sound_queue.getPlayerState();
 }
 
@@ -250,6 +247,5 @@ void Environment::advanceTime(std::chrono::high_resolution_clock::duration durat
     sound_queue.update(duration);
 }
 
-}
 }
 }

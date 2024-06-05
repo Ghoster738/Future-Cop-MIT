@@ -15,7 +15,7 @@
 
 #include "Graphics/Environment.h"
 
-#include "Sounds/Environment.h"
+#include "Sound/Environment.h"
 
 #include "Utilities/Options/Parameters.h"
 #include "Utilities/Options/Paths.h"
@@ -60,7 +60,7 @@ public:
 
     // Sounds API variables goes here.
     std::string sound_identifier;
-    Sounds::Environment *sound_system_p;
+    Sound::Environment *sound_system_p;
 
     bool play_loop;
 

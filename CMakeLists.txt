@@ -140,7 +140,7 @@ configure_file (
 # These source files in the engine always should be compiled no mater which API is used.
 file(GLOB CONTROL_SOURCE_FILES src/Controls/*.cpp )
 file(GLOB GRAPHICS_SOURCE_FILES src/Graphics/*.cpp )
-file(GLOB SOUND_SOURCE_FILES src/Sounds/*.cpp )
+file(GLOB SOUND_SOURCE_FILES src/Sound/*.cpp )
 
 # SDL 2 is used for the controls.
 file(GLOB_RECURSE CONTROL_SDL2_SOURCE_FILES src/Controls/SDL2/*.cpp )
@@ -152,10 +152,10 @@ include_directories( src/Graphics/SDL2/GLES2/glad/include )
 # OpenGLES 2 is the one and only API supported for now, but more will come.
 file(GLOB_RECURSE GRAPHICS_SDL2_GLES2_SOURCE_FILES src/Graphics/SDL2/GLES2/*.cpp src/Graphics/SDL2/GLES2/*.c )
 
-file(GLOB_RECURSE SOUND_SDL2_DUMMY_SOURCE_FILES src/Sounds/Dummy/*.cpp )
+file(GLOB_RECURSE SOUND_SDL2_DUMMY_SOURCE_FILES src/Sound/Dummy/*.cpp )
 
-file(GLOB_RECURSE SOUND_SDL2_MOJO_AL_SOURCE_FILES src/Sounds/SDL2/*.cpp src/Sounds/SDL2/*.c )
-include_directories( src/Sounds/SDL2/MojoAL/library/AL/ )
+file(GLOB_RECURSE SOUND_SDL2_MOJO_AL_SOURCE_FILES src/Sound/OpenAL/*.cpp src/Sound/OpenAL/*.c )
+include_directories( src/Sound/OpenAL/MojoAL/Library/AL/ )
 
 add_library(FC_Engine STATIC ${CONTROL_SOURCE_FILES} ${CONTROL_SDL2_SOURCE_FILES} ${GRAPHICS_SOURCE_FILES} ${GRAPHICS_SDL2_SOURCE_FILES} ${GRAPHICS_SDL2_GLES2_SOURCE_FILES} ${SOUND_SOURCE_FILES} ${SOUND_SDL2_DUMMY_SOURCE_FILES} ${SOUND_SDL2_MOJO_AL_SOURCE_FILES} src/InputMenu.cpp src/MainProgram.cpp )
 
