@@ -7,12 +7,33 @@ namespace {
     const uint32_t TAG_SSND_ID = 0x53534E44; // which is { 0x53, 0x53, 0x4E, 0x44 } or { 'S', 'S', 'N', 'D' } or "SSND"
     const uint32_t TAG_INST_ID = 0x494E5354; // which is { 0x49, 0x4E, 0x53, 0x54 } or { 'I', 'N', 'S', 'T' } or "INST"
 
-    // The data is not placed in the order that they are in the file format.
     struct COMMData {
+        // The data is not placed in the order that they are in the file format.
         uint64_t decoded_sample_rate;
         uint32_t num_sample_frames;
         uint16_t num_channels;
         uint16_t sample_bit_size;
+    };
+    struct SSNDData {
+        uint32_t offset;
+        uint32_t block_size;
+        uint32_t aiff_chunk_offset; // The offset used by the reader to obtain PCM data.
+    };
+    struct Loop {
+        uint16_t play_mode; // 0 no looping, 1 forward looping, 2 forward back looping.
+        uint16_t start_loop;
+        uint16_t end_loop;
+    };
+    struct INSTData {
+        Loop sustain_loop;
+        Loop release_loop;
+        uint16_t gain;
+        uint8_t base_note;
+        uint8_t detune;
+        uint8_t low_note;
+        uint8_t high_note;
+        uint8_t low_velocity;
+        uint8_t high_velocity;
     };
 }
 
@@ -58,10 +79,13 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
 
     COMMData comm_data;
     bool found_comm_chunk = false;
+    SSNDData ssnd_data;
     bool found_ssnd_chunk = false;
+    INSTData inst_data;
     bool found_inst_chunk = false;
 
     while( aiff_reader.getPosition() < aiff_reader.totalSize() ) {
+        auto aiff_chunk_offset = aiff_reader.getPosition();
         auto identifier = aiff_reader.readU32( Utilities::Buffer::Endian::BIG );
         auto tag_size   = aiff_reader.readU32( Utilities::Buffer::Endian::BIG );
 
@@ -137,25 +161,91 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                     return false;
                 }
 
+                ssnd_data.offset     = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
+                ssnd_data.block_size = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
+                ssnd_data.aiff_chunk_offset = aiff_chunk_offset;
+
+                if(ssnd_data.offset != 0) {
+                    error_log.output << "SSND Offsets except zero will not be supported unless an example from an offical source can be found.\n";
+                    return false;
+                }
+
+                if(ssnd_data.block_size != 0) {
+                    error_log.output << "SSND Block sizes except zero will not be supported unless an example from an offical source can be found.\n";
+                    return false;
+                }
                 found_ssnd_chunk = true;
             }
             break;
             case TAG_INST_ID:
             {
-                //
+                if(found_inst_chunk) {
+                    error_log.output << "Only one INST chunk for each AIFF file.\n";
+                    return false;
+                }
+
+                inst_data.base_note = chunk_reader.readU8();
+                inst_data.detune = chunk_reader.readU8();
+                inst_data.low_note = chunk_reader.readU8();
+                inst_data.high_note = chunk_reader.readU8();
+                inst_data.low_velocity = chunk_reader.readU8();
+                inst_data.high_velocity = chunk_reader.readU8();
+                inst_data.gain = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.sustain_loop.play_mode = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.sustain_loop.start_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.sustain_loop.end_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.release_loop.play_mode = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.release_loop.start_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.release_loop.end_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+
+                found_inst_chunk = true;
             }
             break;
             default:
                 ; // Do nothing.
         }
+    }
+    if(!found_comm_chunk) {
+        error_log.output << "COMM chunk is not found.\n";
+        return false;
+    }
 
-        if(!found_comm_chunk) {
-            error_log.output << "COMM chunk is not found.\n";
-            return false;
-        }
+    if(comm_data.num_sample_frames == 0) {
+        return true;
+    }
+
+    if(!found_ssnd_chunk) {
+        error_log.output << "SNDS chunk is not found where there are sample data present. Total Sample Frames " << comm_data.num_sample_frames << "\n";
+        return false;
+    }
+    else {
         setChannelNumber( comm_data.num_channels );
         setSampleRate( comm_data.decoded_sample_rate );
         setBitsPerSample( comm_data.sample_bit_size );
+        updateDependices();
+
+        aiff_reader.setPosition(ssnd_data.aiff_chunk_offset);
+
+        aiff_reader.readU32( Utilities::Buffer::Endian::BIG ); // identifier
+        auto tag_size   = aiff_reader.readU32( Utilities::Buffer::Endian::BIG );
+        aiff_reader.readU32(); //offset
+        aiff_reader.readU32(); // block size
+
+        auto chunk_reader = aiff_reader.getReader( tag_size - 2 * sizeof(uint32_t) );
+
+        if(comm_data.sample_bit_size == 16) {
+            size_t head = 0;
+            audio_stream.resize( chunk_reader.totalSize() );
+            while( !chunk_reader.ended() ) {
+                reinterpret_cast<int16_t*>(audio_stream.data())[head] = chunk_reader.readI16( Utilities::Buffer::Endian::BIG );
+                head++;
+            }
+        }
+        else { // if(comm_data.sample_bit_size == 8) {
+            setAudioStream(chunk_reader);
+        }
+
+        return true;
     }
 
     return true;
