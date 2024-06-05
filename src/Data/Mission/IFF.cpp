@@ -703,10 +703,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
 
         if( iff_options.readParams( arguments, &std::cout ) ) {
             // For every resource type categories in the Mission file.
-            for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ )
-            {
-                for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ )
-                {
+            for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
+                for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ ) {
                     std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
 
                     if( raw_file_mode )
@@ -715,6 +713,28 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
                     if( !iff_options.enable_global_dry_default )
                         (*it)->writeRaw( full_path, iff_options );
                 }
+            }
+            for( auto tos_it : tos_to_map_p ) {
+                for( auto map_it : tos_it.second ) {
+                    for( auto it : map_it.second ) {
+                        std::string full_path = path + it->getFullName( it->getResourceID() );
+
+                        if( raw_file_mode )
+                            it->write( full_path, iff_options );
+                        else
+                        if( !iff_options.enable_global_dry_default )
+                            it->writeRaw( full_path, iff_options );
+                    }
+                }
+            }
+            if( this->music_p != nullptr ) {
+                std::string full_path = path + this->music_p->getFullName( this->music_p->getResourceID() );
+
+                if( raw_file_mode )
+                    this->music_p->write( full_path, iff_options );
+                else
+                if( !iff_options.enable_global_dry_default )
+                    this->music_p->writeRaw( full_path, iff_options );
             }
             return true;
         }
