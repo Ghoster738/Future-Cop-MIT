@@ -172,7 +172,7 @@ int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool i
     Utilities::Buffer header;
 
     if( is_dry )
-        resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::binary | std::ios::out );
+        resource.open( file_path + "." + Data::Mission::WAVResource::FILE_EXTENSION, std::ios::binary | std::ios::out );
 
     if( resource.is_open() )
     {
