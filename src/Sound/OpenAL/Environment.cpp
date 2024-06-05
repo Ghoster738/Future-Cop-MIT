@@ -126,21 +126,19 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         // assert(swvr_accessor_r != nullptr);
 
         if(swvr_accessor_r != nullptr) {
-            auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
+            auto snds_r = swvr_accessor_r->getConstSNDS(1);
 
-            for(auto snds_r : snds_array_r) {
-                if(tos_to_swvr.find(tos_offset) != tos_to_swvr.end())
-                    continue;
+            if(snds_r == nullptr)
+                continue;
 
-                const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
+            const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
 
-                tos_to_swvr[tos_offset] = Internal::SoundBuffer();
+            tos_to_swvr[tos_offset] = Internal::SoundBuffer();
 
-                ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
+            ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
 
-                if(current_error_state != AL_NO_ERROR) {
-                    error_state = current_error_state;
-                }
+            if(current_error_state != AL_NO_ERROR) {
+                error_state = current_error_state;
             }
         }
     }
