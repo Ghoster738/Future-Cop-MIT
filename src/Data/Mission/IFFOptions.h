@@ -42,6 +42,14 @@ struct IFFOptions {
 
     // This is the the option to other resources.
 
+    struct AIFFOption : public ResourceOption {
+
+        AIFFOption() : ResourceOption() {}
+        std::string getNameSpace() const { return "AIFF"; }
+        virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
+        virtual std::string getOptions() const;
+    } aiff;
+
     struct ACTOption : public ResourceOption {
 
         ACTOption() : ResourceOption() {}

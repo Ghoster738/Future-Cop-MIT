@@ -256,7 +256,18 @@ Resource* AIFFResource::duplicate() const {
 }
 
 int AIFFResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
-    return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
+    return writeAudio( file_path, iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ));
+}
+
+bool IFFOptions::AIFFOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+
+    return IFFOptions::ResourceOption::readParams( arguments, output_r );
+}
+
+std::string IFFOptions::AIFFOption::getOptions() const {
+    std::string information_text = getBuiltInOptions();
+
+    return information_text;
 }
 
 }

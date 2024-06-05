@@ -67,6 +67,9 @@ bool IFFOptions::readParams( const std::vector<std::string> &raw_arguments, std:
 
     enable_global_dry_default = false;
 
+    invalid_parameters        |= aiff.readParams( arguments, output_r );
+    enable_global_dry_default |= aiff.override_dry;
+
     invalid_parameters        |= act.readParams( arguments, output_r );
     enable_global_dry_default |= act.override_dry;
 
@@ -188,6 +191,7 @@ std::string IFFOptions::getOptions() const {
 
     option_dialog += "  --DRY      Do not export any decoded and raw files. Do not use with ENABLE commands\n";
     option_dialog += "  --*_ENABLE This sets specific resources to be exported rather than decoding them all. WARNING: This disables raw output\n";
+    option_dialog += aiff.getOptions();
     option_dialog +=  act.getOptions();
     option_dialog +=  anm.getOptions();
     option_dialog +=  bmp.getOptions();
