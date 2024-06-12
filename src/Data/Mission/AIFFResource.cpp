@@ -251,8 +251,10 @@ Resource* AIFFResource::duplicate() const {
 int AIFFResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
     if(iff_options.aiff.to_wav || this->data_p == nullptr)
         return writeAudio( file_path, iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ));
-    else
+    else if(iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ))
         return writeRaw(file_path, iff_options);
+    else
+        return 0;
 }
 
 bool IFFOptions::AIFFOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
