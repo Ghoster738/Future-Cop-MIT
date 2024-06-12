@@ -248,6 +248,8 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
         return false;
     }
 
+    this->audio_stream_length = sound_data_size;
+
     wav_reader.setPosition( sound_data_offset, Utilities::Buffer::BEGIN );
     auto pcm_reader = wav_reader.getReader( sound_data_size );
 
