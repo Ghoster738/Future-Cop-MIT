@@ -13,15 +13,15 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
 protected:
-    unsigned int num_channels; // 1 for mono.
-    unsigned int sample_rate; // For example 44100
-    unsigned int byte_rate; // sample_rate * num_channels * bits_per_sample / 8
-    unsigned int block_align; // num_channels * bits_per_sample / 8
-    unsigned int bits_per_sample;
+    uint_fast8_t num_channels; // 1 for mono. 2 for stereo.
+    uint_fast32_t sample_rate; // Can be 44100Hz, 22050Hz, etc.
+    uint_fast32_t byte_rate; // sample_rate * num_channels * bits_per_sample / 8
+    uint_fast16_t block_align; // num_channels * bits_per_sample / 8
+    uint_fast8_t  bits_per_sample;
 
     std::vector<uint8_t> audio_stream;
-    // This is the amount of bytes that the wav says. So it can be smaller than the audio_stream.
-    unsigned int audio_stream_length;
+    // This is the amount of bytes that the audio file claims it has. Thus, audio_stream_length can be smaller than the audio_stream.
+    uint_fast32_t audio_stream_length;
 
 public:
 
@@ -32,15 +32,15 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    void setChannelNumber( int num_channels );
-    void setSampleRate( int sample_rate );
-    void setBitsPerSample( int bits_per_sample );
+    void setChannelNumber( uint_fast8_t num_channels );
+    void setSampleRate( uint_fast32_t sample_rate );
+    void setBitsPerSample( uint_fast8_t bits_per_sample );
     void updateDependices();
 
-    int getChannelNumber() const { return num_channels; }
-    int getSampleRate() const { return sample_rate; }
-    int getBitsPerSample() const { return bits_per_sample; }
-    int getTotalPCMBytes() const { return audio_stream_length; }
+    uint_fast8_t getChannelNumber() const { return num_channels; }
+    uint_fast32_t getSampleRate() const { return sample_rate; }
+    uint_fast8_t getBitsPerSample() const { return bits_per_sample; }
+    uint_fast32_t getTotalPCMBytes() const { return audio_stream_length; }
     const uint8_t *const getPCMData() const { return audio_stream.data(); }
 
     /**

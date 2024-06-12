@@ -285,17 +285,17 @@ uint32_t Data::Mission::WAVResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-void Data::Mission::WAVResource::setChannelNumber( int num_channels ) {
+void Data::Mission::WAVResource::setChannelNumber( uint_fast8_t num_channels ) {
     this->num_channels = num_channels;
     updateDependices(); // This might affect the speed, but only a little bit.
 }
 
-void Data::Mission::WAVResource::setSampleRate( int sample_rate ) {
+void Data::Mission::WAVResource::setSampleRate( uint_fast32_t sample_rate ) {
     this->sample_rate = sample_rate;
     updateDependices();
 }
 
-void Data::Mission::WAVResource::setBitsPerSample( int bits_per_sample ) {
+void Data::Mission::WAVResource::setBitsPerSample( uint_fast8_t bits_per_sample ) {
     this->bits_per_sample = bits_per_sample;
     updateDependices();
 }
