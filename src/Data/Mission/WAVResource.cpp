@@ -355,7 +355,7 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
 }
 
 int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
-    if(this->data_p == nullptr)
+    if(iff_options.wav.reencode_wav || this->data_p == nullptr)
         return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
     else
         return writeRaw(file_path, iff_options);
@@ -414,12 +414,16 @@ Data::Mission::Resource * Data::Mission::WAVResource::duplicate() const {
 }
 
 bool Data::Mission::IFFOptions::WavOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_REENCODE_DATA", output_r, reencode_wav ) )
+        return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
 
 std::string Data::Mission::IFFOptions::WavOption::getOptions() const {
     std::string information_text = getBuiltInOptions();
+
+    information_text += "  --" + getNameSpace() + "_REENCODE_DATA Reencode the WAV file. Warning: This will get rid of some metadata with the WAV like its loop points.\n";
 
     return information_text;
 }
