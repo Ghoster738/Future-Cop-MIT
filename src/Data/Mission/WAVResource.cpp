@@ -261,13 +261,13 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
 const std::string Data::Mission::WAVResource::FILE_EXTENSION = "wav";
 const uint32_t Data::Mission::WAVResource::IDENTIFIER_TAG = 0x43776176; // which is { 0x43, 0x77, 0x61, 0x76 } or { 'C', 'w', 'a', 'v' } or "Cwav"
 
-Data::Mission::WAVResource::WAVResource() : audio_stream_length(0), sample_rate(22050), byte_rate(0), block_align(0), num_channels(1), bits_per_sample(8) {
+Data::Mission::WAVResource::WAVResource() : audio_stream(), audio_stream_length(0), sample_rate(22050), byte_rate(0), block_align(0), num_channels(1), bits_per_sample(8) {
     updateDependices();
 }
 
 Data::Mission::WAVResource::WAVResource( const WAVResource &obj ) : Resource( obj ),
-    audio_stream_length(obj.audio_stream_length), sample_rate(obj.sample_rate), byte_rate(obj.byte_rate), block_align(obj.block_align), num_channels(obj.num_channels), bits_per_sample(obj.bits_per_sample),
-    audio_stream(obj.audio_stream) {}
+    audio_stream(obj.audio_stream),
+    audio_stream_length(obj.audio_stream_length), sample_rate(obj.sample_rate), byte_rate(obj.byte_rate), block_align(obj.block_align), num_channels(obj.num_channels), bits_per_sample(obj.bits_per_sample) {}
 
 std::string Data::Mission::WAVResource::getFileExtension() const {
     return FILE_EXTENSION;

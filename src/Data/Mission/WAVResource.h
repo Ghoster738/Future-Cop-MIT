@@ -13,6 +13,8 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
 protected:
+    std::vector<uint8_t> audio_stream;
+
     // This is the amount of bytes that the audio file claims it has. Thus, audio_stream_length can be smaller than the audio_stream.
     uint_fast32_t audio_stream_length;
     uint_fast32_t sample_rate; // Can be 44100Hz, 22050Hz, etc.
@@ -20,8 +22,6 @@ protected:
     uint_fast16_t block_align; // num_channels * bits_per_sample / 8
     uint_fast8_t  num_channels; // 1 for mono. 2 for stereo.
     uint_fast8_t  bits_per_sample;
-
-    std::vector<uint8_t> audio_stream;
 public:
 
     WAVResource();
