@@ -13,7 +13,6 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
 protected:
-    unsigned int audio_format; // TODO Get rid of that!
     unsigned int channel_number; // 1 for mono.
     unsigned int sample_rate; // For example 44100
     unsigned int byte_rate; // sample_rate * channel_number * bits_per_sample / 8

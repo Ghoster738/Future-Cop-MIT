@@ -193,7 +193,6 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
         return false;
     }
 
-    this->audio_format    = fmt_data.format_tag;
     this->channel_number  = fmt_data.num_channels;
     this->sample_rate     = fmt_data.samples_per_sec;
     this->bits_per_sample = fmt_data.bits_per_sample;
@@ -233,7 +232,6 @@ const std::string Data::Mission::WAVResource::FILE_EXTENSION = "wav";
 const uint32_t Data::Mission::WAVResource::IDENTIFIER_TAG = 0x43776176; // which is { 0x43, 0x77, 0x61, 0x76 } or { 'C', 'w', 'a', 'v' } or "Cwav"
 
 Data::Mission::WAVResource::WAVResource() {
-    audio_format = 1;
     channel_number = 1;
     sample_rate = 44100;
     bits_per_sample = 8;
@@ -242,7 +240,6 @@ Data::Mission::WAVResource::WAVResource() {
 }
 
 Data::Mission::WAVResource::WAVResource( const WAVResource &obj ) : Resource( obj ) {
-    audio_format = obj.audio_format;
     channel_number = obj.channel_number;
     sample_rate = obj.sample_rate;
     bits_per_sample = obj.bits_per_sample;
@@ -319,7 +316,7 @@ int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool i
         header.addU32( TAG_FORMAT, Utilities::Buffer::Endian::BIG );
         header.addU32( TAG_FMT_ID, Utilities::Buffer::Endian::BIG );
         header.addU32( 16, Utilities::Buffer::Endian::LITTLE );
-        header.addU16( audio_format, Utilities::Buffer::Endian::LITTLE );
+        header.addU16( 1, Utilities::Buffer::Endian::LITTLE ); // Set it to Microsoft PCM.
         header.addU16( channel_number, Utilities::Buffer::Endian::LITTLE );
         header.addU32( sample_rate, Utilities::Buffer::Endian::LITTLE );
         header.addU32( byte_rate, Utilities::Buffer::Endian::LITTLE );
