@@ -355,7 +355,10 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
 }
 
 int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
-    return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
+    if(this->data_p == nullptr)
+        return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
+    else
+        return writeRaw(file_path, iff_options);
 }
 
 int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool is_dry ) const {
