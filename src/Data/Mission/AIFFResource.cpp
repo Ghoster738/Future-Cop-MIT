@@ -249,16 +249,23 @@ Resource* AIFFResource::duplicate() const {
 }
 
 int AIFFResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
-    return writeAudio( file_path, iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ));
+    if(iff_options.aiff.to_wav || this->data_p == nullptr)
+        return writeAudio( file_path, iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ));
+    else
+        return writeRaw(file_path, iff_options);
 }
 
 bool IFFOptions::AIFFOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_TO_WAV", output_r, to_wav ) )
+        return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
 }
 
 std::string IFFOptions::AIFFOption::getOptions() const {
     std::string information_text = getBuiltInOptions();
+
+    information_text += "  --" + getNameSpace() + "_TO_WAV Convert from AIFF to WAV format. Warning: This will get rid of some metadata with the WAV like its loop points.\n";
 
     return information_text;
 }
