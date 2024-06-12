@@ -236,6 +236,8 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
 
         setAudioStream(chunk_reader, comm_data.sample_bit_size / 8, Utilities::Buffer::Endian::BIG);
 
+        updateAudioStreamLength();
+
         return true;
     }
 
