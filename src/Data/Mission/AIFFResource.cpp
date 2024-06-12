@@ -235,15 +235,10 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
         auto chunk_reader = aiff_reader.getReader( tag_size - 2 * sizeof(uint32_t) );
 
         if(comm_data.sample_bit_size == 16) {
-            size_t head = 0;
-            audio_stream.resize( chunk_reader.totalSize() );
-            while( !chunk_reader.ended() ) {
-                reinterpret_cast<int16_t*>(audio_stream.data())[head] = chunk_reader.readI16( Utilities::Buffer::Endian::BIG );
-                head++;
-            }
+            setAudioStream(chunk_reader, 2, Utilities::Buffer::Endian::BIG);
         }
         else { // if(comm_data.sample_bit_size == 8) {
-            setAudioStream(chunk_reader);
+            setAudioStream(chunk_reader, 1, Utilities::Buffer::Endian::BIG);
         }
 
         return true;

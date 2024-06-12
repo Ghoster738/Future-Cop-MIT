@@ -33,7 +33,7 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
 
         reader.readU32( settings.endian );
         
-        sound.addAudioStream( reader );
+        sound.addAudioStream( reader, 1, Utilities::Buffer::Endian::NO_SWAP );
 
         sound.updateAudioStreamLength();
 

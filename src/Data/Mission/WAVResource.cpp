@@ -215,15 +215,10 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
     auto pcm_reader = wav_reader.getReader( sound_data_size );
 
     if(fmt_data.bits_per_sample == 16) {
-        size_t head = 0;
-        audio_stream.resize( pcm_reader.totalSize() );
-        while( !pcm_reader.ended() ) {
-            reinterpret_cast<int16_t*>(audio_stream.data())[head] = pcm_reader.readI16( Utilities::Buffer::Endian::LITTLE );
-            head++;
-        }
+        setAudioStream(pcm_reader, 2, Utilities::Buffer::Endian::LITTLE);
     }
     else // if(fmt_data.bits_per_sample == 8) {
-        setAudioStream(pcm_reader);
+        setAudioStream(pcm_reader, 1, Utilities::Buffer::Endian::NO_SWAP);
 
     return true;
 }
@@ -275,22 +270,38 @@ void Data::Mission::WAVResource::updateDependices() {
     byte_rate = sample_rate * block_align;
 }
 
-bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &reader ) {
+bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian ) {
     if( !reader.empty() )
     {
-        audio_stream.reserve( audio_stream.size() + reader.totalSize() );
-        while( !reader.ended() ) {
-            audio_stream.push_back( reader.readU8() );
+        size_t head = audio_stream.size() / bytes_per_sample;
+
+        audio_stream.resize( audio_stream.size() + reader.totalSize() );
+
+        if(bytes_per_sample == 1) {
+            while( !reader.ended() ) {
+                audio_stream[head] = reader.readU8();
+                head++;
+            }
+            return true;
         }
-        return true;
+        else if(bytes_per_sample == 2) {
+            audio_stream.resize( reader.totalSize() );
+            while( !reader.ended() ) {
+                reinterpret_cast<int16_t*>(audio_stream.data())[head] = reader.readI16( endian );
+                head++;
+            }
+            return true;
+        }
+        else
+            return false;
     }
     else
         return false;
 }
 
-bool Data::Mission::WAVResource::setAudioStream( Utilities::Buffer::Reader &reader ) {
+bool Data::Mission::WAVResource::setAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian  ) {
     audio_stream.clear();
-    return addAudioStream( reader );
+    return addAudioStream( reader, bytes_per_sample, endian );
 }
 
 void Data::Mission::WAVResource::updateAudioStreamLength() {

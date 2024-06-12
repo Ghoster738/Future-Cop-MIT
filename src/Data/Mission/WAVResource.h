@@ -49,14 +49,14 @@ public:
      * @param reader This holds the reader to the data.
      * @return If the reader is valid or non-empty this should return true.
      */
-    bool addAudioStream( Utilities::Buffer::Reader &reader );
+    bool addAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian );
 
     /**
      * This copies the buffer into the audio_stream. Warning this will clear audio_stream's
      * original content.
      * @note This function will advance the reader! 
      */
-    bool setAudioStream( Utilities::Buffer::Reader &reader );
+    bool setAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian );
 
     void updateAudioStreamLength();
 
