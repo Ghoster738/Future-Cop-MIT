@@ -6,10 +6,10 @@
 
 namespace {
     const uint32_t TAG_CHUNK_ID = 0x52494646; // which is { 0x52, 0x49, 0x46, 0x46 } or { 'R', 'I', 'F', 'F' } or "RIFF"
-    const uint32_t TAG_FORMAT = 0x57415645; // which is { 0x57, 0x41, 0x56, 0x45 } or { 'W', 'A', 'V', 'E' } or "WAVE"
-    const uint32_t TAG_FMT_ID = 0x666d7420; // which is { 0x66, 0x6d, 0x74, 0x20 } or { 'f', 'm', 't', ' ' } or "fmt "
-    const uint32_t TAG_DATA_ID = 0x64617461; // which is { 0x64, 0x61, 0x74, 0x61 } or { 'd', 'a', 't', 'a' } or "data"
-    const uint32_t TAG_SMPL_ID = 0x736D706C; // which is { 0x73, 0x6D, 0x70, 0x6C } or { 's', 'm', 'p', 'l' } or "smpl"
+    const uint32_t TAG_FORMAT   = 0x57415645; // which is { 0x57, 0x41, 0x56, 0x45 } or { 'W', 'A', 'V', 'E' } or "WAVE"
+    const uint32_t TAG_FMT_ID   = 0x666d7420; // which is { 0x66, 0x6d, 0x74, 0x20 } or { 'f', 'm', 't', ' ' } or "fmt "
+    const uint32_t TAG_DATA_ID  = 0x64617461; // which is { 0x64, 0x61, 0x74, 0x61 } or { 'd', 'a', 't', 'a' } or "data"
+    const uint32_t TAG_SMPL_ID  = 0x736D706C; // which is { 0x73, 0x6D, 0x70, 0x6C } or { 's', 'm', 'p', 'l' } or "smpl"
     const size_t LOOP_LIMIT = 4;
 
     struct FMTData {
