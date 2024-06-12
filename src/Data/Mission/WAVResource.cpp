@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <fstream>
+#include <cassert>
 
 namespace {
     const uint32_t TAG_CHUNK_ID = 0x52494646; // which is { 0x52, 0x49, 0x46, 0x46 } or { 'R', 'I', 'F', 'F' } or "RIFF"
@@ -9,7 +10,6 @@ namespace {
     const uint32_t TAG_FMT_ID = 0x666d7420; // which is { 0x66, 0x6d, 0x74, 0x20 } or { 'f', 'm', 't', ' ' } or "fmt "
     const uint32_t TAG_DATA_ID = 0x64617461; // which is { 0x64, 0x61, 0x74, 0x61 } or { 'd', 'a', 't', 'a' } or "data"
     const uint32_t TAG_SMPL_ID = 0x736D706C; // which is { 0x73, 0x6D, 0x70, 0x6C } or { 's', 'm', 'p', 'l' } or "smpl"
-    const size_t DATA_START_FROM_HEADER = 0x2C;
     const size_t LOOP_LIMIT = 4;
 
     struct FMTData {
@@ -356,12 +356,19 @@ int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool i
 
     if( resource.is_open() )
     {
+        const size_t WAV_TAG_SIZE = sizeof(uint32_t);
+        const size_t CHUNK_SIZE = sizeof(uint32_t) + sizeof(uint32_t);
+        const size_t FMT_SIZE = sizeof(FMTData::format_tag) + sizeof(FMTData::num_channels) + sizeof(FMTData::samples_per_sec) + sizeof(FMTData::avg_bytes_per_sec) + sizeof(FMTData::block_align) + sizeof(FMTData::bits_per_sample);
+        const size_t RIFF_SIZE = WAV_TAG_SIZE + (CHUNK_SIZE + FMT_SIZE) + (CHUNK_SIZE + audio_stream.size());
+
+        assert(FMT_SIZE == 16);
+
         header.addU32( TAG_CHUNK_ID, Utilities::Buffer::Endian::BIG );
-        header.addU32( audio_stream.size() + DATA_START_FROM_HEADER - 8, Utilities::Buffer::Endian::LITTLE );
+        header.addU32( RIFF_SIZE, Utilities::Buffer::Endian::LITTLE );
 
         header.addU32( TAG_FORMAT, Utilities::Buffer::Endian::BIG );
         header.addU32( TAG_FMT_ID, Utilities::Buffer::Endian::BIG );
-        header.addU32( 16, Utilities::Buffer::Endian::LITTLE );
+        header.addU32( FMT_SIZE, Utilities::Buffer::Endian::LITTLE );
         header.addU16( 1, Utilities::Buffer::Endian::LITTLE ); // Set it to Microsoft PCM.
         header.addU16( num_channels, Utilities::Buffer::Endian::LITTLE );
         header.addU32( sample_rate, Utilities::Buffer::Endian::LITTLE );
