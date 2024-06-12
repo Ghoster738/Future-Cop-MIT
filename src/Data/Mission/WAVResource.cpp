@@ -36,6 +36,8 @@ namespace {
         uint32_t midi_pitch_fraction;
         uint32_t smpte_format;
         uint32_t smpte_offset;
+        // loop_data_length
+        uint32_t sample_data;
         std::vector<SampleLoopData> loop_data;
     };
 }
@@ -185,6 +187,11 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
 
                 sample_data.loop_data.resize(loop_amount);
 
+                sample_data.sample_data = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
+
+                if(sample_data.sample_data != 0)
+                    error_log.output << "sample_data.sample_data = " << sample_data.sample_data << ".\n";
+
                 for(size_t i = 0; i < sample_data.loop_data.size(); i++) {
                     sample_data.loop_data[i].id            = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                     sample_data.loop_data[i].type          = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
@@ -192,6 +199,17 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                     sample_data.loop_data[i].end           = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                     sample_data.loop_data[i].fraction      = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                     sample_data.loop_data[i].repeat_amount = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
+
+                    if(sample_data.loop_data[i].id != 0)
+                        debug_log.output << "sample_data.loop_data[" << i << "].id = " << sample_data.loop_data[i].id << ".\n";
+                    if(sample_data.loop_data[i].type != 0)
+                        debug_log.output << "sample_data.loop_data[" << i << "].type = " << sample_data.loop_data[i].type << ".\n";
+                    debug_log.output << "sample_data.loop_data[" << i << "].start = " << sample_data.loop_data[i].start << ".\n";
+                    debug_log.output << "sample_data.loop_data[" << i << "].end = " << sample_data.loop_data[i].end << ".\n";
+                    if(sample_data.loop_data[i].fraction != 0)
+                        debug_log.output << "sample_data.loop_data[" << i << "].fraction = " << sample_data.loop_data[i].fraction << ".\n";
+                    if(sample_data.loop_data[i].repeat_amount != 0)
+                        debug_log.output << "sample_data.loop_data[" << i << "].repeat_amount = " << sample_data.loop_data[i].repeat_amount << ".\n";
                 }
 
                 found_sample_chunk = true;
