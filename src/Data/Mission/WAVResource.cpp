@@ -10,7 +10,7 @@ namespace {
     const uint32_t TAG_DATA_ID = 0x64617461; // which is { 0x64, 0x61, 0x74, 0x61 } or { 'd', 'a', 't', 'a' } or "data"
     const uint32_t TAG_SMPL_ID = 0x736D706C; // which is { 0x73, 0x6D, 0x70, 0x6C } or { 's', 'm', 'p', 'l' } or "smpl"
     const size_t DATA_START_FROM_HEADER = 0x2C;
-    const size_t LOOP_LIMIT = 0x10;
+    const size_t LOOP_LIMIT = 4;
 
     struct FMTData {
         uint16_t format_tag;
@@ -33,6 +33,7 @@ namespace {
         uint32_t product;
         uint32_t sample_period_nanoseconds;
         uint32_t midi_note;
+        uint32_t midi_pitch_fraction;
         uint32_t smpte_format;
         uint32_t smpte_offset;
         std::vector<SampleLoopData> loop_data;
@@ -43,7 +44,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
-    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -152,10 +153,28 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                 sample_data.product                   = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                 sample_data.sample_period_nanoseconds = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                 sample_data.midi_note                 = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
+                sample_data.midi_pitch_fraction       = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                 sample_data.smpte_format              = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
                 sample_data.smpte_offset              = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
 
-                auto loop_amount = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE );
+                if(sample_data.manufacturer != 0)
+                    debug_log.output << "sample_data.manufacturer = " << sample_data.manufacturer << ".\n";
+                if(sample_data.product != 0)
+                    debug_log.output << "sample_data.product = " << sample_data.product << ".\n";
+                debug_log.output << "sample_data.sample_period_nanoseconds = " << sample_data.sample_period_nanoseconds << ".\n";
+                if(sample_data.midi_note != 60)
+                    debug_log.output << "sample_data.midi_note = " << sample_data.midi_note << ".\n";
+                if(sample_data.midi_pitch_fraction != 0)
+                    debug_log.output << "sample_data.midi_pitch_fraction = " << sample_data.midi_pitch_fraction << ".\n";
+                if(sample_data.smpte_format != 0)
+                    debug_log.output << "sample_data.smpte_format = " << sample_data.smpte_format << ".\n";
+                if(sample_data.smpte_offset != 0)
+                    debug_log.output << "sample_data.smpte_offset = " << sample_data.smpte_offset << ".\n";
+
+                auto loop_amount = chunk_reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 0-
+
+                if(loop_amount != 1)
+                    debug_log.output << "loop_amount = " << loop_amount << ".\n";
 
                 if(loop_amount > LOOP_LIMIT) {
                     warning_log.output << "Loop limit of " << LOOP_LIMIT << " reached.\n";
