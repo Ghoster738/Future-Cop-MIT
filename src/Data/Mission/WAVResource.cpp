@@ -271,13 +271,12 @@ void Data::Mission::WAVResource::updateDependices() {
 }
 
 bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian ) {
-    if( !reader.empty() )
-    {
+    if( !reader.empty() ) {
         size_t head = audio_stream.size() / bytes_per_sample;
 
-        audio_stream.resize( audio_stream.size() + reader.totalSize() );
-
         if(bytes_per_sample == 1) {
+            audio_stream.resize( audio_stream.size() + reader.totalSize() );
+
             while( !reader.ended() ) {
                 audio_stream[head] = reader.readU8();
                 head++;
@@ -285,7 +284,8 @@ bool Data::Mission::WAVResource::addAudioStream( Utilities::Buffer::Reader &read
             return true;
         }
         else if(bytes_per_sample == 2) {
-            audio_stream.resize( reader.totalSize() );
+            audio_stream.resize( audio_stream.size() + reader.totalSize() );
+
             while( !reader.ended() ) {
                 reinterpret_cast<int16_t*>(audio_stream.data())[head] = reader.readI16( endian );
                 head++;
