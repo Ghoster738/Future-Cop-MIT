@@ -251,11 +251,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
     wav_reader.setPosition( sound_data_offset, Utilities::Buffer::BEGIN );
     auto pcm_reader = wav_reader.getReader( sound_data_size );
 
-    if(fmt_data.bits_per_sample == 16) {
-        setAudioStream(pcm_reader, 2, Utilities::Buffer::Endian::LITTLE);
-    }
-    else // if(fmt_data.bits_per_sample == 8) {
-        setAudioStream(pcm_reader, 1, Utilities::Buffer::Endian::NO_SWAP);
+    setAudioStream(pcm_reader, fmt_data.bits_per_sample / 8, Utilities::Buffer::Endian::LITTLE);
 
     return true;
 }

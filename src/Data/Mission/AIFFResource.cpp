@@ -234,12 +234,7 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
 
         auto chunk_reader = aiff_reader.getReader( tag_size - 2 * sizeof(uint32_t) );
 
-        if(comm_data.sample_bit_size == 16) {
-            setAudioStream(chunk_reader, 2, Utilities::Buffer::Endian::BIG);
-        }
-        else { // if(comm_data.sample_bit_size == 8) {
-            setAudioStream(chunk_reader, 1, Utilities::Buffer::Endian::BIG);
-        }
+        setAudioStream(chunk_reader, comm_data.sample_bit_size / 8, Utilities::Buffer::Endian::BIG);
 
         return true;
     }
