@@ -361,11 +361,11 @@ int Data::Mission::WAVResource::write( const std::string& file_path, const Data:
         return writeRaw(file_path, iff_options);
 }
 
-int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool is_dry ) const {
+int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool is_not_dry ) const {
     std::ofstream resource;
     Utilities::Buffer header;
 
-    if( is_dry )
+    if( is_not_dry )
         resource.open( file_path + "." + Data::Mission::WAVResource::FILE_EXTENSION, std::ios::binary | std::ios::out );
 
     if( resource.is_open() )
