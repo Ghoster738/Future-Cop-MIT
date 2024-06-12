@@ -19,6 +19,8 @@ protected:
     uint_fast32_t audio_stream_length;
     uint_fast32_t sample_rate; // Can be 44100Hz, 22050Hz, etc.
     uint_fast32_t byte_rate; // sample_rate * num_channels * bits_per_sample / 8
+    uint_fast32_t loop_begin;
+    uint_fast32_t loop_end;
     uint_fast16_t block_align; // num_channels * bits_per_sample / 8
     uint_fast8_t  num_channels; // 1 for mono. 2 for stereo.
     uint_fast8_t  bits_per_sample;
@@ -41,6 +43,10 @@ public:
     uint_fast8_t getBitsPerSample() const { return bits_per_sample; }
     uint_fast32_t getTotalPCMBytes() const { return audio_stream_length; }
     const uint8_t *const getPCMData() const { return audio_stream.data(); }
+
+    bool hasLoop() const { return loop_begin < loop_end; }
+    uint_fast32_t getLoopBeginSample() const { return loop_begin; }
+    uint_fast32_t getLoopEndSample() const { return loop_end; }
 
     /**
      * This adds new data to the back of the member variable audio_stream.

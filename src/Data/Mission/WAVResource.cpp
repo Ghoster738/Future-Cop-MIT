@@ -255,19 +255,38 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
 
     setAudioStream(pcm_reader, fmt_data.bits_per_sample / 8, Utilities::Buffer::Endian::LITTLE);
 
+    if(found_sample_chunk && !sample_data.loop_data.empty()) {
+        const size_t sample_amount = audio_stream_length / (fmt_data.bits_per_sample / 8);
+
+        if(sample_data.loop_data.size() > 1)
+            warning_log.output << "There are multiple loop data in the smpl chunk. Only the first loop will be parsed by this engine.\n";
+
+        if(sample_data.loop_data[0].start >= sample_amount)
+            warning_log.output << "Loop start (" << std::dec << sample_data.loop_data[0].start << ") is goes beyond " << sample_amount << " total samples. Ignoring.\n";
+        else
+            this->loop_begin = sample_data.loop_data[0].start;
+
+        if(sample_data.loop_data[0].end >= sample_amount)
+            warning_log.output << "Loop end (" << std::dec << sample_data.loop_data[0].end << ") is goes beyond " << sample_amount << " total samples. Ignoring.\n";
+        else
+            this->loop_end = sample_data.loop_data[0].end;
+    }
+
     return true;
 }
 
 const std::string Data::Mission::WAVResource::FILE_EXTENSION = "wav";
 const uint32_t Data::Mission::WAVResource::IDENTIFIER_TAG = 0x43776176; // which is { 0x43, 0x77, 0x61, 0x76 } or { 'C', 'w', 'a', 'v' } or "Cwav"
 
-Data::Mission::WAVResource::WAVResource() : audio_stream(), audio_stream_length(0), sample_rate(22050), byte_rate(0), block_align(0), num_channels(1), bits_per_sample(8) {
+Data::Mission::WAVResource::WAVResource() : audio_stream(), audio_stream_length(0), sample_rate(22050), byte_rate(0), loop_begin(0), loop_end(0), block_align(0), num_channels(1), bits_per_sample(8) {
     updateDependices();
+
+    assert(!hasLoop());
 }
 
 Data::Mission::WAVResource::WAVResource( const WAVResource &obj ) : Resource( obj ),
     audio_stream(obj.audio_stream),
-    audio_stream_length(obj.audio_stream_length), sample_rate(obj.sample_rate), byte_rate(obj.byte_rate), block_align(obj.block_align), num_channels(obj.num_channels), bits_per_sample(obj.bits_per_sample) {}
+    audio_stream_length(obj.audio_stream_length), sample_rate(obj.sample_rate), byte_rate(obj.byte_rate), loop_begin(obj.loop_begin), loop_end(obj.loop_end), block_align(obj.block_align), num_channels(obj.num_channels), bits_per_sample(obj.bits_per_sample) {}
 
 std::string Data::Mission::WAVResource::getFileExtension() const {
     return FILE_EXTENSION;
