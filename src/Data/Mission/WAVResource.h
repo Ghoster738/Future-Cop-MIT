@@ -13,10 +13,10 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
 protected:
-    unsigned int channel_number; // 1 for mono.
+    unsigned int num_channels; // 1 for mono.
     unsigned int sample_rate; // For example 44100
-    unsigned int byte_rate; // sample_rate * channel_number * bits_per_sample / 8
-    unsigned int block_align; // channel_number * bits_per_sample / 8
+    unsigned int byte_rate; // sample_rate * num_channels * bits_per_sample / 8
+    unsigned int block_align; // num_channels * bits_per_sample / 8
     unsigned int bits_per_sample;
 
     std::vector<uint8_t> audio_stream;
@@ -32,12 +32,12 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    void setChannelNumber( int channel_number );
+    void setChannelNumber( int num_channels );
     void setSampleRate( int sample_rate );
     void setBitsPerSample( int bits_per_sample );
     void updateDependices();
 
-    int getChannelNumber() const { return channel_number; }
+    int getChannelNumber() const { return num_channels; }
     int getSampleRate() const { return sample_rate; }
     int getBitsPerSample() const { return bits_per_sample; }
     int getTotalPCMBytes() const { return audio_stream_length; }

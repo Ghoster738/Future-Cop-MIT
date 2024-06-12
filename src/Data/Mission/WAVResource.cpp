@@ -193,7 +193,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
         return false;
     }
 
-    this->channel_number  = fmt_data.num_channels;
+    this->num_channels  = fmt_data.num_channels;
     this->sample_rate     = fmt_data.samples_per_sec;
     this->bits_per_sample = fmt_data.bits_per_sample;
     updateDependices();
@@ -232,7 +232,7 @@ const std::string Data::Mission::WAVResource::FILE_EXTENSION = "wav";
 const uint32_t Data::Mission::WAVResource::IDENTIFIER_TAG = 0x43776176; // which is { 0x43, 0x77, 0x61, 0x76 } or { 'C', 'w', 'a', 'v' } or "Cwav"
 
 Data::Mission::WAVResource::WAVResource() {
-    channel_number = 1;
+    num_channels = 1;
     sample_rate = 44100;
     bits_per_sample = 8;
     updateDependices();
@@ -240,7 +240,7 @@ Data::Mission::WAVResource::WAVResource() {
 }
 
 Data::Mission::WAVResource::WAVResource( const WAVResource &obj ) : Resource( obj ) {
-    channel_number = obj.channel_number;
+    num_channels = obj.num_channels;
     sample_rate = obj.sample_rate;
     bits_per_sample = obj.bits_per_sample;
     updateDependices();
@@ -255,8 +255,8 @@ uint32_t Data::Mission::WAVResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-void Data::Mission::WAVResource::setChannelNumber( int channel_number ) {
-    this->channel_number = channel_number;
+void Data::Mission::WAVResource::setChannelNumber( int num_channels ) {
+    this->num_channels = num_channels;
     updateDependices(); // This might affect the speed, but only a little bit.
 }
 
@@ -271,7 +271,7 @@ void Data::Mission::WAVResource::setBitsPerSample( int bits_per_sample ) {
 }
 
 void Data::Mission::WAVResource::updateDependices() {
-    block_align = channel_number * bits_per_sample / 8;
+    block_align = num_channels * bits_per_sample / 8;
     byte_rate = sample_rate * block_align;
 }
 
@@ -317,7 +317,7 @@ int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool i
         header.addU32( TAG_FMT_ID, Utilities::Buffer::Endian::BIG );
         header.addU32( 16, Utilities::Buffer::Endian::LITTLE );
         header.addU16( 1, Utilities::Buffer::Endian::LITTLE ); // Set it to Microsoft PCM.
-        header.addU16( channel_number, Utilities::Buffer::Endian::LITTLE );
+        header.addU16( num_channels, Utilities::Buffer::Endian::LITTLE );
         header.addU32( sample_rate, Utilities::Buffer::Endian::LITTLE );
         header.addU32( byte_rate, Utilities::Buffer::Endian::LITTLE );
         header.addU16( block_align, Utilities::Buffer::Endian::LITTLE );
