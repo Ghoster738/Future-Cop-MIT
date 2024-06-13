@@ -6,6 +6,7 @@ namespace {
     const uint32_t TAG_COMM_ID = 0x434F4D4D; // which is { 0x43, 0x4F, 0x4D, 0x4D } or { 'C', 'O', 'M', 'M' } or "COMM"
     const uint32_t TAG_SSND_ID = 0x53534E44; // which is { 0x53, 0x53, 0x4E, 0x44 } or { 'S', 'S', 'N', 'D' } or "SSND"
     const uint32_t TAG_INST_ID = 0x494E5354; // which is { 0x49, 0x4E, 0x53, 0x54 } or { 'I', 'N', 'S', 'T' } or "INST"
+    const uint32_t TAG_MARK_ID = 0x4D41524B; // which is { 0x4D, 0x41, 0x52, 0x4B } or { 'M', 'A', 'R', 'K' } or "MARK"
 
     struct COMMData {
         // The data is not placed in the order that they are in the file format.
@@ -21,8 +22,8 @@ namespace {
     };
     struct Loop {
         uint16_t play_mode; // 0 no looping, 1 forward looping, 2 forward back looping.
-        uint16_t start_loop;
-        uint16_t end_loop;
+        uint16_t start_loop_marker_id;
+        uint16_t end_loop_marker_id;
     };
     struct INSTData {
         Loop sustain_loop;
@@ -34,6 +35,14 @@ namespace {
         uint8_t high_note;
         uint8_t low_velocity;
         uint8_t high_velocity;
+    };
+    struct Marker {
+        uint16_t id;
+        uint32_t position;
+        std::string name; // This is translated from a pascal string.
+    };
+    struct MarkData {
+        std::vector<Marker> marker;
     };
 }
 
@@ -83,6 +92,8 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
     bool found_ssnd_chunk = false;
     INSTData inst_data;
     bool found_inst_chunk = false;
+    MarkData mark_data;
+    bool found_mark_chunk = false;
 
     while( aiff_reader.getPosition() < aiff_reader.totalSize() ) {
         auto aiff_chunk_offset = aiff_reader.getPosition();
@@ -177,6 +188,36 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                 found_ssnd_chunk = true;
             }
             break;
+            case TAG_MARK_ID:
+            {
+                if(found_mark_chunk) {
+                    error_log.output << "Only one MARK chunk for each AIFF file.\n";
+                    return false;
+                }
+
+                mark_data.marker.resize(chunk_reader.readU16( Utilities::Buffer::Endian::BIG ));
+
+                for( Marker &marker : mark_data.marker ) {
+                    marker.id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                    marker.position = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
+
+                    marker.name.resize(chunk_reader.readU8(), '@');
+
+                    for(std::string::value_type &c : marker.name) {
+                        if(c != '\0')
+                            c = chunk_reader.readI8();
+                        else
+                            break;
+                    }
+                    error_log.output << marker.name << "\n";
+
+                    if(marker.name.size() % 2 == 0)
+                        chunk_reader.readU8();
+                }
+
+                found_mark_chunk = true;
+            }
+            break;
             case TAG_INST_ID:
             {
                 if(found_inst_chunk) {
@@ -191,12 +232,14 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                 inst_data.low_velocity = chunk_reader.readU8();
                 inst_data.high_velocity = chunk_reader.readU8();
                 inst_data.gain = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+
                 inst_data.sustain_loop.play_mode = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
-                inst_data.sustain_loop.start_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
-                inst_data.sustain_loop.end_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.sustain_loop.start_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.sustain_loop.end_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+
                 inst_data.release_loop.play_mode = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
-                inst_data.release_loop.start_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
-                inst_data.release_loop.end_loop = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.release_loop.start_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+                inst_data.release_loop.end_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
 
                 found_inst_chunk = true;
             }
