@@ -348,6 +348,18 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
 
         updateAudioStreamLength();
 
+        if(found_inst_chunk && mark_data.marker.size() >= 2 && inst_data.sustain_loop.play_mode == 1) {
+            this->loop_begin = 0;
+            this->loop_end = 0;
+
+            for(const Marker &marker : mark_data.marker ) {
+                if(inst_data.sustain_loop.start_loop_marker_id == marker.id)
+                    this->loop_begin = marker.position;
+                if(inst_data.sustain_loop.end_loop_marker_id == marker.id)
+                    this->loop_end = marker.position;
+            }
+        }
+
         return true;
     }
 
