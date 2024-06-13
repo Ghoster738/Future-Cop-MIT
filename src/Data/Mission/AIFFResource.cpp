@@ -246,33 +246,34 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                 inst_data.release_loop.end_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
 
                 if(inst_data.base_note != 60)
-                    error_log.output << "inst_data.base_note "<< std::dec << static_cast<unsigned>(inst_data.base_note) << ".\n";
+                    warning_log.output << "inst_data.base_note "<< std::dec << static_cast<unsigned>(inst_data.base_note) << ".\n";
 
                 if(inst_data.detune != 0)
-                    error_log.output << "inst_data.detune "<< std::dec << static_cast<unsigned>(inst_data.detune) << ".\n";
+                    warning_log.output << "inst_data.detune "<< std::dec << static_cast<unsigned>(inst_data.detune) << ".\n";
 
                 if(inst_data.low_note != 0)
-                    error_log.output << "inst_data.low_note "<< std::dec << static_cast<unsigned>(inst_data.low_note) << ".\n";
+                    warning_log.output << "inst_data.low_note "<< std::dec << static_cast<unsigned>(inst_data.low_note) << ".\n";
 
                 if(inst_data.high_note != 127)
-                    error_log.output << "inst_data.high_note "<< std::dec << static_cast<unsigned>(inst_data.high_note) << ".\n";
+                    warning_log.output << "inst_data.high_note "<< std::dec << static_cast<unsigned>(inst_data.high_note) << ".\n";
 
-                if(inst_data.low_velocity != 0)
-                    debug_log.output << "inst_data.low_velocity "<< std::dec << static_cast<unsigned>(inst_data.low_velocity) << ".\n";
+                if(inst_data.low_velocity != 0 && inst_data.low_velocity != 1)
+                    warning_log.output << "inst_data.low_velocity "<< std::dec << static_cast<unsigned>(inst_data.low_velocity) << ".\n";
 
-                debug_log.output << "inst_data.high_velocity "<< std::dec << static_cast<unsigned>(inst_data.high_velocity) << ".\n";
+                if(inst_data.high_velocity != 0 && inst_data.high_velocity != 1 && inst_data.high_velocity != 45 && inst_data.high_velocity != 110 && inst_data.high_velocity != 111 && inst_data.high_velocity != 127)
+                    warning_log.output << "inst_data.high_velocity "<< std::dec << static_cast<unsigned>(inst_data.high_velocity) << ".\n";
 
                 if(inst_data.gain != 0 && inst_data.gain != 60)
-                    error_log.output << "inst_data.gain "<< std::dec << static_cast<unsigned>(inst_data.gain) << ".\n";
+                    warning_log.output << "inst_data.gain "<< std::dec << static_cast<unsigned>(inst_data.gain) << ".\n";
 
                 if(inst_data.sustain_loop.play_mode == 1) {
                     if(inst_data.sustain_loop.start_loop_marker_id == 0)
-                        error_log.output << " Start of loop has zero marker id.\n";
+                        warning_log.output << " Start of loop has zero marker id.\n";
                     if(inst_data.sustain_loop.end_loop_marker_id == 0)
-                        error_log.output << " End of loop has zero marker id.\n";
+                        warning_log.output << " End of loop has zero marker id.\n";
                 }
                 else if(inst_data.sustain_loop.play_mode != 0) {
-                    error_log.output << "Play mode (" << std::dec << static_cast<unsigned>(inst_data.sustain_loop.play_mode) << ") of sustain loop of inst is not supported in this engine.\n";
+                    warning_log.output << "Play mode (" << std::dec << static_cast<unsigned>(inst_data.sustain_loop.play_mode) << ") of sustain loop of inst is not supported in this engine.\n";
                 }
 
                 if(inst_data.release_loop.play_mode != 0)
