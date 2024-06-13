@@ -3,6 +3,7 @@
 namespace {
     const uint32_t TAG_FORM_ID = 0x464F524D; // which is { 0x46, 0x4F, 0x52, 0x4D } or { 'F', 'O', 'R', 'M' } or "FORM"
     const uint32_t TAG_AIFF_ID = 0x41494646; // which is { 0x41, 0x49, 0x46, 0x46 } or { 'A', 'I', 'F', 'F' } or "AIFF"
+    const uint32_t TAG_APPL_ID = 0x4150504C; // which is { 0x41, 0x50, 0x50, 0x4C } or { 'A', 'P', 'P', 'L' } or "APPL"
     const uint32_t TAG_COMM_ID = 0x434F4D4D; // which is { 0x43, 0x4F, 0x4D, 0x4D } or { 'C', 'O', 'M', 'M' } or "COMM"
     const uint32_t TAG_SSND_ID = 0x53534E44; // which is { 0x53, 0x53, 0x4E, 0x44 } or { 'S', 'S', 'N', 'D' } or "SSND"
     const uint32_t TAG_INST_ID = 0x494E5354; // which is { 0x49, 0x4E, 0x53, 0x54 } or { 'I', 'N', 'S', 'T' } or "INST"
@@ -107,6 +108,32 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
         auto chunk_reader = aiff_reader.getReader( tag_size );
 
         switch(identifier) {
+            case TAG_APPL_ID:
+            {
+                if(tag_size < sizeof(uint32_t))
+                    warning_log.output << "APPL size is too small " << std::dec << tag_size << ". Skipping APPL chunk\n";
+                else {
+                    auto os_type = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
+
+                    if(os_type != 0x6175464d) // auFM is the only known chunk used in Future Cop.
+                        warning_log.output << "OSType " << static_cast<char>(os_type >> 24) << static_cast<char>(os_type >> 16) << static_cast<char>(os_type >> 8)<< static_cast<char>(os_type) << ".\n";
+                    else {
+                        if(tag_size >= sizeof(uint32_t) + sizeof(uint16_t)) {
+                            if(tag_size > sizeof(uint32_t) + sizeof(uint16_t))
+                                warning_log.output << "APPL size is a bit bigger than normal " << std::dec << tag_size << ".\n";
+
+                            for(size_t i = 0; i < tag_size - sizeof(uint32_t); i++) {
+                                unsigned data_byte = chunk_reader.readU8();
+
+                                if(data_byte != 0) {
+                                    warning_log.output << "APPL data_byte[" << i << "] = " << std::dec << data_byte << ".\n";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            break;
             case TAG_COMM_ID:
             {
                 if(found_comm_chunk) {
