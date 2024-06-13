@@ -108,32 +108,6 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
         auto chunk_reader = aiff_reader.getReader( tag_size );
 
         switch(identifier) {
-            case TAG_APPL_ID:
-            {
-                if(tag_size < sizeof(uint32_t))
-                    warning_log.output << "APPL size is too small " << std::dec << tag_size << ". Skipping APPL chunk\n";
-                else {
-                    auto os_type = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
-
-                    if(os_type != 0x6175464d) // auFM is the only known chunk used in Future Cop.
-                        warning_log.output << "OSType " << static_cast<char>(os_type >> 24) << static_cast<char>(os_type >> 16) << static_cast<char>(os_type >> 8)<< static_cast<char>(os_type) << ".\n";
-                    else {
-                        if(tag_size >= sizeof(uint32_t) + sizeof(uint16_t)) {
-                            if(tag_size > sizeof(uint32_t) + sizeof(uint16_t))
-                                warning_log.output << "APPL size is a bit bigger than normal " << std::dec << tag_size << ".\n";
-
-                            for(size_t i = 0; i < tag_size - sizeof(uint32_t); i++) {
-                                unsigned data_byte = chunk_reader.readU8();
-
-                                if(data_byte != 0) {
-                                    warning_log.output << "APPL data_byte[" << i << "] = " << std::dec << data_byte << ".\n";
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            break;
             case TAG_COMM_ID:
             {
                 if(found_comm_chunk) {
@@ -307,6 +281,34 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                     warning_log.output << "Release loop of inst is not used. So, it is being ignored. Play mode code is "<< std::dec << static_cast<unsigned>(inst_data.release_loop.play_mode) << ".\n";
 
                 found_inst_chunk = true;
+            }
+            break;
+            case TAG_APPL_ID:
+            {
+                // This is metadata. I doubt its importance but it exists.
+
+                if(tag_size < sizeof(uint32_t))
+                    warning_log.output << "APPL size is too small " << std::dec << tag_size << ". Skipping APPL chunk\n";
+                else {
+                    auto os_type = chunk_reader.readU32( Utilities::Buffer::Endian::BIG );
+
+                    if(os_type != 0x6175464d) // auFM is the only known chunk used in Future Cop.
+                        warning_log.output << "OSType " << static_cast<char>(os_type >> 24) << static_cast<char>(os_type >> 16) << static_cast<char>(os_type >> 8)<< static_cast<char>(os_type) << ".\n";
+                    else {
+                        if(tag_size >= sizeof(uint32_t) + sizeof(uint16_t)) {
+                            if(tag_size > sizeof(uint32_t) + sizeof(uint16_t))
+                                warning_log.output << "APPL size is a bit bigger than normal " << std::dec << tag_size << ".\n";
+
+                            for(size_t i = 0; i < tag_size - sizeof(uint32_t); i++) {
+                                unsigned data_byte = chunk_reader.readU8();
+
+                                if(data_byte != 0) {
+                                    warning_log.output << "APPL data_byte[" << i << "] = " << std::dec << data_byte << ".\n";
+                                }
+                            }
+                        }
+                    }
+                }
             }
             break;
             default:
