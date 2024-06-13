@@ -67,6 +67,10 @@ uint32_t AIFFResource::getResourceTagID() const {
 bool AIFFResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     auto reader = this->data_p->getReader();
 
@@ -209,8 +213,8 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                         else
                             break;
                     }
-                    error_log.output << marker.name << "\n";
 
+                    // AIFF does not like odd lengths
                     if(marker.name.size() % 2 == 0)
                         chunk_reader.readU8();
                 }
@@ -240,6 +244,39 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
                 inst_data.release_loop.play_mode = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
                 inst_data.release_loop.start_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
                 inst_data.release_loop.end_loop_marker_id = chunk_reader.readU16( Utilities::Buffer::Endian::BIG );
+
+                if(inst_data.base_note != 60)
+                    error_log.output << "inst_data.base_note "<< std::dec << static_cast<unsigned>(inst_data.base_note) << ".\n";
+
+                if(inst_data.detune != 0)
+                    error_log.output << "inst_data.detune "<< std::dec << static_cast<unsigned>(inst_data.detune) << ".\n";
+
+                if(inst_data.low_note != 0)
+                    error_log.output << "inst_data.low_note "<< std::dec << static_cast<unsigned>(inst_data.low_note) << ".\n";
+
+                if(inst_data.high_note != 127)
+                    error_log.output << "inst_data.high_note "<< std::dec << static_cast<unsigned>(inst_data.high_note) << ".\n";
+
+                if(inst_data.low_velocity != 0)
+                    debug_log.output << "inst_data.low_velocity "<< std::dec << static_cast<unsigned>(inst_data.low_velocity) << ".\n";
+
+                debug_log.output << "inst_data.high_velocity "<< std::dec << static_cast<unsigned>(inst_data.high_velocity) << ".\n";
+
+                if(inst_data.gain != 0 && inst_data.gain != 60)
+                    error_log.output << "inst_data.gain "<< std::dec << static_cast<unsigned>(inst_data.gain) << ".\n";
+
+                if(inst_data.sustain_loop.play_mode == 1) {
+                    if(inst_data.sustain_loop.start_loop_marker_id == 0)
+                        error_log.output << " Start of loop has zero marker id.\n";
+                    if(inst_data.sustain_loop.end_loop_marker_id == 0)
+                        error_log.output << " End of loop has zero marker id.\n";
+                }
+                else if(inst_data.sustain_loop.play_mode != 0) {
+                    error_log.output << "Play mode (" << std::dec << static_cast<unsigned>(inst_data.sustain_loop.play_mode) << ") of sustain loop of inst is not supported in this engine.\n";
+                }
+
+                if(inst_data.release_loop.play_mode != 0)
+                    warning_log.output << "Release loop of inst is not used. So, it is being ignored. Play mode code is "<< std::dec << static_cast<unsigned>(inst_data.release_loop.play_mode) << ".\n";
 
                 found_inst_chunk = true;
             }
