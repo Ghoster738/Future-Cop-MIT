@@ -22,6 +22,8 @@ Environment::~Environment() {
 }
 
 int Environment::initSystem() {
+    // TODO Add optional AL_SOFT_loop_points support.
+
     return 1;
 }
 
