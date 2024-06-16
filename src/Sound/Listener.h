@@ -18,8 +18,15 @@ private:
     WhichEar p_which_ear;
 
 public:
+    /**
+     * This is the constructor for this class. Only Environment should worry about this.
+     */
     Listener(WhichEar which_ear = WhichEar::BOTH);
-    virtual ~Listener();
+
+    /**
+     * This is the destructor. It is pure virtual on purpose to make this class only allocatable with Environment.
+     */
+    virtual ~Listener() = 0;
 
     /**
      * Set the position, velocity, and orientation of this listener.

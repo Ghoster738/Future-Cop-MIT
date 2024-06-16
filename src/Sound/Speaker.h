@@ -11,6 +11,7 @@ class Speaker {
 private:
     Location location;
     PlayerState speaker_state;
+    bool repeat;
 
 public:
     /**
@@ -22,7 +23,7 @@ public:
      */
     static Sound::Speaker* alloc( Environment &env, uint32_t sound_identifier );
 
-    virtual ~Speaker();
+    virtual ~Speaker() = 0;
 
     /**
      * Set the position, velocity, and direction of this speaker.
@@ -53,6 +54,17 @@ public:
      * @return The state of the speaker.
      */
     virtual PlayerState getSpeakerState() const;
+
+    /**
+     * Play the audio again?
+     * @param repeat true if the programmer wants to repeat the audio.
+     */
+    virtual void setRepeatMode(bool repeat);
+
+    /**
+     * @return true if the Speaker is set to repeat mode.
+     */
+    virtual bool getRepeatMode() const;
 };
 
 }

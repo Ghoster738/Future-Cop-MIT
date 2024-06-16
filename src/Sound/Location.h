@@ -13,6 +13,13 @@ struct Location { // TODO Find a more proper name.
     glm::vec3 velocity;
     glm::vec3 direction;
     glm::vec3 &orientation = direction;
+
+    Location& operator=(const Location& location) {
+        position  = location.position;
+        velocity  = location.velocity;
+        direction = location.direction;
+        return *this;
+    }
 };
 
 }
