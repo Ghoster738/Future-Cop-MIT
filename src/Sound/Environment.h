@@ -22,12 +22,12 @@ protected:
     Environment();
 
 public:
-    static const std::string SDL2_WITH_MOJO_AL;
-    static const std::string NO_AUDIO;
+    static constexpr uint32_t NO_AUDIO = 0;
+    static constexpr uint32_t SDL2_WITH_MOJO_AL = 1;
     
     /**
-     * When you are done with the program this should clean up the rest of the graphics.
-     * It will throw an exception if not every Element of the graphics had been manually deleted.
+     * When you are done with the program this should clean up the rest of the audio.
+     * It will throw an exception if not every Element of the audio had been manually deleted.
      */
     virtual ~Environment();
     
@@ -35,38 +35,43 @@ public:
      * This gets all the identifiers that is optionaly compiled.
      * Identifiers are used to support different rendering schemes.
      */
-    static std::vector<std::string> getAvailableIdentifiers();
+    static std::vector<uint32_t> getAvailableIdentifiers();
+
+    /**
+     * Identifier to String.
+     */
+    static std::string identifierToString(uint32_t identifer);
     
     /**
      * @return If this identifier string is supported then it would return true.
      */
-    static bool isIdentifier( const std::string &identifier );
+    static bool isIdentifier( uint32_t identifier );
     
     /**
-     * Initialize the graphics library used by this graphics system.
+     * Initialize the audio library used by this audio system.
      * @param identifier This is used to identify which environment should be allocated.
      * @return A valid pointer for success, a nullptr for failure.
      */
-    static Environment* alloc( const std::string &identifier );
+    static Environment* alloc( uint32_t identifier );
 
     /**
-     * Initialize the graphics library used by this graphics system.
+     * Initialize the audio library used by this audio system.
      * @return 1 for success. 0 for failure.
      */
-    static int initSystem( const std::string &identifier );
+    static int initSystem( uint32_t identifier );
 
     /**
      * Deinitilizes every library used by the system. Graphics, controls, and sound system will be deinitialized.
      * @return 1 for success.
      */
-    static int deinitEntireSystem( const std::string &identifier );
+    static int deinitEntireSystem( uint32_t identifier );
     
     /**
      * Get the identifer that the environment is using.
      * Basically, use the render system that this engine has provided.
      * @return The type of renderer the program is using.
      */
-    virtual std::string getEnvironmentIdentifier() const = 0;
+    virtual uint32_t getEnvironmentIdentifier() const = 0;
 
     /**
      * This loads the resources and initializes this environment if not initialized before.

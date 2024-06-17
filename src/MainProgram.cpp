@@ -309,7 +309,7 @@ void MainProgram::initSound() {
         throwException( "Sound has no available identifiers." );
 
     if( !Sound::Environment::isIdentifier( sound_identifiers[0] ) )
-        throwException( "The sound identifier \"" + sound_identifiers[0] + "\" is not a valid identifer." );
+        throwException( "The sound identifier \"" + Sound::Environment::identifierToString(sound_identifiers[0]) + "\" is not a valid identifer." );
 
     this->sound_identifier = sound_identifiers[0];
 

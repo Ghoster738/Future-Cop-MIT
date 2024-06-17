@@ -31,7 +31,7 @@ public:
     static int initSystem();
     static int deinitEntireSystem();
 
-    virtual std::string getEnvironmentIdentifier() const;
+    virtual uint32_t getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
 
     virtual bool setMusicState(Sound::PlayerState player_state);

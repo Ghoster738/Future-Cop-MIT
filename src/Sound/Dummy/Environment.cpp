@@ -14,7 +14,7 @@ int Environment::deinitEntireSystem() {
     return 1;
 }
 
-std::string Environment::getEnvironmentIdentifier() const {
+uint32_t Environment::getEnvironmentIdentifier() const {
     return NO_AUDIO;
 }
 

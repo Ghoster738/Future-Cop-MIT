@@ -59,7 +59,7 @@ public:
     float     camera_distance;
 
     // Sounds API variables goes here.
-    std::string sound_identifier;
+    uint32_t sound_identifier;
     Sound::Environment *sound_system_p;
 
     bool play_loop;
