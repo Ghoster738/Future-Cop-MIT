@@ -245,6 +245,14 @@ Sound::PlayerState Environment::getTrackPlayerState() const {
     return sound_queue.getPlayerState();
 }
 
+Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_type) {
+    return nullptr;
+}
+
+Sound::Speaker* Environment::allocateSpeaker() {
+    return nullptr;
+}
+
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
     sound_queue.update(duration);
 }

@@ -2,7 +2,13 @@
 
 namespace Sound {
 
-Listener::Listener(WhichEar which_ear) : location(), p_which_ear(which_ear) {}
+void Listener::setEnabled( bool enabled ) {
+    this->enabled = enabled;
+}
+
+bool Listener::getEnabled() const {
+    return enabled;
+}
 
 void Listener::setLocation(Location location) {
     this->location = location;

@@ -16,6 +16,7 @@ public:
 private:
     Location location;
     WhichEar p_which_ear;
+    bool enabled;
 
 public:
     /**
@@ -27,6 +28,19 @@ public:
      * This is the destructor. It is pure virtual on purpose to make this class only allocatable with Environment.
      */
     virtual ~Listener() = 0;
+
+    /**
+     * This enables or disables the listener.
+     * @warning This method is important as each listener will be disabled by default.
+     * @param enabled The value used. If true then the listener will listen to audio. If false then the listener will be deaf.
+     */
+    virtual void setEnabled( bool enabled );
+
+    /**
+     * Use this to see if the listener is enabled.
+     * @return return the enabled state.
+     */
+    virtual bool getEnabled() const;
 
     /**
      * Set the position, velocity, and orientation of this listener.

@@ -1,7 +1,6 @@
 #ifndef SOUND_SPEAKER_H
 #define SOUND_SPEAKER_H
 
-#include "Environment.h"
 #include "Location.h"
 #include "PlayerState.h"
 
@@ -14,15 +13,6 @@ private:
     bool repeat;
 
 public:
-    /**
-     * This allocates the speaker.
-     * @note To actually play the speaker set its location then after this set the speaker to PLAY.
-     * @param env This is the environment to read from.
-     * @param sound_identifier This is the specific sound to load.
-     * @return If everything is valid then a speaker pointer would be returned.
-     */
-    static Sound::Speaker* alloc( Environment &env, uint32_t sound_identifier );
-
     virtual ~Speaker() = 0;
 
     /**

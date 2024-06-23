@@ -41,6 +41,10 @@ public:
     virtual bool setTrackPlayerState(PlayerState player_state);
     virtual PlayerState getTrackPlayerState() const;
 
+    virtual Listener* getListenerReference(Listener::WhichEar listener_type);
+
+    virtual Speaker* allocateSpeaker();
+
     virtual void advanceTime( std::chrono::high_resolution_clock::duration duration );
 };
 

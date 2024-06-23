@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "Listener.h"
+#include "Speaker.h"
 #include "PlayerState.h"
 
 #include "../Data/Accessor.h"
@@ -112,6 +114,19 @@ public:
      * @return The state of the track player.
      */
     virtual PlayerState getTrackPlayerState() const = 0;
+
+    /**
+     * This gets the listener reference.
+     * @return If the listener for an ear does exist then return a valid Listener point otherwise return null.
+     */
+    virtual Listener* getListenerReference(Listener::WhichEar listener_type) = 0;
+
+    /**
+     * This allocates the speaker.
+     * @warning The programmer is responsiable for deleting the speaker.
+     * @return The pointer to the speaker. This function should not return null unless if this environment is a dummy.
+     */
+    virtual Speaker* allocateSpeaker() = 0;
 
     /**
      * Advance the time.

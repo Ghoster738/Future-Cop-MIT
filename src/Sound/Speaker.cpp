@@ -2,8 +2,6 @@
 
 namespace Sound {
 
-Sound::Speaker* Speaker::alloc( Environment &env, uint32_t sound_identifier ) { return nullptr; }
-
 void Speaker::setLocation(Location location) {
     this->location = location;
 }
