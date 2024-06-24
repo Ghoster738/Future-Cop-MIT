@@ -19,6 +19,8 @@ Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
 }
 
 Speaker::~Speaker() {
+    // Speaker does not need to call deallocate on speaker_p->sound_source.
+    // Environment is responsiable for that.
 }
 
 void Speaker::setLocation(const Location &location) {
