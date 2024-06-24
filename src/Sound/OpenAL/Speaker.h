@@ -2,12 +2,15 @@
 #define SOUND_OPENAL_SPEAKER_H
 
 #include "../Speaker.h"
+#include "Internal/SoundSource.h"
 
 namespace Sound {
 namespace OpenAL {
 
 class Speaker : public Sound::Speaker {
 public:
+    Internal::SoundSource sound_source;
+
     virtual ~Speaker();
 
     virtual void setLocation(const Location &location);
