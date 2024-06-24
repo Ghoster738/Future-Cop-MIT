@@ -7,7 +7,7 @@
 namespace Sound {
 
 class Speaker {
-private:
+protected:
     Location location;
     PlayerState speaker_state;
     bool repeat;
