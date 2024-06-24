@@ -19,12 +19,6 @@ public:
      * Set the position, velocity, and direction of this speaker.
      * @param location This sets the location of the speaker.
      */
-    virtual void setLocation(Location location);
-
-    /**
-     * Set the position, velocity, and direction of this speaker.
-     * @param location This sets the location of the speaker.
-     */
     virtual void setLocation(const Location &location);
 
     /**

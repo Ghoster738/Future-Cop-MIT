@@ -1,38 +1,37 @@
 #include "Speaker.h"
 
+#include "Environment.h"
+
 namespace Sound {
 namespace OpenAL {
-namespace Internal {
 
-void Speaker::setLocation(Location location) {
-    this->location = location;
+Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
+    return nullptr;
 }
 
 void Speaker::setLocation(const Location &location) {
-    this->location = location;
+    Sound::Speaker::setLocation(location);
 }
 
 const Location& Speaker::getLocation() const {
-    return this->location;
+    return Sound::Speaker::getLocation();
 }
 
 bool Speaker::setSpeakerState(PlayerState speaker_state) {
-    this->speaker_state = speaker_state;
-    return true;
+    return Sound::Speaker::setSpeakerState(speaker_state);
 }
 
 PlayerState Speaker::getSpeakerState() const {
-    return speaker_state;
+    return Sound::Speaker::getSpeakerState();
 }
 
 void Speaker::setRepeatMode(bool repeat) {
-    this->repeat = repeat;
+    Sound::Speaker::setRepeatMode(repeat);
 }
 
 bool Speaker::getRepeatMode() const {
-    return this->repeat;
+    return Sound::Speaker::getRepeatMode();
 }
 
-}
 }
 }

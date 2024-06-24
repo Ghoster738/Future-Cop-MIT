@@ -249,10 +249,6 @@ Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_t
     return nullptr;
 }
 
-Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
-    return nullptr;
-}
-
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
     sound_queue.update(duration);
 }

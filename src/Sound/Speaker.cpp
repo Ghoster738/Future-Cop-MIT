@@ -2,10 +2,6 @@
 
 namespace Sound {
 
-void Speaker::setLocation(Location location) {
-    this->location = location;
-}
-
 void Speaker::setLocation(const Location &location) {
     this->location = location;
 }
