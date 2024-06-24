@@ -1,5 +1,5 @@
-#ifndef SOUNDS_ENVIRONMENT_MOJO_AL_H
-#define SOUNDS_ENVIRONMENT_MOJO_AL_H
+#ifndef SOUND_OPENAL_ENVIRONMENT_H
+#define SOUND_OPENAL_ENVIRONMENT_H
 
 #include "../Environment.h"
 
@@ -44,7 +44,7 @@ public:
 
     virtual Listener* getListenerReference(Listener::WhichEar listener_type);
 
-    virtual Speaker* allocateSpeaker();
+    virtual Speaker* allocateSpeaker(uint32_t resource_id);
 
     virtual void advanceTime( std::chrono::high_resolution_clock::duration duration );
 };
@@ -52,4 +52,4 @@ public:
 }
 }
 
-#endif // SOUNDS_ENVIRONMENT_MOJO_AL_H
+#endif // SOUND_OPENAL_ENVIRONMENT_H

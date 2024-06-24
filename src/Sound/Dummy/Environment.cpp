@@ -46,7 +46,7 @@ Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_t
     return nullptr;
 }
 
-Sound::Speaker* Environment::allocateSpeaker() {
+Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
     return nullptr;
 }
 

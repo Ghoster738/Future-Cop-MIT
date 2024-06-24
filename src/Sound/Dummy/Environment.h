@@ -26,7 +26,7 @@ public:
 
     virtual Listener* getListenerReference(Listener::WhichEar listener_type);
 
-    virtual Speaker* allocateSpeaker();
+    virtual Speaker* allocateSpeaker(uint32_t resource_id);
 
     virtual void advanceTime(std::chrono::high_resolution_clock::duration duration);
 };

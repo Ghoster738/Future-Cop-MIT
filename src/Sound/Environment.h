@@ -124,9 +124,10 @@ public:
     /**
      * This allocates the speaker.
      * @warning The programmer is responsiable for deleting the speaker.
+     * @param resource_id The resource id to the SOND resource.
      * @return The pointer to the speaker. This function should not return null unless if this environment is a dummy.
      */
-    virtual Speaker* allocateSpeaker() = 0;
+    virtual Speaker* allocateSpeaker(uint32_t resource_id) = 0;
 
     /**
      * Advance the time.
