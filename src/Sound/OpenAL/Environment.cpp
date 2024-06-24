@@ -169,6 +169,36 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         return -16;
     }
 
+    for(auto key: id_to_sound) {
+        ALenum current_error_state = key.second.deallocate();
+
+        if(current_error_state != AL_NO_ERROR) {
+            error_state = current_error_state;
+        }
+    }
+
+    if(error_state != AL_NO_ERROR) {
+        return -17;
+    }
+
+    id_to_sound.clear();
+
+    auto sound_resources_r = accessor.getAllConstWAV();
+
+    for(const Data::Mission::WAVResource* sound_r: sound_resources_r) {
+        id_to_sound[sound_r->getResourceID()] = Internal::SoundSource();
+
+        ALenum current_error_state = id_to_sound[sound_r->getResourceID()].allocate(*sound_r);
+
+        if(current_error_state != AL_NO_ERROR) {
+            error_state = current_error_state;
+        }
+    }
+
+    if(error_state != AL_NO_ERROR) {
+        return -18;
+    }
+
     return 1;
 }
 

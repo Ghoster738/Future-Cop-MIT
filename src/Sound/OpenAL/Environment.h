@@ -25,6 +25,8 @@ public:
 
     Internal::SoundBuffer music_buffer;
     ALuint music_source;
+
+    std::map<uint32_t, Internal::SoundSource> id_to_sound;
 public:
     Environment();
     virtual ~Environment();
