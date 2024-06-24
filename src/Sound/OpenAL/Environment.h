@@ -4,6 +4,7 @@
 #include "../Environment.h"
 
 #include "Internal/SoundQueue.h"
+#include "Internal/SoundSource.h"
 
 #include <map>
 

@@ -4,7 +4,16 @@ namespace Sound {
 namespace OpenAL {
 namespace Internal {
 
-ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound) {
+ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound, uint_fast32_t start_sample_offset, uint_fast32_t end_sample_offset) {
+    const uint64_t data_block = sound.getChannelNumber() * (sound.getBitsPerSample() / 8);
+    const uint64_t full_audio_samples = sound.getTotalPCMBytes() / data_block;
+
+    if(start_sample_offset > end_sample_offset)
+        return AL_INVALID_VALUE;
+
+    if(end_sample_offset > full_audio_samples)
+        return AL_INVALID_VALUE;
+
     const ALenum format = Internal::SoundBuffer::getFormat(sound.getChannelNumber(), sound.getBitsPerSample());
 
     if(format == AL_INVALID_ENUM)
@@ -18,7 +27,10 @@ ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound) {
         return error_state; // Posiable values AL_INVALID_VALUE, AL_OUT_OF_MEMORY and etc.
     }
 
-    alBufferData(buffer_index, format, sound.getPCMData(), sound.getTotalPCMBytes(), sound.getSampleRate());
+    if(start_sample_offset == end_sample_offset)
+        alBufferData(buffer_index, format, sound.getPCMData(), sound.getTotalPCMBytes(), sound.getSampleRate());
+    else
+        alBufferData(buffer_index, format, sound.getPCMData() + start_sample_offset * data_block, end_sample_offset * data_block, sound.getSampleRate());
 
     error_state = alGetError();
 
@@ -26,13 +38,10 @@ ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound) {
         return error_state;
     }
 
-    uint64_t size_of_demonator = sound.getChannelNumber() * (sound.getBitsPerSample() / 8) * sound.getSampleRate();
-
-    std::chrono::duration<double> duration_second(static_cast<double>(sound.getTotalPCMBytes()) / static_cast<double>(size_of_demonator));
-
-    auto conversion = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(duration_second);
-
-    duration = conversion;
+    if(start_sample_offset == end_sample_offset)
+        duration = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::duration<double>(full_audio_samples / static_cast<double>(sound.getSampleRate())));
+    else
+        duration = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::duration<double>((end_sample_offset - start_sample_offset) / static_cast<double>(sound.getSampleRate())));
 
     return AL_NO_ERROR;
 }
