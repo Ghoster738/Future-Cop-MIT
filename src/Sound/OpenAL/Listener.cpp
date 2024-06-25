@@ -119,7 +119,7 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
 
         if(delta_count >= sources[i].time_limit.count())
             sources.erase(sources.begin() + current_index);
-        else
+        else if(sources[i].time_limit != std::chrono::high_resolution_clock::duration::max())
             sources[i].time_limit -= delta;
     }
 
