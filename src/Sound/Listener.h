@@ -13,7 +13,7 @@ public:
         BOTH
     };
 
-private:
+protected:
     Location location;
     WhichEar p_which_ear;
     bool enabled;
@@ -41,12 +41,6 @@ public:
      * @return return the enabled state.
      */
     virtual bool getEnabled() const;
-
-    /**
-     * Set the position, velocity, and orientation of this listener.
-     * @param location This sets the location of the listener.
-     */
-    virtual void setLocation(Location location);
 
     /**
      * Set the position, velocity, and orientation of this listener.

@@ -9,7 +9,7 @@
 namespace Sound {
 namespace OpenAL {
 
-Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), music_buffer(0), music_source(0) {}
+Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), music_buffer(0), music_source(0) {}
 
 Environment::~Environment() {
     alcMakeContextCurrent(nullptr);
@@ -276,7 +276,12 @@ Sound::PlayerState Environment::getTrackPlayerState() const {
 }
 
 Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_type) {
-    return nullptr;
+    switch(listener_type) {
+        case Listener::WhichEar::BOTH:
+            return &listener_both;
+        default:
+            return nullptr;
+    }
 }
 
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {

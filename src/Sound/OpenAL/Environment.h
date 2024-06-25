@@ -5,6 +5,7 @@
 
 #include "Internal/SoundQueue.h"
 #include "Internal/SoundSource.h"
+#include "Listener.h"
 
 #include <map>
 
@@ -18,6 +19,8 @@ class Environment : public Sound::Environment {
 public:
     ALCdevice *alc_device_p;
     ALCcontext *alc_context_p;
+
+    Listener listener_both;
 
     std::map<uint32_t, Internal::SoundBuffer> tos_to_swvr;
 
