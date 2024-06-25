@@ -47,5 +47,12 @@ bool Speaker::getRepeatMode() const {
     return Sound::Speaker::getRepeatMode();
 }
 
+void Speaker::updateLocation(ALuint source) const {
+    // TODO Upgrade this for left and right ear case.
+    alSource3f(source,  AL_POSITION,  location.position.x,  location.position.y,  location.position.z);
+    alSource3f(source,  AL_VELOCITY,  location.velocity.x,  location.velocity.y,  location.velocity.z);
+    alSource3f(source, AL_DIRECTION, location.direction.x, location.direction.y, location.direction.z);
+}
+
 }
 }

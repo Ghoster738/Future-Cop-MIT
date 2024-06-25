@@ -4,6 +4,7 @@
 #include "../Listener.h"
 #include "Speaker.h"
 
+#include <chrono>
 #include <vector>
 
 namespace Sound {
@@ -13,7 +14,11 @@ class Listener : public Sound::Listener {
 public:
     struct Source {
         Speaker *speaker_r;
+        std::chrono::high_resolution_clock::duration time_limit;
         ALuint queue_source;
+
+        Source();
+        ~Source();
     };
 
     size_t source_max_length;
@@ -28,6 +33,12 @@ public:
 
     virtual void setLocation(const Location &location);
     virtual const Location& getLocation() const;
+
+    bool enqueueSpeaker(Speaker &speaker);
+
+    bool dequeueSpeaker(Speaker &speaker);
+
+    void process(std::chrono::high_resolution_clock::duration delta);
 };
 
 }

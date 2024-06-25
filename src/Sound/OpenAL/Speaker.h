@@ -21,6 +21,8 @@ public:
 
     virtual void setRepeatMode(bool repeat);
     virtual bool getRepeatMode() const;
+
+    void updateLocation(ALuint source) const;
 };
 
 }
