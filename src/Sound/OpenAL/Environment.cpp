@@ -285,6 +285,9 @@ Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_t
 }
 
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
+    if(listener_both.getEnabled())
+        listener_both.process(duration);
+
     sound_queue.update(duration);
 }
 
