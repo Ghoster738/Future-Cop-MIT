@@ -2,13 +2,16 @@
 #define SOUND_OPENAL_LISTENER_H
 
 #include "../Listener.h"
-#include "Speaker.h"
+
+#include "al.h"
 
 #include <chrono>
 #include <vector>
 
 namespace Sound {
 namespace OpenAL {
+
+class Speaker;
 
 class Listener : public Sound::Listener {
 public:

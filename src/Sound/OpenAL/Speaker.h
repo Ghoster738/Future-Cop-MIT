@@ -1,6 +1,7 @@
 #ifndef SOUND_OPENAL_SPEAKER_H
 #define SOUND_OPENAL_SPEAKER_H
 
+#include "Environment.h"
 #include "../Speaker.h"
 #include "Internal/SoundSource.h"
 
@@ -9,6 +10,7 @@ namespace OpenAL {
 
 class Speaker : public Sound::Speaker {
 public:
+    Environment *environment_r;
     Internal::SoundSource sound_source;
 
     virtual ~Speaker();

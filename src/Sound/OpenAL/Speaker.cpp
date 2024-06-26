@@ -1,7 +1,5 @@
 #include "Speaker.h"
 
-#include "Environment.h"
-
 namespace Sound {
 namespace OpenAL {
 
@@ -13,6 +11,7 @@ Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
 
     Speaker *speaker_p = new Speaker();
 
+    speaker_p->environment_r = this;
     speaker_p->sound_source = result->second;
 
     return speaker_p;
@@ -21,6 +20,8 @@ Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
 Speaker::~Speaker() {
     // Speaker does not need to call deallocate on speaker_p->sound_source.
     // Environment is responsiable for that.
+
+    environment_r->listener_both.dequeueSpeaker(*this);
 }
 
 void Speaker::setLocation(const Location &location) {

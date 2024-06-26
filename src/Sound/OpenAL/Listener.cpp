@@ -1,5 +1,7 @@
 #include "Listener.h"
 
+#include "Speaker.h"
+
 namespace Sound {
 namespace OpenAL {
 
