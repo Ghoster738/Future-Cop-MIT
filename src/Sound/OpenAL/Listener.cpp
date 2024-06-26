@@ -52,21 +52,25 @@ bool Listener::enqueueSpeaker(Speaker &speaker) {
         return false;
     }
 
-    if(speaker.getRepeatMode() && !speaker.sound_source.no_repeat_offset) {
-        alSourceQueueBuffers(sources.back().queue_source, 1, &speaker.sound_source.buffer_indexes[1].buffer_index);
-        alSourceQueueBuffers(sources.back().queue_source, 1, &speaker.sound_source.buffer_indexes[2].buffer_index);
+    if(speaker.getRepeatMode()) {
+        if(!speaker.sound_source.no_repeat_offset) {
+            alSourceQueueBuffers(sources.back().queue_source, 1, &speaker.sound_source.buffer_indexes[1].buffer_index);
+            alSourceQueueBuffers(sources.back().queue_source, 1, &speaker.sound_source.buffer_indexes[2].buffer_index);
+
+            sources.back().time_limit = speaker.sound_source.buffer_indexes[1].duration;
+
+            alSourcei(sources.back().queue_source, AL_LOOPING, AL_FALSE);
+        }
+        else{
+            alSourcei(sources.back().queue_source, AL_BUFFER, speaker.sound_source.buffer_indexes[0].buffer_index);
+            sources.back().time_limit = speaker.sound_source.buffer_indexes[0].duration;
+            alSourcei(sources.back().queue_source, AL_LOOPING, AL_TRUE);
+        }
     }
     else {
         alSourcei(sources.back().queue_source, AL_BUFFER, speaker.sound_source.buffer_indexes[0].buffer_index);
-    }
-
-    if(speaker.getRepeatMode()) {
-        alSourcei(sources.back().queue_source, AL_LOOPING, AL_TRUE);
-        sources.back().time_limit = std::chrono::high_resolution_clock::duration::max();
-    }
-    else {
-        alSourcei(sources.back().queue_source, AL_LOOPING, AL_FALSE);
         sources.back().time_limit = speaker.sound_source.buffer_indexes[0].duration;
+        alSourcei(sources.back().queue_source, AL_LOOPING, AL_FALSE);
     }
 
     // TODO Implement more complex distance.
@@ -117,8 +121,33 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
     for(auto i = sources.size(); i != 0; i--) {
         const size_t current_index = i - 1;
 
-        if(delta_count >= sources[i].time_limit.count())
-            sources.erase(sources.begin() + current_index);
+        if(delta_count >= sources[i].time_limit.count()) {
+            if(!sources[i].speaker_r->getRepeatMode())
+                sources.erase(sources.begin() + current_index);
+            else { // If it is an offset kind of loop.
+                ALint buffers_processed = 0;
+
+                alGetSourcei(sources[i].queue_source, AL_BUFFERS_PROCESSED, &buffers_processed);
+
+                error_state = alGetError();
+
+                if(error_state != AL_NO_ERROR)
+                    continue;
+
+                if(buffers_processed == 1) { // This is the best case.
+                    alSourceUnqueueBuffers(sources[i].queue_source, 1, &sources[i].speaker_r->sound_source.buffer_indexes[1].buffer_index );
+                }
+                else {
+                    alSourceStop(sources[i].queue_source);
+                    alSourceUnqueueBuffers(sources[i].queue_source, 1, &sources[i].speaker_r->sound_source.buffer_indexes[1].buffer_index );
+                    alSourcePlay(sources[i].queue_source);
+                }
+
+                alSourcei(sources[i].queue_source, AL_LOOPING, AL_TRUE);
+
+                sources[i].time_limit = std::chrono::high_resolution_clock::duration::max();
+            }
+        }
         else if(sources[i].time_limit != std::chrono::high_resolution_clock::duration::max())
             sources[i].time_limit -= delta;
     }
