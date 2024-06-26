@@ -92,9 +92,12 @@ bool Listener::dequeueSpeaker(Speaker &speaker) {
 
     alGetError();
 
+    if(sources.empty())
+        return true;
+
     std::vector<Source>::iterator speaker_loc = sources.end();
 
-    for(std::vector<Source>::iterator i = sources.begin(); i != sources.end(); i++) {
+    for(auto i = sources.begin(); i != sources.end(); i++) {
         if((*i).speaker_r == &speaker) {
             speaker_loc = i;
             i = sources.end();

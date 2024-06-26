@@ -7,6 +7,8 @@
 #include "Data/Mission/SNDSResource.h"
 #include "Graphics/Text2DBuffer.h"
 
+#include "Sound/Speaker.h"
+
 class AnnouncementPlayer : public GameState {
 public:
     static AnnouncementPlayer announcement_player;
@@ -19,6 +21,8 @@ private:
 
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
+
+    Sound::Speaker *sound_p;
 
 public:
     AnnouncementPlayer();
