@@ -33,6 +33,15 @@ const Location& Speaker::getLocation() const {
 }
 
 bool Speaker::setSpeakerState(PlayerState speaker_state) {
+    if(speaker_state == PlayerState::PLAY) {
+        environment_r->listener_both.enqueueSpeaker(*this);
+    }
+    else if(speaker_state == PlayerState::STOP) {
+        environment_r->listener_both.dequeueSpeaker(*this);
+    }
+    else
+        return false; // TODO Implement PAUSE.
+
     return Sound::Speaker::setSpeakerState(speaker_state);
 }
 
