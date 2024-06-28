@@ -46,9 +46,15 @@ public:
 
     // Graphics API variables goes here.
     std::string graphics_identifier;
+    bool is_graphics_already_loaded;
     Graphics::Environment *environment_p;
     Graphics::Text2DBuffer *text_2d_buffer_r;
     Graphics::Camera *first_person_r;
+
+    // Sound API variables goes here.
+    uint32_t sound_identifier;
+    bool is_sound_already_loaded;
+    Sound::Environment *sound_system_p;
 
     // Controls API variables goes here.
     Controls::System *control_system_p;
@@ -57,10 +63,6 @@ public:
     glm::vec3 camera_position;
     glm::vec2 camera_rotation;
     float     camera_distance;
-
-    // Sounds API variables goes here.
-    uint32_t sound_identifier;
-    Sound::Environment *sound_system_p;
 
     bool play_loop;
 

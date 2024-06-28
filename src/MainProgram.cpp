@@ -22,6 +22,9 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     this->menu_r           = nullptr;
     this->primary_game_r   = nullptr;
 
+    is_graphics_already_loaded = false;
+    is_sound_already_loaded = false;
+
     if( parameters.help.getValue() ) {
         return;
     }
@@ -111,6 +114,10 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         log.output << "The mission " << switch_resource_identifier << " does not exist cannot switch.";
         return false;
     }
+
+    // Graphics and Sound can be reloaded if these are set to false.
+    this->is_graphics_already_loaded = false;
+    this->is_sound_already_loaded = false;
 
     if( switch_platform != this->platform ) {
         this->manager.togglePlatform( switch_platform, true );
@@ -376,9 +383,14 @@ void MainProgram::initialLoadResources() {
 }
 
 void MainProgram::loadGraphics( bool show_map ) {
-    this->environment_p->loadResources( this->accessor );
+    if(!this->is_graphics_already_loaded)
+        this->environment_p->loadResources( this->accessor );
+
     this->environment_p->displayMap( show_map );
     this->environment_p->setBoundingBoxDraw( false );
+
+    if(this->is_graphics_already_loaded)
+        return;
 
     // Get the font from the resource file.
     if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, this->accessor ) == 0 ) {
@@ -392,15 +404,22 @@ void MainProgram::loadGraphics( bool show_map ) {
         throwException( "The Graphics::Text2DBuffer has failed to allocate." );
 
     this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
+
+    this->is_graphics_already_loaded = true;
 }
 
 void MainProgram::loadSound() {
+    if(this->is_sound_already_loaded)
+        return;
+
     auto result = this->sound_system_p->loadResources( this->accessor );
 
     auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
 
     if( result < 0 )
         log.output << "Sound did not load. Error code: " << result;
+
+    this->is_sound_already_loaded = true;
 }
 
 void MainProgram::setupCamera() {
