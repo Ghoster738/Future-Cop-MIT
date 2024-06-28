@@ -104,7 +104,7 @@ bool Listener::dequeueSpeaker(Speaker &speaker) {
 
         if((*i).speaker_r == &speaker) {
             speaker_loc = i;
-            i = sources.end();
+            break;
         }
     }
 
