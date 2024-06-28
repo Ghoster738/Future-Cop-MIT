@@ -2,6 +2,8 @@
 
 #include "Speaker.h"
 
+#include <cassert>
+
 namespace Sound {
 namespace OpenAL {
 
@@ -97,7 +99,9 @@ bool Listener::dequeueSpeaker(Speaker &speaker) {
 
     std::vector<Source>::iterator speaker_loc = sources.end();
 
-    for(auto i = sources.begin(); i != sources.end(); i++) {
+    for(std::vector<Source>::iterator i = sources.begin(); i != sources.end(); i++) {
+        assert((*i).speaker_r != nullptr);
+
         if((*i).speaker_r == &speaker) {
             speaker_loc = i;
             i = sources.end();
@@ -125,6 +129,8 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
 
     for(auto i = sources.size(); i != 0; i--) {
         const size_t current_index = i - 1;
+
+        assert(sources[i].speaker_r != nullptr);
 
         if(delta_count >= sources[i].time_limit.count()) {
             if(!sources[i].speaker_r->getRepeatMode())
