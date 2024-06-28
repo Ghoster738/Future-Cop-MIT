@@ -42,7 +42,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
     setupGraphics();
     initSound();
     setupSound();
-    loadResources();
+    initialLoadResources();
     loadGraphics();
     loadSound();
     setupCamera();
@@ -323,7 +323,7 @@ void MainProgram::setupSound() {
         throwException( "Sound system does not work. Identifier: " + this->sound_identifier );
 }
 
-void MainProgram::loadResources() {
+void MainProgram::initialLoadResources() {
     accessor.clear();
 
     manager.autoSetEntries( options.getWindowsDataDirectory(),     Data::Manager::Platform::WINDOWS );

@@ -117,7 +117,7 @@ private:
 
     void setupSound();
 
-    void loadResources();
+    void initialLoadResources();
 
     void setupCamera();
 
