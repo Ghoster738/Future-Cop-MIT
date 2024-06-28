@@ -409,8 +409,10 @@ void MainProgram::loadGraphics( bool show_map ) {
 }
 
 void MainProgram::loadSound() {
-    if(this->is_sound_already_loaded)
+    if(this->is_sound_already_loaded) {
+        this->sound_system_p->setMusicState(Sound::PlayerState::STOP);
         return;
+    }
 
     auto result = this->sound_system_p->loadResources( this->accessor );
 
