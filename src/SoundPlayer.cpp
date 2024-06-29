@@ -13,6 +13,7 @@ SoundPlayer::SoundPlayer() {
 SoundPlayer::~SoundPlayer() {}
 
 void SoundPlayer::load( MainProgram &main_program ) {
+    this->repeat = false;
     this->sound_resource_index = 0;
     this->all_sounds.clear();
 
@@ -67,8 +68,16 @@ void SoundPlayer::update( MainProgram &main_program, std::chrono::microseconds d
 
             this->sound_p = main_program.sound_system_p->allocateSpeaker( this->all_sounds.at(this->sound_resource_index)->getResourceID() );
 
-            if(this->sound_p != nullptr)
+            if(this->sound_p != nullptr) {
+                this->sound_p->setRepeatMode(this->repeat);
                 this->sound_p->setSpeakerState(Sound::PlayerState::PLAY);
+            }
+
+            this->count_down = 0.5;
+        }
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::JUMP );
+        if( input_r->isChanged() && this->count_down < 0.0f ) {
+            this->repeat = !this->repeat;
 
             this->count_down = 0.5;
         }

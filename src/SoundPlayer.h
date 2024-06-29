@@ -14,6 +14,7 @@ public:
     static SoundPlayer sound_player;
 
 private:
+    bool repeat;
     unsigned int sound_resource_index;
     std::vector<const Data::Mission::WAVResource*> all_sounds;
     Sound::Speaker *sound_p;
