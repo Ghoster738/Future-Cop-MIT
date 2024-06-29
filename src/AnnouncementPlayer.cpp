@@ -56,6 +56,8 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
 
     this->sound_p = main_program.sound_system_p->allocateSpeaker( 1 );
 
+    this->sound_p->setRepeatMode(true);
+
     if(this->sound_p != nullptr)
         this->sound_p->setSpeakerState(Sound::PlayerState::PLAY);
 }

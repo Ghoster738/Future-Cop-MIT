@@ -57,19 +57,14 @@ bool Listener::enqueueSpeaker(Speaker &speaker) {
     }
 
     if(speaker.getRepeatMode()) {
-        if(!speaker.sound_source.no_repeat_offset) {
-            alSourceQueueBuffers(sources.back().queue_source, 1, &speaker.sound_source.buffer_indexes[1].buffer_index);
-            alSourceQueueBuffers(sources.back().queue_source, 1, &speaker.sound_source.buffer_indexes[2].buffer_index);
+        alSourcei(sources.back().queue_source, AL_BUFFER, speaker.sound_source.buffer_indexes[0].buffer_index);
+        alSourcei(sources.back().queue_source, AL_LOOPING, AL_TRUE);
 
-            sources.back().time_limit = speaker.sound_source.buffer_indexes[1].duration;
+        if(!speaker.sound_source.no_repeat_offset)
+            sources.back().time_limit = speaker.sound_source.start_second_buffer;
+        else
+            sources.back().time_limit = std::chrono::high_resolution_clock::duration::max();
 
-            alSourcei(sources.back().queue_source, AL_LOOPING, AL_FALSE);
-        }
-        else{
-            alSourcei(sources.back().queue_source, AL_BUFFER, speaker.sound_source.buffer_indexes[0].buffer_index);
-            sources.back().time_limit = speaker.sound_source.buffer_indexes[0].duration;
-            alSourcei(sources.back().queue_source, AL_LOOPING, AL_TRUE);
-        }
     }
     else {
         alSourcei(sources.back().queue_source, AL_BUFFER, speaker.sound_source.buffer_indexes[0].buffer_index);
@@ -135,26 +130,31 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
         if(delta_count >= sources[current_index].time_limit.count()) {
             if(!sources[current_index].speaker_r->getRepeatMode())
                 sources.erase(sources.begin() + current_index);
-            else { // If it is an offset kind of loop.
-                ALint buffers_processed = 0;
+            else {
+                ALint samples;
 
-                alGetSourcei(sources[current_index].queue_source, AL_BUFFERS_PROCESSED, &buffers_processed);
+                alGetSourcei(sources[current_index].queue_source, AL_SAMPLE_OFFSET, &samples);
 
                 error_state = alGetError();
 
-                if(error_state != AL_NO_ERROR)
-                    continue;
+                if(error_state == AL_NO_ERROR && samples > sources[current_index].speaker_r->sound_source.start_samples)
+                    samples -= sources[current_index].speaker_r->sound_source.start_samples;
+                else
+                    samples = 0;
 
-                if(buffers_processed == 1) { // This is the best case.
-                    alSourceUnqueueBuffers(sources[current_index].queue_source, 1, &sources[current_index].speaker_r->sound_source.buffer_indexes[1].buffer_index );
-                }
-                else {
-                    alSourceStop(sources[current_index].queue_source);
-                    alSourceUnqueueBuffers(sources[current_index].queue_source, 1, &sources[current_index].speaker_r->sound_source.buffer_indexes[1].buffer_index );
-                    alSourcePlay(sources[current_index].queue_source);
+                alSourceStop(sources.back().queue_source);
+
+                alGetError();
+
+                alSourcei(sources.back().queue_source, AL_BUFFER, sources[current_index].speaker_r->sound_source.buffer_indexes[1].buffer_index);
+
+                error_state = alGetError();
+
+                if(error_state == AL_NO_ERROR && samples > 0) {
+                    alSourcei(sources[current_index].queue_source, AL_SAMPLE_OFFSET, samples);
                 }
 
-                alSourcei(sources[current_index].queue_source, AL_LOOPING, AL_TRUE);
+                alSourcePlay(sources.back().queue_source);
 
                 sources[current_index].time_limit = std::chrono::high_resolution_clock::duration::max();
             }

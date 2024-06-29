@@ -12,9 +12,11 @@ namespace Internal {
 
 struct SoundSource {
     bool no_repeat_offset;
-    SoundBuffer buffer_indexes[3];
+    SoundBuffer buffer_indexes[2];
+    std::chrono::high_resolution_clock::duration start_second_buffer;
+    ALint start_samples;
 
-    SoundSource() : no_repeat_offset(false), buffer_indexes{SoundBuffer(), SoundBuffer(), SoundBuffer()} {}
+    SoundSource() : no_repeat_offset(false), buffer_indexes{SoundBuffer(), SoundBuffer()}, start_second_buffer(), start_samples(0) {}
 
     ALenum allocate(const Data::Mission::WAVResource &sound);
     ALenum deallocate();

@@ -15,8 +15,10 @@ ALenum SoundSource::allocate(const Data::Mission::WAVResource &sound) {
     if(sound.hasLoop()) {
         this->no_repeat_offset = false;
 
-        this->buffer_indexes[1].allocate(sound, 0, sound.getLoopBeginSample());
-        this->buffer_indexes[2].allocate(sound, sound.getLoopBeginSample(), sound.getLoopEndSample());
+        this->buffer_indexes[1].allocate(sound, sound.getLoopBeginSample(), sound.getLoopEndSample());
+
+        this->start_second_buffer = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(std::chrono::duration<double>(sound.getLoopBeginSample() / static_cast<double>(sound.getSampleRate())));
+        this->start_samples = sound.getLoopBeginSample();
     }
 
     return AL_NO_ERROR;
@@ -27,7 +29,6 @@ ALenum SoundSource::deallocate() {
 
     if(!this->no_repeat_offset ) {
         this->buffer_indexes[1].deallocate();
-        this->buffer_indexes[2].deallocate();
     }
 
     if(return_state != AL_NO_ERROR)

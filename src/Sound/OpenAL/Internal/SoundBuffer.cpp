@@ -30,7 +30,7 @@ ALenum SoundBuffer::allocate(const Data::Mission::WAVResource &sound, uint_fast3
     if(start_sample_offset == end_sample_offset)
         alBufferData(buffer_index, format, sound.getPCMData(), sound.getTotalPCMBytes(), sound.getSampleRate());
     else
-        alBufferData(buffer_index, format, sound.getPCMData() + start_sample_offset * data_block, end_sample_offset * data_block, sound.getSampleRate());
+        alBufferData(buffer_index, format, sound.getPCMData() + start_sample_offset * data_block, (end_sample_offset - start_sample_offset) * data_block, sound.getSampleRate());
 
     error_state = alGetError();
 
