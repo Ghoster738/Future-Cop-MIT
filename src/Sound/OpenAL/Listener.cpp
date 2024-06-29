@@ -142,11 +142,11 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
                 else
                     samples = 0;
 
-                alSourceStop(sources.back().queue_source);
+                alSourceStop(sources[current_index].queue_source);
 
                 alGetError();
 
-                alSourcei(sources.back().queue_source, AL_BUFFER, sources[current_index].speaker_r->sound_source.buffer_indexes[1].buffer_index);
+                alSourcei(sources[current_index].queue_source, AL_BUFFER, sources[current_index].speaker_r->sound_source.buffer_indexes[1].buffer_index);
 
                 error_state = alGetError();
 
@@ -154,7 +154,7 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
                     alSourcei(sources[current_index].queue_source, AL_SAMPLE_OFFSET, samples);
                 }
 
-                alSourcePlay(sources.back().queue_source);
+                alSourcePlay(sources[current_index].queue_source);
 
                 sources[current_index].time_limit = std::chrono::high_resolution_clock::duration::max();
             }

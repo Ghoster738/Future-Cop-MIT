@@ -163,7 +163,8 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
                     debug_log.output << "sample_data.manufacturer = " << sample_data.manufacturer << ".\n";
                 if(sample_data.product != 0)
                     debug_log.output << "sample_data.product = " << sample_data.product << ".\n";
-                debug_log.output << "sample_data.sample_period_nanoseconds = " << sample_data.sample_period_nanoseconds << ".\n";
+                if(sample_data.sample_period_nanoseconds != 45351)
+                    debug_log.output << "sample_data.sample_period_nanoseconds = " << sample_data.sample_period_nanoseconds << ".\n";
                 if(sample_data.midi_note != 60)
                     debug_log.output << "sample_data.midi_note = " << sample_data.midi_note << ".\n";
                 if(sample_data.midi_pitch_fraction != 0)
