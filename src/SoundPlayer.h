@@ -1,21 +1,22 @@
-#ifndef FC_ANNOUNCEMENT_PLAYER_H
-#define FC_ANNOUNCEMENT_PLAYER_H
+#ifndef FC_SOUND_PLAYER_H
+#define FC_SOUND_PLAYER_H
 
 #include "GameState.h"
 
 #include <vector>
-#include "Data/Mission/SNDSResource.h"
+#include "Data/Mission/WAVResource.h"
 #include "Graphics/Text2DBuffer.h"
 
 #include "Sound/Speaker.h"
 
-class AnnouncementPlayer : public GameState {
+class SoundPlayer : public GameState {
 public:
-    static AnnouncementPlayer announcement_player;
+    static SoundPlayer sound_player;
 
 private:
-    unsigned int announcement_index;
-    std::vector<const Data::Mission::SNDSResource*> announcements;
+    unsigned int sound_resource_index;
+    std::vector<const Data::Mission::WAVResource*> all_sounds;
+    Sound::Speaker *sound_p;
 
     float count_down;
 
@@ -23,8 +24,8 @@ private:
     unsigned font_height;
 
 public:
-    AnnouncementPlayer();
-    virtual ~AnnouncementPlayer();
+    SoundPlayer();
+    virtual ~SoundPlayer();
 
     virtual void load( MainProgram &main_program );
     virtual void unload( MainProgram &main_program );
@@ -32,4 +33,4 @@ public:
     virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
 
-#endif // FC_ANNOUNCEMENT_PLAYER_H
+#endif // FC_SOUND_PLAYER_H

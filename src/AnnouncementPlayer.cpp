@@ -8,7 +8,6 @@
 AnnouncementPlayer AnnouncementPlayer::announcement_player;
 
 AnnouncementPlayer::AnnouncementPlayer() {
-    sound_p = nullptr;
 }
 
 AnnouncementPlayer::~AnnouncementPlayer() {}
@@ -51,23 +50,10 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
             this->font.scale = 1;
         }
     }
-
-    main_program.sound_system_p->getListenerReference(Sound::Listener::WhichEar::BOTH)->setEnabled(true);
-
-    this->sound_p = main_program.sound_system_p->allocateSpeaker( 1 );
-
-    this->sound_p->setRepeatMode(true);
-
-    if(this->sound_p != nullptr)
-        this->sound_p->setSpeakerState(Sound::PlayerState::PLAY);
 }
 
 void AnnouncementPlayer::unload( MainProgram &main_program ) {
     this->announcements.clear();
-
-    if(this->sound_p != nullptr)
-        delete this->sound_p;
-    this->sound_p = nullptr;
 }
 
 void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
