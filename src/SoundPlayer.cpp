@@ -37,15 +37,6 @@ void SoundPlayer::load( MainProgram &main_program ) {
     }
 
     main_program.sound_system_p->getListenerReference(Sound::Listener::WhichEar::BOTH)->setEnabled(true);
-
-    assert(this->sound_p == nullptr);
-
-    this->sound_p = main_program.sound_system_p->allocateSpeaker( 139 );
-
-    this->sound_p->setRepeatMode(true);
-
-    if(this->sound_p != nullptr)
-        this->sound_p->setSpeakerState(Sound::PlayerState::PLAY);
 }
 
 void SoundPlayer::unload( MainProgram &main_program ) {
@@ -74,7 +65,7 @@ void SoundPlayer::update( MainProgram &main_program, std::chrono::microseconds d
             if(this->sound_p != nullptr)
                 delete this->sound_p;
 
-            this->sound_p = main_program.sound_system_p->allocateSpeaker( this->sound_resource_index );
+            this->sound_p = main_program.sound_system_p->allocateSpeaker( this->all_sounds.at(this->sound_resource_index)->getResourceID() );
 
             if(this->sound_p != nullptr)
                 this->sound_p->setSpeakerState(Sound::PlayerState::PLAY);
@@ -152,5 +143,5 @@ void SoundPlayer::update( MainProgram &main_program, std::chrono::microseconds d
         text_2d_buffer_r->print( new_stream.str() );
     }
     else
-        text_2d_buffer_r->print( "Note PS1 file sounds are not supported yet." );
+        text_2d_buffer_r->print( "Note PS1 sounds are not supported yet." );
 }
