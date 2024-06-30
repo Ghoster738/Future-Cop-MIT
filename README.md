@@ -49,11 +49,9 @@ These are the third party libraries that this project uses.
 
 * [GLAD2][glad-library-link]
 
-* [JsonCpp][json-library-link]
+* [JsonCpp][jsoncpp-library-link]
 
-* libpng
-
-* libz
+* [libpng][libpng-library-link]
   
 * [mINI][mini-library-link]
 
@@ -63,12 +61,16 @@ These are the third party libraries that this project uses.
 
 * [SDL2][sdl-library-link]
 
+* [zlib][zlib-library-link]
+
 [glad-library-link]: https://github.com/Dav1dde/glad "GLAD's source code repository"
-[json-library-link]: https://github.com/open-source-parsers/jsoncpp "JsonCpp's source code repository"
+[jsoncpp-library-link]: https://github.com/open-source-parsers/jsoncpp "JsonCpp's source code repository"
+[libpng-library-link]: http://libpng.org/pub/png/libpng.html "libpng's source code repository"
 [mini-library-link]: https://github.com/metayeti/mINI "mINI's source code repository"
 [mojo-al-library-link]: https://github.com/icculus/mojoAL "mojoAL's source code repository"
 [glm-library-link]: https://github.com/g-truc/glm "OpenGL Mathematic's source code repository"
 [sdl-library-link]: https://github.com/libsdl-org/SDL "SDL2's source code repository"
+[zlib-library-link]: https://github.com/madler/zlib "zlib's source code repository"
 
 ## Build instructions
 ### Linux
