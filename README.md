@@ -47,7 +47,7 @@ See the [autoloading](#autoloading-game-data) system for a simple way to use it,
 ## Third-Party Libraries Used
 These are the third party libraries that this project uses.
 
-* SDL2
+* [SDL2][sdl-library-link]
 
 * GLAD2
 
@@ -62,6 +62,8 @@ These are the third party libraries that this project uses.
 * libpng
 
 * libz
+
+[sdl-library-link]: https://github.com/libsdl-org/SDL "SDL2's source code repository"
 
 ## Build instructions
 ### Linux
