@@ -3,7 +3,8 @@ Open Source Game Engine Project
 
 * [About](#about)
 * [System Requirements](#system-requirements)
-* [Original game data](#original-game-data)
+* [Original Game Data](#original-game-data)
+* [Third-Party Libraries Used](#third-party-libraries-used)
 * [Build instructions](#build-instructions)
   + [Linux](#linux)
   + [Windows](#windows)
@@ -38,10 +39,29 @@ There are no clearly defined system requirements at this time, however the proje
 
 Although another aim is to create portable code, this code will not work on the PlayStation 1 due to its lack of C++17 support - as developing for C99 would be harder with the constant worry of memory management. However, the code might be able to run on the Raspberry PI Zero.
 
-## Original game data
+## Original Game Data
 All these tools (and the actual game when ready) require the presence of the original game data in order to function.
 
 See the [autoloading](#autoloading-game-data) system for a simple way to use it, or use the parameters for the individual programs.
+
+## Third-Party Libraries Used
+These are the third party libraries that this project uses.
+
+* SDL2
+
+* GLAD2
+
+* mojoAL
+
+* OpenGL Mathematics Library (GLM)
+
+* mINI
+
+* JsonCPP
+
+* libpng
+
+* libz
 
 ## Build instructions
 ### Linux
@@ -258,21 +278,3 @@ This is list of exported resource formats and the corresponding internal format 
 * BahKooJ for various information about Future Cop.
 
 * Killermosi/kkmic for improving parameter system, the filesystem, and the options system.
-
-### Libraries
-
-* SDL2
-
-* GLAD2
-
-* mojoAL
-
-* OpenGL Mathematics Library (GLM)
-
-* mINI
-
-* JsonCPP
-
-* libpng
-
-* libz
