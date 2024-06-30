@@ -47,22 +47,27 @@ See the [autoloading](#autoloading-game-data) system for a simple way to use it,
 ## Third-Party Libraries Used
 These are the third party libraries that this project uses.
 
-* [SDL2][sdl-library-link]
+* [GLAD2][glad-library-link]
 
-* GLAD2
-
-* mojoAL
-
-* OpenGL Mathematics Library (GLM)
-
-* mINI
-
-* JsonCPP
+* [JsonCpp][json-library-link]
 
 * libpng
 
 * libz
+  
+* [mINI][mini-library-link]
 
+* [mojoAL][mojo-al-library-link]
+
+* [OpenGL Mathematics Library (GLM)][glm-library-link]
+
+* [SDL2][sdl-library-link]
+
+[glad-library-link]: https://github.com/Dav1dde/glad "GLAD's source code repository"
+[json-library-link]: https://github.com/open-source-parsers/jsoncpp "JsonCpp's source code repository"
+[mini-library-link]: https://github.com/metayeti/mINI "mINI's source code repository"
+[mojo-al-library-link]: https://github.com/icculus/mojoAL "mojoAL's source code repository"
+[glm-library-link]: https://github.com/g-truc/glm "OpenGL Mathematic's source code repository"
 [sdl-library-link]: https://github.com/libsdl-org/SDL "SDL2's source code repository"
 
 ## Build instructions
