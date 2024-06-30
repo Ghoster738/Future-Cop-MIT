@@ -55,15 +55,7 @@ const uint32_t AIFFResource::IDENTIFIER_TAG = 0x43616966; // which is { 0x43, 0x
 
 AIFFResource::AIFFResource() : WAVResource() {}
 
-AIFFResource::AIFFResource( const AIFFResource &obj ) : WAVResource(obj) {}
-
-std::string AIFFResource::getFileExtension() const {
-    return FILE_EXTENSION;
-}
-
-uint32_t AIFFResource::getResourceTagID() const {
-    return IDENTIFIER_TAG;
-}
+AIFFResource::AIFFResource( const AIFFResource &aiff ) : WAVResource(aiff) {}
 
 bool AIFFResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
