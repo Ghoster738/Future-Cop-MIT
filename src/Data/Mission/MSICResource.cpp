@@ -70,7 +70,7 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
             // next_offset is multiplied by two.
             auto data_reader = reader.getReader( 2 * static_cast<size_t>( next_offset ));
 
-            sound.addAudioStream( data_reader );
+            sound.addAudioStream( data_reader, 1, Utilities::Buffer::Endian::NO_SWAP );
         }
         while( !reader.ended() );
 

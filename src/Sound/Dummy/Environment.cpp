@@ -14,7 +14,7 @@ int Environment::deinitEntireSystem() {
     return 1;
 }
 
-std::string Environment::getEnvironmentIdentifier() const {
+uint32_t Environment::getEnvironmentIdentifier() const {
     return NO_AUDIO;
 }
 
@@ -40,6 +40,14 @@ bool Environment::setTrackPlayerState(PlayerState player_state) {
 
 Sound::PlayerState Environment::getTrackPlayerState() const {
     return Sound::PlayerState::STOP;
+}
+
+Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_type) {
+    return nullptr;
+}
+
+Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
+    return nullptr;
 }
 
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {

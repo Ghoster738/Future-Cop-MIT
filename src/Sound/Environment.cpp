@@ -5,17 +5,14 @@
 
 namespace Sound {
 
-const std::string Environment::SDL2_WITH_MOJO_AL = "MojoAL";
-const std::string Environment::NO_AUDIO = "DUMMY Audio";
-
 Environment::Environment() {
 }
 
 Environment::~Environment() {
 }
 
-std::vector<std::string> Environment::getAvailableIdentifiers() {
-    std::vector<std::string> identifiers;
+std::vector<uint32_t> Environment::getAvailableIdentifiers() {
+    std::vector<uint32_t> identifiers;
 
     identifiers.push_back( SDL2_WITH_MOJO_AL );
     identifiers.push_back( NO_AUDIO );
@@ -23,42 +20,54 @@ std::vector<std::string> Environment::getAvailableIdentifiers() {
     return identifiers;
 }
 
-bool Environment::isIdentifier( const std::string &identifier ) {
-    if( identifier.compare( NO_AUDIO ) == 0 )
+std::string Environment::identifierToString(uint32_t identifer) {
+    switch(identifer) {
+        case NO_AUDIO:
+            return "NO_AUDIO";
+            break;
+        case SDL2_WITH_MOJO_AL:
+            return "SDL2_WITH_MOJO_AL";
+            break;
+    }
+    return "NOT_A_VALID_IDENITIFER";
+}
+
+bool Environment::isIdentifier( uint32_t identifier ) {
+    if( identifier == NO_AUDIO )
         return true;
-    else if ( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 )
+    else if ( identifier == SDL2_WITH_MOJO_AL )
         return true;
     else
         return false;
 }
 
-Environment* Environment::alloc( const std::string &identifier ) {
-    if( identifier.compare( NO_AUDIO ) == 0 ) {
+Environment* Environment::alloc( uint32_t identifier ) {
+    if( identifier == NO_AUDIO ) {
         return new Dummy::Environment();
     }
-    else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
+    else if( identifier == SDL2_WITH_MOJO_AL ) {
         return new OpenAL::Environment();
     }
     else
         return nullptr;
 }
 
-int Environment::initSystem( const std::string &identifier ) {
-    if( identifier.compare( NO_AUDIO ) == 0 ) {
+int Environment::initSystem( uint32_t identifier ) {
+    if( identifier == NO_AUDIO ) {
         return Dummy::Environment::initSystem();
     }
-    else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
+    else if( identifier == SDL2_WITH_MOJO_AL ) {
         return OpenAL::Environment::initSystem();
     }
     else
         return -1;
 }
 
-int Environment::deinitEntireSystem( const std::string &identifier ) {
-    if( identifier.compare( NO_AUDIO ) == 0 ) {
+int Environment::deinitEntireSystem( uint32_t identifier ) {
+    if( identifier == NO_AUDIO ) {
         return Dummy::Environment::deinitEntireSystem();
     }
-    else if( identifier.compare( SDL2_WITH_MOJO_AL ) == 0 ) {
+    else if( identifier == SDL2_WITH_MOJO_AL ) {
         return OpenAL::Environment::deinitEntireSystem();
     }
     else

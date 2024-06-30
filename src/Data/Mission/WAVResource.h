@@ -13,17 +13,17 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
 protected:
-    unsigned int audio_format; // Should be 1
-    unsigned int channel_number; // 1 for mono.
-    unsigned int sample_rate; // For example 44100
-    unsigned int byte_rate; // sample_rate * channel_number * bits_per_sample / 8
-    unsigned int block_align; // channel_number * bits_per_sample / 8
-    unsigned int bits_per_sample;
-
     std::vector<uint8_t> audio_stream;
-    // This is the amount of bytes that the wav says. So it can be smaller than the audio_stream.
-    unsigned int audio_stream_length;
 
+    // This is the amount of bytes that the audio file claims it has. Thus, audio_stream_length can be smaller than the audio_stream.
+    uint_fast32_t audio_stream_length;
+    uint_fast32_t sample_rate; // Can be 44100Hz, 22050Hz, etc.
+    uint_fast32_t byte_rate; // sample_rate * num_channels * bits_per_sample / 8
+    uint_fast32_t loop_begin;
+    uint_fast32_t loop_end;
+    uint_fast16_t block_align; // num_channels * bits_per_sample / 8
+    uint_fast8_t  num_channels; // 1 for mono. 2 for stereo.
+    uint_fast8_t  bits_per_sample;
 public:
 
     WAVResource();
@@ -33,16 +33,20 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    void setChannelNumber( int channel_number );
-    void setSampleRate( int sample_rate );
-    void setBitsPerSample( int bits_per_sample );
+    void setChannelNumber( uint_fast8_t num_channels );
+    void setSampleRate( uint_fast32_t sample_rate );
+    void setBitsPerSample( uint_fast8_t bits_per_sample );
     void updateDependices();
 
-    int getChannelNumber() const { return channel_number; }
-    int getSampleRate() const { return sample_rate; }
-    int getBitsPerSample() const { return bits_per_sample; }
-    int getTotalPCMBytes() const { return audio_stream_length; }
+    uint_fast8_t getChannelNumber() const { return num_channels; }
+    uint_fast32_t getSampleRate() const { return sample_rate; }
+    uint_fast8_t getBitsPerSample() const { return bits_per_sample; }
+    uint_fast32_t getTotalPCMBytes() const { return audio_stream_length; }
     const uint8_t *const getPCMData() const { return audio_stream.data(); }
+
+    bool hasLoop() const { return loop_begin < loop_end; }
+    uint_fast32_t getLoopBeginSample() const { return loop_begin; }
+    uint_fast32_t getLoopEndSample() const { return loop_end; }
 
     /**
      * This adds new data to the back of the member variable audio_stream.
@@ -50,14 +54,14 @@ public:
      * @param reader This holds the reader to the data.
      * @return If the reader is valid or non-empty this should return true.
      */
-    bool addAudioStream( Utilities::Buffer::Reader &reader );
+    bool addAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian );
 
     /**
      * This copies the buffer into the audio_stream. Warning this will clear audio_stream's
      * original content.
      * @note This function will advance the reader! 
      */
-    bool setAudioStream( Utilities::Buffer::Reader &reader );
+    bool setAudioStream( Utilities::Buffer::Reader &reader, unsigned bytes_per_sample, Utilities::Buffer::Endian endian );
 
     void updateAudioStreamLength();
 

@@ -43,8 +43,9 @@ struct IFFOptions {
     // This is the the option to other resources.
 
     struct AIFFOption : public ResourceOption {
+        bool to_wav;
 
-        AIFFOption() : ResourceOption() {}
+        AIFFOption() : ResourceOption(), to_wav( false ) {}
         std::string getNameSpace() const { return "AIFF"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;
@@ -179,8 +180,9 @@ struct IFFOptions {
     } til;
 
     struct WavOption : public ResourceOption {
+        bool reencode_wav;
 
-        WavOption() : ResourceOption() {}
+        WavOption() : ResourceOption(), reencode_wav( false ) {}
         std::string getNameSpace() const { return "WAV"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;

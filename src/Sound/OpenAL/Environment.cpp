@@ -9,7 +9,7 @@
 namespace Sound {
 namespace OpenAL {
 
-Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), music_buffer(0), music_source(0) {}
+Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), music_buffer(0), music_source(0) {}
 
 Environment::~Environment() {
     alcMakeContextCurrent(nullptr);
@@ -22,6 +22,8 @@ Environment::~Environment() {
 }
 
 int Environment::initSystem() {
+    // TODO Add optional AL_SOFT_loop_points support.
+
     return 1;
 }
 
@@ -29,7 +31,7 @@ int Environment::deinitEntireSystem() {
     return 1;
 }
 
-std::string Environment::getEnvironmentIdentifier() const {
+uint32_t Environment::getEnvironmentIdentifier() const {
     return SDL2_WITH_MOJO_AL;
 }
 
@@ -167,6 +169,36 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         return -16;
     }
 
+    for(auto key: id_to_sound) {
+        ALenum current_error_state = key.second.deallocate();
+
+        if(current_error_state != AL_NO_ERROR) {
+            error_state = current_error_state;
+        }
+    }
+
+    if(error_state != AL_NO_ERROR) {
+        return -17;
+    }
+
+    id_to_sound.clear();
+
+    auto sound_resources_r = accessor.getAllConstWAV();
+
+    for(const Data::Mission::WAVResource* sound_r: sound_resources_r) {
+        id_to_sound[sound_r->getResourceID()] = Internal::SoundSource();
+
+        ALenum current_error_state = id_to_sound[sound_r->getResourceID()].allocate(*sound_r);
+
+        if(current_error_state != AL_NO_ERROR) {
+            error_state = current_error_state;
+        }
+    }
+
+    if(error_state != AL_NO_ERROR) {
+        return -18;
+    }
+
     return 1;
 }
 
@@ -243,7 +275,19 @@ Sound::PlayerState Environment::getTrackPlayerState() const {
     return sound_queue.getPlayerState();
 }
 
+Sound::Listener* Environment::getListenerReference(Listener::WhichEar listener_type) {
+    switch(listener_type) {
+        case Listener::WhichEar::BOTH:
+            return &listener_both;
+        default:
+            return nullptr;
+    }
+}
+
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
+    if(listener_both.getEnabled())
+        listener_both.process(duration);
+
     sound_queue.update(duration);
 }
 

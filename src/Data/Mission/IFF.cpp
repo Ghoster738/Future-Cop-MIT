@@ -63,7 +63,7 @@ namespace {
 
     const std::map<uint32_t, Data::Mission::Resource*> file_type_list {
         { Data::Mission::ACTResource::IDENTIFIER_TAG, new Data::Mission::ACT::Unknown() },
-        { Data::Mission::ANMResource::IDENTIFIER_TAG, new Data::Mission::ANMResource() }, // Resource ID missing
+        { Data::Mission::ANMResource::IDENTIFIER_TAG, new Data::Mission::ANMResource() },
         { Data::Mission::BMPResource::IDENTIFIER_TAG, new Data::Mission::BMPResource() },
         // which is { 0x43, 0x63, 0x74, 0x72 } or { 'C', 'c', 't', 'r' } or "Cctr"
         { 0x43637472, new Data::Mission::UnkResource( 0x43637472, "ctr" ) },
@@ -75,15 +75,15 @@ namespace {
         { Data::Mission::PYRResource::IDENTIFIER_TAG,  new Data::Mission::PYRResource() },
         { Data::Mission::ACTResource::SAC_IDENTI_TAG,  new Data::Mission::ACT::Unknown() },
         // which is { 0x43, 0x73, 0x66, 0x78 } or { 'C', 's', 'f', 'x' } or "Csfx"
-        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true) },  // Resource ID missing
+        { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true) },  // Resource ID missing. Holds Act based structures?
         // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
-        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // Holds programmer settings?  // Resource ID missing
+        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // // Resource ID missing. Holds programmer settings?
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
         { Data::Mission::AIFFResource::IDENTIFIER_TAG, new Data::Mission::AIFFResource() },
         { Data::Mission::RPNSResource::IDENTIFIER_TAG, new Data::Mission::RPNSResource() },
-        { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() }, // Resource ID missing
+        { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
         { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
         { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
