@@ -138,10 +138,22 @@ void SoundPlayer::update( MainProgram &main_program, std::chrono::microseconds d
         text_2d_buffer_r->print( new_stream.str() );
     }
     else
-        text_2d_buffer_r->print( "No sounds are loaded." );
+        text_2d_buffer_r->print( "No sounds are loaded. Note: PS1 sounds not supported." );
 
-    text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
-    text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
+    text_2d_buffer_r->setColor( glm::vec4( 0.50, 1.00, 0.50, 1 ) );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, 1 * this->font_height ) );
+    text_2d_buffer_r->print( "Press the ACTION button to play." );
+
+    text_2d_buffer_r->setColor( glm::vec4( 1.00, 0.50, 0.00, 1 ) );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, 2 * this->font_height ) );
+
+    if(this->repeat)
+        text_2d_buffer_r->print( "Press the JUMP button disable endless repeats." );
+    else
+        text_2d_buffer_r->print( "Press the JUMP button enable endless repeats." );
+
+    text_2d_buffer_r->setColor( glm::vec4( 1, 0.25, 1, 1 ) );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, 3 * this->font_height ) );
 
     if(!this->all_sounds.empty() && this->all_sounds.at( this->sound_resource_index )->hasLoop()) {
         std::stringstream new_stream;
@@ -152,5 +164,5 @@ void SoundPlayer::update( MainProgram &main_program, std::chrono::microseconds d
         text_2d_buffer_r->print( new_stream.str() );
     }
     else
-        text_2d_buffer_r->print( "Note PS1 sounds are not supported yet." );
+        text_2d_buffer_r->print( "No loop offset metadata." );
 }
