@@ -7,8 +7,6 @@
 #include "Data/Mission/SNDSResource.h"
 #include "Graphics/Text2DBuffer.h"
 
-#include "Sound/Speaker.h"
-
 class AnnouncementPlayer : public GameState {
 public:
     static AnnouncementPlayer announcement_player;

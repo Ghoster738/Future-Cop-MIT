@@ -7,8 +7,7 @@
 
 AnnouncementPlayer AnnouncementPlayer::announcement_player;
 
-AnnouncementPlayer::AnnouncementPlayer() {
-}
+AnnouncementPlayer::AnnouncementPlayer() {}
 
 AnnouncementPlayer::~AnnouncementPlayer() {}
 
