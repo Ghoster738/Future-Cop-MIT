@@ -16,6 +16,9 @@ int main(int argc, char** argv)
 
     MainMenu::main_menu.is_game_on = false;
 
+    if(main_program.sound_system_p != nullptr)
+        main_program.sound_system_p->readConfig(main_program.paths.getConfigDirPath() + "sound");
+
     InputMenu::input_menu.name = main_program.paths.getConfigDirPath() + "controls";
     InputMenu::input_menu.menu_r = &MainMenu::main_menu;
 

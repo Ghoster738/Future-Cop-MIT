@@ -16,6 +16,7 @@ public:
 
     virtual uint32_t getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+    virtual int readConfig( std::filesystem::path file );
 
     virtual bool setMusicState(Sound::PlayerState player_state);
     virtual PlayerState getMusicState() const;

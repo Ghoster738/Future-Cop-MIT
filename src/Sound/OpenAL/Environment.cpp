@@ -1,5 +1,7 @@
 #include "Environment.h"
 
+#include <mini/ini.h>
+
 #include "../../Data/Mission/MSICResource.h"
 #include "../../Data/Mission/TOSResource.h"
 #include "../../Data/Mission/SNDSResource.h"
@@ -198,6 +200,59 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if(error_state != AL_NO_ERROR) {
         return -18;
     }
+
+    return 1;
+}
+
+int Environment::readConfig( std::filesystem::path file ) {
+    std::filesystem::path full_file_path = file;
+
+    full_file_path += ".ini";
+
+    auto ini_file_p = new mINI::INIFile( full_file_path );
+
+    if(ini_file_p == nullptr)
+        return -1;
+
+    mINI::INIStructure ini_data;
+
+    ini_file_p->read(ini_data);
+
+    bool missing_data = false;
+
+    if(!ini_data.has("general"))
+        ini_data["general"];
+    {
+        auto& general = ini_data["general"];
+
+        if(!general.has("master_volume")) {
+            general["master_volume"] = std::to_string(1.0);
+            missing_data = true;
+        }
+        if(!general.has("announcement_volume")) {
+            general["announcement_volume"] = std::to_string(1.0);
+            missing_data = true;
+        }
+        if(!general.has("music_volume")) {
+            general["music_volume"] = std::to_string(1.0);
+            missing_data = true;
+        }
+        if(!general.has("sfx_volume")) {
+            general["sfx_volume"] = std::to_string(1.0);
+            missing_data = true;
+        }
+    }
+
+    if(!ini_data.has("listener") || !ini_data["listener"].has("sound_limit")) {
+        ini_data["listener"]["sound_limit"] = std::to_string(32);
+        missing_data = true;
+    }
+
+    if(missing_data || !std::filesystem::exists(full_file_path)) {
+        ini_file_p->write(ini_data, true); // Pretty print
+    }
+
+    delete ini_file_p;
 
     return 1;
 }

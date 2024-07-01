@@ -2,6 +2,7 @@
 #define SOUNDS_ENVIRONMENT_H
 
 #include <chrono>
+#include <filesystem>
 #include <vector>
 #include <string>
 
@@ -81,6 +82,13 @@ public:
      * @return The amount of resources successfully loaded. A negative number indicates error codes.
      */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
+
+    /**
+     * This method reads an ini file containing configuration.
+     * @param file The location of the configuration file.
+     * @return -1 if the configuration file being read is not compatible, 0 if this operation is not supported, 1 file is successfully read.
+     */
+    virtual int readConfig( std::filesystem::path file ) = 0;
 
     /**
      * This changes music state.
