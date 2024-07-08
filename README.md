@@ -76,45 +76,95 @@ These are the third party libraries that this project uses.
 ### Linux
 These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 
-1. Install build tools and required packages:
-   ```
-   apt install build-essential libglm-dev libsdl2-dev libjsoncpp-dev
-   ```
-    * Optional: install additional tools and packages:
-       * `libz-dev` for compression, but libpng-dev requires it so apt would install this with libpng-dev.
-       * `libpng-dev` for PNG export support
-       * `git` for repository cloning and build versioning
-       ```
-       apt install libpng-dev git
-       ```
+1. Install build tools and packages:
+
+   A. **Arch-based Linux Distributions through pacman**
+
+      This command will install the estential packages required by Future Cop M.I.T. Note: You might not have sudo, but at this point you probably know how to use su. However, remember to use root only for pacman.
+      
+      cmake is what this project uses for cross-platform build automation. gcc is the compiler that is used for this project. **It is required for this project to be compiled**
+      
+      ```
+      sudo pacman -S make cmake gcc
+      ```
+      
+      This project requires these libraries.
+      
+      ```
+      sudo pacman -S glm sdl2 jsoncpp
+      ```
+      
+      Optional: install additional tools and packages:
+
+          * `zlib` for compression, but libpng-dev requires it so apt would install this with libpng-dev.
+
+          * `libpng` for PNG export support. libpng requires zlib so pacman and APT would install this with libpng.
+
+      ```
+      sudo pacman -S libpng
+      ```
+
+      Optional but **recommended**: install git for repository cloning and build versioning.
+
+      ```
+      sudo pacman -S git
+      ```
+   
+   B. **Debian-based Linux Distributions through APT**
+
+      This command will install the essential packages required by Future Cop M.I.T.
+      ```
+      sudo apt install build-essential cmake libglm-dev libsdl2-dev libjsoncpp-dev
+      ```
+       * Optional: install additional tools and packages:
+          * `libz-dev` for compression, but libpng-dev requires it so apt would install this with libpng-dev.
+          * `libpng-dev` for PNG export support
+          * `git` for repository cloning and build versioning
+      ```
+      sudo apt install libpng-dev git
+      ```
+   
 2. Get or clone the source code:
    * Clone:
+
+     A. If you want everything then clone then use this command. On a folder or directory where you want to host the source code.
      ```
      git clone https://github.com/Ghoster738/Future-Cop-MIT.git
+     ```
+
+     B. If you want only just enough to compile for yourself then clone then use this command. On a folder or directory where you want to host the source code.
+     ```
+     git clone --depth 1 https://github.com/Ghoster738/Future-Cop-MIT.git
+     ```
+     
+     Get into the source code and get its submodules. **Submodule mINI is required for compilation**:
+     ```
+     cd Future-Cop-MIT
+     git submodule update --init --recursive --progress --depth 1
      ```
      
    * Download the latest [source code][source-code-link]. (Warning: using git is strongly recommended, because of the ease of automatically downloading the submodules.)
 
-[source-code-link]: https://github.com/Ghoster738/Future-Cop-MIT/archive/refs/heads/main.zip "Download as zip"
+     For the direct download all that is required is to get [mINI][mini-source-code-link] and put it into the submodules mINI directory.
 
-3. Get the submodules. **Submodule mINI is required for compilation**:
-   * For git use this command it would download every submodule used in this project:
-     ```
-     git submodule update --init --recursive --progress --depth 1
-     ```
-   * For the direct download all that is required is to get [mINI][mini-source-code-link] and put it into the submodules mINI directory.
+     Open the terminal inside the extracted folder where you can find this readme.
+
 
 [mini-source-code-link]: https://github.com/pulzed/mINI/archive/refs/heads/master.zip
+[source-code-link]: https://github.com/Ghoster738/Future-Cop-MIT/archive/refs/heads/main.zip "Download as zip"
+
+ 
+3. Prepare an [out of source build][oos-build-link]:
+    
+    Note: If you downloaded Future-Cop-MIT manually then open the terminal inside the extracted folder where you can find this readme.
    
-5. Prepare an [out of source build][oos-build-link]:
     ```
-    cd Future-Cop-MIT
     mkdir build
     cd build
     ```
 [oos-build-link]: https://cgold.readthedocs.io/en/latest/tutorials/out-of-source.html "Out-of-source build documentation"
     
-5. Configure the build (add your options if needed):
+4. Configure the build (add your options if needed):
 
    A. If the gcc version 9.1 or above use this command:
    ```
@@ -126,7 +176,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
    cmake .. -DFCOption_PREGCC_9_1_LIBRARIES=ON -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=LEGACY
    ```
 
-6. Build it with this command (-j is optional, but it would make compiling faster):
+5. Build it with this command (-j is optional, but it would make compiling faster):
     ```
     make -j<Number of CPU Cores>
     ```
