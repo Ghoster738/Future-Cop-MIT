@@ -332,10 +332,11 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	make -j<Number of CPU Cores>
 	```
 
- 10. Running the executables requires certain libraries in the same location as the executables to run.
-
-	These are libraries in the same location as the executables that have been compiled.
- 	```
+10. Running the executables requires certain libraries in the **same** location as the executables to run.
+	
+ 	These are libraries in the same location as the executables that have been compiled.
+ 	
+  	```
   	cp /usr/x86_64-w64-mingw32/bin/libgcc_s_seh-1.dll libgcc_s_seh-1.dll
   	cp /usr/x86_64-w64-mingw32/bin/libwinpthread-1.dll libwinpthread-1.dll
   	cp /usr/x86_64-w64-mingw32/bin/libstdc++-6.dll libstdc++-6.dll
