@@ -233,7 +233,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	mkdir jsoncpp libpng prime zlib
 	```
 
- 6. Compile and "install" jsoncpp. **This libary is required to get this project working!**
+ 6. Compile and "install" jsoncpp. **This library is required to get this project working!**
 
 	First go into jsoncpp directory.
 	```
@@ -249,7 +249,23 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	```
 	make -j<number of cores> install
 	```
+ 
+ 	Get out of the directory to make path.
+	```
+	cd ..
+	```
 
+7. Final compile step.
+
+ 	First go into prime directory.
+	```
+	cd prime
+	```
+
+ 	Then run cmake.
+	```
+	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DFCOption_GLM_VENDORED=ON -DFCOption_SDL2_VENDORED=ON ../../../../
+	```
 ### Mac OS
 > :warning:  There are no build instructions for Mac OS at this time.
 
