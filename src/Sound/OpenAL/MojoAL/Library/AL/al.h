@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#define AL_API // This is to be treated like a static library.
+
 #ifndef AL_API
  #if defined(AL_LIBTYPE_STATIC)
   #define AL_API
