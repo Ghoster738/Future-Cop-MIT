@@ -247,7 +247,56 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	
 	If cmake is successful use this command. Note: Normally install would require root access, but the install prefix is set to rootpath directory.
 	```
-	make -j<number of cores> install
+	make -j<Number of CPU Cores> install
+	```
+ 
+	Note: Replace "\<Number of CPU Cores\>" with a number.
+	```
+	make -j8 install
+	```
+ 
+ 	Get out of the directory to make path.
+	```
+	cd ..
+	```
+ 
+ 7. Compile and "install" zlib. **This library is optional, but libpng needs this to work.**
+
+	First go into jsoncpp directory.
+	```
+	cd zlib
+	```
+	
+	Then run cmake. This command turns on the post build unit test on purpose because the unit tests requires WINE to run in order to get the tests working.
+	```
+	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DCMAKE_INSTALL_PREFIX=../../rootpath ../../../../submodules/zlib
+	```
+	
+	If cmake is successful use this command. Note: Normally install would require root access, but the install prefix is set to rootpath directory.
+	```
+	make -j<Number of CPU Cores> install
+	```
+ 
+ 	Get out of the directory to make path.
+	```
+	cd ..
+	```
+ 
+ 8. Compile and "install" libpng. **This library is optional, but needed for png export.**
+
+	First go into jsoncpp directory.
+	```
+	cd libpng
+	```
+	
+	Then run cmake. This command turns on the post build unit test on purpose because the unit tests requires WINE to run in order to get the tests working.
+	```
+	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DZLIB_INCLUDE_DIR=../../rootpath/include -DZLIB_LIBRARY=../../rootpath/bin/libzlib.dll -DCMAKE_INSTALL_PREFIX=../../rootpath ../../../../submodules/libpng
+	```
+	
+	If cmake is successful use this command. Note: Normally install would require root access, but the install prefix is set to rootpath directory.
+	```
+	make -j<Number of CPU Cores> install
 	```
  
  	Get out of the directory to make path.
@@ -255,21 +304,26 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	cd ..
 	```
 
-7. Final compile step.
+9. Final compile step.
 
  	First go into prime directory.
 	```
 	cd prime
 	```
 
- 	Then run cmake.
+ 	This is the minimal steps for the windows build **with no png support**.
 	```
 	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DJSON_CPP_INCLUDE_DIR=../../rootpath/include -DJSON_CPP_LIBRARY=../../rootpath/bin/libjsoncpp.dll -DFCOption_GLM_VENDORED=ON -DFCOption_SDL2_VENDORED=ON ../../../../
+	```
+ 
+ 	This is the full build steps for the windows build with png support
+	```
+	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DZLIB_INCLUDE_DIR=../../rootpath/include -DZLIB_LIBRARY=../../rootpath/bin/libzlib.dll -DPNG_PNG_INCLUDE_DIR=../../rootpath/include -DPNG_LIBRARY_RELEASE=../../rootpath/bin/libpng16.dll -DJSON_CPP_INCLUDE_DIR=../../rootpath/include -DJSON_CPP_LIBRARY=../../rootpath/bin/libjsoncpp.dll -DFCOption_GLM_VENDORED=ON -DFCOption_SDL2_VENDORED=ON ../../../../
 	```
 
 	Finally, compile the program with this command.
 	```
-	make -j<number of cores> install
+	make -j<Number of CPU Cores> install
 	```
 
 ### Mac OS
