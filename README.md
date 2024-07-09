@@ -264,8 +264,14 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 
  	Then run cmake.
 	```
-	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DFCOption_GLM_VENDORED=ON -DFCOption_SDL2_VENDORED=ON ../../../../
+	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DJSON_CPP_INCLUDE_DIR=../../rootpath/include -DJSON_CPP_LIBRARY=../../rootpath/bin/libjsoncpp.dll -DFCOption_GLM_VENDORED=ON -DFCOption_SDL2_VENDORED=ON ../../../../
 	```
+
+	Finally, compile the program with this command.
+	```
+	make -j<number of cores> install
+	```
+
 ### Mac OS
 > :warning:  There are no build instructions for Mac OS at this time.
 
