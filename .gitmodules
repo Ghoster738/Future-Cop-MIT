@@ -16,3 +16,6 @@
 [submodule "submodules/zlib"]
 	path = submodules/zlib
 	url = https://github.com/madler/zlib
+[submodule "submodules/mINI"]
+	path = submodules/mINI
+	url = https://github.com/metayeti/mINI.git
