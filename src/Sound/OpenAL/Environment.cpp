@@ -209,7 +209,7 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     full_file_path += ".ini";
 
-    auto ini_file_p = new mINI::INIFile( full_file_path.native() );
+    auto ini_file_p = new mINI::INIFile( full_file_path.string() );
 
     if(ini_file_p == nullptr)
         return -1;
