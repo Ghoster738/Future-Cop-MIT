@@ -210,12 +210,44 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	mkdir -p build/windows
 	cd build/windows
 	```
- 
-4. Make two paths.
+4. Get the toolchain file from this link [link][mingw-toolchain-link] from Peter Spackman. Place it into the windows directory we created last step.
+
+   	Name the file "mingw-w64-x86_64.cmake" into the build/windows directory. Use the 'ls' command to verify that the toolchain file is there.
 	```
-	mkdir rootpath
-	mkdir make
+ 	ls
+ 	```
+
+[mingw-toolchain-link]: https://gist.github.com/peterspackman/8cf73f7f12ba270aa8192d6911972fe8#file-mingw-w64-x86_64-cmake "Out-of-source build documentation"
+ 
+5. Create the build setup.
+
+	1. rootpath is useful for placing library install paths. make is used as a destination to compile this project and the libraries it uses.
+	```
+	mkdir make rootpath
+	```
+
+  	2. setup the make directory with paths. jsoncpp, libpng, and zlib directories hold the libraries used by the project. prime holds this project.
+		Note: SDL2 is excluded on purpose because the vendored SDL2 option on Future Cop MIT is simpler to use.
+	```
  	cd make
+	mkdir jsoncpp libpng prime zlib
+	```
+
+ 6. Compile and "install" jsoncpp. **This libary is required to get this project working!**
+
+	First go into jsoncpp directory.
+	```
+	cd jsoncpp
+	```
+	
+	Then run cmake. This command turns on the post build unit test on purpose because the unit tests requires WINE to run in order to get the tests working.
+	```
+	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DCMAKE_INSTALL_PREFIX=../../rootpath -DJSONCPP_WITH_PORT_BUILD_UNITTEST=OFF ../../../../submodules/jsoncpp
+	```
+	
+	If cmake is successful use this command. Note: Normally install would require root access, but the install prefix is set to rootpath directory.
+	```
+	make -j<number of cores> install
 	```
 
 ### Mac OS
