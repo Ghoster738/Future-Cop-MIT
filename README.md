@@ -323,7 +323,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 
 	Finally, compile the program with this command.
 	```
-	make -j<Number of CPU Cores> install
+	make -j<Number of CPU Cores>
 	```
 
 ### Mac OS
