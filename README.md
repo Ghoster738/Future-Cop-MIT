@@ -353,6 +353,23 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
   	cp ../../rootpath/bin/libpng16.dll libpng16.dll
   	```
 
+11. **Optional** Running your hard work on Linux.
+
+	Get wine to test/run the executable. If you already have wine skip this step.
+
+	A. **Arch-based Linux Distributions through pacman**
+
+	Use these [instructions](https://wiki.archlinux.org/title/wine#Installation) from archlinux.org to install wine. You only need the 64 bit version of wine to run this project.
+
+	B. **Debian-based Linux Distributions through APT**:
+
+	Use these [instructions](https://www.makeuseof.com/install-wine-ubuntu/) from makeuseof.org to install wine. You only need the 64 bit version of wine to run this project.
+
+	Now, you can run my project on linux.
+ 	```
+  	wine FCopMIT.exe
+  	```
+
 ### Mac OS
 > :warning:  There are no build instructions for Mac OS at this time.
 
