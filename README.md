@@ -196,10 +196,16 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 
 1. Follow linux instructions from 1 - 2. Section 1 on Linux shows how to setup part of the packages used to build the project. Section 2 on Linux shows how to get the source code.
 
-2. Get additional packages.
-	Get MinGW-w64.
+2. Get MinGW-w64.
+
+	A. **Arch-based Linux Distributions through pacman**
 	```
  	sudo pacman -S mingw-w64-gcc
+	```
+
+	B. **Debian-based Linux Distributions through APT**: Disclaimer: This command is not tested.
+	```
+ 	sudo apt install mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 mingw-w64-tools
 	```
 
 3. Prepare an [out of source build][oos-build-link]:
@@ -325,6 +331,26 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	```
 	make -j<Number of CPU Cores>
 	```
+
+ 10. Running the executables requires certain libraries in the same location as the executables to run.
+
+	These are libraries in the same location as the executables that have been compiled.
+ 	```
+  	cp /usr/x86_64-w64-mingw32/bin/libgcc_s_seh-1.dll libgcc_s_seh-1.dll
+  	cp /usr/x86_64-w64-mingw32/bin/libwinpthread-1.dll libwinpthread-1.dll
+  	cp /usr/x86_64-w64-mingw32/bin/libstdc++-6.dll libstdc++-6.dll
+  	```
+
+	This library is required to get the project to running.
+ 	```
+  	cp ../../rootpath/bin/libjsoncpp.dll libjsoncpp.dll
+  	```
+   
+	This library is required to get the project to running. **If you had not compiled the project with zlib and libpng, then you do not have to include these two libraries.**
+ 	```
+  	cp ../../rootpath/bin/libzlib.dll  libzlib.dll
+  	cp ../../rootpath/bin/libpng16.dll libpng16.dll
+  	```
 
 ### Mac OS
 > :warning:  There are no build instructions for Mac OS at this time.
