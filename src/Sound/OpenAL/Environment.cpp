@@ -268,15 +268,17 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     delete ini_file_p;
 
+    master_gain = master_volume;
+
+    alListenerf(AL_GAIN, master_gain);
+
     sound_queue.setGain(announcement_volume);
 
     music_gain = music_volume;
 
     alSourcef(music_source, AL_GAIN, music_gain);
 
-    master_gain = master_volume;
-
-    alListenerf(AL_GAIN, master_gain);
+    listener_both.setGain(sfx_volume);
 
     return 1;
 }
