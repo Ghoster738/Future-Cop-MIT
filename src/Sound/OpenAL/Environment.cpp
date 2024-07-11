@@ -244,7 +244,8 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     bool changed_data = false;
 
-    ALfloat master_volume = 0.25f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume;
+    ALfloat master_volume = 1.0f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume;
+    unsigned listener_sound_limit = 32;
 
     if(!ini_data.has("general"))
         ini_data["general"];
@@ -261,6 +262,13 @@ int Environment::readConfig( std::filesystem::path file ) {
         ini_data["listener"]["sound_limit"] = std::to_string(32);
         changed_data = true;
     }
+    try {
+        listener_sound_limit = std::stoul( ini_data["listener"]["sound_limit"] );
+    } catch( const std::logic_error & logical_error ) {
+        ini_data["listener"]["sound_limit"] = std::to_string(listener_sound_limit);
+        changed_data = true;
+    }
+
 
     if(changed_data || !std::filesystem::exists(full_file_path)) {
         ini_file_p->write(ini_data, true); // Pretty print
@@ -279,6 +287,7 @@ int Environment::readConfig( std::filesystem::path file ) {
     alSourcef(music_source, AL_GAIN, music_gain);
 
     listener_both.setGain(sfx_volume);
+    listener_both.source_max_length = listener_sound_limit;
 
     return 1;
 }
