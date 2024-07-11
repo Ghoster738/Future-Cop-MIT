@@ -11,7 +11,7 @@
 namespace Sound {
 namespace OpenAL {
 
-Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), music_buffer(0), music_source(0) {}
+Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), sound_queue(1.0), music_buffer(0), music_source(0) {}
 
 Environment::~Environment() {
     alcMakeContextCurrent(nullptr);
@@ -204,6 +204,30 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return 1;
 }
 
+#define AUDIO_VOLUME_SETTING(variable, variable_string) \
+if(!general.has(variable_string)) { \
+    general[variable_string] = std::to_string(1.0); \
+    changed_data = true; \
+} \
+try { \
+    variable = std::stof( general[variable_string] ); \
+    if( variable > 2.0f ) { \
+        variable = 2.0f; \
+        general[variable_string] = std::to_string(variable); \
+        changed_data = true; \
+    } \
+    else \
+    if( variable < 0.0f ) { \
+        variable = 0.0f; \
+        general[variable_string] = std::to_string(variable); \
+        changed_data = true; \
+    } \
+} catch( const std::logic_error & logical_error ) { \
+    variable = 1.0f; \
+    general[variable_string] = std::to_string(variable); \
+    changed_data = true; \
+}
+
 int Environment::readConfig( std::filesystem::path file ) {
     std::filesystem::path full_file_path = file;
 
@@ -218,41 +242,33 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     ini_file_p->read(ini_data);
 
-    bool missing_data = false;
+    bool changed_data = false;
+
+    ALfloat master_volume = 0.25f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume;
 
     if(!ini_data.has("general"))
         ini_data["general"];
     {
         auto& general = ini_data["general"];
 
-        if(!general.has("master_volume")) {
-            general["master_volume"] = std::to_string(1.0);
-            missing_data = true;
-        }
-        if(!general.has("announcement_volume")) {
-            general["announcement_volume"] = std::to_string(1.0);
-            missing_data = true;
-        }
-        if(!general.has("music_volume")) {
-            general["music_volume"] = std::to_string(1.0);
-            missing_data = true;
-        }
-        if(!general.has("sfx_volume")) {
-            general["sfx_volume"] = std::to_string(1.0);
-            missing_data = true;
-        }
+        AUDIO_VOLUME_SETTING(master_volume,             "master_volume")
+        AUDIO_VOLUME_SETTING(announcement_volume, "announcement_volume")
+        AUDIO_VOLUME_SETTING(music_volume,               "music_volume")
+        AUDIO_VOLUME_SETTING(sfx_volume,                   "sfx_volume")
     }
 
     if(!ini_data.has("listener") || !ini_data["listener"].has("sound_limit")) {
         ini_data["listener"]["sound_limit"] = std::to_string(32);
-        missing_data = true;
+        changed_data = true;
     }
 
-    if(missing_data || !std::filesystem::exists(full_file_path)) {
+    if(changed_data || !std::filesystem::exists(full_file_path)) {
         ini_file_p->write(ini_data, true); // Pretty print
     }
 
     delete ini_file_p;
+
+    sound_queue.setGain(announcement_volume);
 
     return 1;
 }
