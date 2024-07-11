@@ -11,7 +11,7 @@
 namespace Sound {
 namespace OpenAL {
 
-Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), sound_queue(1.0), music_buffer(0), music_source(0) {}
+Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), sound_queue(1.0f), music_buffer(0), music_source(0), music_gain(1.0f) {}
 
 Environment::~Environment() {
     alcMakeContextCurrent(nullptr);
@@ -269,6 +269,10 @@ int Environment::readConfig( std::filesystem::path file ) {
     delete ini_file_p;
 
     sound_queue.setGain(announcement_volume);
+
+    music_gain = music_volume;
+
+    alSourcef(music_source, AL_GAIN, music_gain);
 
     return 1;
 }

@@ -28,6 +28,7 @@ public:
 
     Internal::SoundBuffer music_buffer;
     ALuint music_source;
+    ALfloat music_gain;
 
     std::map<uint32_t, Internal::SoundSource> id_to_sound;
 public:
