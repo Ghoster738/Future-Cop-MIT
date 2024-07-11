@@ -245,7 +245,7 @@ int Environment::readConfig( std::filesystem::path file ) {
     bool changed_data = false;
 
     ALfloat master_volume = 1.0f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume;
-    unsigned listener_sound_limit = 32;
+    unsigned listener_sound_limit = 32, announcement_queue_limit = 32;
 
     if(!ini_data.has("general"))
         ini_data["general"];
@@ -259,7 +259,7 @@ int Environment::readConfig( std::filesystem::path file ) {
     }
 
     if(!ini_data.has("listener") || !ini_data["listener"].has("sound_limit")) {
-        ini_data["listener"]["sound_limit"] = std::to_string(32);
+        ini_data["listener"]["sound_limit"] = std::to_string(listener_sound_limit);
         changed_data = true;
     }
     try {
@@ -269,6 +269,17 @@ int Environment::readConfig( std::filesystem::path file ) {
         changed_data = true;
     }
 
+
+    if(!ini_data.has("announcement") || !ini_data["announcement"].has("queue_limit")) {
+        ini_data["announcement"]["queue_limit"] = std::to_string(announcement_queue_limit);
+        changed_data = true;
+    }
+    try {
+        announcement_queue_limit = std::stoul( ini_data["announcement"]["queue_limit"] );
+    } catch( const std::logic_error & logical_error ) {
+        ini_data["announcement"]["queue_limit"] = std::to_string(announcement_queue_limit);
+        changed_data = true;
+    }
 
     if(changed_data || !std::filesystem::exists(full_file_path)) {
         ini_file_p->write(ini_data, true); // Pretty print
@@ -280,6 +291,7 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     alListenerf(AL_GAIN, master_gain);
 
+    sound_queue.queue_limit = announcement_queue_limit;
     sound_queue.setGain(announcement_volume);
 
     music_gain = music_volume;

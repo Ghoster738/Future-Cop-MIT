@@ -16,7 +16,11 @@ namespace Internal {
 class SoundQueue {
 protected:
     ALfloat p_gain;
+
+public:
     unsigned queue_limit;
+
+protected:
 
     std::queue<SoundBuffer> sound_queue;
 
