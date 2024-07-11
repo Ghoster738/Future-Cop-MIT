@@ -177,9 +177,7 @@ bool getDrawCommand(const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::
 }
 }
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id, unsigned finalize_bitfield ) const {
-    bool should_call_finalize = false;
-
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( const VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, GLuint diffusive_texture_uniform_id ) const {
     // Do not bother rendering triangles if there are none.
     if( triangles_amount == 0 )
         return;
@@ -192,9 +190,6 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
 
     // Bind the vertex array for the triangles.
     vertex_array.bind();
-
-    if((finalize_bitfield & 0b001) != 0) // Check for before routine bit.
-        glFinish();
 
     DrawTriangleCommand draw_command, last_draw_command;
 
@@ -210,10 +205,6 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
         if(draw_command.triangle_index == 0 || !last_draw_command.blend_mode.isEqual(blend_mode)) {
             glBlendEquationSeparate(blend_mode.es_modeRGB, blend_mode.es_modeAlpha);
             glBlendFuncSeparate(blend_mode.fs_srcRGB, blend_mode.fs_dstRGB, blend_mode.fs_srcAlpha, blend_mode.fs_dstAlpha);
-
-            // If finalize bit has been set then glFinish should be called.
-            if((finalize_bitfield & 0b010) != 0)
-                should_call_finalize = true;
         }
 
         if(draw_command.triangle_index == 0 || draw_command.texture_id != last_draw_command.texture_id) {
@@ -221,20 +212,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DrawCommand::draw( co
             auto current_texture_r = textures.find( draw_command.texture_id );
             if( current_texture_r != textures.end() ) {
                 current_texture_r->second->bind( 0, diffusive_texture_uniform_id );
-
-                if((finalize_bitfield & 0b100) != 0)
-                    should_call_finalize = true;
             }
-        }
-
-        if((finalize_bitfield & 0b110) != 0 && draw_command.triangle_index == 0)
-            should_call_finalize = true;
-
-        if(should_call_finalize) {
-            // Tell OpenGL to be finished with all the rendering commands before rendering semi-transparent triangles.
-            glFinish();
-
-            should_call_finalize = false;
         }
 
         // Draw the triangles.
@@ -443,7 +421,7 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::setEnvironmentTexture
     this->env_texture_r = env_texture_ref;
 }
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures, unsigned finalize_bitfield ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::SDL2::GLES2::Camera &camera, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> &textures ) {
     if( camera.transparent_triangles.triangles_amount == 0 )
         return; // There is no semi-transparent triangle to draw.
 
@@ -469,5 +447,5 @@ void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::draw( Graphics::SDL2:
     glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view[0][0] ) );
 
     camera.transparent_triangles.sortTriangles();
-    camera.transparent_triangles.draw( vertex_array, textures, diffusive_texture_uniform_id, finalize_bitfield );
+    camera.transparent_triangles.draw( vertex_array, textures, diffusive_texture_uniform_id );
 }

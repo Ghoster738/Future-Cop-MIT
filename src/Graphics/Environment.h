@@ -114,13 +114,6 @@ public:
     virtual void setBoundingBoxDraw(bool draw) = 0;
 
     /**
-     * This is to fix synchronization issues with certain graphics cards/drivers.
-     * @note This feature is TEMPORARY. I will add something far more elegant.
-     * @param finalize_bitfield If true then bounding boxes
-     */
-    virtual void setDynamicTriangleFinalizeBitfield(unsigned finalize_bitfield) = 0;
-
-    /**
      * Setup the draw graph for the renderer.
      */
     virtual void setupFrame() = 0;

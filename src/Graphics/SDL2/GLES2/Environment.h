@@ -34,7 +34,6 @@ public:
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
     bool draw_bounding_boxes;
-    unsigned temporary_finalize_dynamic_triangle_draw;
 
 public:
     Environment();
@@ -51,7 +50,6 @@ public:
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
     virtual bool getBoundingBoxDraw() const;
     virtual void setBoundingBoxDraw(bool draw);
-    virtual void setDynamicTriangleFinalizeBitfield(unsigned finalize_bitfield);
     virtual void setupFrame();
     virtual void drawFrame();
     virtual bool screenshot( Utilities::Image2D &image ) const;

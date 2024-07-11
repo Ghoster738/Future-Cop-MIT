@@ -20,7 +20,6 @@ Environment::Environment() {
     this->display_world = false;
     this->has_initialized_routines = false;
     this->draw_bounding_boxes = false;
-    this->temporary_finalize_dynamic_triangle_draw = 0;
 }
 
 Environment::~Environment() {
@@ -325,10 +324,6 @@ void Environment::setBoundingBoxDraw(bool draw) {
     this->draw_bounding_boxes = draw;
 }
 
-void Environment::setDynamicTriangleFinalizeBitfield(unsigned finalize_bitfield) {
-    this->temporary_finalize_dynamic_triangle_draw = finalize_bitfield;
-}
-
 void Environment::setupFrame() {
     for( unsigned int i = 0; i < window_p->getCameras()->size(); i++ )
     {
@@ -389,7 +384,7 @@ void Environment::drawFrame() {
             glEnable( GL_BLEND );
             glDepthMask(GL_FALSE);
 
-            this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures, this->temporary_finalize_dynamic_triangle_draw );
+            this->dynamic_triangle_draw_routine.draw( *current_camera_r, textures );
             current_camera_r->transparent_triangles.reset();
             glDepthMask(GL_TRUE);
 

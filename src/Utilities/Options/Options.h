@@ -37,9 +37,6 @@ public:
     bool getVideoFullscreen();
     void setVideoFullscreen(bool value);
 
-    int getTemporaryBitfield();
-    void setTemporaryBitfield(int value);
-
     std::string getSaveDirectory();
     void setSaveDirectory( std::string value );
 
