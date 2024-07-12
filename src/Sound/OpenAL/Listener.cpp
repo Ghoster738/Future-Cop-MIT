@@ -16,7 +16,7 @@ Listener::Source::~Source() {
     alDeleteSources(1, &queue_source);
 }
 
-Listener::Listener(WhichEar which_ear) : Sound::Listener(which_ear), source_max_length(32) {
+Listener::Listener(WhichEar which_ear) : Sound::Listener(which_ear), source_max_length(32), p_gain(1.0f) {
 }
 
 Listener::~Listener() {
@@ -71,6 +71,8 @@ bool Listener::enqueueSpeaker(Speaker &speaker) {
         sources.back().time_limit = speaker.sound_source.buffer_indexes[0].duration;
         alSourcei(sources.back().queue_source, AL_LOOPING, AL_FALSE);
     }
+
+    alSourcef(sources.back().queue_source, AL_GAIN, gain);
 
     // TODO Implement more complex distance.
     alSourcef(sources.back().queue_source, AL_MAX_DISTANCE, 8.0);
@@ -164,6 +166,19 @@ void Listener::process(std::chrono::high_resolution_clock::duration delta) {
     }
 
     error_state = alGetError();
+}
+
+ALenum Listener::setGain(ALfloat v_gain) {
+    alGetError(); // Clear AL error for accurate error checking.
+
+    p_gain = v_gain; // Set the gain value in this class.
+
+    for(std::vector<Source>::iterator i = sources.begin(); i != sources.end(); i++) {
+        alSourcef((*i).queue_source, AL_GAIN, gain);
+    }
+
+    return alGetError(); // Return with the potential error code.
+
 }
 
 }

@@ -22,6 +22,10 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return 0;
 }
 
+int Environment::readConfig( std::filesystem::path file ) {
+    return 0;
+}
+
 bool Environment::setMusicState(Sound::PlayerState player_state) {
     return false;
 }

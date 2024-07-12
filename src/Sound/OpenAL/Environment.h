@@ -28,6 +28,9 @@ public:
 
     Internal::SoundBuffer music_buffer;
     ALuint music_source;
+    ALfloat music_gain;
+
+    ALfloat master_gain;
 
     std::map<uint32_t, Internal::SoundSource> id_to_sound;
 public:
@@ -39,6 +42,7 @@ public:
 
     virtual uint32_t getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+    virtual int readConfig( std::filesystem::path file );
 
     virtual bool setMusicState(Sound::PlayerState player_state);
     virtual PlayerState getMusicState() const;

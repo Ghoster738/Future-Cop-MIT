@@ -5,7 +5,6 @@ const std::string VIDEO = "video";
 const std::string VIDEO_WIDTH      = "width";
 const std::string VIDEO_HEIGHT     = "height";
 const std::string VIDEO_FULLSCREEN = "fullscreen";
-const std::string VIDEO_TEMPORARY_FINALIZE_DYNAMIC_TRIANGLES = "temporary_finalize_dynamic_triangles";
 
 const std::string DATA = "data";
 const std::string DATA_LOAD_ALL_MAPS = "load_all_maps";
@@ -32,7 +31,6 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
     init( VIDEO, VIDEO_WIDTH,      "800" );
     init( VIDEO, VIDEO_HEIGHT,     "600" );
     init( VIDEO, VIDEO_FULLSCREEN, "false" );
-    init( VIDEO, VIDEO_TEMPORARY_FINALIZE_DYNAMIC_TRIANGLES, "0" );
 
     init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ));
     init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ));
@@ -99,13 +97,6 @@ bool Options::getVideoFullscreen() {
         : getBool( VIDEO, VIDEO_FULLSCREEN);
 }
 void Options::setVideoFullscreen(bool value) { setBool(VIDEO, VIDEO_FULLSCREEN, value); this->modified.insert( VIDEO + VIDEO_FULLSCREEN ); }
-
-int Options::getTemporaryBitfield() {
-    return getInt(VIDEO, VIDEO_TEMPORARY_FINALIZE_DYNAMIC_TRIANGLES);
-}
-void Options::setTemporaryBitfield(int value) {
-    setInt( VIDEO, VIDEO_TEMPORARY_FINALIZE_DYNAMIC_TRIANGLES, value);
-}
 
 std::string Options::getSaveDirectory() {
     return getString( DIRECTORIES, DIRECTORIES_SAVES);

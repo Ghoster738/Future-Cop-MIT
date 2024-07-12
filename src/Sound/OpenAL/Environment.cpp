@@ -1,5 +1,7 @@
 #include "Environment.h"
 
+#include <mini/ini.h>
+
 #include "../../Data/Mission/MSICResource.h"
 #include "../../Data/Mission/TOSResource.h"
 #include "../../Data/Mission/SNDSResource.h"
@@ -9,7 +11,7 @@
 namespace Sound {
 namespace OpenAL {
 
-Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), music_buffer(0), music_source(0) {}
+Environment::Environment() : alc_device_p(nullptr), alc_context_p(nullptr), listener_both(Listener::WhichEar::BOTH), sound_queue(1.0f), music_buffer(0), music_source(0), music_gain(1.0f), master_gain(1.0f) {}
 
 Environment::~Environment() {
     alcMakeContextCurrent(nullptr);
@@ -198,6 +200,106 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if(error_state != AL_NO_ERROR) {
         return -18;
     }
+
+    return 1;
+}
+
+#define AUDIO_VOLUME_SETTING(variable, variable_string) \
+if(!general.has(variable_string)) { \
+    general[variable_string] = std::to_string(1.0); \
+    changed_data = true; \
+} \
+try { \
+    variable = std::stof( general[variable_string] ); \
+    if( variable > 2.0f ) { \
+        variable = 2.0f; \
+        general[variable_string] = std::to_string(variable); \
+        changed_data = true; \
+    } \
+    else \
+    if( variable < 0.0f ) { \
+        variable = 0.0f; \
+        general[variable_string] = std::to_string(variable); \
+        changed_data = true; \
+    } \
+} catch( const std::logic_error & logical_error ) { \
+    variable = 1.0f; \
+    general[variable_string] = std::to_string(variable); \
+    changed_data = true; \
+}
+
+int Environment::readConfig( std::filesystem::path file ) {
+    std::filesystem::path full_file_path = file;
+
+    full_file_path += ".ini";
+
+    auto ini_file_p = new mINI::INIFile( full_file_path.string() );
+
+    if(ini_file_p == nullptr)
+        return -1;
+
+    mINI::INIStructure ini_data;
+
+    ini_file_p->read(ini_data);
+
+    bool changed_data = false;
+
+    ALfloat master_volume = 1.0f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume;
+    unsigned listener_sound_limit = 32, announcement_queue_limit = 32;
+
+    if(!ini_data.has("general"))
+        ini_data["general"];
+    {
+        auto& general = ini_data["general"];
+
+        AUDIO_VOLUME_SETTING(master_volume,             "master_volume")
+        AUDIO_VOLUME_SETTING(announcement_volume, "announcement_volume")
+        AUDIO_VOLUME_SETTING(music_volume,               "music_volume")
+        AUDIO_VOLUME_SETTING(sfx_volume,                   "sfx_volume")
+    }
+
+    if(!ini_data.has("listener") || !ini_data["listener"].has("sound_limit")) {
+        ini_data["listener"]["sound_limit"] = std::to_string(listener_sound_limit);
+        changed_data = true;
+    }
+    try {
+        listener_sound_limit = std::stoul( ini_data["listener"]["sound_limit"] );
+    } catch( const std::logic_error & logical_error ) {
+        ini_data["listener"]["sound_limit"] = std::to_string(listener_sound_limit);
+        changed_data = true;
+    }
+
+
+    if(!ini_data.has("announcement") || !ini_data["announcement"].has("queue_limit")) {
+        ini_data["announcement"]["queue_limit"] = std::to_string(announcement_queue_limit);
+        changed_data = true;
+    }
+    try {
+        announcement_queue_limit = std::stoul( ini_data["announcement"]["queue_limit"] );
+    } catch( const std::logic_error & logical_error ) {
+        ini_data["announcement"]["queue_limit"] = std::to_string(announcement_queue_limit);
+        changed_data = true;
+    }
+
+    if(changed_data || !std::filesystem::exists(full_file_path)) {
+        ini_file_p->write(ini_data, true); // Pretty print
+    }
+
+    delete ini_file_p;
+
+    master_gain = master_volume;
+
+    alListenerf(AL_GAIN, master_gain);
+
+    sound_queue.queue_limit = announcement_queue_limit;
+    sound_queue.setGain(announcement_volume);
+
+    music_gain = music_volume;
+
+    alSourcef(music_source, AL_GAIN, music_gain);
+
+    listener_both.setGain(sfx_volume);
+    listener_both.source_max_length = listener_sound_limit;
 
     return 1;
 }

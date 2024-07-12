@@ -4,7 +4,7 @@ namespace Sound {
 namespace OpenAL {
 namespace Internal {
 
-SoundQueue::SoundQueue(unsigned p_queue_limit) : queue_limit(p_queue_limit), sound_queue(), current_sound_element(), player_state(Sound::PlayerState::STOP), allocated_queue_source(false), queue_source() {
+SoundQueue::SoundQueue(ALfloat v_gain, unsigned p_queue_limit) : p_gain(v_gain), queue_limit(p_queue_limit), sound_queue(), current_sound_element(), player_state(Sound::PlayerState::STOP), allocated_queue_source(false), queue_source() {
     current_sound_element.buffer_index = 0;
     current_sound_element.duration = std::chrono::high_resolution_clock::duration(0);
 }
@@ -33,7 +33,11 @@ ALenum SoundQueue::initialize() {
 
     allocated_queue_source = true;
 
-    return AL_NO_ERROR;
+    alSourcef(queue_source, AL_GAIN, p_gain);
+
+    error_state = alGetError();
+
+    return error_state;
 }
 
 ALenum SoundQueue::reset() {
@@ -121,6 +125,19 @@ void SoundQueue::update(std::chrono::high_resolution_clock::duration duration) {
     }
     else
         current_sound_element.duration -= duration;
+}
+
+ALenum SoundQueue::setGain(ALfloat v_gain) {
+    alGetError(); // Clear AL error for accurate error checking.
+
+    p_gain = v_gain; // Set the gain value in this class.
+
+    if(!allocated_queue_source)
+        return AL_NO_ERROR;
+
+    alSourcef(queue_source, AL_GAIN, p_gain); // Set the SoundQueue volume.
+
+    return alGetError(); // Return with the potential error code.
 }
 
 }

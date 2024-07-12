@@ -15,7 +15,12 @@ namespace Internal {
 
 class SoundQueue {
 protected:
+    ALfloat p_gain;
+
+public:
     unsigned queue_limit;
+
+protected:
 
     std::queue<SoundBuffer> sound_queue;
 
@@ -25,8 +30,9 @@ protected:
     bool allocated_queue_source;
 public:
     ALuint queue_source;
+    const ALfloat& gain = p_gain;
 
-    SoundQueue(unsigned queue_limit = 32);
+    SoundQueue(ALfloat gain, unsigned queue_limit = 32);
 
     ALenum initialize();
 
@@ -38,6 +44,8 @@ public:
     Sound::PlayerState getPlayerState() const { return player_state; }
 
     void update(std::chrono::high_resolution_clock::duration duration);
+
+    ALenum setGain(ALfloat gain);
 };
 
 }

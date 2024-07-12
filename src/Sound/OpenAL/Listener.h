@@ -27,6 +27,12 @@ public:
     size_t source_max_length;
     std::vector<Source> sources;
 
+protected:
+    ALfloat p_gain;
+
+public:
+    const ALfloat &gain = p_gain;
+
     Listener(WhichEar which_ear = WhichEar::BOTH);
 
     virtual ~Listener();
@@ -42,6 +48,8 @@ public:
     bool dequeueSpeaker(Speaker &speaker);
 
     void process(std::chrono::high_resolution_clock::duration delta);
+
+    ALenum setGain(ALfloat gain);
 };
 
 }
