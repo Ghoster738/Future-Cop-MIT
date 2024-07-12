@@ -81,7 +81,7 @@ private:
     void setInt(std::string section, std::string key, int value);
 
     // Used to init default values
-    void init(std::string section, std::string key, std::string value);
+    bool init(std::string section, std::string key, std::string value);
 };
 
 }

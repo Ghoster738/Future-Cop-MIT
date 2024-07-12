@@ -27,20 +27,26 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
     ini_file_p = new mINI::INIFile( paths.getConfigDirPath() + Paths::CONFIG_FILE_NAME );
     ini_file_p->read(ini_data);
 
+    bool changed = false;
+
     // Default values
-    init( VIDEO, VIDEO_WIDTH,      "800" );
-    init( VIDEO, VIDEO_HEIGHT,     "600" );
-    init( VIDEO, VIDEO_FULLSCREEN, "false" );
+    changed |= init( VIDEO, VIDEO_WIDTH,      "800" );
+    changed |= init( VIDEO, VIDEO_HEIGHT,     "600" );
+    changed |= init( VIDEO, VIDEO_FULLSCREEN, "false" );
 
-    init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ));
-    init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ));
+    changed |= init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ));
+    changed |= init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ));
     // init( DIRECTORIES, DIRECTORIES_MODS,        paths.getUserDirPath( Paths::MODS ));
-    init( DIRECTORIES, DIRECTORIES_WIN_DATA, paths.getDataDirPath( Paths::WINDOWS ));
-    init( DIRECTORIES, DIRECTORIES_MAC_DATA, paths.getDataDirPath( Paths::MACINTOSH ));
-    init( DIRECTORIES, DIRECTORIES_PSX_DATA, paths.getDataDirPath( Paths::PLAYSTATION ));
+    changed |= init( DIRECTORIES, DIRECTORIES_WIN_DATA, paths.getDataDirPath( Paths::WINDOWS ));
+    changed |= init( DIRECTORIES, DIRECTORIES_MAC_DATA, paths.getDataDirPath( Paths::MACINTOSH ));
+    changed |= init( DIRECTORIES, DIRECTORIES_PSX_DATA, paths.getDataDirPath( Paths::PLAYSTATION ));
 
-    init( DATA, DATA_PLATFORM, "windows" );
-    init( DATA, DATA_LOAD_ALL_MAPS, "false" ); // Loads all maps from storage memory to Random Access Memory. Set to false by default.
+    changed |= init( DATA, DATA_PLATFORM, "windows" );
+    changed |= init( DATA, DATA_LOAD_ALL_MAPS, "false" ); // Loads all maps from storage memory to Random Access Memory. Set to false by default.
+
+    if(changed) {
+        saveOptions();
+    }
 };
 
 void Options::saveOptions() {
@@ -174,10 +180,12 @@ void Options::setInt(std::string section, std::string key, int value) {
 }
 
 // Used to init default values
-void Options::init(std::string section, std::string key, std::string value) {
+bool Options::init(std::string section, std::string key, std::string value) {
     if (!ini_data.has(section) || !ini_data[section].has(key)) {
         ini_data[section][key] = value;
+        return true;
     }
+    return false;
 }
 
 }
