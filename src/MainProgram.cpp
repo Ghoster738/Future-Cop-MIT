@@ -325,7 +325,7 @@ void MainProgram::setupSound() {
     this->sound_system_p = Sound::Environment::alloc( this->sound_identifier );
 
     if( this->sound_system_p == nullptr )
-        throwException( "Sound system does not work. Identifier: " + this->sound_identifier );
+        throwException( "Sound system does not work. Identifier: " + Sound::Environment::identifierToString(this->sound_identifier) );
 }
 
 void MainProgram::initialLoadResources() {
