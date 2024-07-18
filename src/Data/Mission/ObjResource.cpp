@@ -1358,14 +1358,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 if(tag_size != 0x14)
                     warning_log.output << "3DAL size is unusual.\n";
 
-                auto one_value = reader3DAL.readU32( settings.endian );
-
-                if(one_value != 1)
-                    warning_log.output << "3DAL one_value = " << std::dec << one_value << ".\n";
-
                 if(tag_size < 0x14)
                     error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
                 else {
+                    auto one_value = reader3DAL.readU32( settings.endian );
+
+                    if(one_value != 1)
+                        warning_log.output << "3DAL one_value = " << std::dec << one_value << ".\n";
+
                     c_3DAL_data[0] = reader3DAL.readU8();
                     c_3DAL_data[1] = reader3DAL.readU8();
                     c_3DAL_data[2] = reader3DAL.readU8();
