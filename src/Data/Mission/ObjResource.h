@@ -210,6 +210,7 @@ private:
         unsigned animation:        1;
     } info;
     unsigned position_indexes[4];
+    uint8_t c_3DAL_data[8];
 
     VertexData vertex_data;
 

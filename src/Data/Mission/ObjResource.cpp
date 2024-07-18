@@ -1354,8 +1354,35 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_3DAL ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
-                
-                debug_log.output << "3DAL is not handled yet.\n";
+
+                if(tag_size != 0x14)
+                    warning_log.output << "3DAL size is unusual.\n";
+
+                auto one_value = reader3DAL.readU32( settings.endian );
+
+                if(one_value != 1)
+                    warning_log.output << "3DAL one_value = " << std::dec << one_value << ".\n";
+
+                if(tag_size < 0x14)
+                    error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
+                else {
+                    c_3DAL_data[0] = reader3DAL.readU8();
+                    c_3DAL_data[1] = reader3DAL.readU8();
+                    c_3DAL_data[2] = reader3DAL.readU8();
+                    c_3DAL_data[3] = reader3DAL.readU8();
+                    c_3DAL_data[4] = reader3DAL.readU8();
+                    c_3DAL_data[5] = reader3DAL.readU8();
+                    c_3DAL_data[6] = reader3DAL.readU8();
+                    c_3DAL_data[7] = reader3DAL.readU8();
+
+                    error_log.output << "3DAL " << std::dec;
+
+                    for(int i = 0; i < 8; i++) {
+                        error_log.output << static_cast<unsigned>(c_3DAL_data[i]) << " ";
+                    }
+
+                    error_log.output << "\n";
+                }
             }
             else
             if( identifier == TAG_3DRF ) {
