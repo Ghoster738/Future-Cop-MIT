@@ -178,6 +178,7 @@ public:
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
+        int setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setBillboard(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;

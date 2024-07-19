@@ -185,6 +185,149 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
+int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+    Triangle triangle;
+    MorphTriangle morph_triangle;
+    int16_t     tex_animation_index[2][3];
+    glm::u8vec4 weights, joints;
+    glm::vec3 center, morph_center;
+    float morph_length_90d;
+
+    // Future Cop only uses one joint, so it only needs one weight.
+    weights.x = 0xFF;
+    weights.y = weights.z = weights.w = 0;
+
+    // The joint needs to be set to zero.
+    joints.x = joints.y = joints.z = joints.w = 0;
+
+    triangle.bmp_id = getBmpID();
+    triangle.visual.uses_texture       = visual.uses_texture;
+    triangle.visual.normal_shading     = visual.normal_shading;
+    triangle.visual.is_reflective      = visual.is_reflective;
+    triangle.visual.polygon_color_type = visual.polygon_color_type;
+    triangle.visual.visability         = visual.visability;
+
+    triangle.points[0].normal = glm::vec3(0, 1, 0);
+    triangle.points[1].normal = glm::vec3(0, 1, 0);
+    triangle.points[2].normal = glm::vec3(0, 1, 0);
+
+    const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 0);
+    const glm::i16vec3* const positions_r = vertex_data.get4DVLPointer(id_position);
+    const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 0);
+    const uint16_t* const lengths_r = vertex_data.get3DRLPointer(id_length);
+
+    // face_type_offset // Unknown. They range from 4, 8, and 12.
+
+    // this->v[0] // Actual vertex index. Origin of circle.
+
+    // this->v[1] // Red
+    // this->v[2] // Green
+    // this->v[3] // Blue
+
+    // this->n[0] // Actual length index. Radius of circle.
+
+    // this->n[1] // Always Zero
+    // this->n[2] // Always Zero
+    // this->n[3] // Always Zero
+
+    handlePositions( center, positions_r, v[0] );
+    const float length_90d = lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+    // Bone animation.
+    if( !bones.empty() ) {
+        for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+            if( (*bone).vertex_start > v[0] ) {
+                break;
+            }
+            else if( (*bone).vertex_start + (*bone).vertex_stride > v[0] )
+            {
+                joints.x = bone - bones.begin();
+            }
+        }
+    }
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].joints = joints;
+        triangle.points[i].weights = weights;
+    }
+
+    triangle.color = glm::u8vec4( v[1], v[2], v[3], 0xff );
+
+    const float UNIT_45_DEGREES = M_SQRT2 / 2.0;
+
+    const glm::vec2 circle_quadrant[2][3] = {
+        // Triangle 0
+            { { 0, 0}, { 0, 1}, { UNIT_45_DEGREES, UNIT_45_DEGREES} },
+        // Triangle 1
+            { { 0, 0}, {UNIT_45_DEGREES, UNIT_45_DEGREES}, { 1, 0} }
+    };
+
+    glm::vec2 current_circle_quadrant[2][3] = {
+        // Triangle 0
+            { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
+        // Triangle 1
+            { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
+    };
+
+    const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
+
+    glm::vec3 mapped_circle_quadrant[2][3] = {
+        // Triangle 0
+            { {current_circle_quadrant[0][0].x, 0, current_circle_quadrant[0][0].y}, {current_circle_quadrant[0][1].x, 0, current_circle_quadrant[0][1].y}, {current_circle_quadrant[0][2].x, 0, current_circle_quadrant[0][2].y} },
+        // Triangle 1
+            { {current_circle_quadrant[1][0].x, 0, current_circle_quadrant[1][0].y}, {current_circle_quadrant[1][1].x, 0, current_circle_quadrant[1][1].y}, {current_circle_quadrant[1][2].x, 0, current_circle_quadrant[1][2].y} }
+    };
+
+    // Triangle 0
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
+        triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+        triangle.points[i].face_override_index = 0;
+    }
+
+    triangles.push_back( triangle );
+
+    for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+        const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+        const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+        const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+        handlePositions( morph_center, anm_positions_r, v[0] );
+        morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+        for( unsigned i = 0; i < 3; i++ )
+            morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
+
+        morph_triangles.push_back( morph_triangle );
+    }
+
+    // Triangle 1
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
+        triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+        triangle.points[i].face_override_index = 0;
+    }
+
+    triangles.push_back( triangle );
+
+    for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+        const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+        const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+        const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+        handlePositions( morph_center, anm_positions_r, v[0] );
+        morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+        for( unsigned i = 0; i < 3; i++ )
+            morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
+
+        morph_triangles.push_back( morph_triangle );
+    }
+
+    return 2;
+}
+
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     if( !isWithinBounds( vertex_data.get4DVLSize(), vertex_data.get4DNLSize() ) )
         return 0;
@@ -729,12 +872,13 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
+        case PrimitiveType::CIRCLE:
+            return 2;
         case PrimitiveType::TRIANGLE:
         case PrimitiveType::TRIANGLE_OTHER:
             return 1;
         case PrimitiveType::QUAD:
             return 2;
-        case PrimitiveType::CIRCLE:
         case PrimitiveType::BILLBOARD:
             return 12;
         case PrimitiveType::LINE:
@@ -1242,21 +1386,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                             primitive.type = PrimitiveType::CIRCLE;
                             face_circles.push_back( primitive );
-
-                            // face_type_offset // Unknown. They range from 4, 8, and 12.
-
-                            // primitive.v[0] // Actual vertex index. Origin of circle.
-
-                            // primitive.v[1] // Red
-                            // primitive.v[2] // Green
-                            // primitive.v[3] // Blue
-
-                            // primitive.n[0] // Actual length index. Radius of circle.
-
-                            // primitive.n[1] // Always Zero
-                            // primitive.n[2] // Always Zero
-                            // primitive.n[3] // Always Zero
-
                             break;
                         default:
                         {
@@ -2019,7 +2148,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
             if( (*i).type == PrimitiveType::CIRCLE )
-                (*i).setBillboard(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
+                (*i).setCircle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::QUAD )
