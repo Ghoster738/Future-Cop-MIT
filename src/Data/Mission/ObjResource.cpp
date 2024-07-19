@@ -343,7 +343,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ )
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
 
                 morph_triangles.push_back( morph_triangle );
             }
