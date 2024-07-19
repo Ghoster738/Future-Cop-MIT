@@ -734,6 +734,7 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
             return 1;
         case PrimitiveType::QUAD:
             return 2;
+        case PrimitiveType::CIRCLE:
         case PrimitiveType::BILLBOARD:
             return 12;
         case PrimitiveType::LINE:
@@ -1241,7 +1242,6 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                             primitive.type = PrimitiveType::CIRCLE;
                             face_circles.push_back( primitive );
-
 
                             // face_type_offset // Unknown. They range from 4, 8, and 12.
 
@@ -1992,10 +1992,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        // The billboards
         for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        // Then the lines.
         for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
+            primitive_buffer.push_back( (*i) );
+
+        // Then finally the circles.
+        for( auto i = face_circles.begin(); i != face_circles.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
         // Sort the triangle list.
@@ -2012,7 +2018,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
-            if( (*i).type == PrimitiveType::TRIANGLE )
+            if( (*i).type == PrimitiveType::CIRCLE )
+                (*i).setBillboard(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
+            else if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::QUAD )
                 (*i).setQuad(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
