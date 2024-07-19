@@ -261,21 +261,21 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
             { { 0, 0}, {UNIT_45_DEGREES, UNIT_45_DEGREES}, { 1, 0} }
     };
 
-    glm::vec2 current_circle_quadrant[2][3] = {
+    const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
+
+    glm::vec2 q[2][3] = {
         // Triangle 0
             { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
         // Triangle 1
             { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
     };
 
-    const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
-
     for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
         glm::vec3 mapped_circle_quadrant[2][3] = {
             // Triangle 0
-                { {current_circle_quadrant[0][0].x, 0, current_circle_quadrant[0][0].y}, {current_circle_quadrant[0][1].x, 0, current_circle_quadrant[0][1].y}, {current_circle_quadrant[0][2].x, 0, current_circle_quadrant[0][2].y} },
+                { {q[0][0].x, 0, q[0][0].y}, {q[0][1].x, 0, q[0][1].y}, {q[0][2].x, 0, q[0][2].y} },
             // Triangle 1
-                { {current_circle_quadrant[1][0].x, 0, current_circle_quadrant[1][0].y}, {current_circle_quadrant[1][1].x, 0, current_circle_quadrant[1][1].y}, {current_circle_quadrant[1][2].x, 0, current_circle_quadrant[1][2].y} }
+                { {q[1][0].x, 0, q[1][0].y}, {q[1][1].x, 0, q[1][1].y}, {q[1][2].x, 0, q[1][2].y} }
         };
 
         // Triangle 0
