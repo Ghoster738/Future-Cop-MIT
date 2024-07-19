@@ -45,6 +45,7 @@ public:
         uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
         uint8_t visability:         2; // Please see enum VisabilityMode
         uint8_t is_reflective:      1;
+        uint8_t is_color_fade:      1; // Only circles use this kind of value.
     };
     struct FaceOverrideType {
         static constexpr float UNITS_TO_SECONDS = 0.001652018;
@@ -95,7 +96,6 @@ public:
         glm::u8vec4 color;
         Material visual;
         Point points[3];
-        bool is_color_fade = false;
 
         void switchPoints();
     };

@@ -193,9 +193,6 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
     glm::vec3 center, morph_center;
     float morph_length_90d;
 
-    // Setup Vertex fade mode
-    triangle.is_color_fade = true;
-
     // Future Cop only uses one joint, so it only needs one weight.
     weights.x = 0xFF;
     weights.y = weights.z = weights.w = 0;
@@ -209,6 +206,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
     triangle.visual.is_reflective      = visual.is_reflective;
     triangle.visual.polygon_color_type = visual.polygon_color_type;
     triangle.visual.visability         = visual.visability;
+    triangle.visual.is_color_fade      = true;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -427,6 +425,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
     triangle.visual.is_reflective      = visual.is_reflective;
     triangle.visual.polygon_color_type = visual.polygon_color_type;
     triangle.visual.visability         = visual.visability;
+    triangle.visual.is_color_fade      = false;
 
     triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
 
@@ -509,6 +508,7 @@ int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data
     new_tri.visual.is_reflective      = visual.is_reflective;
     new_tri.visual.polygon_color_type = visual.polygon_color_type;
     new_tri.visual.visability         = visual.visability;
+    new_tri.visual.is_color_fade      = false;
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
@@ -564,6 +564,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
     triangle.visual.is_reflective      = visual.is_reflective;
     triangle.visual.polygon_color_type = visual.polygon_color_type;
     triangle.visual.visability         = visual.visability;
+    triangle.visual.is_color_fade      = false;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -734,6 +735,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
     triangle.visual.is_reflective      = visual.is_reflective;
     triangle.visual.polygon_color_type = visual.polygon_color_type;
     triangle.visual.visability         = visual.visability;
+    triangle.visual.is_color_fade      = false;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -2384,7 +2386,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
                 model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
-                if(vertex_index != 1 && (*triangle).is_color_fade)
+                if(vertex_index != 1 && (*triangle).visual.is_color_fade)
                     model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
                 else
                     model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
