@@ -259,9 +259,9 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     const glm::vec2 circle_quadrant[2][3] = {
         // Triangle 0
-            { { 0, 0}, { 0, 1}, { UNIT_45_DEGREES, UNIT_45_DEGREES} },
+            { { UNIT_45_DEGREES, UNIT_45_DEGREES}, { 0, 0}, { 0, 1} },
         // Triangle 1
-            { { 0, 0}, {UNIT_45_DEGREES, UNIT_45_DEGREES}, { 1, 0} }
+            { { 1, 0}, { 0, 0}, {UNIT_45_DEGREES, UNIT_45_DEGREES} }
     };
 
     const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
@@ -333,7 +333,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_triangles.push_back( morph_triangle );
             }
 
-            std::swap(triangle.points[1], triangle.points[2]); // WARNING I did not use switchPoints because it would mess up the memory sceheme
+            triangle.switchPoints();
             triangles.push_back( triangle );
 
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -345,9 +345,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                morph_triangle.points[0].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][0];
-                morph_triangle.points[1].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2];
-                morph_triangle.points[2].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][1];
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
 
                 morph_triangles.push_back( morph_triangle );
             }
@@ -376,7 +375,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_triangles.push_back( morph_triangle );
             }
 
-            std::swap(triangle.points[1], triangle.points[2]); // WARNING I did not change switchPoints because it might introduce bugs.
+            triangle.switchPoints();
             triangles.push_back( triangle );
 
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -388,9 +387,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                morph_triangle.points[0].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][0];
-                morph_triangle.points[1].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2];
-                morph_triangle.points[2].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][1];
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
 
                 morph_triangles.push_back( morph_triangle );
             }
@@ -2386,7 +2384,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
                 model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
-                if(vertex_index != 0 && (*triangle).is_color_fade)
+                if(vertex_index != 1 && (*triangle).is_color_fade)
                     model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
                 else
                     model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
