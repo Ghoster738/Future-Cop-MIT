@@ -270,98 +270,106 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
 
-    glm::vec3 mapped_circle_quadrant[2][3] = {
+    for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
+        glm::vec3 mapped_circle_quadrant[2][3] = {
+            // Triangle 0
+                { {current_circle_quadrant[0][0].x, 0, current_circle_quadrant[0][0].y}, {current_circle_quadrant[0][1].x, 0, current_circle_quadrant[0][1].y}, {current_circle_quadrant[0][2].x, 0, current_circle_quadrant[0][2].y} },
+            // Triangle 1
+                { {current_circle_quadrant[1][0].x, 0, current_circle_quadrant[1][0].y}, {current_circle_quadrant[1][1].x, 0, current_circle_quadrant[1][1].y}, {current_circle_quadrant[1][2].x, 0, current_circle_quadrant[1][2].y} }
+        };
+
         // Triangle 0
-            { {current_circle_quadrant[0][0].x, 0, current_circle_quadrant[0][0].y}, {current_circle_quadrant[0][1].x, 0, current_circle_quadrant[0][1].y}, {current_circle_quadrant[0][2].x, 0, current_circle_quadrant[0][2].y} },
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
+            triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+            triangle.points[i].face_override_index = 0;
+        }
+
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+            handlePositions( morph_center, anm_positions_r, v[0] );
+            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        triangle.switchPoints();
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+            handlePositions( morph_center, anm_positions_r, v[0] );
+            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
         // Triangle 1
-            { {current_circle_quadrant[1][0].x, 0, current_circle_quadrant[1][0].y}, {current_circle_quadrant[1][1].x, 0, current_circle_quadrant[1][1].y}, {current_circle_quadrant[1][2].x, 0, current_circle_quadrant[1][2].y} }
-    };
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
+            triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+            triangle.points[i].face_override_index = 0;
+        }
 
-    // Triangle 0
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
-        triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
-        triangle.points[i].face_override_index = 0;
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+            handlePositions( morph_center, anm_positions_r, v[0] );
+            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        triangle.switchPoints();
+        triangles.push_back( triangle );
+
+        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+            handlePositions( morph_center, anm_positions_r, v[0] );
+            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+            for( unsigned i = 0; i < 3; i++ )
+                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+
+            morph_triangles.push_back( morph_triangle );
+        }
+
+        for(unsigned x = 0; x < 2; x++) {
+            for(unsigned y = 0; y < 3; y++) {
+                current_circle_quadrant[x][y] = rotate_90d * current_circle_quadrant[x][y];
+            }
+        }
     }
 
-    triangles.push_back( triangle );
-
-    for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-        const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-        const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-        const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
-
-        handlePositions( morph_center, anm_positions_r, v[0] );
-        morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
-
-        for( unsigned i = 0; i < 3; i++ )
-            morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
-
-        morph_triangles.push_back( morph_triangle );
-    }
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-        const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-        const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-        const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
-
-        handlePositions( morph_center, anm_positions_r, v[0] );
-        morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
-
-        for( unsigned i = 0; i < 3; i++ )
-            morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
-
-        morph_triangles.push_back( morph_triangle );
-    }
-
-    // Triangle 1
-    for( unsigned i = 0; i < 3; i++ ) {
-        triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
-        triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
-        triangle.points[i].face_override_index = 0;
-    }
-
-    triangles.push_back( triangle );
-
-    for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-        const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-        const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-        const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
-
-        handlePositions( morph_center, anm_positions_r, v[0] );
-        morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
-
-        for( unsigned i = 0; i < 3; i++ )
-            morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
-
-        morph_triangles.push_back( morph_triangle );
-    }
-
-    triangle.switchPoints();
-    triangles.push_back( triangle );
-
-    for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-        const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-        const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-        const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
-
-        handlePositions( morph_center, anm_positions_r, v[0] );
-        morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
-
-        for( unsigned i = 0; i < 3; i++ )
-            morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
-
-        morph_triangles.push_back( morph_triangle );
-    }
-
-    return 4;
+    return 16;
 }
 
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -909,7 +917,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
         case PrimitiveType::CIRCLE:
-            return 4;
+            return 16;
         case PrimitiveType::TRIANGLE:
         case PrimitiveType::TRIANGLE_OTHER:
             return 1;
