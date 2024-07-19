@@ -1231,7 +1231,19 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             break;
                         }
                         case 0:
-                            // face_type_offset // Unknown
+                            // This code forces the display mode to be vertex color only.
+                            // TODO Check if this code is even necessary
+                            primitive.visual.uses_texture       = false;
+                            primitive.visual.normal_shading     = false;
+                            primitive.visual.polygon_color_type = VertexColorMode::FULL;
+                            primitive.visual.visability         = VisabilityMode::ADDITION;
+                            primitive.visual.is_reflective      = false;
+
+                            primitive.type = PrimitiveType::CIRCLE;
+                            face_circles.push_back( primitive );
+
+
+                            // face_type_offset // Unknown. They range from 4, 8, and 12.
 
                             // primitive.v[0] // Actual vertex index. Origin of circle.
 
@@ -1378,19 +1390,21 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 if(tag_size < 0x14)
                     error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
                 else {
-                    auto one_value = reader3DAL.readU32( settings.endian );
+                    auto count = reader3DAL.readU32( settings.endian );
 
-                    if(one_value != 1)
-                        warning_log.output << "3DAL one_value = " << std::dec << one_value << ".\n";
+                    if(count != 1)
+                        warning_log.output << "3DAL count = " << std::dec << count << ".\n";
 
-                    c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type circle or zero.
-                    c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
-                    c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
-                    c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
-                    c_3DAL_data[4] = reader3DAL.readU8(); // Blue[0]
-                    c_3DAL_data[5] = reader3DAL.readU8(); // Red[1]
-                    c_3DAL_data[6] = reader3DAL.readU8(); // Green[1]
-                    c_3DAL_data[7] = reader3DAL.readU8(); // Blue[1]
+                    // TODO 3DAL is almost like 3DTA
+
+                    // c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type circle or zero.
+                    // c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
+                    // c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
+                    // c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
+                    // c_3DAL_data[4] = reader3DAL.readU8(); // Blue[0]
+                    // c_3DAL_data[5] = reader3DAL.readU8(); // Red[1]
+                    // c_3DAL_data[6] = reader3DAL.readU8(); // Green[1]
+                    // c_3DAL_data[7] = reader3DAL.readU8(); // Blue[1]
                 }
             }
             else

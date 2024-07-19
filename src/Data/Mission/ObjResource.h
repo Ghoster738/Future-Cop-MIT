@@ -210,7 +210,6 @@ private:
         unsigned animation:        1;
     } info;
     unsigned position_indexes[4];
-    uint8_t c_3DAL_data[8];
 
     VertexData vertex_data;
 
@@ -218,10 +217,11 @@ private:
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
 
-    std::vector<Primitive>    face_triangles;
-    std::vector<Primitive>    face_quads;
-    std::vector<Primitive>    face_billboards;
-    std::vector<Primitive>    face_lines;
+    std::vector<Primitive> face_circles;
+    std::vector<Primitive> face_triangles;
+    std::vector<Primitive> face_quads;
+    std::vector<Primitive> face_billboards;
+    std::vector<Primitive> face_lines;
 
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.
