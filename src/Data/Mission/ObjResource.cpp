@@ -24,9 +24,9 @@ namespace {
     const uint32_t TAG_3DHS = 0x33444853; // which is { 0x33, 0x44, 0x48, 0x53 } or { '3', 'D', 'H', 'S' } or "3DHS"
     // Bone Animation Attributes.
     const uint32_t TAG_3DMI = 0x33444D49; // which is { 0x33, 0x44, 0x4d, 0x49 } or { '3', 'D', 'M', 'I' } or "3DMI"
-    // 3D triangle array?
+    // Texture Cordinate Animation chunk.
     const uint32_t TAG_3DTA = 0x33445441; // which is { 0x33, 0x44, 0x54, 0x41 } or { '3', 'D', 'T', 'A' } or "3DTA"
-    // 3D array list?
+    // Circle Vertex Color Animation chunk.
     const uint32_t TAG_3DAL = 0x3344414C; // which is { 0x33, 0x44, 0x41, 0x4C } or { '3', 'D', 'A', 'L' } or "3DAL"
     // Reference IDs
     const uint32_t TAG_3DRF = 0x33445246; // which is { 0x33, 0x44, 0x52, 0x46 } or { '3', 'D', 'R', 'F' } or "3DRF"
@@ -1230,8 +1230,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_triangles.push_back( primitive );
                             break;
                         }
+                        case 0:
+                            // face_type_offset // Unknown
+
+                            // primitive.v[0] // Actual vertex index. Origin of circle.
+
+                            // primitive.v[1] // Red
+                            // primitive.v[2] // Green
+                            // primitive.v[3] // Blue
+
+                            // primitive.n[0] // Actual length index. Radius of circle.
+
+                            // primitive.n[1] // Always Zero
+                            // primitive.n[2] // Always Zero
+                            // primitive.n[3] // Always Zero
+
+                            break;
                         default:
                         {
+                            warning_log.output << std::dec << "Unknown Primative type = " << static_cast<unsigned>(face_type) << "\n";
                         }
                     }
                 }
@@ -1366,22 +1383,14 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if(one_value != 1)
                         warning_log.output << "3DAL one_value = " << std::dec << one_value << ".\n";
 
-                    c_3DAL_data[0] = reader3DAL.readU8();
-                    c_3DAL_data[1] = reader3DAL.readU8();
-                    c_3DAL_data[2] = reader3DAL.readU8();
-                    c_3DAL_data[3] = reader3DAL.readU8();
-                    c_3DAL_data[4] = reader3DAL.readU8();
-                    c_3DAL_data[5] = reader3DAL.readU8();
-                    c_3DAL_data[6] = reader3DAL.readU8();
-                    c_3DAL_data[7] = reader3DAL.readU8();
-
-                    error_log.output << "3DAL " << std::dec;
-
-                    for(int i = 0; i < 8; i++) {
-                        error_log.output << static_cast<unsigned>(c_3DAL_data[i]) << " ";
-                    }
-
-                    error_log.output << "\n";
+                    c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type circle or zero.
+                    c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
+                    c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
+                    c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
+                    c_3DAL_data[4] = reader3DAL.readU8(); // Blue[0]
+                    c_3DAL_data[5] = reader3DAL.readU8(); // Red[1]
+                    c_3DAL_data[6] = reader3DAL.readU8(); // Green[1]
+                    c_3DAL_data[7] = reader3DAL.readU8(); // Blue[1]
                 }
             }
             else

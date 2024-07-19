@@ -32,7 +32,7 @@ public:
         MIX      = 2
     };
     enum PrimitiveType {
-        UNKNOWN_0      = 0,
+        CIRCLE         = 0,
         TRIANGLE_OTHER = 2,
         TRIANGLE       = 3,
         QUAD           = 4,
