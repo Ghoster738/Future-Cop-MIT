@@ -193,6 +193,9 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
     glm::vec3 center, morph_center;
     float morph_length_90d;
 
+    // Setup Vertex fade mode
+    triangle.is_color_fade = true;
+
     // Future Cop only uses one joint, so it only needs one weight.
     weights.x = 0xFF;
     weights.y = weights.z = weights.w = 0;
@@ -330,7 +333,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_triangles.push_back( morph_triangle );
             }
 
-            triangle.switchPoints();
+            std::swap(triangle.points[1], triangle.points[2]); // WARNING I did not use switchPoints because it would mess up the memory sceheme
             triangles.push_back( triangle );
 
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -342,8 +345,9 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                for( unsigned i = 0; i < 3; i++ )
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
+                morph_triangle.points[0].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][0];
+                morph_triangle.points[1].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2];
+                morph_triangle.points[2].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][1];
 
                 morph_triangles.push_back( morph_triangle );
             }
@@ -372,7 +376,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_triangles.push_back( morph_triangle );
             }
 
-            triangle.switchPoints();
+            std::swap(triangle.points[1], triangle.points[2]); // WARNING I did not change switchPoints because it might introduce bugs.
             triangles.push_back( triangle );
 
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -384,8 +388,9 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                for( unsigned i = 0; i < 3; i++ )
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+                morph_triangle.points[0].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][0];
+                morph_triangle.points[1].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2];
+                morph_triangle.points[2].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][1];
 
                 morph_triangles.push_back( morph_triangle );
             }
@@ -2381,7 +2386,10 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
                 model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
-                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType(  (*triangle).color ) );
+                if(vertex_index != 0 && (*triangle).is_color_fade)
+                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
+                else
+                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
 
                 if(!exclude_metadata)

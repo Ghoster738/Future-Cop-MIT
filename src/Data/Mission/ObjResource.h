@@ -95,6 +95,7 @@ public:
         glm::u8vec4 color;
         Material visual;
         Point points[3];
+        bool is_color_fade = false;
 
         void switchPoints();
     };
