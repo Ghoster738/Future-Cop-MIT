@@ -263,129 +263,142 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
 
-    glm::vec2 q[2][3] = {
-        // Triangle 0
-            { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
-        // Triangle 1
-            { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
-    };
-
-    for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
-        glm::vec3 mapped_circle_quadrant[2][3] = {
+    for( unsigned axis = 0; axis < 3; axis++ ) {
+        glm::vec2 q[2][3] = {
             // Triangle 0
-                { {q[0][0].x, 0, q[0][0].y}, {q[0][1].x, 0, q[0][1].y}, {q[0][2].x, 0, q[0][2].y} },
+                { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
             // Triangle 1
-                { {q[1][0].x, 0, q[1][0].y}, {q[1][1].x, 0, q[1][1].y}, {q[1][2].x, 0, q[1][2].y} }
+                { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
         };
-        /*
-        glm::vec3 mapped_circle_quadrant[2][3] = {
+
+        for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
+            glm::vec3 mapped_circle_quadrant[2][3] = {};
+
+            switch(axis) {
+                case 0:
+                    mapped_circle_quadrant[0][0] = {q[0][0].x, 0, q[0][0].y};
+                    mapped_circle_quadrant[0][1] = {q[0][1].x, 0, q[0][1].y};
+                    mapped_circle_quadrant[0][2] = {q[0][2].x, 0, q[0][2].y};
+
+                    mapped_circle_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
+                    mapped_circle_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
+                    mapped_circle_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
+                    break;
+
+                case 1:
+                    mapped_circle_quadrant[0][0] = {q[0][0].x, q[0][0].y, 0};
+                    mapped_circle_quadrant[0][1] = {q[0][1].x, q[0][1].y, 0};
+                    mapped_circle_quadrant[0][2] = {q[0][2].x, q[0][2].y, 0};
+
+                    mapped_circle_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
+                    mapped_circle_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
+                    mapped_circle_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
+                    break;
+
+                case 2:
+                    mapped_circle_quadrant[0][0] = {0, q[0][0].x, q[0][0].y};
+                    mapped_circle_quadrant[0][1] = {0, q[0][1].x, q[0][1].y};
+                    mapped_circle_quadrant[0][2] = {0, q[0][2].x, q[0][2].y};
+
+                    mapped_circle_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
+                    mapped_circle_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
+                    mapped_circle_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
+                    break;
+            }
+
             // Triangle 0
-                { {q[0][0].x, q[0][0].y, 0}, {q[0][1].x, q[0][1].y, 0}, {q[0][2].x, q[0][2].y, 0} },
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
+                triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+                triangle.points[i].face_override_index = 0;
+            }
+
+            triangles.push_back( triangle );
+
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
+            triangle.switchPoints();
+            triangles.push_back( triangle );
+
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
             // Triangle 1
-                { {q[1][0].x, q[1][0].y, 0}, {q[1][1].x, q[1][1].y, 0}, {q[1][2].x, q[1][2].y, 0} }
-        };
-         */
-        /*
-        glm::vec3 mapped_circle_quadrant[2][3] = {
-            // Triangle 0
-                { {0, q[0][0].x, q[0][0].y}, {0, q[0][1].x, q[0][1].y}, {0, q[0][2].x, q[0][2].y} },
-            // Triangle 1
-                { {0, q[1][0].x, q[1][0].y}, {0, q[1][1].x, q[1][1].y}, {0, q[1][2].x, q[1][2].y} }
-        };
-         */
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
+                triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+                triangle.points[i].face_override_index = 0;
+            }
 
-        // Triangle 0
-        for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
-            triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
-            triangle.points[i].face_override_index = 0;
-        }
+            triangles.push_back( triangle );
 
-        triangles.push_back( triangle );
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
 
-        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-            handlePositions( morph_center, anm_positions_r, v[0] );
-            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
 
-            for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
+                morph_triangles.push_back( morph_triangle );
+            }
 
-            morph_triangles.push_back( morph_triangle );
-        }
+            triangle.switchPoints();
+            triangles.push_back( triangle );
 
-        triangle.switchPoints();
-        triangles.push_back( triangle );
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
 
-        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-            handlePositions( morph_center, anm_positions_r, v[0] );
-            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
 
-            for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+                morph_triangles.push_back( morph_triangle );
+            }
 
-            morph_triangles.push_back( morph_triangle );
-        }
-
-        // Triangle 1
-        for( unsigned i = 0; i < 3; i++ ) {
-            triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
-            triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
-            triangle.points[i].face_override_index = 0;
-        }
-
-        triangles.push_back( triangle );
-
-        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
-
-            handlePositions( morph_center, anm_positions_r, v[0] );
-            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
-
-            for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
-
-            morph_triangles.push_back( morph_triangle );
-        }
-
-        triangle.switchPoints();
-        triangles.push_back( triangle );
-
-        for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
-            const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
-            const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
-            const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
-            const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
-
-            handlePositions( morph_center, anm_positions_r, v[0] );
-            morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
-
-            for( unsigned i = 0; i < 3; i++ )
-                morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
-
-            morph_triangles.push_back( morph_triangle );
-        }
-
-        for(unsigned x = 0; x < 2; x++) {
-            for(unsigned y = 0; y < 3; y++) {
-                q[x][y] = rotate_90d * q[x][y];
+            for(unsigned x = 0; x < 2; x++) {
+                for(unsigned y = 0; y < 3; y++) {
+                    q[x][y] = rotate_90d * q[x][y];
+                }
             }
         }
     }
 
-    return 16;
+    return 48;
 }
 
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -933,7 +946,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
         case PrimitiveType::CIRCLE:
-            return 16;
+            return 48;
         case PrimitiveType::TRIANGLE:
         case PrimitiveType::TRIANGLE_OTHER:
             return 1;
