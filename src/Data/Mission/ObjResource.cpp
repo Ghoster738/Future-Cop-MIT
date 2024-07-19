@@ -277,6 +277,22 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
             // Triangle 1
                 { {q[1][0].x, 0, q[1][0].y}, {q[1][1].x, 0, q[1][1].y}, {q[1][2].x, 0, q[1][2].y} }
         };
+        /*
+        glm::vec3 mapped_circle_quadrant[2][3] = {
+            // Triangle 0
+                { {q[0][0].x, q[0][0].y, 0}, {q[0][1].x, q[0][1].y, 0}, {q[0][2].x, q[0][2].y, 0} },
+            // Triangle 1
+                { {q[1][0].x, q[1][0].y, 0}, {q[1][1].x, q[1][1].y, 0}, {q[1][2].x, q[1][2].y, 0} }
+        };
+         */
+        /*
+        glm::vec3 mapped_circle_quadrant[2][3] = {
+            // Triangle 0
+                { {0, q[0][0].x, q[0][0].y}, {0, q[0][1].x, q[0][1].y}, {0, q[0][2].x, q[0][2].y} },
+            // Triangle 1
+                { {0, q[1][0].x, q[1][0].y}, {0, q[1][1].x, q[1][1].y}, {0, q[1][2].x, q[1][2].y} }
+        };
+         */
 
         // Triangle 0
         for( unsigned i = 0; i < 3; i++ ) {
@@ -364,7 +380,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
         for(unsigned x = 0; x < 2; x++) {
             for(unsigned y = 0; y < 3; y++) {
-                current_circle_quadrant[x][y] = rotate_90d * current_circle_quadrant[x][y];
+                q[x][y] = rotate_90d * q[x][y];
             }
         }
     }
