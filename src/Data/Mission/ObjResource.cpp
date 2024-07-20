@@ -2397,17 +2397,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                     model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
 
-                    assert( !std::isnan(morph_point.position.x) );
-                    assert( !std::isnan(morph_point.position.y) );
-                    assert( !std::isnan(morph_point.position.z) );
-
-                    if(vertex_data.get4DNLSize() != 0) {
-                        assert( !std::isnan(morph_point.normal.x) );
-                        assert( !std::isnan(morph_point.normal.y) );
-                        assert( !std::isnan(morph_point.normal.z) );
-
+                    if(vertex_data.get4DNLSize() != 0)
                         model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
-                    }
 
                     morph_triangle_frame++;
                 }
