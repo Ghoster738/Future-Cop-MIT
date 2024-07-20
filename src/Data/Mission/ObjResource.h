@@ -127,6 +127,8 @@ public:
          * @return The number of attributes in the bone.
          */
         unsigned int getNumAttributes() const;
+
+        std::string getString() const;
     };
     class VertexData {
     private:

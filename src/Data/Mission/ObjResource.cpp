@@ -1032,6 +1032,19 @@ const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uin
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
     return (getOpcodeBytesPerFrame( this->opcode ) / 2);
 }
+
+std::string Data::Mission::ObjResource::Bone::getString() const {
+    std::stringstream form;
+
+    form << "opcode 0b" << opcode.position.x_const << opcode.position.y_const << opcode.position.z_const << opcode.rotation.x_const << opcode.rotation.y_const << opcode.rotation.z_const << "; ";
+    form << "parent_level = " << (parent_amount - 1) << "; ";
+    form << "normal {start = " << normal_start << ", stride = " << normal_stride << "}; ";
+    form << "vertex {start = " << vertex_start << ", stride = " << vertex_stride << "}; ";
+    form << "position( " << position.x << ", " << position.y << ", " << position.z << " ); ";
+    form << "rotation( " << rotation.x << ", " << rotation.y << ", " << rotation.z << " ) ";
+
+    return form.str();
+}
         
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
@@ -1504,16 +1517,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     bytes_per_frame_3DMI += getOpcodeBytesPerFrame( bones.at(i).opcode );
                     
                     this->max_bone_childern = std::max( bones.at(i).parent_amount, this->max_bone_childern );
-                    
-                    debug_log.output << "bone: ";
 
-                    debug_log.output
-                        << "parent index: 0x" << std::hex << bones.at(i).parent_amount << ", "
-                        << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
-                        << "0x" <<    bones.at(i).vertex_start << " with 0x" <<  bones.at(i).vertex_stride << " vertices, "
-                        << "opcode: 0x" << opcode << std::dec
-                        << ", position( " << bones.at(i).position.x << ", " << bones.at(i).position.y << ", " << bones.at(i).position.z << " )"
-                        << ", rotation( " << bones.at(i).rotation.x << ", " << bones.at(i).rotation.y << ", " << bones.at(i).rotation.z << " )\n";
+                    // error_log.output << i << " = {" << bones.at(i).getString() << "}\n";
                 }
                 
                 // The bytes_per_frame_3DMI might not actually hold true.
@@ -2389,8 +2394,17 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                     model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
 
-                    if(vertex_data.get4DNLSize() != 0)
+                    assert( !std::isnan(morph_point.position.x) );
+                    assert( !std::isnan(morph_point.position.y) );
+                    assert( !std::isnan(morph_point.position.z) );
+
+                    if(vertex_data.get4DNLSize() != 0) {
+                        assert( !std::isnan(morph_point.normal.x) );
+                        assert( !std::isnan(morph_point.normal.y) );
+                        assert( !std::isnan(morph_point.normal.z) );
+
                         model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
+                    }
 
                     morph_triangle_frame++;
                 }
