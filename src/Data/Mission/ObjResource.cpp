@@ -2215,7 +2215,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
     }
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-    unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    unsigned int normal_component_index = -1;
+
+    if(vertex_data.get4DNLSize() != 0)
+        normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+
     unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int metadata_component_index = -1;
@@ -2281,7 +2285,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
     if( vertex_data.get3DRFSize() > 1 ) {
         position_morph_component_index = model_output->setVertexComponentMorph( position_component_index );
-        normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
+
+        if(vertex_data.get4DNLSize() != 0)
+            normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
     }
 
     // Setup the vertex components now that every field had been entered.
@@ -2360,12 +2366,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 model_output->startVertex();
 
-                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
-                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
+                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
+
+                if(vertex_data.get4DNLSize() != 0)
+                    model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
+
                 if(vertex_index != 1 && (*triangle).visual.is_color_fade)
                     model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
                 else
                     model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
+
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
 
                 if(!exclude_metadata)
@@ -2378,7 +2388,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                     const MorphPoint morph_point = (*morph_triangle_frame).points[vertex_index];
 
                     model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
-                    model_output->addMorphVertexData(   normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
+
+                    if(vertex_data.get4DNLSize() != 0)
+                        model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
 
                     morph_triangle_frame++;
                 }
