@@ -1423,7 +1423,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         
         root["scenes"][0]["nodes"].append( 1 );
         
-        root["skins"][0]["inverseBindMatrices"] = bone_buffer_view_index;
+        root["skins"][0]["inverseBindMatrices"] = bone_buffer_view_index; // Error: Refer to the accessor not the bone buffer view.
         root["skins"][0]["skeleton"]  = 1;
         for( unsigned i = 0; i < getNumJoints(); i++ ) {
             root["skins"][0]["joints"][i] = i + 2;
