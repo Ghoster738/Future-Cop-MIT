@@ -201,12 +201,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
-    triangle.visual.is_color_fade      = true;
+    triangle.visual = visual;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -399,7 +394,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
         }
     }
 
-    return 48;
+    return getTriangleAmount( PrimitiveType::CIRCLE );
 }
 
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -420,12 +415,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
-    triangle.visual.is_color_fade      = false;
+    triangle.visual = visual;
 
     triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
 
@@ -494,21 +484,15 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
     }
     triangles.push_back( triangle );
 
-    return 1;
+    return getTriangleAmount( PrimitiveType::TRIANGLE );
 }
 
 int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
     Primitive new_tri;
-    int counter = 0;
 
-    new_tri.visual.uses_texture       = visual.uses_texture;
-    new_tri.visual.normal_shading     = visual.normal_shading;
-    new_tri.visual.is_reflective      = visual.is_reflective;
-    new_tri.visual.polygon_color_type = visual.polygon_color_type;
-    new_tri.visual.visability         = visual.visability;
-    new_tri.visual.is_color_fade      = false;
+    new_tri.visual = visual;
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
@@ -527,10 +511,10 @@ int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data
         new_tri.n[1] = n[QUAD_TABLE[i][1]];
         new_tri.n[2] = n[QUAD_TABLE[i][2]];
 
-        counter += new_tri.setTriangle(vertex_data, triangles, morph_triangles, bones);
+        new_tri.setTriangle(vertex_data, triangles, morph_triangles, bones);
     }
 
-    return counter;
+    return getTriangleAmount( PrimitiveType::QUAD );
 }
 
 int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -559,12 +543,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
-    triangle.visual.is_color_fade      = false;
+    triangle.visual = visual;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -730,12 +709,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
     int16_t       tex_animation_index[2][3];
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
-    triangle.visual.is_color_fade      = false;
+    triangle.visual = visual;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -1417,6 +1391,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.visual.polygon_color_type = vertex_color_mode;
                     primitive.visual.visability         = visability_mode;
                     primitive.visual.is_reflective      = is_reflect;
+                    primitive.visual.is_color_fade      = false;
                     
                     primitive.v[0] = reader3DQL.readU8();
                     primitive.v[1] = reader3DQL.readU8();
@@ -1461,6 +1436,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             primitive.visual.polygon_color_type = VertexColorMode::FULL;
                             primitive.visual.visability         = VisabilityMode::ADDITION;
                             primitive.visual.is_reflective      = false;
+                            primitive.visual.is_color_fade      = true;
 
                             primitive.type = PrimitiveType::CIRCLE;
                             face_circles.push_back( primitive );
