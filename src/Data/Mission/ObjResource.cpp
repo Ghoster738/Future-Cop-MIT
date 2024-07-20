@@ -104,7 +104,10 @@ namespace {
         normal.y = array[ index ].y;
         normal.z = array[ index ].z;
 
-        normal = glm::normalize( normal );
+        if(array[ index ].x != 0 || array[ index ].y != 0 || array[ index ].z != 0)
+            normal = glm::normalize( normal );
+        else
+            normal = glm::vec3( 0, 1, 0 );
     }
 
     uint8_t reverse(uint8_t b) {
