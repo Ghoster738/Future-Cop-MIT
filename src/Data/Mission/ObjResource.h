@@ -19,6 +19,7 @@ public:
     static const std::string METADATA_COMPONENT_NAME;
 
     static const float FIXED_POINT_UNIT;
+    static const float FIXED_NORMAL_UNIT;
     static const float ANGLE_UNIT;
 
     enum VertexColorMode {
