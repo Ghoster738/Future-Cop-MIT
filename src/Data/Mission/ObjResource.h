@@ -19,6 +19,7 @@ public:
     static const std::string METADATA_COMPONENT_NAME;
 
     static const float FIXED_POINT_UNIT;
+    static const float FIXED_NORMAL_UNIT;
     static const float ANGLE_UNIT;
 
     enum VertexColorMode {
@@ -32,7 +33,7 @@ public:
         MIX      = 2
     };
     enum PrimitiveType {
-        UNKNOWN_0      = 0,
+        CIRCLE         = 0,
         TRIANGLE_OTHER = 2,
         TRIANGLE       = 3,
         QUAD           = 4,
@@ -45,6 +46,13 @@ public:
         uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
         uint8_t visability:         2; // Please see enum VisabilityMode
         uint8_t is_reflective:      1;
+        uint8_t is_color_fade:      1; // Only circles use this kind of value.
+
+        Material() : uses_texture(0), normal_shading(0), polygon_color_type(0), visability(0), is_reflective(0), is_color_fade(0)
+        {}
+
+        Material(const Material& m) : uses_texture(m.uses_texture), normal_shading(m.normal_shading), polygon_color_type(m.polygon_color_type), visability(m.visability), is_reflective(m.is_reflective), is_color_fade(m.is_color_fade)
+        {}
     };
     struct FaceOverrideType {
         static constexpr float UNITS_TO_SECONDS = 0.001652018;
@@ -120,6 +128,8 @@ public:
          * @return The number of attributes in the bone.
          */
         unsigned int getNumAttributes() const;
+
+        std::string getString() const;
     };
     class VertexData {
     private:
@@ -178,6 +188,7 @@ public:
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
+        int setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setBillboard(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
@@ -217,10 +228,11 @@ private:
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
 
-    std::vector<Primitive>    face_triangles;
-    std::vector<Primitive>    face_quads;
-    std::vector<Primitive>    face_billboards;
-    std::vector<Primitive>    face_lines;
+    std::vector<Primitive> face_circles;
+    std::vector<Primitive> face_triangles;
+    std::vector<Primitive> face_quads;
+    std::vector<Primitive> face_billboards;
+    std::vector<Primitive> face_lines;
 
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.

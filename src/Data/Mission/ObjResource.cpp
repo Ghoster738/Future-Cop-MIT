@@ -24,9 +24,9 @@ namespace {
     const uint32_t TAG_3DHS = 0x33444853; // which is { 0x33, 0x44, 0x48, 0x53 } or { '3', 'D', 'H', 'S' } or "3DHS"
     // Bone Animation Attributes.
     const uint32_t TAG_3DMI = 0x33444D49; // which is { 0x33, 0x44, 0x4d, 0x49 } or { '3', 'D', 'M', 'I' } or "3DMI"
-    // 3D triangle array?
+    // Texture Cordinate Animation chunk.
     const uint32_t TAG_3DTA = 0x33445441; // which is { 0x33, 0x44, 0x54, 0x41 } or { '3', 'D', 'T', 'A' } or "3DTA"
-    // 3D array list?
+    // Circle Vertex Color Animation chunk.
     const uint32_t TAG_3DAL = 0x3344414C; // which is { 0x33, 0x44, 0x41, 0x4C } or { '3', 'D', 'A', 'L' } or "3DAL"
     // Reference IDs
     const uint32_t TAG_3DRF = 0x33445246; // which is { 0x33, 0x44, 0x52, 0x46 } or { '3', 'D', 'R', 'F' } or "3DRF"
@@ -104,7 +104,10 @@ namespace {
         normal.y = array[ index ].y;
         normal.z = array[ index ].z;
 
-        normal = glm::normalize( normal );
+        if(array[ index ].x != 0 || array[ index ].y != 0 || array[ index ].z != 0)
+            normal = glm::normalize( normal );
+        else
+            normal = glm::vec3( 0, 1, 0 );
     }
 
     uint8_t reverse(uint8_t b) {
@@ -185,6 +188,218 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
+int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+    Triangle triangle;
+    MorphTriangle morph_triangle;
+    int16_t     tex_animation_index[2][3];
+    glm::u8vec4 weights, joints;
+    glm::vec3 center, morph_center;
+    float morph_length_90d;
+
+    // Future Cop only uses one joint, so it only needs one weight.
+    weights.x = 0xFF;
+    weights.y = weights.z = weights.w = 0;
+
+    // The joint needs to be set to zero.
+    joints.x = joints.y = joints.z = joints.w = 0;
+
+    triangle.bmp_id = getBmpID();
+    triangle.visual = visual;
+
+    triangle.points[0].normal = glm::vec3(0, 1, 0);
+    triangle.points[1].normal = glm::vec3(0, 1, 0);
+    triangle.points[2].normal = glm::vec3(0, 1, 0);
+
+    const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 0);
+    const glm::i16vec3* const positions_r = vertex_data.get4DVLPointer(id_position);
+    const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 0);
+    const uint16_t* const lengths_r = vertex_data.get3DRLPointer(id_length);
+
+    // face_type_offset // Unknown. They range from 4, 8, and 12.
+
+    // this->v[0] // Actual vertex index. Origin of circle.
+
+    // this->v[1] // Red
+    // this->v[2] // Green
+    // this->v[3] // Blue
+
+    // this->n[0] // Actual length index. Radius of circle.
+
+    // this->n[1] // Always Zero
+    // this->n[2] // Always Zero
+    // this->n[3] // Always Zero
+
+    handlePositions( center, positions_r, v[0] );
+    const float length_90d = lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+    // Bone animation.
+    if( !bones.empty() ) {
+        for( auto bone = bones.begin(); bone != bones.end(); bone++) {
+            if( (*bone).vertex_start > v[0] ) {
+                break;
+            }
+            else if( (*bone).vertex_start + (*bone).vertex_stride > v[0] )
+            {
+                joints.x = bone - bones.begin();
+            }
+        }
+    }
+    for( unsigned i = 0; i < 3; i++ ) {
+        triangle.points[i].joints = joints;
+        triangle.points[i].weights = weights;
+    }
+
+    triangle.color = glm::u8vec4( v[1], v[2], v[3], 0xff );
+
+    const float UNIT_45_DEGREES = M_SQRT2 / 2.0;
+
+    const glm::vec2 circle_quadrant[2][3] = {
+        // Triangle 0
+            { { UNIT_45_DEGREES, UNIT_45_DEGREES}, { 0, 0}, { 0, 1} },
+        // Triangle 1
+            { { 1, 0}, { 0, 0}, {UNIT_45_DEGREES, UNIT_45_DEGREES} }
+    };
+
+    const glm::mat2 rotate_90d = { {0, -1}, {1, 0} };
+
+    for( unsigned axis = 0; axis < 3; axis++ ) {
+        glm::vec2 q[2][3] = {
+            // Triangle 0
+                { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
+            // Triangle 1
+                { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
+        };
+
+        for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
+            glm::vec3 mapped_circle_quadrant[2][3] = {};
+
+            switch(axis) {
+                case 0:
+                    mapped_circle_quadrant[0][0] = {q[0][0].x, 0, q[0][0].y};
+                    mapped_circle_quadrant[0][1] = {q[0][1].x, 0, q[0][1].y};
+                    mapped_circle_quadrant[0][2] = {q[0][2].x, 0, q[0][2].y};
+
+                    mapped_circle_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
+                    mapped_circle_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
+                    mapped_circle_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
+                    break;
+
+                case 1:
+                    mapped_circle_quadrant[0][0] = {q[0][0].x, q[0][0].y, 0};
+                    mapped_circle_quadrant[0][1] = {q[0][1].x, q[0][1].y, 0};
+                    mapped_circle_quadrant[0][2] = {q[0][2].x, q[0][2].y, 0};
+
+                    mapped_circle_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
+                    mapped_circle_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
+                    mapped_circle_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
+                    break;
+
+                case 2:
+                    mapped_circle_quadrant[0][0] = {0, q[0][0].x, q[0][0].y};
+                    mapped_circle_quadrant[0][1] = {0, q[0][1].x, q[0][1].y};
+                    mapped_circle_quadrant[0][2] = {0, q[0][2].x, q[0][2].y};
+
+                    mapped_circle_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
+                    mapped_circle_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
+                    mapped_circle_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
+                    break;
+            }
+
+            // Triangle 0
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
+                triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+                triangle.points[i].face_override_index = 0;
+            }
+
+            triangles.push_back( triangle );
+
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
+            triangle.switchPoints();
+            triangles.push_back( triangle );
+
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
+            // Triangle 1
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
+                triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
+                triangle.points[i].face_override_index = 0;
+            }
+
+            triangles.push_back( triangle );
+
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
+            triangle.switchPoints();
+            triangles.push_back( triangle );
+
+            for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
+                const uint32_t id_position = vertex_data.get3DRFItem(VertexData::C_4DVL, 1 + morph_frames);
+                const glm::i16vec3* const anm_positions_r = vertex_data.get4DVLPointer(id_position);
+                const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_3DRL, 1 + morph_frames);
+                const uint16_t* const anm_lengths_r = vertex_data.get3DRLPointer(id_length);
+
+                handlePositions( morph_center, anm_positions_r, v[0] );
+                morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
+
+                for( unsigned i = 0; i < 3; i++ )
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+
+                morph_triangles.push_back( morph_triangle );
+            }
+
+            for(unsigned x = 0; x < 2; x++) {
+                for(unsigned y = 0; y < 3; y++) {
+                    q[x][y] = rotate_90d * q[x][y];
+                }
+            }
+        }
+    }
+
+    return getTriangleAmount( PrimitiveType::CIRCLE );
+}
+
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     if( !isWithinBounds( vertex_data.get4DVLSize(), vertex_data.get4DNLSize() ) )
         return 0;
@@ -203,11 +418,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
+    triangle.visual = visual;
 
     triangle.color = glm::u8vec4( 0xff, 0xff, 0xff, 0xff );
 
@@ -276,20 +487,15 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
     }
     triangles.push_back( triangle );
 
-    return 1;
+    return getTriangleAmount( PrimitiveType::TRIANGLE );
 }
 
 int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
 
     Primitive new_tri;
-    int counter = 0;
 
-    new_tri.visual.uses_texture       = visual.uses_texture;
-    new_tri.visual.normal_shading     = visual.normal_shading;
-    new_tri.visual.is_reflective      = visual.is_reflective;
-    new_tri.visual.polygon_color_type = visual.polygon_color_type;
-    new_tri.visual.visability         = visual.visability;
+    new_tri.visual = visual;
 
     new_tri.face_type_offset = face_type_offset;
     new_tri.face_type_r = face_type_r;
@@ -308,10 +514,10 @@ int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data
         new_tri.n[1] = n[QUAD_TABLE[i][1]];
         new_tri.n[2] = n[QUAD_TABLE[i][2]];
 
-        counter += new_tri.setTriangle(vertex_data, triangles, morph_triangles, bones);
+        new_tri.setTriangle(vertex_data, triangles, morph_triangles, bones);
     }
 
-    return counter;
+    return getTriangleAmount( PrimitiveType::QUAD );
 }
 
 int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -340,11 +546,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
     joints.x = joints.y = joints.z = joints.w = 0;
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
+    triangle.visual = visual;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -510,11 +712,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
     int16_t       tex_animation_index[2][3];
 
     triangle.bmp_id = getBmpID();
-    triangle.visual.uses_texture       = visual.uses_texture;
-    triangle.visual.normal_shading     = visual.normal_shading;
-    triangle.visual.is_reflective      = visual.is_reflective;
-    triangle.visual.polygon_color_type = visual.polygon_color_type;
-    triangle.visual.visability         = visual.visability;
+    triangle.visual = visual;
 
     triangle.points[0].normal = glm::vec3(0, 1, 0);
     triangle.points[1].normal = glm::vec3(0, 1, 0);
@@ -729,6 +927,8 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
+        case PrimitiveType::CIRCLE:
+            return 48;
         case PrimitiveType::TRIANGLE:
         case PrimitiveType::TRIANGLE_OTHER:
             return 1;
@@ -835,13 +1035,27 @@ const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uin
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
     return (getOpcodeBytesPerFrame( this->opcode ) / 2);
 }
+
+std::string Data::Mission::ObjResource::Bone::getString() const {
+    std::stringstream form;
+
+    form << "opcode 0b" << opcode.position.x_const << opcode.position.y_const << opcode.position.z_const << opcode.rotation.x_const << opcode.rotation.y_const << opcode.rotation.z_const << "; ";
+    form << "parent_level = " << (parent_amount - 1) << "; ";
+    form << "normal {start = " << normal_start << ", stride = " << normal_stride << "}; ";
+    form << "vertex {start = " << vertex_start << ", stride = " << vertex_stride << "}; ";
+    form << "position( " << position.x << ", " << position.y << ", " << position.z << " ); ";
+    form << "rotation( " << rotation.x << ", " << rotation.y << ", " << rotation.z << " ) ";
+
+    return form.str();
+}
         
 const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
 const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
 const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
-const float Data::Mission::ObjResource::FIXED_POINT_UNIT = 1.0 / 512.0;
-const float Data::Mission::ObjResource::ANGLE_UNIT       = glm::pi<float>() / 2048.0;
+const float Data::Mission::ObjResource::FIXED_POINT_UNIT  = 1.0 / 512.0;
+const float Data::Mission::ObjResource::FIXED_NORMAL_UNIT = 1.0 / 4096.0;
+const float Data::Mission::ObjResource::ANGLE_UNIT        = glm::pi<float>() / 2048.0;
 
 Data::Mission::ObjResource::ObjResource() {
     this->bone_frames = 0;
@@ -1194,6 +1408,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.visual.polygon_color_type = vertex_color_mode;
                     primitive.visual.visability         = visability_mode;
                     primitive.visual.is_reflective      = is_reflect;
+                    primitive.visual.is_color_fade      = false;
                     
                     primitive.v[0] = reader3DQL.readU8();
                     primitive.v[1] = reader3DQL.readU8();
@@ -1230,8 +1445,22 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             face_triangles.push_back( primitive );
                             break;
                         }
+                        case 0:
+                            // This code forces the display mode to be vertex color only.
+                            // TODO Check if this code is even necessary
+                            primitive.visual.uses_texture       = false;
+                            primitive.visual.normal_shading     = false;
+                            primitive.visual.polygon_color_type = VertexColorMode::FULL;
+                            primitive.visual.visability         = VisabilityMode::ADDITION;
+                            primitive.visual.is_reflective      = false;
+                            primitive.visual.is_color_fade      = true;
+
+                            primitive.type = PrimitiveType::CIRCLE;
+                            face_circles.push_back( primitive );
+                            break;
                         default:
                         {
+                            warning_log.output << std::dec << "Unknown Primative type = " << static_cast<unsigned>(face_type) << "\n";
                         }
                     }
                 }
@@ -1292,16 +1521,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     bytes_per_frame_3DMI += getOpcodeBytesPerFrame( bones.at(i).opcode );
                     
                     this->max_bone_childern = std::max( bones.at(i).parent_amount, this->max_bone_childern );
-                    
-                    debug_log.output << "bone: ";
 
-                    debug_log.output
-                        << "parent index: 0x" << std::hex << bones.at(i).parent_amount << ", "
-                        << "0x" <<    bones.at(i).normal_start << " with 0x" <<  bones.at(i).normal_stride << " normals, "
-                        << "0x" <<    bones.at(i).vertex_start << " with 0x" <<  bones.at(i).vertex_stride << " vertices, "
-                        << "opcode: 0x" << opcode << std::dec
-                        << ", position( " << bones.at(i).position.x << ", " << bones.at(i).position.y << ", " << bones.at(i).position.z << " )"
-                        << ", rotation( " << bones.at(i).rotation.x << ", " << bones.at(i).rotation.y << ", " << bones.at(i).rotation.z << " )\n";
+                    // error_log.output << i << " = {" << bones.at(i).getString() << "}\n";
                 }
                 
                 // The bytes_per_frame_3DMI might not actually hold true.
@@ -1354,8 +1575,29 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             else
             if( identifier == TAG_3DAL ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
-                
-                debug_log.output << "3DAL is not handled yet.\n";
+
+                if(tag_size != 0x14)
+                    warning_log.output << "3DAL size is unusual.\n";
+
+                if(tag_size < 0x14)
+                    error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
+                else {
+                    auto count = reader3DAL.readU32( settings.endian );
+
+                    if(count != 1)
+                        warning_log.output << "3DAL count = " << std::dec << count << ".\n";
+
+                    // TODO 3DAL is almost like 3DTA
+
+                    // c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type circle or zero.
+                    // c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
+                    // c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
+                    // c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
+                    // c_3DAL_data[4] = reader3DAL.readU8(); // Blue[0]
+                    // c_3DAL_data[5] = reader3DAL.readU8(); // Red[1]
+                    // c_3DAL_data[6] = reader3DAL.readU8(); // Green[1]
+                    // c_3DAL_data[7] = reader3DAL.readU8(); // Blue[1]
+                }
             }
             else
             if( identifier == TAG_3DRF ) {
@@ -1942,10 +2184,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        // The billboards
         for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
+        // Then the lines.
         for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
+            primitive_buffer.push_back( (*i) );
+
+        // Then finally the circles.
+        for( auto i = face_circles.begin(); i != face_circles.end(); i++ )
             primitive_buffer.push_back( (*i) );
 
         // Sort the triangle list.
@@ -1962,7 +2210,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
-            if( (*i).type == PrimitiveType::TRIANGLE )
+            if( (*i).type == PrimitiveType::CIRCLE )
+                (*i).setCircle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
+            else if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::QUAD )
                 (*i).setQuad(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
@@ -1974,7 +2224,11 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
     }
 
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
-    unsigned int normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    unsigned int normal_component_index = -1;
+
+    if(vertex_data.get4DNLSize() != 0)
+        normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+
     unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
     unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int metadata_component_index = -1;
@@ -2040,7 +2294,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
     if( vertex_data.get3DRFSize() > 1 ) {
         position_morph_component_index = model_output->setVertexComponentMorph( position_component_index );
-        normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
+
+        if(vertex_data.get4DNLSize() != 0)
+            normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
     }
 
     // Setup the vertex components now that every field had been entered.
@@ -2119,9 +2375,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 model_output->startVertex();
 
-                model_output->setVertexData(  position_component_index, Utilities::DataTypes::Vec3Type(       point.position ) );
-                model_output->setVertexData(    normal_component_index, Utilities::DataTypes::Vec3Type(       point.normal ) );
-                model_output->setVertexData(     color_component_index, Utilities::DataTypes::Vec4UByteType(  (*triangle).color ) );
+                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
+
+                if(vertex_data.get4DNLSize() != 0)
+                    model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
+
+                if(vertex_index != 1 && (*triangle).visual.is_color_fade)
+                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
+                else
+                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
+
                 model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
 
                 if(!exclude_metadata)
@@ -2134,7 +2397,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                     const MorphPoint morph_point = (*morph_triangle_frame).points[vertex_index];
 
                     model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
-                    model_output->addMorphVertexData(   normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
+
+                    if(vertex_data.get4DNLSize() != 0)
+                        model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
 
                     morph_triangle_frame++;
                 }
