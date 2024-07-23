@@ -100,9 +100,9 @@ namespace {
         position.z =  array[ index ].z * Data::Mission::ObjResource::FIXED_POINT_UNIT;
     }
     void handleNormals( glm::vec3 &normal, const glm::i16vec3 *array, int index ) {
-        normal.x = array[ index ].x;
-        normal.y = array[ index ].y;
-        normal.z = array[ index ].z;
+        normal.x = -array[ index ].x;
+        normal.y =  array[ index ].y;
+        normal.z =  array[ index ].z;
 
         if(array[ index ].x != 0 || array[ index ].y != 0 || array[ index ].z != 0)
             normal = glm::normalize( normal );
