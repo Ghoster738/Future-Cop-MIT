@@ -1437,6 +1437,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         vertex_color_mode = VertexColorMode::NON;
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
+                    const uint16_t un_unk   =  (opcode_1 & 0x78) >> 3;
                     const uint8_t face_type =  (opcode_1 & 0x07);
 
                     if( is_reflect && !info.semi_transparent ) {
@@ -1464,6 +1465,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[1] = reader3DQL.readU8();
                     primitive.n[2] = reader3DQL.readU8();
                     primitive.n[3] = reader3DQL.readU8();
+
+                    if(bitfield == 4 && ((primitive.n[1] == primitive.n[2] && primitive.n[1] == primitive.n[3]) == false)) {
+                        error_log.output << std::dec << "Type = " << static_cast<unsigned>(face_type) << "; offset = " << face_type_offset << "; bitfield = " << static_cast<unsigned>(bitfield);
+                        error_log.output << "; un_unk = " << un_unk;
+                        error_log.output << "; " << static_cast<unsigned>(primitive.n[0]) << ", " << static_cast<unsigned>(primitive.n[1]);
+                        error_log.output << ", " << static_cast<unsigned>(primitive.n[2]) << ", " << static_cast<unsigned>(primitive.n[3]) << "\n";
+                    }
 
                     switch( face_type ) {
                         case 7:
