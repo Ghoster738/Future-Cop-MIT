@@ -296,7 +296,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                     mapped_circle_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
                     mapped_circle_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
 
-                    circle_direction = glm::vec3(0, -1, 0);
+                    circle_direction = glm::vec3(0, 1, 0);
                     break;
 
                 case 1:
@@ -1466,11 +1466,11 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[2] = reader3DQL.readU8();
                     primitive.n[3] = reader3DQL.readU8();
 
-                    if(bitfield == 4 && ((primitive.n[1] == primitive.n[2] && primitive.n[1] == primitive.n[3]) == false)) {
-                        error_log.output << std::dec << "Type = " << static_cast<unsigned>(face_type) << "; offset = " << face_type_offset << "; bitfield = " << static_cast<unsigned>(bitfield);
-                        error_log.output << "; un_unk = " << un_unk;
-                        error_log.output << "; " << static_cast<unsigned>(primitive.n[0]) << ", " << static_cast<unsigned>(primitive.n[1]);
-                        error_log.output << ", " << static_cast<unsigned>(primitive.n[2]) << ", " << static_cast<unsigned>(primitive.n[3]) << "\n";
+                    // If bitfield is 4 then the normals are flatened.
+                    if(bitfield == 4 && (face_type == 3 || face_type == 4)) {
+                        primitive.n[1] = primitive.n[0];
+                        primitive.n[2] = primitive.n[0];
+                        primitive.n[3] = primitive.n[0];
                     }
 
                     switch( face_type ) {
