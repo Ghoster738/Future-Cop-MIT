@@ -105,9 +105,12 @@ public:
         Point points[3];
 
         void switchPoints();
+        void generateNormals();
     };
     struct MorphTriangle {
         MorphPoint points[3];
+
+        void generateNormals();
     };
     class Bone {
     public:

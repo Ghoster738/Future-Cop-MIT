@@ -150,6 +150,18 @@ void Data::Mission::ObjResource::Triangle::switchPoints() {
     std::swap(points[0], points[2]);
 }
 
+void Data::Mission::ObjResource::Triangle::generateNormals() {
+    points[0].normal = Utilities::ModelBuilder::normalizeFromTriangle( points[0].position, points[1].position, points[2].position );
+    points[1].normal = points[0].normal;
+    points[2].normal = points[0].normal;
+}
+
+void Data::Mission::ObjResource::MorphTriangle::generateNormals() {
+    points[0].normal = Utilities::ModelBuilder::normalizeFromTriangle( points[0].position, points[1].position, points[2].position );
+    points[1].normal = points[0].normal;
+    points[2].normal = points[0].normal;
+}
+
 uint32_t Data::Mission::ObjResource::Primitive::getBmpID() const {
     if( !visual.uses_texture || face_type_r == nullptr )
         return 0;
@@ -272,6 +284,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
         for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
             glm::vec3 mapped_circle_quadrant[2][3] = {};
+            glm::vec3 circle_direction;
 
             switch(axis) {
                 case 0:
@@ -282,6 +295,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                     mapped_circle_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
                     mapped_circle_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
                     mapped_circle_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
+
+                    circle_direction = glm::vec3(0, -1, 0);
                     break;
 
                 case 1:
@@ -292,6 +307,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                     mapped_circle_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
                     mapped_circle_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
                     mapped_circle_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
+
+                    circle_direction = glm::vec3(0, 0, -1);
                     break;
 
                 case 2:
@@ -302,12 +319,15 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                     mapped_circle_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
                     mapped_circle_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
                     mapped_circle_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
+
+                    circle_direction = glm::vec3(-1, 0, 0);
                     break;
             }
 
             // Triangle 0
             for( unsigned i = 0; i < 3; i++ ) {
                 triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
+                triangle.points[i].normal = circle_direction;
                 triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
                 triangle.points[i].face_override_index = 0;
             }
@@ -323,13 +343,21 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                for( unsigned i = 0; i < 3; i++ )
+                for( unsigned i = 0; i < 3; i++ ) {
                     morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
+                    morph_triangle.points[i].normal = circle_direction;
+                }
 
                 morph_triangles.push_back( morph_triangle );
             }
 
             triangle.switchPoints();
+
+            circle_direction = -circle_direction;
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].normal = circle_direction;
+            }
+
             triangles.push_back( triangle );
 
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -341,15 +369,20 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                for( unsigned i = 0; i < 3; i++ )
+                for( unsigned i = 0; i < 3; i++ ) {
                     morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
+                    morph_triangle.points[i].normal = circle_direction;
+                }
 
                 morph_triangles.push_back( morph_triangle );
             }
+
+            circle_direction = -circle_direction;
 
             // Triangle 1
             for( unsigned i = 0; i < 3; i++ ) {
                 triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
+                triangle.points[i].normal = circle_direction;
                 triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
                 triangle.points[i].face_override_index = 0;
             }
@@ -365,13 +398,19 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                for( unsigned i = 0; i < 3; i++ )
+                for( unsigned i = 0; i < 3; i++ ) {
                     morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
+                    morph_triangle.points[i].normal = circle_direction;
+                }
 
                 morph_triangles.push_back( morph_triangle );
             }
 
             triangle.switchPoints();
+            circle_direction = -circle_direction;
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].normal = circle_direction;
+            }
             triangles.push_back( triangle );
 
             for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -383,8 +422,10 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 handlePositions( morph_center, anm_positions_r, v[0] );
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
-                for( unsigned i = 0; i < 3; i++ )
+                for( unsigned i = 0; i < 3; i++ ) {
                     morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
+                    morph_triangle.points[i].normal = circle_direction;
+                }
 
                 morph_triangles.push_back( morph_triangle );
             }
@@ -429,7 +470,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
     handlePositions( triangle.points[1].position, positions_r, v[1] );
     handlePositions( triangle.points[2].position, positions_r, v[0] );
 
-    if( vertex_data.get4DNLSize() > 0 ) {
+    if( visual.normal_shading && vertex_data.get4DNLSize() > 0 ) {
         const uint32_t id_normal = vertex_data.get3DRFItem(VertexData::C_4DNL, 0);
         const glm::i16vec3* const normals_r = vertex_data.get4DNLPointer(id_normal);
 
@@ -437,6 +478,8 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
         handleNormals( triangle.points[1].normal, normals_r, n[1] );
         handleNormals( triangle.points[2].normal, normals_r, n[0] );
     }
+    else
+        triangle.generateNormals();
 
     triangleToCoords( *this, *face_type_r, coords, face_override_indexes );
 
@@ -457,7 +500,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
         handlePositions( morph_triangle.points[1].position, anm_positions_r, v[1] );
         handlePositions( morph_triangle.points[2].position, anm_positions_r, v[0] );
 
-        if( vertex_data.get4DNLSize() > 0 ) {
+        if( visual.normal_shading && vertex_data.get4DNLSize() > 0 ) {
             const uint32_t id_normal = vertex_data.get3DRFItem(VertexData::C_4DNL, 1 + morph_frames);
             const glm::i16vec3* const anm_normals_r = vertex_data.get4DNLPointer(id_normal);
 
@@ -465,6 +508,8 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
             handleNormals( morph_triangle.points[1].normal, anm_normals_r, n[1] );
             handleNormals( morph_triangle.points[2].normal, anm_normals_r, n[0] );
         }
+        else
+            morph_triangle.generateNormals();
 
         morph_triangles.push_back( morph_triangle );
     }
