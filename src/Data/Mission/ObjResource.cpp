@@ -1466,8 +1466,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.n[2] = reader3DQL.readU8();
                     primitive.n[3] = reader3DQL.readU8();
 
-                    // If bitfield is 4 then the normals are flatened.
-                    if(bitfield == 4 && (face_type == 3 || face_type == 4)) {
+                    // If bitfield is 4 or 5 then the normals are flatened.
+                    if(bitfield == 4 || bitfield == 5) {
                         primitive.n[1] = primitive.n[0];
                         primitive.n[2] = primitive.n[0];
                         primitive.n[3] = primitive.n[0];
