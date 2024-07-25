@@ -583,6 +583,12 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
             { { 0.0, 1.0, 1.0}, { 0.0,-1.0, 1.0}, { 0.0,-1.0,-1.0}, { 0.0, 1.0,-1.0} }
     };
 
+    const glm::vec3 billboard_star_normals[3] = {
+        {0,  0, 1},
+        {0, -1, 0},
+        {1,  0, 0}
+    };
+
     // Future Cop only uses one joint, so it only needs one weight.
     weights.x = 0xFF;
     weights.y = weights.z = weights.w = 0;
@@ -592,10 +598,6 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
 
     triangle.bmp_id = getBmpID();
     triangle.visual = visual;
-
-    triangle.points[0].normal = glm::vec3(0, 1, 0);
-    triangle.points[1].normal = glm::vec3(0, 1, 0);
-    triangle.points[2].normal = glm::vec3(0, 1, 0);
 
     if( face_type_r != nullptr ) {
         triangle.color = face_type_r->getColor( triangle.visual );
@@ -665,6 +667,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
         // Triangle 0
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[0][i]];
+            triangle.points[i].normal = billboard_star_normals[quad_index];
             triangle.points[i].coords = coords[0][i];
             triangle.points[i].face_override_index = tex_animation_index[0][i];
         }
@@ -680,13 +683,18 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
             handlePositions( morph_center, anm_positions_r, v[0] );
             morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
-            for( unsigned i = 0; i < 3; i++ )
+            for( unsigned i = 0; i < 3; i++ ) {
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][i]];
+                morph_triangle.points[i].normal = billboard_star_normals[quad_index];
+            }
 
             morph_triangles.push_back( morph_triangle );
         }
 
         triangle.switchPoints();
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].normal = -billboard_star_normals[quad_index];
+        }
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -698,8 +706,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
             handlePositions( morph_center, anm_positions_r, v[0] );
             morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
-            for( unsigned i = 0; i < 3; i++ )
+            for( unsigned i = 0; i < 3; i++ ) {
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[0][2 - i]];
+                morph_triangle.points[i].normal = -billboard_star_normals[quad_index];
+            }
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -707,6 +717,7 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
         // Triangle 1
         for( unsigned i = 0; i < 3; i++ ) {
             triangle.points[i].position = center + length * billboard_star[quad_index][QUAD_TABLE[1][i]];
+            triangle.points[i].normal = billboard_star_normals[quad_index];
             triangle.points[i].coords = coords[1][i];
             triangle.points[i].face_override_index = tex_animation_index[1][i];
         }
@@ -722,13 +733,18 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
             handlePositions( morph_center, anm_positions_r, v[0] );
             morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
-            for( unsigned i = 0; i < 3; i++ )
+            for( unsigned i = 0; i < 3; i++ ) {
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][i]];
+                morph_triangle.points[i].normal = billboard_star_normals[quad_index];
+            }
 
             morph_triangles.push_back( morph_triangle );
         }
 
         triangle.switchPoints();
+        for( unsigned i = 0; i < 3; i++ ) {
+            triangle.points[i].normal = -billboard_star_normals[quad_index];
+        }
         triangles.push_back( triangle );
 
         for( unsigned morph_frames = 0; morph_frames < vertex_data.get3DRFSize() - 1; morph_frames++ ) {
@@ -740,8 +756,10 @@ int Data::Mission::ObjResource::Primitive::setBillboard(const VertexData& vertex
             handlePositions( morph_center, anm_positions_r, v[0] );
             morph_length = anm_lengths_r[ v[2] ] * FIXED_POINT_UNIT;
 
-            for( unsigned i = 0; i < 3; i++ )
+            for( unsigned i = 0; i < 3; i++ ) {
                 morph_triangle.points[i].position = morph_center + morph_length * billboard_star[quad_index][QUAD_TABLE[1][2 - i]];
+                morph_triangle.points[i].normal = -billboard_star_normals[quad_index];
+            }
 
             morph_triangles.push_back( morph_triangle );
         }
@@ -910,9 +928,15 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
         flat_3[ current_placement.y ] = flat_2.y;
         quaderlateral[3] = flat_3;
 
+        glm::vec3 current_normal = Utilities::ModelBuilder::normalizeFromTriangle(
+            segments[QUAD_TABLE[0][0] / 2] + quaderlateral[QUAD_TABLE[0][0]],
+            segments[QUAD_TABLE[0][1] / 2] + quaderlateral[QUAD_TABLE[0][1]],
+            segments[QUAD_TABLE[0][2] / 2] + quaderlateral[QUAD_TABLE[0][2]]);
+
         for( unsigned t = 0; t < 2; t++ ) {
             for( unsigned i = 0; i < 3; i++ ) {
                 triangle.points[i].position = segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
+                triangle.points[i].normal = current_normal;
                 triangle.points[i].coords = coords[t][i];
                 triangle.points[i].face_override_index = tex_animation_index[t][i];
                 triangle.points[i].joints = joints[QUAD_TABLE[t][i] / 2]; // Untested.
@@ -937,11 +961,18 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
                 for( unsigned i = 0; i < 3; i++ )
                     morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][i] / 2] + quaderlateral[QUAD_TABLE[t][i]];
 
+                morph_triangle.points[0].normal = Utilities::ModelBuilder::normalizeFromTriangle(morph_triangle.points[0].position, morph_triangle.points[1].position, morph_triangle.points[2].position);
+
+                morph_triangle.points[1].normal = morph_triangle.points[0].normal;
+                morph_triangle.points[2].normal = morph_triangle.points[0].normal;
+
                 morph_triangles.push_back( morph_triangle );
             }
 
             triangle.switchPoints();
-
+            for( unsigned i = 0; i < 3; i++ ) {
+                triangle.points[i].normal = -current_normal;
+            }
             triangles.push_back( triangle );
 
             // TODO morph_thickness is not used. Make a test case to fix this.
@@ -961,6 +992,11 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 
                 for( unsigned i = 0; i < 3; i++ )
                     morph_triangle.points[i].position = morph_segments[QUAD_TABLE[t][2 - i] / 2] + quaderlateral[QUAD_TABLE[t][2 - i]];
+
+                morph_triangle.points[0].normal = Utilities::ModelBuilder::normalizeFromTriangle(morph_triangle.points[0].position, morph_triangle.points[1].position, morph_triangle.points[2].position);
+
+                morph_triangle.points[1].normal = morph_triangle.points[0].normal;
+                morph_triangle.points[2].normal = morph_triangle.points[0].normal;
 
                 morph_triangles.push_back( morph_triangle );
             }
