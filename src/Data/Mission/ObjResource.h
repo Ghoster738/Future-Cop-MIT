@@ -281,7 +281,7 @@ public:
 
     virtual Utilities::ModelBuilder * createModel() const;
     
-    Utilities::ModelBuilder * createMesh( bool exclude_metadata ) const;
+    Utilities::ModelBuilder * createMesh( bool exclude_metadata, bool force_normal ) const;
     Utilities::ModelBuilder * createBoundingBoxes() const;
 };
 

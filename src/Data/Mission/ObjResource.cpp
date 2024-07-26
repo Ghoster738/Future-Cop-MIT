@@ -2113,7 +2113,7 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata);
+    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata, false);
 
     if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
@@ -2243,10 +2243,12 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
-    return createMesh( false ); // False as metadata would NOT be excluded.
+    return createMesh(
+        false,  // False as metadata would NOT be excluded.
+        true ); // True normals will be created.
 }
 
-Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata ) const {
+Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata, bool force_normal ) const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
@@ -2312,10 +2314,12 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
     }
 
+    bool build_normals = (vertex_data.get4DNLSize() != 0) | force_normal;
+
     unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = -1;
 
-    if(vertex_data.get4DNLSize() != 0)
+    if(build_normals)
         normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
 
     unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
@@ -2384,7 +2388,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
     if( vertex_data.get3DRFSize() > 1 ) {
         position_morph_component_index = model_output->setVertexComponentMorph( position_component_index );
 
-        if(vertex_data.get4DNLSize() != 0)
+        if(build_normals)
             normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
     }
 
@@ -2466,7 +2470,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
 
-                if(vertex_data.get4DNLSize() != 0)
+                if(build_normals)
                     model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
 
                 if(vertex_index != 1 && (*triangle).visual.is_color_fade)
@@ -2487,7 +2491,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                     model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
 
-                    if(vertex_data.get4DNLSize() != 0)
+                    if(build_normals)
                         model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
 
                     morph_triangle_frame++;
