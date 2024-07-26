@@ -92,6 +92,13 @@ void Utilities::ModelBuilder::TextureMaterial::bounds( const TextureMaterial &ma
     max.data.z = std::max( max.data.z, material.max.data.z );
 }
 
+glm::vec3 Utilities::ModelBuilder::normalizeFromTriangle( glm::vec3 a, glm::vec3 b, glm::vec3 c ) {
+    const glm::vec3 u = b - a;
+    const glm::vec3 v = c - a;
+
+    return glm::normalize( glm::cross(u, v) );
+}
+
 Utilities::ModelBuilder::InvalidVertexComponentIndex::InvalidVertexComponentIndex( unsigned offending_index, bool is_morph ) {
     this->offending_index = offending_index;
     this->is_morph = is_morph;

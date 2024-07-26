@@ -834,34 +834,11 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
                         }
 
                         // Generate the normals
+                        for( unsigned int p = 0; p < current_tile_polygon_amount / 3; p++ )
                         {
-                            glm::vec3 u;
-                            glm::vec3 v;
-
-                            // Generate the normals
-                            for( unsigned int p = 0; p < current_tile_polygon_amount / 3; p++ )
-                            {
-                                u.x = position[ p * 3 + 1 ].x - position[ p * 3 + 0 ].x;
-                                u.y = position[ p * 3 + 1 ].y - position[ p * 3 + 0 ].y;
-                                u.z = position[ p * 3 + 1 ].z - position[ p * 3 + 0 ].z;
-
-                                v.x = position[ p * 3 + 2 ].x - position[ p * 3 + 0 ].x;
-                                v.y = position[ p * 3 + 2 ].y - position[ p * 3 + 0 ].y;
-                                v.z = position[ p * 3 + 2 ].z - position[ p * 3 + 0 ].z;
-
-                                normal[3 * p].x = (u.y * v.z - u.z * v.y);
-                                normal[3 * p].y = (u.z * v.x - u.x * v.z);
-                                normal[3 * p].z = (u.x * v.y - u.y * v.x);
-
-                                normal[3 * p] = glm::normalize( normal[3 * p] );
-
-                                // Fill in the value on all points
-                                for( unsigned int i = 1; i < 3; i++ ) {
-                                    normal[3 * p + i ].x = normal[3 * p].x;
-                                    normal[3 * p + i ].y = normal[3 * p].y;
-                                    normal[3 * p + i ].z = normal[3 * p].z;
-                                }
-                            }
+                            normal[3 * p] = Utilities::ModelBuilder::normalizeFromTriangle( position[ p * 3 + 0 ], position[ p * 3 + 1 ], position[ p * 3 + 2 ] );
+                            normal[3 * p + 1] = normal[3 * p];
+                            normal[3 * p + 2] = normal[3 * p];
                         }
 
                         {

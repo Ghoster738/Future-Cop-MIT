@@ -91,6 +91,7 @@ public:
         std::vector<glm::vec3> position;
         std::vector<glm::quat> rotation;
     };
+    static glm::vec3 normalizeFromTriangle( glm::vec3 a, glm::vec3 b, glm::vec3 c );
 
     /**
     * This class is thrown if the vertex component does not exist.
@@ -126,6 +127,7 @@ public:
     */
     class CannotAddVerticesWhenFinished {};
 private:
+
     std::vector<uint32_t> primary_buffer;
     std::vector<VertexComponent> vertex_components;
     unsigned total_components_size; // The size in uint32_t per vertex of the primary_buffer.
