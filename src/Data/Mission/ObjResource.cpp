@@ -6,7 +6,6 @@
 #include <glm/geometric.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <algorithm>
-#define _USE_MATH_DEFINES // Tell cmath to include M_SQRT2
 #include <cmath>
 #include <fstream>
 #include <cassert>
@@ -264,7 +263,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     triangle.color = glm::u8vec4( v[1], v[2], v[3], 0xff );
 
-    const float UNIT_45_DEGREES = M_SQRT2 / 2.0;
+    const float UNIT_45_DEGREES = 0.707106781187; // M_SQRT2 / 2.0;
 
     const glm::vec2 circle_quadrant[2][3] = {
         // Triangle 0
