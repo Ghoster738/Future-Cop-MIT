@@ -6,6 +6,7 @@
 #include <glm/geometric.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <algorithm>
+#define _USE_MATH_DEFINES // Tell cmath to include M_SQRT2
 #include <cmath>
 #include <fstream>
 #include <cassert>
