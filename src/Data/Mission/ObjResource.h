@@ -222,6 +222,31 @@ public:
         unsigned billboard: 1;
         unsigned line:      1;
     };
+    struct FacerPolygons {
+        enum Type {
+            STAR,
+            BILLBOARD,
+            LINE
+        } type;
+        VisabilityMode visability_mode;
+        glm::vec3 color;
+        float width;
+        union {
+            struct {
+                glm::vec3 position;
+            } star;
+            struct {
+                glm::vec3 position;
+                uint32_t bmp_id;
+                glm::u8vec2 coords[4];
+            } billboard;
+            struct {
+                glm::vec3 positions[2];
+                uint32_t bmp_id;
+                glm::u8vec2 coords[4];
+            } line;
+        } primitive;
+    };
 private:
     struct {
         unsigned has_skeleton:     1;
