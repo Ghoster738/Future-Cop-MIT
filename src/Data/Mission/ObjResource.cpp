@@ -2113,7 +2113,15 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata, false);
+    AllowedPrimitives allowed_primitives;
+
+    allowed_primitives.star      = true;
+    allowed_primitives.triangle  = true;
+    allowed_primitives.quad      = true;
+    allowed_primitives.billboard = true;
+    allowed_primitives.line      = true;
+
+    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata, false, allowed_primitives);
 
     if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
@@ -2243,12 +2251,21 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
+    AllowedPrimitives allowed_primitives;
+
+    allowed_primitives.star      = true;
+    allowed_primitives.triangle  = true;
+    allowed_primitives.quad      = true;
+    allowed_primitives.billboard = true;
+    allowed_primitives.line      = true;
+
     return createMesh(
-        false,  // False as metadata would NOT be excluded.
-        true ); // True normals will be created.
+        false, // False as metadata would NOT be excluded.
+        true,  // True normals will be created.
+        allowed_primitives );
 }
 
-Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata, bool force_normal ) const {
+Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata, bool force_normal, AllowedPrimitives allowed_primitives ) const {
     Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
@@ -2267,25 +2284,35 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         morph_triangle_buffer.reserve( triangle_buffer_size * (vertex_data.get3DRFSize() - 1) );
         primitive_buffer.reserve( triangle_buffer_size );
 
-        // Go through the normal triangles first.
-        for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ )
-            primitive_buffer.push_back( (*i) );
+        if(allowed_primitives.star) {
+            // Add the stars.
+            for( auto i = face_circles.begin(); i != face_circles.end(); i++ )
+                primitive_buffer.push_back( (*i) );
+        }
 
-        // Now go through the quads.
-        for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
-            primitive_buffer.push_back( (*i) );
+        if(allowed_primitives.triangle) {
+            // Add the triangles.
+            for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ )
+                primitive_buffer.push_back( (*i) );
+        }
 
-        // The billboards
-        for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
-            primitive_buffer.push_back( (*i) );
+        if(allowed_primitives.quad) {
+            // Add the quaderlaterals.
+            for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
+                primitive_buffer.push_back( (*i) );
+        }
 
-        // Then the lines.
-        for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
-            primitive_buffer.push_back( (*i) );
+        if(allowed_primitives.billboard) {
+            // Add the billboards
+            for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
+                primitive_buffer.push_back( (*i) );
+        }
 
-        // Then finally the circles.
-        for( auto i = face_circles.begin(); i != face_circles.end(); i++ )
-            primitive_buffer.push_back( (*i) );
+        if(allowed_primitives.line) {
+            // Add the lines.
+            for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
+                primitive_buffer.push_back( (*i) );
+        }
 
         // Sort the triangle list.
         std::sort(primitive_buffer.begin(), primitive_buffer.end(), Primitive() );

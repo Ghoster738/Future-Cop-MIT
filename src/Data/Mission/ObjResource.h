@@ -215,6 +215,13 @@ public:
         uint32_t resource_id;
         std::string name;
     };
+    struct AllowedPrimitives {
+        unsigned star:      1;
+        unsigned triangle:  1;
+        unsigned quad:      1;
+        unsigned billboard: 1;
+        unsigned line:      1;
+    };
 private:
     struct {
         unsigned has_skeleton:     1;
@@ -281,7 +288,7 @@ public:
 
     virtual Utilities::ModelBuilder * createModel() const;
     
-    Utilities::ModelBuilder * createMesh( bool exclude_metadata, bool force_normal ) const;
+    Utilities::ModelBuilder * createMesh( bool exclude_metadata, bool force_normal, AllowedPrimitives allowed_primitives ) const;
     Utilities::ModelBuilder * createBoundingBoxes() const;
 };
 
