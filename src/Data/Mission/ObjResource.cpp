@@ -438,7 +438,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
         }
     }
 
-    return getTriangleAmount( PrimitiveType::CIRCLE );
+    return getTriangleAmount( PrimitiveType::STAR );
 }
 
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -1008,7 +1008,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
-        case PrimitiveType::CIRCLE:
+        case PrimitiveType::STAR:
             return 48;
         case PrimitiveType::TRIANGLE:
         case PrimitiveType::TRIANGLE_OTHER:
@@ -1544,8 +1544,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             primitive.visual.is_reflective      = false;
                             primitive.visual.is_color_fade      = true;
 
-                            primitive.type = PrimitiveType::CIRCLE;
-                            face_circles.push_back( primitive );
+                            primitive.type = PrimitiveType::STAR;
+                            face_stars.push_back( primitive );
                             break;
                         default:
                         {
@@ -2286,7 +2286,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
         if(allowed_primitives.star) {
             // Add the stars.
-            for( auto i = face_circles.begin(); i != face_circles.end(); i++ )
+            for( auto i = face_stars.begin(); i != face_stars.end(); i++ )
                 primitive_buffer.push_back( (*i) );
         }
 
@@ -2328,7 +2328,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
-            if( (*i).type == PrimitiveType::CIRCLE )
+            if( (*i).type == PrimitiveType::STAR )
                 (*i).setCircle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);

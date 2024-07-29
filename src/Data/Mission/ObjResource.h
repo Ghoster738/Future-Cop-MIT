@@ -33,7 +33,7 @@ public:
         MIX      = 2
     };
     enum PrimitiveType {
-        CIRCLE         = 0,
+        STAR           = 0,
         TRIANGLE_OTHER = 2,
         TRIANGLE       = 3,
         QUAD           = 4,
@@ -238,7 +238,7 @@ private:
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
 
-    std::vector<Primitive> face_circles;
+    std::vector<Primitive> face_stars;
     std::vector<Primitive> face_triangles;
     std::vector<Primitive> face_quads;
     std::vector<Primitive> face_billboards;
