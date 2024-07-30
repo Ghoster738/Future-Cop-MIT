@@ -222,7 +222,7 @@ public:
         unsigned billboard: 1;
         unsigned line:      1;
     };
-    struct FacerPolygons {
+    struct FacerPolygon {
         enum Type {
             STAR,
             BILLBOARD,
@@ -246,6 +246,12 @@ public:
                 glm::u8vec2 coords[4];
             } line;
         } primitive;
+    };
+    struct AdvancedRendering {
+    private:
+
+    public:
+        AdvancedRendering(const Utilities::ModelBuilder &model_builder);
     };
 private:
     struct {
@@ -288,6 +294,9 @@ private:
      * @return A zero if either the opcode does not exist or the bytes per frame rating for the opcode.
      */
     static unsigned int getOpcodeBytesPerFrame( Bone::Opcode opcode );
+
+    std::vector<FacerPolygon> generateFacingPolygons(uint32_t index) const;
+
 public:
     ObjResource();
     virtual ~ObjResource();

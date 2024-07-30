@@ -2172,6 +2172,34 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
+std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(uint32_t index) const {
+    std::vector<Data::Mission::ObjResource::FacerPolygon> polys;
+    FacerPolygon facer_polygon;
+
+    const auto v_frame_id = vertex_data.get3DRFItem(VertexData::C_4DVL, index);
+    const auto n_frame_id = vertex_data.get3DRFItem(VertexData::C_4DNL, index);
+    const auto r_frame_id = vertex_data.get3DRFItem(VertexData::C_3DRL, index);
+
+    const glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(v_frame_id);
+    const glm::i16vec3 *normals_r   = vertex_data.get4DNLPointer(n_frame_id);
+    const uint16_t     *lengths_r   = vertex_data.get3DRLPointer(r_frame_id);
+
+    // Add the stars.
+    for( auto i = face_stars.begin(); i != face_stars.end(); i++ ) {
+        facer_polygon.type = FacerPolygon::STAR;
+        facer_polygon.visability_mode = VisabilityMode::ADDITION;
+        facer_polygon.color.r = (*i).v[1] * (1. / 256.);
+        facer_polygon.color.g = (*i).v[2] * (1. / 256.);
+        facer_polygon.color.b = (*i).v[3] * (1. / 256.);
+        facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
+        facer_polygon.primitive.star.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
+
+        polys.push_back( facer_polygon );
+    }
+
+    return polys;
+}
+
 bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &textures ) {
     if( textures.size() != 0 ) {
         bool valid = true;
@@ -2253,7 +2281,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     AllowedPrimitives allowed_primitives;
 
-    allowed_primitives.star      = true;
+    allowed_primitives.star      = false;
     allowed_primitives.triangle  = true;
     allowed_primitives.quad      = true;
     allowed_primitives.billboard = true;
