@@ -2192,7 +2192,9 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
         facer_polygon.color.g = (*i).v[2] * (1. / 256.);
         facer_polygon.color.b = (*i).v[3] * (1. / 256.);
         facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
-        facer_polygon.primitive.star.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
+        facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
+        facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
+        facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
 
         polys.push_back( facer_polygon );
     }

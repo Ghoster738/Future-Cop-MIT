@@ -223,6 +223,12 @@ public:
         unsigned line:      1;
     };
     struct FacerPolygon {
+        struct Point {
+            glm::vec3 position;
+            glm::u8vec4 weights;
+            glm::u8vec4 joints;
+        };
+
         enum Type {
             STAR,
             BILLBOARD,
@@ -233,25 +239,19 @@ public:
         float width;
         union {
             struct {
-                glm::vec3 position;
+                Point point;
             } star;
             struct {
-                glm::vec3 position;
+                Point point;
                 uint32_t bmp_id;
                 glm::u8vec2 coords[4];
             } billboard;
             struct {
-                glm::vec3 positions[2];
+                Point point[2];
                 uint32_t bmp_id;
                 glm::u8vec2 coords[4];
             } line;
         } primitive;
-    };
-    struct AdvancedRendering {
-    private:
-
-    public:
-        AdvancedRendering(const Utilities::ModelBuilder &model_builder);
     };
 private:
     struct {
@@ -295,8 +295,6 @@ private:
      */
     static unsigned int getOpcodeBytesPerFrame( Bone::Opcode opcode );
 
-    std::vector<FacerPolygon> generateFacingPolygons(uint32_t index) const;
-
 public:
     ObjResource();
     virtual ~ObjResource();
@@ -315,6 +313,8 @@ public:
 
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
+
+    std::vector<FacerPolygon> generateFacingPolygons(uint32_t index) const;
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
