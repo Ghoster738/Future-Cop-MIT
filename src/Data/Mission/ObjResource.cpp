@@ -200,7 +200,7 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
-int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+int Data::Mission::ObjResource::Primitive::setStar(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
     int16_t     tex_animation_index[2][3];
@@ -229,13 +229,13 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     // face_type_offset // Unknown. They range from 4, 8, and 12.
 
-    // this->v[0] // Actual vertex index. Origin of circle.
+    // this->v[0] // Actual vertex index. Origin of star.
 
     // this->v[1] // Red
     // this->v[2] // Green
     // this->v[3] // Blue
 
-    // this->n[0] // Actual length index. Radius of circle.
+    // this->n[0] // Actual length index. Radius of star.
 
     // this->n[1] // Always Zero
     // this->n[2] // Always Zero
@@ -265,7 +265,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     const float UNIT_45_DEGREES = 0.707106781187; // M_SQRT2 / 2.0;
 
-    const glm::vec2 circle_quadrant[2][3] = {
+    const glm::vec2 star_quadrant[2][3] = {
         // Triangle 0
             { { UNIT_45_DEGREES, UNIT_45_DEGREES}, { 0, 0}, { 0, 1} },
         // Triangle 1
@@ -277,57 +277,57 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
     for( unsigned axis = 0; axis < 3; axis++ ) {
         glm::vec2 q[2][3] = {
             // Triangle 0
-                { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
+                { star_quadrant[0][0], star_quadrant[0][1], star_quadrant[0][2] },
             // Triangle 1
-                { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
+                { star_quadrant[1][0], star_quadrant[1][1], star_quadrant[1][2] }
         };
 
         for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
-            glm::vec3 mapped_circle_quadrant[2][3] = {};
-            glm::vec3 circle_direction;
+            glm::vec3 mapped_star_quadrant[2][3] = {};
+            glm::vec3 star_direction;
 
             switch(axis) {
                 case 0:
-                    mapped_circle_quadrant[0][0] = {q[0][0].x, 0, q[0][0].y};
-                    mapped_circle_quadrant[0][1] = {q[0][1].x, 0, q[0][1].y};
-                    mapped_circle_quadrant[0][2] = {q[0][2].x, 0, q[0][2].y};
+                    mapped_star_quadrant[0][0] = {q[0][0].x, 0, q[0][0].y};
+                    mapped_star_quadrant[0][1] = {q[0][1].x, 0, q[0][1].y};
+                    mapped_star_quadrant[0][2] = {q[0][2].x, 0, q[0][2].y};
 
-                    mapped_circle_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
-                    mapped_circle_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
-                    mapped_circle_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
+                    mapped_star_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
+                    mapped_star_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
+                    mapped_star_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
 
-                    circle_direction = glm::vec3(0, 1, 0);
+                    star_direction = glm::vec3(0, 1, 0);
                     break;
 
                 case 1:
-                    mapped_circle_quadrant[0][0] = {q[0][0].x, q[0][0].y, 0};
-                    mapped_circle_quadrant[0][1] = {q[0][1].x, q[0][1].y, 0};
-                    mapped_circle_quadrant[0][2] = {q[0][2].x, q[0][2].y, 0};
+                    mapped_star_quadrant[0][0] = {q[0][0].x, q[0][0].y, 0};
+                    mapped_star_quadrant[0][1] = {q[0][1].x, q[0][1].y, 0};
+                    mapped_star_quadrant[0][2] = {q[0][2].x, q[0][2].y, 0};
 
-                    mapped_circle_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
-                    mapped_circle_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
-                    mapped_circle_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
+                    mapped_star_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
+                    mapped_star_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
+                    mapped_star_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
 
-                    circle_direction = glm::vec3(0, 0, -1);
+                    star_direction = glm::vec3(0, 0, -1);
                     break;
 
                 case 2:
-                    mapped_circle_quadrant[0][0] = {0, q[0][0].x, q[0][0].y};
-                    mapped_circle_quadrant[0][1] = {0, q[0][1].x, q[0][1].y};
-                    mapped_circle_quadrant[0][2] = {0, q[0][2].x, q[0][2].y};
+                    mapped_star_quadrant[0][0] = {0, q[0][0].x, q[0][0].y};
+                    mapped_star_quadrant[0][1] = {0, q[0][1].x, q[0][1].y};
+                    mapped_star_quadrant[0][2] = {0, q[0][2].x, q[0][2].y};
 
-                    mapped_circle_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
-                    mapped_circle_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
-                    mapped_circle_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
+                    mapped_star_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
+                    mapped_star_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
+                    mapped_star_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
 
-                    circle_direction = glm::vec3(-1, 0, 0);
+                    star_direction = glm::vec3(-1, 0, 0);
                     break;
             }
 
             // Triangle 0
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].position = center + length_90d * mapped_star_quadrant[0][i];
+                triangle.points[i].normal = star_direction;
                 triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
                 triangle.points[i].face_override_index = 0;
             }
@@ -344,8 +344,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[0][i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
@@ -353,9 +353,9 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
             triangle.switchPoints();
 
-            circle_direction = -circle_direction;
+            star_direction = -star_direction;
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].normal = star_direction;
             }
 
             triangles.push_back( triangle );
@@ -370,19 +370,19 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[0][2 - i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
             }
 
-            circle_direction = -circle_direction;
+            star_direction = -star_direction;
 
             // Triangle 1
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].position = center + length_90d * mapped_star_quadrant[1][i];
+                triangle.points[i].normal = star_direction;
                 triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
                 triangle.points[i].face_override_index = 0;
             }
@@ -399,17 +399,17 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[1][i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
             }
 
             triangle.switchPoints();
-            circle_direction = -circle_direction;
+            star_direction = -star_direction;
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].normal = star_direction;
             }
             triangles.push_back( triangle );
 
@@ -423,8 +423,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[1][2 - i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
@@ -1678,7 +1678,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     // TODO 3DAL is almost like 3DTA
 
-                    // c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type circle or zero.
+                    // c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type star or zero.
                     // c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
                     // c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
                     // c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
@@ -2367,7 +2367,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
             if( (*i).type == PrimitiveType::STAR )
-                (*i).setCircle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
+                (*i).setStar(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::QUAD )
