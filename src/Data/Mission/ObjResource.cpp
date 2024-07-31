@@ -2195,6 +2195,14 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
         facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
         facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
         facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
+        for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
+            const Bone& bone = (*it);
+
+            if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
+                facer_polygon.primitive.star.point.weights.x = 0xFF;
+                facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+            }
+        }
 
         polys.push_back( facer_polygon );
     }
