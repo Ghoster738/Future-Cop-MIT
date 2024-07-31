@@ -236,11 +236,13 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsBBModel( uint32_t
         return false;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     int state = 0;
 
     if( model_type_r->getNumVertices() > 0 )
     {
+        const uint32_t obj_identifier = obj.getResourceID();
+
         VertexAttributeArray vertex_array;
 
         vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
@@ -265,10 +267,10 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             transparent_count += material.count - transparent_index;
         }
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
-        models_p[ obj_identifier ]->uv_animation_data = face_override_uvs;
-        models_p[ obj_identifier ]->uv_animation_info = face_override_animation;
+        models_p[ obj_identifier ]->uv_animation_data = obj.getFaceOverrideData();
+        models_p[ obj_identifier ]->uv_animation_info = obj.getFaceOverrideTypes();
 
-        const size_t face_override_amount = 4 * face_override_animation.size();
+        const size_t face_override_amount = 4 * obj.getFaceOverrideTypes().size();
 
         if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
             uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );

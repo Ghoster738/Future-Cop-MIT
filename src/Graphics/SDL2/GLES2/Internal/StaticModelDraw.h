@@ -140,23 +140,21 @@ public:
 
     /**
      * This handles the loading of the models.
-     * @param model_type Holds the model information.
-     * @param resource_cobj The id associated with the model.
+     * @param model_type_r Holds the model information.
+     * @param obj The model builder's source. Holds metadata needed for rendering the model.
      * @param textures The accessor of the textures available for the models.
-     * @param face_override_animation UV animation information info.
-     * @param face_override_uvs UV override information.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs );
+    int inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * This handles the loading of the models.
-     * @param model_type Holds the model information.
+     * @param model_type_r Holds the model information.
      * @param resource_cobj The id associated with the model.
      * @param textures The accessor of the textures available for the models. Only nothing texture is used.
      * @return 1 for success, or -1 for failure.
      */
-    int inputBoundingBoxes( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputBoundingBoxes( Utilities::ModelBuilder *model_type_r, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     void clearModels();
 

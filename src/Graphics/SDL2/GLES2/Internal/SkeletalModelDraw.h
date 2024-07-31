@@ -79,11 +79,12 @@ public:
 
     /**
      * This handles the loading of the models.
-     * @param These are the models to load.
-     * @param This is the amount of models to load.
+     * @param model_type_r Holds the model information.
+     * @param obj The model builder's source. Holds metadata needed for rendering the model.
+     * @param textures The accessor of the textures available for the models.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs );
+    int inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     void clearModels();
 

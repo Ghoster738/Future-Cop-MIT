@@ -21,7 +21,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
         
         if( delta_triangle_r != nullptr ) {
             for( unsigned t = 0; t < 3; t++ ) {
-                draw_triangles_r[ i ].vertices[ t ].position   += delta_triangle_r[ i ].vertices[ t ];
+                draw_triangles_r[ i ].vertices[ t ].position += delta_triangle_r[ i ].vertices[ t ];
             }
         }
 
@@ -188,11 +188,13 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj_identifier, textures, face_override_animation, face_override_uvs );
+int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::ModelBuilder *model_type_r,  const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj, textures );
     
     if( ret >= 0 )
     {
+        const uint32_t obj_identifier = obj.getResourceID();
+
         GLsizei transparent_count = 0;
 
         auto accessor = models_p.find( obj_identifier );
