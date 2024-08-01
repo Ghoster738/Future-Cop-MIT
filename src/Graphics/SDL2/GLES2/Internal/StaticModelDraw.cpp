@@ -110,11 +110,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
     shiney_texture_r = nullptr;
 
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec3 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec3 NORMAL" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec4 COLOR_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec2 _METADATA" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 _METADATA" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec4 in_color" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec3 world_reflection" ) );

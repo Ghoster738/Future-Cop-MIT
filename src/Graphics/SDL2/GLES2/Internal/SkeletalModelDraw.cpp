@@ -105,8 +105,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "}\n";
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
     // These attributes are for the skelatal animation.
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 JOINTS_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 WEIGHTS_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec4 JOINTS_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec3 WEIGHTS_0" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
