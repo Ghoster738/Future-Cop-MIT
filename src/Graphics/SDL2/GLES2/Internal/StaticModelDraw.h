@@ -37,9 +37,10 @@ public:
     class Dynamic : public Mesh::DynamicNormal {
     public:
         glm::vec2 texture_offset;
+        std::vector<glm::vec2> *uv_frame_buffer_r;
         std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
         unsigned facer_polygons_amount;
-        std::vector<glm::vec2> *uv_frame_buffer_r;
+        glm::vec3 camera_right, camera_up;
 
         virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
     };
