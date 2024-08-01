@@ -87,7 +87,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "   MAKE_FULL_POSITION(POSITION);\n"
+    "   gl_Position = Transform * full_position;\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
     "uniform sampler2D Texture;\n"
@@ -109,11 +110,11 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment
 Graphics::SDL2::GLES2::Internal::StaticModelDraw::StaticModelDraw() {
     shiney_texture_r = nullptr;
 
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 _METADATA" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec3 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec3 NORMAL" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec4 COLOR_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec2 _METADATA" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec4 in_color" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW,    "vec3 world_reflection" ) );

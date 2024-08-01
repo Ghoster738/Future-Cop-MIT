@@ -98,7 +98,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   texture_coord_1 = tex_coord_pos + AnimatedUVDestination * DISPLACEMENT;\n"
     "   texture_coord_1 = fract( texture_coord_1 ) + vec2( float( texture_coord_1.x == 1. ), float( texture_coord_1.y == 1. ) );\n"
 
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "   MAKE_FULL_POSITION(POSITION);\n"
+    "   gl_Position = Transform * full_position;\n"
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
@@ -116,10 +117,10 @@ Graphics::SDL2::GLES2::Internal::World::World() {
     this->glow_time = 0;
     setPolygonTypeBlink( 111, 1.0f );
 
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 " + Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::HIGH,   "vec4 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec4 " + Utilities::ModelBuilder::POSITION_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec2 " + Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec3 " + Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::HIGH, "vec4 " + Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 vertex_colors" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );

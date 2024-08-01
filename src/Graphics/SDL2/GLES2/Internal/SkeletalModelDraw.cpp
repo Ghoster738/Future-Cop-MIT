@@ -100,7 +100,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
+    "   MAKE_FULL_POSITION(current_position);\n"
+    "   gl_Position = Transform * full_position;\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
     // These attributes are for the skelatal animation.

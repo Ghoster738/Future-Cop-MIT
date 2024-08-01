@@ -119,6 +119,7 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar
         
         if( (opengl_profile & SDL_GL_CONTEXT_PROFILE_ES) != 0 ) {
             this->generated_shader += glsl_es2_version;
+            this->generated_shader += "#define MAKE_FULL_POSITION(pos) highp vec4 full_position = vec4(pos.xyz, 1.0)\n";
             for( auto i = attributes.begin(); i != attributes.end(); i++ ) {
                 this->generated_shader += (*i).getEntryES2();
             }
@@ -128,6 +129,7 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar
         }
         else {
             this->generated_shader += glsl_2_version;
+            this->generated_shader += "#define MAKE_FULL_POSITION(pos) vec4 full_position = vec4(pos.xyz, 1.0)\n";
             for( auto i = attributes.begin(); i != attributes.end(); i++ ) {
                 this->generated_shader += (*i).getEntry2();
             }

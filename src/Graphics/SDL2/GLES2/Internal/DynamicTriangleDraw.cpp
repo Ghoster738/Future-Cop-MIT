@@ -314,11 +314,11 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
     vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, coordinate) ) );
     vertex_array.addAttribute( "_METADATA",  2, GL_SHORT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, vertex_metadata) ) );
 
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec3 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 NORMAL" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec2 _METADATA" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::HIGH, "vec3 POSITION" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec3 NORMAL" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec4 COLOR_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec2 TEXCOORD_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW,  "vec2 _METADATA" ) );
 
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec2 texture_coord_1" ) );
     varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec3 world_reflection" ) );
