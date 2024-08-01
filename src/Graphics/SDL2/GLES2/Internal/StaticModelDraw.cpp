@@ -57,6 +57,28 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
     }
+
+    number_of_triangles = triangles_draw.getTriangles( this->facer_polygons_amount, &draw_triangles_r );
+
+    size_t index = 0;
+
+    for( auto i = this->facer_polygons_info_r->begin(); i != this->facer_polygons_info_r->end(); i++) {
+        for(int x = 0; x < 3; x++) {
+            draw_triangles_r[ index ].vertices[x].position   = (*i).primitive.star.point.position;
+            draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
+            draw_triangles_r[ index ].vertices[x].coordinate = glm::vec2(0, 0);
+            draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
+        }
+        draw_triangles_r[ index ].vertices[1].position += glm::vec3((*i).width,          0, 0);
+        draw_triangles_r[ index ].vertices[2].position += glm::vec3(         0, (*i).width, 0);
+        draw_triangles_r[ index ].vertices[0].color     = glm::vec4((*i).color.x, (*i).color.y, (*i).color.z, 1);
+        draw_triangles_r[ index ].vertices[1].color     = glm::vec4(0, 0, 0, 0);
+        draw_triangles_r[ index ].vertices[2].color     = glm::vec4(0, 0, 0, 0);
+
+        draw_triangles_r[ index ].setup( 0, this->camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
+
+        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( this->camera_position, transform ); index++;
+    }
 }
 
 const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
