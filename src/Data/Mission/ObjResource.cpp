@@ -2172,7 +2172,7 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(uint32_t index) const {
+std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(unsigned &triangle_amount, uint32_t index) const {
     std::vector<Data::Mission::ObjResource::FacerPolygon> polys;
     FacerPolygon facer_polygon;
 
@@ -2183,6 +2183,8 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
     const glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(v_frame_id);
     const glm::i16vec3 *normals_r   = vertex_data.get4DNLPointer(n_frame_id);
     const uint16_t     *lengths_r   = vertex_data.get3DRLPointer(r_frame_id);
+
+    triangle_amount = 0;
 
     // Add the stars.
     for( auto i = face_stars.begin(); i != face_stars.end(); i++ ) {
@@ -2203,6 +2205,8 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
                 facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
             }
         }
+
+        triangle_amount += 8;
 
         polys.push_back( facer_polygon );
     }

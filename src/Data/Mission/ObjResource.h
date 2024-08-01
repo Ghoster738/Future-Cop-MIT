@@ -314,7 +314,7 @@ public:
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
 
-    std::vector<FacerPolygon> generateFacingPolygons(uint32_t index) const;
+    std::vector<FacerPolygon> generateFacingPolygons(unsigned &triangle_amount, uint32_t index) const;
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 

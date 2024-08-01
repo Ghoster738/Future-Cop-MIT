@@ -267,9 +267,14 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
             transparent_count += material.count - transparent_index;
         }
+
+        unsigned facer_polygons_amount = 0;
+
         models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
-        models_p[ obj_identifier ]->uv_animation_data = obj.getFaceOverrideData();
-        models_p[ obj_identifier ]->uv_animation_info = obj.getFaceOverrideTypes();
+        models_p[ obj_identifier ]->facer_polygons_info = obj.generateFacingPolygons(facer_polygons_amount, 0);
+        models_p[ obj_identifier ]->facer_polygons_amount = facer_polygons_amount;
+        models_p[ obj_identifier ]->uv_animation_data   = obj.getFaceOverrideData();
+        models_p[ obj_identifier ]->uv_animation_info   = obj.getFaceOverrideTypes();
 
         const size_t face_override_amount = 4 * obj.getFaceOverrideTypes().size();
 
@@ -472,6 +477,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 
                 dynamic.texture_offset = texture_offset;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
+                dynamic.facer_polygons_info_r = &(*d).second->facer_polygons_info;
+                dynamic.facer_polygons_amount =  (*d).second->facer_polygons_amount;
                 dynamic.transform = camera_3D_model_transform;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
