@@ -76,20 +76,20 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
         draw_triangles_r[ index ].setup( 0, this->camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
 
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( this->camera_position, transform );
-        draw_triangles_r[ index ].vertices[1].position += camera_right;
-        draw_triangles_r[ index ].vertices[2].position += camera_up;
+        draw_triangles_r[ index ].vertices[1].position += (camera_right * (*i).width);
+        draw_triangles_r[ index ].vertices[2].position += (camera_up * (*i).width);
         index++;
         draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
-        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + camera_up;
-        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position - camera_right;
+        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_up * (*i).width);
+        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position - (camera_right * (*i).width);
         index++;
         draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
-        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position - camera_right;
-        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position - camera_up;
+        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position - (camera_right * (*i).width);
+        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position - (camera_up * (*i).width);
         index++;
         draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
-        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position - camera_up;
-        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + camera_right;
+        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position - (camera_up * (*i).width);
+        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * (*i).width);
         index++;
     }
 }
