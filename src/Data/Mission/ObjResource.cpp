@@ -2206,7 +2206,7 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
             }
         }
 
-        triangle_amount += 2;
+        triangle_amount += 4;
 
         polys.push_back( facer_polygon );
     }
