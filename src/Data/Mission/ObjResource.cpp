@@ -2206,7 +2206,14 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
             }
         }
 
-        triangle_amount += 4;
+        facer_polygon.primitive.star.vertex_count = 0;
+
+        if((*i).face_type_offset <= 4)
+            facer_polygon.primitive.star.vertex_count = 4;
+        else
+            facer_polygon.primitive.star.vertex_count = 8;
+
+        triangle_amount += facer_polygon.primitive.star.vertex_count;
 
         polys.push_back( facer_polygon );
     }

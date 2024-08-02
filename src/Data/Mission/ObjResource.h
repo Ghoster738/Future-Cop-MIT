@@ -240,6 +240,7 @@ public:
         union {
             struct {
                 Point point;
+                uint32_t vertex_count;
             } star;
             struct {
                 Point point;

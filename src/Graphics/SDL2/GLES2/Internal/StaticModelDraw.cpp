@@ -63,6 +63,11 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     size_t index = 0;
 
     for( auto i = this->facer_polygons_info_r->begin(); i != this->facer_polygons_info_r->end(); i++) {
+        const float UNIT_45_DEGREES = 0.707106781187; // M_SQRT2 / 2.0;
+        const float UNIT_30_DEGREES = 0.866025403785; // M_SQRT3 / 2.0;
+
+        glm::vec2 circle_8[8] = { { 0, 1}, { UNIT_45_DEGREES, UNIT_45_DEGREES}, { 1, 0}, { UNIT_45_DEGREES,-UNIT_45_DEGREES}, { 0,-1}, {-UNIT_45_DEGREES,-UNIT_45_DEGREES}, {-1, 0}, {-UNIT_45_DEGREES, UNIT_45_DEGREES} };
+
         for(int x = 0; x < 3; x++) {
             draw_triangles_r[ index ].vertices[x].position   = (*i).primitive.star.point.position;
             draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
@@ -76,21 +81,33 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
         draw_triangles_r[ index ].setup( 0, this->camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
 
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( this->camera_position, transform );
-        draw_triangles_r[ index ].vertices[1].position += (camera_right * (*i).width);
-        draw_triangles_r[ index ].vertices[2].position += (camera_up * (*i).width);
-        index++;
-        draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
-        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_up * (*i).width);
-        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position - (camera_right * (*i).width);
-        index++;
-        draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
-        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position - (camera_right * (*i).width);
-        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position - (camera_up * (*i).width);
-        index++;
-        draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
-        draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position - (camera_up * (*i).width);
-        draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * (*i).width);
-        index++;
+
+        if((*i).primitive.star.vertex_count == 4) {
+            for(int t = 0; t < 4; t++) {
+                if(t != 0)
+                    draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
+
+                const int cur_circle_index = t * 2;
+                const int next_circle_index = ((t + 1) * 2) % 8;
+
+                draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[next_circle_index].x * (*i).width) + (camera_up * circle_8[next_circle_index].y * (*i).width);
+                draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[ cur_circle_index].x * (*i).width) + (camera_up * circle_8[ cur_circle_index].y * (*i).width);
+                index++;
+            }
+        }
+        else {
+            for(int t = 0; t < 8; t++) {
+                if(t != 0)
+                    draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
+
+                const int cur_circle_index = t;
+                const int next_circle_index = (t + 1) % 8;
+
+                draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[next_circle_index].x * (*i).width) + (camera_up * circle_8[next_circle_index].y * (*i).width);
+                draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[ cur_circle_index].x * (*i).width) + (camera_up * circle_8[ cur_circle_index].y * (*i).width);
+                index++;
+            }
+        }
     }
 }
 
