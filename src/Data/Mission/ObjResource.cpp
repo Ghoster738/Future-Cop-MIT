@@ -2210,8 +2210,10 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
 
         if((*i).face_type_offset <= 4)
             facer_polygon.primitive.star.vertex_count = 4;
-        else
+        else if((*i).face_type_offset <= 8)
             facer_polygon.primitive.star.vertex_count = 8;
+        else
+            facer_polygon.primitive.star.vertex_count = 12;
 
         triangle_amount += facer_polygon.primitive.star.vertex_count;
 
