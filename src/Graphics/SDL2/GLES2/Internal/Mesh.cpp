@@ -59,11 +59,11 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     }
 
     void * vertex_buffer_data = model.getBuffer( vertex_buffer_size );
-    bool bounds;
     
-    bounds = model.getBoundingSphere( this->culling_sphere_position, this->culling_sphere_radius );
-    
-    assert( bounds );
+    if(!model.getBoundingSphere( this->culling_sphere_position, this->culling_sphere_radius )) {
+        this->culling_sphere_position = glm::vec3(0);
+        this->culling_sphere_radius = 0.0f;
+    }
     
     morph_buffer_size = 0;
     model.getMorphBuffer( 0, morph_buffer_size );
@@ -217,4 +217,17 @@ bool Graphics::SDL2::GLES2::Internal::Mesh::getBoundingSphere( glm::vec3 &positi
     position = this->culling_sphere_position;
     radius   = this->culling_sphere_radius;
     return true;
+}
+
+void Graphics::SDL2::GLES2::Internal::Mesh::appendBoundingSphere( glm::vec3 position, float radius ) {
+    glm::vec3 normal = glm::normalize(this->culling_sphere_position - position);
+
+    glm::vec3 a = this->culling_sphere_position + normal * this->culling_sphere_radius;
+    glm::vec3 b = position + normal * radius;
+
+    glm::vec3 new_center = (a + b) * 0.5f;
+    float new_radius = glm::distance(a, b) * 0.5f;
+
+    this->culling_sphere_position = new_center;
+    this->culling_sphere_radius   = new_radius;
 }

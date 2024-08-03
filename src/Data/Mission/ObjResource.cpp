@@ -2121,17 +2121,17 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     allowed_primitives.billboard = true;
     allowed_primitives.line      = true;
 
-    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata, false, allowed_primitives);
+    Utilities::ModelBuilder *model_output_p = createMesh(!iff_options.obj.export_metadata, false, allowed_primitives);
 
     if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
         if( !iff_options.obj.no_model ) {
-            if( model_output->getNumVertices() >= 3 ) {
+            if( model_output_p->getNumVertices() >= 3 ) {
 
                 if( !bones.empty() )
-                    model_output->applyJointTransforms( 0 );
+                    model_output_p->applyJointTransforms( 0 );
 
-                glTF_return = model_output->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
+                glTF_return = model_output_p->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
             }
             else {
                 // Make it easier on the user to identify empty Obj's
@@ -2167,7 +2167,7 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
         }
     }
 
-    delete model_output;
+    delete model_output_p;
 
     return glTF_return;
 }
@@ -2352,7 +2352,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata, bool force_normal, AllowedPrimitives allowed_primitives ) const {
-    Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
+    Utilities::ModelBuilder *model_output_p = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
     std::vector<Triangle> triangle_buffer;
@@ -2429,26 +2429,26 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
     bool build_normals = (vertex_data.get4DNLSize() != 0) | force_normal;
 
-    unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    unsigned int position_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = -1;
 
     if(build_normals)
-        normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+        normal_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
 
-    unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
-    unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
+    unsigned int color_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
+    unsigned int tex_coord_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int metadata_component_index = -1;
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
 
     if(!exclude_metadata)
-        metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
+        metadata_component_index = model_output_p->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
 
     if( !bones.empty() ) {
-        joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
-        weights_0_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::WEIGHTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
+        joints_0_component_index  = model_output_p->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
+        weights_0_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::WEIGHTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
 
-        model_output->allocateJoints( bones.size(), bone_frames );
+        model_output_p->allocateJoints( bones.size(), bone_frames );
         
         glm::mat4 bone_matrix;
         
@@ -2458,7 +2458,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             childern[ bones.at( bone_index ).parent_amount - 1 ] = bone_index;
             
             if( bones.at( bone_index ).parent_amount > 1 )
-                model_output->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
+                model_output_p->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
         }
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
@@ -2491,7 +2491,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                 auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
                 auto quaterion = glm::quat_cast( bone_matrix );
                 
-                model_output->setJointFrame( frame, bone_index, position, quaterion );
+                model_output_p->setJointFrame( frame, bone_index, position, quaterion );
             }
         }
     }
@@ -2499,19 +2499,19 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
     unsigned int normal_morph_component_index = -1;
 
     if( vertex_data.get3DRFSize() > 1 ) {
-        position_morph_component_index = model_output->setVertexComponentMorph( position_component_index );
+        position_morph_component_index = model_output_p->setVertexComponentMorph( position_component_index );
 
         if(build_normals)
-            normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
+            normal_morph_component_index = model_output_p->setVertexComponentMorph( normal_component_index );
     }
 
     // Setup the vertex components now that every field had been entered.
-    model_output->setupVertexComponents( vertex_data.get3DRFSize() - 1 );
+    model_output_p->setupVertexComponents( vertex_data.get3DRFSize() - 1 );
 
-    model_output->allocateVertices( triangle_buffer.size() * 3 );
+    model_output_p->allocateVertices( triangle_buffer.size() * 3 );
 
     if( texture_references.size() == 0 )
-        model_output->setMaterial( "" );
+        model_output_p->setMaterial( "" );
 
     glm::i16vec2 metadata;
 
@@ -2532,7 +2532,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
 
                 // Set this material.
-                model_output->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+                model_output_p->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
 
                 // The material is found.
                 found = true;
@@ -2560,16 +2560,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
                 {
                     if( (*previous_triangle).visual.visability < (*triangle).visual.visability )
-                        model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                        model_output_p->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                     else if( (*previous_triangle).visual.visability > (*triangle).visual.visability )
                         assert( false && "Sorting is wrong!" );
                 }
                 else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
-                    model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                    model_output_p->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                 }
             }
             else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
-                model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                model_output_p->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
             }
 
             for( unsigned vertex_index = 0; vertex_index < 3; vertex_index++ ) {
@@ -2579,22 +2579,22 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 assert(point.face_override_index <= 4 * face_type_overrides.size());
 
-                model_output->startVertex();
+                model_output_p->startVertex();
 
-                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
+                model_output_p->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
 
                 if(build_normals)
-                    model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
+                    model_output_p->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
 
                 if(vertex_index != 1 && (*triangle).visual.is_color_fade)
-                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
+                    model_output_p->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
                 else
-                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
+                    model_output_p->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
 
-                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
+                model_output_p->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
 
                 if(!exclude_metadata)
-                    model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
+                    model_output_p->setVertexData( metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
 
                 auto morph_triangle_frame = morph_triangle;
 
@@ -2602,16 +2602,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                 {
                     const MorphPoint morph_point = (*morph_triangle_frame).points[vertex_index];
 
-                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
+                    model_output_p->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
 
                     if(build_normals)
-                        model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
+                        model_output_p->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
 
                     morph_triangle_frame++;
                 }
                 if( !bones.empty() ) {
-                    model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( point.joints ) );
-                    model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( point.weights ) );
+                    model_output_p->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( point.joints ) );
+                    model_output_p->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( point.weights ) );
                 }
             }
 
@@ -2623,9 +2623,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
     }
     
-    model_output->finish();
+    model_output_p->finish();
     
-    return model_output;
+    return model_output_p;
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() const {

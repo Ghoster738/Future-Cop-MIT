@@ -306,137 +306,140 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsBBModel( uint32_t
 int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     int state = 0;
 
-    if( model_type_r->getNumVertices() > 0 )
-    {
-        const uint32_t obj_identifier = obj.getResourceID();
+    const uint32_t obj_identifier = obj.getResourceID();
 
-        VertexAttributeArray vertex_array;
+    VertexAttributeArray vertex_array;
 
-        vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
-        vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
-        vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+    vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-        models_p[ obj_identifier ] = new ModelArray( &program );
-        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
-        state =  1;
+    models_p[ obj_identifier ] = new ModelArray( &program );
+    models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
+    state =  1;
 
-        Utilities::ModelBuilder::TextureMaterial material;
-        GLsizei transparent_count = 0;
+    Utilities::ModelBuilder::TextureMaterial material;
+    GLsizei transparent_count = 0;
 
-        for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
-            model_type_r->getMaterial( a, material );
+    for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+        model_type_r->getMaterial( a, material );
 
-            GLsizei addition_index = std::min( material.count, material.addition_index );
-            GLsizei mix_index = std::min( material.count, material.mix_index );
-            GLsizei transparent_index = std::min( mix_index, addition_index );
+        GLsizei addition_index = std::min( material.count, material.addition_index );
+        GLsizei mix_index = std::min( material.count, material.mix_index );
+        GLsizei transparent_index = std::min( mix_index, addition_index );
 
-            transparent_count += material.count - transparent_index;
-        }
-
-        unsigned facer_polygons_amount = 0;
-
-        models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
-        models_p[ obj_identifier ]->facer_polygons_info = obj.generateFacingPolygons(facer_polygons_amount, 0);
-        models_p[ obj_identifier ]->facer_polygons_amount = facer_polygons_amount;
-        models_p[ obj_identifier ]->uv_animation_data   = obj.getFaceOverrideData();
-        models_p[ obj_identifier ]->uv_animation_info   = obj.getFaceOverrideTypes();
-
-        const size_t face_override_amount = 4 * obj.getFaceOverrideTypes().size();
-
-        if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
-            uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );
-
-        GLsizei material_count = 0;
-
-        unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
-        unsigned     normal_compenent_index = position_compenent_index;
-        unsigned      color_compenent_index = position_compenent_index;
-        unsigned coordinate_compenent_index = position_compenent_index;
-        unsigned   metadata_compenent_index = position_compenent_index;
-
-        Utilities::ModelBuilder::VertexComponent element("EMPTY");
-        for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
-            auto name = element.getName();
-
-            if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
-                position_compenent_index = i;
-            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
-                normal_compenent_index = i;
-            if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
-                color_compenent_index = i;
-            if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
-                coordinate_compenent_index = i;
-            if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
-                metadata_compenent_index = i;
-        }
-
-        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
-            model_type_r->getMaterial( a, material );
-
-            uint32_t cbmp_id;
-
-            if( textures.find( material.cbmp_resource_id ) != textures.end() )
-                cbmp_id = material.cbmp_resource_id;
-            else if( !textures.empty() ) {
-                cbmp_id = textures.begin()->first;
-            }
-            else
-                cbmp_id = 0;
-
-            unsigned addition_index = std::min( material.count, material.addition_index );
-            unsigned mix_index = std::min( material.count, material.mix_index );
-            unsigned transparent_index = std::min( mix_index, addition_index );
-
-            DynamicTriangleDraw::PolygonType polygon_type;
-
-            glm::vec4   position = glm::vec4(0, 0, 0, 1);
-            glm::vec4     normal = glm::vec4(0, 0, 0, 1);
-            glm::vec4      color = glm::vec4(1, 1, 1, 1);
-            glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
-            glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
-
-            const unsigned vertex_per_triangle = 3;
-
-            for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
-                DynamicTriangleDraw::Triangle triangle;
-
-                for(unsigned t = 0; t < 3; t++) {
-                    model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
-
-                    triangle.vertices[t].position = { position.x, position.y, position.z };
-                    triangle.vertices[t].normal = normal;
-                    triangle.vertices[t].color = color;
-                    triangle.vertices[t].coordinate = coordinate;
-                    triangle.vertices[t].vertex_metadata = metadata;
-
-                    if(face_override_amount != 0 && static_cast<uint16_t>(triangle.vertices[t].vertex_metadata[1]) > face_override_amount) {
-                        for(unsigned a = 0; a < t + 1; a++)
-                            std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
-                        std::cout << "face_override_amount = " << face_override_amount << std::endl;
-                        assert(false);
-                    }
-                }
-
-                if( m < mix_index )
-                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
-                else
-                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
-
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
-
-                models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
-            }
-
-            material_count += material.count;
-        }
+        transparent_count += material.count - transparent_index;
     }
-    else
-        state = -1;
+
+    unsigned facer_polygons_amount = 0;
+
+    models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
+    models_p[ obj_identifier ]->facer_polygons_info   = obj.generateFacingPolygons(facer_polygons_amount, 0);
+    models_p[ obj_identifier ]->facer_polygons_amount = facer_polygons_amount;
+    models_p[ obj_identifier ]->uv_animation_data     = obj.getFaceOverrideData();
+    models_p[ obj_identifier ]->uv_animation_info     = obj.getFaceOverrideTypes();
+
+    {
+        glm::vec3 sphere_position;
+        float radius;
+
+        if(obj.getBoundingSphereFacingPolygons(models_p[ obj_identifier ]->facer_polygons_info, sphere_position, radius))
+            models_p[ obj_identifier ]->mesh.appendBoundingSphere( sphere_position, radius );
+    }
+
+    const size_t face_override_amount = 4 * obj.getFaceOverrideTypes().size();
+
+    if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
+        uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );
+
+    GLsizei material_count = 0;
+
+    unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
+    unsigned     normal_compenent_index = position_compenent_index;
+    unsigned      color_compenent_index = position_compenent_index;
+    unsigned coordinate_compenent_index = position_compenent_index;
+    unsigned   metadata_compenent_index = position_compenent_index;
+
+    Utilities::ModelBuilder::VertexComponent element("EMPTY");
+    for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
+        auto name = element.getName();
+
+        if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
+            position_compenent_index = i;
+        if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+            normal_compenent_index = i;
+        if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
+            color_compenent_index = i;
+        if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
+            coordinate_compenent_index = i;
+        if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
+            metadata_compenent_index = i;
+    }
+
+    for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+        model_type_r->getMaterial( a, material );
+
+        uint32_t cbmp_id;
+
+        if( textures.find( material.cbmp_resource_id ) != textures.end() )
+            cbmp_id = material.cbmp_resource_id;
+        else if( !textures.empty() ) {
+            cbmp_id = textures.begin()->first;
+        }
+        else
+            cbmp_id = 0;
+
+        unsigned addition_index = std::min( material.count, material.addition_index );
+        unsigned mix_index = std::min( material.count, material.mix_index );
+        unsigned transparent_index = std::min( mix_index, addition_index );
+
+        DynamicTriangleDraw::PolygonType polygon_type;
+
+        glm::vec4   position = glm::vec4(0, 0, 0, 1);
+        glm::vec4     normal = glm::vec4(0, 0, 0, 1);
+        glm::vec4      color = glm::vec4(1, 1, 1, 1);
+        glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
+        glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
+
+        const unsigned vertex_per_triangle = 3;
+
+        for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
+            DynamicTriangleDraw::Triangle triangle;
+
+            for(unsigned t = 0; t < 3; t++) {
+                model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
+                model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
+                model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
+                model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
+                model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
+
+                triangle.vertices[t].position = { position.x, position.y, position.z };
+                triangle.vertices[t].normal = normal;
+                triangle.vertices[t].color = color;
+                triangle.vertices[t].coordinate = coordinate;
+                triangle.vertices[t].vertex_metadata = metadata;
+
+                if(face_override_amount != 0 && static_cast<uint16_t>(triangle.vertices[t].vertex_metadata[1]) > face_override_amount) {
+                    for(unsigned a = 0; a < t + 1; a++)
+                        std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
+                    std::cout << "face_override_amount = " << face_override_amount << std::endl;
+                    assert(false);
+                }
+            }
+
+            if( m < mix_index )
+                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+            else
+                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+
+            triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
+
+            models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
+        }
+
+        material_count += material.count;
+    }
 
     return state;
 }
