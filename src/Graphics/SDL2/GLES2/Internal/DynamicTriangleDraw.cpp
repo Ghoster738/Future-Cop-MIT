@@ -307,6 +307,79 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
     return triangle;
 }
 
+unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addCircle(
+    DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
+    const glm::vec3 &camera_position, const glm::mat4 &matrix, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
+    const glm::vec3 &position, const glm::vec3 &color, float width, unsigned number_of_edges)
+{
+    if(number_of_triangles == 0)
+        return 0;
+
+    const float UNIT_45_DEGREES = 0.707106781187; // M_SQRT2 / 2.0;
+    const float UNIT_30_DEGREES = 0.866025403785; // M_SQRT3 / 2.0;
+
+    size_t index = 0;
+
+    glm::vec2 circle_8[8] = { { 0, 1}, { UNIT_45_DEGREES, UNIT_45_DEGREES}, { 1, 0}, { UNIT_45_DEGREES,-UNIT_45_DEGREES}, { 0,-1}, {-UNIT_45_DEGREES,-UNIT_45_DEGREES}, {-1, 0}, {-UNIT_45_DEGREES, UNIT_45_DEGREES} };
+    glm::vec2 circle_12[12] = { { 0, 1}, { 0.5, UNIT_30_DEGREES}, { UNIT_30_DEGREES, 0.5}, { 1, 0}, { UNIT_30_DEGREES,-0.5}, { 0.5,-UNIT_30_DEGREES}, { 0,-1}, {-0.5,-UNIT_30_DEGREES}, {-UNIT_30_DEGREES,-0.5}, {-1, 0}, {-UNIT_30_DEGREES, 0.5}, {-0.5, UNIT_30_DEGREES} };
+
+    for(int x = 0; x < 3; x++) {
+        draw_triangles_r[ index ].vertices[x].position   = position;
+        draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
+        draw_triangles_r[ index ].vertices[x].coordinate = glm::vec2(0, 0);
+        draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
+    }
+    draw_triangles_r[ index ].vertices[0].color = glm::vec4(color.x, color.y, color.z, 0.5) * 2.0f;
+    draw_triangles_r[ index ].vertices[1].color = glm::vec4(color.x, color.y, color.z, 0.0) * 2.0f;
+    draw_triangles_r[ index ].vertices[2].color = draw_triangles_r[ index ].vertices[1].color;
+
+    draw_triangles_r[ index ].setup( 0, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
+
+    draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, matrix );
+
+    if(number_of_edges == 4) {
+        for(int t = 0; t < 4; t++) {
+            if(t != 0)
+                draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
+
+            const int cur_circle_index = t * 2;
+            const int next_circle_index = ((t + 1) * 2) % 8;
+
+            draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[next_circle_index].x * width) + (camera_up * circle_8[next_circle_index].y * width);
+            draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[ cur_circle_index].x * width) + (camera_up * circle_8[ cur_circle_index].y * width);
+            index++; index = std::min(number_of_triangles - 1, index);
+        }
+    }
+    else if(number_of_edges == 8) {
+        for(int t = 0; t < 8; t++) {
+            if(t != 0)
+                draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
+
+            const int cur_circle_index = t;
+            const int next_circle_index = (t + 1) % 8;
+
+            draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[next_circle_index].x * width) + (camera_up * circle_8[next_circle_index].y * width);
+            draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_8[ cur_circle_index].x * width) + (camera_up * circle_8[ cur_circle_index].y * width);
+            index++; index = std::min(number_of_triangles - 1, index);
+        }
+    }
+    else {
+        for(int t = 0; t < 12; t++) {
+            if(t != 0)
+                draw_triangles_r[ index ] = draw_triangles_r[ index - 1 ];
+
+            const int cur_circle_index = t;
+            const int next_circle_index = (t + 1) % 12;
+
+            draw_triangles_r[ index ].vertices[1].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_12[next_circle_index].x * width) + (camera_up * circle_12[next_circle_index].y * width);
+            draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_12[ cur_circle_index].x * width) + (camera_up * circle_12[ cur_circle_index].y * width);
+            index++; index = std::min(number_of_triangles - 1, index);
+        }
+    }
+
+    return index;
+}
+
 Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::DynamicTriangleDraw() {
     vertex_array.addAttribute( "POSITION",   3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, position) ) );
     vertex_array.addAttribute( "NORMAL",     3, GL_FLOAT, false, sizeof(Vertex), reinterpret_cast<void*>( offsetof(Vertex, normal) ) );
