@@ -63,9 +63,14 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     size_t index = 0;
 
     for( auto i = this->facer_polygons_info_r->begin(); i != this->facer_polygons_info_r->end(); i++) {
-        index += DynamicTriangleDraw::Triangle::addCircle( &draw_triangles_r[index], number_of_triangles - index,
-                                                           this->camera_position, transform, camera_right, camera_up,
-                                                           (*i).primitive.star.point.position, (*i).color, (*i).width, (*i).primitive.star.vertex_count);
+        switch( (*i).type ) {
+            case Data::Mission::ObjResource::FacerPolygon::STAR:
+                index += DynamicTriangleDraw::Triangle::addCircle(
+                    &draw_triangles_r[index], number_of_triangles - index,
+                    this->camera_position, this->transform, this->camera_right, this->camera_up,
+                    (*i).primitive.star.point.position, (*i).color, (*i).width, (*i).primitive.star.vertex_count);
+                break;
+        }
     }
 }
 
