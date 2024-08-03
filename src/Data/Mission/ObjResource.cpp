@@ -2172,7 +2172,15 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(unsigned &triangle_amount, uint32_t index) const {
+#define BOUNDS(v) \
+min.x = std::min(min.x, v.x);\
+min.y = std::min(min.y, v.y);\
+min.z = std::min(min.z, v.z);\
+max.x = std::max(max.x, v.x);\
+max.y = std::max(max.y, v.y);\
+max.z = std::max(max.z, v.z)
+
+std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(unsigned &triangle_amount, uint32_t index, glm::vec3 *sphere_position_r, float *radius_r) const {
     std::vector<Data::Mission::ObjResource::FacerPolygon> polys;
     FacerPolygon facer_polygon;
 
@@ -2183,6 +2191,9 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
     const glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(v_frame_id);
     const glm::i16vec3 *normals_r   = vertex_data.get4DNLPointer(n_frame_id);
     const uint16_t     *lengths_r   = vertex_data.get3DRLPointer(r_frame_id);
+
+    glm::vec3 min =  glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 max = -glm::vec3(std::numeric_limits<float>::max());
 
     triangle_amount = 0;
 
@@ -2218,7 +2229,20 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
         triangle_amount += facer_polygon.primitive.star.vertex_count;
 
         polys.push_back( facer_polygon );
+
+        BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( facer_polygon.width, 0, 0)) );
+        BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( facer_polygon.width, 0, 0)) );
+        BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( 0, facer_polygon.width, 0)) );
+        BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( 0, facer_polygon.width, 0)) );
+        BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( 0, 0, facer_polygon.width)) );
+        BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( 0, 0, facer_polygon.width)) );
     }
+
+    if(sphere_position_r != nullptr)
+        *sphere_position_r = (max + min) * 0.5f;
+
+    if(radius_r != nullptr)
+        *radius_r = glm::distance(max, min) * 0.5f;
 
     return polys;
 }
