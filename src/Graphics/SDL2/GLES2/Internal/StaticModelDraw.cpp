@@ -75,9 +75,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
             draw_triangles_r[ index ].vertices[x].coordinate = glm::vec2(0, 0);
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
-        draw_triangles_r[ index ].vertices[0].color = glm::vec4((*i).color.x, (*i).color.y, (*i).color.z, 1);
-        draw_triangles_r[ index ].vertices[1].color = glm::vec4(0, 0, 0, 0);
-        draw_triangles_r[ index ].vertices[2].color = glm::vec4(0, 0, 0, 0);
+        draw_triangles_r[ index ].vertices[0].color = glm::vec4((*i).color.x, (*i).color.y, (*i).color.z, 0.5) * 2.0f;
+        draw_triangles_r[ index ].vertices[1].color = glm::vec4((*i).color.x, (*i).color.y, (*i).color.z, 0.0) * 2.0f;
+        draw_triangles_r[ index ].vertices[2].color = draw_triangles_r[ index ].vertices[1].color;
 
         draw_triangles_r[ index ].setup( 0, this->camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
 
