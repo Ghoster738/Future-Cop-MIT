@@ -1513,25 +1513,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         case 7:
                         {
                             primitive.type = PrimitiveType::LINE;
-                            face_lines.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 5:
                         {
                             primitive.type = PrimitiveType::BILLBOARD;
-                            face_billboards.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 4:
                         {
                             primitive.type = PrimitiveType::QUAD;
-                            face_quads.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 3:
                         {
                             primitive.type = PrimitiveType::TRIANGLE;
-                            face_triangles.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 0:
@@ -1545,7 +1545,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             primitive.visual.is_color_fade      = true;
 
                             primitive.type = PrimitiveType::STAR;
-                            face_stars.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         default:
                         {
@@ -1677,16 +1677,16 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         warning_log.output << "3DAL count = " << std::dec << count << ".\n";
 
                     // 3DAL is almost like 3DTA
-                    face_color_override.push_back(VertexColorOverride());
+                    face_color_overrides.push_back(VertexColorOverride());
 
-                    face_color_override.back().face_index = reader3DAL.readU8();                // 3DQL index to primative type star
-                    face_color_override.back().speed_factor = 1.0f; reader3DAL.readU8();        // TODO Decode the speed value.
-                    face_color_override.back().colors[0].r = reader3DAL.readU8() * (1. / 256.); //   Red[0]
-                    face_color_override.back().colors[0].g = reader3DAL.readU8() * (1. / 256.); // Green[0]
-                    face_color_override.back().colors[0].b = reader3DAL.readU8() * (1. / 256.); //  Blue[0]
-                    face_color_override.back().colors[1].r = reader3DAL.readU8() * (1. / 256.); //   Red[1]
-                    face_color_override.back().colors[1].g = reader3DAL.readU8() * (1. / 256.); // Green[1]
-                    face_color_override.back().colors[1].b = reader3DAL.readU8() * (1. / 256.); //  Blue[1]
+                    face_color_overrides.back().face_index = reader3DAL.readU8();                // 3DQL index to primative type star
+                    face_color_overrides.back().speed_factor = 1.0f; reader3DAL.readU8();        // TODO Decode the speed value.
+                    face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[1].r = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[1].g = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[1].b = reader3DAL.readU8() * (1. / 256.);
                 }
             }
             else
@@ -2059,23 +2059,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI bounding_box_frames = " << std::dec << bounding_box_frames << "\n";
         }
 
-        for( auto &primitive : this->face_triangles ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
-                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
-            }
-        }
-        for( auto &primitive : this->face_quads ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
-                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
-            }
-        }
-        for( auto &primitive : this->face_billboards ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
-                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
-            }
-        }
-        for( auto &primitive : this->face_lines ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+        for( auto &primitive : this->primitives ) {
+            if( primitive.type != PrimitiveType::STAR && this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
@@ -2188,37 +2173,39 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
     triangle_amount = 0;
 
     // Add the stars.
-    for( auto i = face_stars.begin(); i != face_stars.end(); i++ ) {
-        facer_polygon.type = FacerPolygon::STAR;
-        facer_polygon.visability_mode = VisabilityMode::ADDITION;
-        facer_polygon.color.r = (*i).v[1] * (1. / 256.);
-        facer_polygon.color.g = (*i).v[2] * (1. / 256.);
-        facer_polygon.color.b = (*i).v[3] * (1. / 256.);
-        facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
-        facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
-        facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
-        facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
-        for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
-            const Bone& bone = (*it);
+    for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
+        if( (*i).type == PrimitiveType::STAR ) {
+            facer_polygon.type = FacerPolygon::STAR;
+            facer_polygon.visability_mode = VisabilityMode::ADDITION;
+            facer_polygon.color.r = (*i).v[1] * (1. / 256.);
+            facer_polygon.color.g = (*i).v[2] * (1. / 256.);
+            facer_polygon.color.b = (*i).v[3] * (1. / 256.);
+            facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
+            facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
+            facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
+            facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
+            for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
+                const Bone& bone = (*it);
 
-            if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
-                facer_polygon.primitive.star.point.weights.x = 0xFF;
-                facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+                if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
+                    facer_polygon.primitive.star.point.weights.x = 0xFF;
+                    facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+                }
             }
+
+            facer_polygon.primitive.star.vertex_count = 0;
+
+            if((*i).face_type_offset <= 4)
+                facer_polygon.primitive.star.vertex_count = 4;
+            else if((*i).face_type_offset <= 8)
+                facer_polygon.primitive.star.vertex_count = 8;
+            else
+                facer_polygon.primitive.star.vertex_count = 12;
+
+            triangle_amount += facer_polygon.primitive.star.vertex_count;
+
+            polys.push_back( facer_polygon );
         }
-
-        facer_polygon.primitive.star.vertex_count = 0;
-
-        if((*i).face_type_offset <= 4)
-            facer_polygon.primitive.star.vertex_count = 4;
-        else if((*i).face_type_offset <= 8)
-            facer_polygon.primitive.star.vertex_count = 8;
-        else
-            facer_polygon.primitive.star.vertex_count = 12;
-
-        triangle_amount += facer_polygon.primitive.star.vertex_count;
-
-        polys.push_back( facer_polygon );
     }
 
     return polys;
@@ -2362,43 +2349,31 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
     {
         std::vector<Primitive> primitive_buffer;
-        size_t triangle_buffer_size = 0;
 
-        triangle_buffer_size += face_triangles.size() * Primitive::getTriangleAmount( PrimitiveType::TRIANGLE );
-        triangle_buffer_size += face_quads.size() * Primitive::getTriangleAmount( PrimitiveType::QUAD );
-
-        triangle_buffer.reserve( triangle_buffer_size );
-        morph_triangle_buffer.reserve( triangle_buffer_size * (vertex_data.get3DRFSize() - 1) );
-        primitive_buffer.reserve( triangle_buffer_size );
-
-        if(allowed_primitives.star) {
-            // Add the stars.
-            for( auto i = face_stars.begin(); i != face_stars.end(); i++ )
-                primitive_buffer.push_back( (*i) );
-        }
-
-        if(allowed_primitives.triangle) {
-            // Add the triangles.
-            for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ )
-                primitive_buffer.push_back( (*i) );
-        }
-
-        if(allowed_primitives.quad) {
-            // Add the quaderlaterals.
-            for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
-                primitive_buffer.push_back( (*i) );
-        }
-
-        if(allowed_primitives.billboard) {
-            // Add the billboards
-            for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
-                primitive_buffer.push_back( (*i) );
-        }
-
-        if(allowed_primitives.line) {
-            // Add the lines.
-            for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
-                primitive_buffer.push_back( (*i) );
+        for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
+            switch((*i).type) {
+                case PrimitiveType::STAR:
+                    if(allowed_primitives.star)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::TRIANGLE_OTHER:
+                case PrimitiveType::TRIANGLE:
+                    if(allowed_primitives.triangle)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::QUAD:
+                    if(allowed_primitives.quad)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::BILLBOARD:
+                    if(allowed_primitives.billboard)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::LINE:
+                    if(allowed_primitives.line)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+            }
         }
 
         // Sort the triangle list.

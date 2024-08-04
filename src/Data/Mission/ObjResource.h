@@ -274,13 +274,9 @@ private:
     std::map<uint_fast16_t, FaceType> face_types;
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
-    std::vector<VertexColorOverride>  face_color_override;
+    std::vector<VertexColorOverride>  face_color_overrides;
 
-    std::vector<Primitive> face_stars;
-    std::vector<Primitive> face_triangles;
-    std::vector<Primitive> face_quads;
-    std::vector<Primitive> face_billboards;
-    std::vector<Primitive> face_lines;
+    std::vector<Primitive> primitives;
 
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.
