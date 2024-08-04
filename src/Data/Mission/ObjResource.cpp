@@ -1680,8 +1680,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     // 3DAL is almost like 3DTA
                     face_color_overrides.push_back(VertexColorOverride());
 
-                    face_color_overrides.back().face_index = reader3DAL.readU8();                // 3DQL index to primative type star
-                    face_color_overrides.back().speed_factor = 1.0f; reader3DAL.readU8();        // TODO Decode the speed value.
+                    face_color_overrides.back().face_index = reader3DAL.readU8(); // 3DQL index to primative type star
+                    face_color_overrides.back().speed_factor = 2.0f * (0.0757594 * reader3DAL.readU8() + 0.0520309);
                     face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
                     face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
                     face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
