@@ -65,10 +65,12 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     for( auto i = this->facer_polygons_info_r->begin(); i != this->facer_polygons_info_r->end(); i++) {
         switch( (*i).type ) {
             case Data::Mission::ObjResource::FacerPolygon::STAR:
+                glm::vec3 color = glm::mix((*i).color, (*i).primitive.star.other_color, std::abs(this->star_timings_r->at((*i).primitive.star.time_index)));
+
                 index += DynamicTriangleDraw::Triangle::addCircle(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    (*i).primitive.star.point.position, (*i).color, (*i).width, (*i).primitive.star.vertex_count);
+                    (*i).primitive.star.point.position, color, (*i).width, (*i).primitive.star.vertex_count);
                 break;
         }
     }
@@ -561,6 +563,15 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
         for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
             (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
+
+            for( size_t i = 1; i < (*instance)->star_timings.size(); i++ ) {
+                auto &value = (*instance)->star_timings[i];
+
+                value += 4. * seconds_passed;
+
+                if(value > 1.)
+                    value -= 2.;
+            }
         }
     }
 }
