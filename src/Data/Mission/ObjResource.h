@@ -190,6 +190,7 @@ public:
 
         uint16_t  face_type_offset;
         FaceType *face_type_r;
+        const VertexColorOverride *vertex_color_override_r;
 
         uint8_t v[4], n[4];
 

@@ -1482,8 +1482,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     Primitive primitive;
 
-                    primitive.face_type_offset = face_type_offset;
-                    primitive.face_type_r      = nullptr;
+                    primitive.face_type_offset        = face_type_offset;
+                    primitive.face_type_r             = nullptr;
+                    primitive.vertex_color_override_r = nullptr;
 
                     primitive.visual.uses_texture       = is_texture;
                     primitive.visual.normal_shading     = normal_shadows;
@@ -2062,6 +2063,15 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
         for( auto &primitive : this->primitives ) {
             if( primitive.type != PrimitiveType::STAR && this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
+            }
+        }
+
+        for( auto i = this->face_color_overrides.begin(); i != this->face_color_overrides.end(); i++ ) {
+            auto &face_color_override = (*i);
+
+            if(primitives.size() > face_color_override.face_index) {
+                if(primitives.at(face_color_override.face_index).type == PrimitiveType::STAR)
+                    primitives[face_color_override.face_index].vertex_color_override_r = &(*i);
             }
         }
 
