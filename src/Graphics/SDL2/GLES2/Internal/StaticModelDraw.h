@@ -25,6 +25,7 @@ public:
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
+        size_t star_timing_amount;
         std::vector<glm::u8vec2> uv_animation_data;
         std::vector<Data::Mission::ObjResource::FaceOverrideType>   uv_animation_info;
         std::vector<Data::Mission::ObjResource::FacerPolygon>     facer_polygons_info;
@@ -37,6 +38,7 @@ public:
     class Dynamic : public Mesh::DynamicNormal {
     public:
         glm::vec2 texture_offset;
+        std::vector<float> *star_timings_r;
         std::vector<glm::vec2> *uv_frame_buffer_r;
         std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
         unsigned facer_polygons_amount;

@@ -249,7 +249,7 @@ public:
                 uint32_t vertex_count;
                 uint32_t time_index;
                 glm::vec3 other_color;
-                float blink_rate;
+                float blink_rate; // NOTE: Remove this.
             } star;
             struct {
                 Point point;
@@ -320,6 +320,7 @@ public:
 
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
+    const std::vector<VertexColorOverride>& getVertexColorOverrides() const { return face_color_overrides; }
 
     std::vector<FacerPolygon> generateFacingPolygons(unsigned &triangle_amount, uint32_t index) const;
     bool getBoundingSphereFacingPolygons(const std::vector<FacerPolygon> polygons, glm::vec3 &sphere_position, float &radius) const;

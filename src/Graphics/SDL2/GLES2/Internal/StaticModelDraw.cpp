@@ -283,6 +283,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
     unsigned facer_polygons_amount = 0;
 
+    models_p[ obj_identifier ]->star_timing_amount = obj.getVertexColorOverrides().size() + 1;
     models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
     models_p[ obj_identifier ]->facer_polygons_info   = obj.generateFacingPolygons(facer_polygons_amount, 0);
     models_p[ obj_identifier ]->facer_polygons_amount = facer_polygons_amount;
@@ -496,6 +497,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
                 
                 dynamic.texture_offset = texture_offset;
+                dynamic.star_timings_r = &(*instance)->star_timings;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                 dynamic.facer_polygons_info_r = &(*d).second->facer_polygons_info;
                 dynamic.facer_polygons_amount =  (*d).second->facer_polygons_amount;
@@ -519,6 +521,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
             model_instance.culling_sphere_position = glm::vec3( 0, 0, 0 );
             model_instance.culling_sphere_radius = 1.0f;
         }
+
+        model_instance.star_timings.resize(models_p[ obj_identifier ]->star_timing_amount, 0.f);
 
         // Finally added the instance.
         model_array_r->instances_r.insert( &model_instance );
