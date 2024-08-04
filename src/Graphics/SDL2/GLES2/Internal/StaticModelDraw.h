@@ -25,7 +25,7 @@ public:
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
-        size_t star_timing_amount;
+        std::vector<float> star_timing_speed;
         std::vector<glm::u8vec2> uv_animation_data;
         std::vector<Data::Mission::ObjResource::FaceOverrideType>   uv_animation_info;
         std::vector<Data::Mission::ObjResource::FacerPolygon>     facer_polygons_info;

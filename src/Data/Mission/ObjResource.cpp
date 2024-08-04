@@ -2216,14 +2216,12 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
 
             facer_polygon.primitive.star.time_index  = (*i).vertex_color_override_index;
             facer_polygon.primitive.star.other_color = glm::vec3(1.);
-            facer_polygon.primitive.star.blink_rate  = 0;
 
             if(facer_polygon.primitive.star.time_index != 0) {
                 const auto &face_color_override = face_color_overrides.at(facer_polygon.primitive.star.time_index - 1);
 
                 facer_polygon.color                      = face_color_override.colors[0];
                 facer_polygon.primitive.star.other_color = face_color_override.colors[1];
-                facer_polygon.primitive.star.blink_rate  = face_color_override.speed_factor;
             }
 
             polys.push_back( facer_polygon );

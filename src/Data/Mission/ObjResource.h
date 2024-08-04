@@ -249,7 +249,6 @@ public:
                 uint32_t vertex_count;
                 uint32_t time_index;
                 glm::vec3 other_color;
-                float blink_rate; // NOTE: Remove this.
             } star;
             struct {
                 Point point;

@@ -285,7 +285,11 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
 
     unsigned facer_polygons_amount = 0;
 
-    models_p[ obj_identifier ]->star_timing_amount = obj.getVertexColorOverrides().size() + 1;
+    models_p[ obj_identifier ]->star_timing_speed.resize(obj.getVertexColorOverrides().size() + 1, 0.f);
+    for( unsigned i = 0; i < obj.getVertexColorOverrides().size(); i++ ) {
+        models_p[ obj_identifier ]->star_timing_speed[1 + i] = obj.getVertexColorOverrides()[i].speed_factor;
+    }
+
     models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
     models_p[ obj_identifier ]->facer_polygons_info   = obj.generateFacingPolygons(facer_polygons_amount, 0);
     models_p[ obj_identifier ]->facer_polygons_amount = facer_polygons_amount;
@@ -524,7 +528,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
             model_instance.culling_sphere_radius = 1.0f;
         }
 
-        model_instance.star_timings.resize(models_p[ obj_identifier ]->star_timing_amount, 0.f);
+        model_instance.star_timings.resize(models_p[ obj_identifier ]->star_timing_speed.size(), 0.f);
 
         // Finally added the instance.
         model_array_r->instances_r.insert( &model_instance );
@@ -564,10 +568,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
         for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
             (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
 
-            for( size_t i = 1; i < (*instance)->star_timings.size(); i++ ) {
+            for( size_t i = 0; i < (*instance)->star_timings.size(); i++ ) {
                 auto &value = (*instance)->star_timings[i];
 
-                value += 4. * seconds_passed;
+                value += (*model_type).second->star_timing_speed[i] * seconds_passed;
 
                 if(value > 1.)
                     value -= 2.;
