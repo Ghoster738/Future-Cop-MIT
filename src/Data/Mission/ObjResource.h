@@ -190,7 +190,7 @@ public:
 
         uint16_t  face_type_offset;
         FaceType *face_type_r;
-        const VertexColorOverride *vertex_color_override_r;
+        unsigned vertex_color_override_index;
 
         uint8_t v[4], n[4];
 
@@ -247,6 +247,9 @@ public:
             struct {
                 Point point;
                 uint32_t vertex_count;
+                uint32_t time_index;
+                glm::vec3 other_color;
+                float blink_rate;
             } star;
             struct {
                 Point point;

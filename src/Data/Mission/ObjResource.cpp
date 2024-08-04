@@ -1482,9 +1482,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     Primitive primitive;
 
-                    primitive.face_type_offset        = face_type_offset;
-                    primitive.face_type_r             = nullptr;
-                    primitive.vertex_color_override_r = nullptr;
+                    primitive.face_type_offset            = face_type_offset;
+                    primitive.face_type_r                 = nullptr;
+                    primitive.vertex_color_override_index = 0;
 
                     primitive.visual.uses_texture       = is_texture;
                     primitive.visual.normal_shading     = normal_shadows;
@@ -2071,7 +2071,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
             if(primitives.size() > face_color_override.face_index) {
                 if(primitives.at(face_color_override.face_index).type == PrimitiveType::STAR)
-                    primitives[face_color_override.face_index].vertex_color_override_r = &(*i);
+                    primitives[face_color_override.face_index].vertex_color_override_index = (i - this->face_color_overrides.begin()) + 1;
             }
         }
 
@@ -2213,6 +2213,18 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
                 facer_polygon.primitive.star.vertex_count = 12;
 
             triangle_amount += facer_polygon.primitive.star.vertex_count;
+
+            facer_polygon.primitive.star.time_index  = (*i).vertex_color_override_index;
+            facer_polygon.primitive.star.other_color = glm::vec3(1.);
+            facer_polygon.primitive.star.blink_rate  = 0;
+
+            if(facer_polygon.primitive.star.time_index != 0) {
+                const auto &face_color_override = face_color_overrides.at(facer_polygon.primitive.star.time_index - 1);
+
+                facer_polygon.color                      = face_color_override.colors[0];
+                facer_polygon.primitive.star.other_color = face_color_override.colors[1];
+                facer_polygon.primitive.star.blink_rate  = face_color_override.speed_factor;
+            }
 
             polys.push_back( facer_polygon );
         }
