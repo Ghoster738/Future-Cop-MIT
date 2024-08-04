@@ -86,6 +86,11 @@ public:
 
         glm::u8vec4 getColor( Material material ) const;
     };
+    struct VertexColorOverride {
+        unsigned face_index;
+        float speed_factor;
+        glm::vec3 colors[2];
+    };
     struct Point {
         glm::vec3 position;
         glm::vec3 normal;
@@ -269,6 +274,7 @@ private:
     std::map<uint_fast16_t, FaceType> face_types;
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
+    std::vector<VertexColorOverride>  face_color_override;
 
     std::vector<Primitive> face_stars;
     std::vector<Primitive> face_triangles;

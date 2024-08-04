@@ -1676,16 +1676,17 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if(count != 1)
                         warning_log.output << "3DAL count = " << std::dec << count << ".\n";
 
-                    // TODO 3DAL is almost like 3DTA
+                    // 3DAL is almost like 3DTA
+                    face_color_override.push_back(VertexColorOverride());
 
-                    // c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type star or zero.
-                    // c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
-                    // c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
-                    // c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
-                    // c_3DAL_data[4] = reader3DAL.readU8(); // Blue[0]
-                    // c_3DAL_data[5] = reader3DAL.readU8(); // Red[1]
-                    // c_3DAL_data[6] = reader3DAL.readU8(); // Green[1]
-                    // c_3DAL_data[7] = reader3DAL.readU8(); // Blue[1]
+                    face_color_override.back().face_index = reader3DAL.readU8();                // 3DQL index to primative type star
+                    face_color_override.back().speed_factor = 1.0f; reader3DAL.readU8();        // TODO Decode the speed value.
+                    face_color_override.back().colors[0].r = reader3DAL.readU8() * (1. / 256.); //   Red[0]
+                    face_color_override.back().colors[0].g = reader3DAL.readU8() * (1. / 256.); // Green[0]
+                    face_color_override.back().colors[0].b = reader3DAL.readU8() * (1. / 256.); //  Blue[0]
+                    face_color_override.back().colors[1].r = reader3DAL.readU8() * (1. / 256.); //   Red[1]
+                    face_color_override.back().colors[1].g = reader3DAL.readU8() * (1. / 256.); // Green[1]
+                    face_color_override.back().colors[1].b = reader3DAL.readU8() * (1. / 256.); //  Blue[1]
                 }
             }
             else
