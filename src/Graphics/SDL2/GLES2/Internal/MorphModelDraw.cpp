@@ -10,11 +10,15 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
             const std::vector<DynamicTriangleDraw::Triangle> &triangles,
             DynamicTriangleDraw::DrawCommand &triangles_draw ) const
 {
-    const DeltaTriangle *const delta_triangle_r = morph_info_r->getFrame( frame_index );
-    
+    const DeltaTriangle * delta_triangle_r = nullptr;
     DynamicTriangleDraw::Triangle *draw_triangles_r;
 
-    size_t number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+    size_t number_of_triangles = 0;
+
+    if(morph_info_r != nullptr) {
+        number_of_triangles = triangles_draw.getTriangles( triangles.size(), &draw_triangles_r );
+        delta_triangle_r = morph_info_r->getFrame( frame_index );
+    }
 
     for( size_t i = 0; i < number_of_triangles; i++ ) {
         draw_triangles_r[ i ] = triangles[ i ];
@@ -40,6 +44,25 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
         }
         
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
+    }
+
+    number_of_triangles = triangles_draw.getTriangles( this->facer_triangles_amount, &draw_triangles_r );
+
+    size_t index = 0;
+
+    for( size_t i = 0; i < this->facer_polygons_stride; i++) {
+        const auto &facer_polygon = this->facer_polygons_info_r->at(frame_index * this->facer_polygons_stride + i);
+
+        switch( facer_polygon.type ) {
+            case Data::Mission::ObjResource::FacerPolygon::STAR:
+                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
+
+                index += DynamicTriangleDraw::Triangle::addCircle(
+                    &draw_triangles_r[index], number_of_triangles - index,
+                    this->camera_position, this->transform, this->camera_right, this->camera_up,
+                    facer_polygon.primitive.star.point.position, color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
+                break;
+        }
     }
 }
 
@@ -191,7 +214,7 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::compileProgram() {
 
 int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::ModelBuilder *model_type_r,  const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj, textures );
-    
+
     if( ret >= 0 )
     {
         const uint32_t obj_identifier = obj.getResourceID();
@@ -199,8 +222,9 @@ int Graphics::SDL2::GLES2::Internal::MorphModelDraw::inputModel( Utilities::Mode
         GLsizei transparent_count = 0;
 
         auto accessor = models_p.find( obj_identifier );
-        if( accessor != models_p.end() )
+        if( accessor != models_p.end() ) {
             transparent_count = (*accessor).second->transparent_triangles.size();
+        }
         
         if( transparent_count != 0 ) {
             if( model_animation_p[ obj_identifier ] != nullptr )
@@ -245,6 +269,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
 
     Animation::Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
+    dynamic.camera_right = glm::vec3(view[0][0], view[1][0], view[2][0]);
+    dynamic.camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
 
     // Traverse the models.
     for( auto d = model_array_p.begin(); d != model_array_p.end(); d++ ) // Go through every model that has an instance.
@@ -295,14 +321,22 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
                 mesh_r->noPreBindDrawOpaque( 0, diffusive_texture_uniform_id );
                 
                 auto accessor = model_animation_p.find( ( *d ).first );
-                if( accessor != model_animation_p.end() ) {
-                    dynamic.transform = camera_3D_model_transform;
+
+                dynamic.transform = camera_3D_model_transform;
+
+                if( accessor != model_animation_p.end() )
                     dynamic.morph_info_r = (*accessor).second;
-                    dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
-                    dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
-                    dynamic.texture_offset = texture_offset;
-                    dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
-                }
+                else
+                    dynamic.morph_info_r = nullptr;
+
+                dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
+                dynamic.star_timings_r = &(*instance)->star_timings;
+                dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
+                dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;
+                dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
+                dynamic.facer_polygons_stride  =  (*d).second->facer_polygons_stride;
+                dynamic.texture_offset = texture_offset;
+                dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
         }
     }

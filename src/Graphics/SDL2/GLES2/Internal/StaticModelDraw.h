@@ -31,17 +31,19 @@ public:
         std::vector<Data::Mission::ObjResource::FacerPolygon>     facer_polygons_info;
         std::vector<DynamicTriangleDraw::Triangle>              transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
-        unsigned facer_polygons_amount;
+        unsigned facer_triangles_amount;
+        unsigned facer_polygons_stride;
 
         void bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const;
     };
     class Dynamic : public Mesh::DynamicNormal {
     public:
         glm::vec2 texture_offset;
-        std::vector<float> *star_timings_r;
         std::vector<glm::vec2> *uv_frame_buffer_r;
+        std::vector<float> *star_timings_r;
         std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
-        unsigned facer_polygons_amount;
+        unsigned facer_triangles_amount;
+        unsigned facer_polygons_stride;
         glm::vec3 camera_right, camera_up;
 
         virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;

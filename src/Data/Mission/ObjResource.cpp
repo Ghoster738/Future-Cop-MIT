@@ -2168,64 +2168,71 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
     return glTF_return;
 }
 
-std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(unsigned &triangle_amount, uint32_t index) const {
+std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(unsigned &triangle_amount, unsigned &frame_stride) const {
     std::vector<Data::Mission::ObjResource::FacerPolygon> polys;
     FacerPolygon facer_polygon;
 
-    const auto v_frame_id = vertex_data.get3DRFItem(VertexData::C_4DVL, index);
-    const auto n_frame_id = vertex_data.get3DRFItem(VertexData::C_4DNL, index);
-    const auto r_frame_id = vertex_data.get3DRFItem(VertexData::C_3DRL, index);
-
-    const glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(v_frame_id);
-    const glm::i16vec3 *normals_r   = vertex_data.get4DNLPointer(n_frame_id);
-    const uint16_t     *lengths_r   = vertex_data.get3DRLPointer(r_frame_id);
-
     triangle_amount = 0;
+    frame_stride = 0;
 
-    // Add the stars.
-    for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
-        if( (*i).type == PrimitiveType::STAR ) {
-            facer_polygon.type = FacerPolygon::STAR;
-            facer_polygon.visability_mode = VisabilityMode::ADDITION;
-            facer_polygon.color.r = (*i).v[1] * (1. / 256.);
-            facer_polygon.color.g = (*i).v[2] * (1. / 256.);
-            facer_polygon.color.b = (*i).v[3] * (1. / 256.);
-            facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
-            facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * FIXED_POINT_UNIT;
-            facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
-            facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
-            for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
-                const Bone& bone = (*it);
+    for( uint32_t index = 0; index < this->vertex_data.get3DRFSize(); index++ ) {
+        const auto v_frame_id = vertex_data.get3DRFItem(VertexData::C_4DVL, index);
+        const auto n_frame_id = vertex_data.get3DRFItem(VertexData::C_4DNL, index);
+        const auto r_frame_id = vertex_data.get3DRFItem(VertexData::C_3DRL, index);
 
-                if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
-                    facer_polygon.primitive.star.point.weights.x = 0xFF;
-                    facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+        const glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(v_frame_id);
+        const glm::i16vec3 *normals_r   = vertex_data.get4DNLPointer(n_frame_id);
+        const uint16_t     *lengths_r   = vertex_data.get3DRLPointer(r_frame_id);
+
+        // Add the stars.
+        for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
+            if( (*i).type == PrimitiveType::STAR ) {
+                facer_polygon.type = FacerPolygon::STAR;
+                facer_polygon.visability_mode = VisabilityMode::ADDITION;
+                facer_polygon.color.r = (*i).v[1] * (1. / 256.);
+                facer_polygon.color.g = (*i).v[2] * (1. / 256.);
+                facer_polygon.color.b = (*i).v[3] * (1. / 256.);
+                facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
+                facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+                facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
+                facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
+                for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
+                    const Bone& bone = (*it);
+
+                    if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
+                        facer_polygon.primitive.star.point.weights.x = 0xFF;
+                        facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+                    }
                 }
+
+                facer_polygon.primitive.star.vertex_count = 0;
+
+                if((*i).face_type_offset <= 4)
+                    facer_polygon.primitive.star.vertex_count = 4;
+                else if((*i).face_type_offset <= 8)
+                    facer_polygon.primitive.star.vertex_count = 8;
+                else
+                    facer_polygon.primitive.star.vertex_count = 12;
+
+                if(index == 0)
+                    triangle_amount += facer_polygon.primitive.star.vertex_count;
+
+                facer_polygon.primitive.star.time_index  = (*i).vertex_color_override_index;
+                facer_polygon.primitive.star.other_color = glm::vec3(1.);
+
+                if(facer_polygon.primitive.star.time_index != 0) {
+                    const auto &face_color_override = face_color_overrides.at(facer_polygon.primitive.star.time_index - 1);
+
+                    facer_polygon.color                      = face_color_override.colors[0];
+                    facer_polygon.primitive.star.other_color = face_color_override.colors[1];
+                }
+
+                polys.push_back( facer_polygon );
             }
-
-            facer_polygon.primitive.star.vertex_count = 0;
-
-            if((*i).face_type_offset <= 4)
-                facer_polygon.primitive.star.vertex_count = 4;
-            else if((*i).face_type_offset <= 8)
-                facer_polygon.primitive.star.vertex_count = 8;
-            else
-                facer_polygon.primitive.star.vertex_count = 12;
-
-            triangle_amount += facer_polygon.primitive.star.vertex_count;
-
-            facer_polygon.primitive.star.time_index  = (*i).vertex_color_override_index;
-            facer_polygon.primitive.star.other_color = glm::vec3(1.);
-
-            if(facer_polygon.primitive.star.time_index != 0) {
-                const auto &face_color_override = face_color_overrides.at(facer_polygon.primitive.star.time_index - 1);
-
-                facer_polygon.color                      = face_color_override.colors[0];
-                facer_polygon.primitive.star.other_color = face_color_override.colors[1];
-            }
-
-            polys.push_back( facer_polygon );
         }
+
+        if(index == 0)
+            frame_stride = polys.size();
     }
 
     return polys;

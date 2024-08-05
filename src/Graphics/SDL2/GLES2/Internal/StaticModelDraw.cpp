@@ -58,19 +58,21 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
     }
 
-    number_of_triangles = triangles_draw.getTriangles( this->facer_polygons_amount, &draw_triangles_r );
+    number_of_triangles = triangles_draw.getTriangles( this->facer_triangles_amount, &draw_triangles_r );
 
     size_t index = 0;
 
-    for( auto i = this->facer_polygons_info_r->begin(); i != this->facer_polygons_info_r->end(); i++) {
-        switch( (*i).type ) {
+    for( size_t i = 0; i < this->facer_polygons_stride; i++) {
+        const auto &facer_polygon = this->facer_polygons_info_r->at(i);
+
+        switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::FacerPolygon::STAR:
-                glm::vec3 color = glm::mix((*i).color, (*i).primitive.star.other_color, std::abs(this->star_timings_r->at((*i).primitive.star.time_index)));
+                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addCircle(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    (*i).primitive.star.point.position, color, (*i).width, (*i).primitive.star.vertex_count);
+                    facer_polygon.primitive.star.point.position, color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
                 break;
         }
     }
@@ -283,7 +285,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         transparent_count += material.count - transparent_index;
     }
 
-    unsigned facer_polygons_amount = 0;
+    unsigned facer_triangles_amount = 0;
 
     models_p[ obj_identifier ]->star_timing_speed.resize(obj.getVertexColorOverrides().size() + 1, 0.f);
     for( unsigned i = 0; i < obj.getVertexColorOverrides().size(); i++ ) {
@@ -291,8 +293,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
     }
 
     models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
-    models_p[ obj_identifier ]->facer_polygons_info   = obj.generateFacingPolygons(facer_polygons_amount, 0);
-    models_p[ obj_identifier ]->facer_polygons_amount = facer_polygons_amount;
+    models_p[ obj_identifier ]->facer_polygons_info   = obj.generateFacingPolygons(facer_triangles_amount, models_p[ obj_identifier ]->facer_polygons_stride);
+    models_p[ obj_identifier ]->facer_triangles_amount = facer_triangles_amount;
     models_p[ obj_identifier ]->uv_animation_data     = obj.getFaceOverrideData();
     models_p[ obj_identifier ]->uv_animation_info     = obj.getFaceOverrideTypes();
 
@@ -505,8 +507,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 dynamic.texture_offset = texture_offset;
                 dynamic.star_timings_r = &(*instance)->star_timings;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
-                dynamic.facer_polygons_info_r = &(*d).second->facer_polygons_info;
-                dynamic.facer_polygons_amount =  (*d).second->facer_polygons_amount;
+                dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;
+                dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
+                dynamic.facer_polygons_stride  =  (*d).second->facer_polygons_stride;
                 dynamic.transform = camera_3D_model_transform;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }

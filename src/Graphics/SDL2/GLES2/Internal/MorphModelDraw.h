@@ -26,6 +26,11 @@ public:
             unsigned int frame_index;
             std::vector<glm::vec2> *uv_frame_buffer_r;
             glm::vec2 texture_offset;
+            std::vector<float> *star_timings_r;
+            std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
+            unsigned facer_triangles_amount;
+            unsigned facer_polygons_stride;
+            glm::vec3 camera_right, camera_up;
 
             virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
         };
@@ -34,7 +39,7 @@ public:
         unsigned triangles_per_frame;
         std::vector<DeltaTriangle> frame_data; // [Delta Frame 1], [Delta Frame 2], ..., [Delta Frame end]
     public:
-        
+
         Animation( Utilities::ModelBuilder *model_type_r, GLsizei transparent_count );
         
         const DeltaTriangle *const getFrame( unsigned frame_index ) const;
