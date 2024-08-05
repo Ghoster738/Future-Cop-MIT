@@ -57,6 +57,25 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
     }
+
+    number_of_triangles = triangles_draw.getTriangles( this->facer_triangles_amount, &draw_triangles_r );
+
+    size_t index = 0;
+
+    for( size_t i = 0; i < this->facer_polygons_stride; i++) {
+        const auto &facer_polygon = this->facer_polygons_info_r->at(i);
+
+        switch( facer_polygon.type ) {
+            case Data::Mission::ObjResource::FacerPolygon::STAR:
+                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
+
+                index += DynamicTriangleDraw::Triangle::addStar(
+                    &draw_triangles_r[index], number_of_triangles - index,
+                    this->camera_position, this->transform, this->camera_right, this->camera_up,
+                    facer_polygon.primitive.star.point.position, color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
+                break;
+        }
+    }
 }
 
 const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
@@ -87,7 +106,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "   MAKE_FULL_POSITION(POSITION);\n"
+    "   gl_Position = Transform * full_position;\n"
     "}\n";
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_fragment_shader =
     "uniform sampler2D Texture;\n"
@@ -236,133 +256,148 @@ bool Graphics::SDL2::GLES2::Internal::StaticModelDraw::containsBBModel( uint32_t
         return false;
 }
 
-int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
+int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     int state = 0;
 
-    if( model_type_r->getNumVertices() > 0 )
-    {
-        VertexAttributeArray vertex_array;
+    const uint32_t obj_identifier = obj.getResourceID();
 
-        vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
-        vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
-        vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    VertexAttributeArray vertex_array;
 
-        models_p[ obj_identifier ] = new ModelArray( &program );
-        models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
-        state =  1;
+    vertex_array.addAttribute("NORMAL", 3, glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+    vertex_array.addAttribute("COLOR_0", 4, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    vertex_array.addAttribute("TEXCOORD_0", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    vertex_array.addAttribute("_METADATA", 2, glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-        Utilities::ModelBuilder::TextureMaterial material;
-        GLsizei transparent_count = 0;
+    models_p[ obj_identifier ] = new ModelArray( &program );
+    models_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
+    state =  1;
 
-        for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
-            model_type_r->getMaterial( a, material );
+    Utilities::ModelBuilder::TextureMaterial material;
+    GLsizei transparent_count = 0;
 
-            GLsizei addition_index = std::min( material.count, material.addition_index );
-            GLsizei mix_index = std::min( material.count, material.mix_index );
-            GLsizei transparent_index = std::min( mix_index, addition_index );
+    for( unsigned a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+        model_type_r->getMaterial( a, material );
 
-            transparent_count += material.count - transparent_index;
-        }
-        models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
-        models_p[ obj_identifier ]->uv_animation_data = face_override_uvs;
-        models_p[ obj_identifier ]->uv_animation_info = face_override_animation;
+        GLsizei addition_index = std::min( material.count, material.addition_index );
+        GLsizei mix_index = std::min( material.count, material.mix_index );
+        GLsizei transparent_index = std::min( mix_index, addition_index );
 
-        const size_t face_override_amount = 4 * face_override_animation.size();
-
-        if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
-            uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );
-
-        GLsizei material_count = 0;
-
-        unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
-        unsigned     normal_compenent_index = position_compenent_index;
-        unsigned      color_compenent_index = position_compenent_index;
-        unsigned coordinate_compenent_index = position_compenent_index;
-        unsigned   metadata_compenent_index = position_compenent_index;
-
-        Utilities::ModelBuilder::VertexComponent element("EMPTY");
-        for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
-            auto name = element.getName();
-
-            if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
-                position_compenent_index = i;
-            if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
-                normal_compenent_index = i;
-            if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
-                color_compenent_index = i;
-            if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
-                coordinate_compenent_index = i;
-            if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
-                metadata_compenent_index = i;
-        }
-
-        for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
-            model_type_r->getMaterial( a, material );
-
-            uint32_t cbmp_id;
-
-            if( textures.find( material.cbmp_resource_id ) != textures.end() )
-                cbmp_id = material.cbmp_resource_id;
-            else if( !textures.empty() ) {
-                cbmp_id = textures.begin()->first;
-            }
-            else
-                cbmp_id = 0;
-
-            unsigned addition_index = std::min( material.count, material.addition_index );
-            unsigned mix_index = std::min( material.count, material.mix_index );
-            unsigned transparent_index = std::min( mix_index, addition_index );
-
-            DynamicTriangleDraw::PolygonType polygon_type;
-
-            glm::vec4   position = glm::vec4(0, 0, 0, 1);
-            glm::vec4     normal = glm::vec4(0, 0, 0, 1);
-            glm::vec4      color = glm::vec4(1, 1, 1, 1);
-            glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
-            glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
-
-            const unsigned vertex_per_triangle = 3;
-
-            for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
-                DynamicTriangleDraw::Triangle triangle;
-
-                for(unsigned t = 0; t < 3; t++) {
-                    model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
-                    model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
-
-                    triangle.vertices[t].position = { position.x, position.y, position.z };
-                    triangle.vertices[t].normal = normal;
-                    triangle.vertices[t].color = color;
-                    triangle.vertices[t].coordinate = coordinate;
-                    triangle.vertices[t].vertex_metadata = metadata;
-
-                    if(face_override_amount != 0 && static_cast<uint16_t>(triangle.vertices[t].vertex_metadata[1]) > face_override_amount) {
-                        for(unsigned a = 0; a < t + 1; a++)
-                            std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
-                        std::cout << "face_override_amount = " << face_override_amount << std::endl;
-                        assert(false);
-                    }
-                }
-
-                if( m < mix_index )
-                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
-                else
-                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
-
-                triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
-
-                models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
-            }
-
-            material_count += material.count;
-        }
+        transparent_count += material.count - transparent_index;
     }
-    else
-        state = -1;
+
+    unsigned facer_triangles_amount = 0;
+
+    models_p[ obj_identifier ]->star_timing_speed.resize(obj.getVertexColorOverrides().size() + 1, 0.f);
+    for( unsigned i = 0; i < obj.getVertexColorOverrides().size(); i++ ) {
+        models_p[ obj_identifier ]->star_timing_speed[1 + i] = obj.getVertexColorOverrides()[i].speed_factor;
+    }
+
+    models_p[ obj_identifier ]->transparent_triangles.reserve( transparent_count );
+    models_p[ obj_identifier ]->facer_polygons_info   = obj.generateFacingPolygons(facer_triangles_amount, models_p[ obj_identifier ]->facer_polygons_stride);
+    models_p[ obj_identifier ]->facer_triangles_amount = facer_triangles_amount;
+    models_p[ obj_identifier ]->uv_animation_data     = obj.getFaceOverrideData();
+    models_p[ obj_identifier ]->uv_animation_info     = obj.getFaceOverrideTypes();
+
+    {
+        glm::vec3 sphere_position;
+        float radius;
+
+        if(obj.getBoundingSphereFacingPolygons(models_p[ obj_identifier ]->facer_polygons_info, sphere_position, radius))
+            models_p[ obj_identifier ]->mesh.appendBoundingSphere( sphere_position, radius );
+    }
+
+    const size_t face_override_amount = 4 * obj.getFaceOverrideTypes().size();
+
+    if(uv_frame_buffer.size() < std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) )
+        uv_frame_buffer.resize( std::max(face_override_amount, UV_FRAME_BUFFER_SIZE_LIMIT) );
+
+    GLsizei material_count = 0;
+
+    unsigned   position_compenent_index = model_type_r->getNumVertexComponents();
+    unsigned     normal_compenent_index = position_compenent_index;
+    unsigned      color_compenent_index = position_compenent_index;
+    unsigned coordinate_compenent_index = position_compenent_index;
+    unsigned   metadata_compenent_index = position_compenent_index;
+
+    Utilities::ModelBuilder::VertexComponent element("EMPTY");
+    for( unsigned i = 0; model_type_r->getVertexComponent( i, element ); i++ ) {
+        auto name = element.getName();
+
+        if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
+            position_compenent_index = i;
+        if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+            normal_compenent_index = i;
+        if( name == Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME )
+            color_compenent_index = i;
+        if( name == Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME )
+            coordinate_compenent_index = i;
+        if( name == Data::Mission::ObjResource::METADATA_COMPONENT_NAME )
+            metadata_compenent_index = i;
+    }
+
+    for( unsigned int a = 0; a < model_type_r->getNumMaterials(); a++ ) {
+        model_type_r->getMaterial( a, material );
+
+        uint32_t cbmp_id;
+
+        if( textures.find( material.cbmp_resource_id ) != textures.end() )
+            cbmp_id = material.cbmp_resource_id;
+        else if( !textures.empty() ) {
+            cbmp_id = textures.begin()->first;
+        }
+        else
+            cbmp_id = 0;
+
+        unsigned addition_index = std::min( material.count, material.addition_index );
+        unsigned mix_index = std::min( material.count, material.mix_index );
+        unsigned transparent_index = std::min( mix_index, addition_index );
+
+        DynamicTriangleDraw::PolygonType polygon_type;
+
+        glm::vec4   position = glm::vec4(0, 0, 0, 1);
+        glm::vec4     normal = glm::vec4(0, 0, 0, 1);
+        glm::vec4      color = glm::vec4(1, 1, 1, 1);
+        glm::vec4 coordinate = glm::vec4(0, 0, 0, 1);
+        glm::vec4   metadata = glm::vec4(0, 0, 0, 0);
+
+        const unsigned vertex_per_triangle = 3;
+
+        for( unsigned m = transparent_index; m < material.count; m += vertex_per_triangle ) {
+            DynamicTriangleDraw::Triangle triangle;
+
+            for(unsigned t = 0; t < 3; t++) {
+                model_type_r->getTransformation(   position,   position_compenent_index, material_count + m + t );
+                model_type_r->getTransformation(     normal,     normal_compenent_index, material_count + m + t );
+                model_type_r->getTransformation(      color,      color_compenent_index, material_count + m + t );
+                model_type_r->getTransformation( coordinate, coordinate_compenent_index, material_count + m + t );
+                model_type_r->getTransformation(   metadata,   metadata_compenent_index, material_count + m + t );
+
+                triangle.vertices[t].position = { position.x, position.y, position.z };
+                triangle.vertices[t].normal = normal;
+                triangle.vertices[t].color = color;
+                triangle.vertices[t].coordinate = coordinate;
+                triangle.vertices[t].vertex_metadata = metadata;
+
+                if(face_override_amount != 0 && static_cast<uint16_t>(triangle.vertices[t].vertex_metadata[1]) > face_override_amount) {
+                    for(unsigned a = 0; a < t + 1; a++)
+                        std::cout << "i[" << a << "] = " << triangle.vertices[a].vertex_metadata[1] << "\n";
+                    std::cout << "face_override_amount = " << face_override_amount << std::endl;
+                    assert(false);
+                }
+            }
+
+            if( m < mix_index )
+                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+            else
+                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+
+            triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
+
+            models_p[ obj_identifier ]->transparent_triangles.push_back( triangle );
+        }
+
+        material_count += material.count;
+    }
 
     return state;
 }
@@ -380,6 +415,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputBoundingBoxes( Utilit
 
         bounding_boxes_p[ obj_identifier ] = new ModelArray( &program );
         bounding_boxes_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
+        bounding_boxes_p[ obj_identifier ]->facer_triangles_amount = 0;
+        bounding_boxes_p[ obj_identifier ]->facer_polygons_stride  = 0;
 
         state =  1;
     }
@@ -427,6 +464,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
 
     Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
+    dynamic.camera_right = glm::vec3(view[0][0], view[1][0], view[2][0]);
+    dynamic.camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
 
     // Traverse the models.
     for( auto d = model_array_p.begin(); d != model_array_p.end(); d++ ) // Go through every model that has an instance.
@@ -468,7 +507,11 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
                 
                 dynamic.texture_offset = texture_offset;
+                dynamic.star_timings_r = &(*instance)->star_timings;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
+                dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;
+                dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
+                dynamic.facer_polygons_stride  =  (*d).second->facer_polygons_stride;
                 dynamic.transform = camera_3D_model_transform;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
@@ -489,6 +532,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::allocateObjModel( uint32_t
             model_instance.culling_sphere_position = glm::vec3( 0, 0, 0 );
             model_instance.culling_sphere_radius = 1.0f;
         }
+
+        model_instance.star_timings.resize(models_p[ obj_identifier ]->star_timing_speed.size(), 0.f);
 
         // Finally added the instance.
         model_array_r->instances_r.insert( &model_instance );
@@ -527,6 +572,15 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::advanceTime( float second
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
         for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
             (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
+
+            for( size_t i = 0; i < (*instance)->star_timings.size(); i++ ) {
+                auto &value = (*instance)->star_timings[i];
+
+                value += (*model_type).second->star_timing_speed[i] * seconds_passed;
+
+                if(value > 1.)
+                    value -= 2.;
+            }
         }
     }
 }

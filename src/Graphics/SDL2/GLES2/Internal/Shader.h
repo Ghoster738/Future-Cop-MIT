@@ -27,9 +27,9 @@ public:
     class Type {
     public:
         enum PRECISION {
-            LOW,
-            MEDIUM,
-            HIGH,
+            LOW,    // Int: (-2^8,  2^8)  Float: (-2,       2) FP: 2^( -8)
+            MEDIUM, // Int: (-2^10, 2^10) Float: (-2^14, 2^14) FP: 2^(-10)
+            HIGH,   // Int: (-2^16, 2^16) Float: (-2^62, 2^62) FP: 2^(-16)
             ALL
         };
     protected:

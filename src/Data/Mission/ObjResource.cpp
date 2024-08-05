@@ -200,7 +200,7 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
         return (l_operand.visual.visability < r_operand.visual.visability);
 }
 
-int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
+int Data::Mission::ObjResource::Primitive::setStar(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
     int16_t     tex_animation_index[2][3];
@@ -229,13 +229,13 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     // face_type_offset // Unknown. They range from 4, 8, and 12.
 
-    // this->v[0] // Actual vertex index. Origin of circle.
+    // this->v[0] // Actual vertex index. Origin of star.
 
     // this->v[1] // Red
     // this->v[2] // Green
     // this->v[3] // Blue
 
-    // this->n[0] // Actual length index. Radius of circle.
+    // this->n[0] // Actual length index. Radius of star.
 
     // this->n[1] // Always Zero
     // this->n[2] // Always Zero
@@ -265,7 +265,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
     const float UNIT_45_DEGREES = 0.707106781187; // M_SQRT2 / 2.0;
 
-    const glm::vec2 circle_quadrant[2][3] = {
+    const glm::vec2 star_quadrant[2][3] = {
         // Triangle 0
             { { UNIT_45_DEGREES, UNIT_45_DEGREES}, { 0, 0}, { 0, 1} },
         // Triangle 1
@@ -277,57 +277,57 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
     for( unsigned axis = 0; axis < 3; axis++ ) {
         glm::vec2 q[2][3] = {
             // Triangle 0
-                { circle_quadrant[0][0], circle_quadrant[0][1], circle_quadrant[0][2] },
+                { star_quadrant[0][0], star_quadrant[0][1], star_quadrant[0][2] },
             // Triangle 1
-                { circle_quadrant[1][0], circle_quadrant[1][1], circle_quadrant[1][2] }
+                { star_quadrant[1][0], star_quadrant[1][1], star_quadrant[1][2] }
         };
 
         for( unsigned quadrant = 0; quadrant < 4; quadrant++ ) {
-            glm::vec3 mapped_circle_quadrant[2][3] = {};
-            glm::vec3 circle_direction;
+            glm::vec3 mapped_star_quadrant[2][3] = {};
+            glm::vec3 star_direction;
 
             switch(axis) {
                 case 0:
-                    mapped_circle_quadrant[0][0] = {q[0][0].x, 0, q[0][0].y};
-                    mapped_circle_quadrant[0][1] = {q[0][1].x, 0, q[0][1].y};
-                    mapped_circle_quadrant[0][2] = {q[0][2].x, 0, q[0][2].y};
+                    mapped_star_quadrant[0][0] = {q[0][0].x, 0, q[0][0].y};
+                    mapped_star_quadrant[0][1] = {q[0][1].x, 0, q[0][1].y};
+                    mapped_star_quadrant[0][2] = {q[0][2].x, 0, q[0][2].y};
 
-                    mapped_circle_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
-                    mapped_circle_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
-                    mapped_circle_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
+                    mapped_star_quadrant[1][0] = {q[1][0].x, 0, q[1][0].y};
+                    mapped_star_quadrant[1][1] = {q[1][1].x, 0, q[1][1].y};
+                    mapped_star_quadrant[1][2] = {q[1][2].x, 0, q[1][2].y};
 
-                    circle_direction = glm::vec3(0, 1, 0);
+                    star_direction = glm::vec3(0, 1, 0);
                     break;
 
                 case 1:
-                    mapped_circle_quadrant[0][0] = {q[0][0].x, q[0][0].y, 0};
-                    mapped_circle_quadrant[0][1] = {q[0][1].x, q[0][1].y, 0};
-                    mapped_circle_quadrant[0][2] = {q[0][2].x, q[0][2].y, 0};
+                    mapped_star_quadrant[0][0] = {q[0][0].x, q[0][0].y, 0};
+                    mapped_star_quadrant[0][1] = {q[0][1].x, q[0][1].y, 0};
+                    mapped_star_quadrant[0][2] = {q[0][2].x, q[0][2].y, 0};
 
-                    mapped_circle_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
-                    mapped_circle_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
-                    mapped_circle_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
+                    mapped_star_quadrant[1][0] = {q[1][0].x, q[1][0].y, 0};
+                    mapped_star_quadrant[1][1] = {q[1][1].x, q[1][1].y, 0};
+                    mapped_star_quadrant[1][2] = {q[1][2].x, q[1][2].y, 0};
 
-                    circle_direction = glm::vec3(0, 0, -1);
+                    star_direction = glm::vec3(0, 0, -1);
                     break;
 
                 case 2:
-                    mapped_circle_quadrant[0][0] = {0, q[0][0].x, q[0][0].y};
-                    mapped_circle_quadrant[0][1] = {0, q[0][1].x, q[0][1].y};
-                    mapped_circle_quadrant[0][2] = {0, q[0][2].x, q[0][2].y};
+                    mapped_star_quadrant[0][0] = {0, q[0][0].x, q[0][0].y};
+                    mapped_star_quadrant[0][1] = {0, q[0][1].x, q[0][1].y};
+                    mapped_star_quadrant[0][2] = {0, q[0][2].x, q[0][2].y};
 
-                    mapped_circle_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
-                    mapped_circle_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
-                    mapped_circle_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
+                    mapped_star_quadrant[1][0] = {0, q[1][0].x, q[1][0].y};
+                    mapped_star_quadrant[1][1] = {0, q[1][1].x, q[1][1].y};
+                    mapped_star_quadrant[1][2] = {0, q[1][2].x, q[1][2].y};
 
-                    circle_direction = glm::vec3(-1, 0, 0);
+                    star_direction = glm::vec3(-1, 0, 0);
                     break;
             }
 
             // Triangle 0
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[0][i];
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].position = center + length_90d * mapped_star_quadrant[0][i];
+                triangle.points[i].normal = star_direction;
                 triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
                 triangle.points[i].face_override_index = 0;
             }
@@ -344,8 +344,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[0][i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
@@ -353,9 +353,9 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
 
             triangle.switchPoints();
 
-            circle_direction = -circle_direction;
+            star_direction = -star_direction;
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].normal = star_direction;
             }
 
             triangles.push_back( triangle );
@@ -370,19 +370,19 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[0][2 - i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[0][2 - i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
             }
 
-            circle_direction = -circle_direction;
+            star_direction = -star_direction;
 
             // Triangle 1
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].position = center + length_90d * mapped_circle_quadrant[1][i];
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].position = center + length_90d * mapped_star_quadrant[1][i];
+                triangle.points[i].normal = star_direction;
                 triangle.points[i].coords = glm::u8vec2( 0x00, 0x00 );
                 triangle.points[i].face_override_index = 0;
             }
@@ -399,17 +399,17 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[1][i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
             }
 
             triangle.switchPoints();
-            circle_direction = -circle_direction;
+            star_direction = -star_direction;
             for( unsigned i = 0; i < 3; i++ ) {
-                triangle.points[i].normal = circle_direction;
+                triangle.points[i].normal = star_direction;
             }
             triangles.push_back( triangle );
 
@@ -423,8 +423,8 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
                 morph_length_90d = anm_lengths_r[ n[0] ] * FIXED_POINT_UNIT;
 
                 for( unsigned i = 0; i < 3; i++ ) {
-                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_circle_quadrant[1][2 - i];
-                    morph_triangle.points[i].normal = circle_direction;
+                    morph_triangle.points[i].position = morph_center + morph_length_90d * mapped_star_quadrant[1][2 - i];
+                    morph_triangle.points[i].normal = star_direction;
                 }
 
                 morph_triangles.push_back( morph_triangle );
@@ -438,7 +438,7 @@ int Data::Mission::ObjResource::Primitive::setCircle(const VertexData& vertex_da
         }
     }
 
-    return getTriangleAmount( PrimitiveType::CIRCLE );
+    return getTriangleAmount( PrimitiveType::STAR );
 }
 
 int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
@@ -1008,7 +1008,7 @@ int Data::Mission::ObjResource::Primitive::setLine(const VertexData& vertex_data
 
 size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType type ) {
     switch( type ) {
-        case PrimitiveType::CIRCLE:
+        case PrimitiveType::STAR:
             return 48;
         case PrimitiveType::TRIANGLE:
         case PrimitiveType::TRIANGLE_OTHER:
@@ -1482,8 +1482,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     Primitive primitive;
 
-                    primitive.face_type_offset = face_type_offset;
-                    primitive.face_type_r      = nullptr;
+                    primitive.face_type_offset            = face_type_offset;
+                    primitive.face_type_r                 = nullptr;
+                    primitive.vertex_color_override_index = 0;
 
                     primitive.visual.uses_texture       = is_texture;
                     primitive.visual.normal_shading     = normal_shadows;
@@ -1513,25 +1514,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         case 7:
                         {
                             primitive.type = PrimitiveType::LINE;
-                            face_lines.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 5:
                         {
                             primitive.type = PrimitiveType::BILLBOARD;
-                            face_billboards.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 4:
                         {
                             primitive.type = PrimitiveType::QUAD;
-                            face_quads.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 3:
                         {
                             primitive.type = PrimitiveType::TRIANGLE;
-                            face_triangles.push_back( primitive );
+                            this->primitives.push_back( primitive );
                             break;
                         }
                         case 0:
@@ -1544,8 +1545,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                             primitive.visual.is_reflective      = false;
                             primitive.visual.is_color_fade      = true;
 
-                            primitive.type = PrimitiveType::CIRCLE;
-                            face_circles.push_back( primitive );
+                            primitive.type = PrimitiveType::STAR;
+                            this->primitives.push_back( primitive );
                             break;
                         default:
                         {
@@ -1676,16 +1677,17 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     if(count != 1)
                         warning_log.output << "3DAL count = " << std::dec << count << ".\n";
 
-                    // TODO 3DAL is almost like 3DTA
+                    // 3DAL is almost like 3DTA
+                    face_color_overrides.push_back(VertexColorOverride());
 
-                    // c_3DAL_data[0] = reader3DAL.readU8(); // 3DQL index to primative type circle or zero.
-                    // c_3DAL_data[1] = reader3DAL.readU8(); // Speed value?
-                    // c_3DAL_data[2] = reader3DAL.readU8(); // Red[0]
-                    // c_3DAL_data[3] = reader3DAL.readU8(); // Green[0]
-                    // c_3DAL_data[4] = reader3DAL.readU8(); // Blue[0]
-                    // c_3DAL_data[5] = reader3DAL.readU8(); // Red[1]
-                    // c_3DAL_data[6] = reader3DAL.readU8(); // Green[1]
-                    // c_3DAL_data[7] = reader3DAL.readU8(); // Blue[1]
+                    face_color_overrides.back().face_index = reader3DAL.readU8(); // 3DQL index to primative type star
+                    face_color_overrides.back().speed_factor = 2.0f * (0.0757594 * reader3DAL.readU8() + 0.0520309);
+                    face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[1].r = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[1].g = reader3DAL.readU8() * (1. / 256.);
+                    face_color_overrides.back().colors[1].b = reader3DAL.readU8() * (1. / 256.);
                 }
             }
             else
@@ -2058,24 +2060,18 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "4DGI bounding_box_frames = " << std::dec << bounding_box_frames << "\n";
         }
 
-        for( auto &primitive : this->face_triangles ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
+        for( auto &primitive : this->primitives ) {
+            if( primitive.type != PrimitiveType::STAR && this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
                 primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
             }
         }
-        for( auto &primitive : this->face_quads ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
-                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
-            }
-        }
-        for( auto &primitive : this->face_billboards ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
-                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
-            }
-        }
-        for( auto &primitive : this->face_lines ) {
-            if( this->face_types.find( primitive.face_type_offset ) != this->face_types.end() ) {
-                primitive.face_type_r = &this->face_types[ primitive.face_type_offset ];
+
+        for( auto i = this->face_color_overrides.begin(); i != this->face_color_overrides.end(); i++ ) {
+            auto &face_color_override = (*i);
+
+            if(primitives.size() > face_color_override.face_index) {
+                if(primitives.at(face_color_override.face_index).type == PrimitiveType::STAR)
+                    primitives[face_color_override.face_index].vertex_color_override_index = (i - this->face_color_overrides.begin()) + 1;
             }
         }
 
@@ -2113,17 +2109,25 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
 int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
-    Utilities::ModelBuilder *model_output = createMesh(!iff_options.obj.export_metadata, false);
+    AllowedPrimitives allowed_primitives;
+
+    allowed_primitives.star      = true;
+    allowed_primitives.triangle  = true;
+    allowed_primitives.quad      = true;
+    allowed_primitives.billboard = true;
+    allowed_primitives.line      = true;
+
+    Utilities::ModelBuilder *model_output_p = createMesh(!iff_options.obj.export_metadata, false, allowed_primitives);
 
     if( iff_options.obj.shouldWrite( iff_options.enable_global_dry_default ) ) {
         // Make sure that the model has some vertex data.
         if( !iff_options.obj.no_model ) {
-            if( model_output->getNumVertices() >= 3 ) {
+            if( model_output_p->getNumVertices() >= 3 ) {
 
                 if( !bones.empty() )
-                    model_output->applyJointTransforms( 0 );
+                    model_output_p->applyJointTransforms( 0 );
 
-                glTF_return = model_output->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
+                glTF_return = model_output_p->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
             }
             else {
                 // Make it easier on the user to identify empty Obj's
@@ -2159,9 +2163,114 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
         }
     }
 
-    delete model_output;
+    delete model_output_p;
 
     return glTF_return;
+}
+
+std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource::generateFacingPolygons(unsigned &triangle_amount, unsigned &frame_stride) const {
+    std::vector<Data::Mission::ObjResource::FacerPolygon> polys;
+    FacerPolygon facer_polygon;
+
+    triangle_amount = 0;
+    frame_stride = 0;
+
+    for( uint32_t index = 0; index < this->vertex_data.get3DRFSize(); index++ ) {
+        const auto v_frame_id = vertex_data.get3DRFItem(VertexData::C_4DVL, index);
+        const auto n_frame_id = vertex_data.get3DRFItem(VertexData::C_4DNL, index);
+        const auto r_frame_id = vertex_data.get3DRFItem(VertexData::C_3DRL, index);
+
+        const glm::i16vec3 *positions_r = vertex_data.get4DVLPointer(v_frame_id);
+        const glm::i16vec3 *normals_r   = vertex_data.get4DNLPointer(n_frame_id);
+        const uint16_t     *lengths_r   = vertex_data.get3DRLPointer(r_frame_id);
+
+        // Add the stars.
+        for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
+            if( (*i).type == PrimitiveType::STAR ) {
+                facer_polygon.type = FacerPolygon::STAR;
+                facer_polygon.visability_mode = VisabilityMode::ADDITION;
+                facer_polygon.color.r = (*i).v[1] * (1. / 256.);
+                facer_polygon.color.g = (*i).v[2] * (1. / 256.);
+                facer_polygon.color.b = (*i).v[3] * (1. / 256.);
+                facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
+                facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+                facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
+                facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
+                for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
+                    const Bone& bone = (*it);
+
+                    if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
+                        facer_polygon.primitive.star.point.weights.x = 0xFF;
+                        facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+                    }
+                }
+
+                facer_polygon.primitive.star.vertex_count = 0;
+
+                if((*i).face_type_offset <= 4)
+                    facer_polygon.primitive.star.vertex_count = 4;
+                else if((*i).face_type_offset <= 8)
+                    facer_polygon.primitive.star.vertex_count = 8;
+                else
+                    facer_polygon.primitive.star.vertex_count = 12;
+
+                if(index == 0)
+                    triangle_amount += facer_polygon.primitive.star.vertex_count;
+
+                facer_polygon.primitive.star.time_index  = (*i).vertex_color_override_index;
+                facer_polygon.primitive.star.other_color = glm::vec3(1.);
+
+                if(facer_polygon.primitive.star.time_index != 0) {
+                    const auto &face_color_override = face_color_overrides.at(facer_polygon.primitive.star.time_index - 1);
+
+                    facer_polygon.color                      = face_color_override.colors[0];
+                    facer_polygon.primitive.star.other_color = face_color_override.colors[1];
+                }
+
+                polys.push_back( facer_polygon );
+            }
+        }
+
+        if(index == 0)
+            frame_stride = polys.size();
+    }
+
+    return polys;
+}
+
+#define BOUNDS(v) \
+min.x = std::min(min.x, v.x);\
+min.y = std::min(min.y, v.y);\
+min.z = std::min(min.z, v.z);\
+max.x = std::max(max.x, v.x);\
+max.y = std::max(max.y, v.y);\
+max.z = std::max(max.z, v.z)
+
+bool Data::Mission::ObjResource::getBoundingSphereFacingPolygons(const std::vector<FacerPolygon> polygons, glm::vec3 &sphere_position, float &radius) const {
+    bool has_data = false;
+    glm::vec3 min =  glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 max = -glm::vec3(std::numeric_limits<float>::max());
+
+    for(const FacerPolygon &facer_polygon: polygons) {
+        if(facer_polygon.type == FacerPolygon::STAR) {
+            BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( facer_polygon.width, 0, 0)) );
+            BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( facer_polygon.width, 0, 0)) );
+            BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( 0, facer_polygon.width, 0)) );
+            BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( 0, facer_polygon.width, 0)) );
+            BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( 0, 0, facer_polygon.width)) );
+            BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( 0, 0, facer_polygon.width)) );
+
+            has_data = true;
+        }
+    }
+
+    if(!has_data)
+        return false;
+
+    sphere_position = (max + min) * 0.5f;
+    radius = glm::distance(max, min) * 0.5f;
+
+    return true;
 }
 
 bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &textures ) {
@@ -2243,13 +2352,22 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
+    AllowedPrimitives allowed_primitives;
+
+    allowed_primitives.star      = false;
+    allowed_primitives.triangle  = true;
+    allowed_primitives.quad      = true;
+    allowed_primitives.billboard = true;
+    allowed_primitives.line      = true;
+
     return createMesh(
-        false,  // False as metadata would NOT be excluded.
-        true ); // True normals will be created.
+        false, // False as metadata would NOT be excluded.
+        true,  // True normals will be created.
+        allowed_primitives );
 }
 
-Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata, bool force_normal ) const {
-    Utilities::ModelBuilder *model_output = new Utilities::ModelBuilder();
+Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_metadata, bool force_normal, AllowedPrimitives allowed_primitives ) const {
+    Utilities::ModelBuilder *model_output_p = new Utilities::ModelBuilder();
 
     // This buffer will be used to store every triangle that the write function has.
     std::vector<Triangle> triangle_buffer;
@@ -2258,34 +2376,32 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
     {
         std::vector<Primitive> primitive_buffer;
-        size_t triangle_buffer_size = 0;
 
-        triangle_buffer_size += face_triangles.size() * Primitive::getTriangleAmount( PrimitiveType::TRIANGLE );
-        triangle_buffer_size += face_quads.size() * Primitive::getTriangleAmount( PrimitiveType::QUAD );
-
-        triangle_buffer.reserve( triangle_buffer_size );
-        morph_triangle_buffer.reserve( triangle_buffer_size * (vertex_data.get3DRFSize() - 1) );
-        primitive_buffer.reserve( triangle_buffer_size );
-
-        // Go through the normal triangles first.
-        for( auto i = face_triangles.begin(); i != face_triangles.end(); i++ )
-            primitive_buffer.push_back( (*i) );
-
-        // Now go through the quads.
-        for( auto i = face_quads.begin(); i != face_quads.end(); i++ )
-            primitive_buffer.push_back( (*i) );
-
-        // The billboards
-        for( auto i = face_billboards.begin(); i != face_billboards.end(); i++ )
-            primitive_buffer.push_back( (*i) );
-
-        // Then the lines.
-        for( auto i = face_lines.begin(); i != face_lines.end(); i++ )
-            primitive_buffer.push_back( (*i) );
-
-        // Then finally the circles.
-        for( auto i = face_circles.begin(); i != face_circles.end(); i++ )
-            primitive_buffer.push_back( (*i) );
+        for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
+            switch((*i).type) {
+                case PrimitiveType::STAR:
+                    if(allowed_primitives.star)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::TRIANGLE_OTHER:
+                case PrimitiveType::TRIANGLE:
+                    if(allowed_primitives.triangle)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::QUAD:
+                    if(allowed_primitives.quad)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::BILLBOARD:
+                    if(allowed_primitives.billboard)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+                case PrimitiveType::LINE:
+                    if(allowed_primitives.line)
+                        primitive_buffer.push_back( (*i) );
+                    break;
+            }
+        }
 
         // Sort the triangle list.
         std::sort(primitive_buffer.begin(), primitive_buffer.end(), Primitive() );
@@ -2301,8 +2417,8 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
 
         for( auto i = primitive_buffer.begin(); i != primitive_buffer.end(); i++ ) {
-            if( (*i).type == PrimitiveType::CIRCLE )
-                (*i).setCircle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
+            if( (*i).type == PrimitiveType::STAR )
+                (*i).setStar(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::TRIANGLE )
                 (*i).setTriangle(vertex_data, triangle_buffer, morph_triangle_buffer, bones);
             else if( (*i).type == PrimitiveType::QUAD )
@@ -2316,26 +2432,26 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
     bool build_normals = (vertex_data.get4DNLSize() != 0) | force_normal;
 
-    unsigned int position_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+    unsigned int position_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::POSITION_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
     unsigned int normal_component_index = -1;
 
     if(build_normals)
-        normal_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
+        normal_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::NORMAL_COMPONENT_NAME, Utilities::DataTypes::ComponentType::FLOAT, Utilities::DataTypes::Type::VEC3 );
 
-    unsigned int color_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
-    unsigned int tex_coord_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
+    unsigned int color_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::COLORS_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
+    unsigned int tex_coord_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::TEX_COORD_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC2, true );
     unsigned int metadata_component_index = -1;
     unsigned int joints_0_component_index = -1;
     unsigned int weights_0_component_index = -1;
 
     if(!exclude_metadata)
-        metadata_component_index = model_output->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
+        metadata_component_index = model_output_p->addVertexComponent( METADATA_COMPONENT_NAME, Utilities::DataTypes::ComponentType::SHORT, Utilities::DataTypes::Type::VEC2, false );
 
     if( !bones.empty() ) {
-        joints_0_component_index  = model_output->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
-        weights_0_component_index = model_output->addVertexComponent( Utilities::ModelBuilder::WEIGHTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
+        joints_0_component_index  = model_output_p->addVertexComponent( Utilities::ModelBuilder::JOINTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, false );
+        weights_0_component_index = model_output_p->addVertexComponent( Utilities::ModelBuilder::WEIGHTS_INDEX_0_COMPONENT_NAME, Utilities::DataTypes::ComponentType::UNSIGNED_BYTE, Utilities::DataTypes::Type::VEC4, true );
 
-        model_output->allocateJoints( bones.size(), bone_frames );
+        model_output_p->allocateJoints( bones.size(), bone_frames );
         
         glm::mat4 bone_matrix;
         
@@ -2345,7 +2461,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             childern[ bones.at( bone_index ).parent_amount - 1 ] = bone_index;
             
             if( bones.at( bone_index ).parent_amount > 1 )
-                model_output->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
+                model_output_p->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
         }
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
@@ -2378,7 +2494,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                 auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
                 auto quaterion = glm::quat_cast( bone_matrix );
                 
-                model_output->setJointFrame( frame, bone_index, position, quaterion );
+                model_output_p->setJointFrame( frame, bone_index, position, quaterion );
             }
         }
     }
@@ -2386,19 +2502,19 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
     unsigned int normal_morph_component_index = -1;
 
     if( vertex_data.get3DRFSize() > 1 ) {
-        position_morph_component_index = model_output->setVertexComponentMorph( position_component_index );
+        position_morph_component_index = model_output_p->setVertexComponentMorph( position_component_index );
 
         if(build_normals)
-            normal_morph_component_index = model_output->setVertexComponentMorph( normal_component_index );
+            normal_morph_component_index = model_output_p->setVertexComponentMorph( normal_component_index );
     }
 
     // Setup the vertex components now that every field had been entered.
-    model_output->setupVertexComponents( vertex_data.get3DRFSize() - 1 );
+    model_output_p->setupVertexComponents( vertex_data.get3DRFSize() - 1 );
 
-    model_output->allocateVertices( triangle_buffer.size() * 3 );
+    model_output_p->allocateVertices( triangle_buffer.size() * 3 );
 
     if( texture_references.size() == 0 )
-        model_output->setMaterial( "" );
+        model_output_p->setMaterial( "" );
 
     glm::i16vec2 metadata;
 
@@ -2419,7 +2535,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
 
                 // Set this material.
-                model_output->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+                model_output_p->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
 
                 // The material is found.
                 found = true;
@@ -2447,16 +2563,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                 if( (*triangle).bmp_id == (*previous_triangle).bmp_id )
                 {
                     if( (*previous_triangle).visual.visability < (*triangle).visual.visability )
-                        model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                        model_output_p->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                     else if( (*previous_triangle).visual.visability > (*triangle).visual.visability )
                         assert( false && "Sorting is wrong!" );
                 }
                 else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
-                    model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                    model_output_p->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
                 }
             }
             else if( (*triangle).visual.visability != VisabilityMode::OPAQUE ) {
-                model_output->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
+                model_output_p->beginSemiTransperency( (*triangle).visual.visability == VisabilityMode::ADDITION );
             }
 
             for( unsigned vertex_index = 0; vertex_index < 3; vertex_index++ ) {
@@ -2466,22 +2582,22 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
                 assert(point.face_override_index <= 4 * face_type_overrides.size());
 
-                model_output->startVertex();
+                model_output_p->startVertex();
 
-                model_output->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
+                model_output_p->setVertexData( position_component_index, Utilities::DataTypes::Vec3Type( point.position ) );
 
                 if(build_normals)
-                    model_output->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
+                    model_output_p->setVertexData( normal_component_index, Utilities::DataTypes::Vec3Type( point.normal ) );
 
                 if(vertex_index != 1 && (*triangle).visual.is_color_fade)
-                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
+                    model_output_p->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( glm::u8vec4(0, 0, 0, 0) ) );
                 else
-                    model_output->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
+                    model_output_p->setVertexData( color_component_index, Utilities::DataTypes::Vec4UByteType( (*triangle).color ) );
 
-                model_output->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
+                model_output_p->setVertexData( tex_coord_component_index, Utilities::DataTypes::Vec2UByteType(  point.coords ) );
 
                 if(!exclude_metadata)
-                    model_output->setVertexData( metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
+                    model_output_p->setVertexData( metadata_component_index, Utilities::DataTypes::Vec2SShortType( metadata ) );
 
                 auto morph_triangle_frame = morph_triangle;
 
@@ -2489,16 +2605,16 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                 {
                     const MorphPoint morph_point = (*morph_triangle_frame).points[vertex_index];
 
-                    model_output->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
+                    model_output_p->addMorphVertexData( position_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.position ), Utilities::DataTypes::Vec3Type( morph_point.position ) );
 
                     if(build_normals)
-                        model_output->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
+                        model_output_p->addMorphVertexData( normal_morph_component_index, morph_frames, Utilities::DataTypes::Vec3Type( point.normal ),   Utilities::DataTypes::Vec3Type( morph_point.normal ) );
 
                     morph_triangle_frame++;
                 }
                 if( !bones.empty() ) {
-                    model_output->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( point.joints ) );
-                    model_output->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( point.weights ) );
+                    model_output_p->setVertexData( joints_0_component_index, Utilities::DataTypes::Vec4UByteType( point.joints ) );
+                    model_output_p->setVertexData( weights_0_component_index, Utilities::DataTypes::Vec4UByteType( point.weights ) );
                 }
             }
 
@@ -2510,9 +2626,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         }
     }
     
-    model_output->finish();
+    model_output_p->finish();
     
-    return model_output;
+    return model_output_p;
 }
 
 Utilities::ModelBuilder * Data::Mission::ObjResource::createBoundingBoxes() const {

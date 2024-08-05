@@ -25,10 +25,14 @@ public:
         ModelArray( Program *program ) : mesh( program ) {}
         
         Mesh mesh;
+        std::vector<float> star_timing_speed;
         std::vector<glm::u8vec2> uv_animation_data;
-        std::vector<Data::Mission::ObjResource::FaceOverrideType> uv_animation_info;
-        std::vector<DynamicTriangleDraw::Triangle> transparent_triangles;
+        std::vector<Data::Mission::ObjResource::FaceOverrideType>   uv_animation_info;
+        std::vector<Data::Mission::ObjResource::FacerPolygon>     facer_polygons_info;
+        std::vector<DynamicTriangleDraw::Triangle>              transparent_triangles;
         std::set<GLES2::ModelInstance*> instances_r; // The list of all instances that will be drawn.
+        unsigned facer_triangles_amount;
+        unsigned facer_polygons_stride;
 
         void bindUVAnimation(GLuint animated_uv_frames_id, unsigned int time, std::vector<glm::vec2>& uv_frame_buffer) const;
     };
@@ -36,6 +40,11 @@ public:
     public:
         glm::vec2 texture_offset;
         std::vector<glm::vec2> *uv_frame_buffer_r;
+        std::vector<float> *star_timings_r;
+        std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
+        unsigned facer_triangles_amount;
+        unsigned facer_polygons_stride;
+        glm::vec3 camera_right, camera_up;
 
         virtual void addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const;
     };
@@ -140,23 +149,21 @@ public:
 
     /**
      * This handles the loading of the models.
-     * @param model_type Holds the model information.
-     * @param resource_cobj The id associated with the model.
+     * @param model_type_r Holds the model information.
+     * @param obj The model builder's source. Holds metadata needed for rendering the model.
      * @param textures The accessor of the textures available for the models.
-     * @param face_override_animation UV animation information info.
-     * @param face_override_uvs UV override information.
      * @return 1 for success, or -1 for failure.
      */
-    int inputModel( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs );
+    int inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * This handles the loading of the models.
-     * @param model_type Holds the model information.
+     * @param model_type_r Holds the model information.
      * @param resource_cobj The id associated with the model.
      * @param textures The accessor of the textures available for the models. Only nothing texture is used.
      * @return 1 for success, or -1 for failure.
      */
-    int inputBoundingBoxes( Utilities::ModelBuilder *model_type, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    int inputBoundingBoxes( Utilities::ModelBuilder *model_type_r, uint32_t resource_cobj, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     void clearModels();
 

@@ -33,7 +33,7 @@ public:
         MIX      = 2
     };
     enum PrimitiveType {
-        CIRCLE         = 0,
+        STAR           = 0,
         TRIANGLE_OTHER = 2,
         TRIANGLE       = 3,
         QUAD           = 4,
@@ -85,6 +85,11 @@ public:
         uint16_t face_override_index;
 
         glm::u8vec4 getColor( Material material ) const;
+    };
+    struct VertexColorOverride {
+        unsigned face_index;
+        float speed_factor;
+        glm::vec3 colors[2];
     };
     struct Point {
         glm::vec3 position;
@@ -185,13 +190,14 @@ public:
 
         uint16_t  face_type_offset;
         FaceType *face_type_r;
+        unsigned vertex_color_override_index;
 
         uint8_t v[4], n[4];
 
         uint32_t getBmpID() const;
         bool isWithinBounds( uint32_t vertex_limit, uint32_t normal_limit ) const;
 
-        int setCircle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
+        int setStar(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setTriangle(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
         int setBillboard(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const;
@@ -215,6 +221,47 @@ public:
         uint32_t resource_id;
         std::string name;
     };
+    struct AllowedPrimitives {
+        unsigned star:      1;
+        unsigned triangle:  1;
+        unsigned quad:      1;
+        unsigned billboard: 1;
+        unsigned line:      1;
+    };
+    struct FacerPolygon {
+        struct Point {
+            glm::vec3 position;
+            glm::u8vec4 weights;
+            glm::u8vec4 joints;
+        };
+
+        enum Type {
+            STAR,
+            BILLBOARD,
+            LINE
+        } type;
+        VisabilityMode visability_mode;
+        glm::vec3 color;
+        float width;
+        union {
+            struct {
+                Point point;
+                uint32_t vertex_count;
+                uint32_t time_index;
+                glm::vec3 other_color;
+            } star;
+            struct {
+                Point point;
+                uint32_t bmp_id;
+                glm::u8vec2 coords[4];
+            } billboard;
+            struct {
+                Point point[2];
+                uint32_t bmp_id;
+                glm::u8vec2 coords[4];
+            } line;
+        } primitive;
+    };
 private:
     struct {
         unsigned has_skeleton:     1;
@@ -230,12 +277,9 @@ private:
     std::map<uint_fast16_t, FaceType> face_types;
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
+    std::vector<VertexColorOverride>  face_color_overrides;
 
-    std::vector<Primitive> face_circles;
-    std::vector<Primitive> face_triangles;
-    std::vector<Primitive> face_quads;
-    std::vector<Primitive> face_billboards;
-    std::vector<Primitive> face_lines;
+    std::vector<Primitive> primitives;
 
     std::vector<Bone>         bones;
     unsigned int              max_bone_childern; // Holds the maxium childern amount.
@@ -256,6 +300,7 @@ private:
      * @return A zero if either the opcode does not exist or the bytes per frame rating for the opcode.
      */
     static unsigned int getOpcodeBytesPerFrame( Bone::Opcode opcode );
+
 public:
     ObjResource();
     virtual ~ObjResource();
@@ -274,6 +319,10 @@ public:
 
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
+    const std::vector<VertexColorOverride>& getVertexColorOverrides() const { return face_color_overrides; }
+
+    std::vector<FacerPolygon> generateFacingPolygons(unsigned &triangle_amount, unsigned &frame_stride) const;
+    bool getBoundingSphereFacingPolygons(const std::vector<FacerPolygon> polygons, glm::vec3 &sphere_position, float &radius) const;
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
@@ -281,7 +330,7 @@ public:
 
     virtual Utilities::ModelBuilder * createModel() const;
     
-    Utilities::ModelBuilder * createMesh( bool exclude_metadata, bool force_normal ) const;
+    Utilities::ModelBuilder * createMesh( bool exclude_metadata, bool force_normal, AllowedPrimitives allowed_primitives ) const;
     Utilities::ModelBuilder * createBoundingBoxes() const;
 };
 

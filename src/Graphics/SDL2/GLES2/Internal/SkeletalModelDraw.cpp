@@ -68,6 +68,34 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position );
     }
+
+    number_of_triangles = triangles_draw.getTriangles( this->facer_triangles_amount, &draw_triangles_r );
+
+    size_t index = 0;
+    glm::vec4 position;
+
+    for( size_t i = 0; i < this->facer_polygons_stride; i++) {
+        const auto &facer_polygon = this->facer_polygons_info_r->at(i);
+
+        switch( facer_polygon.type ) {
+            case Data::Mission::ObjResource::FacerPolygon::STAR:
+                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
+
+                position = matrices_r[ facer_polygon.primitive.star.point.joints.x ] * glm::vec4(facer_polygon.primitive.star.point.position, 1);
+
+                position.w = 1;
+
+                position = transform * position;
+
+                position = position * (1.f / position.w);
+
+                index += DynamicTriangleDraw::Triangle::addStar(
+                    &draw_triangles_r[index], number_of_triangles - index,
+                    this->camera_position, this->transform, this->camera_right, this->camera_up,
+                    glm::vec3(position.x, position.y, position.z), color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
+                break;
+        }
+    }
 }
 
 const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex_shader =
@@ -100,12 +128,13 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(current_position.xyz, 1.0);\n"
+    "   MAKE_FULL_POSITION(current_position);\n"
+    "   gl_Position = Transform * full_position;\n"
     "}\n";
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalModelDraw() {
     // These attributes are for the skelatal animation.
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec4 JOINTS_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec3 WEIGHTS_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec4 JOINTS_0" ) );
+    attributes.push_back( Shader::Attribute( Shader::Type::LOW, "vec3 WEIGHTS_0" ) );
 }
 
 Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::~SkeletalModelDraw() {
@@ -140,11 +169,13 @@ int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::compileProgram() {
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, uint32_t obj_identifier, const std::map<uint32_t, Internal::Texture2D*>& textures, const std::vector<Data::Mission::ObjResource::FaceOverrideType>& face_override_animation, const std::vector<glm::u8vec2>& face_override_uvs ) {
-    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj_identifier, textures, face_override_animation, face_override_uvs );
+int Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::inputModel( Utilities::ModelBuilder *model_type_r, const Data::Mission::ObjResource& obj, const std::map<uint32_t, Internal::Texture2D*>& textures) {
+    auto ret = Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( model_type_r, obj, textures );
     
     if( ret >= 0 )
     {
+        const uint32_t obj_identifier = obj.getResourceID();
+
         if( model_animation_p[ obj_identifier ] != nullptr )
             delete model_animation_p[ obj_identifier ];
         
@@ -247,6 +278,8 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
     SkeletalAnimation::Dynamic dynamic;
     dynamic.camera_position = camera.getPosition();
+    dynamic.camera_right = glm::vec3(view[0][0], view[1][0], view[2][0]);
+    dynamic.camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
 
     // Traverse the models.
     for( auto d = models_p.begin(); d != models_p.end(); d++ ) // Go through every model that has an instance.
@@ -301,6 +334,10 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     dynamic.current_frame = current_frame;
                     dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                     dynamic.texture_offset = texture_offset;
+                    dynamic.star_timings_r = &(*instance)->star_timings;
+                    dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;
+                    dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
+                    dynamic.facer_polygons_stride  =  (*d).second->facer_polygons_stride;
                     dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
                 }
             }

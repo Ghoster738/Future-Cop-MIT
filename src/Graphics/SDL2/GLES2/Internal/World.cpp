@@ -98,7 +98,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   texture_coord_1 = tex_coord_pos + AnimatedUVDestination * DISPLACEMENT;\n"
     "   texture_coord_1 = fract( texture_coord_1 ) + vec2( float( texture_coord_1.x == 1. ), float( texture_coord_1.y == 1. ) );\n"
 
-    "   gl_Position = Transform * vec4(POSITION.xyz, 1.0);\n"
+    "   MAKE_FULL_POSITION(POSITION);\n"
+    "   gl_Position = Transform * full_position;\n"
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
