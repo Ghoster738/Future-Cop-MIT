@@ -415,6 +415,8 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputBoundingBoxes( Utilit
 
         bounding_boxes_p[ obj_identifier ] = new ModelArray( &program );
         bounding_boxes_p[ obj_identifier ]->mesh.setup( *model_type_r, textures, &vertex_array );
+        bounding_boxes_p[ obj_identifier ]->facer_triangles_amount = 0;
+        bounding_boxes_p[ obj_identifier ]->facer_polygons_stride  = 0;
 
         state =  1;
     }
