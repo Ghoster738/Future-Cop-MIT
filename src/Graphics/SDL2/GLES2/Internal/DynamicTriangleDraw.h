@@ -49,7 +49,7 @@ public:
         Triangle addTriangle( const glm::vec3 &camera_position ) const;
         Triangle addTriangle( const glm::vec3 &camera_position, const glm::mat4 &matrix ) const;
 
-        static unsigned addCircle(
+        static unsigned addStar(
             DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
             const glm::vec3 &camera_position, const glm::mat4 &matrix, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
             const glm::vec3 &position, const glm::vec3 &color, float width, unsigned number_of_edges);

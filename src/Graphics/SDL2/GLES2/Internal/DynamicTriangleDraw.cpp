@@ -307,7 +307,7 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
     return triangle;
 }
 
-unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addCircle(
+unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar(
     DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
     const glm::vec3 &camera_position, const glm::mat4 &matrix, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
     const glm::vec3 &position, const glm::vec3 &color, float width, unsigned number_of_edges)

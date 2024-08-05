@@ -89,7 +89,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
                 position = position * (1.f / position.w);
 
-                index += DynamicTriangleDraw::Triangle::addCircle(
+                index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
                     glm::vec3(position.x, position.y, position.z), color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
