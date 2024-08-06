@@ -80,7 +80,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
                     facer_polygon.primitive.star.point.position, color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
                 break;
             case Data::Mission::ObjResource::FacerPolygon::BILLBOARD:
-                color4 = glm::vec4(1, 1, 1, 1);
+                color4 = glm::vec4(facer_polygon.color.r, facer_polygon.color.g, facer_polygon.color.b, 0.5) * 2.0f;
 
                 for(int x = 0; x < 3; x++) {
                     draw_triangles_r[ index ].vertices[x].position   = facer_polygon.primitive.billboard.point.position;
