@@ -243,22 +243,22 @@ public:
         VisabilityMode visability_mode;
         glm::vec3 color;
         float width;
+        uint32_t time_index;
         union {
             struct {
-                Point point;
                 uint32_t vertex_count;
-                uint32_t time_index;
                 glm::vec3 other_color;
+                Point point;
             } star;
             struct {
-                Point point;
                 uint32_t bmp_id;
                 glm::u8vec2 coords[4];
+                Point point;
             } billboard;
             struct {
-                Point point[2];
                 uint32_t bmp_id;
                 glm::u8vec2 coords[4];
+                Point point[2];
             } line;
         } primitive;
     };

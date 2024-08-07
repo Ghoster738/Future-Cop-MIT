@@ -79,7 +79,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::FacerPolygon::STAR:
-                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
+                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 position = matrices_r[ facer_polygon.primitive.star.point.joints.x ] * glm::vec4(facer_polygon.primitive.star.point.position, 1);
 

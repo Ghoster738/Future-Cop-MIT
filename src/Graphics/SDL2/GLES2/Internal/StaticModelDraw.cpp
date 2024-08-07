@@ -72,7 +72,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::FacerPolygon::STAR:
-                color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
+                color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
