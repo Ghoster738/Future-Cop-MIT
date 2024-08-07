@@ -72,26 +72,26 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::FacerPolygon::STAR:
-                color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
+                color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    facer_polygon.primitive.star.point.position, color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
+                    facer_polygon.point[0].position, color, facer_polygon.width, facer_polygon.graphics.star.vertex_count);
                 break;
             case Data::Mission::ObjResource::FacerPolygon::BILLBOARD:
                 color4 = glm::vec4(facer_polygon.color.r, facer_polygon.color.g, facer_polygon.color.b, 0.5) * 2.0f;
 
                 for(int x = 0; x < 3; x++) {
-                    draw_triangles_r[ index ].vertices[x].position   = facer_polygon.primitive.billboard.point.position;
+                    draw_triangles_r[ index ].vertices[x].position   = facer_polygon.point[0].position;
                     draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
                     draw_triangles_r[ index ].vertices[x].color      = color4;
                     draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
                 }
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
-                    draw_triangles_r[ index ].setup( facer_polygon.primitive.billboard.bmp_id, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
+                    draw_triangles_r[ index ].setup( facer_polygon.graphics.texture.bmp_id, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
                 else
-                    draw_triangles_r[ index ].setup( facer_polygon.primitive.billboard.bmp_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+                    draw_triangles_r[ index ].setup( facer_polygon.graphics.texture.bmp_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
                 draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, this->transform );
 
                 draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
@@ -100,7 +100,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
                     for(int x = 0; x < 3; x++) {
                         draw_triangles_r[ index + t ].vertices[x].position += (camera_right * QUAD[3 - QUAD_TABLE[t][x]].x * facer_polygon.width) + (camera_up * QUAD[3 - QUAD_TABLE[t][x]].y * facer_polygon.width);
 
-                        draw_triangles_r[ index + t ].vertices[x].coordinate = glm::vec2(facer_polygon.primitive.billboard.coords[3 - QUAD_TABLE[t][x]]) * (1.f / 256.f);
+                        draw_triangles_r[ index + t ].vertices[x].coordinate = glm::vec2(facer_polygon.graphics.texture.coords[3 - QUAD_TABLE[t][x]]) * (1.f / 256.f);
                     }
                 }
 

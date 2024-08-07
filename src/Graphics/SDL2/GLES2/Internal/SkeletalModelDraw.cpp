@@ -79,9 +79,9 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::FacerPolygon::STAR:
-                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
+                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
-                position = matrices_r[ facer_polygon.primitive.star.point.joints.x ] * glm::vec4(facer_polygon.primitive.star.point.position, 1);
+                position = matrices_r[ facer_polygon.point[0].joints.x ] * glm::vec4(facer_polygon.point[0].position, 1);
 
                 position.w = 1;
 
@@ -92,7 +92,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    glm::vec3(position.x, position.y, position.z), color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
+                    glm::vec3(position.x, position.y, position.z), color, facer_polygon.width, facer_polygon.graphics.star.vertex_count);
                 break;
         }
     }

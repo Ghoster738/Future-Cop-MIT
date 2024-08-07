@@ -248,19 +248,13 @@ public:
             struct {
                 uint32_t vertex_count;
                 glm::vec3 other_color;
-                Point point;
             } star;
             struct {
                 uint32_t bmp_id;
                 glm::u8vec2 coords[4];
-                Point point;
-            } billboard;
-            struct {
-                uint32_t bmp_id;
-                glm::u8vec2 coords[4];
-                Point point[2];
-            } line;
-        } primitive;
+            } texture;
+        } graphics;
+        Point point[2];
     };
 private:
     struct {
