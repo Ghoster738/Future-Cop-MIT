@@ -64,7 +64,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     glm::vec3 color;
     glm::vec4 color4;
 
-    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
+    const uint8_t QUAD_TABLE[2][3] = { {3, 2, 1}, {1, 0, 3}};
     const glm::vec2 QUAD[4] = {{-1.0f, 1.0f}, { 1.0f, 1.0f}, { 1.0f,-1.0f}, {-1.0f,-1.0f}};
 
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
@@ -98,9 +98,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
                 for(int t = 0; t < 2; t++) {
                     for(int x = 0; x < 3; x++) {
-                        draw_triangles_r[ index + t ].vertices[x].position += (camera_right * QUAD[3 - QUAD_TABLE[t][x]].x * facer_polygon.width) + (camera_up * QUAD[3 - QUAD_TABLE[t][x]].y * facer_polygon.width);
+                        draw_triangles_r[ index + t ].vertices[x].position += (camera_right * QUAD[QUAD_TABLE[t][x]].x * facer_polygon.width) + (camera_up * QUAD[QUAD_TABLE[t][x]].y * facer_polygon.width);
 
-                        draw_triangles_r[ index + t ].vertices[x].coordinate = glm::vec2(facer_polygon.graphics.texture.coords[3 - QUAD_TABLE[t][x]]) * (1.f / 256.f);
+                        draw_triangles_r[ index + t ].vertices[x].coordinate = glm::vec2(facer_polygon.graphics.texture.coords[QUAD_TABLE[t][x]]) * (1.f / 256.f);
                     }
                 }
 
