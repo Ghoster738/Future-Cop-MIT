@@ -86,8 +86,17 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
                 else
                     polygon_type = DynamicTriangleDraw::PolygonType::MIX;
 
-                for(int x = 0; x < 4; x++) {
-                    texture_uv[x] = glm::vec2(facer_polygon.graphics.texture.coords[x]) * (1.f / 256.f);
+                if(facer_polygon.time_index == 0) {
+                    for(int x = 0; x < 4; x++) {
+                        texture_uv[x] = glm::vec2(facer_polygon.graphics.texture.coords[x]) * (1.f / 256.f);
+                    }
+                }
+                else {
+                    unsigned uv_index = 4 * (facer_polygon.time_index - 1);
+
+                    for(int x = 0; x < 4; x++) {
+                        texture_uv[x] = uv_frame_buffer_r->at(uv_index + x);
+                    }
                 }
 
                 index += DynamicTriangleDraw::Triangle::addBillboard(

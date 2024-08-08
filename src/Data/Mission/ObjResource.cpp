@@ -2251,6 +2251,8 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
                         facer_polygon.graphics.texture.coords[3] = (*i).face_type_r->coords[3];
                     }
 
+                    facer_polygon.time_index = 0;
+
                     facer_polygon.width = lengths_r[(*i).v[2]] * FIXED_POINT_UNIT;
 
                     facer_polygon.point[0].position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
