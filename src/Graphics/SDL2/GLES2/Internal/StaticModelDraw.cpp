@@ -61,8 +61,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     number_of_triangles = triangles_draw.getTriangles( this->facer_triangles_amount, &draw_triangles_r );
 
     size_t index = 0;
-    glm::vec3 color;
 
+    glm::vec3 color;
     glm::vec2 texture_uv[4];
     DynamicTriangleDraw::PolygonType polygon_type;
 
@@ -79,8 +79,8 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
                     facer_polygon.point[0].position, color, facer_polygon.width,
                     facer_polygon.graphics.star.vertex_count);
                 break;
-            case Data::Mission::ObjResource::FacerPolygon::BILLBOARD:
 
+            case Data::Mission::ObjResource::FacerPolygon::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
                     polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
                 else
@@ -105,7 +105,6 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
                     facer_polygon.point[0].position, facer_polygon.color, facer_polygon.width,
                     polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
                 );
-
                 break;
         }
     }
