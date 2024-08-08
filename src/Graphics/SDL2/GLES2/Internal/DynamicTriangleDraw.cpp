@@ -309,7 +309,7 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
 
 unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar(
     DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
-    const glm::vec3 &camera_position, const glm::mat4 &matrix, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
+    const glm::vec3 &camera_position, const glm::mat4 &transform, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
     const glm::vec3 &position, const glm::vec3 &color, float width, unsigned number_of_edges)
 {
     if(number_of_triangles == 0)
@@ -335,7 +335,7 @@ unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar
 
     draw_triangles_r[ index ].setup( 0, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
 
-    draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, matrix );
+    draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, transform );
 
     if(number_of_edges == 4) {
         for(int t = 0; t < 4; t++) {
