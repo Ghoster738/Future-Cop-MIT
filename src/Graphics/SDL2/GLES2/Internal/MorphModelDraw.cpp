@@ -58,16 +58,16 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
         const auto &facer_polygon = this->facer_polygons_info_r->at(frame_index * this->facer_polygons_stride + i);
 
         switch( facer_polygon.type ) {
-            case Data::Mission::ObjResource::FacerPolygon::STAR:
+            case Data::Mission::ObjResource::PrimitiveType::STAR:
                 color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    facer_polygon.point[0].position, color, facer_polygon.width, facer_polygon.graphics.star.vertex_count);
+                    facer_polygon.point.position, color, facer_polygon.width, facer_polygon.graphics.star.vertex_count);
                 break;
 
-            case Data::Mission::ObjResource::FacerPolygon::BILLBOARD:
+            case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
                     polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
                 else
@@ -89,7 +89,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
                 index += DynamicTriangleDraw::Triangle::addBillboard(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    facer_polygon.point[0].position, facer_polygon.color, facer_polygon.width,
+                    facer_polygon.point.position, facer_polygon.color, facer_polygon.width,
                     polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
                 );
                 break;

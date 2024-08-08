@@ -2188,21 +2188,21 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
         for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
             switch( (*i).type ) {
                 case PrimitiveType::STAR:
-                    facer_polygon.type = FacerPolygon::STAR;
+                    facer_polygon.type = PrimitiveType::STAR;
                     facer_polygon.visability_mode = VisabilityMode::ADDITION;
                     facer_polygon.color.r = (*i).v[1] * (1. / 256.);
                     facer_polygon.color.g = (*i).v[2] * (1. / 256.);
                     facer_polygon.color.b = (*i).v[3] * (1. / 256.);
                     facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
-                    facer_polygon.point[0].position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
-                    facer_polygon.point[0].weights  = glm::u8vec4(0);
-                    facer_polygon.point[0].joints   = glm::u8vec4(0);
+                    facer_polygon.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+                    facer_polygon.point.weights  = glm::u8vec4(0);
+                    facer_polygon.point.joints   = glm::u8vec4(0);
                     for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
                         const Bone& bone = (*it);
 
                         if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
-                            facer_polygon.point[0].weights.x = 0xFF;
-                            facer_polygon.point[0].joints.x = it - this->bones.cbegin();
+                            facer_polygon.point.weights.x = 0xFF;
+                            facer_polygon.point.joints.x = it - this->bones.cbegin();
                         }
                     }
 
@@ -2230,8 +2230,9 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
 
                     polys.push_back( facer_polygon );
                     break;
+
                 case PrimitiveType::BILLBOARD:
-                    facer_polygon.type = FacerPolygon::BILLBOARD;
+                    facer_polygon.type = PrimitiveType::BILLBOARD;
                     facer_polygon.visability_mode = static_cast<VisabilityMode>((*i).visual.visability);
 
                     facer_polygon.color = glm::vec3(1, 1, 1);
@@ -2256,15 +2257,15 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
 
                     facer_polygon.width = lengths_r[(*i).v[2]] * FIXED_POINT_UNIT;
 
-                    facer_polygon.point[0].position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
-                    facer_polygon.point[0].weights  = glm::u8vec4(0);
-                    facer_polygon.point[0].joints   = glm::u8vec4(0);
+                    facer_polygon.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+                    facer_polygon.point.weights  = glm::u8vec4(0);
+                    facer_polygon.point.joints   = glm::u8vec4(0);
                     for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
                         const Bone& bone = (*it);
 
                         if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
-                            facer_polygon.point[0].weights.x = 0xFF;
-                            facer_polygon.point[0].joints.x = it - this->bones.cbegin();
+                            facer_polygon.point.weights.x = 0xFF;
+                            facer_polygon.point.joints.x = it - this->bones.cbegin();
                         }
                     }
 
@@ -2297,13 +2298,13 @@ bool Data::Mission::ObjResource::getBoundingSphereFacingPolygons(const std::vect
     glm::vec3 max = -glm::vec3(std::numeric_limits<float>::max());
 
     for(const FacerPolygon &facer_polygon: polygons) {
-        if(facer_polygon.type == FacerPolygon::STAR) {
-            BOUNDS((facer_polygon.point[0].position + glm::vec3( facer_polygon.width, 0, 0)) );
-            BOUNDS((facer_polygon.point[0].position - glm::vec3( facer_polygon.width, 0, 0)) );
-            BOUNDS((facer_polygon.point[0].position + glm::vec3( 0, facer_polygon.width, 0)) );
-            BOUNDS((facer_polygon.point[0].position - glm::vec3( 0, facer_polygon.width, 0)) );
-            BOUNDS((facer_polygon.point[0].position + glm::vec3( 0, 0, facer_polygon.width)) );
-            BOUNDS((facer_polygon.point[0].position - glm::vec3( 0, 0, facer_polygon.width)) );
+        if(facer_polygon.type == PrimitiveType::STAR || facer_polygon.type == PrimitiveType::BILLBOARD) {
+            BOUNDS((facer_polygon.point.position + glm::vec3( facer_polygon.width, 0, 0)) );
+            BOUNDS((facer_polygon.point.position - glm::vec3( facer_polygon.width, 0, 0)) );
+            BOUNDS((facer_polygon.point.position + glm::vec3( 0, facer_polygon.width, 0)) );
+            BOUNDS((facer_polygon.point.position - glm::vec3( 0, facer_polygon.width, 0)) );
+            BOUNDS((facer_polygon.point.position + glm::vec3( 0, 0, facer_polygon.width)) );
+            BOUNDS((facer_polygon.point.position - glm::vec3( 0, 0, facer_polygon.width)) );
 
             has_data = true;
         }

@@ -81,7 +81,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
         const auto &facer_polygon = this->facer_polygons_info_r->at(i);
 
-        position = matrices_r[ facer_polygon.point[0].joints.x ] * glm::vec4(facer_polygon.point[0].position, 1);
+        position = matrices_r[ facer_polygon.point.joints.x ] * glm::vec4(facer_polygon.point.position, 1);
 
         position.w = 1;
 
@@ -90,7 +90,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
         position = position * (1.f / position.w);
 
         switch( facer_polygon.type ) {
-            case Data::Mission::ObjResource::FacerPolygon::STAR:
+            case Data::Mission::ObjResource::PrimitiveType::STAR:
                 color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
@@ -99,7 +99,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
                     glm::vec3(position.x, position.y, position.z), color, facer_polygon.width, facer_polygon.graphics.star.vertex_count);
                 break;
 
-            case Data::Mission::ObjResource::FacerPolygon::BILLBOARD:
+            case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
                     polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
                 else
