@@ -2186,48 +2186,94 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
 
         // Add the stars.
         for( auto i = this->primitives.begin(); i != primitives.end(); i++ ) {
-            if( (*i).type == PrimitiveType::STAR ) {
-                facer_polygon.type = FacerPolygon::STAR;
-                facer_polygon.visability_mode = VisabilityMode::ADDITION;
-                facer_polygon.color.r = (*i).v[1] * (1. / 256.);
-                facer_polygon.color.g = (*i).v[2] * (1. / 256.);
-                facer_polygon.color.b = (*i).v[3] * (1. / 256.);
-                facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
-                facer_polygon.primitive.star.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
-                facer_polygon.primitive.star.point.weights  = glm::u8vec4(0);
-                facer_polygon.primitive.star.point.joints   = glm::u8vec4(0);
-                for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
-                    const Bone& bone = (*it);
+            switch( (*i).type ) {
+                case PrimitiveType::STAR:
+                    facer_polygon.type = PrimitiveType::STAR;
+                    facer_polygon.visability_mode = VisabilityMode::ADDITION;
+                    facer_polygon.color.r = (*i).v[1] * (1. / 256.);
+                    facer_polygon.color.g = (*i).v[2] * (1. / 256.);
+                    facer_polygon.color.b = (*i).v[3] * (1. / 256.);
+                    facer_polygon.width = lengths_r[(*i).n[0]] * FIXED_POINT_UNIT;
+                    facer_polygon.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+                    facer_polygon.point.weights  = glm::u8vec4(0);
+                    facer_polygon.point.joints   = glm::u8vec4(0);
+                    for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
+                        const Bone& bone = (*it);
 
-                    if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
-                        facer_polygon.primitive.star.point.weights.x = 0xFF;
-                        facer_polygon.primitive.star.point.joints.x = it - this->bones.cbegin();
+                        if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
+                            facer_polygon.point.weights.x = 0xFF;
+                            facer_polygon.point.joints.x = it - this->bones.cbegin();
+                        }
                     }
-                }
 
-                facer_polygon.primitive.star.vertex_count = 0;
+                    facer_polygon.graphics.star.vertex_count = 0;
 
-                if((*i).face_type_offset <= 4)
-                    facer_polygon.primitive.star.vertex_count = 4;
-                else if((*i).face_type_offset <= 8)
-                    facer_polygon.primitive.star.vertex_count = 8;
-                else
-                    facer_polygon.primitive.star.vertex_count = 12;
+                    if((*i).face_type_offset <= 4)
+                        facer_polygon.graphics.star.vertex_count = 4;
+                    else if((*i).face_type_offset <= 8)
+                        facer_polygon.graphics.star.vertex_count = 8;
+                    else
+                        facer_polygon.graphics.star.vertex_count = 12;
 
-                if(index == 0)
-                    triangle_amount += facer_polygon.primitive.star.vertex_count;
+                    if(index == 0)
+                        triangle_amount += facer_polygon.graphics.star.vertex_count;
 
-                facer_polygon.primitive.star.time_index  = (*i).vertex_color_override_index;
-                facer_polygon.primitive.star.other_color = glm::vec3(1.);
+                    facer_polygon.time_index  = (*i).vertex_color_override_index;
+                    facer_polygon.graphics.star.other_color = glm::vec3(1.);
 
-                if(facer_polygon.primitive.star.time_index != 0) {
-                    const auto &face_color_override = face_color_overrides.at(facer_polygon.primitive.star.time_index - 1);
+                    if(facer_polygon.time_index != 0) {
+                        const auto &face_color_override = face_color_overrides.at(facer_polygon.time_index - 1);
 
-                    facer_polygon.color                      = face_color_override.colors[0];
-                    facer_polygon.primitive.star.other_color = face_color_override.colors[1];
-                }
+                        facer_polygon.color                     = face_color_override.colors[0];
+                        facer_polygon.graphics.star.other_color = face_color_override.colors[1];
+                    }
 
-                polys.push_back( facer_polygon );
+                    polys.push_back( facer_polygon );
+                    break;
+
+                case PrimitiveType::BILLBOARD:
+                    facer_polygon.type = PrimitiveType::BILLBOARD;
+                    facer_polygon.visability_mode = static_cast<VisabilityMode>((*i).visual.visability);
+
+                    facer_polygon.color = glm::vec3(1, 1, 1);
+                    facer_polygon.time_index = 0;
+
+                    if((*i).face_type_r != nullptr) {
+                        glm::u8vec4 color = (*i).face_type_r->getColor((*i).visual);
+
+                        facer_polygon.color.r = color.r * (1. / 256.);
+                        facer_polygon.color.g = color.g * (1. / 256.);
+                        facer_polygon.color.b = color.b * (1. / 256.);
+
+                        facer_polygon.graphics.texture.bmp_id = (*i).face_type_r->bmp_id + 1;
+
+                        facer_polygon.graphics.texture.coords[0] = (*i).face_type_r->coords[0];
+                        facer_polygon.graphics.texture.coords[1] = (*i).face_type_r->coords[1];
+                        facer_polygon.graphics.texture.coords[2] = (*i).face_type_r->coords[2];
+                        facer_polygon.graphics.texture.coords[3] = (*i).face_type_r->coords[3];
+
+                        facer_polygon.time_index = (*i).face_type_r->face_override_index;
+                    }
+
+                    facer_polygon.width = lengths_r[(*i).v[2]] * FIXED_POINT_UNIT;
+
+                    facer_polygon.point.position = glm::vec3(positions_r[(*i).v[0]]) * glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+                    facer_polygon.point.weights  = glm::u8vec4(0);
+                    facer_polygon.point.joints   = glm::u8vec4(0);
+                    for(auto it = this->bones.cbegin(); it != this->bones.cend(); it++) {
+                        const Bone& bone = (*it);
+
+                        if( (*i).v[0] >= bone.vertex_start && (*i).v[0] < bone.vertex_start + bone.vertex_stride ) {
+                            facer_polygon.point.weights.x = 0xFF;
+                            facer_polygon.point.joints.x = it - this->bones.cbegin();
+                        }
+                    }
+
+                    if(index == 0)
+                        triangle_amount += 2;
+
+                    polys.push_back( facer_polygon );
+                    break;
             }
         }
 
@@ -2252,13 +2298,13 @@ bool Data::Mission::ObjResource::getBoundingSphereFacingPolygons(const std::vect
     glm::vec3 max = -glm::vec3(std::numeric_limits<float>::max());
 
     for(const FacerPolygon &facer_polygon: polygons) {
-        if(facer_polygon.type == FacerPolygon::STAR) {
-            BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( facer_polygon.width, 0, 0)) );
-            BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( facer_polygon.width, 0, 0)) );
-            BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( 0, facer_polygon.width, 0)) );
-            BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( 0, facer_polygon.width, 0)) );
-            BOUNDS((facer_polygon.primitive.star.point.position + glm::vec3( 0, 0, facer_polygon.width)) );
-            BOUNDS((facer_polygon.primitive.star.point.position - glm::vec3( 0, 0, facer_polygon.width)) );
+        if(facer_polygon.type == PrimitiveType::STAR || facer_polygon.type == PrimitiveType::BILLBOARD) {
+            BOUNDS((facer_polygon.point.position + glm::vec3( facer_polygon.width, 0, 0)) );
+            BOUNDS((facer_polygon.point.position - glm::vec3( facer_polygon.width, 0, 0)) );
+            BOUNDS((facer_polygon.point.position + glm::vec3( 0, facer_polygon.width, 0)) );
+            BOUNDS((facer_polygon.point.position - glm::vec3( 0, facer_polygon.width, 0)) );
+            BOUNDS((facer_polygon.point.position + glm::vec3( 0, 0, facer_polygon.width)) );
+            BOUNDS((facer_polygon.point.position - glm::vec3( 0, 0, facer_polygon.width)) );
 
             has_data = true;
         }
@@ -2357,7 +2403,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createModel() const {
     allowed_primitives.star      = false;
     allowed_primitives.triangle  = true;
     allowed_primitives.quad      = true;
-    allowed_primitives.billboard = true;
+    allowed_primitives.billboard = false;
     allowed_primitives.line      = true;
 
     return createMesh(

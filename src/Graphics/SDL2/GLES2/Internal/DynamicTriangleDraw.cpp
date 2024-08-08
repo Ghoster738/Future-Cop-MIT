@@ -309,7 +309,7 @@ Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle Graphics::SDL2::G
 
 unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar(
     DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
-    const glm::vec3 &camera_position, const glm::mat4 &matrix, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
+    const glm::vec3 &camera_position, const glm::mat4 &transform, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
     const glm::vec3 &position, const glm::vec3 &color, float width, unsigned number_of_edges)
 {
     if(number_of_triangles == 0)
@@ -335,7 +335,7 @@ unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar
 
     draw_triangles_r[ index ].setup( 0, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
 
-    draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, matrix );
+    draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, transform );
 
     if(number_of_edges == 4) {
         for(int t = 0; t < 4; t++) {
@@ -375,6 +375,45 @@ unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar
             draw_triangles_r[ index ].vertices[2].position = draw_triangles_r[ index ].vertices[0].position + (camera_right * circle_12[ cur_circle_index].x * width) + (camera_up * circle_12[ cur_circle_index].y * width);
             index++; index = std::min(number_of_triangles - 1, index);
         }
+    }
+
+    return index;
+}
+unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addBillboard(
+    DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
+    const glm::vec3 &camera_position, const glm::mat4 &transform, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
+    const glm::vec3 &position, const glm::vec3 &param_color, float width,
+    PolygonType visability_mode, uint32_t bmp_id, const glm::vec2 (&coords)[4])
+{
+    const uint8_t QUAD_TABLE[2][3] = { {3, 2, 1}, {1, 0, 3}};
+    const glm::vec2 QUAD[4] = {{-1.0f, 1.0f}, { 1.0f, 1.0f}, { 1.0f,-1.0f}, {-1.0f,-1.0f}};
+
+    if(number_of_triangles == 0)
+        return 0;
+
+    size_t index = 0;
+
+    glm::vec4 color = glm::vec4(param_color, 0.5) * 2.0f;
+
+    for(int x = 0; x < 3; x++) {
+        draw_triangles_r[ index ].vertices[x].position   = position;
+        draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
+        draw_triangles_r[ index ].vertices[x].color      = color;
+        draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
+    }
+
+    draw_triangles_r[ index ].setup( bmp_id, camera_position, visability_mode );
+    draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, transform );
+
+    draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
+
+    for(int t = 0; t < 2; t++) {
+        for(int x = 0; x < 3; x++) {
+            draw_triangles_r[ index ].vertices[x].position += (camera_right * QUAD[QUAD_TABLE[t][x]].x * width) + (camera_up * QUAD[QUAD_TABLE[t][x]].y * width);
+
+            draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
+        }
+        index++; index = std::min(number_of_triangles - 1, index);
     }
 
     return index;

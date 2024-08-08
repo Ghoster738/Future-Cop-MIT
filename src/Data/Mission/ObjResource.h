@@ -235,32 +235,22 @@ public:
             glm::u8vec4 joints;
         };
 
-        enum Type {
-            STAR,
-            BILLBOARD,
-            LINE
-        } type;
+        PrimitiveType type;
         VisabilityMode visability_mode;
+        Point point; // TODO If line drawing routine is added then make this into an array of 2.
+        float width; // TODO If line drawing routine is added then make this into an array of 2.
         glm::vec3 color;
-        float width;
+        uint32_t time_index;
         union {
             struct {
-                Point point;
                 uint32_t vertex_count;
-                uint32_t time_index;
                 glm::vec3 other_color;
             } star;
             struct {
-                Point point;
                 uint32_t bmp_id;
                 glm::u8vec2 coords[4];
-            } billboard;
-            struct {
-                Point point[2];
-                uint32_t bmp_id;
-                glm::u8vec2 coords[4];
-            } line;
-        } primitive;
+            } texture;
+        } graphics;
     };
 private:
     struct {

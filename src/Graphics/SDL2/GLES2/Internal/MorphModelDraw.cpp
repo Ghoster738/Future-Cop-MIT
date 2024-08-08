@@ -50,17 +50,48 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
 
     size_t index = 0;
 
+    glm::vec3 color;
+    glm::vec2 texture_uv[4];
+    DynamicTriangleDraw::PolygonType polygon_type;
+
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
         const auto &facer_polygon = this->facer_polygons_info_r->at(frame_index * this->facer_polygons_stride + i);
 
         switch( facer_polygon.type ) {
-            case Data::Mission::ObjResource::FacerPolygon::STAR:
-                glm::vec3 color = glm::mix(facer_polygon.color, facer_polygon.primitive.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.primitive.star.time_index)));
+            case Data::Mission::ObjResource::PrimitiveType::STAR:
+                color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    facer_polygon.primitive.star.point.position, color, facer_polygon.width, facer_polygon.primitive.star.vertex_count);
+                    facer_polygon.point.position, color, facer_polygon.width, facer_polygon.graphics.star.vertex_count);
+                break;
+
+            case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
+                if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
+                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                else
+                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+
+                if(facer_polygon.time_index == 0) {
+                    for(int x = 0; x < 4; x++) {
+                        texture_uv[x] = glm::vec2(facer_polygon.graphics.texture.coords[x]) * (1.f / 256.f);
+                    }
+                }
+                else {
+                    unsigned uv_index = 4 * (facer_polygon.time_index - 1);
+
+                    for(int x = 0; x < 4; x++) {
+                        texture_uv[x] = uv_frame_buffer_r->at(uv_index + x);
+                    }
+                }
+
+                index += DynamicTriangleDraw::Triangle::addBillboard(
+                    &draw_triangles_r[index], number_of_triangles - index,
+                    this->camera_position, this->transform, this->camera_right, this->camera_up,
+                    facer_polygon.point.position, facer_polygon.color, facer_polygon.width,
+                    polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
+                );
                 break;
         }
     }
