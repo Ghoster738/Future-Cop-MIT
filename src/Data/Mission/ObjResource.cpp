@@ -2235,6 +2235,7 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
                     facer_polygon.visability_mode = static_cast<VisabilityMode>((*i).visual.visability);
 
                     facer_polygon.color = glm::vec3(1, 1, 1);
+                    facer_polygon.time_index = 0;
 
                     if((*i).face_type_r != nullptr) {
                         glm::u8vec4 color = (*i).face_type_r->getColor((*i).visual);
@@ -2249,9 +2250,9 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
                         facer_polygon.graphics.texture.coords[1] = (*i).face_type_r->coords[1];
                         facer_polygon.graphics.texture.coords[2] = (*i).face_type_r->coords[2];
                         facer_polygon.graphics.texture.coords[3] = (*i).face_type_r->coords[3];
-                    }
 
-                    facer_polygon.time_index = 0;
+                        facer_polygon.time_index = (*i).face_type_r->face_override_index;
+                    }
 
                     facer_polygon.width = lengths_r[(*i).v[2]] * FIXED_POINT_UNIT;
 
