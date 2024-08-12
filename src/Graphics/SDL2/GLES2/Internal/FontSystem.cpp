@@ -213,14 +213,18 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
 
                 char_vertex_buffer_r += 6;
 
-                this->pen_span_max.x = std::max<float>(this->pen_span_max.x,  lower_font.x );
-                this->pen_span_max.y = std::max<float>(this->pen_span_max.y, -lower_font.y );
-                this->pen_span_max.x = std::max<float>(this->pen_span_max.x,  higher_font.x );
-                this->pen_span_max.y = std::max<float>(this->pen_span_max.y, -higher_font.y );
-                this->pen_span_min.x = std::min<float>(this->pen_span_min.x,  lower_font.x );
-                this->pen_span_min.y = std::min<float>(this->pen_span_min.y, -lower_font.y );
-                this->pen_span_min.x = std::min<float>(this->pen_span_min.x,  higher_font.x );
-                this->pen_span_min.y = std::min<float>(this->pen_span_min.y, -higher_font.y );
+                // TODO Detect if character is completly transparent rather than relying upon this method.
+                // The issue of this method is that if the charset is different from ascii this would produce unpredictable results.
+                if(!isspace(*character)) {
+                    this->pen_span_max.x = std::max<float>(this->pen_span_max.x,  lower_font.x );
+                    this->pen_span_max.y = std::max<float>(this->pen_span_max.y, -lower_font.y );
+                    this->pen_span_max.x = std::max<float>(this->pen_span_max.x,  higher_font.x );
+                    this->pen_span_max.y = std::max<float>(this->pen_span_max.y, -higher_font.y );
+                    this->pen_span_min.x = std::min<float>(this->pen_span_min.x,  lower_font.x );
+                    this->pen_span_min.y = std::min<float>(this->pen_span_min.y, -lower_font.y );
+                    this->pen_span_min.x = std::min<float>(this->pen_span_min.x,  higher_font.x );
+                    this->pen_span_min.y = std::min<float>(this->pen_span_min.y, -higher_font.y );
+                }
             }
             else
                 std::cout << "invalid = " << (uint32_t)character[0] << std::endl;
