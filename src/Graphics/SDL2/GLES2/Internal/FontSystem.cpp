@@ -54,9 +54,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shad
     "{\n"
     "    float visable = texture2D(Texture, texture_coord).r;\n"
     "    if( visable < 0.03125 )\n"
-    "        gl_FragColor = vec4(0, 0, 0, 1);\n"
-    "    else\n"
-    "        gl_FragColor = vertex_color;\n"
+    "        discard;\n"
+    "    gl_FragColor = vertex_color;\n"
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
