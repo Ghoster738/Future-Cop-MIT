@@ -39,9 +39,17 @@ public:
         unsigned down_index;
         unsigned left_index;
         ItemClick *item_click_r;
+        glm::vec2 start, end;
 
         virtual void drawNeutral(  MainProgram &main_program ) const = 0;
         virtual void drawSelected( MainProgram &main_program ) const = 0;
+
+        bool hasBox() const {
+            if(start.x > end.x)
+                return false;
+            else
+                return true;
+        }
     };
     struct TextButton : public Item {
         Graphics::Text2DBuffer::Font font;

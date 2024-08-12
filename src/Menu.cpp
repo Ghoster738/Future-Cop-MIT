@@ -29,7 +29,8 @@ Menu::Item::Item() {
 }
 
 Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, ItemClick *p_item_click_r ) :
-    name( p_name ), position( p_position ), up_index( p_up_index ), right_index( p_right_index ), down_index( p_down_index ), left_index( p_left_index ), item_click_r( p_item_click_r )
+    name( p_name ), position( p_position ), up_index( p_up_index ), right_index( p_right_index ), down_index( p_down_index ), left_index( p_left_index ), item_click_r( p_item_click_r ),
+    start(std::numeric_limits<float>::max()), end(-std::numeric_limits<float>::max())
 {}
 
 Menu::TextButton::TextButton() : Item(), font( 1 ), selected_font( 2 ), center_mode( Graphics::Text2DBuffer::CenterMode::MIDDLE ) {
@@ -47,6 +48,11 @@ void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->setPosition( this->position );
     main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
     main_program.text_2d_buffer_r->print( this->name );
+
+    if( !hasBox() ) {
+        *const_cast<glm::vec2*>(&start) = main_program.text_2d_buffer_r->getBoxStart();
+        *const_cast<glm::vec2*>(&end)   = main_program.text_2d_buffer_r->getBoxEnd();
+    }
 }
 
 void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
@@ -60,11 +66,9 @@ void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->beginBox();
     main_program.text_2d_buffer_r->print( this->name );
 
-    main_program.text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::LEFT );
-
-    if( main_program.mouse_clicked ) {
-        main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxEnd() );
-        main_program.text_2d_buffer_r->print( "2" );
+    if( !hasBox() ) {
+        *const_cast<glm::vec2*>(&start) = main_program.text_2d_buffer_r->getBoxStart();
+        *const_cast<glm::vec2*>(&end)   = main_program.text_2d_buffer_r->getBoxEnd();
     }
 }
 

@@ -84,7 +84,7 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
         }
     }
 
-    const Graphics::Text2DBuffer::CenterMode left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
+    const auto left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
 
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
         const std::string map_name = *Data::Manager::map_iffs[i];
@@ -164,6 +164,15 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
                 text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, placement + (3 + i) * this->error_line_height) );
                 text_2d_buffer_r->print( this->missing_global[i] );
             }
+        }
+    }
+
+    for( size_t i = this->items.size(); i != 0; i-- ) {
+        if( this->items[i - 1]->hasBox() ) {
+            if(
+                this->items[i - 1]->start.x < main_program.mouse_position.x && this->items[i - 1]->end.x > main_program.mouse_position.x &&
+                this->items[i - 1]->start.y < main_program.mouse_position.y && this->items[i - 1]->end.y > main_program.mouse_position.y)
+                this->current_item_index = i - 1;
         }
     }
 
