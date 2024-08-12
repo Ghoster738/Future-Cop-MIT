@@ -89,9 +89,9 @@ public:
          */
         int addText( const std::string &text, float scale, char centering = 'l' );
 
-        glm::vec2 addedTextStart() const { return pen_span_max; }
+        glm::vec2 addedTextStart() const { return pen_span_min; }
 
-        glm::vec2 addedTextEnd() const { return pen_span_min; }
+        glm::vec2 addedTextEnd() const { return pen_span_max; }
 
         /**
          * This clears all the text on the Text2D, and sets the font type of the font.

@@ -63,7 +63,7 @@ void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::LEFT );
 
     if( main_program.mouse_clicked ) {
-        main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxStart() );
+        main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxEnd() );
         main_program.text_2d_buffer_r->print( "2" );
     }
 }
