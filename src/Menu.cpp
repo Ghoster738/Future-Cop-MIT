@@ -62,16 +62,18 @@ void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
 
     main_program.text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::LEFT );
 
-    main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxStart() );
-    main_program.text_2d_buffer_r->print( "2" );
-
-    main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxEnd() );
-    main_program.text_2d_buffer_r->print( "1" );
+    if( main_program.mouse_clicked ) {
+        main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxStart() );
+        main_program.text_2d_buffer_r->print( "2" );
+    }
 }
 
 void Menu::load( MainProgram &main_program ) {
     this->timer = std::chrono::microseconds( 0 );
     this->current_item_index = 0;
+
+    main_program.mouse_clicked = false;
+    main_program.mouse_position = glm::vec2(0);
 }
 
 void Menu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
@@ -128,9 +130,19 @@ void Menu::update( MainProgram &main_program, std::chrono::microseconds delta ) 
         }
     }
 
-    if( main_program.control_cursor_r->isChanged() )
-    {
-        auto input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_X );
+    if( !main_program.control_cursor_r->isChanged() )
+        main_program.mouse_clicked = false;
+    else {
+        auto input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::LEFT_BUTTON );
+        if( input_r->isChanged() && input_r->getState() < 0.5 )
+            main_program.mouse_clicked = true;
+        else
+            main_program.mouse_clicked = false;
+
+        input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_X );
+        main_program.mouse_position.x = input_r->getState();
+
         input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_Y );
+        main_program.mouse_position.y = input_r->getState();
     }
 }
