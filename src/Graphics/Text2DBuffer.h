@@ -14,6 +14,8 @@ class Environment;
 class Text2DBuffer {
 protected:
     Text2DBuffer();
+
+    glm::vec2 start, end;
 public:
     enum CenterMode {
         LEFT,
@@ -48,6 +50,10 @@ public:
     virtual int setColor( const glm::vec4 &color ) = 0;
     virtual int setCenterMode( enum CenterMode ) = 0;
     virtual int print( const std::string &text ) = 0;
+
+    virtual void beginBox() = 0;
+    virtual glm::vec2 getBoxStart() const = 0;
+    virtual glm::vec2 getBoxEnd() const = 0;
 
     /**
      * Restart the whole font buffer clearing the data.

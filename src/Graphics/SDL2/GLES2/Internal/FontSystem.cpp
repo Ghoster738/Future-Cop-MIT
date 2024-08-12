@@ -54,8 +54,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shad
     "{\n"
     "    float visable = texture2D(Texture, texture_coord).r;\n"
     "    if( visable < 0.03125 )\n"
-    "        discard;\n"
-    "    gl_FragColor = vertex_color;\n"
+    "        gl_FragColor = vec4(0, 0, 0, 1);\n"
+    "    else\n"
+    "        gl_FragColor = vertex_color;\n"
     "}\n";
 
 const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
@@ -166,6 +167,9 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setTextMax( size_t max_
 }
 
 int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::string &text, float scale, char centering ) {
+    this->pen_span_max = glm::vec2(-std::numeric_limits<float>::max());
+    this->pen_span_min = glm::vec2( std::numeric_limits<float>::max());
+
     size_t appended_size = 0;
     auto text_vertex_buffer_r = reinterpret_cast<TextVertex*>(this->buffer_p);
     auto char_vertex_buffer_r = text_vertex_buffer_r;
@@ -208,6 +212,15 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
                 char_vertex_buffer_r[5].set(  lower_font.x,  lower_font.y,  texture_low.x,  texture_low.y, pen_color );
 
                 char_vertex_buffer_r += 6;
+
+                this->pen_span_max.x = std::max<float>(this->pen_span_max.x,  lower_font.x );
+                this->pen_span_max.y = std::max<float>(this->pen_span_max.y, -lower_font.y );
+                this->pen_span_max.x = std::max<float>(this->pen_span_max.x,  higher_font.x );
+                this->pen_span_max.y = std::max<float>(this->pen_span_max.y, -higher_font.y );
+                this->pen_span_min.x = std::min<float>(this->pen_span_min.x,  lower_font.x );
+                this->pen_span_min.y = std::min<float>(this->pen_span_min.y, -lower_font.y );
+                this->pen_span_min.x = std::min<float>(this->pen_span_min.x,  higher_font.x );
+                this->pen_span_min.y = std::min<float>(this->pen_span_min.y, -higher_font.y );
             }
             else
                 std::cout << "invalid = " << (uint32_t)character[0] << std::endl;
@@ -217,12 +230,16 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
             for( size_t x = 0; x < appended_size * 6; x++ ) {
                 text_vertex_buffer_r[x].x -= (pen_position.x - last_line_pos) * 0.5;
             }
+            this->pen_span_max.x -= (pen_position.x - last_line_pos) * 0.5;
+            this->pen_span_min.x -= (pen_position.x - last_line_pos) * 0.5;
         }
         else
         if( centering == 'r' ) {
             for( size_t x = 0; x < appended_size * 6; x++ ) {
                 text_vertex_buffer_r[x].x -= (pen_position.x - last_line_pos);
             }
+            this->pen_span_max.x -= (pen_position.x - last_line_pos);
+            this->pen_span_min.x -= (pen_position.x - last_line_pos);
         }
 
         glBufferSubData( GL_ARRAY_BUFFER, sizeof( TextVertex ) * this->amount_of_characters * 6, sizeof( TextVertex ) * (appended_size + this->amount_of_characters) * 6, this->buffer_p);

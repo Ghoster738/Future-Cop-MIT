@@ -56,7 +56,17 @@ void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 0, 1 ) );
     main_program.text_2d_buffer_r->setPosition( this->position );
     main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
+
+    main_program.text_2d_buffer_r->beginBox();
     main_program.text_2d_buffer_r->print( this->name );
+
+    main_program.text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::LEFT );
+
+    main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxStart() );
+    main_program.text_2d_buffer_r->print( "2" );
+
+    main_program.text_2d_buffer_r->setPosition( main_program.text_2d_buffer_r->getBoxEnd() );
+    main_program.text_2d_buffer_r->print( "1" );
 }
 
 void Menu::load( MainProgram &main_program ) {
@@ -116,5 +126,11 @@ void Menu::update( MainProgram &main_program, std::chrono::microseconds delta ) 
             this->current_item_index = current_item_r->left_index;
             return;
         }
+    }
+
+    if( main_program.control_cursor_r->isChanged() )
+    {
+        auto input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_X );
+        input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_Y );
     }
 }

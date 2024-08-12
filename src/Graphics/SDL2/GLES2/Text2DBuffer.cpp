@@ -312,6 +312,11 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
             // Try to add the filtered_text.
             add_text_state = this->current_text_2D_r->addText( filtered_text, this->scale_font, this->center_mode );
 
+            this->start.x = std::max<float>(this->start.x, this->current_text_2D_r->addedTextStart().x );
+            this->start.y = std::max<float>(this->start.y, this->current_text_2D_r->addedTextStart().y );
+            this->end.x   = std::min<float>(this->end.x,   this->current_text_2D_r->addedTextEnd().x );
+            this->end.y   = std::min<float>(this->end.y,   this->current_text_2D_r->addedTextEnd().y );
+
             // Just in case of errors.
             if( add_text_state == -1 || add_text_state == -2 )
             {
@@ -337,6 +342,11 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
                     // Attempt to add the filtered_text again.
                     add_text_state = this->current_text_2D_r->addText( filtered_text, this->scale_font );
 
+                    this->start.x = std::max<float>(this->start.x, this->current_text_2D_r->addedTextStart().x );
+                    this->start.y = std::max<float>(this->start.y, this->current_text_2D_r->addedTextStart().y );
+                    this->end.x   = std::min<float>(this->end.x,   this->current_text_2D_r->addedTextEnd().x );
+                    this->end.y   = std::min<float>(this->end.y,   this->current_text_2D_r->addedTextEnd().y );
+
                     if( add_text_state >= 0 )
                         return add_text_state;
                     else
@@ -358,6 +368,19 @@ int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
     }
     else
         return -1;
+}
+
+void Graphics::SDL2::GLES2::Text2DBuffer::beginBox() {
+    this->start = glm::vec2(-std::numeric_limits<float>::max());
+    this->end   = glm::vec2( std::numeric_limits<float>::max());
+}
+
+glm::vec2 Graphics::SDL2::GLES2::Text2DBuffer::getBoxStart() const {
+    return this->start;
+}
+
+glm::vec2 Graphics::SDL2::GLES2::Text2DBuffer::getBoxEnd() const {
+    return this->end;
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
