@@ -20,7 +20,9 @@ public:
         RIGHT_BUTTON,
         MOTION_X,
         MOTION_Y,
-        WHEEL_X, // This most likely will not be available on most mouses.
+        POSITION_X,
+        POSITION_Y,
+        WHEEL_X,
         WHEEL_Y,
         TOTAL_BUTTONS
     };
