@@ -136,6 +136,16 @@ bool UpdateCursor( Controls::CursorInputSet &cursor, SDL_Event sdl_event ) {
         input_internal_p->changed = true;
         input_internal_p->state = static_cast<float>(sdl_event.motion.yrel);
 
+        input_p = cursor.getInput( Controls::CursorInputSet::POSITION_X );
+        input_internal_p = reinterpret_cast<Controls::SDL2::Input*>( input_p->getInternalData() );
+        input_internal_p->changed = true;
+        input_internal_p->state = static_cast<float>(sdl_event.motion.x);
+
+        input_p = cursor.getInput( Controls::CursorInputSet::POSITION_Y );
+        input_internal_p = reinterpret_cast<Controls::SDL2::Input*>( input_p->getInternalData() );
+        input_internal_p->changed = true;
+        input_internal_p->state = static_cast<float>(sdl_event.motion.y);
+
         *input_internal_p->global_change = true;
 
         return true;
@@ -449,20 +459,28 @@ int Controls::System::allocateCursor() {
             input_internal_r->sdl_event.type = SDL_MOUSEBUTTONDOWN;
             input_internal_r->sdl_event.button.button = SDL_BUTTON_RIGHT;
 
-            input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::WHEEL_X )->getInternalData() );
-            input_internal_r->sdl_event.type = SDL_MOUSEWHEEL;
-            input_internal_r->axis = Controls::SDL2::Input::Axis::X;
-
-            input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::WHEEL_Y )->getInternalData() );
-            input_internal_r->sdl_event.type = SDL_MOUSEWHEEL;
-            input_internal_r->axis = Controls::SDL2::Input::Axis::Y;
-
             input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::MOTION_X )->getInternalData() );
             input_internal_r->sdl_event.type = SDL_MOUSEMOTION;
             input_internal_r->axis = Controls::SDL2::Input::Axis::X;
 
             input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::MOTION_Y )->getInternalData() );
             input_internal_r->sdl_event.type = SDL_MOUSEMOTION;
+            input_internal_r->axis = Controls::SDL2::Input::Axis::Y;
+
+            input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::POSITION_X )->getInternalData() );
+            input_internal_r->sdl_event.type = SDL_MOUSEMOTION;
+            input_internal_r->axis = Controls::SDL2::Input::Axis::X;
+
+            input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::POSITION_Y )->getInternalData() );
+            input_internal_r->sdl_event.type = SDL_MOUSEMOTION;
+            input_internal_r->axis = Controls::SDL2::Input::Axis::Y;
+
+            input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::WHEEL_X )->getInternalData() );
+            input_internal_r->sdl_event.type = SDL_MOUSEWHEEL;
+            input_internal_r->axis = Controls::SDL2::Input::Axis::X;
+
+            input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( this->cursor_p->getInput( Controls::CursorInputSet::Inputs::WHEEL_Y )->getInternalData() );
+            input_internal_r->sdl_event.type = SDL_MOUSEWHEEL;
             input_internal_r->axis = Controls::SDL2::Input::Axis::Y;
 
             return 1;
