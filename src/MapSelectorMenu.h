@@ -14,6 +14,7 @@ public:
     std::string name;
     GameState *game_r;
 
+    Graphics::Text2DBuffer::Font title_font;
     Graphics::Text2DBuffer::Font error_font;
     float missing_line_length;
     std::vector<std::string> missing_resource;
