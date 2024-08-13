@@ -146,14 +146,16 @@ void MainMenu::update( MainProgram &main_program, std::chrono::microseconds delt
             text_2d_buffer_r->print( "MIT" );
         }
 
-        if( main_program.global_r == nullptr || main_program.resource_r == nullptr ) {
-            text_2d_buffer_r->setFont( this->prime_font );
-            text_2d_buffer_r->setPosition( this->warning_position );
-        }
-
         text_2d_buffer_r->setFont( this->spec_detail_font );
         text_2d_buffer_r->setPosition( this->info_position );
         text_2d_buffer_r->print( FUTURE_COP_MIT_VERSION );
+
+        if( main_program.global_r == nullptr || main_program.resource_r == nullptr ) {
+            text_2d_buffer_r->setFont( this->prime_font );
+            text_2d_buffer_r->setPosition( this->warning_position );
+            text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
+            text_2d_buffer_r->print( "Not all resources are found!" );
+        }
     }
 
     for( size_t i = 0; i < this->items.size(); i++ ) {
