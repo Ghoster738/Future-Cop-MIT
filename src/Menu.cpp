@@ -29,6 +29,8 @@ Menu::TextButton::TextButton( std::string p_name, glm::vec2 p_position, unsigned
 {}
 
 void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
+    main_program.text_2d_buffer_r->beginBox();
+
     if( main_program.text_2d_buffer_r->setFont( font ) == -3 )
         main_program.text_2d_buffer_r->setFont( 1 );
 
@@ -36,16 +38,15 @@ void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->setPosition( this->position );
     main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
 
-    main_program.text_2d_buffer_r->beginBox();
     main_program.text_2d_buffer_r->print( this->name );
 
-    if( !hasBox() ) {
-        *const_cast<glm::vec2*>(&start) = main_program.text_2d_buffer_r->getBoxStart();
-        *const_cast<glm::vec2*>(&end)   = main_program.text_2d_buffer_r->getBoxEnd();
-    }
+    *const_cast<glm::vec2*>(&start) = main_program.text_2d_buffer_r->getBoxStart();
+    *const_cast<glm::vec2*>(&end)   = main_program.text_2d_buffer_r->getBoxEnd();
 }
 
 void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
+    main_program.text_2d_buffer_r->beginBox();
+
     if( main_program.text_2d_buffer_r->setFont( selected_font ) == -3 )
         main_program.text_2d_buffer_r->setFont( 1 );
 
@@ -53,13 +54,10 @@ void Menu::TextButton::drawSelected( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->setPosition( this->position );
     main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
 
-    main_program.text_2d_buffer_r->beginBox();
     main_program.text_2d_buffer_r->print( this->name );
 
-    if( !hasBox() ) {
-        *const_cast<glm::vec2*>(&start) = main_program.text_2d_buffer_r->getBoxStart();
-        *const_cast<glm::vec2*>(&end)   = main_program.text_2d_buffer_r->getBoxEnd();
-    }
+    *const_cast<glm::vec2*>(&start) = main_program.text_2d_buffer_r->getBoxStart();
+    *const_cast<glm::vec2*>(&end)   = main_program.text_2d_buffer_r->getBoxEnd();
 }
 
 void Menu::load( MainProgram &main_program ) {
