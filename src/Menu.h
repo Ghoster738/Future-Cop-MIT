@@ -25,11 +25,9 @@ public:
         virtual void onPress( MainProgram&, Menu*, Item* );
     };
 
-    static ItemClick &null_item_click;
-
     struct Item {
         Item();
-        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, ItemClick *item_click_r = &null_item_click );
+        Item( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, ItemClick *item_click_r );
         virtual ~Item() {};
 
         std::string name;
@@ -57,7 +55,7 @@ public:
         Graphics::Text2DBuffer::CenterMode center_mode;
 
         TextButton();
-        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, ItemClick *item_click_r = &null_item_click, Graphics::Text2DBuffer::Font font = 1, Graphics::Text2DBuffer::Font selected_font = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        TextButton( std::string name, glm::vec2 position, unsigned up_index, unsigned right_index, unsigned down_index, unsigned left_index, ItemClick *item_click_r, Graphics::Text2DBuffer::Font font = 1, Graphics::Text2DBuffer::Font selected_font = 2, Graphics::Text2DBuffer::CenterMode center_mode = Graphics::Text2DBuffer::CenterMode::MIDDLE );
 
         virtual void drawNeutral(  MainProgram &main_program ) const;
         virtual void drawSelected( MainProgram &main_program ) const;

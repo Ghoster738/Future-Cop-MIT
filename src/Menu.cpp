@@ -8,11 +8,7 @@ public:
     virtual void onPress( MainProgram&, Menu*, Menu::Item* ) {}
 };
 
-NullItemClick null_item_click;
-
 }
-
-Menu::ItemClick &Menu::null_item_click = null_item_click;
 
 void Menu::ItemClickSwitchMenu::onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     main_program.switchMenu( this->menu_switch_r );
@@ -25,7 +21,7 @@ Menu::Item::Item() {
     this->right_index = 0;
     this->down_index  = 0;
     this->left_index  = 0;
-    this->item_click_r = &null_item_click;
+    this->item_click_r = nullptr;
 }
 
 Menu::Item::Item( std::string p_name, glm::vec2 p_position, unsigned p_up_index, unsigned p_right_index, unsigned p_down_index, unsigned p_left_index, ItemClick *p_item_click_r ) :
@@ -91,6 +87,38 @@ void Menu::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     if( this->timer < std::chrono::microseconds( 0 ) )
         this->timer = std::chrono::microseconds( 0 );
 
+    if( !main_program.control_cursor_r->isChanged() )
+        main_program.mouse_clicked = false;
+    else {
+        auto input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::LEFT_BUTTON );
+        if( input_r->isChanged() && input_r->getState() < 0.5 )
+            main_program.mouse_clicked = true;
+        else
+            main_program.mouse_clicked = false;
+
+        input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_X );
+        main_program.mouse_position.x = input_r->getState();
+
+        input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_Y );
+        main_program.mouse_position.y = input_r->getState();
+    }
+
+    for( size_t i = 0; i < this->items.size(); i++ ) {
+        if( this->items[i]->hasBox() &&
+            this->items[i]->start.x < main_program.mouse_position.x && this->items[i]->end.x > main_program.mouse_position.x &&
+            this->items[i]->start.y < main_program.mouse_position.y && this->items[i]->end.y > main_program.mouse_position.y
+        ) {
+            this->current_item_index = i;
+
+            if(main_program.mouse_clicked) {
+                this->timer = std::chrono::microseconds( 1000 );
+                this->items[i]->item_click_r->onPress( main_program, this, this->items[i].get() );
+            }
+
+            break;
+        }
+    }
+
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() && this->timer == std::chrono::microseconds( 0 ) )
     {
         auto current_item_r = this->items[ this->current_item_index ].get();
@@ -134,21 +162,5 @@ void Menu::update( MainProgram &main_program, std::chrono::microseconds delta ) 
             this->current_item_index = current_item_r->left_index;
             return;
         }
-    }
-
-    if( !main_program.control_cursor_r->isChanged() )
-        main_program.mouse_clicked = false;
-    else {
-        auto input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::LEFT_BUTTON );
-        if( input_r->isChanged() && input_r->getState() < 0.5 )
-            main_program.mouse_clicked = true;
-        else
-            main_program.mouse_clicked = false;
-
-        input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_X );
-        main_program.mouse_position.x = input_r->getState();
-
-        input_r = main_program.control_cursor_r->getInput( Controls::CursorInputSet::Inputs::POSITION_Y );
-        main_program.mouse_position.y = input_r->getState();
     }
 }

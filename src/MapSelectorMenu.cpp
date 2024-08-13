@@ -114,6 +114,8 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
     this->missing_resource = {};
     this->missing_global   = {};
 
+    this->title_position = glm::vec2( center, 0 );
+
     this->current_item_index = 0;
 }
 
@@ -129,8 +131,8 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
     text_2d_buffer_r->setColor( glm::vec4( 1 ) );
     text_2d_buffer_r->setFont( this->title_font );
     text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::MIDDLE );
-    text_2d_buffer_r->setPosition( glm::vec2( main_program.getWindowScale().x / 2, 0 ) );
-        text_2d_buffer_r->print( this->name );
+    text_2d_buffer_r->setPosition( this->title_position );
+    text_2d_buffer_r->print( this->name );
 
     if( !this->missing_resource.empty() ) {
         text_2d_buffer_r->setFont( this->error_font );
@@ -167,22 +169,6 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
                 text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, placement + (3 + i) * this->error_line_height) );
                 text_2d_buffer_r->print( this->missing_global[i] );
             }
-        }
-    }
-
-    for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->items[i]->hasBox() &&
-            this->items[i]->start.x < main_program.mouse_position.x && this->items[i]->end.x > main_program.mouse_position.x &&
-            this->items[i]->start.y < main_program.mouse_position.y && this->items[i]->end.y > main_program.mouse_position.y
-        ) {
-            this->current_item_index = i;
-
-            if(main_program.mouse_clicked) {
-                this->timer = std::chrono::microseconds( 1000 );
-                this->items[i]->item_click_r->onPress( main_program, this, this->items[i].get() );
-            }
-
-            break;
         }
     }
 
