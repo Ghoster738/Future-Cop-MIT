@@ -73,6 +73,8 @@ public:
     virtual void unload( MainProgram &main_program ) = 0;
 
     virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
+
+    virtual void drawAllItems( MainProgram &main_program );
 };
 
 #endif // FC_MENU_H

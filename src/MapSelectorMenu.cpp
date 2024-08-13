@@ -172,10 +172,5 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
         }
     }
 
-    for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->current_item_index != i )
-            this->items[i]->drawNeutral( main_program );
-        else
-            this->items[i]->drawSelected( main_program );
-    }
+    drawAllItems( main_program );
 }
