@@ -2,14 +2,6 @@
 
 #include "MainProgram.h"
 
-namespace {
-class NullItemClick : public Menu::ItemClick {
-public:
-    virtual void onPress( MainProgram&, Menu*, Menu::Item* ) {}
-};
-
-}
-
 void Menu::ItemClickSwitchMenu::onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r ) {
     main_program.switchMenu( this->menu_switch_r );
 }
