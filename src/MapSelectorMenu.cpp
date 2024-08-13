@@ -50,14 +50,13 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
     const unsigned line_height = static_cast<float>( scale.y ) / static_cast<float>( Data::Manager::AMOUNT_OF_IFF_IDS + 3);
     this->error_line_height = 0.025 * static_cast<float>( scale.y );
 
-    Graphics::Text2DBuffer::Font title_font;
     Graphics::Text2DBuffer::Font prime_font;
     Graphics::Text2DBuffer::Font selected_font;
 
-    if( !main_program.text_2d_buffer_r->selectFont( title_font, line_height, line_height * 2 - 1 ) ) {
-        title_font = 1;
+    if( !main_program.text_2d_buffer_r->selectFont( this->title_font, line_height, line_height * 2 - 1 ) ) {
+        this->title_font = 1;
 
-        main_program.text_2d_buffer_r->scaleFont( title_font, line_height - 1 );
+        main_program.text_2d_buffer_r->scaleFont( this->title_font, line_height - 1 );
     }
 
     if( !main_program.text_2d_buffer_r->selectFont( prime_font, 0.7 * line_height, 0.9 * line_height ) ) {
@@ -84,7 +83,7 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
         }
     }
 
-    const Graphics::Text2DBuffer::CenterMode left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
+    const auto left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
 
     for( size_t i = 0; i < Data::Manager::AMOUNT_OF_IFF_IDS; i++ ) {
         const std::string map_name = *Data::Manager::map_iffs[i];
@@ -115,7 +114,7 @@ void MapSelectorMenu::load( MainProgram &main_program ) {
     this->missing_resource = {};
     this->missing_global   = {};
 
-    this->items.emplace_back( new Menu::TextButton( this->name, glm::vec2( center, 0 ), title, title, title, title, &Menu::null_item_click, title_font, title_font ) );
+    this->title_position = glm::vec2( center, 0 );
 
     this->current_item_index = 0;
 }
@@ -128,6 +127,12 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
     Menu::update( main_program, delta );
 
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
+
+    text_2d_buffer_r->setColor( glm::vec4( 1 ) );
+    text_2d_buffer_r->setFont( this->title_font );
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::MIDDLE );
+    text_2d_buffer_r->setPosition( this->title_position );
+    text_2d_buffer_r->print( this->name );
 
     if( !this->missing_resource.empty() ) {
         text_2d_buffer_r->setFont( this->error_font );
@@ -167,10 +172,5 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
         }
     }
 
-    for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->current_item_index != i )
-            this->items[i]->drawNeutral( main_program );
-        else
-            this->items[i]->drawSelected( main_program );
-    }
+    drawAllItems( main_program );
 }

@@ -124,25 +124,27 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     auto tos_resource_r = accessor.getConstTOS( 1 );
 
-    for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
-        const Data::Accessor *swvr_accessor_r = accessor.getSWVRAccessor(tos_offset);
+    if(tos_resource_r != nullptr) {
+        for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
+            const Data::Accessor *swvr_accessor_r = accessor.getSWVRAccessor(tos_offset);
 
-        // assert(swvr_accessor_r != nullptr);
+            // assert(swvr_accessor_r != nullptr);
 
-        if(swvr_accessor_r != nullptr) {
-            auto snds_r = swvr_accessor_r->getConstSNDS(1);
+            if(swvr_accessor_r != nullptr) {
+                auto snds_r = swvr_accessor_r->getConstSNDS(1);
 
-            if(snds_r == nullptr)
-                continue;
+                if(snds_r == nullptr)
+                    continue;
 
-            const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
+                const Data::Mission::WAVResource *const sound_r = snds_r->soundAccessor();
 
-            tos_to_swvr[tos_offset] = Internal::SoundBuffer();
+                tos_to_swvr[tos_offset] = Internal::SoundBuffer();
 
-            ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
+                ALenum current_error_state = tos_to_swvr[tos_offset].allocate(*sound_r);
 
-            if(current_error_state != AL_NO_ERROR) {
-                error_state = current_error_state;
+                if(current_error_state != AL_NO_ERROR) {
+                    error_state = current_error_state;
+                }
             }
         }
     }

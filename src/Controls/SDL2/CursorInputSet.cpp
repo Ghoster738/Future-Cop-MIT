@@ -11,6 +11,8 @@ Controls::CursorInputSet::CursorInputSet( std::string name_param ) : InputSetInt
     this->states[ Inputs::RIGHT_BUTTON  ].declare( "RIGHT_BUTTON",  &changed );
     this->states[ Inputs::MOTION_X      ].declare( "MOTION_X",      &changed );
     this->states[ Inputs::MOTION_Y      ].declare( "MOTION_Y",      &changed );
+    this->states[ Inputs::POSITION_X    ].declare( "POSITION_X",    &changed );
+    this->states[ Inputs::POSITION_Y    ].declare( "POSITION_Y",    &changed );
     this->states[ Inputs::WHEEL_X       ].declare( "WHEEL_X",       &changed );
     this->states[ Inputs::WHEEL_Y       ].declare( "WHEEL_Y",       &changed );
 }

@@ -64,6 +64,9 @@ public:
     glm::vec2 camera_rotation;
     float     camera_distance;
 
+    bool mouse_clicked;
+    glm::vec2 mouse_position;
+
     bool play_loop;
 
 protected:

@@ -10,6 +10,12 @@ public:
 
     bool is_game_on;
 
+    Graphics::Text2DBuffer::Font title_font;
+    Graphics::Text2DBuffer::Font prime_font;
+    Graphics::Text2DBuffer::Font spec_detail_font;
+
+    glm::vec2 top_title_position, bottom_title_position, warning_position, info_position;
+
     virtual ~MainMenu();
 
     virtual void load( MainProgram &main_program );

@@ -71,57 +71,53 @@ void MainMenu::load( MainProgram &main_program ) {
 
     const Graphics::Text2DBuffer::CenterMode right_mode = Graphics::Text2DBuffer::CenterMode::RIGHT;
 
-    Graphics::Text2DBuffer::Font title_font;
-    Graphics::Text2DBuffer::Font prime_font;
     Graphics::Text2DBuffer::Font selected_font;
-    Graphics::Text2DBuffer::Font spec_detail_font;
 
     const unsigned step = 2. / 30. * static_cast<float>( scale.y );
 
-    if( !main_program.text_2d_buffer_r->selectFont( title_font, 1.5 * step, 2. * step ) )
-        title_font = {1, 4.0};
+    if( !main_program.text_2d_buffer_r->selectFont( this->title_font, 1.5 * step, 2. * step ) )
+        this->title_font = {1, 4.0};
 
-    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 0.8 * step, 0.9 * step - 1 ) )
-        prime_font = {1, 2.0};
+    if( !main_program.text_2d_buffer_r->selectFont( this->prime_font, 0.8 * step, 0.9 * step - 1 ) )
+        this->prime_font = {1, 2.0};
 
     if( !main_program.text_2d_buffer_r->selectFont( selected_font, 0.9 * step, step ) )
         selected_font = {1, 2.25};
 
-    if( !main_program.text_2d_buffer_r->selectFont( spec_detail_font, 1, 14 ) )
-        spec_detail_font = 1;
+    if( !main_program.text_2d_buffer_r->selectFont( this->spec_detail_font, 1, 14 ) )
+        this->spec_detail_font = 1;
 
     this->items.clear();
 
     if( !this->is_game_on ) {
-        this->items.emplace_back( new Menu::TextButton( "Map Spectator",       glm::vec2( center, scale.y - 7 * step ), 5, 0, 1, 0, &item_click_map_spectator,       prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "View Game Models",    glm::vec2( center, scale.y - 6 * step ), 0, 1, 2, 1, &item_click_view_game_models,    prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Announcement Player", glm::vec2( center, scale.y - 5 * step ), 1, 2, 3, 2, &item_click_player_announcement, prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Sound Player",        glm::vec2( center, scale.y - 4 * step ), 2, 3, 4, 3, &item_click_player_sound,        prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Options",             glm::vec2( center, scale.y - 3 * step ), 3, 4, 5, 4, &item_click_options,             prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y - 2 * step ), 4, 5, 0, 5, &item_click_exit_game,           prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Map Spectator",       glm::vec2( center, scale.y - 7 * step ), 5, 0, 1, 0, &item_click_map_spectator,       this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "View Game Models",    glm::vec2( center, scale.y - 6 * step ), 0, 1, 2, 1, &item_click_view_game_models,    this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Announcement Player", glm::vec2( center, scale.y - 5 * step ), 1, 2, 3, 2, &item_click_player_announcement, this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Sound Player",        glm::vec2( center, scale.y - 4 * step ), 2, 3, 4, 3, &item_click_player_sound,        this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Options",             glm::vec2( center, scale.y - 3 * step ), 3, 4, 5, 4, &item_click_options,             this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y - 2 * step ), 4, 5, 0, 5, &item_click_exit_game,           this->prime_font, selected_font ) );
 
-        if( main_program.text_2d_buffer_r->getLineLength( title_font, "Future Cop: MIT" ) > scale.x ) {
-            this->items.emplace_back( new Menu::TextButton( "Future Cop:",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, &Menu::null_item_click, title_font, title_font ) );
-            this->items.emplace_back( new Menu::TextButton( "MIT",          glm::vec2( center, 5 * step ), 0, 0, 0, 0, &Menu::null_item_click, title_font, title_font ) );
-        }
-        else
-            this->items.emplace_back( new Menu::TextButton( "Future Cop: MIT",  glm::vec2( center, 3 * step ), 0, 0, 0, 0, &Menu::null_item_click, title_font, title_font ) );
+        this->top_title_position    = glm::vec2( center, 3 * step );
+        this->bottom_title_position = glm::vec2( center, 2 * step );
+
+        if( main_program.text_2d_buffer_r->getLineLength( this->title_font, "Future Cop: MIT" ) > scale.x )
+            this->bottom_title_position = glm::vec2( center, 5 * step );
 
         // If any resource is missing I am sure the user would want to know about it.
-        if( main_program.global_r == nullptr || main_program.resource_r == nullptr )
-            this->items.emplace_back( new Menu::TextButton( "Not all resources are found",  glm::vec2( center, 7 * step ), 0, 0, 0, 0, &Menu::null_item_click, prime_font, prime_font ) );
+        this->warning_position = glm::vec2( center, 7 * step );
 
-        this->items.emplace_back( new Menu::TextButton( FUTURE_COP_MIT_VERSION, glm::vec2( scale.x, scale.y - 14), 0, 0, 0, 0, &Menu::null_item_click, spec_detail_font, spec_detail_font, right_mode ) );
+        this->info_position = glm::vec2( scale.x, scale.y - 14);
+
         this->current_item_index = 0;
     }
     else {
-        this->items.emplace_back( new Menu::TextButton( "Back to Session",     glm::vec2( center, scale.y - 9 * step ), 6, 0, 1, 0, &item_click_menu_done,           prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Map Spectator",       glm::vec2( center, scale.y - 7 * step ), 0, 1, 2, 1, &item_click_map_spectator,       prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "View Game Models",    glm::vec2( center, scale.y - 6 * step ), 1, 2, 3, 2, &item_click_view_game_models,    prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Announcement Player", glm::vec2( center, scale.y - 5 * step ), 2, 3, 4, 3, &item_click_player_announcement, prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Sound Player",        glm::vec2( center, scale.y - 4 * step ), 3, 4, 5, 4, &item_click_player_sound,        prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Options",             glm::vec2( center, scale.y - 3 * step ), 4, 5, 6, 5, &item_click_options,             prime_font, selected_font ) );
-        this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y - 2 * step ), 5, 6, 0, 6, &item_click_exit_game,           prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Back to Session",     glm::vec2( center, scale.y - 9 * step ), 6, 0, 1, 0, &item_click_menu_done,           this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Map Spectator",       glm::vec2( center, scale.y - 7 * step ), 0, 1, 2, 1, &item_click_map_spectator,       this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "View Game Models",    glm::vec2( center, scale.y - 6 * step ), 1, 2, 3, 2, &item_click_view_game_models,    this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Announcement Player", glm::vec2( center, scale.y - 5 * step ), 2, 3, 4, 3, &item_click_player_announcement, this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Sound Player",        glm::vec2( center, scale.y - 4 * step ), 3, 4, 5, 4, &item_click_player_sound,        this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Options",             glm::vec2( center, scale.y - 3 * step ), 4, 5, 6, 5, &item_click_options,             this->prime_font, selected_font ) );
+        this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y - 2 * step ), 5, 6, 0, 6, &item_click_exit_game,           this->prime_font, selected_font ) );
         this->current_item_index = 0;
     }
 }
@@ -133,10 +129,36 @@ void MainMenu::unload( MainProgram &main_program ) {
 void MainMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     Menu::update( main_program, delta );
 
-    for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->current_item_index != i )
-            this->items[i]->drawNeutral( main_program );
-        else
-            this->items[i]->drawSelected( main_program );
+    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
+
+    if( !this->is_game_on ) {
+        text_2d_buffer_r->setColor( glm::vec4( 1 ) );
+        text_2d_buffer_r->setFont( this->title_font );
+        text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::MIDDLE );
+        text_2d_buffer_r->setPosition( this->top_title_position );
+
+        if( this->top_title_position.y > this->bottom_title_position.y )
+            text_2d_buffer_r->print( "Future Cop: MIT" );
+        else {
+            text_2d_buffer_r->print( "Future Cop:" );
+
+            text_2d_buffer_r->setPosition( this->bottom_title_position );
+            text_2d_buffer_r->print( "MIT" );
+        }
+
+        text_2d_buffer_r->setFont( this->spec_detail_font );
+        text_2d_buffer_r->setPosition( this->info_position );
+        text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::RIGHT );
+        text_2d_buffer_r->print( FUTURE_COP_MIT_VERSION );
+
+        if( main_program.global_r == nullptr || main_program.resource_r == nullptr ) {
+            text_2d_buffer_r->setFont( this->prime_font );
+            text_2d_buffer_r->setPosition( this->warning_position );
+            text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::MIDDLE );
+            text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
+            text_2d_buffer_r->print( "Not all resources are found!" );
+        }
     }
+
+    drawAllItems( main_program );
 }

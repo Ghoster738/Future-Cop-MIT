@@ -38,6 +38,8 @@ public:
 
         glm::vec2 pen_position;
         uint32_t  pen_color;
+
+        glm::vec2 pen_span_min, pen_span_max;
     public:
         Text2D( Font *fontR );
         virtual ~Text2D();
@@ -53,7 +55,7 @@ public:
          * @note The pen starts out with white, you can change the color.
          * @param pen_color Indexes 0-3 are red, green, blue, alpha.
          */
-        void setPenColor( const uint8_t *pen_color);
+        void setPenColor( const uint8_t *pen_color_r);
 
         /**
          * @note The pen's position starts at (0,0).
@@ -86,6 +88,10 @@ public:
          * @return the text amount that was added to the text, or a negative one if the max_text is reached, or negative two if max_text is zero.
          */
         int addText( const std::string &text, float scale, char centering = 'l' );
+
+        glm::vec2 addedTextStart() const { return pen_span_min; }
+
+        glm::vec2 addedTextEnd() const { return pen_span_max; }
 
         /**
          * This clears all the text on the Text2D, and sets the font type of the font.

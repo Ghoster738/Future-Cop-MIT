@@ -47,10 +47,12 @@ void updatePlatfromStatus( MainProgram &main_program, bool shorten, Menu::Item& 
     }
 }
 
-void updateResolutionStatus( MainProgram &main_program, Menu::Item& resolution ) {
-    resolution.name = std::to_string( main_program.options.getVideoWidth() );
-    resolution.name += "x";
-    resolution.name += std::to_string( main_program.options.getVideoHeight() );
+std::string updateResolutionStatus( MainProgram &main_program ) {
+    std::string video_name = std::to_string( main_program.options.getVideoWidth() );
+    video_name += "x";
+    video_name += std::to_string( main_program.options.getVideoHeight() );
+
+    return video_name;
 }
 
 class ItemClickSaveAndExit : public Menu::ItemClick {
@@ -116,21 +118,22 @@ public:
 item_click_increment_resolution(  1 ),
 item_click_decrement_resolution( -1 );
 
-const unsigned id_resolution           =  0;
-const unsigned id_window_status        =  1;
-const unsigned id_reconfigure_controls =  2;
-const unsigned id_current_platform     =  3;
-const unsigned id_save_exit            =  4;
-const unsigned id_exit                 =  5;
+const unsigned id_window_status        = 0;
+const unsigned id_reconfigure_controls = 1;
+const unsigned id_save_exit            = 2;
+const unsigned id_exit                 = 3;
 
-const unsigned id_windows              =  6;
-const unsigned id_mac                  =  7;
-const unsigned id_playstation          =  8;
+const unsigned id_windows              = 4;
+const unsigned id_mac                  = 5;
+const unsigned id_playstation          = 6;
 
-const unsigned id_dec_res              =  9;
-const unsigned id_add_res              = 10;
-const unsigned id_display_res          = 11;
+const unsigned id_dec_res              = 7;
+const unsigned id_add_res              = 8;
 }
+
+const std::string OptionsMenu::RESOLUTION_NAME = "Resolution:";
+const std::string OptionsMenu::PLATFORM_NAME   = "Platform:";
+
 OptionsMenu::~OptionsMenu() {
 
 }
@@ -141,17 +144,15 @@ void OptionsMenu::load( MainProgram &main_program ) {
     glm::u32vec2 scale = main_program.getWindowScale();
     uint32_t center = scale.x / 2;
 
-    Graphics::Text2DBuffer::Font prime_font;
     Graphics::Text2DBuffer::Font selected_font;
-    Graphics::Text2DBuffer::Font title_font;
 
     const unsigned smaller_step = 0.05 * static_cast<float>( scale.y );
     const unsigned step = 0.055 * static_cast<float>( scale.y );
 
-    if( !main_program.text_2d_buffer_r->selectFont( prime_font, 0.9 * smaller_step, smaller_step ) ) {
-        prime_font = 1;
+    if( !main_program.text_2d_buffer_r->selectFont( this->prime_font, 0.9 * smaller_step, smaller_step ) ) {
+        this->prime_font = 1;
 
-        main_program.text_2d_buffer_r->scaleFont( prime_font, smaller_step );
+        main_program.text_2d_buffer_r->scaleFont( this->prime_font, smaller_step );
     }
 
     if( !main_program.text_2d_buffer_r->selectFont( selected_font, smaller_step, step ) ) {
@@ -160,23 +161,26 @@ void OptionsMenu::load( MainProgram &main_program ) {
         main_program.text_2d_buffer_r->scaleFont( selected_font, step - 1 );
     }
 
-    if( !main_program.text_2d_buffer_r->selectFont( title_font, step, 2 * step ) ) {
+    if( !main_program.text_2d_buffer_r->selectFont( this->title_font, step, 2 * step ) ) {
         selected_font = 1;
 
-        main_program.text_2d_buffer_r->scaleFont( title_font, 2 * step - 1 );
+        main_program.text_2d_buffer_r->scaleFont( this->title_font, 2 * step - 1 );
     }
 
-    const Graphics::Text2DBuffer::CenterMode left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
-    const Graphics::Text2DBuffer::CenterMode right_mode = Graphics::Text2DBuffer::CenterMode::RIGHT;
+    const auto left_mode  = Graphics::Text2DBuffer::CenterMode::LEFT;
+    const auto right_mode = Graphics::Text2DBuffer::CenterMode::RIGHT;
 
     this->items.clear();
 
-    this->items.emplace_back( new Menu::TextButton( "Resolution: ",                   glm::vec2( 0,       2 * smaller_step ),          id_resolution,           id_resolution,           id_resolution,       id_resolution,       &Menu::null_item_click,          prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             id_dec_res,        id_window_status, id_reconfigure_controls,              id_window_status,    &item_click_window_status,       prime_font, selected_font, right_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       id_window_status, id_reconfigure_controls,                  id_mac,       id_reconfigure_controls,    &item_click_reconfigure_controls,    prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Platform: ",                     glm::vec2( 0,       5 * smaller_step ),    id_current_platform,     id_current_platform,     id_current_platform, id_current_platform, &Menu::null_item_click,          prime_font, selected_font, left_mode ) );
-    this->items.emplace_back( new Menu::TextButton( "Save to Config File and Exit",  glm::vec2( center,  scale.y - 3 * smaller_step ),        id_mac,            id_save_exit,                 id_exit,             id_save_exit,        &item_click_save_and_exit,       prime_font, selected_font ) );
-    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",           glm::vec2( center,  scale.y - 2 * smaller_step ),   id_save_exit,                id_exit,              id_dec_res,          id_exit,             &MainMenu::item_click_main_menu, prime_font, selected_font ) );
+    this-> resolution_position = glm::vec2( 0, 2 * smaller_step );
+
+    this->items.emplace_back( new Menu::TextButton( windowStatusName( main_program ), glm::vec2( scale.x, 3 * smaller_step ),             id_dec_res,        id_window_status, id_reconfigure_controls,              id_window_status,    &item_click_window_status,       this->prime_font, selected_font, right_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Reconfigure Controls",           glm::vec2( 0,       4 * smaller_step ),       id_window_status, id_reconfigure_controls,                  id_mac,       id_reconfigure_controls,    &item_click_reconfigure_controls,    this->prime_font, selected_font, left_mode ) );
+
+    this->platform_position = glm::vec2( 0, 5 * smaller_step );
+
+    this->items.emplace_back( new Menu::TextButton( "Save to Config File and Exit",  glm::vec2( center,  scale.y - 3 * smaller_step ),        id_mac,            id_save_exit,                 id_exit,             id_save_exit,        &item_click_save_and_exit,       this->prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( "Exit without Saving",           glm::vec2( center,  scale.y - 2 * smaller_step ),   id_save_exit,                id_exit,              id_dec_res,          id_exit,             &MainMenu::item_click_main_menu, this->prime_font, selected_font ) );
 
     this->selected_resolution = 0;
 
@@ -192,40 +196,41 @@ void OptionsMenu::load( MainProgram &main_program ) {
     // This code is to shorten the platform names. This is so the Playstation version of the game fits in the screen.
     this->shorten_platform = false;
 
-    if( main_program.text_2d_buffer_r->getLineLength( prime_font, this->items[id_current_platform]->name + "*" + WINDOWS[this->shorten_platform] + "**" + MACINTOSH[this->shorten_platform] + "**" + PLAYSTATION[this->shorten_platform] + "*" ) > scale.x )
+    if( main_program.text_2d_buffer_r->getLineLength( this->prime_font, PLATFORM_NAME + "*" + WINDOWS[this->shorten_platform] + "**" + MACINTOSH[this->shorten_platform] + "**" + PLAYSTATION[this->shorten_platform] + "*" ) > scale.x )
         this->shorten_platform = true;
 
     // For the Platform selection use
-    auto line_length = main_program.text_2d_buffer_r->getLineLength( prime_font, this->items[id_current_platform]->name );
+    auto line_length = main_program.text_2d_buffer_r->getLineLength( this->prime_font, PLATFORM_NAME );
 
-    this->items.emplace_back( new Menu::TextButton( WINDOWS[this->shorten_platform],     glm::vec2( line_length, this->items[id_current_platform]->position.y ), id_window_status, id_mac,         id_save_exit, id_windows,  &item_click_switch_to_windows,    prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( WINDOWS[this->shorten_platform],     glm::vec2( line_length, this->platform_position.y ), id_window_status, id_mac,         id_save_exit, id_windows,  &item_click_switch_to_windows,    this->prime_font, selected_font, left_mode ) );
 
-    line_length += main_program.text_2d_buffer_r->getLineLength( prime_font, WINDOWS[this->shorten_platform] );
-    auto end_length = scale.x - main_program.text_2d_buffer_r->getLineLength( prime_font, PLAYSTATION[this->shorten_platform] );
+    line_length += main_program.text_2d_buffer_r->getLineLength( this->prime_font, WINDOWS[this->shorten_platform] );
+    auto end_length = scale.x - main_program.text_2d_buffer_r->getLineLength( this->prime_font, PLAYSTATION[this->shorten_platform] );
 
-    this->items.emplace_back( new Menu::TextButton( MACINTOSH[this->shorten_platform],   glm::vec2( (end_length + line_length) / 2, this->items[id_current_platform]->position.y ), id_window_status, id_playstation, id_save_exit, id_windows, &item_click_switch_to_macintosh,   prime_font, selected_font ) );
+    this->items.emplace_back( new Menu::TextButton( MACINTOSH[this->shorten_platform],   glm::vec2( (end_length + line_length) / 2, this->platform_position.y ), id_window_status, id_playstation, id_save_exit, id_windows, &item_click_switch_to_macintosh,   this->prime_font, selected_font ) );
 
-    this->items.emplace_back( new Menu::TextButton( PLAYSTATION[this->shorten_platform], glm::vec2( scale.x, this->items[id_current_platform]->position.y ), id_window_status, id_playstation, id_save_exit, id_mac,     &item_click_switch_to_playstation, prime_font, selected_font, right_mode ) );
+    this->items.emplace_back( new Menu::TextButton( PLAYSTATION[this->shorten_platform], glm::vec2( scale.x, this->platform_position.y ), id_window_status, id_playstation, id_save_exit, id_mac,     &item_click_switch_to_playstation, this->prime_font, selected_font, right_mode ) );
 
-    line_length = main_program.text_2d_buffer_r->getLineLength( prime_font, this->items[id_resolution]->name );
+    line_length = main_program.text_2d_buffer_r->getLineLength( this->prime_font, RESOLUTION_NAME );
 
-    this->items.emplace_back( new Menu::TextButton( "Dec",       glm::vec2( line_length, this->items[id_resolution]->position.y ), id_exit,        id_add_res,     id_window_status, id_dec_res,     &item_click_decrement_resolution, prime_font, selected_font, left_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Dec",       glm::vec2( line_length, resolution_position.y ), id_exit,        id_add_res,     id_window_status, id_dec_res,     &item_click_decrement_resolution, this->prime_font, selected_font, left_mode ) );
     line_length += main_program.text_2d_buffer_r->getLineLength( selected_font, this->items[id_dec_res]->name );
 
-    this->items.emplace_back( new Menu::TextButton( "Add",       glm::vec2( scale.x, this->items[id_resolution]->position.y ), id_exit,        id_add_res,     id_window_status, id_dec_res,     &item_click_increment_resolution, prime_font, selected_font, right_mode ) );
+    this->items.emplace_back( new Menu::TextButton( "Add",       glm::vec2( scale.x, resolution_position.y ), id_exit,        id_add_res,     id_window_status, id_dec_res,     &item_click_increment_resolution, this->prime_font, selected_font, right_mode ) );
 
-    end_length = scale.x - main_program.text_2d_buffer_r->getLineLength( prime_font, "Add" );
+    end_length = scale.x - main_program.text_2d_buffer_r->getLineLength( this->prime_font, "Add" );
 
-    this->items.emplace_back( new Menu::TextButton( "????x????", glm::vec2( (end_length + line_length) / 2, this->items[id_resolution]->position.y), id_display_res, id_display_res, id_display_res,   id_display_res, &Menu::null_item_click,           prime_font, selected_font ) );
+    resolution_display_position = glm::vec2( (end_length + line_length) / 2, resolution_position.y);
 
     updatePlatfromStatus( main_program, this->shorten_platform, *this->items[id_windows], *this->items[id_mac], *this->items[id_playstation] );
 
-    this->items.emplace_back( new Menu::TextButton( "Options", glm::vec2( center, 0 ), id_resolution, id_resolution, id_resolution, id_resolution, &Menu::null_item_click, title_font, title_font ) );
-    this->items.emplace_back( new Menu::TextButton( "Current Window Status:", glm::vec2( 0, this->items[id_window_status]->position.y ), id_resolution, id_resolution, id_resolution, id_resolution, &Menu::null_item_click, prime_font, prime_font, left_mode ) );
+    title_position = glm::vec2( center, 0 );
+
+    window_status_position = glm::vec2( 0, this->items[id_window_status]->position.y );
 
     this->current_item_index = id_dec_res;
 
-    updateResolutionStatus( main_program, *this->items[id_display_res] );
+    updateResolutionStatus( main_program );
 }
 
 void OptionsMenu::unload( MainProgram &main_program ) {
@@ -235,14 +240,30 @@ void OptionsMenu::unload( MainProgram &main_program ) {
 void OptionsMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     Menu::update( main_program, delta );
 
+    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
+
+    text_2d_buffer_r->setColor( glm::vec4( 1 ) );
+    text_2d_buffer_r->setFont( this->title_font );
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::MIDDLE );
+    text_2d_buffer_r->setPosition( this->title_position );
+    text_2d_buffer_r->print( "Options" );
+
+    text_2d_buffer_r->setFont( this->prime_font );
+    text_2d_buffer_r->setPosition( this->resolution_display_position );
+    text_2d_buffer_r->print( updateResolutionStatus( main_program ) );
+
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
+
+    text_2d_buffer_r->setPosition( this->window_status_position );
+    text_2d_buffer_r->print( "Current Window Status:" );
+
+    text_2d_buffer_r->setPosition( this->platform_position );
+    text_2d_buffer_r->print( PLATFORM_NAME );
+
+    text_2d_buffer_r->setPosition( this->resolution_position );
+    text_2d_buffer_r->print( RESOLUTION_NAME );
+
     updatePlatfromStatus( main_program, this->shorten_platform, *this->items[id_windows], *this->items[id_mac], *this->items[id_playstation] );
 
-    updateResolutionStatus( main_program, *this->items[id_display_res] );
-
-    for( size_t i = 0; i < this->items.size(); i++ ) {
-        if( this->current_item_index != i )
-            this->items[i]->drawNeutral( main_program );
-        else
-            this->items[i]->drawSelected( main_program );
-    }
+    drawAllItems( main_program );
 }

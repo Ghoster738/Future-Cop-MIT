@@ -50,6 +50,10 @@ public:
     virtual int setCenterMode( enum CenterMode );
     virtual int print( const std::string &text );
 
+    virtual void beginBox();
+    virtual glm::vec2 getBoxStart() const;
+    virtual glm::vec2 getBoxEnd() const;
+
     /**
      * Restart the whole font buffer clearing the data.
      * @return How many font buffers were NOT cleared successfully, or a negative number indicating an error.
