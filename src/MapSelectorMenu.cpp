@@ -171,8 +171,11 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
         if( this->items[i - 1]->hasBox() ) {
             if(
                 this->items[i - 1]->start.x < main_program.mouse_position.x && this->items[i - 1]->end.x > main_program.mouse_position.x &&
-                this->items[i - 1]->start.y < main_program.mouse_position.y && this->items[i - 1]->end.y > main_program.mouse_position.y)
+                this->items[i - 1]->start.y < main_program.mouse_position.y && this->items[i - 1]->end.y > main_program.mouse_position.y
+            ) {
                 this->current_item_index = i - 1;
+                break;
+            }
         }
     }
 

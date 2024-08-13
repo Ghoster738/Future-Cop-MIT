@@ -47,6 +47,8 @@ void Menu::TextButton::drawNeutral( MainProgram &main_program ) const {
     main_program.text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
     main_program.text_2d_buffer_r->setPosition( this->position );
     main_program.text_2d_buffer_r->setCenterMode( this->center_mode );
+
+    main_program.text_2d_buffer_r->beginBox();
     main_program.text_2d_buffer_r->print( this->name );
 
     if( !hasBox() ) {
