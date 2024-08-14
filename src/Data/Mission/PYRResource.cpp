@@ -157,7 +157,7 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
     else {
         for(unsigned small_y = 0; small_y < 2; small_y++) {
             for(unsigned small_x = 0; small_x < 2; small_x++) {
-                drawAtlas(small_x * level, small_y * level, level / 2, primary_image, particles, textures, atlas_texture, index );
+                drawAtlas(x + small_x * level, y + small_y * level, level / 2, primary_image, particles, textures, atlas_texture, index );
             }
         }
     }
