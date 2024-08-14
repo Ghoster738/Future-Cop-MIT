@@ -143,8 +143,9 @@ struct IFFOptions {
 
     struct PYROption : public ResourceOption {
         bool export_prime_bw;
+        bool export_palettless_atlas;
 
-        PYROption() : ResourceOption(), export_prime_bw( false ) {}
+        PYROption() : ResourceOption(), export_prime_bw( false ), export_palettless_atlas( true ) {}
         std::string getNameSpace() const { return "PYR"; }
         virtual bool readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r );
         virtual std::string getOptions() const;

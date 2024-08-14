@@ -143,7 +143,9 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
 
     // TODO Go through the textures for the PS1 version to optimize for the sprites being smaller case.
     for( const auto &particle : particles ) {
-        area_needed += static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getNumSprites());
+        uint32_t area_estimate = static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getNumSprites());
+
+        area_needed += area_estimate;
     }
 
     if(area_needed == 0)
@@ -154,8 +156,10 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
     for(unsigned i = 0; i < 16; i++) {
         uint32_t canidate_power_2_size = 1 << i;
 
-        if(area_needed <= canidate_power_2_size * canidate_power_2_size)
+        if(area_needed <= canidate_power_2_size * canidate_power_2_size) {
             power_2_size = canidate_power_2_size;
+            break;
+        }
     }
 
     if(power_2_size == 0)
@@ -200,15 +204,13 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
     // Create method to draw upon the altas that must also be recursive.
     uint16_t text_pow_2 = findClosetPow2( particles[textures.front().first].getTexture(textures.front().second)->getSize() );
 
-    // TODO Complete what I started.
     size_t index = 0;
 
-    for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
-        for(uint16_t y = 0; y < power_2_size; y += text_pow_2) {
+    for(uint16_t y = 0; y < power_2_size; y += text_pow_2) {
+        for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
 
             if(text_pow_2 == findClosetPow2( particles[textures[index].first].getTexture(textures[index].second)->getSize() )) {
-                // Draw the texture.
-
+                // Draw the texture. TODO Turn this into a recursive function, that would split by a factor of 4 if it cannot draw a tile.
                 auto texture_r = particles[textures[index].first].getTexture(textures[index].second);
 
                 Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
@@ -431,6 +433,22 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
         return_value = 1;
     }
 
+    if(iff_options.pyr.export_palettless_atlas && iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) ){
+        auto palettless_atlas_p = generatePalettlessAtlas();
+
+        assert(palettless_atlas_p != nullptr);
+
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *palettless_atlas_p );
+
+        if( the_choosen_r != nullptr ) {
+            the_choosen_r->write( *palettless_atlas_p, buffer );
+            buffer.write( the_choosen_r->appendExtension( file_path + "_atlas" ) );
+            buffer.set( nullptr, 0 );
+        }
+
+        delete palettless_atlas_p;
+    }
+
     if( iff_options.pyr.export_prime_bw && iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) ) {
         Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *primary_image_p );
 
@@ -445,6 +463,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
 
 bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_PRIME_BLACK_WHITE", output_r, export_prime_bw ) )
+    if( !singleArgument( arguments, "--" + getNameSpace() + "_PALETTLESS_ATLAS",  output_r, export_palettless_atlas ) )
         return false; // The single argument is not valid.
 
     return IFFOptions::ResourceOption::readParams( arguments, output_r );
@@ -454,6 +473,7 @@ std::string Data::Mission::IFFOptions::PYROption::getOptions() const {
     std::string information_text = getBuiltInOptions( 11 );
 
     information_text += "  --" + getNameSpace() + "_PRIME_BLACK_WHITE Export the index values as a single black and white image. This will look ugly\n";
+    information_text += "  --" + getNameSpace() + "_PALETTLESS_ATLAS  This generates the atlas used by the OpenGL renderer.\n";
 
     return information_text;
 }
