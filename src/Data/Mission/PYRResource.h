@@ -49,6 +49,24 @@ public:
         const Texture *const getTexture( uint8_t index ) const;
         Texture * getTexture( uint8_t index );
     };
+
+    class AtlasParticle {
+    public:
+        struct Texture {
+            glm::u16vec2 location;
+            glm::u8vec2 size;
+        };
+
+    private:
+        uint16_t id;
+        std::vector<Texture> textures;
+
+    public:
+        AtlasParticle(uint16_t id, const std::vector<Texture>& textures);
+
+        uint16_t getID() const { return id; }
+        const std::vector<Texture>& getTextures() const { return textures; }
+    };
 private:
     std::vector<Particle> particles;
 

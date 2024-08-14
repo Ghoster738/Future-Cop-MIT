@@ -1,8 +1,10 @@
 #include "PYRResource.h"
 
 #include "../../Utilities/ImageFormat/Chooser.h"
-#include <string.h>
+
+#include <algorithm>
 #include <fstream>
+#include <string.h>
 
 namespace {
     const uint32_t TAG_PYDT = 0x50594454; // which is { 0x50, 0x59, 0x44, 0x54 } or { 'P', 'Y', 'D', 'T' } or "PYDT"
@@ -122,6 +124,7 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
 Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const {
     uint32_t area_needed = 0;
 
+    // TODO Go through the textures for the PS1 version to optimize for the sprites being smaller case.
     for( const auto &particle : particles ) {
         area_needed += static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getNumSprites());
     }
@@ -141,9 +144,34 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
     if(power_2_size == 0)
         return nullptr; // If texture size cannot be determined, then the texture cannot be generated.
 
-    // TODO Complete what I started.
-    // Gather the "textures" and sort them from largest to smallest to make planned algorithm work.
+    std::vector<std::pair<unsigned,AtlasParticle::Texture>> textures;
 
+    // Gather the "textures"
+    for(unsigned p = 0; p < particles.size(); p++) {
+        for(unsigned s = 0; s < particles[p].getNumSprites(); s++) {
+            auto sprite_r = particles[p].getTexture( s );
+
+            std::pair<unsigned,AtlasParticle::Texture> new_texture;
+
+            new_texture.first = p;
+            new_texture.second.location = {0, 0};
+            new_texture.second.size = sprite_r->getSize();
+
+            textures.push_back( new_texture );
+        }
+    }
+
+    // Sort the "textures" from largest to smallest.
+    std::sort(textures.begin(), textures.end(),
+              [](std::pair<unsigned,AtlasParticle::Texture> a, std::pair<unsigned,AtlasParticle::Texture> b) {
+                  const auto a_size = std::max(a.second.size.x, a.second.size.y);
+                  const auto b_size = std::max(b.second.size.x, b.second.size.y);
+                  return a_size > b_size;
+            });
+
+    assert(std::max(textures.front().second.size.x, textures.front().second.size.y) >= std::max(textures.back().second.size.x, textures.back().second.size.y) );
+
+    // TODO Complete what I started.
     // Generate image with rgba colors.
 
     // Create method to draw upon the altas that must also be recursive.
