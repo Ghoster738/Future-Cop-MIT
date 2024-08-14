@@ -123,6 +123,21 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+namespace {
+uint16_t findClosetPow2( glm::u16vec2 dimensions ) {
+    const auto size = std::max(dimensions.x, dimensions.y);
+
+    for(unsigned i = 0; i < 16; i++) {
+        uint32_t canidate_power_2_size = 1 << i;
+
+        if(size <= canidate_power_2_size)
+            return canidate_power_2_size;
+    }
+
+    return 0; // Error!
+}
+}
+
 Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const {
     uint32_t area_needed = 0;
 
@@ -163,6 +178,9 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
         }
     }
 
+    if(textures.empty())
+        return nullptr; // No textures then there is no atlas to make.
+
     // Sort the "textures" from largest to smallest.
     std::sort(textures.begin(), textures.end(),
         [](std::pair<unsigned,AtlasParticle::Texture> a, std::pair<unsigned,AtlasParticle::Texture> b) {
@@ -176,8 +194,14 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
     // Generate image with rgba colors.
     Utilities::Image2D *atlas_texture_p = new Utilities::Image2D( power_2_size, power_2_size, PYR_COLOR_FORMAT );
 
-    // TODO Complete what I started.
     // Create method to draw upon the altas that must also be recursive.
+    uint16_t text_pow_2 = findClosetPow2( textures[0].second.size );
+
+    // TODO Complete what I started.
+    for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
+        for(uint16_t y = 0; y < power_2_size; y += text_pow_2) {
+        }
+    }
 
     return atlas_texture_p;
 }
