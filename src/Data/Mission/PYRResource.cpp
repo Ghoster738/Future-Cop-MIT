@@ -402,13 +402,13 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
                 file_path_texture += std::to_string( index );
             }
 
-            auto texture = (*current_particle).getTexture( index );
+            auto texture_r = (*current_particle).getTexture( index );
 
-            Utilities::ImagePalette2D sub_image( texture->getSize().x, texture->getSize().y, *texture->getPalette() );
+            Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
             
             primary_image_p->subImage(
-                texture->getLocation().x, texture->getLocation().y,
-                texture->getSize().x,     texture->getSize().y, sub_image );
+                texture_r->getLocation().x, texture_r->getLocation().y,
+                texture_r->getSize().x,     texture_r->getSize().y, sub_image );
 
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( sub_image );
 
