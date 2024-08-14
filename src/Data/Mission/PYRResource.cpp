@@ -119,6 +119,38 @@ uint32_t Data::Mission::PYRResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const {
+    uint32_t area_needed = 0;
+
+    for( const auto &particle : particles ) {
+        area_needed += static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getNumSprites());
+    }
+
+    if(area_needed == 0)
+        return nullptr; // If there is no area then there are no particles in the PyrResource.
+
+    uint32_t power_2_size = 0;
+
+    for(unsigned i = 0; i < 32; i++) {
+        uint32_t canidate_power_2_size = 1 << i;
+
+        if(area_needed <= canidate_power_2_size * canidate_power_2_size)
+            power_2_size = canidate_power_2_size;
+    }
+
+    if(power_2_size == 0)
+        return nullptr; // If texture size cannot be determined, then the texture cannot be generated.
+
+    // TODO Complete what I started.
+    // Gather the "textures" and sort them from largest to smallest to make planned algorithm work.
+
+    // Generate image with rgba colors.
+
+    // Create method to draw upon the altas that must also be recursive.
+
+    // TODO Add return statement.
+}
+
 bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";

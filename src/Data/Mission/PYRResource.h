@@ -62,6 +62,8 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
+    Utilities::Image2D* generatePalettlessAtlas() const;
+
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
     virtual Resource * duplicate() const;
