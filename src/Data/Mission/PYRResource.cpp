@@ -136,6 +136,20 @@ uint16_t findClosetPow2( glm::u16vec2 dimensions ) {
 
     return 0; // Error!
 }
+
+void drawAtlas(uint16_t x, uint16_t y, const Utilities::ImagePalette2D &primary_image, const std::vector<Data::Mission::PYRResource::Particle> &particles, const std::vector<std::pair<unsigned, unsigned>>& textures, Utilities::Image2D &atlas_texture, size_t &index) {
+    auto texture_r = particles[textures[index].first].getTexture(textures[index].second);
+
+    Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
+
+    primary_image.subImage(
+        texture_r->getLocation().x, texture_r->getLocation().y,
+        texture_r->getSize().x,     texture_r->getSize().y, sub_image );
+
+    atlas_texture.inscribeSubImage(x, y, sub_image);
+
+    index++;
+}
 }
 
 Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const {
@@ -210,18 +224,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
         for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
 
             if(text_pow_2 == findClosetPow2( particles[textures[index].first].getTexture(textures[index].second)->getSize() )) {
-                // Draw the texture. TODO Turn this into a recursive function, that would split by a factor of 4 if it cannot draw a tile.
-                auto texture_r = particles[textures[index].first].getTexture(textures[index].second);
-
-                Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
-
-                primary_image_p->subImage(
-                    texture_r->getLocation().x, texture_r->getLocation().y,
-                    texture_r->getSize().x,     texture_r->getSize().y, sub_image );
-
-                atlas_texture_p->inscribeSubImage(x, y, sub_image);
-
-                index++;
+                drawAtlas(x, y, *primary_image_p, particles, textures, *atlas_texture_p, index);
             }
 
             if(textures.size() == index + 1) {
