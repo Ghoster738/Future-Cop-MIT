@@ -11,6 +11,8 @@ namespace {
     const uint32_t TAG_PYPL = 0x5059504C; // which is { 0x50, 0x59, 0x50, 0x4C } or { 'P', 'Y', 'P', 'L' } or "PYPL"
     const uint32_t TAG_PIX8 = 0x50495838; // which is { 0x50, 0x49, 0x58, 0x38 } or { 'P', 'I', 'X', '8' } or "PIX8"
     const uint32_t TAG_PIX4 = 0x50495834; // which is { 0x50, 0x49, 0x58, 0x34 } or { 'P', 'I', 'X', '4' } or "PIX4" Playstation
+
+    const Utilities::PixelFormatColor_R8G8B8A8 PYR_COLOR_FORMAT;
 }
 
 Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
@@ -163,20 +165,21 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
 
     // Sort the "textures" from largest to smallest.
     std::sort(textures.begin(), textures.end(),
-              [](std::pair<unsigned,AtlasParticle::Texture> a, std::pair<unsigned,AtlasParticle::Texture> b) {
-                  const auto a_size = std::max(a.second.size.x, a.second.size.y);
-                  const auto b_size = std::max(b.second.size.x, b.second.size.y);
-                  return a_size > b_size;
-            });
+        [](std::pair<unsigned,AtlasParticle::Texture> a, std::pair<unsigned,AtlasParticle::Texture> b) {
+                const auto a_size = std::max(a.second.size.x, a.second.size.y);
+                const auto b_size = std::max(b.second.size.x, b.second.size.y);
+                return a_size > b_size;
+        });
 
     assert(std::max(textures.front().second.size.x, textures.front().second.size.y) >= std::max(textures.back().second.size.x, textures.back().second.size.y) );
 
-    // TODO Complete what I started.
     // Generate image with rgba colors.
+    Utilities::Image2D *atlas_texture_p = new Utilities::Image2D( power_2_size, power_2_size, PYR_COLOR_FORMAT );
 
+    // TODO Complete what I started.
     // Create method to draw upon the altas that must also be recursive.
 
-    // TODO Add return statement.
+    return atlas_texture_p;
 }
 
 bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
