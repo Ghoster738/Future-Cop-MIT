@@ -209,6 +209,16 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
             if(text_pow_2 == findClosetPow2( particles[textures[index].first].getTexture(textures[index].second)->getSize() )) {
                 // Draw the texture.
 
+                auto texture_r = particles[textures[index].first].getTexture(textures[index].second);
+
+                Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
+
+                primary_image_p->subImage(
+                    texture_r->getLocation().x, texture_r->getLocation().y,
+                    texture_r->getSize().x,     texture_r->getSize().y, sub_image );
+
+                atlas_texture_p->inscribeSubImage(x, y, sub_image);
+
                 index++;
             }
 
