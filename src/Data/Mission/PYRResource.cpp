@@ -143,7 +143,7 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
 
     auto texture_r = particles[textures[index].first].getTexture(textures[index].second);
 
-    if( findClosetPow2( texture_r->getSize() ) > level ) {
+    if( findClosetPow2( texture_r->getSize() ) == level ) {
         Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
 
         primary_image.subImage(
@@ -157,7 +157,7 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
     else {
         for(unsigned small_y = 0; small_y < 2; small_y++) {
             for(unsigned small_x = 0; small_x < 2; small_x++) {
-                drawAtlas(x + small_x * level, y + small_y * level, level / 2, primary_image, particles, textures, atlas_texture, index );
+                drawAtlas(x + small_x * (level / 2), y + small_y * (level / 2), level / 2, primary_image, particles, textures, atlas_texture, index );
             }
         }
     }
@@ -234,7 +234,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
 
     for(uint16_t y = 0; y < power_2_size; y += text_pow_2) {
         for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
-            drawAtlas(x, y, text_pow_2 / 2, *primary_image_p, particles, textures, *atlas_texture_p, index);
+            drawAtlas(x, y, text_pow_2, *primary_image_p, particles, textures, *atlas_texture_p, index);
 
             if(textures.size() == index + 1) {
                 x = power_2_size;
