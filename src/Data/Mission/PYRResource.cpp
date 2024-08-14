@@ -136,7 +136,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
 
     uint32_t power_2_size = 0;
 
-    for(unsigned i = 0; i < 32; i++) {
+    for(unsigned i = 0; i < 16; i++) {
         uint32_t canidate_power_2_size = 1 << i;
 
         if(area_needed <= canidate_power_2_size * canidate_power_2_size)
