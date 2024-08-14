@@ -161,18 +161,15 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
     if(power_2_size == 0)
         return nullptr; // If texture size cannot be determined, then the texture cannot be generated.
 
-    std::vector<std::pair<unsigned,AtlasParticle::Texture>> textures;
+    std::vector<std::pair<unsigned, unsigned>> textures;
 
     // Gather the "textures"
     for(unsigned p = 0; p < particles.size(); p++) {
         for(unsigned s = 0; s < particles[p].getNumSprites(); s++) {
-            auto sprite_r = particles[p].getTexture( s );
-
-            std::pair<unsigned,AtlasParticle::Texture> new_texture;
+            std::pair<unsigned, unsigned> new_texture;
 
             new_texture.first = p;
-            new_texture.second.location = {0, 0};
-            new_texture.second.size = sprite_r->getSize();
+            new_texture.second = s;
 
             textures.push_back( new_texture );
         }
@@ -183,23 +180,43 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
 
     // Sort the "textures" from largest to smallest.
     std::sort(textures.begin(), textures.end(),
-        [](std::pair<unsigned,AtlasParticle::Texture> a, std::pair<unsigned,AtlasParticle::Texture> b) {
-                const auto a_size = std::max(a.second.size.x, a.second.size.y);
-                const auto b_size = std::max(b.second.size.x, b.second.size.y);
-                return a_size > b_size;
+        [this](std::pair<unsigned, unsigned> a, std::pair<unsigned, unsigned> b) {
+                const auto a_size = particles[a.first].getTexture(a.second)->getSize();
+                const auto b_size = particles[b.first].getTexture(b.second)->getSize();
+
+                const auto a_length = std::max(a_size.x, a_size.y);
+                const auto b_length = std::max(b_size.x, b_size.y);
+
+                return a_length > b_length;
         });
 
-    assert(std::max(textures.front().second.size.x, textures.front().second.size.y) >= std::max(textures.back().second.size.x, textures.back().second.size.y) );
+    assert(
+        std::max(particles[textures.front().first].getTexture(textures.front().second)->getSize().x, particles[textures.front().first].getTexture(textures.front().second)->getSize().y) >=
+        std::max(particles[textures.back().first].getTexture(textures.back().second)->getSize().x,   particles[textures.back().first].getTexture(textures.back().second)->getSize().y) );
 
     // Generate image with rgba colors.
     Utilities::Image2D *atlas_texture_p = new Utilities::Image2D( power_2_size, power_2_size, PYR_COLOR_FORMAT );
 
     // Create method to draw upon the altas that must also be recursive.
-    uint16_t text_pow_2 = findClosetPow2( textures[0].second.size );
+    uint16_t text_pow_2 = findClosetPow2( particles[textures.front().first].getTexture(textures.front().second)->getSize() );
 
     // TODO Complete what I started.
+    size_t index = 0;
+
     for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
         for(uint16_t y = 0; y < power_2_size; y += text_pow_2) {
+
+            if(text_pow_2 == findClosetPow2( particles[textures[index].first].getTexture(textures[index].second)->getSize() )) {
+                // Draw the texture.
+
+                index++;
+            }
+
+            if(textures.size() == index + 1) {
+                x = power_2_size;
+                y = power_2_size;
+                break;
+            }
         }
     }
 
