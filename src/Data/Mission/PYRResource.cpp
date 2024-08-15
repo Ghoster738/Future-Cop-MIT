@@ -485,10 +485,10 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
 
         for(int i = 0; i < atlas_particles.size(); i++) {
             for(int t = 0; t < atlas_particles[i].getTextures().size(); t++) {
-                root["particles"][i]["textures"]["x"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.x);
-                root["particles"][i]["textures"]["y"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.y);
-                root["particles"][i]["textures"]["h"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.x);
-                root["particles"][i]["textures"]["w"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.y);
+                root["particles"][i]["textures"][t]["x"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.x);
+                root["particles"][i]["textures"][t]["y"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.y);
+                root["particles"][i]["textures"][t]["h"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.x);
+                root["particles"][i]["textures"][t]["w"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.y);
             }
         }
 
