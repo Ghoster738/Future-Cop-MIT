@@ -81,7 +81,7 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    Utilities::Image2D* generatePalettlessAtlas() const;
+    Utilities::Image2D* generatePalettlessAtlas(std::vector<AtlasParticle> &atlas_particles) const;
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 

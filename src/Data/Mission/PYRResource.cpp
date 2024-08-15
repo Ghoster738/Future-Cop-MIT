@@ -166,9 +166,10 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
 }
 }
 
-Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const {
+Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas(std::vector<AtlasParticle> &atlas_particles) const {
     uint32_t area_needed = 0;
-    std::vector<AtlasParticle> atlas_particles;
+
+    atlas_particles.clear();
 
     for( const auto &particle : particles ) {
         atlas_particles.push_back(AtlasParticle(particle.getID()));
@@ -186,8 +187,10 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
         }
     }
 
-    if(area_needed == 0)
+    if(area_needed == 0) {
+        atlas_particles.clear();
         return nullptr; // If there is no area then there are no particles in the PyrResource.
+    }
 
     uint32_t power_2_size = 0;
 
@@ -200,8 +203,10 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
         }
     }
 
-    if(power_2_size == 0)
+    if(power_2_size == 0) {
+        atlas_particles.clear();
         return nullptr; // If texture size cannot be determined, then the texture cannot be generated.
+    }
 
     std::vector<std::pair<unsigned, unsigned>> textures;
 
@@ -217,8 +222,10 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
         }
     }
 
-    if(textures.empty())
+    if(textures.empty()) {
+        atlas_particles.clear();
         return nullptr; // No textures then there is no atlas to make.
+    }
 
     // Sort the "textures" from largest to smallest.
     std::sort(textures.begin(), textures.end(),
@@ -458,7 +465,9 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
     }
 
     if(iff_options.pyr.export_palettless_atlas && iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) ){
-        auto palettless_atlas_p = generatePalettlessAtlas();
+        std::vector<AtlasParticle> atlas_particles;
+
+        auto palettless_atlas_p = generatePalettlessAtlas(atlas_particles);
 
         assert(palettless_atlas_p != nullptr);
 
@@ -471,6 +480,28 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
         }
 
         delete palettless_atlas_p;
+
+        Json::Value root;
+
+        for(int i = 0; i < atlas_particles.size(); i++) {
+            for(int t = 0; t < atlas_particles[i].getTextures().size(); t++) {
+                root["particles"][i]["textures"]["x"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.x);
+                root["particles"][i]["textures"]["y"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.y);
+                root["particles"][i]["textures"]["h"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.x);
+                root["particles"][i]["textures"]["w"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.y);
+            }
+        }
+
+        std::ofstream resource;
+
+        resource.open( file_path + "_atlas.json", std::ios::out );
+
+        if( resource.is_open() )
+        {
+            resource << root;
+
+            resource.close();
+        }
     }
 
     if( iff_options.pyr.export_prime_bw && iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) ) {
