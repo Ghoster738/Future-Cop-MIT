@@ -62,10 +62,11 @@ public:
         std::vector<Texture> textures;
 
     public:
-        AtlasParticle(uint16_t id, const std::vector<Texture>& textures);
+        AtlasParticle(uint16_t p_id) : id(p_id) {}
 
         uint16_t getID() const { return id; }
         const std::vector<Texture>& getTextures() const { return textures; }
+        std::vector<Texture>& getTextures() { return textures; }
     };
 private:
     std::vector<Particle> particles;

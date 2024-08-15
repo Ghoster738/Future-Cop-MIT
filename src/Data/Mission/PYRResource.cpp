@@ -137,7 +137,7 @@ uint16_t findClosetPow2( glm::u16vec2 dimensions ) {
     return 0; // Error!
 }
 
-void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePalette2D &primary_image, const std::vector<Data::Mission::PYRResource::Particle> &particles, const std::vector<std::pair<unsigned, unsigned>>& textures, Utilities::Image2D &atlas_texture, size_t &index) {
+void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePalette2D &primary_image, const std::vector<Data::Mission::PYRResource::Particle> &particles, const std::vector<std::pair<unsigned, unsigned>>& textures, Utilities::Image2D &atlas_texture, std::vector<Data::Mission::PYRResource::AtlasParticle> &atlas_particles, size_t &index) {
     if(level == 0 || index == textures.size() )
         return;
 
@@ -152,12 +152,14 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
 
         atlas_texture.inscribeSubImage(x, y, sub_image);
 
+        atlas_particles[textures[index].first].getTextures()[textures[index].second].location = glm::u16vec2(x, y);
+
         index++;
     }
     else {
         for(unsigned small_y = 0; small_y < 2; small_y++) {
             for(unsigned small_x = 0; small_x < 2; small_x++) {
-                drawAtlas(x + small_x * (level / 2), y + small_y * (level / 2), level / 2, primary_image, particles, textures, atlas_texture, index );
+                drawAtlas(x + small_x * (level / 2), y + small_y * (level / 2), level / 2, primary_image, particles, textures, atlas_texture, atlas_particles, index );
             }
         }
     }
@@ -166,12 +168,22 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
 
 Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const {
     uint32_t area_needed = 0;
+    std::vector<AtlasParticle> atlas_particles;
 
-    // TODO Go through the textures for the PS1 version to optimize for the sprites being smaller case.
     for( const auto &particle : particles ) {
-        uint32_t area_estimate = static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getSpriteSize()) * static_cast<uint32_t>(particle.getNumSprites());
+        atlas_particles.push_back(AtlasParticle(particle.getID()));
 
-        area_needed += area_estimate;
+        atlas_particles.back().getTextures().resize(particle.getNumSprites());
+
+        for(unsigned s = 0; s < particle.getNumSprites(); s++) {
+            const auto particle_pow_2 = findClosetPow2( particle.getTexture(s)->getSize() );
+
+            const uint32_t area_estimate = static_cast<uint32_t>(particle_pow_2) * static_cast<uint32_t>(particle_pow_2);
+
+            area_needed += area_estimate;
+
+            atlas_particles.back().getTextures()[s].size = particle.getTexture(s)->getSize();
+        }
     }
 
     if(area_needed == 0)
@@ -234,7 +246,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas() const 
 
     for(uint16_t y = 0; y < power_2_size; y += text_pow_2) {
         for(uint16_t x = 0; x < power_2_size; x += text_pow_2) {
-            drawAtlas(x, y, text_pow_2, *primary_image_p, particles, textures, *atlas_texture_p, index);
+            drawAtlas(x, y, text_pow_2, *primary_image_p, particles, textures, *atlas_texture_p, atlas_particles, index);
 
             if(textures.size() == index + 1) {
                 x = power_2_size;
