@@ -270,6 +270,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if( err != GL_NO_ERROR )
         std::cout << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << std::endl;
 
+    std::vector<const Data::Mission::PYRResource*> particle_types = accessor.getAllConstPYR();
+
+    if(!particle_types.empty())
+        this->particle_draw_routine.inputParticles(*particle_types[0], this->textures);
+
     return number_of_failures;
 
     if( failed_texture_loads == 0 )
@@ -378,6 +383,8 @@ void Environment::drawFrame() {
             this->static_model_draw_routine.draw(   *current_camera_r );
             this->morph_model_draw_routine.draw(    *current_camera_r );
             this->skeletal_model_draw_routine.draw( *current_camera_r );
+
+            this->particle_draw_routine.draw( *current_camera_r );
 
             glEnable( GL_BLEND );
             glDepthMask(GL_FALSE);
