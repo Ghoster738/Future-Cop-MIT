@@ -33,18 +33,6 @@ Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reade
     }
 }
 
-uint16_t Data::Mission::PYRResource::Particle::getID() const {
-    return this->id;
-}
-
-uint8_t Data::Mission::PYRResource::Particle::getNumSprites() const {
-    return this->num_sprites;
-}
-
-uint8_t Data::Mission::PYRResource::Particle::getSpriteSize() const {
-    return this->sprite_size;
-}
-
 const Data::Mission::PYRResource::Particle::Texture *const Data::Mission::PYRResource::Particle::getTexture( uint8_t index ) const {
     return textures.data() + index;
 }
@@ -57,30 +45,19 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     this->location.x = reader.readU8();
     this->location.y = reader.readU8();
 
-    uint8_t u2 = reader.readU8();
-    uint8_t u3 = reader.readU8();
-
-    // assert( u2 == 0 | u2 == 1 ); // This will crash on PS1 not PC
-    // assert( u3 == 0 | u3 == 1 ); // This will crash on PS1 not PC
+    this->offset_from_size.x = reader.readU8();
+    this->offset_from_size.y = reader.readU8();
 
     this->size.x = reader.readU8();
     this->size.y = reader.readU8();
 
     uint8_t y_level = reader.readU8();
-    uint8_t u5 = reader.readU8(); // This byte is zero for Mac and Windows
+    uint8_t unknown_byte = reader.readU8(); // This byte is zero for Mac and Windows and PS1.
 
     if( y_level == 1 )
         this->location.y = this->location.y | 256;
 
-    // assert( u5 == 0 ); // This will crash on PS1 not PC
-}
-
-glm::u16vec2 Data::Mission::PYRResource::Particle::Texture::getLocation() const {
-    return this->location;
-}
-
-glm::u8vec2 Data::Mission::PYRResource::Particle::Texture::getSize() const {
-    return this->size;
+    assert( unknown_byte == 0 ); // This will crash on PS1 not PC
 }
 
 const Utilities::ColorPalette* Data::Mission::PYRResource::Particle::Texture::getPalette() const {
@@ -169,7 +146,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas(std::vec
     atlas_particles.clear();
 
     for( const auto &particle : particles ) {
-        atlas_particles.push_back(AtlasParticle(particle.getID()));
+        atlas_particles.push_back(AtlasParticle(particle.getID(), particle.getSpriteSize()));
 
         atlas_particles.back().getTextures().resize(particle.getNumSprites());
 
@@ -180,6 +157,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas(std::vec
 
             area_needed += area_estimate;
 
+            atlas_particles.back().getTextures()[s].offset_from_size = particle.getTexture(s)->getOffsetFromSize();
             atlas_particles.back().getTextures()[s].size = particle.getTexture(s)->getSize();
         }
     }

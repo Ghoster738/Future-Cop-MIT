@@ -21,13 +21,15 @@ public:
         class Texture {
         private:
             glm::u16vec2 location;
+            glm::u8vec2 offset_from_size;
             glm::u8vec2 size;
             Utilities::ColorPalette palette;
         public:
             Texture( Utilities::Buffer::Reader &reader );
 
-            glm::u16vec2 getLocation() const;
-            glm::u8vec2 getSize() const;
+            glm::u16vec2 getLocation() const { return this->location; }
+            glm::u8vec2 getOffsetFromSize() const { return this->offset_from_size; }
+            glm::u8vec2 getSize() const { return this->size; }
 
             const Utilities::ColorPalette* getPalette() const;
             Utilities::ColorPalette* getPalette();
@@ -42,9 +44,9 @@ public:
     public:
         Particle( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian );
 
-        uint16_t getID() const;
-        uint8_t  getNumSprites() const;
-        uint8_t  getSpriteSize() const;
+        uint16_t getID() const { return this->id; }
+        uint8_t  getNumSprites() const { return this->num_sprites; }
+        uint8_t  getSpriteSize() const { return this->sprite_size; }
 
         const Texture *const getTexture( uint8_t index ) const;
         Texture * getTexture( uint8_t index );
@@ -54,17 +56,20 @@ public:
     public:
         struct Texture {
             glm::u16vec2 location;
+            glm::u8vec2 offset_from_size;
             glm::u8vec2 size;
         };
 
     private:
         uint16_t id;
+        uint8_t sprite_size; // Power of two size
         std::vector<Texture> textures;
 
     public:
-        AtlasParticle(uint16_t p_id) : id(p_id) {}
+        AtlasParticle(uint16_t p_id, uint8_t p_sprite_size) : id(p_id), sprite_size(p_sprite_size) {}
 
         uint16_t getID() const { return id; }
+        uint8_t getSpriteSize() const { return sprite_size; }
         const std::vector<Texture>& getTextures() const { return textures; }
         std::vector<Texture>& getTextures() { return textures; }
     };
