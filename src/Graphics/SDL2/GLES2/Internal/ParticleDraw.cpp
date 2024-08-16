@@ -47,7 +47,28 @@ int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data
     return 1;
 }
 
-void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {}
+void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
+    DynamicTriangleDraw::Triangle *draw_triangles_r;
+    glm::mat4 camera_3D_model_transform = glm::mat4(1.0f);
+    glm::mat4 view;
+
+    camera.getView3D( view );
+
+    const auto camera_position = camera.getPosition();
+    const auto camera_right = glm::vec3(view[0][0], view[1][0], view[2][0]);
+    const auto camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
+
+    const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
+
+    glm::vec2 quad[4] = { {0,0}, {0,1}, {1,1}, {1,0} };
+
+    DynamicTriangleDraw::Triangle::addBillboard(
+        draw_triangles_r, number_of_triangles,
+        camera_position, camera_3D_model_transform, camera_right, camera_up,
+        {0,0,0}, {1,1,1}, 2.0f,
+        DynamicTriangleDraw::PolygonType::ADDITION, particle_atlas_id, quad
+    );
+}
 
 }
 }

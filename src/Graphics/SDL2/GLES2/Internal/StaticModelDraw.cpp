@@ -483,7 +483,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
     glm::mat4 model_view;
     glm::mat4 model_view_inv;
     
-    camera.getProjectionView3D( camera_3D_projection_view ); // camera_3D_projection_view = current_camera 3D matrix.
+    camera.getProjectionView3D( camera_3D_projection_view );
 
     camera.getView3D( view );
     
