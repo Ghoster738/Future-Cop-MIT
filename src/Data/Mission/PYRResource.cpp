@@ -66,15 +66,12 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     this->size.x = reader.readU8();
     this->size.y = reader.readU8();
 
-    // These two bytes are be zeros in Mac and Windows
-    uint8_t u4 = reader.readU8();
-    uint8_t u5 = reader.readU8();
+    uint8_t y_level = reader.readU8();
+    uint8_t u5 = reader.readU8(); // This byte is zero for Mac and Windows
 
-    if( u4 == 1 )
+    if( y_level == 1 )
         this->location.y = this->location.y | 256;
 
-    // assert( u4 == 0 ); // This will crash on PS1 not PC
-    // assert( (u4 == 0) | (u4 == 1) ); // This will not crash on any platform.
     // assert( u5 == 0 ); // This will crash on PS1 not PC
 }
 

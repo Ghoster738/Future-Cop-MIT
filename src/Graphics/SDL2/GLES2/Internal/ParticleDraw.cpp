@@ -60,7 +60,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
     const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 
-    glm::vec2 quad[4] = { {0,0}, {0,1}, {1,1}, {1,0} };
+    glm::vec2 quad[4] = { {0,0}, {1,0}, {1,1}, {0,1} };
 
     DynamicTriangleDraw::Triangle::addBillboard(
         draw_triangles_r, number_of_triangles,
