@@ -26,6 +26,7 @@ public:
             Utilities::ColorPalette palette;
         public:
             Texture( Utilities::Buffer::Reader &reader );
+            Texture( const Texture &obj );
 
             glm::u16vec2 getLocation() const { return this->location; }
             glm::u8vec2 getOffsetFromSize() const { return this->offset_from_size; }
@@ -43,6 +44,7 @@ public:
 
     public:
         Particle( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian );
+        Particle( const Particle &obj );
 
         uint16_t getID() const { return this->id; }
         uint8_t  getNumSprites() const { return this->num_sprites; }

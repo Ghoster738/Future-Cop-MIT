@@ -33,6 +33,10 @@ Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reade
     }
 }
 
+Data::Mission::PYRResource::Particle::Particle( const Particle &obj ) : id( obj.id ), num_sprites( obj.num_sprites ), sprite_size( obj.sprite_size ), textures( obj.textures ) {
+
+}
+
 const Data::Mission::PYRResource::Particle::Texture *const Data::Mission::PYRResource::Particle::getTexture( uint8_t index ) const {
     return textures.data() + index;
 }
@@ -60,6 +64,10 @@ Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reade
     assert( unknown_byte == 0 ); // This will crash on PS1 not PC
 }
 
+Data::Mission::PYRResource::Particle::Texture::Texture( const Texture &obj ) : location( obj.location ), offset_from_size( obj.offset_from_size ), size( obj.size ), palette( obj.palette ) {
+
+}
+
 const Utilities::ColorPalette* Data::Mission::PYRResource::Particle::Texture::getPalette() const {
     return &palette;
 }
@@ -74,10 +82,7 @@ const uint32_t Data::Mission::PYRResource::IDENTIFIER_TAG = 0x43707972; // which
 Data::Mission::PYRResource::PYRResource() : primary_image_p( nullptr ) {
 }
 
-Data::Mission::PYRResource::PYRResource( const PYRResource &obj ) : Resource( obj ), particles(), primary_image_p( nullptr ) {
-    
-    // TODO This is incomplete!
-    
+Data::Mission::PYRResource::PYRResource( const PYRResource &obj ) : Resource( obj ), particles( obj.particles ), primary_image_p( nullptr ) {
     if( obj.primary_image_p != nullptr )
         primary_image_p = new Utilities::ImagePalette2D( *obj.primary_image_p );
 }
