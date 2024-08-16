@@ -105,7 +105,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
         this->textures[ 0 ] = new SDL2::GLES2::Internal::Texture2D;
 
-        this->textures[ 0 ]->setCBMPResourceID( 0 );
         this->textures[ 0 ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
         this->textures[ 0 ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
     }
@@ -121,7 +120,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
             this->textures[ CBMP_ID ] = new SDL2::GLES2::Internal::Texture2D;
             
-            this->textures[ CBMP_ID ]->setCBMPResourceID( CBMP_ID );
             this->textures[ CBMP_ID ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
             this->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
             
