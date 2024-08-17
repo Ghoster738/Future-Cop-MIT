@@ -56,13 +56,17 @@ int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data
         float displace_y = 0;
 
         for(auto current_texture = (*particle).getTextures().begin(); current_texture != (*particle).getTextures().end(); current_texture++) {
-            auto instance_data = getInstanceData(reinterpret_cast<ParticleInstance*>(fake_pointer));
+            ParticleDraw::ParticleInstanceData instance_data;
 
             instance_data.position = glm::vec3(displace_x, 3, displace_y);
             instance_data.color = glm::vec4(1.0);
             instance_data.span = span;
             instance_data.particle_r = &(*particle);
             instance_data.image_index = current_texture - (*particle).getTextures().begin();
+
+            assert(instance_data.particle_r != nullptr);
+
+            particle_instance_data[reinterpret_cast<ParticleInstance*>(fake_pointer++)] = instance_data;
 
             displace_y += 2.0f * span + 1.0f;
         }
@@ -86,59 +90,52 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     const auto camera_right = glm::vec3(view[0][0], view[1][0], view[2][0]);
     const auto camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
 
-    float displace_x = 0;
 
-    for(const auto &particle : altas_particles) {
-        float displace_y = 0;
+    for(const auto &particle : particle_instance_data) {
+        const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 
-        for(const auto &current_texture : particle.getTextures()) {
-            const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
+        if(number_of_triangles == 0)
+            break;
 
-            if(number_of_triangles == 0)
-                break;
+        const ParticleInstanceData &instance_data = particle.second;
 
-            glm::vec2 l = glm::vec2(current_texture.location) * scale;
-            glm::vec2 u = l + glm::vec2(current_texture.size) * scale;
+        const Data::Mission::PYRResource::AtlasParticle &altas_particle = *instance_data.particle_r;
+        const Data::Mission::PYRResource::AtlasParticle::Texture &current_texture = altas_particle.getTextures().at(instance_data.image_index);
 
-            glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
+        glm::vec2 l = glm::vec2(current_texture.location) * scale;
+        glm::vec2 u = l + glm::vec2(current_texture.size) * scale;
 
-            glm::vec2 ql(-0.5);
-            glm::vec2 qu = (glm::vec2(current_texture.size) / glm::vec2(particle.getSpriteSize())) - ql;
+        glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
 
-            ql += (glm::vec2(current_texture.offset_from_size) / glm::vec2(particle.getSpriteSize()));
+        glm::vec2 ql(-0.5);
+        glm::vec2 qu = (glm::vec2(current_texture.size) / glm::vec2(altas_particle.getSpriteSize())) - ql;
 
-            const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
+        ql += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
 
-            glm::vec3 position(displace_x, 3, displace_y);
+        const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
 
-            glm::vec4 color = glm::vec4(1.0);
+        size_t index = 0;
 
-            size_t index = 0;
-
-            for(int x = 0; x < 3; x++) {
-                draw_triangles_r[ index ].vertices[x].position   = position;
-                draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
-                draw_triangles_r[ index ].vertices[x].color      = color;
-                draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
-            }
-
-            draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
-            draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
-
-            draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
-
-            for(int t = 0; t < 2; t++) {
-                for(int x = 0; x < 3; x++) {
-                    draw_triangles_r[ index ].vertices[x].position += (camera_right * QUAD[QUAD_TABLE[t][x]].x) + (camera_up * QUAD[QUAD_TABLE[t][x]].y);
-
-                    draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
-                }
-                index++; index = std::min(number_of_triangles - 1, index);
-            }
-            displace_y += 5;
+        for(int x = 0; x < 3; x++) {
+            draw_triangles_r[ index ].vertices[x].position   = instance_data.position;
+            draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
+            draw_triangles_r[ index ].vertices[x].color      = instance_data.color;
+            draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        displace_x += 5;
+        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
+
+        draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
+
+        for(int t = 0; t < 2; t++) {
+            for(int x = 0; x < 3; x++) {
+                draw_triangles_r[ index ].vertices[x].position += (camera_right * QUAD[QUAD_TABLE[t][x]].x) + (camera_up * QUAD[QUAD_TABLE[t][x]].y);
+
+                draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
+            }
+            index++; index = std::min(number_of_triangles - 1, index);
+        }
     }
 }
 
