@@ -118,6 +118,17 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     }
 }
 
+ParticleDraw::ParticleInstanceData& ParticleDraw::getInstanceData(const ParticleInstance *const particle_instance_r) {
+    return particle_instance_data[particle_instance_r];
+}
+
+void ParticleDraw::removeInstanceData(const ParticleInstance *const particle_instance_r) {
+    auto search = particle_instance_data.find( particle_instance_r );
+
+    if(search != particle_instance_data.end())
+        particle_instance_data.erase(search);
+}
+
 }
 }
 }

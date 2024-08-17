@@ -5,18 +5,33 @@
 #include "../Camera.h"
 
 #include <cstdint>
+#include <map>
 #include <vector>
 
 namespace Graphics {
 namespace SDL2 {
 namespace GLES2 {
+
+class ParticleInstance;
+
 namespace Internal {
 
 class ParticleDraw {
+public:
+    struct ParticleInstanceData {
+        glm::vec3 position;
+        glm::vec4 color;
+        float span;
+        uint16_t particle_id;
+        uint16_t image_index;
+    };
+
 private:
     uint32_t particle_atlas_id;
     glm::vec2 scale;
     std::vector<Data::Mission::PYRResource::AtlasParticle> altas_particles;
+
+    std::map<const ParticleInstance *const, ParticleInstanceData> particle_instance_data;
 
 public:
     ParticleDraw();
@@ -42,6 +57,10 @@ public:
      * @param camera This parameter will get the particles that would be rendered with this method.
      */
     void draw(Graphics::SDL2::GLES2::Camera& camera);
+
+    ParticleInstanceData& getInstanceData(const ParticleInstance *const);
+
+    void removeInstanceData(const ParticleInstance *const);
 };
 
 }
