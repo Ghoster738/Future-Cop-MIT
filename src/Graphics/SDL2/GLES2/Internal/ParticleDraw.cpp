@@ -65,48 +65,53 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     float displace_x = 0;
 
     for(const auto &particle : altas_particles) {
-        const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
+        float displace_y = 0;
 
-        if(number_of_triangles == 0)
-            break;
+        for(const auto &current_texture : particle.getTextures()) {
+            const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 
-        glm::vec2 l = glm::vec2(particle.getTextures()[0].location) * scale;
-        glm::vec2 u = l + glm::vec2(particle.getTextures()[0].size) * scale;
+            if(number_of_triangles == 0)
+                break;
 
-        glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
+            glm::vec2 l = glm::vec2(current_texture.location) * scale;
+            glm::vec2 u = l + glm::vec2(current_texture.size) * scale;
 
-        glm::vec2 ql(-0.5);
-        glm::vec2 qu = (glm::vec2(particle.getTextures().back().size) / glm::vec2(particle.getSpriteSize())) - ql;
+            glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
 
-        ql += (glm::vec2(particle.getTextures().back().offset_from_size) / glm::vec2(particle.getSpriteSize()));
+            glm::vec2 ql(-0.5);
+            glm::vec2 qu = (glm::vec2(current_texture.size) / glm::vec2(particle.getSpriteSize())) - ql;
 
-        const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
+            ql += (glm::vec2(current_texture.offset_from_size) / glm::vec2(particle.getSpriteSize()));
 
-        glm::vec3 position(displace_x, 3, 0);
+            const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
 
-        glm::vec4 color = glm::vec4(1.0);
+            glm::vec3 position(displace_x, 3, displace_y);
 
-        size_t index = 0;
+            glm::vec4 color = glm::vec4(1.0);
 
-        for(int x = 0; x < 3; x++) {
-            draw_triangles_r[ index ].vertices[x].position   = position;
-            draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
-            draw_triangles_r[ index ].vertices[x].color      = color;
-            draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
-        }
+            size_t index = 0;
 
-        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
-        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
-
-        draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
-
-        for(int t = 0; t < 2; t++) {
             for(int x = 0; x < 3; x++) {
-                draw_triangles_r[ index ].vertices[x].position += (camera_right * QUAD[QUAD_TABLE[t][x]].x) + (camera_up * QUAD[QUAD_TABLE[t][x]].y);
-
-                draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
+                draw_triangles_r[ index ].vertices[x].position   = position;
+                draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
+                draw_triangles_r[ index ].vertices[x].color      = color;
+                draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
             }
-            index++; index = std::min(number_of_triangles - 1, index);
+
+            draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+            draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
+
+            draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
+
+            for(int t = 0; t < 2; t++) {
+                for(int x = 0; x < 3; x++) {
+                    draw_triangles_r[ index ].vertices[x].position += (camera_right * QUAD[QUAD_TABLE[t][x]].x) + (camera_up * QUAD[QUAD_TABLE[t][x]].y);
+
+                    draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
+                }
+                index++; index = std::min(number_of_triangles - 1, index);
+            }
+            displace_y += 5;
         }
 
         displace_x += 5;
