@@ -413,18 +413,16 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
     Utilities::Buffer buffer;
 
     for( auto current_particle = particles.begin(); current_particle != particles.end(); current_particle++ ) {
+        if((*current_particle).getNumSprites() == 0)
+            continue;
 
-        for( unsigned int index = 0; index != (*current_particle).getNumSprites(); index++ ) {
-            std::string file_path_texture = std::string( file_path );
-            file_path_texture += " ";
-            file_path_texture += std::to_string( static_cast<int>( (*current_particle).getID() ) );
+        std::string file_path_texture = std::string( file_path );
+        file_path_texture += " ";
+        file_path_texture += std::to_string( static_cast<int>( (*current_particle).getID() ) );
 
-            if( (*current_particle).getNumSprites() != 1 )
-            {
-                file_path_texture += " f ";
-                file_path_texture += std::to_string( index );
-            }
+        Utilities::Image2D texture_strip( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize() * (*current_particle).getNumSprites(), PYR_COLOR_FORMAT );
 
+        for( unsigned index = 0; index != (*current_particle).getNumSprites(); index++ ) {
             auto texture_r = (*current_particle).getTexture( index );
 
             Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
@@ -433,13 +431,23 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
                 texture_r->getLocation().x, texture_r->getLocation().y,
                 texture_r->getSize().x,     texture_r->getSize().y, sub_image );
 
-            Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( sub_image );
+            Utilities::Image2D current_image( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize(), PYR_COLOR_FORMAT );
 
-            if( iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) && the_choosen_r != nullptr ) {
-                the_choosen_r->write( sub_image, buffer );
-                buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
-                buffer.set( nullptr, 0 );
-            }
+            current_image.inscribeSubImage(
+                texture_r->getOffsetFromSize().x, texture_r->getOffsetFromSize().y,
+                sub_image );
+
+            texture_strip.inscribeSubImage(
+                0, (*current_particle).getSpriteSize() * index,
+                current_image );
+        }
+
+        Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( texture_strip );
+
+        if( iff_options.pyr.shouldWrite( iff_options.enable_global_dry_default ) && the_choosen_r != nullptr ) {
+            the_choosen_r->write( texture_strip, buffer );
+            buffer.write( the_choosen_r->appendExtension( file_path_texture ) );
+            buffer.set( nullptr, 0 );
         }
         return_value = 1;
     }
