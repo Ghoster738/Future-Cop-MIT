@@ -46,6 +46,30 @@ int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data
 
     delete image_p;
 
+    particle_instance_data.clear();
+
+    uintptr_t fake_pointer = 12345;
+    float span = 1.0f;
+    float displace_x = 0;
+
+    for(auto particle = altas_particles.begin(); particle != altas_particles.end(); particle++) {
+        float displace_y = 0;
+
+        for(auto current_texture = (*particle).getTextures().begin(); current_texture != (*particle).getTextures().end(); current_texture++) {
+            auto instance_data = getInstanceData(reinterpret_cast<ParticleInstance*>(fake_pointer));
+
+            instance_data.position = glm::vec3(displace_x, 3, displace_y);
+            instance_data.color = glm::vec4(1.0);
+            instance_data.span = span;
+            instance_data.particle_r = &(*particle);
+            instance_data.image_index = current_texture - (*particle).getTextures().begin();
+
+            displace_y += 2.0f * span + 1.0f;
+        }
+
+        displace_x += 2.0f * span + 1.0f;
+    }
+
     return 1;
 }
 

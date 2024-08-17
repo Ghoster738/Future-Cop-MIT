@@ -22,7 +22,7 @@ public:
         glm::vec3 position;
         glm::vec4 color;
         float span;
-        uint16_t particle_id;
+        const Data::Mission::PYRResource::AtlasParticle *particle_r;
         uint16_t image_index;
     };
 
