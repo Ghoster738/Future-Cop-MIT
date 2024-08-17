@@ -74,7 +74,13 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glm::vec2 u = l + glm::vec2(particle.getTextures()[0].size) * scale;
 
         glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
-        const glm::vec2 QUAD[4] = {{-1.0f, 0.0f}, { 0.0f, 0.0f}, { 0.0f,-1.0f}, {-1.0f,-1.0f}};
+
+        glm::vec2 ql(-0.5);
+        glm::vec2 qu = (glm::vec2(particle.getTextures().back().size) / glm::vec2(particle.getSpriteSize())) - ql;
+
+        ql += (glm::vec2(particle.getTextures().back().offset_from_size) / glm::vec2(particle.getSpriteSize()));
+
+        const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
 
         glm::vec3 position(displace_x, 3, 0);
 
@@ -89,7 +95,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
+        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
 
         draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
