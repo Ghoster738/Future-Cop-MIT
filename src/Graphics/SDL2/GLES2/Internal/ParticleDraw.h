@@ -15,6 +15,7 @@ namespace Internal {
 class ParticleDraw {
 private:
     uint32_t particle_atlas_id;
+    glm::vec2 scale;
     std::vector<Data::Mission::PYRResource::AtlasParticle> altas_particles;
 
 public:
