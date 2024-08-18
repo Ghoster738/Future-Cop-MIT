@@ -9,6 +9,7 @@
 
 #include "AnnouncementPlayer.h"
 #include "ModelViewer.h"
+#include "ParticleViewer.h"
 #include "PrimaryGame.h"
 #include "SoundPlayer.h"
 
@@ -42,7 +43,7 @@ public:
     }
 }
 item_click_map_spectator(   "Map Spectator", &PrimaryGame::primary_game ),
-item_click_view_game_models( "Model Viewer", &ModelViewer::model_viewer ),
+item_click_view_game_models( "Model Viewer", &ParticleViewer::particle_viewer ),
 item_click_player_announcement( "Announcement Player", &AnnouncementPlayer::announcement_player ),
 item_click_player_sound( "Sound Player", &SoundPlayer::sound_player );
 

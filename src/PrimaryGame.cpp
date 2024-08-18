@@ -98,11 +98,12 @@ void PrimaryGame::load( MainProgram &main_program ) {
 
     float span = 3.0f;
 
+    auto pyr_resources = main_program.accessor.getAllConstPYR();
+
+    auto particles = pyr_resources[0]->getParticles();
+
     float displace_x = main_program.camera_position.x;
     for(unsigned i = 0; i < 2; i++) {
-        auto pyr_resources = main_program.accessor.getAllConstPYR();
-
-        auto particles = pyr_resources[0]->getParticles();
 
         for(auto particle = particles.begin(); particle != particles.end(); particle++) {
             float displace_y = main_program.camera_position.z;
