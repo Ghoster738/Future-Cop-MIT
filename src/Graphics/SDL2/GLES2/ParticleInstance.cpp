@@ -53,10 +53,11 @@ uint16_t ParticleInstance::getParticleIndex() const {
 void ParticleInstance::update() {
     Internal::ParticleDraw::ParticleInstanceData particle_instance_data;
 
-    particle_instance_data.position = this->position;
-    particle_instance_data.color = this->color;
-    particle_instance_data.span = this->span;
-    particle_instance_data.particle_r = this->particle_r;
+    particle_instance_data.position    = this->position;
+    particle_instance_data.color       = this->color;
+    particle_instance_data.span        = this->span;
+    particle_instance_data.is_addition = this->is_addition;
+    particle_instance_data.particle_r  = this->particle_r;
     particle_instance_data.image_index = this->particle_index;
 
     this->environment_r->particle_draw_routine.updateInstanceData(this, particle_instance_data);

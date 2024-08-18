@@ -97,32 +97,35 @@ void PrimaryGame::load( MainProgram &main_program ) {
     this->particle_instances_p.clear();
 
     float span = 1.0f;
+
     float displace_x = main_program.camera_position.x;
+    for(unsigned i = 0; i < 2; i++) {
+        auto pyr_resources = main_program.accessor.getAllConstPYR();
 
-    auto pyr_resources = main_program.accessor.getAllConstPYR();
+        auto particles = pyr_resources[0]->getParticles();
 
-    auto particles = pyr_resources[0]->getParticles();
+        for(auto particle = particles.begin(); particle != particles.end(); particle++) {
+            float displace_y = main_program.camera_position.z;
 
-    for(auto particle = particles.begin(); particle != particles.end(); particle++) {
-        float displace_y = main_program.camera_position.z;
+            for(auto texture_index = 0; texture_index < (*particle).getNumSprites(); texture_index++) {
+                auto particle_instance_p = main_program.environment_p->allocateParticleInstance();
 
-        for(auto texture_index = 0; texture_index < (*particle).getNumSprites(); texture_index++) {
-            auto particle_instance_p = main_program.environment_p->allocateParticleInstance();
+                particle_instance_p->position    = glm::vec3(displace_x, 4, displace_y);
+                particle_instance_p->color       = glm::vec4(1.0);
+                particle_instance_p->span        = span;
+                particle_instance_p->is_addition = i;
+                particle_instance_p->setParticleID((*particle).getID());
+                particle_instance_p->setParticleIndex(texture_index);
 
-            particle_instance_p->position = glm::vec3(displace_x, 4, displace_y);
-            particle_instance_p->color    = glm::vec4(1.0);
-            particle_instance_p->span     = span;
-            particle_instance_p->setParticleID((*particle).getID());
-            particle_instance_p->setParticleIndex(texture_index);
+                particle_instance_p->update();
 
-            particle_instance_p->update();
+                particle_instances_p.push_back( particle_instance_p );
 
-            particle_instances_p.push_back( particle_instance_p );
+                displace_y += 2.0f * span + 1.0f;
+            }
 
-            displace_y += 2.0f * span + 1.0f;
+            displace_x += 2.0f * span + 1.0f;
         }
-
-        displace_x += 2.0f * span + 1.0f;
     }
 
     main_program.sound_system_p->setMusicState(Sound::PlayerState::PLAY);

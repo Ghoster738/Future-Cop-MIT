@@ -24,6 +24,7 @@ public:
         float span;
         const Data::Mission::PYRResource::AtlasParticle *particle_r;
         uint16_t image_index;
+        bool is_addition;
     };
 
 private:

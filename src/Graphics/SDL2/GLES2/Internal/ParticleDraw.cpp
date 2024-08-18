@@ -101,7 +101,14 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+        DynamicTriangleDraw::PolygonType polygon_type;
+
+        if(instance_data.is_addition)
+            polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+        else
+            polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+
+        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, polygon_type );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
 
         draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
