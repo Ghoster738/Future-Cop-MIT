@@ -4,7 +4,7 @@ namespace Graphics {
 namespace SDL2 {
 namespace GLES2 {
 
-Graphics::ParticleInstance* Environment::allocateParticleInstance(uint16_t particle_id, uint16_t index) {}
+Graphics::ParticleInstance* Environment::allocateParticleInstance() {}
 
 ParticleInstance::~ParticleInstance() {}
 

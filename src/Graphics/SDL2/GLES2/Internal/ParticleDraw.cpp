@@ -92,12 +92,15 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
 
     for(const auto &particle : particle_instances) {
+        const ParticleInstanceData &instance_data = particle.second;
+
+        if(instance_data.particle_r == nullptr)
+            continue;
+
         const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 
         if(number_of_triangles == 0)
             break;
-
-        const ParticleInstanceData &instance_data = particle.second;
 
         const Data::Mission::PYRResource::AtlasParticle &altas_particle = *instance_data.particle_r;
         const Data::Mission::PYRResource::AtlasParticle::Texture &current_texture = altas_particle.getTextures().at(instance_data.image_index);

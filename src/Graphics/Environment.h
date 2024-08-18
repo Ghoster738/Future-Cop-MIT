@@ -79,7 +79,7 @@ public:
 
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
-    virtual ParticleInstance* allocateParticleInstance(uint16_t particle_id, uint16_t index = 0) = 0;
+    virtual ParticleInstance* allocateParticleInstance() = 0;
 
     virtual bool displayMap( bool state ) = 0;
 
