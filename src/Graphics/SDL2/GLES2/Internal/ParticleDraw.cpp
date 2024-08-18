@@ -79,8 +79,8 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         const Data::Mission::PYRResource::AtlasParticle &altas_particle = *instance_data.particle_r;
         const Data::Mission::PYRResource::AtlasParticle::Texture &current_texture = altas_particle.getTextures().at(instance_data.image_index);
 
-        glm::vec2 l = glm::vec2(current_texture.location) * scale;
-        glm::vec2 u = l + glm::vec2(current_texture.size) * scale;
+        glm::vec2 l = glm::vec2(current_texture.location) * this->scale;
+        glm::vec2 u = l + glm::vec2(current_texture.size) * this->scale;
 
         glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
 
@@ -89,6 +89,9 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
         ql += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
         qu += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
+
+        ql *= instance_data.span;
+        qu *= instance_data.span;
 
         const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
 

@@ -96,7 +96,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
         delete instance_p;
     this->particle_instances_p.clear();
 
-    float span = 1.0f;
+    float span = 3.0f;
 
     float displace_x = main_program.camera_position.x;
     for(unsigned i = 0; i < 2; i++) {
