@@ -46,7 +46,7 @@ int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data
 
     delete image_p;
 
-    particle_instance_data.clear();
+    particle_instances.clear();
 
     uintptr_t fake_pointer = 12345;
     float span = 1.0f;
@@ -66,7 +66,7 @@ int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data
 
             assert(instance_data.particle_r != nullptr);
 
-            particle_instance_data[reinterpret_cast<ParticleInstance*>(fake_pointer++)] = instance_data;
+            updateInstanceData(reinterpret_cast<ParticleInstance*>(fake_pointer++),instance_data);
 
             displace_y += 2.0f * span + 1.0f;
         }
@@ -91,7 +91,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     const auto camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
 
 
-    for(const auto &particle : particle_instance_data) {
+    for(const auto &particle : particle_instances) {
         const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 
         if(number_of_triangles == 0)
@@ -139,15 +139,25 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     }
 }
 
-ParticleDraw::ParticleInstanceData& ParticleDraw::getInstanceData(const ParticleInstance *const particle_instance_r) {
-    return particle_instance_data[particle_instance_r];
+void ParticleDraw::updateInstanceData(const ParticleInstance *const particle_instance_r, const ParticleInstanceData& particle_instance_data) {
+    particle_instances[particle_instance_r] = particle_instance_data;
+}
+
+bool ParticleDraw::getInstanceData(const ParticleInstance *const particle_instance_r, ParticleInstanceData& particle_instance_data) const {
+    auto search = particle_instances.find( particle_instance_r );
+
+    if(search != particle_instances.end()) {
+        particle_instance_data = (*search).second;
+        return true;
+    }
+    return false;
 }
 
 void ParticleDraw::removeInstanceData(const ParticleInstance *const particle_instance_r) {
-    auto search = particle_instance_data.find( particle_instance_r );
+    auto search = particle_instances.find( particle_instance_r );
 
-    if(search != particle_instance_data.end())
-        particle_instance_data.erase(search);
+    if(search != particle_instances.end())
+        particle_instances.erase(search);
 }
 
 }

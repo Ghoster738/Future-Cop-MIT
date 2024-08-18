@@ -31,7 +31,7 @@ private:
     glm::vec2 scale;
     std::vector<Data::Mission::PYRResource::AtlasParticle> altas_particles;
 
-    std::map<const ParticleInstance *const, ParticleInstanceData> particle_instance_data;
+    std::map<const ParticleInstance *const, ParticleInstanceData> particle_instances;
 
 public:
     ParticleDraw();
@@ -58,9 +58,11 @@ public:
      */
     void draw(Graphics::SDL2::GLES2::Camera& camera);
 
-    ParticleInstanceData& getInstanceData(const ParticleInstance *const);
+    void updateInstanceData(const ParticleInstance *const particle_instance_r, const ParticleInstanceData& particle_instance_data);
 
-    void removeInstanceData(const ParticleInstance *const);
+    bool getInstanceData(const ParticleInstance *const particle_instance_r, ParticleInstanceData& particle_instance_data) const;
+
+    void removeInstanceData(const ParticleInstance *const particle_instance_r);
 };
 
 }
