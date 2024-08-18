@@ -46,6 +46,7 @@ public:
 
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+    virtual Graphics::ParticleInstance* allocateParticleInstance(uint16_t particle_id, uint16_t index);
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
