@@ -54,6 +54,10 @@ void ParticleViewer::load( MainProgram &main_program ) {
     this->particle_instance_p->setParticleIndex(0);
 
     this->particle_instance_p->update();
+
+    this->next_frame_delay_seconds = 0.0625f;
+    this->next_frame_delay = this->next_frame_delay_seconds;
+    this->particle_frame_index = 0;
 }
 
 void ParticleViewer::unload( MainProgram &main_program ) {
@@ -76,6 +80,17 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
         main_program.play_loop = false;
 
     this->count_down -= delta_f;
+    this->next_frame_delay -= delta_f;
+
+    if(this->next_frame_delay <= 0) {
+        this->next_frame_delay = this->next_frame_delay_seconds;
+
+        this->particle_frame_index++;
+        this->particle_frame_index = this->particle_frame_index % this->particles.at(this->particle_index).getNumSprites();
+
+        this->particle_instance_p->setParticleIndex(this->particle_frame_index);
+        this->particle_instance_p->update();
+    }
 
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() )
     {
@@ -115,8 +130,11 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
                     this->particle_index += next;
             }
 
+            this->next_frame_delay = this->next_frame_delay_seconds;
+            this->particle_frame_index = 0;
+
             this->particle_instance_p->setParticleID(this->particles.at(this->particle_index).getID());
-            this->particle_instance_p->setParticleIndex(0);
+            this->particle_instance_p->setParticleIndex(this->particle_frame_index);
 
             this->particle_instance_p->update();
 
@@ -135,20 +153,11 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
     if(!this->particles.empty()) {
         std::stringstream new_stream;
 
-        new_stream << "Sound Resource id = " << this->particles.at( this->particle_index ).getID();
+        new_stream << "Particle (index, id) = " << this->particle_index << ", " << this->particles.at( this->particle_index ).getID();
 
         text_2d_buffer_r->print( new_stream.str() );
     }
     else
-        text_2d_buffer_r->print( "No sounds are loaded. Note: PS1 sounds not supported." );
+        text_2d_buffer_r->print( "No particles are loaded! Double check if anything is missing!" );
 
-    text_2d_buffer_r->setColor( glm::vec4( 0.50, 1.00, 0.50, 1 ) );
-    text_2d_buffer_r->setPosition( glm::vec2( 0, 1 * this->font_height ) );
-    text_2d_buffer_r->print( "Press the ACTION button to play." );
-
-    text_2d_buffer_r->setColor( glm::vec4( 1.00, 0.50, 0.00, 1 ) );
-    text_2d_buffer_r->setPosition( glm::vec2( 0, 2 * this->font_height ) );
-
-    text_2d_buffer_r->setColor( glm::vec4( 1, 0.25, 1, 1 ) );
-    text_2d_buffer_r->setPosition( glm::vec2( 0, 3 * this->font_height ) );
 }

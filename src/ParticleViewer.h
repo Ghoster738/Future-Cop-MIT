@@ -18,6 +18,10 @@ private:
     std::vector<Data::Mission::PYRResource::Particle> particles;
     Graphics::ParticleInstance *particle_instance_p;
 
+    float next_frame_delay_seconds;
+    float next_frame_delay;
+    unsigned particle_frame_index;
+
     float count_down;
 
     Graphics::Text2DBuffer::Font font;
