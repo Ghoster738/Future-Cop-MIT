@@ -20,7 +20,7 @@ ParticleInstance::~ParticleInstance() {
 void ParticleInstance::setParticleID( uint16_t particle_id ) {
     auto new_particle_r = this->environment_r->particle_draw_routine.containsParticle( particle_id );
 
-    if(new_particle_r == nullptr)
+    if(new_particle_r == nullptr && particle_id != 0)
         return;
 
     this->particle_r = new_particle_r;
