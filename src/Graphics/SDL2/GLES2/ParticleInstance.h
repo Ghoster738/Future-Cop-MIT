@@ -15,20 +15,13 @@ public:
 
     virtual ~ParticleInstance();
 
-    virtual void setPosition( const glm::vec3 &position );
-    virtual glm::vec3 getPosition() const;
-
-    virtual void setColor( const glm::vec4 &color );
-    virtual glm::vec4 getColor() const;
-
-    virtual void setSpan( float span );
-    virtual float getSpan() const;
-
     virtual void setParticleID( uint16_t particle_id );
-    virtual uint16_t getParticleID() const = 0;
+    virtual uint16_t getParticleID() const;
 
     virtual bool setParticleIndex( uint16_t index );
     virtual uint16_t getParticleIndex() const;
+
+    virtual void update();
 };
 
 }
