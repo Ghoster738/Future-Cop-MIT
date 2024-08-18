@@ -38,7 +38,7 @@ bool ParticleInstance::setParticleIndex( uint16_t index ) {
     if(this->particle_r == nullptr)
         return false;
 
-    if(this->particle_r->getTextures().size() >= index)
+    if(this->particle_r->getTextures().size() < index)
         return false;
 
     this->particle_index = index;

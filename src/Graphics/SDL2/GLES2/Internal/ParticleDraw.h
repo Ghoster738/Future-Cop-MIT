@@ -60,8 +60,6 @@ public:
 
     void updateInstanceData(const ParticleInstance *const particle_instance_r, const ParticleInstanceData& particle_instance_data);
 
-    bool getInstanceData(const ParticleInstance *const particle_instance_r, ParticleInstanceData& particle_instance_data) const;
-
     void removeInstanceData(const ParticleInstance *const particle_instance_r);
 };
 

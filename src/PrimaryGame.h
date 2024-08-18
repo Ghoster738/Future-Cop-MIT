@@ -22,6 +22,8 @@ private:
     glm::vec2 camera_rotation_transform;
     float     camera_distance_transform;
 
+    std::vector<Graphics::ParticleInstance*> particle_instances_p;
+
     std::vector<const Data::Mission::TilResource*> til_resources;
     int current_tile_selected;
     unsigned til_polygon_type_selected;

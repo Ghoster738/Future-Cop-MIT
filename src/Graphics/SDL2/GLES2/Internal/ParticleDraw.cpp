@@ -48,32 +48,6 @@ int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data
 
     particle_instances.clear();
 
-    uintptr_t fake_pointer = 12345;
-    float span = 1.0f;
-    float displace_x = 0;
-
-    for(auto particle = altas_particles.begin(); particle != altas_particles.end(); particle++) {
-        float displace_y = 0;
-
-        for(auto current_texture = (*particle).getTextures().begin(); current_texture != (*particle).getTextures().end(); current_texture++) {
-            ParticleDraw::ParticleInstanceData instance_data;
-
-            instance_data.position = glm::vec3(displace_x, 3, displace_y);
-            instance_data.color = glm::vec4(1.0);
-            instance_data.span = span;
-            instance_data.particle_r = &(*particle);
-            instance_data.image_index = current_texture - (*particle).getTextures().begin();
-
-            assert(instance_data.particle_r != nullptr);
-
-            updateInstanceData(reinterpret_cast<ParticleInstance*>(fake_pointer++),instance_data);
-
-            displace_y += 2.0f * span + 1.0f;
-        }
-
-        displace_x += 2.0f * span + 1.0f;
-    }
-
     return 1;
 }
 
@@ -114,6 +88,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glm::vec2 qu = (glm::vec2(current_texture.size) / glm::vec2(altas_particle.getSpriteSize())) - ql;
 
         ql += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
+        qu += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
 
         const glm::vec2 QUAD[4] = {{ql.x, qu.y}, {qu.x, qu.y}, {qu.x, ql.y}, {ql.x, ql.y}};
 
@@ -144,16 +119,6 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
 void ParticleDraw::updateInstanceData(const ParticleInstance *const particle_instance_r, const ParticleInstanceData& particle_instance_data) {
     particle_instances[particle_instance_r] = particle_instance_data;
-}
-
-bool ParticleDraw::getInstanceData(const ParticleInstance *const particle_instance_r, ParticleInstanceData& particle_instance_data) const {
-    auto search = particle_instances.find( particle_instance_r );
-
-    if(search != particle_instances.end()) {
-        particle_instance_data = (*search).second;
-        return true;
-    }
-    return false;
 }
 
 void ParticleDraw::removeInstanceData(const ParticleInstance *const particle_instance_r) {
