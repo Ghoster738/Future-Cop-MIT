@@ -13,6 +13,9 @@ class ParticleInstance : public Graphics::ParticleInstance {
 public:
     Environment *environment_r;
 
+    const Data::Mission::PYRResource::AtlasParticle *particle_r;
+    uint16_t particle_index;
+
     virtual ~ParticleInstance();
 
     virtual void setParticleID( uint16_t particle_id );

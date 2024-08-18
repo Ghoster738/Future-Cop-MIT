@@ -9,13 +9,13 @@ ParticleDraw::ParticleDraw() : particle_atlas_id(0), scale() {}
 
 ParticleDraw::~ParticleDraw() {}
 
-bool ParticleDraw::containsParticle( uint32_t pyr_identifier ) const {
+const Data::Mission::PYRResource::AtlasParticle * ParticleDraw::containsParticle( uint32_t pyr_identifier ) const {
     for(const auto &particle : altas_particles) {
         if(particle.getID() == pyr_identifier)
-            return true;
+            return &particle;
     }
 
-    return false;
+    return nullptr;
 }
 
 int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data, std::map<uint32_t, Internal::Texture2D*>& textures) {

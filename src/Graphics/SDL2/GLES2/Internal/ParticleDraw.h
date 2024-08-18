@@ -40,9 +40,9 @@ public:
     /**
      * This checks for the existence of the particle inside this draw routine.
      * @param pyr_identifier The id of the pyr to find.
-     * @return True if the particle exists in the class.
+     * @return If null then this method id not find the AtlasParticle.
      */
-    bool containsParticle( uint32_t pyr_identifier ) const;
+    const Data::Mission::PYRResource::AtlasParticle * containsParticle( uint32_t pyr_identifier ) const;
 
     /**
      * This loads up the particle data.
