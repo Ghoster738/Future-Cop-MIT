@@ -70,6 +70,9 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
         if(instance_data.particle_r == nullptr)
             continue;
+        
+        if(!camera.isVisible(instance_data.min, instance_data.max))
+            continue;
 
         const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 

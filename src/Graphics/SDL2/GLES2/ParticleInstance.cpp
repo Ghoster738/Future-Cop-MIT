@@ -55,6 +55,8 @@ void ParticleInstance::update() {
 
     particle_instance_data.position    = this->position;
     particle_instance_data.color       = this->color;
+    particle_instance_data.min         = { this->position.x - this->span, this->position.z - this->span };
+    particle_instance_data.max         = { this->position.x + this->span, this->position.z + this->span };
     particle_instance_data.span        = this->span;
     particle_instance_data.is_addition = this->is_addition;
     particle_instance_data.particle_r  = this->particle_r;
