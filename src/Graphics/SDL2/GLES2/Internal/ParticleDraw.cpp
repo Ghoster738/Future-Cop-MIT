@@ -88,10 +88,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glm::vec2 coords[4] = { {l.x, l.y}, {u.x, l.y}, {u.x, u.y}, {l.x, u.y} };
 
         glm::vec2 ql(-0.5);
-        glm::vec2 qu = (glm::vec2(current_texture.size) / glm::vec2(altas_particle.getSpriteSize())) - ql;
-
-        ql += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
-        qu += (glm::vec2(current_texture.offset_from_size) / glm::vec2(altas_particle.getSpriteSize()));
+        glm::vec2 qu( 0.5);
 
         ql *= instance_data.span;
         qu *= instance_data.span;

@@ -122,16 +122,19 @@ void drawAtlas(uint16_t x, uint16_t y, uint16_t level, const Utilities::ImagePal
 
     auto texture_r = particles[textures[index].first].getTexture(textures[index].second);
 
-    if( findClosetPow2( texture_r->getSize() ) == level ) {
+    if( atlas_particles[textures[index].first].getSpriteSize() == level ) {
         Utilities::ImagePalette2D sub_image( texture_r->getSize().x, texture_r->getSize().y, *texture_r->getPalette() );
 
         primary_image.subImage(
             texture_r->getLocation().x, texture_r->getLocation().y,
             texture_r->getSize().x,     texture_r->getSize().y, sub_image );
 
-        atlas_texture.inscribeSubImage(x, y, sub_image);
+        auto &offseter = atlas_particles[textures[index].first].getTextures()[textures[index].second].offset_from_size;
+
+        atlas_texture.inscribeSubImage(x + offseter.x, y + offseter.y, sub_image);
 
         atlas_particles[textures[index].first].getTextures()[textures[index].second].location = glm::u16vec2(x, y);
+        atlas_particles[textures[index].first].getTextures()[textures[index].second].size = glm::u8vec2(atlas_particles[textures[index].first].getSpriteSize());
 
         index++;
     }
@@ -155,13 +158,13 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas(std::vec
 
         atlas_particles.back().getTextures().resize(particle.getNumSprites());
 
+        const auto particle_pow_2 = static_cast<size_t>(particle.getSpriteSize());
+
+        const uint32_t area_estimate = static_cast<uint32_t>(particle_pow_2) * static_cast<uint32_t>(particle_pow_2);
+
+        area_needed += area_estimate * atlas_particles.back().getTextures().size();
+
         for(unsigned s = 0; s < particle.getNumSprites(); s++) {
-            const auto particle_pow_2 = findClosetPow2( particle.getTexture(s)->getSize() );
-
-            const uint32_t area_estimate = static_cast<uint32_t>(particle_pow_2) * static_cast<uint32_t>(particle_pow_2);
-
-            area_needed += area_estimate;
-
             atlas_particles.back().getTextures()[s].offset_from_size = particle.getTexture(s)->getOffsetFromSize();
             atlas_particles.back().getTextures()[s].size = particle.getTexture(s)->getSize();
         }
