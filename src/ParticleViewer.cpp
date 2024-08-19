@@ -147,14 +147,25 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
     text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
 
     text_2d_buffer_r->setFont( this->font );
-    text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
+    text_2d_buffer_r->setColor( glm::vec4( 1 ) );
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
 
     if(!this->particles.empty()) {
         std::stringstream new_stream;
 
-        new_stream << "Particle (index, id) = " << this->particle_index << ", " << this->particles.at( this->particle_index ).getID();
+        new_stream << "Particle Index = " << this->particle_index;
+        text_2d_buffer_r->print( new_stream.str() );
+        new_stream.str("");
+        new_stream.clear();
 
+        new_stream << "Particle ID = " << this->particles.at( this->particle_index ).getID();
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 1 * this->font_height ) );
+        text_2d_buffer_r->print( new_stream.str() );
+        new_stream.str("");
+        new_stream.clear();
+
+        new_stream << "Frame Amount = " << static_cast<unsigned>(this->particles.at( this->particle_index ).getNumSprites());
+        text_2d_buffer_r->setPosition( glm::vec2( 0, 2 * this->font_height ) );
         text_2d_buffer_r->print( new_stream.str() );
     }
     else
