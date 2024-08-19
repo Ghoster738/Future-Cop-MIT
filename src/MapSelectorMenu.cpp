@@ -3,6 +3,7 @@
 #include <glm/vec4.hpp>
 
 #include "MainProgram.h"
+#include "ParticleViewer.h"
 #include "MainMenu.h"
 
 namespace {
@@ -170,6 +171,23 @@ void MapSelectorMenu::update( MainProgram &main_program, std::chrono::microsecon
                 text_2d_buffer_r->print( this->missing_global[i] );
             }
         }
+    }
+    else if( this->game_r == &ParticleViewer::particle_viewer ) {
+        text_2d_buffer_r->setFont( this->error_font );
+        text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
+        text_2d_buffer_r->setColor( glm::vec4( 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 0 * this->error_line_height) );
+        text_2d_buffer_r->print( "Particles from every unmodded" );
+        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 1 * this->error_line_height) );
+        text_2d_buffer_r->print( "map is the same. This is true" );
+        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 2 * this->error_line_height) );
+        text_2d_buffer_r->print( "for PC games where only one" );
+        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 3 * this->error_line_height) );
+        text_2d_buffer_r->print( "particle resource is in GlblData." );
+        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 4 * this->error_line_height) );
+        text_2d_buffer_r->print( "All known PS1 mission files" );
+        text_2d_buffer_r->setPosition( glm::vec2( this->placement.x, this->placement.y + 5 * this->error_line_height) );
+        text_2d_buffer_r->print( "have the same particles resource." );
     }
 
     drawAllItems( main_program );
