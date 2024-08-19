@@ -3,6 +3,13 @@
 #include "MainProgram.h"
 #include "MainMenu.h"
 
+namespace {
+
+const std::string LEFT_TEXT[2]  = {"Press LEFT to", "Decrement Index"};
+const std::string RIGHT_TEXT[2] = {"Press RIGHT to", "Increment Index"};
+
+}
+
 ParticleViewer ParticleViewer::particle_viewer;
 
 ParticleViewer::ParticleViewer() {
@@ -40,6 +47,10 @@ void ParticleViewer::load( MainProgram &main_program ) {
             this->font.scale = 1;
         }
     }
+    const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
+
+    this->right_text_placement = main_program.getWindowScale();
+    this->right_text_placement.y -= 2 * this->font_height;
 
     if(this->particle_instance_p != nullptr)
         delete this->particle_instance_p;
@@ -170,5 +181,16 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
     }
     else
         text_2d_buffer_r->print( "No particles are loaded! Double check if anything is missing!" );
+
+    text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y ) );
+    text_2d_buffer_r->print( LEFT_TEXT[0] );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y + this->font_height ) );
+    text_2d_buffer_r->print( LEFT_TEXT[1] );
+
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::RIGHT );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement ) );
+    text_2d_buffer_r->print( RIGHT_TEXT[0] );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement + glm::u32vec2(0, this->font_height ) ) );
+    text_2d_buffer_r->print( RIGHT_TEXT[1] );
 
 }

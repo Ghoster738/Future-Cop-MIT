@@ -27,6 +27,8 @@ private:
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
 
+    glm::u32vec2 right_text_placement;
+
 public:
     ParticleViewer();
     virtual ~ParticleViewer();
