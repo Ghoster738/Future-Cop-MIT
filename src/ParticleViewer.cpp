@@ -113,6 +113,13 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
             main_program.switchMenu( &MainMenu::main_menu );
         }
 
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ACTION );
+        if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
+        {
+            this->particle_instance_p->is_addition = !this->particle_instance_p->is_addition;
+            this->count_down = 0.5f;
+        }
+
         int next = 0;
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
@@ -192,5 +199,12 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
     text_2d_buffer_r->print( RIGHT_TEXT[0] );
     text_2d_buffer_r->setPosition( glm::vec2( right_text_placement + glm::u32vec2(0, this->font_height ) ) );
     text_2d_buffer_r->print( RIGHT_TEXT[1] );
+
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 0 * this->font_height ) );
+    text_2d_buffer_r->print( "Press ACTION" );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 1 * this->font_height ) );
+    text_2d_buffer_r->print( "to toggle blend" );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement.x, 2 * this->font_height ) );
+    text_2d_buffer_r->print( "modes" );
 
 }
