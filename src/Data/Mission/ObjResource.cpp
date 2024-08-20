@@ -2274,6 +2274,8 @@ std::vector<Data::Mission::ObjResource::FacerPolygon> Data::Mission::ObjResource
 
                     polys.push_back( facer_polygon );
                     break;
+                default:
+                    break; // Do nothing!
             }
         }
 

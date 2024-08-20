@@ -93,6 +93,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
                     polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
                 );
                 break;
+            default:
+                break; // Do Nothing
         }
     }
 }
