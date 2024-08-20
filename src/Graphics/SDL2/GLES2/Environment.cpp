@@ -105,7 +105,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
         this->textures[ 0 ] = new SDL2::GLES2::Internal::Texture2D;
 
-        this->textures[ 0 ]->setCBMPResourceID( 0 );
         this->textures[ 0 ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
         this->textures[ 0 ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
     }
@@ -121,7 +120,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
             this->textures[ CBMP_ID ] = new SDL2::GLES2::Internal::Texture2D;
             
-            this->textures[ CBMP_ID ]->setCBMPResourceID( CBMP_ID );
             this->textures[ CBMP_ID ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
             this->textures[ CBMP_ID ]->setImage( 0, 0, GL_RGBA, image_accessor.getWidth(), image_accessor.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_accessor.getDirectGridData() );
             
@@ -272,6 +270,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if( err != GL_NO_ERROR )
         std::cout << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << std::endl;
 
+    std::vector<const Data::Mission::PYRResource*> particle_types = accessor.getAllConstPYR();
+
+    if(!particle_types.empty())
+        this->particle_draw_routine.inputParticles(*particle_types[0], this->textures);
+
     return number_of_failures;
 
     if( failed_texture_loads == 0 )
@@ -348,7 +351,7 @@ void Environment::drawFrame() {
     glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
     // Clear the screen to black
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.125f, 0.125f, 0.25f, 1.0f);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     for( unsigned int i = 0; i < window_r->getCameras()->size(); i++ )
@@ -380,6 +383,8 @@ void Environment::drawFrame() {
             this->static_model_draw_routine.draw(   *current_camera_r );
             this->morph_model_draw_routine.draw(    *current_camera_r );
             this->skeletal_model_draw_routine.draw( *current_camera_r );
+
+            this->particle_draw_routine.draw( *current_camera_r );
 
             glEnable( GL_BLEND );
             glDepthMask(GL_FALSE);

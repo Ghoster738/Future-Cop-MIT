@@ -6,6 +6,8 @@
 #include "Data/Mission/PTCResource.h"
 #include "Data/Mission/ACT/Prop.h"
 
+#include "Data/Mission/PYRResource.h"
+
 #include <ratio>
 
 #include "Config.h"

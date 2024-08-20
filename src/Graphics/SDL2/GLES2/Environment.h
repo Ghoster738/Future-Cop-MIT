@@ -10,6 +10,7 @@
 #include "Internal/FontSystem.h"
 #include "Internal/StaticModelDraw.h"
 #include "Internal/SkeletalModelDraw.h"
+#include "Internal/ParticleDraw.h"
 #include "Internal/World.h"
 #include "../../Camera.h"
 #include "../../Environment.h"
@@ -31,6 +32,7 @@ public:
     Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
+    Graphics::SDL2::GLES2::Internal::ParticleDraw        particle_draw_routine;
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
     bool draw_bounding_boxes;
@@ -44,6 +46,7 @@ public:
 
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+    virtual Graphics::ParticleInstance* allocateParticleInstance();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );

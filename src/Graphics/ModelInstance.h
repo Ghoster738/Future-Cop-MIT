@@ -90,7 +90,7 @@ public:
 
     /**
      * This gets the position of the model.
-     * @return position the 3D position of the model to be overwritten.
+     * @return the 3D position of the model to be overwritten.
      */
     glm::vec3 getPosition() const;
 
