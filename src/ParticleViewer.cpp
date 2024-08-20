@@ -59,7 +59,7 @@ void ParticleViewer::load( MainProgram &main_program ) {
 
     this->particle_instance_p->position    = glm::vec3(0);
     this->particle_instance_p->color       = glm::vec4(1.0);
-    this->particle_instance_p->span        = 1.0f;
+    this->particle_instance_p->span        = 2.0f;
     this->particle_instance_p->is_addition = false;
     this->particle_instance_p->setParticleID(this->particles.at(0).getID());
     this->particle_instance_p->setParticleIndex(0);
