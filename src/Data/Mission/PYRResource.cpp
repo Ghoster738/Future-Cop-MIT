@@ -213,11 +213,8 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas(std::vec
     // Sort the "textures" from largest to smallest.
     std::sort(textures.begin(), textures.end(),
         [this](std::pair<unsigned, unsigned> a, std::pair<unsigned, unsigned> b) {
-                const auto a_size = particles[a.first].getTexture(a.second)->getSize();
-                const auto b_size = particles[b.first].getTexture(b.second)->getSize();
-
-                const auto a_length = std::max(a_size.x, a_size.y);
-                const auto b_length = std::max(b_size.x, b_size.y);
+                const auto a_length = particles[a.first].getSpriteSize();
+                const auto b_length = particles[b.first].getSpriteSize();
 
                 return a_length > b_length;
         });
@@ -511,6 +508,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
 
 bool Data::Mission::IFFOptions::PYROption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_PRIME_BLACK_WHITE", output_r, export_prime_bw ) )
+        return false; // The single argument is not valid.
     if( !singleArgument( arguments, "--" + getNameSpace() + "_PALETTLESS_ATLAS",  output_r, export_palettless_atlas ) )
         return false; // The single argument is not valid.
 
