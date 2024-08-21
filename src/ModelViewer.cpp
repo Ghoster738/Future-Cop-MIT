@@ -9,6 +9,13 @@
 
 #include <glm/ext/quaternion_trigonometric.hpp>
 
+namespace {
+
+const std::string LEFT_TEXT[2]  = {"Press LEFT to", "Decrement ID"};
+const std::string RIGHT_TEXT[2] = {"Press RIGHT to", "Increment ID"};
+
+}
+
 ModelViewer ModelViewer::model_viewer;
 
 ModelViewer::ModelViewer() {
@@ -70,6 +77,9 @@ void ModelViewer::load( MainProgram &main_program ) {
             this->font.scale = 1;
         }
     }
+
+    this->right_text_placement = main_program.getWindowScale();
+    this->right_text_placement.y -= 2 * this->font_height;
 }
 
 void ModelViewer::unload( MainProgram &main_program ) {
@@ -228,4 +238,15 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
         text_2d_buffer_r->print( "PRESS the " + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + " button to export model." );
     }
+
+    text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y ) );
+    text_2d_buffer_r->print( LEFT_TEXT[0] );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y + this->font_height ) );
+    text_2d_buffer_r->print( LEFT_TEXT[1] );
+
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::RIGHT );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement ) );
+    text_2d_buffer_r->print( RIGHT_TEXT[0] );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement + glm::u32vec2(0, this->font_height ) ) );
+    text_2d_buffer_r->print( RIGHT_TEXT[1] );
 }
