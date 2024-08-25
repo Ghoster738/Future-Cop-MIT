@@ -7,7 +7,6 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-
 using Data::Mission::Til::Mesh::RED;
 using Data::Mission::Til::Mesh::GREEN;
 using Data::Mission::Til::Mesh::BLUE;
@@ -19,8 +18,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 0
         {
              {BACK_LEFT, RED},
-             {FRONT_RIGHT, RED},
              {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -28,8 +27,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
-             {FRONT_RIGHT, RED},
              {BACK_LEFT, RED},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -37,8 +36,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -46,8 +45,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -55,8 +54,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, BLUE},
              {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -64,8 +63,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 5
         {
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -73,8 +72,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
+             {BACK_RIGHT, RED},
              {FRONT_RIGHT, RED},
-             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -82,8 +81,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
-             {BACK_RIGHT, RED},
              {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -91,8 +90,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
              {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -100,8 +99,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -109,8 +108,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 10
         {
              {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
              {FRONT_RIGHT, BLUE},
-             {BACK_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -118,8 +117,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, BLUE},
-             {BACK_RIGHT, BLUE},
              {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -127,8 +126,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, RED},
              {FRONT_RIGHT, RED},
-             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -136,8 +135,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, RED},
              {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -145,8 +144,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -154,8 +153,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 15
         {
              {FRONT_LEFT, BLUE},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -163,8 +162,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
              {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -172,8 +171,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -181,8 +180,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -190,8 +189,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -199,8 +198,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 20
         {
              {FRONT_LEFT, RED},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -208,8 +207,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -217,16 +216,7 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, BLUE},
              {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
              {BACK_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
@@ -234,9 +224,18 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     },
     {
         {
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
              {FRONT_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -244,8 +243,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 25
         {
              {BACK_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -253,8 +252,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -262,8 +261,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
              {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -271,8 +270,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
+             {BACK_RIGHT, GREEN},
              {FRONT_RIGHT, RED},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -280,8 +279,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -289,8 +288,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 30
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -298,8 +297,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, BLUE},
              {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -307,8 +306,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
-             {FRONT_RIGHT, RED},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -316,8 +315,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -325,8 +324,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -334,8 +333,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 35
         {
              {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -343,8 +342,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -352,8 +351,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -361,8 +360,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -370,8 +369,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -379,8 +378,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 40
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, RED},
              {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -388,8 +387,17 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -398,16 +406,7 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
         {
              {FRONT_LEFT, BLUE},
              {BACK_RIGHT, GREEN},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, BLUE},
              {FRONT_RIGHT, BLUE},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -415,8 +414,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -424,8 +423,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 45
         {
              {FRONT_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -433,17 +432,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, BLUE},
              {BACK_RIGHT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
              {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -451,8 +441,17 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
              {FRONT_RIGHT, RED},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -460,8 +459,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -469,8 +468,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 50
         {
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -478,8 +477,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, BLUE},
-             {BACK_RIGHT, BLUE},
              {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -487,8 +486,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
              {BACK_LEFT, RED},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -496,8 +495,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {BACK_LEFT, RED},
-             {FRONT_RIGHT, RED},
              {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -505,8 +504,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -514,17 +513,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     { // 55
         {
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
              {BACK_RIGHT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
              {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -533,7 +523,16 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
         {
              {FRONT_LEFT, RED},
              {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
              {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -541,8 +540,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
              {FRONT_RIGHT, BLUE},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -550,8 +549,8 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, GREEN},
              {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
              {BACK_LEFT, NO_ELEMENT}
         },
         false
@@ -560,430 +559,16 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
         {
              {FRONT_LEFT, GREEN},
              {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
-             {BACK_RIGHT, RED}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, GREEN}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, GREEN}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_RIGHT, BLUE}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
-             {BACK_RIGHT, GREEN}
-        },
-        false
-    },
-    { // 65
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, BLUE}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, RED}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_RIGHT, GREEN}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_LEFT, RED},
-             {FRONT_RIGHT, RED},
-             {BACK_RIGHT, RED}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
-             {BACK_RIGHT, GREEN}
-        },
-        false
-    },
-    { // 70
-        {
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, BLUE},
-             {FRONT_RIGHT, BLUE},
-             {BACK_RIGHT, BLUE}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {FRONT_RIGHT, RED},
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    { // 75
-        {
-             {FRONT_LEFT, RED},
-             {FRONT_RIGHT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {FRONT_RIGHT, GREEN},
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_LEFT, RED},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    { // 80
-        {
-             {FRONT_LEFT, RED},
-             {BACK_LEFT, GREEN},
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, BLUE},
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_LEFT, RED},
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, RED},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    { // 85
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, GREEN},
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, RED},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, RED},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, BLUE},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    { // 90
-        {
-             {FRONT_RIGHT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, RED},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, RED},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, BLUE},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    { // 95
-        {
-             {FRONT_LEFT, RED},
              {BACK_RIGHT, RED},
-             {BACK_RIGHT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_RIGHT, GREEN},
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, GREEN},
-             {BACK_RIGHT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, BLUE},
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {BACK_RIGHT, RED},
-             {FRONT_LEFT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    { // 100
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, RED},
-             {BACK_RIGHT, GREEN},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, GREEN},
-             {FRONT_LEFT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
+             {FRONT_RIGHT, RED}
         },
         false
     },
     {
         {
              {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
              {BACK_RIGHT, GREEN},
-             {BACK_RIGHT, BLUE},
-             {BACK_LEFT, NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, RED},
-             {FRONT_RIGHT, GREEN},
-             {BACK_LEFT, RED},
-             {BACK_LEFT, GREEN}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_RIGHT, GREEN},
-             {FRONT_RIGHT, BLUE},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, BLUE}
-        },
-        false
-    },
-    { // 105
-        {
-             {FRONT_LEFT, RED},
-             {FRONT_LEFT, GREEN},
-             {BACK_RIGHT, RED},
-             {BACK_RIGHT, GREEN}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, GREEN},
-             {FRONT_LEFT, BLUE},
-             {BACK_RIGHT, GREEN},
-             {BACK_RIGHT, BLUE}
-        },
-        false
-    },
-    {
-        {
-             {FRONT_LEFT, RED},
-             {FRONT_LEFT, GREEN},
-             {FRONT_RIGHT, RED},
              {FRONT_RIGHT, GREEN}
         },
         false
@@ -991,9 +576,180 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
     {
         {
              {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED}
+        },
+        false
+    },
+    { // 65
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN}
+        },
+        false
+    },
+    {
+        {
              {FRONT_LEFT, GREEN},
              {BACK_LEFT, RED},
-             {BACK_LEFT, GREEN}
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN}
+        },
+        false
+    },
+    { // 70
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    { // 75
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 80
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
@@ -1001,17 +757,260 @@ Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLY
         {
              {FRONT_LEFT, GREEN},
              {FRONT_LEFT, BLUE},
-             {FRONT_RIGHT, GREEN},
-             {FRONT_RIGHT, BLUE}
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 85
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    { // 90
+        {
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 95
+        {
+             {FRONT_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 100
+        {
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN}
+        },
+        false
+    },
+    { // 105
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_RIGHT, RED}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_RIGHT, GREEN}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, RED}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN}
+        },
+        true
     },
     { // 110
         {
              {FRONT_LEFT, GREEN},
              {FRONT_LEFT, BLUE},
-             {BACK_LEFT, GREEN},
-             {BACK_LEFT, BLUE}
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN}
         },
         false
     },
