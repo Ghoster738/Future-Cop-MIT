@@ -571,18 +571,18 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
         this->tile_graphics_bitfield.push_back( dynamic_color.get() );
     }
     else {
-        default_graphics.shading = 0x01;
+        default_graphics.shading = (0x3f << 2) | 0x2;
         default_graphics.type = 0b01; // Dynamic Monochrome
 
-        // first = 0
-        // second = 0x10
+        // first = 0x3f
+        // second = 0x28
 
         this->tile_graphics_bitfield.push_back( default_graphics.get() );
 
         DynamicMonoGraphics dynamic_monochrome;
-        dynamic_monochrome.second_lower = 0;
-        dynamic_monochrome.third = 0x28;
-        dynamic_monochrome.forth = 0x3f;
+        dynamic_monochrome.second_lower = 0x8;
+        dynamic_monochrome.third = 0x10;
+        dynamic_monochrome.forth = 0;
 
         this->tile_graphics_bitfield.push_back( dynamic_monochrome.get() );
     }
