@@ -358,7 +358,7 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
     return image;
 }
 
-void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
+void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned type ) {
     InfoSLFX info_slfx( 0 );
     info_slfx.is_disabled = true;
     this->slfx_bitfield = info_slfx.get();
@@ -553,7 +553,7 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
     
     this->tile_graphics_bitfield.push_back( default_graphics.get() );
 
-    if( false ) {
+    if( type == 0 ) {
         default_graphics.shading = 0;
         default_graphics.type = 0b10; // Color Palette
 
@@ -599,8 +599,8 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
-    if(getResourceID() >= 2 && getResourceID() <= 8) {
-        makeTest( 16 * (getResourceID() - 2) );
+    if(getResourceID() >= 2 && getResourceID() <= 15) {
+        makeTest( 16 * (getResourceID() - 2), getResourceID() > 8 );
 
         return true;
     }

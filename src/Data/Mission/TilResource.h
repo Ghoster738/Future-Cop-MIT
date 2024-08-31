@@ -300,7 +300,7 @@ public:
 
     Utilities::Image2D getImage() const;
     
-    void makeTest( unsigned section_offset );
+    void makeTest( unsigned section_offset, unsigned type = 0 );
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
