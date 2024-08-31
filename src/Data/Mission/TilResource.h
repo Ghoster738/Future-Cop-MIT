@@ -95,6 +95,12 @@ public:
             third        = (bitfield >>  6) & ((1 << 6) - 1);
             second_lower = (bitfield >> 12) & ((1 << 4) - 1);
         }
+
+        uint16_t get() const {
+            return  ((uint16_t)forth        <<  0) |
+                    ((uint16_t)third        <<  6) |
+                    ((uint16_t)second_lower << 12);
+        }
     };
     struct DynamicColorGraphics {
         uint16_t third  : 8;

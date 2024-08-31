@@ -553,21 +553,39 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
     
     this->tile_graphics_bitfield.push_back( default_graphics.get() );
 
-    default_graphics.shading = 0;
-    default_graphics.type = 0b10;
+    if( false ) {
+        default_graphics.shading = 0;
+        default_graphics.type = 0b10; // Color Palette
 
-    this->tile_graphics_bitfield.push_back( default_graphics.get() );
+        this->tile_graphics_bitfield.push_back( default_graphics.get() );
 
-    DynamicColorGraphics dynamic_color;
-    dynamic_color.second = 1;
-    dynamic_color.third  = 2;
+        DynamicColorGraphics dynamic_color;
+        dynamic_color.second = 1;
+        dynamic_color.third  = 2;
 
-    this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+        this->tile_graphics_bitfield.push_back( dynamic_color.get() );
 
-    dynamic_color.second = 3;
-    dynamic_color.third  = 4;
+        dynamic_color.second = 3;
+        dynamic_color.third  = 4;
 
-    this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+        this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+    }
+    else {
+        default_graphics.shading = 0x01;
+        default_graphics.type = 0b01; // Dynamic Monochrome
+
+        // first = 0
+        // second = 0x10
+
+        this->tile_graphics_bitfield.push_back( default_graphics.get() );
+
+        DynamicMonoGraphics dynamic_monochrome;
+        dynamic_monochrome.second_lower = 0;
+        dynamic_monochrome.third = 0x28;
+        dynamic_monochrome.forth = 0x3f;
+
+        this->tile_graphics_bitfield.push_back( dynamic_monochrome.get() );
+    }
 
     
     this->all_triangles.clear();
@@ -582,7 +600,7 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     if(getResourceID() >= 2 && getResourceID() <= 8) {
-        makeTest( 16 * (2 - getResourceID()) );
+        makeTest( 16 * (getResourceID() - 2) );
 
         return true;
     }
