@@ -412,7 +412,7 @@ void Data::Mission::TilResource::makeEmpty() {
     this->texture_cords.push_back( glm::u8vec2(134, 26) );
 
     // 1 and 9
-    for(unsigned adv = 0; adv < 256; adv += 27) {
+    for(unsigned adv = 0; adv < 243; adv += 27) {
         this->texture_cords.push_back( glm::u8vec2(adv,      53) );
         this->texture_cords.push_back( glm::u8vec2(adv,      27) );
         this->texture_cords.push_back( glm::u8vec2(adv + 26, 27) );
@@ -436,7 +436,7 @@ void Data::Mission::TilResource::makeEmpty() {
 
     this->mesh_tiles.clear();
 
-    unsigned section_index = 0;
+    unsigned section_index = 95;
     
     for( unsigned int sx = 0; sx < AMOUNT_OF_TILES / 4; sx++ ) {
         for( unsigned int sy = 0; sy < AMOUNT_OF_TILES / 4; sy++ ) {
@@ -452,28 +452,43 @@ void Data::Mission::TilResource::makeEmpty() {
                     Tile one_tile( 0 );
                     one_tile.end_column = 0;
 
-                    const unsigned tile_index = 4 * section_index + tx / 2 + 2 * (ty / 2);
+                    if( ty == 3 ) {
+                        one_tile.front = (tx & 0b01) == 0b01;
+                        one_tile.back  = (tx & 0b10) == 0b10;
+                        one_tile.unknown_1 = 0;
+                        one_tile.graphics_type_index = 0;
 
-                    if( y % 2 == 0 ) {
-                        if( x % 2 == 0 ) {
-                            one_tile.front = 0;
-                            one_tile.back = 0;
-                            one_tile.unknown_1 = 0;
-                            one_tile.graphics_type_index = 0;
+                        one_tile.texture_cord_index = 8;
+                        one_tile.mesh_type = 70;
+                        this->mesh_tiles.push_back( one_tile );
 
-                            one_tile.texture_cord_index = 8;
-                            one_tile.mesh_type = 70;
-                            this->mesh_tiles.push_back( one_tile );
+                        one_tile.texture_cord_index = 0;
+                        one_tile.mesh_type = section_index;
+                        one_tile.graphics_type_index = 1;
+                        this->mesh_tiles.push_back( one_tile );
+                    }
+                    else if( ty == 2 ) {
+                        one_tile.front = 0;
+                        one_tile.back = 0;
+                        one_tile.unknown_1 = 0;
+                        one_tile.texture_cord_index = 4 * tx + NUMBER_CORD_INDEX;
+                        one_tile.graphics_type_index = 0;
+                        one_tile.mesh_type = 69;
 
-                            one_tile.texture_cord_index = 0;
-                            one_tile.mesh_type = tile_index;
-                            this->mesh_tiles.push_back( one_tile );
+                        this->mesh_tiles.push_back( one_tile );
+                    }
+                    else if( ty == 1 ) {
+                        one_tile.front = 0;
+                        one_tile.back = 0;
+                        one_tile.unknown_1 = 0;
+                        one_tile.texture_cord_index = 4;
+                        one_tile.graphics_type_index = 0;
+                        one_tile.mesh_type = 69;
 
-                            std::cout << "tile_index = " << tile_index << std::endl;
-                        }
-                        else {
-                            // Just create one generic floor
-
+                        this->mesh_tiles.push_back( one_tile );
+                    }
+                    else if( ty == 0 ) {
+                        if( tx == 0 || tx == 3) {
                             one_tile.front = 0;
                             one_tile.back = 0;
                             one_tile.unknown_1 = 0;
@@ -483,13 +498,11 @@ void Data::Mission::TilResource::makeEmpty() {
 
                             this->mesh_tiles.push_back( one_tile );
                         }
-                    }
-                    else {
-                        if( x % 2 == 0 ) {
+                        else if( tx == 1 ) {
                             one_tile.front = 0;
                             one_tile.back = 0;
                             one_tile.unknown_1 = 0;
-                            one_tile.texture_cord_index = 4 * (tile_index / 10) + NUMBER_CORD_INDEX;
+                            one_tile.texture_cord_index = 4 * (section_index / 10) + NUMBER_CORD_INDEX;
                             one_tile.graphics_type_index = 0;
                             one_tile.mesh_type = 69;
 
@@ -499,7 +512,7 @@ void Data::Mission::TilResource::makeEmpty() {
                             one_tile.front = 0;
                             one_tile.back = 0;
                             one_tile.unknown_1 = 0;
-                            one_tile.texture_cord_index =  NUMBER_CORD_INDEX;
+                            one_tile.texture_cord_index = 4 * (section_index % 10) + NUMBER_CORD_INDEX;
                             one_tile.graphics_type_index = 0;
                             one_tile.mesh_type = 69;
 
@@ -522,6 +535,12 @@ void Data::Mission::TilResource::makeEmpty() {
     this->mesh_library_size = this->mesh_tiles.size();
     
     this->colors.clear();
+
+    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 0, 1) );
+    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(0, 1, 0, 1) );
+    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(0, 0, 1, 1) );
+    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(1, 1, 1, 1) );
+    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 1, 1) );
     
     this->tile_graphics_bitfield.clear();
     
@@ -536,7 +555,22 @@ void Data::Mission::TilResource::makeEmpty() {
     
     this->tile_graphics_bitfield.push_back( default_graphics.get() );
 
+    default_graphics.shading = 0;
+    default_graphics.type = 0b10;
+
     this->tile_graphics_bitfield.push_back( default_graphics.get() );
+
+    DynamicColorGraphics dynamic_color;
+    dynamic_color.second = 1;
+    dynamic_color.third  = 2;
+
+    this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+
+    dynamic_color.second = 3;
+    dynamic_color.third  = 4;
+
+    this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+
     
     this->all_triangles.clear();
     

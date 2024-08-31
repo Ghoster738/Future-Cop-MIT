@@ -109,6 +109,11 @@ public:
             third  = (bitfield >>  0) & ((1 << 8) - 1);
             second = (bitfield >>  8) & ((1 << 8) - 1);
         }
+
+        uint16_t get() const {
+            return ((uint16_t)third << 0) |
+                ((uint16_t)second << 8);
+        }
     };
     struct TileGraphics {
         uint16_t shading : 8; // Lighting information, but they do change meaning depending type bitfield
