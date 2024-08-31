@@ -45,6 +45,59 @@ Data::Mission::TilResource::CullingData::CullingData(const CullingData& data) {
     }
 }
 
+std::string Data::Mission::TilResource::Floor::getString() const {
+    std::stringstream stream;
+
+    stream << "Floor:"       << std::dec
+        << " tile_amount = " << (unsigned)tile_amount
+        << " tiles_start = " << (unsigned)tiles_start;
+
+    return stream.str();
+}
+
+std::string Data::Mission::TilResource::Tile::getString() const {
+    std::stringstream stream;
+
+    stream << "Tile:"     << std::dec
+        << " end_column = "          << (unsigned)end_column
+        << " texture_cord_index = "  << (unsigned)texture_cord_index
+        << " front = "               << (unsigned)front
+        << " back = "                << (unsigned)back
+        << " unknown_1 = "           << (unsigned)unknown_1
+        << " mesh_type = "           << (unsigned)mesh_type
+        << " graphics_type_index = " << (unsigned)graphics_type_index;
+
+    return stream.str();
+}
+
+std::string Data::Mission::TilResource::TileGraphics::getString() const {
+    std::stringstream stream;
+
+    stream << "TileGraphics:"     << std::dec
+        << " shading = "          << (unsigned)shading
+        << " texture_index = "    << (unsigned)texture_index
+        << " animated = "         << (unsigned)animated
+        << " semi_transparent = " << (unsigned)semi_transparent
+        << " rectangle = "        << (unsigned)rectangle
+        << " type = ";
+    switch(type) {
+    case 0b00:
+        stream << "Solid Monochrome";
+        break;
+    case 0b01:
+        stream << "Dynamic Monochrome";
+        break;
+    case 0b10:
+        stream << "Dynamic Color";
+        break;
+    case 0b11:
+        stream << "Lava Animation";
+        break;
+    }
+
+    return stream.str();
+}
+
 std::string Data::Mission::TilResource::InfoSLFX::getString() const {
     std::stringstream stream;
 
@@ -69,7 +122,6 @@ std::string Data::Mission::TilResource::InfoSLFX::getString() const {
     }
 
     return stream.str();
-
 }
 
 uint32_t Data::Mission::TilResource::InfoSLFX::get() const {
@@ -317,60 +369,174 @@ void Data::Mission::TilResource::makeEmpty() {
         for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
             HeightmapPixel height;
             
-            height.channel[0] = -128;
-            height.channel[1] =  127;
-            height.channel[2] = -128;
+            height.channel[0] = -32;
+            height.channel[1] =  0;
+            height.channel[2] =  32;
             
             point_cloud_3_channel.setValue( x, y, height );
         }
     }
 
+    this->texture_cords.clear();
+
+    // Test Polygon
+    this->texture_cords.push_back( glm::u8vec2(  0, 26) );
+    this->texture_cords.push_back( glm::u8vec2(  0,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 26,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 26, 26) );
+
+    // Floor
+    this->texture_cords.push_back( glm::u8vec2( 27, 26) );
+    this->texture_cords.push_back( glm::u8vec2( 27,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 53,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 53, 26) );
+
+    // Cap
+    this->texture_cords.push_back( glm::u8vec2( 54, 26) );
+    this->texture_cords.push_back( glm::u8vec2( 54,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 80,  0) );
+    this->texture_cords.push_back( glm::u8vec2( 80, 26) );
+
+    // Wall
+    this->texture_cords.push_back( glm::u8vec2( 81, 26) );
+    this->texture_cords.push_back( glm::u8vec2( 81,  0) );
+    this->texture_cords.push_back( glm::u8vec2(107,  0) );
+    this->texture_cords.push_back( glm::u8vec2(107, 26) );
+
+    const auto NUMBER_CORD_INDEX = this->texture_cords.size();
+
+    // Zero
+    this->texture_cords.push_back( glm::u8vec2(108, 26) );
+    this->texture_cords.push_back( glm::u8vec2(108,  0) );
+    this->texture_cords.push_back( glm::u8vec2(134,  0) );
+    this->texture_cords.push_back( glm::u8vec2(134, 26) );
+
+    // 1 and 9
+    for(unsigned adv = 0; adv < 256; adv += 27) {
+        this->texture_cords.push_back( glm::u8vec2(adv,      53) );
+        this->texture_cords.push_back( glm::u8vec2(adv,      27) );
+        this->texture_cords.push_back( glm::u8vec2(adv + 26, 27) );
+        this->texture_cords.push_back( glm::u8vec2(adv + 26, 53) );
+    }
+
+    // Ten
+    this->texture_cords.push_back( glm::u8vec2(135, 26) );
+    this->texture_cords.push_back( glm::u8vec2(135,  0) );
+    this->texture_cords.push_back( glm::u8vec2(161,  0) );
+    this->texture_cords.push_back( glm::u8vec2(161, 26) );
+
+    // Eleven
+    this->texture_cords.push_back( glm::u8vec2(162, 26) );
+    this->texture_cords.push_back( glm::u8vec2(162,  0) );
+    this->texture_cords.push_back( glm::u8vec2(188,  0) );
+    this->texture_cords.push_back( glm::u8vec2(188, 26) );
+
     // I decided to set these anyways.
     culling_data = CullingData();
+
+    this->mesh_tiles.clear();
+
+    unsigned section_index = 0;
     
-    this->mesh_library_size = 1;
-    
-    for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-        for( unsigned int y = 0; y < AMOUNT_OF_TILES; y++ ) {
-            mesh_reference_grid[x][y].tile_amount = 1;
-            mesh_reference_grid[x][y].tiles_start = 0; // It will refer to one tile.
+    for( unsigned int sx = 0; sx < AMOUNT_OF_TILES / 4; sx++ ) {
+        for( unsigned int sy = 0; sy < AMOUNT_OF_TILES / 4; sy++ ) {
+
+            for( unsigned tx = 0; tx < 4; tx++ ) {
+                for( unsigned ty = 0; ty < 4; ty++ ) {
+                    const unsigned x = 4 * sx + tx;
+                    const unsigned y = 4 * sy + ty;
+
+                    size_t starter = this->mesh_tiles.size();
+
+                    // Make a generic tile
+                    Tile one_tile( 0 );
+                    one_tile.end_column = 0;
+
+                    const unsigned tile_index = 4 * section_index + tx / 2 + 2 * (ty / 2);
+
+                    if( y % 2 == 0 ) {
+                        if( x % 2 == 0 ) {
+                            one_tile.front = 0;
+                            one_tile.back = 0;
+                            one_tile.unknown_1 = 0;
+                            one_tile.graphics_type_index = 0;
+
+                            one_tile.texture_cord_index = 8;
+                            one_tile.mesh_type = 70;
+                            this->mesh_tiles.push_back( one_tile );
+
+                            one_tile.texture_cord_index = 0;
+                            one_tile.mesh_type = tile_index;
+                            this->mesh_tiles.push_back( one_tile );
+
+                            std::cout << "tile_index = " << tile_index << std::endl;
+                        }
+                        else {
+                            // Just create one generic floor
+
+                            one_tile.front = 0;
+                            one_tile.back = 0;
+                            one_tile.unknown_1 = 0;
+                            one_tile.texture_cord_index = 4;
+                            one_tile.graphics_type_index = 0;
+                            one_tile.mesh_type = 69;
+
+                            this->mesh_tiles.push_back( one_tile );
+                        }
+                    }
+                    else {
+                        if( x % 2 == 0 ) {
+                            one_tile.front = 0;
+                            one_tile.back = 0;
+                            one_tile.unknown_1 = 0;
+                            one_tile.texture_cord_index = 4 * (tile_index / 10) + NUMBER_CORD_INDEX;
+                            one_tile.graphics_type_index = 0;
+                            one_tile.mesh_type = 69;
+
+                            this->mesh_tiles.push_back( one_tile );
+                        }
+                        else {
+                            one_tile.front = 0;
+                            one_tile.back = 0;
+                            one_tile.unknown_1 = 0;
+                            one_tile.texture_cord_index =  NUMBER_CORD_INDEX;
+                            one_tile.graphics_type_index = 0;
+                            one_tile.mesh_type = 69;
+
+                            this->mesh_tiles.push_back( one_tile );
+                        }
+                    }
+
+
+                    this->mesh_tiles.back().end_column = 1;
+
+                    mesh_reference_grid[x][y].tiles_start = starter;
+                    mesh_reference_grid[x][y].tile_amount = this->mesh_tiles.size() - starter;
+                }
+            }
+
+            section_index++;
         }
     }
-    
-    // Make a generic tile
-    Tile one_tile( 0 );
-    
-    one_tile.end_column = 0;
-    one_tile.texture_cord_index = 0;
-    one_tile.front = 0;
-    one_tile.back = 0;
-    one_tile.unknown_1 = 0;
-    one_tile.mesh_type = 60; // This should make an interesting pattern.
-    one_tile.graphics_type_index = 0;
-    
-    this->mesh_tiles.clear();
-    this->mesh_tiles.push_back( one_tile );
-    
-    this->texture_cords.clear();
-    this->texture_cords.push_back( glm::u8vec2( 0,  0) );
-    this->texture_cords.push_back( glm::u8vec2(32,  0) );
-    this->texture_cords.push_back( glm::u8vec2(32, 32) );
-    this->texture_cords.push_back( glm::u8vec2(32,  0) );
+
+    this->mesh_library_size = this->mesh_tiles.size();
     
     this->colors.clear();
     
     this->tile_graphics_bitfield.clear();
     
-    TileGraphics flat;
+    TileGraphics default_graphics;
     
-    flat.shading = 127;
-    flat.texture_index = 0;
-    flat.animated = 0;
-    flat.semi_transparent = 0;
-    flat.rectangle = 1; // This is a rectangle.
-    flat.type = 0; // Make a pure flat
+    default_graphics.shading = 127;
+    default_graphics.texture_index = 0;
+    default_graphics.animated = 0;
+    default_graphics.semi_transparent = 0;
+    default_graphics.rectangle = 1; // This is a rectangle.
+    default_graphics.type = 0; // Make a pure flat
     
-    this->tile_graphics_bitfield.push_back( flat.get() );
+    this->tile_graphics_bitfield.push_back( default_graphics.get() );
+
+    this->tile_graphics_bitfield.push_back( default_graphics.get() );
     
     this->all_triangles.clear();
     
@@ -383,6 +549,12 @@ void Data::Mission::TilResource::makeEmpty() {
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
+    if(getResourceID() == 1) {
+        makeEmpty();
+
+        return true;
+    }
+
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );

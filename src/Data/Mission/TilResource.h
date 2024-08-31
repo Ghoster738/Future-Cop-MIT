@@ -51,6 +51,8 @@ public:
             tile_amount = (bitfield >> 0) & ((1 <<  6) - 1);
             tiles_start = (bitfield >> 6) & ((1 << 10) - 1);
         }
+
+        std::string getString() const;
     };
     struct Tile {
         uint32_t end_column: 1;
@@ -75,6 +77,8 @@ public:
             mesh_type           = (bitfield >> 15) & ((1 <<  7) - 1);
             graphics_type_index = (bitfield >> 22) & ((1 << 10) - 1);
         }
+
+        std::string getString() const;
     };
     struct DynamicMonoGraphics {
         uint16_t forth : 6;
@@ -136,6 +140,8 @@ public:
                 ((uint16_t)rectangle << 13) |
                 ((uint16_t)type << 14);
         }
+
+        std::string getString() const;
     };
     class InfoSLFX {
     public:
