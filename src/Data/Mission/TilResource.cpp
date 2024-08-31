@@ -359,6 +359,12 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
 }
 
 void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned type ) {
+    if(this->data_p != nullptr)
+        delete this->data_p;
+
+    this->data_p = new Utilities::Buffer();
+
+
     InfoSLFX info_slfx( 0 );
     info_slfx.is_disabled = true;
     this->slfx_bitfield = info_slfx.get();
@@ -585,9 +591,6 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
         for(int i = 0; i < 4; i++) {
             default_graphics.shading = (0x3f << 2) | 0x3;
             default_graphics.type = 0b01; // Dynamic Monochrome
-
-            // first = 0x3f
-            // second = 0x3f
 
             DynamicMonoGraphics dynamic_monochrome;
             dynamic_monochrome.second_lower = 0xf;
