@@ -294,7 +294,7 @@ public:
 
     Utilities::Image2D getImage() const;
     
-    void makeEmpty();
+    void makeTest( unsigned section_offset );
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 

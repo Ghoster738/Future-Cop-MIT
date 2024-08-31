@@ -248,8 +248,8 @@ int main() {
         // This resource will be created
         Data::Mission::TilResource til_resource;
         
-        // This generates an empty valid til.
-        til_resource.makeEmpty();
+        // This will generate something different. THIS TEST will most likely fail.
+        til_resource.makeTest( 0 );
         
         // Get the triangles from the til_resource.
         auto triangles = til_resource.getAllTriangles();

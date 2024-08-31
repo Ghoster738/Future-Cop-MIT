@@ -358,7 +358,7 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
     return image;
 }
 
-void Data::Mission::TilResource::makeEmpty() {
+void Data::Mission::TilResource::makeTest( unsigned section_offset ) {
     InfoSLFX info_slfx( 0 );
     info_slfx.is_disabled = true;
     this->slfx_bitfield = info_slfx.get();
@@ -435,11 +435,11 @@ void Data::Mission::TilResource::makeEmpty() {
     culling_data = CullingData();
 
     this->mesh_tiles.clear();
-
-    unsigned section_index = 95;
     
     for( unsigned int sx = 0; sx < AMOUNT_OF_TILES / 4; sx++ ) {
         for( unsigned int sy = 0; sy < AMOUNT_OF_TILES / 4; sy++ ) {
+
+            const unsigned section_index = (4 * sy + sx + section_offset) % 111;
 
             for( unsigned tx = 0; tx < 4; tx++ ) {
                 for( unsigned ty = 0; ty < 4; ty++ ) {
@@ -527,8 +527,6 @@ void Data::Mission::TilResource::makeEmpty() {
                     mesh_reference_grid[x][y].tile_amount = this->mesh_tiles.size() - starter;
                 }
             }
-
-            section_index++;
         }
     }
 
@@ -583,8 +581,8 @@ void Data::Mission::TilResource::makeEmpty() {
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
-    if(getResourceID() == 1) {
-        makeEmpty();
+    if(getResourceID() >= 2 && getResourceID() <= 8) {
+        makeTest( 16 * (2 - getResourceID()) );
 
         return true;
     }
