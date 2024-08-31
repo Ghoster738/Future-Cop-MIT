@@ -453,8 +453,14 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                     one_tile.end_column = 0;
 
                     if( ty == 3 ) {
-                        one_tile.front = (tx & 0b01) == 0b01;
-                        one_tile.back  = (tx & 0b10) == 0b10;
+                        one_tile.front = 0;
+                        one_tile.back = 0;
+
+                        if(type == 0) {
+                            one_tile.front = (tx & 0b01) == 0b01;
+                            one_tile.back  = (tx & 0b10) == 0b10;
+                        }
+
                         one_tile.unknown_1 = 0;
                         one_tile.graphics_type_index = 0;
 
@@ -465,6 +471,11 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                         one_tile.texture_cord_index = 0;
                         one_tile.mesh_type = section_index;
                         one_tile.graphics_type_index = 1;
+
+                        if(type == 1) {
+                            one_tile.graphics_type_index += 2 * tx;
+                        }
+
                         this->mesh_tiles.push_back( one_tile );
                     }
                     else if( ty == 2 ) {
@@ -571,20 +582,32 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
         this->tile_graphics_bitfield.push_back( dynamic_color.get() );
     }
     else {
-        default_graphics.shading = (0x3f << 2) | 0x2;
-        default_graphics.type = 0b01; // Dynamic Monochrome
+        for(int i = 0; i < 4; i++) {
+            default_graphics.shading = (0x3f << 2) | 0x3;
+            default_graphics.type = 0b01; // Dynamic Monochrome
 
-        // first = 0x3f
-        // second = 0x28
+            // first = 0x3f
+            // second = 0x3f
 
-        this->tile_graphics_bitfield.push_back( default_graphics.get() );
+            DynamicMonoGraphics dynamic_monochrome;
+            dynamic_monochrome.second_lower = 0xf;
+            dynamic_monochrome.third = 0x3f;
+            dynamic_monochrome.forth = 0x3f;
 
-        DynamicMonoGraphics dynamic_monochrome;
-        dynamic_monochrome.second_lower = 0x8;
-        dynamic_monochrome.third = 0x10;
-        dynamic_monochrome.forth = 0;
+            if(i == 0)
+                default_graphics.shading &= 0x03; // Darken first.
+            else if(i == 1) {
+                default_graphics.shading &= 0xfc; // Darken second.
+                dynamic_monochrome.second_lower = 0;
+            }
+            else if(i == 2)
+                dynamic_monochrome.third = 0;
+            else
+                dynamic_monochrome.forth = 0;
 
-        this->tile_graphics_bitfield.push_back( dynamic_monochrome.get() );
+            this->tile_graphics_bitfield.push_back( default_graphics.get() );
+            this->tile_graphics_bitfield.push_back( dynamic_monochrome.get() );
+        }
     }
 
     
