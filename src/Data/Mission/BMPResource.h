@@ -53,6 +53,8 @@ public:
 
     static bool isSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[3] );
     static bool isAreaSemiTransparent( const Utilities::Image2D &texture, glm::vec2 points[2] );
+
+    BMPResource* getTest( uint32_t resource_id, Utilities::Logger *logger_r = nullptr );
 };
 
 }

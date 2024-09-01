@@ -24,6 +24,7 @@ const Utilities::ColorPalette COMPUTER_COLOR_PALETTE( COMPUTER_COLOR_FORMAT );
 const Utilities::PixelFormatColor_B5G5R5T1 PS1_COLOR_FORMAT;
 const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
 
+#include "Embeded/CBMP.h"
 }
 
 const std::string Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
@@ -457,6 +458,31 @@ bool Data::Mission::BMPResource::isAreaSemiTransparent( const Utilities::Image2D
             return true;
     }
     return false;
+}
+
+Data::Mission::BMPResource* Data::Mission::BMPResource::getTest( uint32_t resource_id, Utilities::Logger *logger_r ) {
+    Data::Mission::BMPResource* test_p = new Data::Mission::BMPResource;
+
+    test_p->setIndexNumber( 0 );
+    test_p->setMisIndexNumber( 0 );
+    test_p->setResourceID( resource_id );
+
+    auto loading = Utilities::Buffer::Reader( windows_test_map_cbmp, windows_test_map_cbmp_len );
+
+    test_p->read( loading );
+
+    Data::Mission::Resource::ParseSettings parse_settings;
+    parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
+    parse_settings.endian = Utilities::Buffer::LITTLE;
+    parse_settings.logger_r = logger_r;
+
+    if( !test_p->parse( parse_settings ) ) {
+        delete test_p;
+
+        throw std::logic_error( "Internal Error: The test Cbmp texture has failed to parse!");
+    }
+
+    return test_p;
 }
 
 bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

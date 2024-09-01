@@ -613,7 +613,7 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     TileGraphics default_graphics;
     
     default_graphics.shading = 127;
-    default_graphics.texture_index = 0;
+    default_graphics.texture_index = 1;
     default_graphics.animated = 0;
     default_graphics.semi_transparent = 0;
     default_graphics.rectangle = 1; // This is a rectangle.
