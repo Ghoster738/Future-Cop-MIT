@@ -63,7 +63,7 @@ std::string Data::Mission::TilResource::Tile::getString() const {
         << " texture_cord_index = "  << (unsigned)texture_cord_index
         << " front = "               << (unsigned)front
         << " back = "                << (unsigned)back
-        << " unknown_1 = "           << (unsigned)unknown_1
+        << " action_type_index = "   << (unsigned)action_type_index
         << " mesh_type = "           << (unsigned)mesh_type
         << " graphics_type_index = " << (unsigned)graphics_type_index;
 
@@ -358,89 +358,114 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
     return image;
 }
 
-void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned type ) {
+void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned type, Utilities::Buffer::Endian endianess ) {
     if(this->data_p != nullptr)
         delete this->data_p;
 
     this->data_p = new Utilities::Buffer();
-
-
-    InfoSLFX info_slfx( 0 );
-    info_slfx.is_disabled = true;
-    this->slfx_bitfield = info_slfx.get();
-
-    point_cloud_3_channel.setDimensions( AMOUNT_OF_TILES + 1, AMOUNT_OF_TILES + 1 );
     
-    for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
-        for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
-            HeightmapPixel height;
-            
-            height.channel[0] = -32;
-            height.channel[1] =  0;
-            height.channel[2] =  32;
-            
-            point_cloud_3_channel.setValue( x, y, height );
-        }
-    }
+    this->data_p->addU32(0, endianess);
+    this->data_p->addU32(0, endianess);
 
-    this->texture_cords.clear();
+    std::vector<glm::u8vec2> texture_uvs;
 
     // Test Polygon
-    this->texture_cords.push_back( glm::u8vec2(  0, 26) );
-    this->texture_cords.push_back( glm::u8vec2(  0,  0) );
-    this->texture_cords.push_back( glm::u8vec2( 26,  0) );
-    this->texture_cords.push_back( glm::u8vec2( 26, 26) );
+    texture_uvs.push_back( glm::u8vec2(  0, 26) );
+    texture_uvs.push_back( glm::u8vec2(  0,  0) );
+    texture_uvs.push_back( glm::u8vec2( 26,  0) );
+    texture_uvs.push_back( glm::u8vec2( 26, 26) );
 
     // Floor
-    this->texture_cords.push_back( glm::u8vec2( 27, 26) );
-    this->texture_cords.push_back( glm::u8vec2( 27,  0) );
-    this->texture_cords.push_back( glm::u8vec2( 53,  0) );
-    this->texture_cords.push_back( glm::u8vec2( 53, 26) );
+    texture_uvs.push_back( glm::u8vec2( 27, 26) );
+    texture_uvs.push_back( glm::u8vec2( 27,  0) );
+    texture_uvs.push_back( glm::u8vec2( 53,  0) );
+    texture_uvs.push_back( glm::u8vec2( 53, 26) );
 
     // Cap
-    this->texture_cords.push_back( glm::u8vec2( 54, 26) );
-    this->texture_cords.push_back( glm::u8vec2( 54,  0) );
-    this->texture_cords.push_back( glm::u8vec2( 80,  0) );
-    this->texture_cords.push_back( glm::u8vec2( 80, 26) );
+    texture_uvs.push_back( glm::u8vec2( 54, 26) );
+    texture_uvs.push_back( glm::u8vec2( 54,  0) );
+    texture_uvs.push_back( glm::u8vec2( 80,  0) );
+    texture_uvs.push_back( glm::u8vec2( 80, 26) );
 
     // Wall
-    this->texture_cords.push_back( glm::u8vec2( 81, 26) );
-    this->texture_cords.push_back( glm::u8vec2( 81,  0) );
-    this->texture_cords.push_back( glm::u8vec2(107,  0) );
-    this->texture_cords.push_back( glm::u8vec2(107, 26) );
+    texture_uvs.push_back( glm::u8vec2( 81, 26) );
+    texture_uvs.push_back( glm::u8vec2( 81,  0) );
+    texture_uvs.push_back( glm::u8vec2(107,  0) );
+    texture_uvs.push_back( glm::u8vec2(107, 26) );
 
-    const auto NUMBER_CORD_INDEX = this->texture_cords.size();
+    const auto NUMBER_CORD_INDEX = texture_uvs.size();
 
     // Zero
-    this->texture_cords.push_back( glm::u8vec2(108, 26) );
-    this->texture_cords.push_back( glm::u8vec2(108,  0) );
-    this->texture_cords.push_back( glm::u8vec2(134,  0) );
-    this->texture_cords.push_back( glm::u8vec2(134, 26) );
+    texture_uvs.push_back( glm::u8vec2(108, 26) );
+    texture_uvs.push_back( glm::u8vec2(108,  0) );
+    texture_uvs.push_back( glm::u8vec2(134,  0) );
+    texture_uvs.push_back( glm::u8vec2(134, 26) );
 
     // 1 and 9
     for(unsigned adv = 0; adv < 243; adv += 27) {
-        this->texture_cords.push_back( glm::u8vec2(adv,      53) );
-        this->texture_cords.push_back( glm::u8vec2(adv,      27) );
-        this->texture_cords.push_back( glm::u8vec2(adv + 26, 27) );
-        this->texture_cords.push_back( glm::u8vec2(adv + 26, 53) );
+        texture_uvs.push_back( glm::u8vec2(adv,      53) );
+        texture_uvs.push_back( glm::u8vec2(adv,      27) );
+        texture_uvs.push_back( glm::u8vec2(adv + 26, 27) );
+        texture_uvs.push_back( glm::u8vec2(adv + 26, 53) );
     }
 
     // Ten
-    this->texture_cords.push_back( glm::u8vec2(135, 26) );
-    this->texture_cords.push_back( glm::u8vec2(135,  0) );
-    this->texture_cords.push_back( glm::u8vec2(161,  0) );
-    this->texture_cords.push_back( glm::u8vec2(161, 26) );
+    texture_uvs.push_back( glm::u8vec2(135, 26) );
+    texture_uvs.push_back( glm::u8vec2(135,  0) );
+    texture_uvs.push_back( glm::u8vec2(161,  0) );
+    texture_uvs.push_back( glm::u8vec2(161, 26) );
 
     // Eleven
-    this->texture_cords.push_back( glm::u8vec2(162, 26) );
-    this->texture_cords.push_back( glm::u8vec2(162,  0) );
-    this->texture_cords.push_back( glm::u8vec2(188,  0) );
-    this->texture_cords.push_back( glm::u8vec2(188, 26) );
+    texture_uvs.push_back( glm::u8vec2(162, 26) );
+    texture_uvs.push_back( glm::u8vec2(162,  0) );
+    texture_uvs.push_back( glm::u8vec2(188,  0) );
+    texture_uvs.push_back( glm::u8vec2(188, 26) );
+    
+    std::vector<Utilities::PixelFormatColor::GenericColor> color_palette;
 
-    // I decided to set these anyways.
-    culling_data = CullingData();
+    color_palette.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 0, 1) );
+    color_palette.push_back( Utilities::PixelFormatColor::GenericColor(0, 1, 0, 1) );
+    color_palette.push_back( Utilities::PixelFormatColor::GenericColor(0, 0, 1, 1) );
+    color_palette.push_back( Utilities::PixelFormatColor::GenericColor(1, 1, 1, 1) );
+    color_palette.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 1, 1) );
+    
+    this->data_p->addU16( color_palette.size(), endianess );
+    this->data_p->addU16( texture_uvs.size(), endianess );
+    
+    for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
+        for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
+            this->data_p->addI8( -32 );
+            this->data_p->addI8(   0 );
+            this->data_p->addI8(  32 );
+        }
+    }
+    
+    this->data_p->addI8( 0 ); // Add unknown byte
 
-    this->mesh_tiles.clear();
+    // These action types should all be normal
+    this->data_p->addI8( 0 );
+    this->data_p->addI8( 0 );
+    this->data_p->addI8( 0 );
+    this->data_p->addI8( 0 );
+
+    this->data_p->addU16( 5792, endianess ); // Trunk Radius
+    this->data_p->addU16( 5792, endianess ); // Trunk Height
+
+    for(size_t i = 0; i < 4; i++) {
+        this->data_p->addU16( 2896, endianess ); // Branch Radius
+        this->data_p->addU16( 2896, endianess ); // Branch Height
+    }
+    for(size_t i = 0; i < 16; i++) {
+        this->data_p->addU16( 1448, endianess ); // Leaves Radius
+        this->data_p->addU16( 1448, endianess ); // Leaves Height
+    }
+    
+    // uv animation vector
+    this->data_p->addI8( 0 );
+    this->data_p->addI8( 0 );
+
+    std::vector<Tile> section_polygons;
+    Floor gen_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
     
     for( unsigned int sx = 0; sx < AMOUNT_OF_TILES / 4; sx++ ) {
         for( unsigned int sy = 0; sy < AMOUNT_OF_TILES / 4; sy++ ) {
@@ -452,7 +477,7 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                     const unsigned x = 4 * sx + tx;
                     const unsigned y = 4 * sy + ty;
 
-                    size_t starter = this->mesh_tiles.size();
+                    size_t starter = section_polygons.size();
 
                     // Make a generic tile
                     Tile one_tile( 0 );
@@ -467,12 +492,12 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                             one_tile.back  = (tx & 0b10) == 0b10;
                         }
 
-                        one_tile.unknown_1 = 0;
+                        one_tile.action_type_index = 0;
                         one_tile.graphics_type_index = 0;
 
                         one_tile.texture_cord_index = 8;
                         one_tile.mesh_type = 70;
-                        this->mesh_tiles.push_back( one_tile );
+                        section_polygons.push_back( one_tile );
 
                         one_tile.texture_cord_index = 0;
                         one_tile.mesh_type = section_index;
@@ -482,82 +507,110 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                             one_tile.graphics_type_index += 2 * tx;
                         }
 
-                        this->mesh_tiles.push_back( one_tile );
+                        section_polygons.push_back( one_tile );
                     }
                     else if( ty == 2 ) {
                         one_tile.front = 0;
                         one_tile.back = 0;
-                        one_tile.unknown_1 = 0;
+                        one_tile.action_type_index = 0;
                         one_tile.texture_cord_index = 4 * tx + NUMBER_CORD_INDEX;
                         one_tile.graphics_type_index = 0;
                         one_tile.mesh_type = 69;
 
-                        this->mesh_tiles.push_back( one_tile );
+                        section_polygons.push_back( one_tile );
                     }
                     else if( ty == 1 ) {
                         one_tile.front = 0;
                         one_tile.back = 0;
-                        one_tile.unknown_1 = 0;
+                        one_tile.action_type_index = 0;
                         one_tile.texture_cord_index = 4;
                         one_tile.graphics_type_index = 0;
                         one_tile.mesh_type = 69;
 
-                        this->mesh_tiles.push_back( one_tile );
+                        section_polygons.push_back( one_tile );
                     }
                     else if( ty == 0 ) {
                         if( tx == 0 || tx == 3) {
                             one_tile.front = 0;
                             one_tile.back = 0;
-                            one_tile.unknown_1 = 0;
+                            one_tile.action_type_index = 0;
                             one_tile.texture_cord_index = 4;
                             one_tile.graphics_type_index = 0;
                             one_tile.mesh_type = 69;
 
-                            this->mesh_tiles.push_back( one_tile );
+                            section_polygons.push_back( one_tile );
                         }
                         else if( tx == 1 ) {
                             one_tile.front = 0;
                             one_tile.back = 0;
-                            one_tile.unknown_1 = 0;
+                            one_tile.action_type_index = 0;
                             one_tile.texture_cord_index = 4 * (section_index / 10) + NUMBER_CORD_INDEX;
                             one_tile.graphics_type_index = 0;
                             one_tile.mesh_type = 69;
 
-                            this->mesh_tiles.push_back( one_tile );
+                            section_polygons.push_back( one_tile );
                         }
                         else {
                             one_tile.front = 0;
                             one_tile.back = 0;
-                            one_tile.unknown_1 = 0;
+                            one_tile.action_type_index = 0;
                             one_tile.texture_cord_index = 4 * (section_index % 10) + NUMBER_CORD_INDEX;
                             one_tile.graphics_type_index = 0;
                             one_tile.mesh_type = 69;
 
-                            this->mesh_tiles.push_back( one_tile );
+                            section_polygons.push_back( one_tile );
                         }
                     }
 
 
-                    this->mesh_tiles.back().end_column = 1;
+                    section_polygons.back().end_column = 1;
+                    
+                    Floor floor;
 
-                    mesh_reference_grid[x][y].tiles_start = starter;
-                    mesh_reference_grid[x][y].tile_amount = this->mesh_tiles.size() - starter;
+                    floor.tiles_start = starter;
+                    floor.tile_amount = section_polygons.size() - starter;
+                    
+                    gen_reference_grid[x][y] = floor;
                 }
             }
         }
     }
 
-    this->mesh_library_size = this->mesh_tiles.size();
+    this->data_p->addU16( section_polygons.size(), endianess );
     
-    this->colors.clear();
-
-    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 0, 1) );
-    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(0, 1, 0, 1) );
-    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(0, 0, 1, 1) );
-    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(1, 1, 1, 1) );
-    this->colors.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 1, 1) );
+    for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
+        for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
+            this->data_p->addU16( gen_reference_grid[x][y].get(), endianess );
+        }
+    }
     
-    this->tile_graphics_bitfield.clear();
+    this->data_p->addU16( 0, endianess ); // It turned out that Future Cop: LAPD does not care about this value.
+    
+    this->data_p->addU16( 0, endianess ); // Unknown two bytes
+    
+    for( size_t i = 0; i < mesh_tiles.size(); i++ ) {
+        this->data_p->addU32( section_polygons[i].get(), endianess );
+    }
+    
+    for( size_t i = 0; i < texture_uvs.size(); i++ ) {
+        this->data_p->addU8( texture_uvs[i].x );
+        this->data_p->addU8( texture_uvs[i].y );
+    }
+    
+    Utilities::PixelFormatColor_R5G5B5A1 palette_format;
+    
+    Utilities::Buffer color_buffer;
+    color_buffer.allocate( sizeof( uint16_t ) * color_palette.size() );
+    
+    auto color_writer = color_buffer.getWriter();
+    
+    for( size_t i = 0; i < color_palette.size(); i++ ) {
+        palette_format.writePixel( color_writer, endianess, color_palette[i] );
+        
+        this->data_p->addU16( 0xFFFF, endianess );
+    }
+    
+    // color_writer.addToBuffer( *this->data_p->add( );
     
     TileGraphics default_graphics;
     
@@ -568,24 +621,24 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     default_graphics.rectangle = 1; // This is a rectangle.
     default_graphics.type = 0; // Make a pure flat
     
-    this->tile_graphics_bitfield.push_back( default_graphics.get() );
+    this->data_p->addU16( default_graphics.get(), endianess );
 
     if( type == 0 ) {
         default_graphics.shading = 0;
         default_graphics.type = 0b10; // Color Palette
 
-        this->tile_graphics_bitfield.push_back( default_graphics.get() );
+        this->data_p->addU16( default_graphics.get(), endianess );
 
         DynamicColorGraphics dynamic_color;
         dynamic_color.second = 1;
         dynamic_color.third  = 2;
 
-        this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+        this->data_p->addU16( dynamic_color.get(), endianess );
 
         dynamic_color.second = 3;
         dynamic_color.third  = 4;
 
-        this->tile_graphics_bitfield.push_back( dynamic_color.get() );
+        this->data_p->addU16( dynamic_color.get(), endianess );
     }
     else {
         for(int i = 0; i < 4; i++) {
@@ -608,27 +661,23 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
             else
                 dynamic_monochrome.forth = 0;
 
-            this->tile_graphics_bitfield.push_back( default_graphics.get() );
-            this->tile_graphics_bitfield.push_back( dynamic_monochrome.get() );
+            this->data_p->addU16( default_graphics.get(), endianess );
+            this->data_p->addU16( dynamic_monochrome.get(), endianess );
         }
     }
-
     
-    this->all_triangles.clear();
+    std::cout << "this->data_p->getReader().totalSize() = " << this->data_p->getReader().totalSize() << std::endl;
     
-    // Create the physics cells for this Til.
-    for( unsigned int x = 0; x < AMOUNT_OF_TILES; x++ ) {
-        for( unsigned int z = 0; z < AMOUNT_OF_TILES; z++ ) {
-            createPhysicsCell( x, z );
-        }
-    }
+    auto tag_size_writer = color_buffer.getWriter(0, 3 * sizeof(uint32_t));
+    tag_size_writer.writeU32( TAG_SECT );
+    tag_size_writer.writeU32( this->data_p->getReader().totalSize() );
+    
+    std::cout << "this->data_p->getReader().totalSize() = " << this->data_p->getReader().totalSize() << std::endl;
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     if(getResourceID() >= 2 && getResourceID() <= 15) {
         makeTest( 16 * (getResourceID() - 2), getResourceID() > 8 );
-
-        return true;
     }
 
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
