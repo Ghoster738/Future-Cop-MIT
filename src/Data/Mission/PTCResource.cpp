@@ -84,6 +84,10 @@ const Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned 
 }
 
 bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
+    if(getResourceID() == 1) {
+        makeTest();
+    }
+
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
@@ -267,6 +271,81 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     const float y_til_offset = fmod( y, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
 
     return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
+}
+
+
+void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess ) {
+    const uint32_t X_SPACE = 5;
+    const uint32_t Y_SPACE = 9;
+    const uint32_t BORDER_AMOUNT = 4;
+    const uint32_t BORDER_SPACE = 2 * BORDER_AMOUNT + 1;
+    const uint32_t X_DIMENSION = BORDER_SPACE + X_SPACE;
+    const uint32_t Y_DIMENSION = BORDER_SPACE + Y_SPACE;
+
+    if(this->data_p != nullptr)
+        delete this->data_p;
+
+    this->data_p = new Utilities::Buffer();
+
+    this->data_p->addU32(GRDB_TAG, endianess);
+    this->data_p->addU32(0, endianess); // Make sure to write resource size.
+
+    this->data_p->addU32(1, endianess); // Add mysterious one.
+
+    this->data_p->addU32(14, endianess); // Amount of Ctils.
+    this->data_p->addU32(X_DIMENSION, endianess); // Dimension X
+    this->data_p->addU32(Y_DIMENSION, endianess); // Dimension Y
+
+    // Zero unknowns
+    for(unsigned i = 0; i < 3; i++) {
+        this->data_p->addU32(0, endianess);
+    }
+
+    this->data_p->addU32(BORDER_AMOUNT, endianess);
+
+    // Zero unknown.
+    this->data_p->addU32(0, endianess);
+
+    Utilities::GridBase2D<uint32_t> generated_grid;
+
+    // setup the grid
+    generated_grid.setDimensions( X_DIMENSION, Y_DIMENSION );
+
+    for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
+        for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
+            if( y == generated_grid.getHeight() - 1 || x == 0)
+                generated_grid.setValue( x, y, 0 );
+            else
+                generated_grid.setValue( x, y, 4 );
+        }
+    }
+
+    for( unsigned x = BORDER_AMOUNT; x < BORDER_AMOUNT + X_SPACE; x++ ) {
+        generated_grid.setValue( x, BORDER_AMOUNT, 8 );
+    }
+
+    for( unsigned y = BORDER_AMOUNT + 1; y < (BORDER_AMOUNT + Y_SPACE) - 1; y++ ) {
+        generated_grid.setValue( BORDER_AMOUNT + 0, y, 8 );
+        generated_grid.setValue( BORDER_AMOUNT + 2, y, 4 * (y - (BORDER_AMOUNT + 1)) );
+        generated_grid.setValue( BORDER_AMOUNT + 2, y, 8 );
+        generated_grid.setValue( BORDER_AMOUNT + 2, y, 4 * (y - (BORDER_AMOUNT + 1)) );
+        generated_grid.setValue( BORDER_AMOUNT + 4, y, 8 );
+    }
+
+    for( unsigned x = BORDER_AMOUNT; x < BORDER_AMOUNT + X_SPACE; x++ ) {
+        generated_grid.setValue( x, (BORDER_AMOUNT + X_SPACE) - 1, 8 );
+    }
+
+    for( unsigned int y = 0; y < generated_grid.getHeight(); y++ ) {
+        for( unsigned int x = 0; x < generated_grid.getWidth(); x++) {
+            this->data_p->addU32(generated_grid.getValue( x, y ), endianess);
+        }
+    }
+
+    auto tag_size_writer = this->data_p->getWriter(sizeof(uint32_t), sizeof(uint32_t));
+    tag_size_writer.writeU32( this->data_p->getReader().totalSize() );
+
+    this->data_p->write( "ptc.bin" );
 }
 
 bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

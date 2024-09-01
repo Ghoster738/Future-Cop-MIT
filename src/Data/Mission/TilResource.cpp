@@ -658,13 +658,9 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
         }
     }
     
-    std::cout << "this->data_p->getReader().totalSize() = " << this->data_p->getReader().totalSize() << std::endl;
-    
     auto tag_size_writer = this->data_p->getWriter(0, 2 * sizeof(uint32_t));
     tag_size_writer.writeU32( TAG_SECT );
     tag_size_writer.writeU32( this->data_p->getReader().totalSize() );
-    
-    std::cout << "this->data_p->getReader().totalSize() = " << this->data_p->getReader().totalSize() << std::endl;
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {

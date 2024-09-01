@@ -84,6 +84,8 @@ public:
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float y ) const;
     float getRayCastDownward( float x, float y, float from_highest_point ) const;
+
+    void makeTest( Utilities::Buffer::Endian endianess =  Utilities::Buffer::Endian::LITTLE );
 };
 
 }
