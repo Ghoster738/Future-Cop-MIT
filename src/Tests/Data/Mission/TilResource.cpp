@@ -248,8 +248,8 @@ int main() {
         // This resource will be created
         Data::Mission::TilResource til_resource;
         
-        // This will generate something different. THIS TEST will most likely fail.
         til_resource.makeTest( 0 );
+        til_resource.parse();
         
         // Get the triangles from the til_resource.
         auto triangles = til_resource.getAllTriangles();
@@ -259,8 +259,8 @@ int main() {
             is_not_success = true;
         }
         
-        glm::vec3 min = glm::vec3( std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() );
-        glm::vec3 max = glm::vec3( std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min() );
+        glm::vec3 min( std::numeric_limits<float>::max() );
+        glm::vec3 max( std::numeric_limits<float>::min() );
         
         for( auto i : triangles ) {
             for( size_t p = 0; p < 3; p++ ) {
