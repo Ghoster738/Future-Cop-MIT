@@ -376,30 +376,24 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     texture_uvs.push_back( glm::u8vec2( 26, 26) );
 
     // Floor
-    texture_uvs.push_back( glm::u8vec2( 27, 26) );
-    texture_uvs.push_back( glm::u8vec2( 27,  0) );
-    texture_uvs.push_back( glm::u8vec2( 53,  0) );
-    texture_uvs.push_back( glm::u8vec2( 53, 26) );
+    texture_uvs.push_back( glm::u8vec2(  81, 26) );
+    texture_uvs.push_back( glm::u8vec2(  81,  0) );
+    texture_uvs.push_back( glm::u8vec2( 107,  0) );
+    texture_uvs.push_back( glm::u8vec2( 107, 26) );
 
     // Cap
-    texture_uvs.push_back( glm::u8vec2( 54, 26) );
-    texture_uvs.push_back( glm::u8vec2( 54,  0) );
-    texture_uvs.push_back( glm::u8vec2( 80,  0) );
-    texture_uvs.push_back( glm::u8vec2( 80, 26) );
-
-    // Wall
-    texture_uvs.push_back( glm::u8vec2( 81, 26) );
-    texture_uvs.push_back( glm::u8vec2( 81,  0) );
-    texture_uvs.push_back( glm::u8vec2(107,  0) );
-    texture_uvs.push_back( glm::u8vec2(107, 26) );
+    texture_uvs.push_back( glm::u8vec2( 108, 26) );
+    texture_uvs.push_back( glm::u8vec2( 108,  0) );
+    texture_uvs.push_back( glm::u8vec2( 134,  0) );
+    texture_uvs.push_back( glm::u8vec2( 134, 26) );
 
     const auto NUMBER_CORD_INDEX = texture_uvs.size();
 
     // Zero
-    texture_uvs.push_back( glm::u8vec2(108, 26) );
-    texture_uvs.push_back( glm::u8vec2(108,  0) );
-    texture_uvs.push_back( glm::u8vec2(134,  0) );
-    texture_uvs.push_back( glm::u8vec2(134, 26) );
+    texture_uvs.push_back( glm::u8vec2(162, 26) );
+    texture_uvs.push_back( glm::u8vec2(162,  0) );
+    texture_uvs.push_back( glm::u8vec2(188,  0) );
+    texture_uvs.push_back( glm::u8vec2(188, 26) );
 
     // 1 and 9
     for(unsigned adv = 0; adv < 243; adv += 27) {
@@ -410,16 +404,16 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     }
 
     // Ten
-    texture_uvs.push_back( glm::u8vec2(135, 26) );
-    texture_uvs.push_back( glm::u8vec2(135,  0) );
-    texture_uvs.push_back( glm::u8vec2(161,  0) );
-    texture_uvs.push_back( glm::u8vec2(161, 26) );
+    texture_uvs.push_back( glm::u8vec2(189, 26) );
+    texture_uvs.push_back( glm::u8vec2(189,  0) );
+    texture_uvs.push_back( glm::u8vec2(215,  0) );
+    texture_uvs.push_back( glm::u8vec2(215, 26) );
 
     // Eleven
-    texture_uvs.push_back( glm::u8vec2(162, 26) );
-    texture_uvs.push_back( glm::u8vec2(162,  0) );
-    texture_uvs.push_back( glm::u8vec2(188,  0) );
-    texture_uvs.push_back( glm::u8vec2(188, 26) );
+    texture_uvs.push_back( glm::u8vec2(216, 26) );
+    texture_uvs.push_back( glm::u8vec2(216,  0) );
+    texture_uvs.push_back( glm::u8vec2(242,  0) );
+    texture_uvs.push_back( glm::u8vec2(242, 26) );
     
     std::vector<Utilities::PixelFormatColor::GenericColor> color_palette;
 

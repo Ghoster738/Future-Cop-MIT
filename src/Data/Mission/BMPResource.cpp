@@ -70,6 +70,11 @@ uint32_t Data::Mission::BMPResource::getResourceTagID() const {
 }
 
 bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
+    if( getResourceID() == 2 ) { // TODO Remove this
+        makeTest( 2 );
+        return true;
+    }
+
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
@@ -460,29 +465,24 @@ bool Data::Mission::BMPResource::isAreaSemiTransparent( const Utilities::Image2D
     return false;
 }
 
-Data::Mission::BMPResource* Data::Mission::BMPResource::getTest( uint32_t resource_id, Utilities::Logger *logger_r ) {
-    Data::Mission::BMPResource* test_p = new Data::Mission::BMPResource;
-
-    test_p->setIndexNumber( 0 );
-    test_p->setMisIndexNumber( 0 );
-    test_p->setResourceID( resource_id );
+void Data::Mission::BMPResource::makeTest( uint32_t resource_id, Utilities::Logger *logger_r ) {
+    setIndexNumber( 0 );
+    setMisIndexNumber( 0 );
+    setResourceID( resource_id + 1 ); // TODO Remove this. This is to remove a recursion bug.
 
     auto loading = Utilities::Buffer::Reader( windows_test_map_cbmp, windows_test_map_cbmp_len );
 
-    test_p->read( loading );
+    read( loading );
 
     Data::Mission::Resource::ParseSettings parse_settings;
     parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 
-    if( !test_p->parse( parse_settings ) ) {
-        delete test_p;
-
+    if( !parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The test Cbmp texture has failed to parse!");
-    }
 
-    return test_p;
+    setResourceID( resource_id ); // TODO Remove this workaround. This is to remove a recursion bug.
 }
 
 bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
