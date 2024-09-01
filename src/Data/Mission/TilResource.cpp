@@ -432,8 +432,8 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     this->data_p->addU16( color_palette.size(), endianess );
     this->data_p->addU16( texture_uvs.size(), endianess );
     
-    for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
-        for( unsigned x = 0; x < point_cloud_3_channel.getWidth(); x++ ) {
+    for( unsigned y = 0; y < AMOUNT_OF_TILES + 1; y++ ) {
+        for( unsigned x = 0; x < AMOUNT_OF_TILES + 1; x++ ) {
             this->data_p->addI8( -32 );
             this->data_p->addI8(   0 );
             this->data_p->addI8(  32 );
@@ -588,7 +588,7 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     
     this->data_p->addU16( 0, endianess ); // Unknown two bytes
     
-    for( size_t i = 0; i < mesh_tiles.size(); i++ ) {
+    for( size_t i = 0; i < section_polygons.size(); i++ ) {
         this->data_p->addU32( section_polygons[i].get(), endianess );
     }
     
@@ -606,11 +606,9 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     
     for( size_t i = 0; i < color_palette.size(); i++ ) {
         palette_format.writePixel( color_writer, endianess, color_palette[i] );
-        
-        this->data_p->addU16( 0xFFFF, endianess );
     }
     
-    // color_writer.addToBuffer( *this->data_p->add( );
+    color_writer.addToBuffer( *this->data_p );
     
     TileGraphics default_graphics;
     
@@ -668,7 +666,7 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     
     std::cout << "this->data_p->getReader().totalSize() = " << this->data_p->getReader().totalSize() << std::endl;
     
-    auto tag_size_writer = color_buffer.getWriter(0, 3 * sizeof(uint32_t));
+    auto tag_size_writer = this->data_p->getWriter(0, 2 * sizeof(uint32_t));
     tag_size_writer.writeU32( TAG_SECT );
     tag_size_writer.writeU32( this->data_p->getReader().totalSize() );
     
