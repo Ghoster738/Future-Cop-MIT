@@ -1,5 +1,5 @@
 *.h linguist-language=C++
 
-submodules/** linguist-vendored
-src/Sound/OpenAL/MojoAL/Library/** linguist-vendored
-src/Graphics/SDL2/GLES2/glad/** linguist-vendored
+submodules/* linguist-vendored
+src/Sound/OpenAL/MojoAL/Library/* linguist-vendored
+src/Graphics/SDL2/GLES2/glad/* linguist-vendored
