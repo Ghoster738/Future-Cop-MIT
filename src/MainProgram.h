@@ -40,6 +40,7 @@ public:
     Data::Manager manager;
     Data::Manager::Platform platform;
     std::string resource_identifier;
+    Data::Mission::IFF  embedded;
     Data::Mission::IFF *global_r;
     Data::Mission::IFF *resource_r;
     Data::Accessor accessor;

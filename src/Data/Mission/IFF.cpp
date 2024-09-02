@@ -817,3 +817,69 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
 
     return successful_finds;
 }
+
+void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
+    // Generate the fonts just in case.
+    iff.addResource( FontResource::getPlaystation( Utilities::logger ) );
+    iff.addResource( FontResource::getWindows( Utilities::logger ) );
+
+    // TODO Generate Placeholder Map without crashing.
+    /*
+    std::vector<BMPResource*> bmp_r;
+
+    // Generate this texture.
+    for(int i = 0; i < 10; i++) {
+        BMPResource *resource_r = new BMPResource();
+        resource_r->makeTest( bmp_r.size() + 1, &Utilities::logger );
+        resource_r->parse();
+        iff.addResource( resource_r );
+        bmp_r.push_back( resource_r );
+    }
+
+    std::vector<TilResource*> tils_r;
+
+    // Generate two flat Sections.
+    for(int i = 0; i < 2; i++) {
+        TilResource *resource_r = new TilResource();
+        resource_r->setResourceID( tils_r.size() + 1 );
+        resource_r->makeTest( 110 + i, true );
+        resource_r->parse();
+        iff.addResource( resource_r );
+        tils_r.push_back( resource_r );
+    }
+
+    // Generate 6 Sections.
+    for(int i = 0; i < 7; i++) {
+        TilResource *resource_r = new TilResource();
+        resource_r->setResourceID( tils_r.size() + 1 );
+        resource_r->makeTest( 16 * i, true, 0 );
+        resource_r->parse();
+        iff.addResource( resource_r );
+        tils_r.push_back( resource_r );
+    }
+
+    // Generate 6 Sections.
+    for(int i = 0; i < 7; i++) {
+        TilResource *resource_r = new TilResource();
+        resource_r->setResourceID( tils_r.size() + 1 );
+        resource_r->makeTest( 16 * i, true, 1 );
+        resource_r->parse();
+        iff.addResource( resource_r );
+        tils_r.push_back( resource_r );
+    }
+
+    for( auto section = tils_r.begin(); section != tils_r.end(); section++ ) {
+        (*section)->loadTextures( bmp_r );
+    }
+
+    {
+        PTCResource *resource_r = new PTCResource();
+        resource_r->setResourceID( 1 );
+        resource_r->makeTest();
+        resource_r->parse();
+        resource_r->makeTiles( tils_r );
+        iff.addResource( resource_r );
+    }
+    */
+
+}
