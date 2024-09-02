@@ -2,7 +2,7 @@
 *.h linguist-language=C++
 
 # These files have made my project look like C for too long.
-src/Data/Mission/Embeded/* linguist-generated
+src/Data/Mission/Embedded/* linguist-generated
 src/Tests/Data/Mission/Embedded/* linguist-generated
 
 submodules/* linguist-vendored

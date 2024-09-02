@@ -24,7 +24,7 @@ const Utilities::ColorPalette COMPUTER_COLOR_PALETTE( COMPUTER_COLOR_FORMAT );
 const Utilities::PixelFormatColor_B5G5R5T1 PS1_COLOR_FORMAT;
 const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
 
-#include "Embeded/CBMP.h"
+#include "Embedded/CBMP.h"
 }
 
 const std::string Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
