@@ -70,11 +70,6 @@ uint32_t Data::Mission::BMPResource::getResourceTagID() const {
 }
 
 bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
-    if( getResourceID() == 2 ) { // TODO Remove this
-        makeTest( 2 );
-        return true;
-    }
-
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
@@ -468,7 +463,7 @@ bool Data::Mission::BMPResource::isAreaSemiTransparent( const Utilities::Image2D
 void Data::Mission::BMPResource::makeTest( uint32_t resource_id, Utilities::Logger *logger_r ) {
     setIndexNumber( 0 );
     setMisIndexNumber( 0 );
-    setResourceID( resource_id + 1 ); // TODO Remove this. This is to remove a recursion bug.
+    setResourceID( resource_id );
 
     auto loading = Utilities::Buffer::Reader( windows_test_map_cbmp, windows_test_map_cbmp_len );
 
@@ -481,8 +476,6 @@ void Data::Mission::BMPResource::makeTest( uint32_t resource_id, Utilities::Logg
 
     if( !parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The test Cbmp texture has failed to parse!");
-
-    setResourceID( resource_id ); // TODO Remove this workaround. This is to remove a recursion bug.
 }
 
 bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

@@ -683,13 +683,6 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, bool cap, un
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
-    if(getResourceID() == 1 || getResourceID() == 2) {
-        makeTest( 110 + (getResourceID() - 1), true );
-    }
-    else if(getResourceID() >= 3 && getResourceID() <= 16) {
-        makeTest( 16 * (getResourceID() - 3), true, getResourceID() > 9 );
-    }
-
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );

@@ -84,10 +84,6 @@ const Data::Mission::TilResource* Data::Mission::PTCResource::getTile( unsigned 
 }
 
 bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
-    if(getResourceID() == 1) {
-        makeTest();
-    }
-
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
