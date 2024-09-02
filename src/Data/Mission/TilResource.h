@@ -315,7 +315,7 @@ public:
 
     Utilities::Image2D getImage() const;
     
-    void makeTest( unsigned section_offset, unsigned type = 0, Utilities::Buffer::Endian endianess =  Utilities::Buffer::Endian::LITTLE );
+    void makeTest( unsigned section_offset, bool cap, unsigned type = 0, Utilities::Buffer::Endian endianess =  Utilities::Buffer::Endian::LITTLE );
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 

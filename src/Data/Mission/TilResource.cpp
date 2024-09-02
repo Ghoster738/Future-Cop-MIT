@@ -358,7 +358,7 @@ Utilities::Image2D Data::Mission::TilResource::getImage() const {
     return image;
 }
 
-void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned type, Utilities::Buffer::Endian endianess ) {
+void Data::Mission::TilResource::makeTest( unsigned section_offset, bool cap, unsigned type, Utilities::Buffer::Endian endianess ) {
     if(this->data_p != nullptr)
         delete this->data_p;
 
@@ -502,9 +502,11 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                         one_tile.action_type_index = 0;
                         one_tile.graphics_type_index = 0;
 
-                        one_tile.texture_cord_index = 8;
-                        one_tile.mesh_type = 70;
-                        section_polygons.push_back( one_tile );
+                        if(cap) {
+                            one_tile.texture_cord_index = 8;
+                            one_tile.mesh_type = 70;
+                            section_polygons.push_back( one_tile );
+                        }
 
                         one_tile.texture_cord_index = 0;
                         one_tile.mesh_type = section_index;
@@ -682,10 +684,10 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     if(getResourceID() == 1 || getResourceID() == 2) {
-        makeTest( 110 + (getResourceID() - 1) );
+        makeTest( 110 + (getResourceID() - 1), true );
     }
     else if(getResourceID() >= 3 && getResourceID() <= 16) {
-        makeTest( 16 * (getResourceID() - 3), getResourceID() > 9 );
+        makeTest( 16 * (getResourceID() - 3), true, getResourceID() > 9 );
     }
 
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );

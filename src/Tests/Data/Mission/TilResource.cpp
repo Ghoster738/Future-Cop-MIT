@@ -248,7 +248,7 @@ int main() {
         // This resource will be created
         Data::Mission::TilResource til_resource;
         
-        til_resource.makeTest( 0 );
+        til_resource.makeTest( 0, true );
         til_resource.parse();
         
         // Get the triangles from the til_resource.
