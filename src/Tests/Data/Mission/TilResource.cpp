@@ -246,13 +246,10 @@ int main() {
     
     {
         // This resource will be created
-        Data::Mission::TilResource til_resource;
-        
-        til_resource.makeTest( 0, true );
-        til_resource.parse();
+        std::unique_ptr<Data::Mission::TilResource> til_resource(Data::Mission::TilResource::getTest(1, 0, true, true, Utilities::Buffer::Endian::LITTLE, &Utilities::logger));
         
         // Get the triangles from the til_resource.
-        auto triangles = til_resource.getAllTriangles();
+        auto triangles = til_resource->getAllTriangles();
         if( triangles.empty() ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It has no triangles." << std::endl;
@@ -324,19 +321,19 @@ int main() {
         }
         
         // There always should be a center to the til resource.
-        if( til_resource.getRayCast2D( 0, 0 ) < 0 ) {
+        if( til_resource->getRayCast2D( 0, 0 ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It is not raycastable." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource.getRayCast2D( 7.5, 7.5 ) < 0 ) {
+        if( til_resource->getRayCast2D( 7.5, 7.5 ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 8." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource.getRayCast2D( 8.5, 8.5 ) > 0 ) {
+        if( til_resource->getRayCast2D( 8.5, 8.5 ) > 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 9." << std::endl;
             is_not_success = true;
@@ -374,7 +371,7 @@ int main() {
         
         {
             const unsigned DEPTH = 8;
-            auto heightmap = til_resource.getHeightMap( DEPTH );
+            auto heightmap = til_resource->getHeightMap( DEPTH );
             
             if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( heightmap.getPixelFormat() ) == nullptr ) {
                 std::cout << "Heightmap needs to be Utilities::PixelFormatColor_R8G8B8" << std::endl;

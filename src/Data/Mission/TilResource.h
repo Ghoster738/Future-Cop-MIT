@@ -314,8 +314,6 @@ public:
     virtual uint32_t getResourceTagID() const;
 
     Utilities::Image2D getImage() const;
-    
-    void makeTest( unsigned section_offset, bool cap, unsigned type = 0, Utilities::Buffer::Endian endianess =  Utilities::Buffer::Endian::LITTLE );
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
@@ -341,6 +339,8 @@ public:
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;
     
+    static TilResource* getTest( uint32_t resource_id, unsigned section_offset, bool cap, bool is_monochrome = false, Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE, Utilities::Logger *logger_r = nullptr );
+
     glm::i8vec2 getUVAnimation() const { return uv_animation; }
     const std::vector<InfoSCTA>& getInfoSCTA() const { return SCTA_info; }
     const std::vector<glm::u8vec2>& getSCTATextureCords() const { return scta_texture_cords; }
