@@ -460,22 +460,26 @@ bool Data::Mission::BMPResource::isAreaSemiTransparent( const Utilities::Image2D
     return false;
 }
 
-void Data::Mission::BMPResource::makeTest( uint32_t resource_id, Utilities::Logger *logger_r ) {
-    setIndexNumber( 0 );
-    setMisIndexNumber( 0 );
-    setResourceID( resource_id );
+Data::Mission::BMPResource* Data::Mission::BMPResource::getTest( uint32_t resource_id, Utilities::Logger *logger_r ) {
+    BMPResource* bmp_p = new Data::Mission::BMPResource;
+
+    bmp_p->setIndexNumber( 0 );
+    bmp_p->setMisIndexNumber( 0 );
+    bmp_p->setResourceID( resource_id );
 
     auto loading = Utilities::Buffer::Reader( windows_test_map_cbmp, windows_test_map_cbmp_len );
 
-    read( loading );
+    bmp_p->read( loading );
 
-    Data::Mission::Resource::ParseSettings parse_settings;
-    parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
+    Resource::ParseSettings parse_settings;
+    parse_settings.type = Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 
-    if( !parse( parse_settings ) )
-        throw std::logic_error( "Internal Error: The test Cbmp texture has failed to parse!");
+    if( !bmp_p->parse( parse_settings ) )
+        throw std::logic_error( "Internal Error: The test BMP has failed to parse!");
+
+    return bmp_p;
 }
 
 bool Data::Mission::IFFOptions::BMPOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

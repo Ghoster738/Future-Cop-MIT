@@ -1865,9 +1865,9 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto data_size = readerAnmD.totalSize() - readerAnmD.getPosition();
                 const auto TRACK_AMOUNT = data_size / 0x10;
 
-                debug_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
+                error_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
                 
-                for( unsigned int i = 0; i < TRACK_AMOUNT; i++ ) {
+                for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
                     auto u0 = readerAnmD.readU8();
                     auto un_speed = readerAnmD.readU8(); // The bigger the slower
                     auto u2 = readerAnmD.readU8();
@@ -1878,6 +1878,24 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     auto u7 = readerAnmD.readU8();
                     auto u8 = readerAnmD.readU16( settings.endian );
                     auto u9 = readerAnmD.readU32( settings.endian );
+
+                    if(un_from_frame != un_to_frame)
+                        continue;
+
+                    if(u9 == 0)
+                        continue;
+
+                    error_log.output << std::dec << "AnmD: "<< i;
+                    error_log.output << ", u0 = " << static_cast<unsigned>(u0);
+                    error_log.output << ", speed = " << static_cast<unsigned>(un_speed);
+                    error_log.output << ", u2 = " << static_cast<unsigned>(u2);
+                    error_log.output << ", skip_frame = " << static_cast<unsigned>(un_skip_frame);
+                    error_log.output << ", from_frame = " << un_from_frame;
+                    error_log.output << ", to_frame = " << un_to_frame;
+                    error_log.output << ", u6 = " << static_cast<unsigned>(u6);
+                    error_log.output << ", u7 = " << static_cast<unsigned>(u7);
+                    error_log.output << ", u8 = " << u8;
+                    error_log.output << ", u9 = " << u9 << "\n";
 
                     // from_frame and to_frame can be (from_frame == to_frame), (from_frame > to_frame), and (from_frame < to_frame)
                 }

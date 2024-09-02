@@ -99,8 +99,8 @@ public:
 
     std::string getValidCharacters() const;
 
-    static FontResource* getWindows( Utilities::Logger &logger = Utilities::logger );
-    static FontResource* getPlaystation( Utilities::Logger &logger = Utilities::logger );
+    static FontResource* getWindows( uint32_t resource_id, Utilities::Logger *logger_r = nullptr );
+    static FontResource* getPlaystation( uint32_t resource_id, Utilities::Logger *logger_r = nullptr );
 };
 
 }

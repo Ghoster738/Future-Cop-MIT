@@ -339,12 +339,12 @@ int Data::Mission::FontResource::write( const std::string& file_path, const Data
         return 0; // A parameter stopped the exporting.
 }
 
-Data::Mission::FontResource* Data::Mission::FontResource::getWindows( Utilities::Logger &logger ) {
+Data::Mission::FontResource* Data::Mission::FontResource::getWindows( uint32_t resource_id, Utilities::Logger *logger_r ) {
     Data::Mission::FontResource* windows_font_p = new Data::Mission::FontResource;
 
     windows_font_p->setIndexNumber( 0 );
     windows_font_p->setMisIndexNumber( 0 );
-    windows_font_p->setResourceID( 2 );
+    windows_font_p->setResourceID( resource_id );
 
     auto loading = Utilities::Buffer::Reader( windows_fnt, windows_fnt_len );
 
@@ -353,7 +353,7 @@ Data::Mission::FontResource* Data::Mission::FontResource::getWindows( Utilities:
     Data::Mission::Resource::ParseSettings parse_settings;
     parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
-    parse_settings.logger_r = &logger;
+    parse_settings.logger_r = logger_r;
 
     if( !windows_font_p->parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The internal Windows font has failed to parse!");
@@ -365,12 +365,12 @@ Data::Mission::FontResource* Data::Mission::FontResource::getWindows( Utilities:
     return windows_font_p;
 }
 
-Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( Utilities::Logger &logger ) {
+Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( uint32_t resource_id, Utilities::Logger *logger_r ) {
     Data::Mission::FontResource* playstation_font_p = new Data::Mission::FontResource;
 
     playstation_font_p->setIndexNumber( 0 );
     playstation_font_p->setMisIndexNumber( 0 );
-    playstation_font_p->setResourceID( 1 );
+    playstation_font_p->setResourceID( resource_id );
 
     auto loading = Utilities::Buffer::Reader( playstation_fnt, playstation_fnt_len );
 
@@ -379,7 +379,7 @@ Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( Utilit
     Data::Mission::Resource::ParseSettings parse_settings;
     parse_settings.type = Data::Mission::Resource::ParseSettings::Playstation;
     parse_settings.endian = Utilities::Buffer::LITTLE;
-    parse_settings.logger_r = &logger;
+    parse_settings.logger_r = logger_r;
 
     if( !playstation_font_p->parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The internal Playstation font has failed to parse!");

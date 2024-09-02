@@ -16,8 +16,8 @@ namespace Mission {
  */
 class PTCResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::string FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
 private:
     Utilities::GridBase2D<uint32_t> grid;
     Utilities::Image2D *debug_map_display_p;
@@ -85,7 +85,7 @@ public:
     float getRayCast2D( float x, float y ) const;
     float getRayCastDownward( float x, float y, float from_highest_point ) const;
 
-    void makeTest( Utilities::Buffer::Endian endianess =  Utilities::Buffer::Endian::LITTLE );
+    static PTCResource* getTest( uint32_t resource_id, Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE, Utilities::Logger *logger_r = nullptr );
 };
 
 }

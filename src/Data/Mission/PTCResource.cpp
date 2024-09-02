@@ -270,7 +270,13 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
 }
 
 
-void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess ) {
+Data::Mission::PTCResource* Data::Mission::PTCResource::getTest( uint32_t resource_id, Utilities::Buffer::Endian endianess, Utilities::Logger *logger_r ) {
+    PTCResource* ptc_p = new PTCResource;
+
+    ptc_p->setIndexNumber( 0 );
+    ptc_p->setMisIndexNumber( 0 );
+    ptc_p->setResourceID( resource_id );
+
     const uint32_t X_SPACE = 9;
     const uint32_t Y_SPACE = 5;
     const uint32_t BORDER_AMOUNT = 4;
@@ -278,29 +284,29 @@ void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess )
     const uint32_t X_DIMENSION = BORDER_SPACE + X_SPACE;
     const uint32_t Y_DIMENSION = BORDER_SPACE + Y_SPACE;
 
-    if(this->data_p != nullptr)
-        delete this->data_p;
+    if(ptc_p->data_p != nullptr)
+        delete ptc_p->data_p;
 
-    this->data_p = new Utilities::Buffer();
+    ptc_p->data_p = new Utilities::Buffer();
 
-    this->data_p->addU32(GRDB_TAG, endianess);
-    this->data_p->addU32(0, endianess); // Make sure to write resource size.
+    ptc_p->data_p->addU32(GRDB_TAG, endianess);
+    ptc_p->data_p->addU32(0, endianess); // Make sure to write resource size.
 
-    this->data_p->addU32(1, endianess); // Add mysterious one.
+    ptc_p->data_p->addU32(1, endianess); // Add mysterious one.
 
-    this->data_p->addU32(16, endianess); // Amount of Ctils.
-    this->data_p->addU32(X_DIMENSION, endianess); // Dimension X
-    this->data_p->addU32(Y_DIMENSION, endianess); // Dimension Y
+    ptc_p->data_p->addU32(16, endianess); // Amount of Ctils.
+    ptc_p->data_p->addU32(X_DIMENSION, endianess); // Dimension X
+    ptc_p->data_p->addU32(Y_DIMENSION, endianess); // Dimension Y
 
     // Zero unknowns
     for(unsigned i = 0; i < 3; i++) {
-        this->data_p->addU32(0, endianess);
+        ptc_p->data_p->addU32(0, endianess);
     }
 
-    this->data_p->addU32(BORDER_AMOUNT, endianess);
+    ptc_p->data_p->addU32(BORDER_AMOUNT, endianess);
 
     // Zero unknown.
-    this->data_p->addU32(0, endianess);
+    ptc_p->data_p->addU32(0, endianess);
 
     Utilities::GridBase2D<uint32_t> generated_grid;
 
@@ -327,12 +333,22 @@ void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess )
 
     for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
         for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
-            this->data_p->addU32(generated_grid.getValue( x, y ), endianess);
+            ptc_p->data_p->addU32(generated_grid.getValue( x, y ), endianess);
         }
     }
 
-    auto tag_size_writer = this->data_p->getWriter(sizeof(uint32_t), sizeof(uint32_t));
-    tag_size_writer.writeU32( this->data_p->getReader().totalSize() );
+    auto tag_size_writer = ptc_p->data_p->getWriter(sizeof(uint32_t), sizeof(uint32_t));
+    tag_size_writer.writeU32( ptc_p->data_p->getReader().totalSize() );
+
+    Resource::ParseSettings parse_settings;
+    parse_settings.type = Resource::ParseSettings::Windows;
+    parse_settings.endian = Utilities::Buffer::LITTLE;
+    parse_settings.logger_r = logger_r;
+
+    if( !ptc_p->parse( parse_settings ) )
+        throw std::logic_error( "Internal Error: The test PTC has failed to parse!");
+
+    return ptc_p;
 }
 
 bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

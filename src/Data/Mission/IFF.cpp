@@ -819,19 +819,24 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
 }
 
 void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
+    Data::Mission::Resource::ParseSettings parse_settings;
+    parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
+    parse_settings.endian = Utilities::Buffer::LITTLE;
+    parse_settings.logger_r = &Utilities::logger;
+
+    iff.name = "EMBEDDED";
+
     // Generate the fonts just in case.
-    iff.addResource( FontResource::getPlaystation( Utilities::logger ) );
-    iff.addResource( FontResource::getWindows( Utilities::logger ) );
+    iff.addResource( FontResource::getPlaystation( 1, parse_settings.logger_r ) );
+    iff.addResource( FontResource::getWindows( 2, parse_settings.logger_r ) );
 
     // TODO Generate Placeholder Map without crashing.
-    /*
     std::vector<BMPResource*> bmp_r;
 
     // Generate this texture.
-    for(int i = 0; i < 10; i++) {
-        BMPResource *resource_r = new BMPResource();
-        resource_r->makeTest( bmp_r.size() + 1, &Utilities::logger );
-        resource_r->parse();
+    {
+        BMPResource *resource_r = BMPResource::getTest( 2, parse_settings.logger_r );
+
         iff.addResource( resource_r );
         bmp_r.push_back( resource_r );
     }
@@ -843,7 +848,7 @@ void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
         TilResource *resource_r = new TilResource();
         resource_r->setResourceID( tils_r.size() + 1 );
         resource_r->makeTest( 110 + i, true );
-        resource_r->parse();
+        resource_r->parse( parse_settings );
         iff.addResource( resource_r );
         tils_r.push_back( resource_r );
     }
@@ -853,7 +858,7 @@ void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
         TilResource *resource_r = new TilResource();
         resource_r->setResourceID( tils_r.size() + 1 );
         resource_r->makeTest( 16 * i, true, 0 );
-        resource_r->parse();
+        resource_r->parse( parse_settings );
         iff.addResource( resource_r );
         tils_r.push_back( resource_r );
     }
@@ -863,7 +868,7 @@ void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
         TilResource *resource_r = new TilResource();
         resource_r->setResourceID( tils_r.size() + 1 );
         resource_r->makeTest( 16 * i, true, 1 );
-        resource_r->parse();
+        resource_r->parse( parse_settings );
         iff.addResource( resource_r );
         tils_r.push_back( resource_r );
     }
@@ -873,13 +878,8 @@ void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
     }
 
     {
-        PTCResource *resource_r = new PTCResource();
-        resource_r->setResourceID( 1 );
-        resource_r->makeTest();
-        resource_r->parse();
+        PTCResource *resource_r = PTCResource::getTest( 1, Utilities::Buffer::LITTLE, parse_settings.logger_r );
         resource_r->makeTiles( tils_r );
         iff.addResource( resource_r );
     }
-    */
-
 }

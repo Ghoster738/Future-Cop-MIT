@@ -6,7 +6,7 @@
 #include "Embedded/PFNT.h"
 #include "Embedded/PFNTExpected.h"
 
-Data::Mission::FontResource* getMacintosh( Utilities::Logger &logger ) {
+Data::Mission::FontResource* getMacintosh( uint32_t resource_id, Utilities::Logger *logger_r ) {
     Data::Mission::FontResource* macintosh_font_p = new Data::Mission::FontResource;
 
     macintosh_font_p->setIndexNumber( 0 );
@@ -20,7 +20,7 @@ Data::Mission::FontResource* getMacintosh( Utilities::Logger &logger ) {
     Data::Mission::Resource::ParseSettings parse_settings;
     parse_settings.type = Data::Mission::Resource::ParseSettings::Macintosh;
     parse_settings.endian = Utilities::Buffer::BIG;
-    parse_settings.logger_r = &logger;
+    parse_settings.logger_r = logger_r;
 
     if( !macintosh_font_p->parse( parse_settings ) )
         throw std::logic_error( "Internal Error: The internal Mac font has failed to parse!");
@@ -278,7 +278,7 @@ int main() {
     int problem = 0;
     
     {
-        auto windows_font_r = Data::Mission::FontResource::getWindows( Utilities::logger );
+        auto windows_font_r = Data::Mission::FontResource::getWindows( 2, &Utilities::logger );
         std::string name = "Windows";
         
         if( windows_font_r == nullptr ) {
@@ -300,7 +300,7 @@ int main() {
     }
     
     {
-        auto mac_font_r = getMacintosh( Utilities::logger );
+        auto mac_font_r = getMacintosh( 3, &Utilities::logger );
         std::string name = "Macintosh";
         
         if( mac_font_r == nullptr ) {
@@ -322,7 +322,7 @@ int main() {
     }
     
     {
-        auto ps1_font_r = Data::Mission::FontResource::getPlaystation( Utilities::logger );
+        auto ps1_font_r = Data::Mission::FontResource::getPlaystation( 1, &Utilities::logger );
         std::string name = "Playstation";
         
         if( ps1_font_r == nullptr ) {
