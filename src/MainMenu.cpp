@@ -107,7 +107,7 @@ void MainMenu::load( MainProgram &main_program ) {
             this->bottom_title_position = glm::vec2( center, 5 * step );
 
         // If any resource is missing I am sure the user would want to know about it.
-        this->warning_position = glm::vec2( center, 7 * step );
+        this->warning_position = glm::vec2( center, 6 * step );
 
         this->info_position = glm::vec2( scale.x, scale.y - 14);
 
@@ -159,7 +159,7 @@ void MainMenu::update( MainProgram &main_program, std::chrono::microseconds delt
             text_2d_buffer_r->setFont( this->prime_font );
             text_2d_buffer_r->setPosition( this->warning_position );
             text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::MIDDLE );
-            text_2d_buffer_r->setColor( glm::vec4( 1, 0, 0, 1 ) );
+            text_2d_buffer_r->setColor( glm::vec4( 1, 0.125, 0.125, 1 ) );
             text_2d_buffer_r->print( "Not all resources are found!" );
         }
     }
