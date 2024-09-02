@@ -315,37 +315,23 @@ void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess )
         for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
             if( y == generated_grid.getHeight() - 1 || x == 0)
                 generated_grid.setValue( x, y, 0 );
+            else if(
+                x >  BORDER_AMOUNT && x <= BORDER_AMOUNT + X_SPACE &&
+                y >= BORDER_AMOUNT && y <  BORDER_AMOUNT + Y_SPACE )
+                generated_grid.setValue( x, y, 8 );
             else
                 generated_grid.setValue( x, y, 4 );
         }
     }
 
-    for( unsigned x = BORDER_AMOUNT; x < BORDER_AMOUNT + X_SPACE; x++ ) {
-        generated_grid.setValue( x, BORDER_AMOUNT, 8 );
-    }
-
-    for( unsigned y = BORDER_AMOUNT + 1; y < (BORDER_AMOUNT + Y_SPACE) - 1; y++ ) {
-        generated_grid.setValue( BORDER_AMOUNT + 0, y, 8 );
-        generated_grid.setValue( BORDER_AMOUNT + 2, y, 4 * (y - (BORDER_AMOUNT + 1)) );
-        generated_grid.setValue( BORDER_AMOUNT + 2, y, 8 );
-        generated_grid.setValue( BORDER_AMOUNT + 2, y, 4 * (y - (BORDER_AMOUNT + 1)) );
-        generated_grid.setValue( BORDER_AMOUNT + 4, y, 8 );
-    }
-
-    for( unsigned x = BORDER_AMOUNT; x < BORDER_AMOUNT + X_SPACE; x++ ) {
-        generated_grid.setValue( x, (BORDER_AMOUNT + X_SPACE) - 1, 8 );
-    }
-
-    for( unsigned int y = 0; y < generated_grid.getHeight(); y++ ) {
-        for( unsigned int x = 0; x < generated_grid.getWidth(); x++) {
+    for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
+        for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
             this->data_p->addU32(generated_grid.getValue( x, y ), endianess);
         }
     }
 
     auto tag_size_writer = this->data_p->getWriter(sizeof(uint32_t), sizeof(uint32_t));
     tag_size_writer.writeU32( this->data_p->getReader().totalSize() );
-
-    this->data_p->write( "ptc.bin" );
 }
 
 bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
