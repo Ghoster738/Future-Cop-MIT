@@ -477,7 +477,20 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
                     Tile one_tile( 0 );
                     one_tile.end_column = 0;
 
-                    if( ty == 3 ) {
+                    if(section_offset == 111 || section_offset == 110) {
+                        one_tile.front = 0;
+                        one_tile.back = 0;
+                        one_tile.action_type_index = 0;
+                        if(section_offset == 111)
+                            one_tile.texture_cord_index = 4;
+                        else
+                            one_tile.texture_cord_index = 12;
+                        one_tile.graphics_type_index = 0;
+                        one_tile.mesh_type = 68 + (section_offset - 110);
+
+                        section_polygons.push_back( one_tile );
+                    }
+                    else if( ty == 3 ) {
                         one_tile.front = 0;
                         one_tile.back = 0;
 
@@ -606,7 +619,11 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
     
     TileGraphics default_graphics;
     
-    default_graphics.shading = 127;
+    if(section_offset != 111 && section_offset != 110)
+        default_graphics.shading = 127;
+    else
+        default_graphics.shading = 80;
+
     default_graphics.texture_index = 1;
     default_graphics.animated = 0;
     default_graphics.semi_transparent = 0;
@@ -664,8 +681,11 @@ void Data::Mission::TilResource::makeTest( unsigned section_offset, unsigned typ
 }
 
 bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
-    if(getResourceID() >= 2 && getResourceID() <= 15) {
-        makeTest( 16 * (getResourceID() - 2), getResourceID() > 8 );
+    if(getResourceID() == 1 || getResourceID() == 2) {
+        makeTest( 110 + (getResourceID() - 1) );
+    }
+    else if(getResourceID() >= 3 && getResourceID() <= 16) {
+        makeTest( 16 * (getResourceID() - 3), getResourceID() > 9 );
     }
 
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );

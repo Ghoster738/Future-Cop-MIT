@@ -275,8 +275,8 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
 
 
 void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess ) {
-    const uint32_t X_SPACE = 5;
-    const uint32_t Y_SPACE = 9;
+    const uint32_t X_SPACE = 9;
+    const uint32_t Y_SPACE = 5;
     const uint32_t BORDER_AMOUNT = 4;
     const uint32_t BORDER_SPACE = 2 * BORDER_AMOUNT + 1;
     const uint32_t X_DIMENSION = BORDER_SPACE + X_SPACE;
@@ -292,7 +292,7 @@ void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess )
 
     this->data_p->addU32(1, endianess); // Add mysterious one.
 
-    this->data_p->addU32(14, endianess); // Amount of Ctils.
+    this->data_p->addU32(16, endianess); // Amount of Ctils.
     this->data_p->addU32(X_DIMENSION, endianess); // Dimension X
     this->data_p->addU32(Y_DIMENSION, endianess); // Dimension Y
 
@@ -322,6 +322,11 @@ void Data::Mission::PTCResource::makeTest( Utilities::Buffer::Endian endianess )
             else
                 generated_grid.setValue( x, y, 4 );
         }
+    }
+
+    for(unsigned i = 0; i < 7; i++) {
+        generated_grid.setValue( BORDER_AMOUNT + 2 + i, BORDER_AMOUNT + 1, 12 + 4 *  i );
+        generated_grid.setValue( BORDER_AMOUNT + 2 + i, BORDER_AMOUNT + 3, 12 + 4 * (i + 7) );
     }
 
     for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
