@@ -818,7 +818,7 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
     return successful_finds;
 }
 
-void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
+void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff, bool map_spawn ) {
     auto endian = Utilities::Buffer::LITTLE;
     auto logger_r = &Utilities::logger;
 
@@ -827,6 +827,9 @@ void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff ) {
     // Generate the fonts just in case.
     iff.addResource( FontResource::getPlaystation( 1, logger_r ) );
     iff.addResource( FontResource::getWindows( 2, logger_r ) );
+
+    if(!map_spawn)
+        return; // Skip map generation.
 
     // Generate Placeholder Map
     std::vector<BMPResource*> bmp_r;

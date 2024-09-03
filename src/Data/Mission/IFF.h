@@ -120,7 +120,7 @@ public:
      */
     int compare( const IFF &operand, std::ostream &out ) const;
 
-    static void generatePlaceholders( IFF &iff );
+    static void generatePlaceholders( IFF &iff, bool map_spawn );
 };
 
 }

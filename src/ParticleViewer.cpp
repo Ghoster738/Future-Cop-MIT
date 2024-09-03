@@ -19,16 +19,15 @@ ParticleViewer::ParticleViewer() {
 ParticleViewer::~ParticleViewer() {}
 
 void ParticleViewer::load( MainProgram &main_program ) {
+    this->next_frame_delay_seconds = 0.0625f;
+    this->next_frame_delay = this->next_frame_delay_seconds;
+    this->particle_frame_index = 0;
     this->particle_index = 0;
     this->particles.clear();
 
     main_program.camera_position = { 0, 0, 0 };
     main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
     main_program.camera_distance = -(4.0f);
-
-    auto pyr_resources = main_program.accessor.getAllConstPYR();
-
-    this->particles = pyr_resources[0]->getParticles();
 
     main_program.loadGraphics( false );
     main_program.loadSound();
@@ -54,6 +53,14 @@ void ParticleViewer::load( MainProgram &main_program ) {
 
     if(this->particle_instance_p != nullptr)
         delete this->particle_instance_p;
+    this->particle_instance_p = nullptr;
+
+    auto pyr_resources = main_program.accessor.getAllConstPYR();
+
+    if(pyr_resources.empty())
+        return;
+
+    this->particles = pyr_resources[0]->getParticles();
 
     this->particle_instance_p = main_program.environment_p->allocateParticleInstance();
 
@@ -65,10 +72,6 @@ void ParticleViewer::load( MainProgram &main_program ) {
     this->particle_instance_p->setParticleIndex(0);
 
     this->particle_instance_p->update();
-
-    this->next_frame_delay_seconds = 0.0625f;
-    this->next_frame_delay = this->next_frame_delay_seconds;
-    this->particle_frame_index = 0;
 }
 
 void ParticleViewer::unload( MainProgram &main_program ) {
@@ -93,7 +96,7 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
     this->count_down -= delta_f;
     this->next_frame_delay -= delta_f;
 
-    if(this->next_frame_delay <= 0) {
+    if(this->particle_instance_p != nullptr && this->next_frame_delay <= 0) {
         this->next_frame_delay = this->next_frame_delay_seconds;
 
         this->particle_frame_index++;
@@ -114,7 +117,7 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ACTION );
-        if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
+        if( this->particle_instance_p != nullptr && input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
         {
             this->particle_instance_p->is_addition = !this->particle_instance_p->is_addition;
             this->count_down = 0.5f;
@@ -132,7 +135,7 @@ void ParticleViewer::update( MainProgram &main_program, std::chrono::microsecond
         if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
             next--;
 
-        if( next != 0 ) {
+        if( this->particle_instance_p != nullptr && next != 0 ) {
             if( next > 0 )
             {
                 this->particle_index += next;

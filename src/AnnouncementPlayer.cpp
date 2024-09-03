@@ -15,23 +15,6 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
     this->announcement_index = 0;
     this->announcements.clear();
 
-    //= main_program.accessor.getAllConstOBJ();
-    auto tos_resource_r = main_program.accessor.getConstTOS( 1 );
-
-    for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
-        const Data::Accessor *swvr_accessor_r = main_program.accessor.getSWVRAccessor(tos_offset);
-
-        // assert(swvr_accessor_r != nullptr);
-
-        if(swvr_accessor_r != nullptr) {
-            auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
-
-            assert(!snds_array_r.empty());
-
-            this->announcements.push_back(snds_array_r[0]);
-        }
-    }
-
     main_program.loadGraphics( false );
     main_program.loadSound();
 
@@ -47,6 +30,25 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
         if( this->font.scale < 1 ) {
             this->font_height = static_cast<float>(this->font_height) / this->font.scale;
             this->font.scale = 1;
+        }
+    }
+
+    auto tos_resource_r = main_program.accessor.getConstTOS( 1 );
+
+    if(tos_resource_r == nullptr)
+        return;
+
+    for( const uint32_t tos_offset: tos_resource_r->getOffsets()) {
+        const Data::Accessor *swvr_accessor_r = main_program.accessor.getSWVRAccessor(tos_offset);
+
+        // assert(swvr_accessor_r != nullptr);
+
+        if(swvr_accessor_r != nullptr) {
+            auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
+
+            assert(!snds_array_r.empty());
+
+            this->announcements.push_back(snds_array_r[0]);
         }
     }
 }

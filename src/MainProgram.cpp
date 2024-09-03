@@ -29,7 +29,7 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
         return;
     }
 
-    Data::Mission::IFF::generatePlaceholders( this->embedded );
+    Data::Mission::IFF::generatePlaceholders( this->embedded, this->parameters.embedded_map.getValue() );
 
     // TODO: Use venice beach as this map has all three types vertex animations.
     this->resource_identifier = Data::Manager::pa_urban_jungle;
@@ -183,9 +183,11 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     // Update the accessor
     this->accessor.clear();
     this->accessor.load( this->embedded );
-    this->accessor.load( *this->global_r );
 
-    if(!this->parameters.embedded_map.getValue())
+    if(this->global_r != nullptr)
+        this->accessor.load( *this->global_r );
+
+    if(this->resource_r != nullptr && !this->parameters.embedded_map.getValue())
         this->accessor.load( *this->resource_r );
 
     if( this->primary_game_r != nullptr ) {
