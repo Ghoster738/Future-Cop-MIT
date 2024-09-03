@@ -94,6 +94,7 @@ public:
     const BoolParam&   load_all_maps = p_load_all_maps;
     const StringParam& global_path   = p_global_path;
     const StringParam& mission_path  = p_mission_path;
+    const BoolParam&   embedded_map  = p_embedded_map;
 
 // Internal stuff
 private:
@@ -112,6 +113,7 @@ private:
     BoolParam   p_load_all_maps;
     StringParam p_global_path;
     StringParam p_mission_path;
+    BoolParam   p_embedded_map;
 
     // Help
     std::string binary_name;
@@ -135,6 +137,7 @@ private:
     virtual void parseLoadAllMaps( std::string value );
     virtual void parseGlobalPath( std::string path );
     virtual void parseMissionPath( std::string path );
+    virtual void parseEmbeddedMap();
 
     // Errors management
     std::string error_message;

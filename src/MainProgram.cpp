@@ -184,7 +184,9 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     this->accessor.clear();
     this->accessor.load( this->embedded );
     this->accessor.load( *this->global_r );
-    this->accessor.load( *this->resource_r );
+
+    if(!this->parameters.embedded_map.getValue())
+        this->accessor.load( *this->resource_r );
 
     if( this->primary_game_r != nullptr ) {
         this->primary_game_r->unload( *this );
@@ -375,6 +377,11 @@ void MainProgram::initialLoadResources() {
     }
     else
         this->accessor.load( *this->global_r );
+
+    if(this->parameters.embedded_map.getValue()) {
+        this->resource_identifier = MainProgram::CUSTOM_IDENTIFIER;
+        return;
+    }
 
     this->resource_r = manager.getIFFEntry( this->resource_identifier ).getIFF( this->platform );
     if( this->resource_r == nullptr ) {

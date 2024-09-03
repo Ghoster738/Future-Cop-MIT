@@ -25,25 +25,27 @@ const int OPT_PSX_DATA_DIR    = 'p';
 const int OPT_LOAD_ALL_MAPS   = 'a';
 const int OPT_GLOBAL_PATH     = 'g';
 const int OPT_MAP_PATH        = 'M';
+const int OPT_EMB_MAP         = 't';
 
 const char* const short_options = "h"; // The only short option is for the help parameter
 
 const option long_options[] = {
-    {"help",          no_argument,       nullptr, OPT_HELP         },
-    {"width",         required_argument, nullptr, OPT_RES_WIDTH    },
-    {"height",        required_argument, nullptr, OPT_RES_HEIGHT   },
-    {"res",           required_argument, nullptr, OPT_RES          },
-    {"fullscreen",    no_argument,       nullptr, OPT_FULLSCREEN   },
-    {"window",        no_argument,       nullptr, OPT_WINDOW       },
-    {"config",        required_argument, nullptr, OPT_CONFIG_DIR   },
-    {"export-path",   required_argument, nullptr, OPT_EXPORT_DIR   },
-    {"user",          required_argument, nullptr, OPT_USER_DIR     },
-    {"win-data",      required_argument, nullptr, OPT_WIN_DATA_DIR },
-    {"mac-data",      required_argument, nullptr, OPT_MAC_DATA_DIR },
-    {"psx-data",      required_argument, nullptr, OPT_PSX_DATA_DIR },
+    {"help",          no_argument,       nullptr, OPT_HELP          },
+    {"width",         required_argument, nullptr, OPT_RES_WIDTH     },
+    {"height",        required_argument, nullptr, OPT_RES_HEIGHT    },
+    {"res",           required_argument, nullptr, OPT_RES           },
+    {"fullscreen",    no_argument,       nullptr, OPT_FULLSCREEN    },
+    {"window",        no_argument,       nullptr, OPT_WINDOW        },
+    {"config",        required_argument, nullptr, OPT_CONFIG_DIR    },
+    {"export-path",   required_argument, nullptr, OPT_EXPORT_DIR    },
+    {"user",          required_argument, nullptr, OPT_USER_DIR      },
+    {"win-data",      required_argument, nullptr, OPT_WIN_DATA_DIR  },
+    {"mac-data",      required_argument, nullptr, OPT_MAC_DATA_DIR  },
+    {"psx-data",      required_argument, nullptr, OPT_PSX_DATA_DIR  },
     {"load-all-maps", required_argument, nullptr, OPT_LOAD_ALL_MAPS },
-    {"global",        required_argument, nullptr, OPT_GLOBAL_PATH  },
-    {"path",          required_argument, nullptr, OPT_MAP_PATH     },
+    {"global",        required_argument, nullptr, OPT_GLOBAL_PATH   },
+    {"path",          required_argument, nullptr, OPT_MAP_PATH      },
+    {"embedded-map",  no_argument,       nullptr, OPT_EMB_MAP       },
 
     {0, 0, 0, 0} // Required as last option
 };
@@ -117,8 +119,9 @@ void Utilities::Options::Parameters::printHelp( std::ostream &output ) const {
         << "    --export-path <path> Path to directory - path to where exported files go" << "\n"
         << "  Maps:" << "\n"
         << "    --load-all-maps <true|false> If true then every map of the game would be loaded at once." << "\n"
-        << "    --path          <file path> Path to a map file" << "\n"
-        << "    --global        <file path> Path to the global file" << "\n"
+        << "    --path          <file path>  Path to a map file" << "\n"
+        << "    --global        <file path>  Path to the global file" << "\n"
+        << "    --embedded-map               Use the internal map data instead of path or any other map. Overrides path!" << "\n"
         << "\n";
 }
 
@@ -158,6 +161,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_LOAD_ALL_MAPS:   parseLoadAllMaps(optarg);        break;
             case OPT_GLOBAL_PATH:     parseGlobalPath(optarg);         break;
             case OPT_MAP_PATH:        parseMissionPath(optarg);        break;
+            case OPT_EMB_MAP:         parseEmbeddedMap();              break;
                 
             case '?':
             case ':':
@@ -505,4 +509,13 @@ void Utilities::Options::Parameters::parseMissionPath( std::string path ) {
     }
 
     storeError("improper mission file path specified in commandline");
+}
+
+void Utilities::Options::Parameters::parseEmbeddedMap() {
+    if (p_embedded_map.wasModified()) {
+        storeError("multiple embedded map parameters specified in commandline");
+        return;
+    }
+
+    p_embedded_map = BoolParam(true);
 }
