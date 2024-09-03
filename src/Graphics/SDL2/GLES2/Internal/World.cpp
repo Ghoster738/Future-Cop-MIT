@@ -218,6 +218,12 @@ int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
 void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, std::vector<const Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
     tiles.resize( resources_til.size() );
 
+    std::map<uint32_t, uint32_t> resource_id_index;
+
+    for( auto i = resources_til.begin(); i != resources_til.end(); i++ ) {
+        resource_id_index[(*i)->getResourceID()] = i - resources_til.begin();
+    }
+
     // Set up the primary tiles. O(n)
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
         const Data::Mission::TilResource *data = resources_til[ i - tiles.begin() ];
@@ -376,9 +382,9 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
         {
             for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
             {
-                auto pointer = pointer_tile_cluster.getTile(x, y);
-                if( pointer != nullptr )
-                    temp_amounts[ pointer->getIndexNumber() ]++;
+                auto til_r = pointer_tile_cluster.getTile(x, y);
+                if( til_r != nullptr )
+                    temp_amounts[ resource_id_index[til_r->getResourceID()] ]++;
             }
         }
 
@@ -393,10 +399,10 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
     {
         for( unsigned int y = 0; y < pointer_tile_cluster.getHeight(); y++ )
         {
-            auto pointer = pointer_tile_cluster.getTile( x, y );
-            if( pointer != nullptr )
+            auto til_r = pointer_tile_cluster.getTile( x, y );
+            if( til_r != nullptr )
             {
-                unsigned int index = pointer->getIndexNumber();
+                unsigned int index = resource_id_index[til_r->getResourceID()];
                 
                 tiles.at(index).sections.push_back( MeshDraw::Section() );
 

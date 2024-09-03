@@ -32,8 +32,8 @@ int main() {
         
         tile.set( 0b00000000000000000000000000000001 );
         if( tile.end_column != 1 || tile.texture_cord_index != 0 ||
-            tile.front      != 0 || tile.back               != 0 ||
-            tile.unknown_1  != 0 || tile.mesh_type          != 0 ||
+            tile.front      != 0 || tile.action_type_index  != 0 ||
+            tile.back       != 0 || tile.mesh_type          != 0 ||
             tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding end_column is flawed!" << std::endl;
             is_not_success = true;
@@ -41,8 +41,8 @@ int main() {
         
         tile.set( 0b00000000000000000000010011001000 );
         if( tile.end_column != 0 || tile.texture_cord_index != 0b1001100100 ||
-            tile.front      != 0 || tile.back               != 0 ||
-            tile.unknown_1  != 0 || tile.mesh_type          != 0 ||
+            tile.front      != 0 || tile.action_type_index  != 0 ||
+            tile.back       != 0 || tile.mesh_type          != 0 ||
             tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding texture_cord_index is flawed!" << std::endl;
             is_not_success = true;
@@ -50,8 +50,8 @@ int main() {
         
         tile.set( 0b00000000000000000001000000000000 );
         if( tile.end_column != 0 || tile.texture_cord_index != 0 ||
-            tile.front      != 0 || tile.back               != 1 ||
-            tile.unknown_1  != 0 || tile.mesh_type          != 0 ||
+            tile.front      != 0 || tile.action_type_index  != 0 ||
+            tile.back       != 1 || tile.mesh_type          != 0 ||
             tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding collision_type is flawed!" << std::endl;
             is_not_success = true;
@@ -59,8 +59,8 @@ int main() {
         
         tile.set( 0b00000000000000000100000000000000 );
         if( tile.end_column != 0 || tile.texture_cord_index != 0 ||
-            tile.front      != 0 || tile.back               != 0 ||
-            tile.unknown_1  != 0b10 || tile.mesh_type       != 0 ||
+            tile.front      != 0 || tile.action_type_index  != 0b10 ||
+            tile.back       != 0 || tile.mesh_type          != 0 ||
             tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding unknown_1 is flawed!" << std::endl;
             is_not_success = true;
@@ -68,8 +68,8 @@ int main() {
         
         tile.set( 0b00000000001000101000000000000000 );
         if( tile.end_column != 0 || tile.texture_cord_index != 0 ||
-            tile.front      != 0 || tile.back               != 0 ||
-            tile.unknown_1  != 0 || tile.mesh_type          != 0b1000101 ||
+            tile.front      != 0 || tile.action_type_index  != 0 ||
+            tile.back       != 0 || tile.mesh_type          != 0b1000101 ||
             tile.graphics_type_index != 0 ) {
             std::cout << "Error: the Tile bitfield regarding mesh_type is flawed!" << std::endl;
             is_not_success = true;
@@ -77,8 +77,8 @@ int main() {
         
         tile.set( 0b10011001000000000000000000000000 );
         if( tile.end_column != 0 || tile.texture_cord_index != 0 ||
-            tile.front      != 0 || tile.back               != 0 ||
-            tile.unknown_1  != 0 || tile.mesh_type          != 0 ||
+            tile.front      != 0 || tile.action_type_index  != 0 ||
+            tile.back       != 0 || tile.mesh_type          != 0 ||
             tile.graphics_type_index != 0b1001100100 ) {
             std::cout << "Error: the Tile bitfield regarding graphics_type_index is flawed!" << std::endl;
             is_not_success = true;
@@ -103,9 +103,9 @@ int main() {
             is_not_success = true;
         }
         
-        if( floor.unknown_1 != 0 ) {
-            std::cout << "unknown_1 is wrong!" << std::endl;
-            std::cout << "should be 1 not " << floor.unknown_1 << "!" << std::endl;
+        if( floor.action_type_index != 0 ) {
+            std::cout << "action_type_index is wrong!" << std::endl;
+            std::cout << "should be 1 not " << floor.action_type_index << "!" << std::endl;
             is_not_success = true;
         }
         
@@ -246,21 +246,18 @@ int main() {
     
     {
         // This resource will be created
-        Data::Mission::TilResource til_resource;
-        
-        // This generates an empty valid til.
-        til_resource.makeEmpty();
+        std::unique_ptr<Data::Mission::TilResource> til_resource(Data::Mission::TilResource::getTest(1, 0, true, true, Utilities::Buffer::Endian::LITTLE, &Utilities::logger));
         
         // Get the triangles from the til_resource.
-        auto triangles = til_resource.getAllTriangles();
+        auto triangles = til_resource->getAllTriangles();
         if( triangles.empty() ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It has no triangles." << std::endl;
             is_not_success = true;
         }
         
-        glm::vec3 min = glm::vec3( std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max() );
-        glm::vec3 max = glm::vec3( std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min() );
+        glm::vec3 min( std::numeric_limits<float>::max() );
+        glm::vec3 max( std::numeric_limits<float>::min() );
         
         for( auto i : triangles ) {
             for( size_t p = 0; p < 3; p++ ) {
@@ -324,19 +321,19 @@ int main() {
         }
         
         // There always should be a center to the til resource.
-        if( til_resource.getRayCast2D( 0, 0 ) < 0 ) {
+        if( til_resource->getRayCast2D( 0, 0 ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It is not raycastable." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource.getRayCast2D( 7.5, 7.5 ) < 0 ) {
+        if( til_resource->getRayCast2D( 7.5, 7.5 ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 8." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource.getRayCast2D( 8.5, 8.5 ) > 0 ) {
+        if( til_resource->getRayCast2D( 8.5, 8.5 ) > 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 9." << std::endl;
             is_not_success = true;
@@ -374,7 +371,7 @@ int main() {
         
         {
             const unsigned DEPTH = 8;
-            auto heightmap = til_resource.getHeightMap( DEPTH );
+            auto heightmap = til_resource->getHeightMap( DEPTH );
             
             if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( heightmap.getPixelFormat() ) == nullptr ) {
                 std::cout << "Heightmap needs to be Utilities::PixelFormatColor_R8G8B8" << std::endl;

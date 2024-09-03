@@ -46,14 +46,6 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
     
     std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
 
-    // If no fonts are found then add one.
-    if( accessor.getConstFNT( 1 ) == nullptr ) {
-        fonts_r.push_back( Data::Mission::FontResource::getPlaystation( Utilities::logger ) );
-    }
-    if( accessor.getConstFNT( 2 ) == nullptr ) {
-        fonts_r.push_back( Data::Mission::FontResource::getWindows( Utilities::logger ) );
-    }
-
     gl_environment_r->text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
     gl_environment_r->text_draw_routine_p->setVertexShader();
     gl_environment_r->text_draw_routine_p->setFragmentShader();

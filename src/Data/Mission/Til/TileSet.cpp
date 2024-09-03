@@ -1,1083 +1,1120 @@
 #include "TileSet.h"
 
-// This was generated version from tile_set.json from a Python Script
+// With permission, this table was directly converted from BahKooJ's MeshData.txt file to this file.
 
-// This table was modified in inspiration from BahKooJ's Ctil simplification.
+using Data::Mission::Til::Mesh::BACK_LEFT;
+using Data::Mission::Til::Mesh::BACK_RIGHT;
+using Data::Mission::Til::Mesh::FRONT_RIGHT;
+using Data::Mission::Til::Mesh::FRONT_LEFT;
+
+using Data::Mission::Til::Mesh::RED;
+using Data::Mission::Til::Mesh::GREEN;
+using Data::Mission::Til::Mesh::BLUE;
+using Data::Mission::Til::Mesh::NO_ELEMENT;
+
 const unsigned Data::Mission::Til::TileSet::POLYGON_COUNT = 128;
+
 Data::Mission::Til::Mesh::Polygon Data::Mission::Til::TileSet::default_mesh[POLYGON_COUNT] = {
     { // 0
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 5
-        { // This might be problematic.
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 10
-        { // This might be problematic.
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        false
-    },
-    {
-        { // This might be problematic
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 15
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 20
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 25
         {
-            {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 30
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 35
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 40
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 45
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 50
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 55
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 60
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, RED}
         },
         false
     },
     { // 65
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, GREEN}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED}
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, RED},
+             {BACK_RIGHT, RED},
+             {FRONT_RIGHT, RED}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {FRONT_RIGHT, GREEN}
         },
         false
     },
     { // 70
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {FRONT_RIGHT, BLUE}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         true
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         true
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         true
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         true
     },
     { // 75
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         true
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         true
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 80
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 85
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
-        false
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        false
+        true
     },
     { // 90
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_RIGHT, RED},
+             {BACK_LEFT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        true
+    },
+    {
+        {
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, RED},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        false
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 95
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {BACK_RIGHT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     { // 100
         {
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_RIGHT, RED},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        },
-        true
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED}
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_RIGHT, GREEN},
+             {BACK_LEFT, NO_ELEMENT}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_RIGHT, RED},
+             {FRONT_RIGHT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED}
+        },
+        false
+    },
+    {
+        {
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN}
         },
         false
     },
     { // 105
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::RED}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_RIGHT, GREEN},
+             {BACK_RIGHT, RED}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_RIGHT, BLUE},
+             {BACK_RIGHT, GREEN}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::RED}
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {FRONT_RIGHT, GREEN},
+             {FRONT_RIGHT, RED}
         },
         true
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::RED},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::RED},
+             {FRONT_LEFT, RED},
+             {FRONT_LEFT, GREEN},
+             {BACK_LEFT, GREEN},
+             {BACK_LEFT, RED}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::FRONT_RIGHT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {FRONT_RIGHT, BLUE},
+             {FRONT_RIGHT, GREEN}
         },
         true
     },
     { // 110
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::GREEN},
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::BLUE},
-             {Data::Mission::Til::Mesh::BACK_LEFT, Data::Mission::Til::Mesh::GREEN}
+             {FRONT_LEFT, GREEN},
+             {FRONT_LEFT, BLUE},
+             {BACK_LEFT, BLUE},
+             {BACK_LEFT, GREEN}
         },
         false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 115
+        {
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 120
+        {
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
+    },
+    { // 125
+        {
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
     {
         {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
+             {BACK_LEFT, NO_ELEMENT}
+        },
+        false
     },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
-    },
-    {
-        {
-             {Data::Mission::Til::Mesh::FRONT_LEFT, Data::Mission::Til::Mesh::NO_ELEMENT}
-        }
-    },
+
 };

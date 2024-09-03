@@ -27,9 +27,9 @@ public:
     class Type {
     public:
         enum PRECISION {
-            LOW,    // Int: (-2^8,  2^8)  Float: (-2,       2) FP: 2^( -8)
-            MEDIUM, // Int: (-2^10, 2^10) Float: (-2^14, 2^14) FP: 2^(-10)
-            HIGH,   // Int: (-2^16, 2^16) Float: (-2^62, 2^62) FP: 2^(-16)
+            LOW,    // Int: (-2^8,  2^8)  Float Range: (-2,       2) Floating Point Precision: 2^( -8) Absolute
+            MEDIUM, // Int: (-2^10, 2^10) Float Range: (-2^14, 2^14) Floating Point Precision: 2^(-10) Relative
+            HIGH,   // Int: (-2^16, 2^16) Float Range: (-2^62, 2^62) Floating Point Precision: 2^(-16) Relative Might not be available on fragment shader.
             ALL
         };
     protected:

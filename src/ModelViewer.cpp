@@ -9,6 +9,13 @@
 
 #include <glm/ext/quaternion_trigonometric.hpp>
 
+namespace {
+
+const std::string LEFT_TEXT[2]  = {"Press LEFT to", "Decrement ID"};
+const std::string RIGHT_TEXT[2] = {"Press RIGHT to", "Increment ID"};
+
+}
+
 ModelViewer ModelViewer::model_viewer;
 
 ModelViewer::ModelViewer() {
@@ -18,8 +25,6 @@ ModelViewer::ModelViewer() {
 ModelViewer::~ModelViewer() {}
 
 void ModelViewer::load( MainProgram &main_program ) {
-    this->cobj_index = 0;
-
     this->count_down = 0;
     this->rotation = 0;
     this->exported_textures = false;
@@ -40,24 +45,8 @@ void ModelViewer::load( MainProgram &main_program ) {
         delete this->displayed_instance_p;
     this->displayed_instance_p = nullptr;
 
-    // Do not load from resource if it does not exist.
-    if( main_program.resource_r == nullptr )
-        return;
-
-    this->obj_vector = main_program.accessor.getAllConstOBJ();
-
     main_program.loadGraphics( false );
     main_program.loadSound();
-
-    // cobj_index needs to be restricted to the obj_vector size
-    if( this->obj_vector.size() <= cobj_index )
-        cobj_index = this->obj_vector.size() - 1;
-
-    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) ) {
-        this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
-        this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
-        this->displayed_instance_p->setPosition( -this->position );
-    }
 
     if( !main_program.text_2d_buffer_r->selectFont( this->font, 0.8 * this->font_height, this->font_height ) ) {
         this->font = 1;
@@ -69,6 +58,26 @@ void ModelViewer::load( MainProgram &main_program ) {
             this->font_height = static_cast<float>(this->font_height) / this->font.scale;
             this->font.scale = 1;
         }
+    }
+
+    this->right_text_placement = main_program.getWindowScale();
+    this->right_text_placement.y -= 2 * this->font_height;
+
+    this->obj_vector = main_program.accessor.getAllConstOBJ();
+    this->cobj_index = 0;
+
+    // Do not load from resource if it does not exist.
+    if( this->obj_vector.empty() )
+        return;
+
+    // cobj_index needs to be restricted to the obj_vector size
+    if( this->obj_vector.size() <= cobj_index )
+        cobj_index = this->obj_vector.size() - 1;
+
+    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) ) {
+        this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+        this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
+        this->displayed_instance_p->setPosition( -this->position );
     }
 }
 
@@ -170,7 +179,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
             next--;
 
-        if( next != 0 ) {
+        if( next != 0 && !obj_vector.empty() ) {
             if( next > 0 )
             {
                 cobj_index += next;
@@ -221,11 +230,26 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     text_2d_buffer_r->setFont( this->font );
     text_2d_buffer_r->setColor( glm::vec4( 1, 1, 1, 1 ) );
     text_2d_buffer_r->setPosition( glm::vec2( 0, 0 ) );
-    text_2d_buffer_r->print( "Resource ID = " + std::to_string( this->obj_vector.at( this->cobj_index )->getResourceID() ) );
+
+    if(this->obj_vector.empty())
+        text_2d_buffer_r->print( "No models exist in any resources that are loaded!" );
+    else
+        text_2d_buffer_r->print( "Resource ID = " + std::to_string( this->obj_vector.at( this->cobj_index )->getResourceID() ) );
 
     if( !this->resource_export_path.empty() ) {
         text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
         text_2d_buffer_r->print( "PRESS the " + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + " button to export model." );
     }
+
+    text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y ) );
+    text_2d_buffer_r->print( LEFT_TEXT[0] );
+    text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y + this->font_height ) );
+    text_2d_buffer_r->print( LEFT_TEXT[1] );
+
+    text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::RIGHT );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement ) );
+    text_2d_buffer_r->print( RIGHT_TEXT[0] );
+    text_2d_buffer_r->setPosition( glm::vec2( right_text_placement + glm::u32vec2(0, this->font_height ) ) );
+    text_2d_buffer_r->print( RIGHT_TEXT[1] );
 }

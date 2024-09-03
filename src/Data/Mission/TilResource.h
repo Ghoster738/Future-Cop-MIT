@@ -51,13 +51,20 @@ public:
             tile_amount = (bitfield >> 0) & ((1 <<  6) - 1);
             tiles_start = (bitfield >> 6) & ((1 << 10) - 1);
         }
+        
+        uint16_t get() const {
+            return  ((uint16_t)tile_amount << 0) |
+                    ((uint16_t)tiles_start << 6);
+        }
+
+        std::string getString() const;
     };
     struct Tile {
         uint32_t end_column: 1;
         uint32_t texture_cord_index : 10;
         uint32_t front : 1;
         uint32_t back  : 1;
-        uint32_t unknown_1 : 2; // Apperently this holds what this tile would do to the playable character. However, it appears that the action this tile would do to the player is stored elsewhere.
+        uint32_t action_type_index : 2; // Apperently this holds what this tile would do to the playable character. However, it appears that the action this tile would do to the player is stored elsewhere.
         uint32_t mesh_type : 7;
         uint32_t graphics_type_index : 10;
         
@@ -71,10 +78,22 @@ public:
             texture_cord_index  = (bitfield >>  1) & ((1 << 10) - 1);
             front               = (bitfield >> 11) & 1;
             back                = (bitfield >> 12) & 1;
-            unknown_1           = (bitfield >> 13) & ((1 <<  2) - 1);
+            action_type_index   = (bitfield >> 13) & ((1 <<  2) - 1);
             mesh_type           = (bitfield >> 15) & ((1 <<  7) - 1);
             graphics_type_index = (bitfield >> 22) & ((1 << 10) - 1);
         }
+        
+        uint32_t get() const {
+            return  ((uint32_t)end_column          <<  0) |
+                    ((uint32_t)texture_cord_index  <<  1) |
+                    ((uint32_t)front               << 11) |
+                    ((uint32_t)back                << 12) |
+                    ((uint32_t)action_type_index   << 13) |
+                    ((uint32_t)mesh_type           << 15) |
+                    ((uint32_t)graphics_type_index << 22);
+        }
+
+        std::string getString() const;
     };
     struct DynamicMonoGraphics {
         uint16_t forth : 6;
@@ -91,6 +110,12 @@ public:
             third        = (bitfield >>  6) & ((1 << 6) - 1);
             second_lower = (bitfield >> 12) & ((1 << 4) - 1);
         }
+
+        uint16_t get() const {
+            return  ((uint16_t)forth        <<  0) |
+                    ((uint16_t)third        <<  6) |
+                    ((uint16_t)second_lower << 12);
+        }
     };
     struct DynamicColorGraphics {
         uint16_t third  : 8;
@@ -104,6 +129,11 @@ public:
         void set( const uint16_t bitfield ) {
             third  = (bitfield >>  0) & ((1 << 8) - 1);
             second = (bitfield >>  8) & ((1 << 8) - 1);
+        }
+
+        uint16_t get() const {
+            return ((uint16_t)third << 0) |
+                ((uint16_t)second << 8);
         }
     };
     struct TileGraphics {
@@ -136,6 +166,8 @@ public:
                 ((uint16_t)rectangle << 13) |
                 ((uint16_t)type << 14);
         }
+
+        std::string getString() const;
     };
     class InfoSLFX {
     public:
@@ -282,8 +314,6 @@ public:
     virtual uint32_t getResourceTagID() const;
 
     Utilities::Image2D getImage() const;
-    
-    void makeEmpty();
 
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
@@ -309,6 +339,8 @@ public:
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;
     
+    static TilResource* getTest( uint32_t resource_id, unsigned section_offset, bool cap, bool is_monochrome = false, Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE, Utilities::Logger *logger_r = nullptr );
+
     glm::i8vec2 getUVAnimation() const { return uv_animation; }
     const std::vector<InfoSCTA>& getInfoSCTA() const { return SCTA_info; }
     const std::vector<glm::u8vec2>& getSCTATextureCords() const { return scta_texture_cords; }

@@ -269,6 +269,88 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
 }
 
+
+Data::Mission::PTCResource* Data::Mission::PTCResource::getTest( uint32_t resource_id, Utilities::Buffer::Endian endianess, Utilities::Logger *logger_r ) {
+    PTCResource* ptc_p = new PTCResource;
+
+    ptc_p->setIndexNumber( 0 );
+    ptc_p->setMisIndexNumber( 0 );
+    ptc_p->setResourceID( resource_id );
+
+    const uint32_t X_SPACE = 9;
+    const uint32_t Y_SPACE = 5;
+    const uint32_t BORDER_AMOUNT = 4;
+    const uint32_t BORDER_SPACE = 2 * BORDER_AMOUNT + 1;
+    const uint32_t X_DIMENSION = BORDER_SPACE + X_SPACE;
+    const uint32_t Y_DIMENSION = BORDER_SPACE + Y_SPACE;
+
+    if(ptc_p->data_p != nullptr)
+        delete ptc_p->data_p;
+
+    ptc_p->data_p = new Utilities::Buffer();
+
+    ptc_p->data_p->addU32(GRDB_TAG, endianess);
+    ptc_p->data_p->addU32(0, endianess); // Make sure to write resource size.
+
+    ptc_p->data_p->addU32(1, endianess); // Add mysterious one.
+
+    ptc_p->data_p->addU32(16, endianess); // Amount of Ctils.
+    ptc_p->data_p->addU32(X_DIMENSION, endianess); // Dimension X
+    ptc_p->data_p->addU32(Y_DIMENSION, endianess); // Dimension Y
+
+    // Zero unknowns
+    for(unsigned i = 0; i < 3; i++) {
+        ptc_p->data_p->addU32(0, endianess);
+    }
+
+    ptc_p->data_p->addU32(BORDER_AMOUNT, endianess);
+
+    // Zero unknown.
+    ptc_p->data_p->addU32(0, endianess);
+
+    Utilities::GridBase2D<uint32_t> generated_grid;
+
+    // setup the grid
+    generated_grid.setDimensions( X_DIMENSION, Y_DIMENSION );
+
+    for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
+        for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
+            if( y == generated_grid.getHeight() - 1 || x == 0)
+                generated_grid.setValue( x, y, 0 );
+            else if(
+                x >  BORDER_AMOUNT && x <= BORDER_AMOUNT + X_SPACE &&
+                y >= BORDER_AMOUNT && y <  BORDER_AMOUNT + Y_SPACE )
+                generated_grid.setValue( x, y, 8 );
+            else
+                generated_grid.setValue( x, y, 4 );
+        }
+    }
+
+    for(unsigned i = 0; i < 7; i++) {
+        generated_grid.setValue( BORDER_AMOUNT + 2 + i, BORDER_AMOUNT + 1, 12 + 4 *  i );
+        generated_grid.setValue( BORDER_AMOUNT + 2 + i, BORDER_AMOUNT + 3, 12 + 4 * (i + 7) );
+    }
+
+    for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
+        for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
+            ptc_p->data_p->addU32(generated_grid.getValue( x, y ), endianess);
+        }
+    }
+
+    auto tag_size_writer = ptc_p->data_p->getWriter(sizeof(uint32_t), sizeof(uint32_t));
+    tag_size_writer.writeU32( ptc_p->data_p->getReader().totalSize() );
+
+    Resource::ParseSettings parse_settings;
+    parse_settings.type = Resource::ParseSettings::Windows;
+    parse_settings.endian = Utilities::Buffer::LITTLE;
+    parse_settings.logger_r = logger_r;
+
+    if( !ptc_p->parse( parse_settings ) )
+        throw std::logic_error( "Internal Error: The test PTC has failed to parse!");
+
+    return ptc_p;
+}
+
 bool Data::Mission::IFFOptions::PTCOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
     if( !singleArgument( arguments, "--" + getNameSpace() + "_NO_MODEL", output_r, no_model ) )
         return false; // The single argument is not valid.

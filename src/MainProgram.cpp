@@ -29,6 +29,8 @@ MainProgram::MainProgram( int argc, char** argv ) : parameters( argc, argv ), pa
         return;
     }
 
+    Data::Mission::IFF::generatePlaceholders( this->embedded, this->parameters.embedded_map.getValue() );
+
     // TODO: Use venice beach as this map has all three types vertex animations.
     this->resource_identifier = Data::Manager::pa_urban_jungle;
     this->platform = Data::Manager::getPlatformFromString( this->options.getCurrentPlatform() );
@@ -179,9 +181,14 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
     this->resource_identifier = switch_resource_identifier;
 
     // Update the accessor
-    accessor.clear();
-    accessor.load( *this->global_r );
-    accessor.load( *this->resource_r );
+    this->accessor.clear();
+    this->accessor.load( this->embedded );
+
+    if(this->global_r != nullptr)
+        this->accessor.load( *this->global_r );
+
+    if(this->resource_r != nullptr && !this->parameters.embedded_map.getValue())
+        this->accessor.load( *this->resource_r );
 
     if( this->primary_game_r != nullptr ) {
         this->primary_game_r->unload( *this );
@@ -329,7 +336,7 @@ void MainProgram::setupSound() {
 }
 
 void MainProgram::initialLoadResources() {
-    accessor.clear();
+    this->accessor.clear();
 
     manager.autoSetEntries( options.getWindowsDataDirectory(),     Data::Manager::Platform::WINDOWS );
     manager.autoSetEntries( options.getMacintoshDataDirectory(),   Data::Manager::Platform::MACINTOSH );
@@ -363,13 +370,20 @@ void MainProgram::initialLoadResources() {
 
     manager.setLoad( this->importance_level );
 
+    this->accessor.load( this->embedded );
+
     this->global_r = manager.getIFFEntry( Data::Manager::global ).getIFF( this->platform );
     if( this->global_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The global IFF " << Data::Manager::global << " did not load.";
     }
     else
-        accessor.load( *this->global_r );
+        this->accessor.load( *this->global_r );
+
+    if(this->parameters.embedded_map.getValue()) {
+        this->resource_identifier = MainProgram::CUSTOM_IDENTIFIER;
+        return;
+    }
 
     this->resource_r = manager.getIFFEntry( this->resource_identifier ).getIFF( this->platform );
     if( this->resource_r == nullptr ) {
@@ -377,7 +391,7 @@ void MainProgram::initialLoadResources() {
         log.output << "The mission IFF " << this->resource_identifier << " did not load.";
     }
     else
-        accessor.load( *this->resource_r );
+        this->accessor.load( *this->resource_r );
 }
 
 void MainProgram::loadGraphics( bool show_map ) {

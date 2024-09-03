@@ -119,6 +119,8 @@ public:
      * @return The number of reasources that matches!
      */
     int compare( const IFF &operand, std::ostream &out ) const;
+
+    static void generatePlaceholders( IFF &iff, bool map_spawn );
 };
 
 }

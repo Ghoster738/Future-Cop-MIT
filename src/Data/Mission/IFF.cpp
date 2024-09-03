@@ -817,3 +817,64 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
 
     return successful_finds;
 }
+
+void Data::Mission::IFF::generatePlaceholders( Data::Mission::IFF &iff, bool map_spawn ) {
+    auto endian = Utilities::Buffer::LITTLE;
+    auto logger_r = &Utilities::logger;
+
+    iff.name = "EMBEDDED";
+
+    // Generate the fonts just in case.
+    iff.addResource( FontResource::getPlaystation( 1, logger_r ) );
+    iff.addResource( FontResource::getWindows( 2, logger_r ) );
+
+    if(!map_spawn)
+        return; // Skip map generation.
+
+    // Generate Placeholder Map
+    std::vector<BMPResource*> bmp_r;
+
+    // Generate this texture.
+    {
+        BMPResource *resource_r = BMPResource::getTest( 2, logger_r );
+
+        iff.addResource( resource_r );
+        bmp_r.push_back( resource_r );
+    }
+
+    std::vector<TilResource*> tils_r;
+
+    // Generate two flat Sections.
+    for(int i = 0; i < 2; i++) {
+        TilResource *resource_r = TilResource::getTest( tils_r.size() + 1, 110 + i, true, false, endian, logger_r );
+
+        iff.addResource( resource_r );
+        tils_r.push_back( resource_r );
+    }
+
+    // Generate 6 Sections.
+    for(int i = 0; i < 7; i++) {
+        TilResource *resource_r = TilResource::getTest( tils_r.size() + 1, 16 * i, true, false, endian, logger_r );
+
+        iff.addResource( resource_r );
+        tils_r.push_back( resource_r );
+    }
+
+    // Generate 6 Sections.
+    for(int i = 0; i < 7; i++) {
+        TilResource *resource_r = TilResource::getTest( tils_r.size() + 1, 16 * i, true, true, endian, logger_r );
+
+        iff.addResource( resource_r );
+        tils_r.push_back( resource_r );
+    }
+
+    for( auto section = tils_r.begin(); section != tils_r.end(); section++ ) {
+        (*section)->loadTextures( bmp_r );
+    }
+
+    {
+        PTCResource *resource_r = PTCResource::getTest( 1, endian, logger_r );
+        resource_r->makeTiles( tils_r );
+        iff.addResource( resource_r );
+    }
+}
