@@ -314,7 +314,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             }
         }
 
-        while( file && !error_in_read ) {
+        while( !file.eof() && !error_in_read ) {
             while( data_reader.getPosition(Utilities::Buffer::Direction::END) > 2 * sizeof(uint32_t) ) {
                 const auto file_offset = BLOCK_SIZE * block_index + data_reader.getPosition();
 
@@ -482,12 +482,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             // Advance the block index.
             block_index++;
 
-            data_writer.setPosition(0);
-            data_writer.write( file, BLOCK_SIZE );
-
-            std::cout << "file.tellg() = " << std::hex << file.tellg() << std::endl;
-
-            data_reader.setPosition(0);
+            if(!file.eof()) {
+                data_writer.setPosition(0);
+                data_writer.write( file, BLOCK_SIZE );
+                data_reader.setPosition(0);
+            }
         }
 
         // Find a potential error.
