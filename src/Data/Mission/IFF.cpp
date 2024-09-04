@@ -330,7 +330,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 const uint32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
                 if( TYPE_ID == FILL_TAG ) {
-                    debug_log.output << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                    error_log.output
+                        << "TYPE_ID: FILL offset: 0x" << std::hex << file_offset
+                        << " end: 0x" << (file_offset + CHUNK_SIZE)
+                        << " ratio: 0x" << ((file_offset + CHUNK_SIZE) % 0x6000) << std::endl;
 
                     // This tag does not have any useable information. This might have been used to demiout certain files.
 
