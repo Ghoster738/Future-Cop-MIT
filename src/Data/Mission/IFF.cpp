@@ -232,6 +232,8 @@ namespace {
 }
 
 int Data::Mission::IFF::open( const std::string &file_path ) {
+    const size_t BLOCK_SIZE = 0x6000;
+
     std::unordered_set<std::string> filenames; // Check for potential conflicts.
     Utilities::Logger &logger = Utilities::logger;
     std::fstream file;
@@ -257,18 +259,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
         Data::Mission::Resource::ParseSettings default_settings = Data::Mission::Resource::ParseSettings();
 
-        // it is set like this in default because it has not found the header yet.
-        // since this is a do while loop the loop would only run once if it did not find the header.
-        bool error_in_read = true;
-
-        // There are two loading buffers for the loader
-        Utilities::Buffer type_buffer;
-        type_buffer.allocate( sizeof( uint32_t ) + sizeof( int32_t ) );
-        Utilities::Buffer::Writer type_writer = type_buffer.getWriter();
-        Utilities::Buffer::Reader type_reader = type_buffer.getReader();
+        bool error_in_read = false;
 
         Utilities::Buffer data_buffer;
-        data_buffer.allocate( 0x6000 ); // This is a little higher than the biggest chunk of ConFt.
+        data_buffer.allocate( BLOCK_SIZE );
         Utilities::Buffer::Writer data_writer = data_buffer.getWriter();
         Utilities::Buffer::Reader data_reader = data_buffer.getReader();
 
@@ -276,17 +270,23 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
 
+        default_settings.endian = Utilities::Buffer::Endian::NO_SWAP;
+
+        uint32_t first_swvr_offset;
+        Resource::SWVREntry swvr_entry;
+
+        uint32_t block_index = 0;
+
+        data_writer.setPosition(0);
+        data_writer.write( file, BLOCK_SIZE );
+        data_reader.setPosition(0);
+
         {
-            auto info_log = logger.getLog( Utilities::Logger::INFO );
-            info_log.info << "IFF: " << file_path << "\n";
+            const uint32_t TYPE_ID = data_reader.readU32( default_settings.endian );
 
-            type_writer.write( file, type_reader.totalSize() );
-
-            const uint32_t TYPE_ID = type_reader.readU32( Utilities::Buffer::Endian::NO_SWAP );
-
-            // First Read the header.
             if( TYPE_ID == IN_ENDIAN_CTRL_TAG || TYPE_ID == OP_ENDIAN_CTRL_TAG ) {
-                error_in_read = false;
+                auto info_log = logger.getLog( Utilities::Logger::INFO );
+                info_log.info << "IFF: " << file_path << "\n";
 
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
@@ -301,203 +301,191 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
 
-                const int32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
-                file.seekg( chunkToDataSize( CHUNK_SIZE ), std::ios_base::cur );
+                const int32_t CHUNK_SIZE = data_reader.readI32( default_settings.endian );
+
+                data_reader.setPosition( CHUNK_SIZE );
 
                 // TODO Add playstation detection
             }
-        }
-
-        int file_offset = 0;
-        uint32_t first_swvr_offset;
-        Resource::SWVREntry swvr_entry;
-
-        while( file && !error_in_read ) {
-            file_offset = file.tellg();
-
-            type_writer.setPosition(0);
-            type_reader.setPosition(0);
-
-            const auto READ_AMOUNT = type_writer.write( file, type_reader.totalSize() );
-
-            if( READ_AMOUNT != type_reader.totalSize() ) {
+            else {
+                // TODO Test this case!
+                error_log.output << "Expected CTRL chunk at the beginning! Most likely, it is not an Future Cop IFF file.\n";
                 error_in_read = true;
             }
-            else {
+        }
 
-                const uint32_t TYPE_ID = type_reader.readU32( default_settings.endian );
-                const uint32_t CHUNK_SIZE = type_reader.readI32( default_settings.endian );
+        while( !file.eof() && !error_in_read ) {
+            while( data_reader.getPosition(Utilities::Buffer::Direction::END) > 2 * sizeof(uint32_t) ) {
+                const auto file_offset = BLOCK_SIZE * block_index + data_reader.getPosition();
+
+                assert( iff_file_size > file_offset );
+
+                const uint32_t   TYPE_ID = data_reader.readU32( default_settings.endian );
+                const int32_t CHUNK_SIZE = data_reader.readI32( default_settings.endian );
                 const uint32_t DATA_SIZE = chunkToDataSize( CHUNK_SIZE );
 
-                if( TYPE_ID == FILL_TAG ) {
-                    debug_log.output << "TYPE_ID: " << "FILL" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                if(DATA_SIZE > data_reader.getPosition(Utilities::Buffer::Direction::END)) {
+                    error_in_read = true;
 
-                    // This tag does not have any useable information. This might have been used to demiout certain files.
+                    error_log.output << "Chunk on offset 0x" << std::hex << file_offset << " is too big for the remaining block size.\n";
+                    error_log.output << "  chunk_size = 0x" << CHUNK_SIZE << "\n";
+                    error_log.output << "  data_size = 0x" << DATA_SIZE << "\n";
+                    error_log.output << "  remaining_block_size = 0x" << data_reader.getPosition(Utilities::Buffer::Direction::END) << "\n";
 
-                    if( static_cast<uint32_t>(CHUNK_SIZE) == SHOC_TAG )
-                        file.seekg( file_offset + sizeof( TYPE_ID ), std::ios_base::beg ); // Only skip the TYPE_ID.
-                    else
-                        file.seekg( DATA_SIZE, std::ios_base::cur ); // Skip the FILL buffer.
+                    break;
                 }
-                else
-                if( DATA_SIZE + file.tellg() < iff_file_size )
-                {
-                    // Check if the buffer is too high.
-                    if( DATA_SIZE > data_reader.totalSize() ) {
-                        // data_buffer.allocate( DATA_SIZE - data_reader.totalSize() );
-                        error_log.output << std::hex << " The limit of 0x" << data_reader.totalSize() << " for this reader has been reached" << std::endl;
-                        error_in_read = true;
+
+                auto block_chunk_reader = data_reader.getReader( DATA_SIZE );
+
+                // Now that the data chunk can be read it is time for this switch statement.
+                switch( TYPE_ID ) {
+                case FILL_TAG:
+                    // Ignore the fill chunk. It is padding
+                    break;
+                case MSIC_TAG:
+                    debug_log.output << "TYPE_ID: MISC CHUNK_SIZE: 0x" << std::hex << CHUNK_SIZE << std::endl;
+                    if( msic_p == nullptr ) {
+                        msic_p = new MSICResource();
+                        msic_p->setIndexNumber( 0 );
+                        msic_p->setResourceID( 1 );
+                        msic_p->getSWVREntry() = swvr_entry;
+                        msic_p->setOffset( file_offset );
+
+                        msic_data_p = new Utilities::Buffer();
                     }
 
-                    data_writer.setPosition(0);
-                    data_reader.setPosition(0);
+                    assert(msic_p != nullptr);
+                    assert(msic_data_p != nullptr);
 
-                    // Finally read the buffer.
-                    auto amount_written = data_writer.write( file, DATA_SIZE );
-                    if( amount_written != DATA_SIZE )
-                        warning_log.output << "amount_written is 0x" << std::hex << amount_written << " while \nDATA_SIZE is 0x" << DATA_SIZE << ".\n";
+                    block_chunk_reader.addToBuffer(*msic_data_p, DATA_SIZE);
+                    break;
+                case PS1_CANM_TAG:
+                case PS1_VAGB_TAG:
+                case PS1_VAGM_TAG:
+                    break;
+                case SHOC_TAG:
+                    {
+                        block_chunk_reader.setPosition( 8 );
 
-                    data_reader.setPosition( 8 );
+                        const auto CURRENT_TAG = block_chunk_reader.readU32( default_settings.endian );
 
-                    const auto CURRENT_TAG = data_reader.readU32( default_settings.endian );
-
-                    if( TYPE_ID == SHOC_TAG ) {
                         // this checks if the chunk holds a file header!
                         if( CURRENT_TAG == SHDR_TAG ) {
 
-                            if( DATA_SIZE >= 20 ) {
+                            if( DATA_SIZE >= 0x14 ) {
                                 resource_pool.push_back( ResourceType() );
 
                                 // These are the tag sizes to be expected.
                                 // Subtract them by 20 and we would get the header size.
                                 // The smallest DATA_SIZE is 52, and the biggest data size is 120.
-                                if( !((DATA_SIZE == 52) || (DATA_SIZE ==  56) || (DATA_SIZE ==  60) || (DATA_SIZE ==  64) ||
-                                      (DATA_SIZE == 72) || (DATA_SIZE ==  76) || (DATA_SIZE ==  80) || (DATA_SIZE ==  84) ||
-                                      (DATA_SIZE == 96) || (DATA_SIZE == 100) || (DATA_SIZE == 116) || (DATA_SIZE == 120)) )
-                                    warning_log.output << "DATA_SIZE has an unexpected size of " << DATA_SIZE << ".\n";
+                                if( !((DATA_SIZE == 0x34) || (DATA_SIZE == 0x38) || (DATA_SIZE == 0x3c) || (DATA_SIZE == 0x40) ||
+                                      (DATA_SIZE == 0x48) || (DATA_SIZE == 0x4c) || (DATA_SIZE == 0x50) || (DATA_SIZE == 0x54) ||
+                                      (DATA_SIZE == 0x60) || (DATA_SIZE == 0x64) || (DATA_SIZE == 0x74) || (DATA_SIZE == 0x78)) )
+                                    warning_log.output << "DATA_SIZE has an unexpected size of 0x" << std::hex << DATA_SIZE << ".\n";
 
-                                data_reader.setPosition( 16 );
+                                block_chunk_reader.setPosition( 0x10 );
 
-                                resource_pool.back().type_enum = data_reader.readU32( default_settings.endian );
+                                resource_pool.back().type_enum = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().offset    = file_offset;
                                 resource_pool.back().iff_index = resource_pool.size() - 1;
-                                resource_pool.back().resource_id = data_reader.readU32( default_settings.endian );
+                                resource_pool.back().resource_id = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().swvr_entry = swvr_entry;
 
                                 resource_pool.back().data_p = new Utilities::Buffer();
-                                if( resource_pool.back().data_p != nullptr )
-                                    resource_pool.back().data_p->reserve( data_reader.readU32( default_settings.endian ) );
+                                resource_pool.back().data_p->reserve( block_chunk_reader.readU32( default_settings.endian ) );
 
-                                resource_pool.back().header_p = new Utilities::Buffer( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 28), DATA_SIZE - 28 );
+                                resource_pool.back().header_p = new Utilities::Buffer();
+                                block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x1c );
                             }
-                            else
+                            else {
                                 error_in_read = true;
+                                break;
+                            }
                         }
                         else
-                        if( DATA_SIZE >= 12 && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
-                            resource_pool.back().data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer() + 12), DATA_SIZE - 12 );
+                        if( DATA_SIZE >= 0xc && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
+                            block_chunk_reader.addToBuffer(*resource_pool.back().data_p, DATA_SIZE - 0xc );
                         }
                         else
                             error_log.output << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
-
-                        debug_log.output << "TYPE_ID: " << "SHOC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
                     }
-                    else
-                    if( TYPE_ID == MSIC_TAG ) {
-                        debug_log.output << "TYPE_ID: " << "MISC" << " CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
-                        if( msic_p == nullptr ) {
-                            msic_p = new MSICResource();
-                            msic_p->setIndexNumber( 0 );
-                            msic_p->setResourceID( 1 );
-                            msic_p->getSWVREntry() = swvr_entry;
-                            msic_p->setOffset( file_offset );
 
-                            msic_data_p = new Utilities::Buffer();
+                    debug_log.output << "TYPE_ID: SHOC CHUNK_SIZE: " << CHUNK_SIZE << std::endl;
+                    break;
+                case SWVR_TAG:
+                    if( DATA_SIZE != 0x1c )
+                        error_log.output << "SWVR chunk: DATA_SIZE = 0x" << std::hex << DATA_SIZE << "\n";
+                    else {
+                        if(!swvr_entry.isPresent())
+                            first_swvr_offset = file_offset;
+
+                        swvr_entry.offset = file_offset;
+                        swvr_entry.tos_offset = file_offset - first_swvr_offset;
+                        swvr_entry.name = "";
+
+                        block_chunk_reader.setPosition( 8 );
+
+                        const auto file_identifier = block_chunk_reader.readU32( default_settings.endian );
+
+                        if( file_identifier != 0x46494c45 )
+                            warning_log.output << "SWVR chunk: file_identifier is not FILE!\n";
+
+                        int8_t some_char = '1';
+
+                        size_t dot_position = DATA_SIZE;
+                        const size_t STRING_LIMIT = DATA_SIZE - 0xc;
+
+                        for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
+                        {
+                            some_char = block_chunk_reader.readI8();
+
+                            if(some_char == '.')
+                                dot_position = i;
+
+                            if(some_char != '\0')
+                                swvr_entry.name += some_char;
                         }
 
-                        if( msic_p != nullptr )
-                            msic_data_p->add( reinterpret_cast<uint8_t*>(data_buffer.dangerousPointer()), DATA_SIZE );
-                    }
-                    else
-                    if( TYPE_ID == SWVR_TAG ) {
-                        if( DATA_SIZE != 28 || DATA_SIZE >= data_reader.totalSize() || amount_written != DATA_SIZE )
-                            error_log.output << "SWVR chunk: DATA_SIZE = " << std::dec << DATA_SIZE << "amount_written is " << amount_written << "\n";
-                        else {
-                            if(!swvr_entry.isPresent())
-                                first_swvr_offset = file_offset;
+                        // Now, the swvr name must be cleaned up.
 
-                            swvr_entry.offset = file_offset;
-                            swvr_entry.tos_offset = file_offset - first_swvr_offset;
-                            swvr_entry.name = "";
+                        // If dot_position is beyond swvr_entry.name then, there is not stream ending to cut out.
+                        if( swvr_entry.name.length() > dot_position )
+                        {
+                            // Get the ".stream" ending cut out of the swvr name.
 
-                            data_reader.setPosition( 8 );
+                            const std::string ending = swvr_entry.name.substr( dot_position );
+                            const std::string expecting = std::string(".stream").substr( 0, ending.length() );
 
-                            const auto file_identifier = data_reader.readU32( default_settings.endian );
-
-                            if( file_identifier != 0x46494c45 )
-                                warning_log.output << "SWVR chunk: file_identifier is not FILE!\n";
-
-                            int8_t some_char = '1';
-
-                            size_t dot_position = DATA_SIZE;
-                            const size_t STRING_LIMIT = DATA_SIZE - 12;
-
-                            for( uint32_t i = 0; i < STRING_LIMIT && some_char != '\0'; i++ )
-                            {
-                                some_char = data_reader.readI8();
-
-                                if(some_char == '.')
-                                    dot_position = i;
-
-                                if(some_char != '\0')
-                                    swvr_entry.name += some_char;
+                            if( ending.compare(expecting) != 0 ) {
+                                warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                    << "  \"" << swvr_entry.name << "\" is the name of the SWVR chunk.\n"
+                                    << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
                             }
-
-                            // Now, the swvr name must be cleaned up.
-
-                            // If dot_position is beyond swvr_entry.name then, there is not stream ending to cut out.
-                            if( swvr_entry.name.length() > dot_position )
-                            {
-                                // Get the ".stream" ending cut out of the swvr name.
-
-                                const std::string ending = swvr_entry.name.substr( dot_position );
-                                const std::string expecting = std::string(".stream").substr( 0, ending.length() );
-
-                                if( ending.compare(expecting) != 0 ) {
-                                    warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
-                                        << "  \"" << swvr_entry.name << "\" is the name of the SWVR chunk.\n"
-                                        << "  Invalid line ending at IFF! This could mean that this IFF file might not work with Future Cop.\n";
-                                }
-                                else {
-                                    swvr_entry.name = swvr_entry.name.substr( 0, dot_position );
-                                }
+                            else {
+                                swvr_entry.name = swvr_entry.name.substr( 0, dot_position );
                             }
-                            else
-                            {
-                                if( swvr_entry.name.length() != STRING_LIMIT - 1 ) {
-                                    warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
-                                        << "  SWVR name \"" << swvr_entry.name << "\" probably invalid.\n";
-                                }
+                        }
+                        else
+                        {
+                            if( swvr_entry.name.length() != STRING_LIMIT - 1 ) {
+                                warning_log.output << "Offset = 0x" << std::hex << file_offset << ".\n"
+                                    << "  SWVR name \"" << swvr_entry.name << "\" probably invalid.\n";
                             }
                         }
                     }
-                    else
-                    if( TYPE_ID == PS1_CANM_TAG ) {
-                        // TODO Read in this case.
-                    }
-                    else
-                    if( TYPE_ID == PS1_VAGB_TAG ) {
-                        // TODO Read in this case.
-                    }
-                    else
-                    if( TYPE_ID == PS1_VAGM_TAG ) {
-                        // TODO Read in this case.
-                    }
-                    else
-                        warning_log.output << "TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << ".\n";
-                }
-                else
-                    error_in_read = true;
+                    break;
+                default:
+                    warning_log.output << "Unknown TYPE_ID: " << static_cast<char>((TYPE_ID >> 24) & 0xFF) << static_cast<char>((TYPE_ID >> 16) & 0xFF) << static_cast<char>((TYPE_ID >> 8) & 0xFF) << static_cast<char>(TYPE_ID & 0xFF) << " CHUNK_SIZE: " << CHUNK_SIZE << ".\n";
+                };
+            }
+
+            // Advance the block index.
+            block_index++;
+
+            if(!file.eof()) {
+                data_writer.setPosition(0);
+                data_writer.write( file, BLOCK_SIZE );
+                data_reader.setPosition(0);
             }
         }
 

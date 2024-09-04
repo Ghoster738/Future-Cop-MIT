@@ -106,6 +106,8 @@ public:
         int8_t  readI8();
         
         std::vector<bool> getBitfield( size_t byte_amount = 0 );
+
+        bool addToBuffer( Buffer &buffer, size_t size );
     };
     
     class Writer {
