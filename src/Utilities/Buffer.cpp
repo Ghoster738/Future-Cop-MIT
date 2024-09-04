@@ -592,6 +592,17 @@ std::vector<bool> Utilities::Buffer::Reader::getBitfield( size_t byte_amount ) {
     return value;
 }
 
+bool Utilities::Buffer::Reader::addToBuffer( Buffer &buffer, size_t buffer_size ) {
+    if(this->current_index + buffer_size > this->size)
+        return false;
+
+    buffer.add( this->data_r + this->current_index, buffer_size );
+
+    this->current_index += buffer_size;
+
+    return true;
+}
+
 Utilities::Buffer::Writer::Writer( uint8_t *const buffer_r_param, size_t byte_amount ) : data_r( buffer_r_param ), size( byte_amount ), current_index( 0 )
 {
 }
