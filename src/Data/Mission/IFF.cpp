@@ -16,6 +16,7 @@
 #include "TilResource.h"
 #include "TOSResource.h"
 #include "SNDSResource.h"
+#include "SHDResource.h"
 #include "WAVResource.h"
 #include "ObjResource.h"
 #include "UnkResource.h"
@@ -76,8 +77,7 @@ namespace {
         { Data::Mission::ACTResource::SAC_IDENTI_TAG,  new Data::Mission::ACT::Unknown() },
         // which is { 0x43, 0x73, 0x66, 0x78 } or { 'C', 's', 'f', 'x' } or "Csfx"
         { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true) },  // Resource ID missing. Holds Act based structures?
-        // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
-        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // // Resource ID missing. Holds programmer settings?
+        { Data::Mission::SHDResource::IDENTIFIER_TAG, new Data::Mission::SHDResource() }, // Resource ID missing.
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
