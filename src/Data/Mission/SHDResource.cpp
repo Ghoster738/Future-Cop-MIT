@@ -48,17 +48,24 @@ bool SHDResource::parse( const ParseSettings &settings ) {
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
 
-        auto byte_4  = reader.readU16( settings.endian );
-        auto byte_1  = reader.readU16( settings.endian );
-        auto byte_50 = reader.readU16( settings.endian );
-        auto count   = reader.readU16( settings.endian );
-        auto byte_10 = reader.readU16( settings.endian );
+        auto header_4  = reader.readU16( settings.endian ); // Always 4
+        auto unk_0 = reader.readU16( settings.endian ); // ConFt:  1 GlblData: 16
+        auto unk_1 = reader.readU16( settings.endian ); // ConFt: 50 GlblData:  1
 
-        this->entries.resize(count);
+        this->entry_count = reader.readU16( settings.endian );
 
-        error_log.output << "Count = " << count << "\n";
+        auto entry_table_offset = reader.readU16( settings.endian );
 
-        for( uint16_t i = 0; i < count; i++ ) {
+        const size_t entry_size = 12; // No sizeof because byte alignment might make a bigger size.
+
+        this->entries.resize(reader.getPosition(Utilities::Buffer::Direction::END) / entry_size);
+
+        error_log.output << std::hex << "Offset = 0x" << getOffset() << "\n";
+        error_log.output << std::dec << "this->entry_count = " << this->entry_count << "\n";
+
+        reader.setPosition(entry_table_offset, Utilities::Buffer::BEGIN);
+
+        for( size_t i = 0; reader.getPosition(Utilities::Buffer::Direction::END) >= entry_size; i++ ) {
             this->entries[i].group_id = reader.readU16( settings.endian ); // 0
             this->entries[i].sound_id = reader.readU16( settings.endian ); // 2
 
@@ -74,8 +81,11 @@ bool SHDResource::parse( const ParseSettings &settings ) {
             this->entries[i].unk_4 = reader.readU8(); // 10
             this->entries[i].unk_5 = reader.readU8(); // 11
 
+            error_log.output << std::dec << i << ": ";
             error_log.output << this->entries[i].getString() << "\n";
         }
+
+        error_log.output << "Data Reader Left 0x" << std::hex << reader.getPosition(Utilities::Buffer::Direction::END) << "\n";
 
         return true;
     }

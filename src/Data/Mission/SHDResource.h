@@ -35,6 +35,8 @@ public:
     };
 
 private:
+    uint16_t entry_count; // This might not be a counter for the entries. Maybe this is to indicate what is loaded in by default?
+
     std::vector<Entry> entries;
 
 public:
