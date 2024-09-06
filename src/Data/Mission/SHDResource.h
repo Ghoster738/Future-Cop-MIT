@@ -27,11 +27,11 @@ public:
         uint16_t group_id; // Used for random!
         uint16_t sound_id; // Resource ID
 
-        uint8_t unk_0;
-        uint8_t unk_1;
+        uint8_t unk_0; // Either 7 or 9.
+        uint8_t unk_1; // This is an integer between [1, 5]. Values inbetween 1 through 5 were found no gaps.
 
-        uint8_t loop;
-        uint8_t unk_2;
+        uint8_t loop;  // Either 0 or 1.
+        uint8_t unk_2; // Either 0 or 1.
 
         uint8_t script_id; // ID used in script or assembly code.
         uint8_t zero_0;
@@ -43,8 +43,8 @@ public:
     };
 
 private:
-    uint16_t unk_0; // Used to determine Type of SHD Resource.
-    uint16_t unk_1; // Used to determine Type of SHD Resource.
+    uint16_t id_0; // Might be used to determine Type of SHD Resource.
+    uint16_t id_1; // Might be used to determine Type of SHD Resource.
     uint16_t entry_count; // This might not be a counter for the entries. Maybe this is to indicate what is loaded in by default?
 
     std::vector<uint16_t> unknowns; // GlblData has that. I do not know what they do.
