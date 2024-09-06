@@ -34,10 +34,10 @@ public:
         uint8_t unk_2;
 
         uint8_t script_id; // ID used in script or assembly code.
-        uint8_t unk_3;
+        uint8_t zero_0;
 
-        uint8_t unk_4;
-        uint8_t unk_5;
+        uint8_t zero_1;
+        uint8_t zero_2;
 
         std::string getString() const;
     };

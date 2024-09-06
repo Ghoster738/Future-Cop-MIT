@@ -1,5 +1,6 @@
 #include "SHDResource.h"
 
+#include <cassert>
 #include <sstream>
 
 namespace Data {
@@ -18,10 +19,14 @@ std::string SHDResource::Entry::getString() const {
         << "unk_1 = 0x" << (uint16_t)unk_1 << ", "
         << "loop  = 0x" << (uint16_t)loop << ", "
         << "unk_2 = 0x" << (uint16_t)unk_2 << ", "
-        << "script_id = 0x" << (uint16_t)script_id << ", "
-        << "unk_3 = 0x" << (uint16_t)unk_3 << ", "
-        << "unk_4 = 0x" << (uint16_t)unk_4 << ", "
-        << "unk_5 = 0x" << (uint16_t)unk_5;
+        << "script_id = 0x" << (uint16_t)script_id;
+
+    if(zero_0 != 0 || zero_1 != 0 || zero_2 != 0 ) {
+        form << ", "
+            << "zero_0 = 0x" << (uint16_t)zero_0 << ", "
+            << "zero_1 = 0x" << (uint16_t)zero_1 << ", "
+            << "zero_2 = 0x" << (uint16_t)zero_2;
+    }
 
     return form.str();
 }
@@ -49,8 +54,8 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         auto reader = this->data_p->getReader();
 
         auto header_4  = reader.readU16( settings.endian ); // Always 4
-        this->unk_0 = reader.readU16( settings.endian ); // ConFt:  1 GlblData: 16
-        this->unk_1 = reader.readU16( settings.endian ); // ConFt: 50 GlblData:  1
+        this->unk_0 = reader.readU16( settings.endian );
+        this->unk_1 = reader.readU16( settings.endian );
 
         this->entry_count = reader.readU16( settings.endian );
 
@@ -60,11 +65,17 @@ bool SHDResource::parse( const ParseSettings &settings ) {
 
         this->entries.resize(reader.getPosition(Utilities::Buffer::Direction::END) / entry_size);
 
-        error_log.output << std::hex << "Offset = 0x" << getOffset() << "\n";
-        error_log.output << std::dec << "header_4 = " << header_4 << "\n";
-        error_log.output << std::dec << "this->unk_0 = " << this->unk_0 << "\n";
-        error_log.output << std::dec << "this->unk_1 = " << this->unk_1 << "\n";
-        error_log.output << std::dec << "getType() = " << typeToString( getType() ) << "\n";
+        if( header_4 != 4)
+            error_log.output << std::dec << "Different header:" << header_4 << "\n";
+
+        if( getType() == UNKNOWN ) {
+            error_log.output << std::dec << "this->unk_0 = " << this->unk_0 << "\n";
+            error_log.output << std::dec << "this->unk_1 = " << this->unk_1 << "\n";
+        }
+        else {
+            error_log.output << std::dec << "getType() = " << typeToString( getType() ) << "\n";
+        }
+
         error_log.output << std::dec << "this->entry_count = " << this->entry_count << "\n";
 
         while( reader.getPosition(Utilities::Buffer::Direction::BEGIN) < entry_table_offset ) {
@@ -85,10 +96,12 @@ bool SHDResource::parse( const ParseSettings &settings ) {
             this->entries[i].unk_2 = reader.readU8(); // 7
 
             this->entries[i].script_id = reader.readU8(); // 8
-            this->entries[i].unk_3     = reader.readU8(); // 9
+            this->entries[i].zero_0     = reader.readU8(); // 9
 
-            this->entries[i].unk_4 = reader.readU8(); // 10
-            this->entries[i].unk_5 = reader.readU8(); // 11
+            this->entries[i].zero_1 = reader.readU8(); // 10
+            this->entries[i].zero_2 = reader.readU8(); // 11
+
+            // assert( this->entries[i].zero_0 == 0 && this->entries[i].zero_1 == 0 && this->entries[i].zero_2 == 0 );
 
             error_log.output << std::dec << i << ": " << this->entries[i].getString() << "\n";
         }
