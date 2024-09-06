@@ -15,6 +15,14 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
+    enum Type {
+        PS1_GLOBAL = 0,
+        GLOBAL     = 1,
+        MISSION    = 2,
+        UNKNOWN    = 3,
+        ALL        = 4
+    };
+
     struct Entry {
         uint16_t group_id; // Used for random!
         uint16_t sound_id; // Resource ID
@@ -35,8 +43,8 @@ public:
     };
 
 private:
-    uint16_t unk_0;
-    uint16_t unk_1;
+    uint16_t unk_0; // Used to determine Type of SHD Resource.
+    uint16_t unk_1; // Used to determine Type of SHD Resource.
     uint16_t entry_count; // This might not be a counter for the entries. Maybe this is to indicate what is loaded in by default?
 
     std::vector<uint16_t> unknowns; // GlblData has that. I do not know what they do.
@@ -59,6 +67,10 @@ public:
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     const std::vector<Entry>& getEntries() const { return entries; }
+
+    Type getType() const;
+
+    static std::string typeToString(Type type);
 };
 
 }

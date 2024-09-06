@@ -61,11 +61,16 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         this->entries.resize(reader.getPosition(Utilities::Buffer::Direction::END) / entry_size);
 
         error_log.output << std::hex << "Offset = 0x" << getOffset() << "\n";
+        error_log.output << std::dec << "header_4 = " << header_4 << "\n";
+        error_log.output << std::dec << "this->unk_0 = " << this->unk_0 << "\n";
+        error_log.output << std::dec << "this->unk_1 = " << this->unk_1 << "\n";
+        error_log.output << std::dec << "getType() = " << typeToString( getType() ) << "\n";
         error_log.output << std::dec << "this->entry_count = " << this->entry_count << "\n";
 
         while( reader.getPosition(Utilities::Buffer::Direction::BEGIN) < entry_table_offset ) {
             this->unknowns.push_back( reader.readU16( settings.endian ) );
         }
+        error_log.output << "Unknowns amount " << std::dec << this->unknowns.size() << "\n";
 
         reader.setPosition(entry_table_offset, Utilities::Buffer::BEGIN);
 
@@ -85,10 +90,10 @@ bool SHDResource::parse( const ParseSettings &settings ) {
             this->entries[i].unk_4 = reader.readU8(); // 10
             this->entries[i].unk_5 = reader.readU8(); // 11
 
-            error_log.output << std::dec << i << ": ";
-            error_log.output << this->entries[i].getString() << "\n";
+            error_log.output << std::dec << i << ": " << this->entries[i].getString() << "\n";
         }
 
+        error_log.output << "Actual entry amount " << std::dec << this->entries.size() << "\n";
         error_log.output << "Data Reader Left 0x" << std::hex << reader.getPosition(Utilities::Buffer::Direction::END) << "\n";
 
         return true;
@@ -103,6 +108,35 @@ Resource * SHDResource::duplicate() const {
 
 int SHDResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
+}
+
+SHDResource::Type SHDResource::getType() const {
+    if(unk_0 == 1) {
+        if(unk_1 == 1)
+            return PS1_GLOBAL;
+        else if(unk_1 == 50)
+            return MISSION;
+    }
+    else if(unk_0 == 16) {
+        if(unk_1 == 1)
+            return GLOBAL;
+    }
+    return UNKNOWN;
+}
+
+std::string SHDResource::typeToString(Type type) {
+    switch(type) {
+        case PS1_GLOBAL:
+            return "PS1_GLOBAL";
+        case GLOBAL:
+            return "GLOBAL";
+        case MISSION:
+            return "MISSION";
+        case UNKNOWN:
+            return "UNKNOWN";
+        default:
+            return "Invalid Enum";
+    }
 }
 
 }
