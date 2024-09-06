@@ -35,8 +35,11 @@ public:
     };
 
 private:
+    uint16_t unk_0;
+    uint16_t unk_1;
     uint16_t entry_count; // This might not be a counter for the entries. Maybe this is to indicate what is loaded in by default?
 
+    std::vector<uint16_t> unknowns; // GlblData has that. I do not know what they do.
     std::vector<Entry> entries;
 
 public:

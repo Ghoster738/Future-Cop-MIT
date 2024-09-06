@@ -49,8 +49,8 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         auto reader = this->data_p->getReader();
 
         auto header_4  = reader.readU16( settings.endian ); // Always 4
-        auto unk_0 = reader.readU16( settings.endian ); // ConFt:  1 GlblData: 16
-        auto unk_1 = reader.readU16( settings.endian ); // ConFt: 50 GlblData:  1
+        this->unk_0 = reader.readU16( settings.endian ); // ConFt:  1 GlblData: 16
+        this->unk_1 = reader.readU16( settings.endian ); // ConFt: 50 GlblData:  1
 
         this->entry_count = reader.readU16( settings.endian );
 
@@ -62,6 +62,10 @@ bool SHDResource::parse( const ParseSettings &settings ) {
 
         error_log.output << std::hex << "Offset = 0x" << getOffset() << "\n";
         error_log.output << std::dec << "this->entry_count = " << this->entry_count << "\n";
+
+        while( reader.getPosition(Utilities::Buffer::Direction::BEGIN) < entry_table_offset ) {
+            this->unknowns.push_back( reader.readU16( settings.endian ) );
+        }
 
         reader.setPosition(entry_table_offset, Utilities::Buffer::BEGIN);
 
