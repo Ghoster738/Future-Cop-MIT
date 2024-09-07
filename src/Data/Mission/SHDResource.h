@@ -23,6 +23,14 @@ public:
         ALL        = 4
     };
 
+    // This is used by the weapons of X1A.
+    // The estimated max OptionalEntries used is 4.
+    struct OptionalEntry {
+        uint16_t id; // Guess
+        uint16_t count;
+        uint16_t index; // starts out as offsets, but gets converted to indexes.
+    };
+
     struct Entry {
         uint16_t group_id; // Used for random!
         uint16_t sound_id; // Resource ID
@@ -47,7 +55,7 @@ private:
     uint16_t id_1; // Might be used to determine Type of SHD Resource.
     uint16_t entry_count; // This might not be a counter for the entries. Maybe this is to indicate what is loaded in by default?
 
-    std::vector<uint16_t> unknowns; // GlblData has that. I do not know what they do.
+    std::vector<OptionalEntry> optional_entires; // GlblData has these.
     std::vector<Entry> entries;
 
 public:

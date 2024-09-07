@@ -14,7 +14,7 @@ std::string SHDResource::Entry::getString() const {
 
     form << std::hex
         <<  "group_id = 0x" << group_id        << ", "
-        <<  "sound_id = 0x" << sound_id        << ", "
+        <<  "sound_id = "   << std::dec << sound_id << std::hex << ", "
         <<     "unk_0 = 0x" << (uint16_t)unk_0 << ", "
         <<     "unk_1 = 0x" << (uint16_t)unk_1 << ", "
         <<      "loop = 0x" << (uint16_t)loop  << ", "
@@ -75,11 +75,20 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         }
 
         while( reader.getPosition(Utilities::Buffer::Direction::BEGIN) < entry_table_offset ) {
-            this->unknowns.push_back( reader.readU16( settings.endian ) );
+            this->optional_entires.push_back( {} );
+            this->optional_entires.back().id    = reader.readU16( settings.endian );
+            this->optional_entires.back().count = reader.readU16( settings.endian );
+            this->optional_entires.back().index = (reader.readU16( settings.endian ) - entry_table_offset) / entry_size;
         }
 
-        if( !this->unknowns.empty() )
-            error_log.output << "Unknowns amount " << std::dec << this->unknowns.size() << "\n";
+        if( !this->optional_entires.empty() )
+            error_log.output << "Optional Entry amount " << std::dec << this->optional_entires.size() << "\n";
+
+        for( auto entry: this->optional_entires ) {
+            error_log.output << "entry.id    = " << std::dec << entry.id    << "\n";
+            error_log.output << "entry.count = " << std::dec << entry.count << "\n";
+            error_log.output << "entry.index = " << std::dec << entry.index << "\n";
+        }
 
         reader.setPosition(entry_table_offset, Utilities::Buffer::BEGIN);
 
@@ -96,7 +105,7 @@ bool SHDResource::parse( const ParseSettings &settings ) {
             this->entries[i].unk_2 = reader.readU8(); // 7
 
             this->entries[i].script_id = reader.readU8(); // 8
-            this->entries[i].zero_0     = reader.readU8(); // 9
+            this->entries[i].zero_0    = reader.readU8(); // 9
 
             this->entries[i].zero_1 = reader.readU8(); // 10
             this->entries[i].zero_2 = reader.readU8(); // 11
@@ -112,8 +121,7 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         for( auto i = this->entries.begin(); i != this->entries.end(); i++ ) {
             auto entry = (*i);
 
-            if( (entry.unk_0 != 7 && entry.unk_0 != 9) || entry.unk_1 == 0 || entry.unk_1 > 5 || entry.unk_2 > 2 || entry.loop > 2  )
-                error_log.output << std::dec << (i - this->entries.begin()) << ": " << entry.getString() << "\n";
+            error_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
         }
 
         return true;
