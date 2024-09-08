@@ -35,8 +35,8 @@ public:
         uint16_t group_id; // Used for random!
         uint16_t sound_id; // Resource ID
 
-        uint8_t unk_0; // Either 7 or 9.
-        uint8_t unk_1; // This is an integer between [1, 5]. Values inbetween 1 through 5 were found no gaps.
+        uint8_t unk_0;       // Either 7 or 9.
+        uint8_t sound_limit; // This is an integer between [1, 5]. Values inbetween 1 through 5 were found no gaps.
 
         uint8_t loop;  // Either 0 or 1.
         uint8_t unk_2; // Either 0 or 1.

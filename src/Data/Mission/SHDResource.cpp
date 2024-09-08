@@ -13,13 +13,13 @@ std::string SHDResource::Entry::getString() const {
     std::stringstream form;
 
     form << std::hex
-        <<  "group_id = 0x" << group_id        << ", "
-        <<  "sound_id = "   << std::dec << sound_id << std::hex << ", "
-        <<     "unk_0 = 0x" << (uint16_t)unk_0 << ", "
-        <<     "unk_1 = 0x" << (uint16_t)unk_1 << ", "
-        <<      "loop = 0x" << (uint16_t)loop  << ", "
-        <<     "unk_2 = 0x" << (uint16_t)unk_2 << ", "
-        << "script_id = 0x" << (uint16_t)script_id;
+        <<    "group_id = 0x" << group_id        << ", "
+        <<    "sound_id = "   << std::dec << sound_id << std::hex << ", "
+        <<       "unk_0 = 0x" << (uint16_t)unk_0 << ", "
+        << "sound_limit = 0x" << (uint16_t)sound_limit << ", "
+        <<        "loop = 0x" << (uint16_t)loop  << ", "
+        <<       "unk_2 = 0x" << (uint16_t)unk_2 << ", "
+        <<   "script_id = 0x" << (uint16_t)script_id;
 
     if(zero_0 != 0 || zero_1 != 0 || zero_2 != 0 ) {
         form << ", "
@@ -98,8 +98,8 @@ bool SHDResource::parse( const ParseSettings &settings ) {
             this->entries[i].group_id = reader.readU16( settings.endian ); // 0
             this->entries[i].sound_id = reader.readU16( settings.endian ); // 2
 
-            this->entries[i].unk_0 = reader.readU8(); // 4
-            this->entries[i].unk_1 = reader.readU8(); // 5
+            this->entries[i].unk_0       = reader.readU8(); // 4
+            this->entries[i].sound_limit = reader.readU8(); // 5
 
             this->entries[i].loop  = reader.readU8(); // 6
             this->entries[i].unk_2 = reader.readU8(); // 7
@@ -121,7 +121,8 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         for( auto i = this->entries.begin(); i != this->entries.end(); i++ ) {
             auto entry = (*i);
 
-            error_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
+            if( entry.loop != entry.unk_2 )
+                error_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
         }
 
         return true;
