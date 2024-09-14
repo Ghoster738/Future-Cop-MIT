@@ -145,7 +145,7 @@ int SHDResource::write( const std::string& file_path, const Data::Mission::IFFOp
 SHDResource::Type SHDResource::getType() const {
     if(id_0 == 1) {
         if(id_1 == 1)
-            return PS1_GLOBAL;
+            return PS1_GUI;
         else if(id_1 == 50)
             return MISSION;
     }
@@ -158,8 +158,8 @@ SHDResource::Type SHDResource::getType() const {
 
 std::string SHDResource::typeToString(Type type) {
     switch(type) {
-        case PS1_GLOBAL:
-            return "PS1_GLOBAL";
+        case PS1_GUI:
+            return "PS1_GUI";
         case GLOBAL:
             return "GLOBAL";
         case MISSION:

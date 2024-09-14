@@ -16,11 +16,11 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
     enum Type {
-        PS1_GLOBAL = 0,
-        GLOBAL     = 1,
-        MISSION    = 2,
-        UNKNOWN    = 3,
-        ALL        = 4
+        PS1_GUI = 0,
+        GLOBAL  = 1,
+        MISSION = 2,
+        UNKNOWN = 3,
+        ALL     = 4
     };
 
     // This is used by the weapons of X1A.
