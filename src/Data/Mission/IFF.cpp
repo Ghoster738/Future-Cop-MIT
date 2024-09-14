@@ -27,9 +27,9 @@
 
 #include "../../Utilities/Buffer.h"
 
-#include <fstream>
 #include <algorithm>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <unordered_set>
 
@@ -93,6 +93,7 @@ namespace {
         { 0x43746474, new Data::Mission::UnkResource( 0x43746474, "tdt" ) },
         { 0x436d6963, new Data::Mission::UnkResource( 0x436d6963, "mic" ) }
     };
+    // TODO Find purpose of this code!
     class AutoDelete {
     public:
         ~AutoDelete() {
@@ -101,6 +102,8 @@ namespace {
             }
         }
     } auto_delete_file_type_list;
+
+    std::map<uint32_t, std::unordered_set<uint32_t>> numbers_lister;
 }
 
 bool Data::Mission::IFF::compareFunction( const Data::Mission::Resource *const l_operand, const Data::Mission::Resource *const r_operand ) {
@@ -386,13 +389,15 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                       (DATA_SIZE == 0x60) || (DATA_SIZE == 0x64) || (DATA_SIZE == 0x74) || (DATA_SIZE == 0x78)) )
                                     warning_log.output << "ID: " << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF) << " RID: " << std::dec << resource_pool.back().resource_id << " CHUNK_SIZE has an unexpected size of 0x" << std::hex << CHUNK_SIZE << " at 0x" << file_offset << ".\n";
 
-                                block_chunk_reader.setPosition( 0x10 );
+                                const auto SOME_NUMBER = block_chunk_reader.readU32( default_settings.endian );
 
                                 resource_pool.back().type_enum = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().offset    = file_offset;
                                 resource_pool.back().iff_index = resource_pool.size() - 1;
                                 resource_pool.back().resource_id = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().swvr_entry = swvr_entry;
+
+                                numbers_lister[resource_pool.back().type_enum].insert(SOME_NUMBER);
 
                                 if( METADATA != 0 )
                                     debug_log.output << "SHDR_TAG "
@@ -502,6 +507,20 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 data_writer.write( file, BLOCK_SIZE );
                 data_reader.setPosition(0);
             }
+        }
+
+        for( auto i = numbers_lister.begin(); i != numbers_lister.end(); ++i ) {
+            const auto TYPE_ENUM = (*i).first;
+
+            warning_log.output << "SOME_NUMBERS "
+                << static_cast<char>((TYPE_ENUM >> 24) & 0xFF) << static_cast<char>((TYPE_ENUM >> 16) & 0xFF)
+                << static_cast<char>((TYPE_ENUM >>  8) & 0xFF) << static_cast<char>(TYPE_ENUM & 0xFF) << ": " << std::dec;
+
+            for( auto x = (*i).second.begin(); x != (*i).second.end(); ++x ) {
+                warning_log.output << (*x) << ", ";
+            }
+
+            warning_log.output << "\n";
         }
 
         // Find a potential error.
