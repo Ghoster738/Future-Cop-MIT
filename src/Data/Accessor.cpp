@@ -11,6 +11,7 @@
 #include "Mission/PTCResource.h"
 #include "Mission/PYRResource.h"
 #include "Mission/RPNSResource.h"
+#include "Mission/SHDResource.h"
 #include "Mission/SNDSResource.h"
 #include "Mission/TilResource.h"
 #include "Mission/TOSResource.h"
@@ -215,6 +216,7 @@ SEARCH(PTCResource,   getPTC,  getAllPTC, getConstPTC, getAllConstPTC)
 SEARCH(PYRResource,   getPYR,  getAllPYR, getConstPYR, getAllConstPYR)
 SEARCH(RPNSResource, getRPNS, getAllRPNS, getConstRPNS, getAllConstRPNS)
 SEARCH(SNDSResource, getSNDS, getAllSNDS, getConstSNDS, getAllConstSNDS)
+SEARCH(SHDResource,   getSHD,  getAllSHD, getConstSHD, getAllConstSHD)
 SEARCH(TilResource,   getTIL,  getAllTIL, getConstTIL, getAllConstTIL)
 SEARCH(TOSResource,   getTOS,  getAllTOS, getConstTOS, getAllConstTOS)
 SEARCH(WAVResource,   getWAV,  getAllWAV, getConstWAV, getAllConstWAV)

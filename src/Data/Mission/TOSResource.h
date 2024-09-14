@@ -12,6 +12,7 @@ public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
+private:
     // These probably are offsets or identifiers to SWVR/SNDS sound data and ANM data.
     std::vector<uint32_t> offsets;
 

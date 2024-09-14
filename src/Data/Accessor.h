@@ -23,6 +23,7 @@ namespace Mission {
     class PTCResource;
     class PYRResource;
     class RPNSResource;
+    class SHDResource;
     class SNDSResource;
     class TilResource;
     class TOSResource;
@@ -119,6 +120,11 @@ public:
     const Mission::RPNSResource* getConstRPNS( uint32_t resource_id ) const;
     std::vector<Mission::RPNSResource*> getAllRPNS();
     std::vector<const Mission::RPNSResource*> getAllConstRPNS() const;
+
+    Mission::SHDResource* getSHD( uint32_t resource_id );
+    const Mission::SHDResource* getConstSHD( uint32_t resource_id ) const;
+    std::vector<Mission::SHDResource*> getAllSHD();
+    std::vector<const Mission::SHDResource*> getAllConstSHD() const;
 
     Mission::SNDSResource* getSNDS( uint32_t resource_id );
     const Mission::SNDSResource* getConstSNDS( uint32_t resource_id ) const;

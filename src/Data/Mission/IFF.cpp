@@ -16,6 +16,7 @@
 #include "TilResource.h"
 #include "TOSResource.h"
 #include "SNDSResource.h"
+#include "SHDResource.h"
 #include "WAVResource.h"
 #include "ObjResource.h"
 #include "UnkResource.h"
@@ -76,8 +77,7 @@ namespace {
         { Data::Mission::ACTResource::SAC_IDENTI_TAG,  new Data::Mission::ACT::Unknown() },
         // which is { 0x43, 0x73, 0x66, 0x78 } or { 'C', 's', 'f', 'x' } or "Csfx"
         { 0x43736678, new Data::Mission::UnkResource( 0x43736678, "sfx", true) },  // Resource ID missing. Holds Act based structures?
-        // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
-        { 0x43736864, new Data::Mission::UnkResource( 0x43736864, "shd", true ) }, // // Resource ID missing. Holds programmer settings?
+        { Data::Mission::SHDResource::IDENTIFIER_TAG, new Data::Mission::SHDResource() }, // Resource ID missing.
         { Data::Mission::TilResource::IDENTIFIER_TAG, new Data::Mission::TilResource() },
         { Data::Mission::TOSResource::IDENTIFIER_TAG, new Data::Mission::TOSResource() },
         { Data::Mission::WAVResource::IDENTIFIER_TAG, new Data::Mission::WAVResource() },
@@ -381,7 +381,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 if( !((DATA_SIZE == 0x34) || (DATA_SIZE == 0x38) || (DATA_SIZE == 0x3c) || (DATA_SIZE == 0x40) ||
                                       (DATA_SIZE == 0x48) || (DATA_SIZE == 0x4c) || (DATA_SIZE == 0x50) || (DATA_SIZE == 0x54) ||
                                       (DATA_SIZE == 0x60) || (DATA_SIZE == 0x64) || (DATA_SIZE == 0x74) || (DATA_SIZE == 0x78)) )
-                                    warning_log.output << "DATA_SIZE has an unexpected size of 0x" << std::hex << DATA_SIZE << ".\n";
+                                    warning_log.output << "ID: " << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF) << " RID: " << std::dec << resource_pool.back().resource_id << " CHUNK_SIZE has an unexpected size of 0x" << std::hex << CHUNK_SIZE << " at 0x" << file_offset << ".\n";
 
                                 block_chunk_reader.setPosition( 0x10 );
 
