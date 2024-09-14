@@ -5,7 +5,6 @@
 const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PARSE_SETTINGS = Data::Mission::Resource::ParseSettings();
 
 Data::Mission::Resource::ParseSettings::ParseSettings() :
-    type( OperatingSystem::Unidentified ),
     endian( Utilities::Buffer::Endian::NO_SWAP ),
     logger_r( &Utilities::logger ) {
 }

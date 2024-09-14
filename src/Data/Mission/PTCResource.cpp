@@ -341,7 +341,6 @@ Data::Mission::PTCResource* Data::Mission::PTCResource::getTest( uint32_t resour
     tag_size_writer.writeU32( ptc_p->data_p->getReader().totalSize() );
 
     Resource::ParseSettings parse_settings;
-    parse_settings.type = Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 

@@ -18,7 +18,6 @@ Data::Mission::FontResource* getMacintosh( uint32_t resource_id, Utilities::Logg
     macintosh_font_p->read( loading );
 
     Data::Mission::Resource::ParseSettings parse_settings;
-    parse_settings.type = Data::Mission::Resource::ParseSettings::Macintosh;
     parse_settings.endian = Utilities::Buffer::BIG;
     parse_settings.logger_r = logger_r;
 

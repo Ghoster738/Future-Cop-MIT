@@ -1382,7 +1382,6 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
     tag_size_writer.writeU32( til_p->data_p->getReader().totalSize() );
 
     Resource::ParseSettings parse_settings;
-    parse_settings.type = Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 

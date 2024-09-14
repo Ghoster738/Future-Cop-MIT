@@ -19,8 +19,6 @@ class Resource {
 public:
     class ParseSettings {
     public:
-        enum OperatingSystem { Macintosh, Windows, Playstation, Unidentified };
-        OperatingSystem type; // What type of operating system file type is this loader loading.
         Utilities::Buffer::Endian endian;
         Utilities::Logger *logger_r;
         

@@ -472,7 +472,6 @@ Data::Mission::BMPResource* Data::Mission::BMPResource::getTest( uint32_t resour
     bmp_p->read( loading );
 
     Resource::ParseSettings parse_settings;
-    parse_settings.type = Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 
