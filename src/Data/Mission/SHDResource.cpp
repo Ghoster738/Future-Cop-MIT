@@ -47,8 +47,10 @@ bool SHDResource::noResourceID() const {
 }
 
 bool SHDResource::parse( const ParseSettings &settings ) {
-    auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
-    error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
+    warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
+    auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
+    debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
     if( this->data_p != nullptr ) {
         auto reader = this->data_p->getReader();
@@ -64,14 +66,14 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         const size_t entry_size = 12; // No sizeof because byte alignment might make a bigger size.
 
         if( header_4 != 4)
-            error_log.output << std::dec << "Different header:" << header_4 << "\n";
+            warning_log.output << std::dec << "Different header: " << header_4 << "\n";
 
         if( getType() == UNKNOWN ) {
-            error_log.output << std::dec << "this->id_0 = " << this->id_0 << "\n";
-            error_log.output << std::dec << "this->id_1 = " << this->id_1 << "\n";
+            warning_log.output << std::dec << "this->id_0 = " << this->id_0 << "\n";
+            warning_log.output << std::dec << "this->id_1 = " << this->id_1 << "\n";
         }
         else {
-            error_log.output << std::dec << "getType() = " << typeToString( getType() ) << "\n";
+            debug_log.output << std::dec << "Type = " << typeToString( getType() ) << "\n";
         }
 
         while( reader.getPosition(Utilities::Buffer::Direction::BEGIN) < entry_table_offset ) {
@@ -82,10 +84,10 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         }
 
         if( !this->optional_entires.empty() )
-            error_log.output << "Optional Entry amount " << std::dec << this->optional_entires.size() << "\n";
+            debug_log.output << "Optional Entry amount " << std::dec << this->optional_entires.size() << "\n";
 
         for( auto entry: this->optional_entires ) {
-            error_log.output
+            debug_log.output
                 << "entry: id = " << std::dec << entry.id
                 << ", count = " << std::dec << entry.count
                 << ", index = " << std::dec << entry.index
@@ -114,16 +116,16 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         }
 
         if(this->entry_count == this->entries.size())
-            error_log.output << "Entry amount = " << std::dec << this->entries.size() << "\n";
+            debug_log.output << "Entry amount = " << std::dec << this->entries.size() << "\n";
         else {
-            error_log.output << "Default entry amount = " << std::dec << this->entry_count << "\n";
-            error_log.output << "All entries stored   = " << std::dec << this->entries.size() << "\n";
+            debug_log.output << "Default entry amount = " << std::dec << this->entry_count << "\n";
+            debug_log.output << "All entries stored   = " << std::dec << this->entries.size() << "\n";
         }
 
         for( auto i = this->entries.begin(); i != this->entries.end(); i++ ) {
             auto entry = (*i);
 
-            error_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
+            debug_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
         }
 
         return true;
