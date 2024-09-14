@@ -381,7 +381,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 if( !((DATA_SIZE == 0x34) || (DATA_SIZE == 0x38) || (DATA_SIZE == 0x3c) || (DATA_SIZE == 0x40) ||
                                       (DATA_SIZE == 0x48) || (DATA_SIZE == 0x4c) || (DATA_SIZE == 0x50) || (DATA_SIZE == 0x54) ||
                                       (DATA_SIZE == 0x60) || (DATA_SIZE == 0x64) || (DATA_SIZE == 0x74) || (DATA_SIZE == 0x78)) )
-                                    warning_log.output << "DATA_SIZE has an unexpected size of 0x" << std::hex << DATA_SIZE << ".\n";
+                                    warning_log.output << "ID: " << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF) << " RID: " << std::dec << resource_pool.back().resource_id << " CHUNK_SIZE has an unexpected size of 0x" << std::hex << CHUNK_SIZE << " at 0x" << file_offset << ".\n";
 
                                 block_chunk_reader.setPosition( 0x10 );
 
