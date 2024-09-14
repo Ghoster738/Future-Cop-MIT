@@ -76,6 +76,24 @@ public:
 
     const std::vector<Entry>& getEntries() const { return entries; }
 
+    /**
+     * This method gets the sound id if it is found.
+     * @note O(n) operation.
+     * @param group_id The group id to be found.
+     * @param random_seed The random number that this resource would use.
+     * @return Zero for failure or valid resource id.
+     */
+    uint32_t getSoundRIDFromGroupID( uint16_t group_id, size_t random_seed = 0 ) const;
+
+    /**
+     * This method gets the sound id if it is found.
+     * @note O(n) operation.
+     * @param script_id The script id to be found.
+     * @param random_seed The random number that this resource would use.
+     * @return Zero for failure or valid resource id.
+     */
+    uint32_t getSoundRIDFromScriptID( uint8_t script_id, size_t random_seed = 0 ) const;
+
     Type getType() const;
 
     static std::string typeToString(Type type);

@@ -142,6 +142,28 @@ int SHDResource::write( const std::string& file_path, const Data::Mission::IFFOp
     return 0;
 }
 
+uint32_t SHDResource::getSoundRIDFromGroupID( uint16_t group_id, size_t random_seed ) const {
+    for( size_t i = 0; i < this->entries.size(); i++ ) {
+        const auto &ref = this->entries[(random_seed + i) % this->entries.size()];
+
+        if( ref.group_id == group_id )
+            return ref.sound_id;
+    }
+
+    return 0;
+}
+
+uint32_t SHDResource::getSoundRIDFromScriptID( uint8_t script_id, size_t random_seed ) const {
+    for( size_t i = 0; i < this->entries.size(); i++ ) {
+        const auto &ref = this->entries[(random_seed + i) % this->entries.size()];
+
+        if( ref.script_id == script_id )
+            return ref.sound_id;
+    }
+
+    return 0;
+}
+
 SHDResource::Type SHDResource::getType() const {
     if(id_0 == 1) {
         if(id_1 == 1)
