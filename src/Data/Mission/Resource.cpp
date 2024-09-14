@@ -29,35 +29,6 @@ Data::Mission::Resource::~Resource() {
         delete data_p;
 }
 
-void Data::Mission::Resource::setIndexNumber( int index_number ) {
-    this->index_number = index_number;
-}
-
-int Data::Mission::Resource::getIndexNumber() const {
-    return index_number;
-}
-
-void Data::Mission::Resource::setMisIndexNumber( int mis_index_number ) {
-    this->mis_index_number = mis_index_number;
-}
-
-int Data::Mission::Resource::getMisIndexNumber() const {
-    return this->mis_index_number;
-
-}
-
-void Data::Mission::Resource::setOffset( size_t offset ) {
-    this->offset = offset;
-}
-
-size_t Data::Mission::Resource::getOffset() const {
-    return offset;
-}
-
-void Data::Mission::Resource::setResourceID( uint32_t resource_id ) {
-    this->resource_id = resource_id;
-}
-
 uint32_t Data::Mission::Resource::getResourceID() const {
     if( !noResourceID() )
         return resource_id;

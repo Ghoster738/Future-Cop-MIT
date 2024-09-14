@@ -61,6 +61,7 @@ private:
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
 
     SWVREntry swvr_entry;
+
 public:
     Resource();
     Resource( const Resource &obj );
@@ -94,29 +95,40 @@ public:
     /**
      * Sets the index number of the file. To be used by loaders only.
      */
-    void setIndexNumber( int index_number );
+    void setIndexNumber( int index_number ) {
+        this->index_number = index_number;
+    }
 
     /**
      * Gets the index number or how many resources proceeded this before it in load order.
      */
-    int getIndexNumber() const;
+    int getIndexNumber() const {
+        return this->index_number;
+    }
 
     /**
      * Sets the index number of the file. To be used by loaders only.
      */
-    void setMisIndexNumber( int index_number );
+    void setMisIndexNumber( int index_number ) {
+        this->mis_index_number = mis_index_number;
+    }
 
     /**
      * Gets the index number or how many resources proceeded this before it in load order.
      */
-    int getMisIndexNumber() const;
+    int getMisIndexNumber() const  {
+        return this->mis_index_number;
+
+    }
     
     /**
      * This sets the resource id of this class. This might be the actual number that Future Cop uses.
      * @param resoure_id The resource id for this resource.
      */
-    void setResourceID( uint32_t resource_id );
-    
+    void setResourceID( uint32_t resource_id ) {
+        this->resource_id = resource_id;
+    }
+
     /**
      * @return The resource id for this resource.
      */
@@ -131,12 +143,16 @@ public:
     /**
      * Sets the offset in which this file starts. To be used by loaders only.
      */
-    void setOffset( size_t offset );
+    void setOffset( size_t offset ) {
+        this->offset = offset;
+    }
 
     /**
      * This gets the offset in which this file starts in the MissionFile it is loaded from.
      */
-    size_t getOffset() const;
+    size_t getOffset() const {
+        return this->offset;
+    }
 
     /**
      * This gets the full name of this class.
