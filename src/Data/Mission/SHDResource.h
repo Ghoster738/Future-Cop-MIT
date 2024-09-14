@@ -35,11 +35,11 @@ public:
         uint16_t group_id; // Used for random!
         uint16_t sound_id; // Resource ID
 
-        uint8_t unk_0;       // Either 7 or 9.
-        uint8_t sound_limit; // This is an integer between [1, 5]. Values inbetween 1 through 5 were found no gaps.
+        uint8_t unk_metadata; // Either 7 or 9. Purpose unknown.
+        uint8_t sound_limit;  // This is an integer between [1, 5]. Values inbetween 1 through 5 were found no gaps.
 
-        uint8_t loop;  // Either 0 or 1.
-        uint8_t unk_2; // Either 0 or 1.
+        uint8_t loop;        // Either 0 or 1.
+        uint8_t unk_boolean; // Either 0 or 1. Purpose unknown but if this is off then sound might not play.
 
         uint8_t script_id; // ID used in script or assembly code.
         uint8_t zero_0;
