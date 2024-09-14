@@ -85,9 +85,11 @@ bool SHDResource::parse( const ParseSettings &settings ) {
             error_log.output << "Optional Entry amount " << std::dec << this->optional_entires.size() << "\n";
 
         for( auto entry: this->optional_entires ) {
-            error_log.output << "entry.id    = " << std::dec << entry.id    << "\n";
-            error_log.output << "entry.count = " << std::dec << entry.count << "\n";
-            error_log.output << "entry.index = " << std::dec << entry.index << "\n";
+            error_log.output
+                << "entry: id = " << std::dec << entry.id
+                << ", count = " << std::dec << entry.count
+                << ", index = " << std::dec << entry.index
+                << "\n";
         }
 
         reader.setPosition(entry_table_offset, Utilities::Buffer::BEGIN);
@@ -114,15 +116,14 @@ bool SHDResource::parse( const ParseSettings &settings ) {
         if(this->entry_count == this->entries.size())
             error_log.output << "Entry amount = " << std::dec << this->entries.size() << "\n";
         else {
-            error_log.output << "Projected entry amount = " << std::dec << this->entry_count << "\n";
-            error_log.output << "Actual    entry amount = " << std::dec << this->entries.size() << "\n";
+            error_log.output << "Default entry amount = " << std::dec << this->entry_count << "\n";
+            error_log.output << "All entries stored   = " << std::dec << this->entries.size() << "\n";
         }
 
         for( auto i = this->entries.begin(); i != this->entries.end(); i++ ) {
             auto entry = (*i);
 
-            if( entry.loop != entry.unk_boolean )
-                error_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
+            error_log.output << std::dec << (i - this->entries.begin()) << " (0x" << std::hex << (entry_table_offset + entry_size * (i - this->entries.begin())) << ")" << ": " << entry.getString() << "\n";
         }
 
         return true;
