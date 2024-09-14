@@ -142,26 +142,26 @@ int SHDResource::write( const std::string& file_path, const Data::Mission::IFFOp
     return 0;
 }
 
-uint32_t SHDResource::getSoundRIDFromGroupID( uint16_t group_id, size_t random_seed ) const {
-    for( size_t i = 0; i < this->entries.size(); i++ ) {
-        const auto &ref = this->entries[(random_seed + i) % this->entries.size()];
+uint32_t SHDResource::getEntryIndexFromGroupID( uint16_t group_id, size_t random_seed ) const {
+    for( size_t i = 0; i < entry_count; i++ ) {
+        const auto index = (random_seed + i) % entry_count;
 
-        if( ref.group_id == group_id )
-            return ref.sound_id;
+        if( this->entries[index].group_id == group_id )
+            return index;
     }
 
-    return 0;
+    return this->entries.size();
 }
 
-uint32_t SHDResource::getSoundRIDFromScriptID( uint8_t script_id, size_t random_seed ) const {
-    for( size_t i = 0; i < this->entries.size(); i++ ) {
-        const auto &ref = this->entries[(random_seed + i) % this->entries.size()];
+uint32_t SHDResource::getEntryIndexFromScriptID( uint8_t script_id, size_t random_seed ) const {
+    for( size_t i = 0; i < entry_count; i++ ) {
+        const auto index = (random_seed + i) % entry_count;
 
-        if( ref.script_id == script_id )
-            return ref.sound_id;
+        if( this->entries[index].script_id == script_id )
+            return index;
     }
 
-    return 0;
+    return this->entries.size();
 }
 
 SHDResource::Type SHDResource::getType() const {
