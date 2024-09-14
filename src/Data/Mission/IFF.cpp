@@ -326,6 +326,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Resource::SWVREntry swvr_entry;
 
         std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
+        uint32_t rpns_size = 0xFFFFFFFF;
+        bool rpns_error_not_found = true;
 
         uint32_t block_index = 0;
 
@@ -472,7 +474,30 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                         << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
 
                                 resource_pool.back().data_p = new Utilities::Buffer();
-                                resource_pool.back().data_p->reserve( block_chunk_reader.readU32( default_settings.endian ) );
+
+                                const auto RESOURCE_SIZE = block_chunk_reader.readU32( default_settings.endian );
+
+                                resource_pool.back().data_p->reserve( RESOURCE_SIZE );
+
+                                {
+                                    for( size_t i = 0; i < 3; i++ ) {
+                                        const auto test_rpns_size = block_chunk_reader.readU32( default_settings.endian );
+
+                                        if(!(test_rpns_size >= rpns_size - 4 && test_rpns_size <= rpns_size)) {
+                                            warning_log.output << std::dec << i << std::hex << " 0x" << file_offset << " "
+                                                << "test_rpns_size 0x" << test_rpns_size
+                                                <<  " != rpns_size 0x" << rpns_size << "\n";
+
+                                            rpns_error_not_found = false;
+                                        }
+                                    }
+
+                                    if(resource_pool.back().type_enum == Data::Mission::RPNSResource::IDENTIFIER_TAG) {
+                                        rpns_size = RESOURCE_SIZE;
+                                    }
+                                }
+
+                                block_chunk_reader.setPosition( 0x1c );
 
                                 resource_pool.back().header_p = new Utilities::Buffer();
                                 block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x1c );
