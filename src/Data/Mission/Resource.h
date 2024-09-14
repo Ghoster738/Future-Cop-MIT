@@ -6,6 +6,7 @@
 #include "../../Utilities/Buffer.h"
 #include "../../Utilities/Logger.h"
 
+#include <memory>
 #include <ostream>
 #include <vector>
 #include <string>
@@ -41,9 +42,17 @@ public:
                 return true;
         }
     };
+
 protected:
     Utilities::Buffer *header_p;
     Utilities::Buffer *data_p;
+    /*
+    size_t meta_size_0;
+    size_t meta_size_1;
+    size_t data_offset;
+    std::unique_ptr<Utilities::Buffer> data;
+    */
+
 private:
     // These numbers are for "modding" purposes.
     int mis_index_number; // This tells how many resource proceded this resource relative to the MissionFile.

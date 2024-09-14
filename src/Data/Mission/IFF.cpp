@@ -365,9 +365,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     break;
                 case SHOC_TAG:
                     {
-                        block_chunk_reader.setPosition( 8 );
-
+                        const auto METADATA = block_chunk_reader.readU32( default_settings.endian );
+                        const auto ZERO = block_chunk_reader.readU32( default_settings.endian );
                         const auto CURRENT_TAG = block_chunk_reader.readU32( default_settings.endian );
+
+                        if( ZERO != 0 )
+                            warning_log.output << "ZERO for SHOC_TAG is " << std::dec << ZERO << ".\n";
 
                         // this checks if the chunk holds a file header!
                         if( CURRENT_TAG == SHDR_TAG ) {
@@ -391,6 +394,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 resource_pool.back().resource_id = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().swvr_entry = swvr_entry;
 
+                                if( METADATA != 0 )
+                                    debug_log.output << "SHDR_TAG "
+                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
+                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
+
                                 resource_pool.back().data_p = new Utilities::Buffer();
                                 resource_pool.back().data_p->reserve( block_chunk_reader.readU32( default_settings.endian ) );
 
@@ -404,6 +413,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
                         else
                         if( DATA_SIZE >= 0xc && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
+                            if( METADATA != 0 )
+                                debug_log.output << "SHDR_TAG "
+                                    << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
+                                    << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                    << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
+
                             block_chunk_reader.addToBuffer(*resource_pool.back().data_p, DATA_SIZE - 0xc );
                         }
                         else
