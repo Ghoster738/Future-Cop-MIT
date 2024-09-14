@@ -325,6 +325,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         uint32_t first_swvr_offset;
         Resource::SWVREntry swvr_entry;
 
+        std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
+
         uint32_t block_index = 0;
 
         data_writer.setPosition(0);
@@ -410,6 +412,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 case PS1_CANM_TAG:
                 case PS1_VAGB_TAG:
                 case PS1_VAGM_TAG:
+                    header_enum_numbers_r = &ps_header_enum_numbers;
                     break;
                 case SHOC_TAG:
                     {
@@ -442,9 +445,14 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 resource_pool.back().resource_id = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().swvr_entry = swvr_entry;
 
-                                auto test_enum_number = pc_header_enum_numbers.find(resource_pool.back().type_enum);
+                                auto test_enum_number = header_enum_numbers_r->find(resource_pool.back().type_enum);
 
-                                if(test_enum_number == pc_header_enum_numbers.end()) {
+                                if(test_enum_number == header_enum_numbers_r->end() && ps_header_enum_numbers.find(resource_pool.back().type_enum) != ps_header_enum_numbers.end()) {
+                                    test_enum_number = ps_header_enum_numbers.find(resource_pool.back().type_enum);
+                                    header_enum_numbers_r = &ps_header_enum_numbers;
+                                }
+
+                                if(test_enum_number == header_enum_numbers_r->end()) {
                                     warning_log.output << "SHDR_TAG "
                                         << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
                                         << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
