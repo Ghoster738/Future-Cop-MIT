@@ -10,11 +10,11 @@ Data::Mission::Resource::ParseSettings::ParseSettings() :
     logger_r( &Utilities::logger ) {
 }
 
-Data::Mission::Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ) {
+Data::Mission::Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, size_of_code{0, 0} {
 
 }
 
-Data::Mission::Resource::Resource( const Data::Mission::Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ) {
+Data::Mission::Resource::Resource( const Data::Mission::Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0], obj.rpns_offsets[1], obj.rpns_offsets[2]}, size_of_code{obj.size_of_code[0], obj.size_of_code[1]} {
     if( obj.header_p != nullptr )
         header_p = new Utilities::Buffer( *obj.header_p );
     
