@@ -616,7 +616,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             // If an element is found.
             if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( *i.data_p );
+                new_resource_p = (*file_type_it).second->genResourceByType( i.data_p->getReader() );
             else // Default to generic resource.
                 new_resource_p = new UnkResource( i.type_enum, "unk" );
 

@@ -302,8 +302,11 @@ int Data::Mission::ACTResource::write( const std::string& file_path, const Data:
         return 1;
 }
 
-Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Utilities::Buffer &data ) const {
-    auto read_data = data.getReader( 3 * sizeof( uint32_t ), 1 );
+Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Utilities::Buffer::Reader &data ) const {
+    auto read_data = Utilities::Buffer::Reader(data);
+
+    read_data.setPosition( 3 * sizeof( uint32_t ) );
+
     uint_fast8_t type_id;
 
     // Check to see if the read_data is valid.

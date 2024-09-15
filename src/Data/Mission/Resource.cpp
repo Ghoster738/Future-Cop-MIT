@@ -81,9 +81,10 @@ std::string Resource::getFullName( unsigned int index ) const {
     return full_name;
 }
 
-Resource* Resource::genResourceByType( const Utilities::Buffer &data ) const {
+Resource* Resource::genResourceByType( const Utilities::Buffer::Reader &data ) const {
     return duplicate();
 }
+
 void Resource::setMemory( Utilities::Buffer *data_p ) {
     this->data = std::unique_ptr<Utilities::Buffer>(data_p);
 }

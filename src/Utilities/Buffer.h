@@ -79,6 +79,7 @@ public:
 
         size_t current_index;
     public:
+        Reader( const Reader& reader );
         Reader( const uint8_t *const buffer_r = nullptr, size_t byte_amount = 0 );
         virtual ~Reader();
 

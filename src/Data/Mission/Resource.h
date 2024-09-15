@@ -214,7 +214,7 @@ public:
      * @note the pointer returned needs to be deleted.
      * @return a new pointer to the copied object from the class which needs to be manually deleted.
      */
-    virtual Resource* genResourceByType( const Utilities::Buffer &data ) const;
+    virtual Resource* genResourceByType( const Utilities::Buffer::Reader &data ) const;
 
     /**
      * This loads a sepecific as a raw binary.
