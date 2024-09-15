@@ -3,18 +3,21 @@
 #include <cassert>
 #include <fstream>
 
-const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PARSE_SETTINGS = Data::Mission::Resource::ParseSettings();
+namespace Data {
+namespace Mission {
 
-Data::Mission::Resource::ParseSettings::ParseSettings() :
+const Resource::ParseSettings Resource::DEFAULT_PARSE_SETTINGS = Resource::ParseSettings();
+
+Resource::ParseSettings::ParseSettings() :
     endian( Utilities::Buffer::Endian::NO_SWAP ),
     logger_r( &Utilities::logger ) {
 }
 
-Data::Mission::Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, size_of_code{0, 0} {
+Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, size_of_code{0, 0} {
 
 }
 
-Data::Mission::Resource::Resource( const Data::Mission::Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0], obj.rpns_offsets[1], obj.rpns_offsets[2]}, size_of_code{obj.size_of_code[0], obj.size_of_code[1]} {
+Resource::Resource( const Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0], obj.rpns_offsets[1], obj.rpns_offsets[2]}, size_of_code{obj.size_of_code[0], obj.size_of_code[1]} {
     if( obj.header_p != nullptr )
         header_p = new Utilities::Buffer( *obj.header_p );
     
@@ -22,7 +25,7 @@ Data::Mission::Resource::Resource( const Data::Mission::Resource &obj ) : header
         data_p = new Utilities::Buffer( *obj.data_p );
 }
 
-Data::Mission::Resource::~Resource() {
+Resource::~Resource() {
     if( header_p != nullptr )
         delete header_p;
     
@@ -30,30 +33,30 @@ Data::Mission::Resource::~Resource() {
         delete data_p;
 }
 
-uint32_t Data::Mission::Resource::getResourceID() const {
+uint32_t Resource::getResourceID() const {
     if( !noResourceID() )
         return resource_id;
     
     return resource_id + getIndexNumber();
 }
 
-bool Data::Mission::Resource::noResourceID() const {
+bool Resource::noResourceID() const {
     return false;
 }
 
-uint32_t Data::Mission::Resource::getRPNSOffset( unsigned index ) const {
+uint32_t Resource::getRPNSOffset( unsigned index ) const {
     assert( index < RPNS_OFFSET_AMOUNT );
 
     return this->rpns_offsets[index];
 }
 
-void Data::Mission::Resource::setRPNSOffset( unsigned index, uint32_t value ) {
+void Resource::setRPNSOffset( unsigned index, uint32_t value ) {
     assert( index < RPNS_OFFSET_AMOUNT );
 
     this->rpns_offsets[index] = value;
 }
 
-std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
+std::string Resource::getFullName( unsigned int index ) const {
     std::string full_name = getFileExtension();
     full_name += "_";
     
@@ -67,11 +70,11 @@ std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
     return full_name;
 }
 
-Data::Mission::Resource* Data::Mission::Resource::genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const {
+Resource* Resource::genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const {
     return duplicate();
 }
 
-void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
+void Resource::processHeader( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << getFileExtension() << ": " << getResourceID() << " process header.\n";
 
@@ -89,7 +92,7 @@ void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
     // The rest are bytes.
 }
 
-void Data::Mission::Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {
+void Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {
     // Do not do anything if the pointers are the same.
     if( this->header_p != header_p )
     {
@@ -114,7 +117,7 @@ void Data::Mission::Resource::setMemory( Utilities::Buffer *header_p, Utilities:
     }
 }
 
-int Data::Mission::Resource::read( const char *const file_path ) {
+int Resource::read( const char *const file_path ) {
     std::ifstream resource;
 
     resource.open(file_path, std::ios::binary | std::ios::in | std::ios::ate );
@@ -155,7 +158,7 @@ int Data::Mission::Resource::read( const char *const file_path ) {
     }
 }
 
-int Data::Mission::Resource::read( Utilities::Buffer::Reader& reader ) {
+int Resource::read( Utilities::Buffer::Reader& reader ) {
     if( reader.empty() ) // Do nothing if the reader is empty.
         return 0;
     else
@@ -180,15 +183,15 @@ int Data::Mission::Resource::read( Utilities::Buffer::Reader& reader ) {
     }
 }
 
-int Data::Mission::Resource::read( const std::string &file_path ) {
+int Resource::read( const std::string &file_path ) {
     return read( file_path.c_str() );
 }
 
-int Data::Mission::Resource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options  ) const {
+int Resource::write( const std::string& file_path, const IFFOptions &iff_options  ) const {
     return -1;
 }
 
-int Data::Mission::Resource::writeRaw( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Resource::writeRaw( const std::string& file_path, const IFFOptions &iff_options ) const {
     std::ofstream resource;
 
     resource.open( file_path + "." + getFileExtension(), std::ios::binary | std::ios::out );
@@ -210,11 +213,11 @@ int Data::Mission::Resource::writeRaw( const std::string& file_path, const Data:
     }
 }
 
-bool Data::Mission::Resource::operator() ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool Resource::operator() ( const Resource& l_operand, const Resource& r_operand ) {
     return (l_operand < r_operand);
 }
 
-bool Data::Mission::operator == ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool operator == ( const Resource& l_operand, const Resource& r_operand ) {
     if( l_operand.getResourceTagID() != r_operand.getResourceTagID() )
         return false;
     else // Same buffer means the same file.
@@ -244,11 +247,11 @@ bool Data::Mission::operator == ( const Data::Mission::Resource& l_operand, cons
     }
 }
 
-bool Data::Mission::operator != ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool operator != ( const Resource& l_operand, const Resource& r_operand ) {
     return !( l_operand == r_operand );
 }
 
-bool Data::Mission::operator < ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool operator < ( const Resource& l_operand, const Resource& r_operand ) {
     if( l_operand.getResourceTagID() < r_operand.getResourceTagID() )
         return true;
     else
@@ -292,15 +295,17 @@ bool Data::Mission::operator < ( const Data::Mission::Resource& l_operand, const
     }
 }
 
-bool Data::Mission::operator > ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool operator > ( const Resource& l_operand, const Resource& r_operand ) {
     return ( r_operand < l_operand );
 }
 
-bool Data::Mission::operator <= ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool operator <= ( const Resource& l_operand, const Resource& r_operand ) {
     return !( l_operand > r_operand );
 }
 
-bool Data::Mission::operator >= ( const Data::Mission::Resource& l_operand, const Data::Mission::Resource& r_operand ) {
+bool operator >= ( const Resource& l_operand, const Resource& r_operand ) {
     return !( l_operand < r_operand );
 }
 
+}
+}
