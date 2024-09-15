@@ -248,9 +248,9 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto data_reader = this->data_p->getReader();
+        auto data_reader = this->getDataReader();
 
         if( data_reader.totalSize() == 0 ) {
             error_log.output << "data_reader.totalSize() should not be 0.\n";
@@ -302,7 +302,7 @@ int Data::Mission::ACTResource::write( const std::string& file_path, const Data:
         return 1;
 }
 
-Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const {
+Data::Mission::Resource* Data::Mission::ACTResource::genResourceByType( const Utilities::Buffer &data ) const {
     auto read_data = data.getReader( 3 * sizeof( uint32_t ), 1 );
     uint_fast8_t type_id;
 

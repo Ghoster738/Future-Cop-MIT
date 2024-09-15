@@ -116,9 +116,9 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
 
         bool file_is_not_valid;
 

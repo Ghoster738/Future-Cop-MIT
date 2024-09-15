@@ -50,12 +50,12 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p == nullptr ) {
+    if( this->data == nullptr ) {
         error_log.output << "WAV file data is missing!\n";
         return false;
     }
 
-    auto riff_reader = this->data_p->getReader();
+    auto riff_reader = this->getDataReader();
 
     auto riff_id    = riff_reader.readU32( Utilities::Buffer::Endian::BIG );    // 0
     auto riff_size  = riff_reader.readU32( Utilities::Buffer::Endian::LITTLE ); // 4
@@ -356,7 +356,7 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
 }
 
 int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
-    if(iff_options.wav.reencode_wav || this->data_p == nullptr)
+    if(iff_options.wav.reencode_wav || this->data == nullptr)
         return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
     else if(iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ))
         return writeRaw(file_path, iff_options);

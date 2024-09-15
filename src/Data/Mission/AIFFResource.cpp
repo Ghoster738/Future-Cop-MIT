@@ -65,7 +65,7 @@ bool AIFFResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    auto reader = this->data_p->getReader();
+    auto reader = this->getDataReader();
 
     auto form_identifier = reader.readU32( Utilities::Buffer::Endian::BIG );
     auto aiff_size       = reader.readU32( Utilities::Buffer::Endian::BIG );
@@ -363,7 +363,7 @@ Resource* AIFFResource::duplicate() const {
 }
 
 int AIFFResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
-    if(iff_options.aiff.to_wav || this->data_p == nullptr)
+    if(iff_options.aiff.to_wav || this->data == nullptr)
         return writeAudio( file_path, iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ));
     else if(iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ))
         return writeRaw(file_path, iff_options);

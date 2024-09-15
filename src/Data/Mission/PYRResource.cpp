@@ -252,10 +252,10 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
         {
-        auto reader = this->data_p->getReader();
-        auto readerPYPL = this->data_p->getReader();
+        auto reader = this->getDataReader();
+        auto readerPYPL = this->getDataReader();
 
         bool file_is_not_valid = false;
         uint32_t amount_of_tiles = 0;

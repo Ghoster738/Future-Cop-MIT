@@ -269,7 +269,6 @@ namespace {
         uint32_t rpns_offsets[Data::Mission::Resource::RPNS_OFFSET_AMOUNT];
         uint32_t code_sizes[Data::Mission::Resource::CODE_AMOUNT];
         Data::Mission::Resource::SWVREntry swvr_entry;
-        Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
     };
 
@@ -490,8 +489,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                     resource_pool.back().code_sizes[i] = block_chunk_reader.readU32( default_settings.endian );
                                 } // 0x30
 
-                                resource_pool.back().header_p = new Utilities::Buffer();
-                                block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x30 );
+                                //resource_pool.back().header_p = new Utilities::Buffer();
+                                //block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x30 );
                             }
                             else {
                                 error_in_read = true;
@@ -617,7 +616,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             // If an element is found.
             if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( *i.header_p, *i.data_p );
+                new_resource_p = (*file_type_it).second->genResourceByType( *i.data_p );
             else // Default to generic resource.
                 new_resource_p = new UnkResource( i.type_enum, "unk" );
 
@@ -633,14 +632,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             }
             new_resource_p->getSWVREntry() = i.swvr_entry;
 
-            new_resource_p->setMemory( i.header_p, i.data_p );
+            new_resource_p->setMemory( i.data_p );
             new_resource_p->parse( default_settings );
             
             // TODO Add option to discard memory once loaded.
-            // new_resource_p->setMemory( nullptr, nullptr );
+            // new_resource_p->setMemory( nullptr );
             
-            i.header_p = nullptr;
-            i.data_p   = nullptr;
+            i.data_p = nullptr;
             
             // Check for naming conflicts
             const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
@@ -659,10 +657,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( msic_p != nullptr )
         {
             // This gives msic_data_p to msic so there is no need to delete it.
-            msic_p->setMemory( nullptr, msic_data_p );
+            msic_p->setMemory( msic_data_p );
             msic_p->parse( default_settings );
             
-            // msic_p->setMemory( nullptr, nullptr );
+            // msic_p->setMemory( nullptr );
             addResource( msic_p );
         }
 

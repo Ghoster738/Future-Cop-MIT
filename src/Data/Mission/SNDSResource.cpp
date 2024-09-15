@@ -20,8 +20,8 @@ uint32_t Data::Mission::SNDSResource::getResourceTagID() const {
 }
 
 bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
-    if( this->data_p != nullptr ) {
-        auto reader = this->data_p->getReader();
+    if( this->data != nullptr ) {
+        auto reader = this->getDataReader();
         
         bool file_is_not_valid = false;
         

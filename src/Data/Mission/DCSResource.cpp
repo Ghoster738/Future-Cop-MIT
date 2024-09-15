@@ -25,9 +25,9 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
     const size_t NUM_ENTRIES_SIZE = sizeof(uint32_t);
     const size_t       ENTRY_SIZE = 8 * sizeof(uint8_t);
     
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
 
         if( reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + ENTRY_SIZE ) {
             auto header    = reader.readU32( settings.endian );

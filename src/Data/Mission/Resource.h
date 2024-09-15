@@ -44,16 +44,6 @@ public:
         }
     };
 
-protected:
-    Utilities::Buffer *header_p;
-    Utilities::Buffer *data_p;
-    /*
-    size_t meta_size_0;
-    size_t meta_size_1;
-    size_t data_offset;
-    std::unique_ptr<Utilities::Buffer> data;
-    */
-
 private:
     // These numbers are for "modding" purposes.
     int mis_index_number; // This tells how many resource proceded this resource relative to the MissionFile.
@@ -66,6 +56,12 @@ private:
     uint32_t code_sizes[CODE_AMOUNT];
 
     SWVREntry swvr_entry;
+
+protected:
+    size_t data_offset;
+    std::unique_ptr<Utilities::Buffer> data;
+
+    Utilities::Buffer::Reader getDataReader() const;
 
 public:
     Resource();
@@ -195,13 +191,7 @@ public:
      */
     virtual std::string getFullName( unsigned int index ) const;
     
-    /**
-     * This method will clear raw_header, and raw_data to save memory.
-     * This should be called after load had been called. The other way around
-     * would make the method load not work.
-     * Note: After this is called writeRaw will not work anymore.
-     */
-    void setMemory( Utilities::Buffer *header_p = nullptr, Utilities::Buffer *data_p = nullptr );
+    void setMemory( Utilities::Buffer *data_p );
     
     /**
      * This is to be used when the file is finished loading everything into raw_data.
@@ -224,7 +214,7 @@ public:
      * @note the pointer returned needs to be deleted.
      * @return a new pointer to the copied object from the class which needs to be manually deleted.
      */
-    virtual Resource* genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const;
+    virtual Resource* genResourceByType( const Utilities::Buffer &data ) const;
 
     /**
      * This loads a sepecific as a raw binary.

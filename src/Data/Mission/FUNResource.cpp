@@ -58,9 +58,9 @@ bool Data::Mission::FUNResource::parse( const ParseSettings &settings ) {
     uint32_t un_data_id;
     Function fun_struct;
     
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
 
         if( reader.totalSize() >= TAG_HEADER_SIZE ) {
             auto header    = reader.readU32( settings.endian );

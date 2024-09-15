@@ -13,25 +13,24 @@ Resource::ParseSettings::ParseSettings() :
     logger_r( &Utilities::logger ) {
 }
 
-Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0} {
-
+Utilities::Buffer::Reader Resource::getDataReader() const {
+    return this->data->getReader( data_offset );
 }
 
-Resource::Resource( const Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0], obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]} {
-    if( obj.header_p != nullptr )
-        header_p = new Utilities::Buffer( *obj.header_p );
-    
-    if( obj.data_p != nullptr )
-        data_p = new Utilities::Buffer( *obj.data_p );
+Resource::Resource() : mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0}, data_offset(0), data(nullptr) {
 }
 
-Resource::~Resource() {
-    if( header_p != nullptr )
-        delete header_p;
-    
-    if( data_p != nullptr )
-        delete data_p;
+Resource::Resource( const Resource &obj ) :
+    mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0],
+    obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]},
+    data_offset(obj.data_offset), data(nullptr) {
+
+    if(obj.data != nullptr) {
+        data = std::make_unique<Utilities::Buffer>(*obj.data);
+    }
 }
+
+Resource::~Resource() {}
 
 uint32_t Resource::getResourceID() const {
     if( !noResourceID() )
@@ -82,33 +81,11 @@ std::string Resource::getFullName( unsigned int index ) const {
     return full_name;
 }
 
-Resource* Resource::genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const {
+Resource* Resource::genResourceByType( const Utilities::Buffer &data ) const {
     return duplicate();
 }
-
-void Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {
-    // Do not do anything if the pointers are the same.
-    if( this->header_p != header_p )
-    {
-        // Delete the class's header and set it to null
-        if( this->header_p != nullptr )
-            delete this->header_p;
-        this->header_p = nullptr;
-        
-        // Set header with a new pointer with a copy of the parameter's header_p contents.
-        if( header_p != nullptr )
-            this->header_p = new Utilities::Buffer( *header_p );
-    }
-    
-    if( this->data_p != data_p )
-    {
-        if( this->data_p != nullptr )
-            delete this->data_p;
-        this->data_p = nullptr;
-        
-        if( data_p != nullptr )
-            this->data_p = new Utilities::Buffer( *data_p );
-    }
+void Resource::setMemory( Utilities::Buffer *data_p ) {
+    this->data = std::unique_ptr<Utilities::Buffer>(data_p);
 }
 
 int Resource::read( const char *const file_path ) {
@@ -123,13 +100,10 @@ int Resource::read( const char *const file_path ) {
         // Return to the beginning.
         resource.seekg( 0, std::ios::beg );
         
-        if( size > 0 )
-            setMemory( nullptr, nullptr );
-        
-        data_p = new Utilities::Buffer();
+        this->data = std::make_unique<Utilities::Buffer>();
 
         // TODO make these operations faster expand the raw_data, so it does not have to reallocate data.
-        data_p->reserve( size );
+        this->data->reserve( size );
 
         // This will store the byte.
         char byte = 0;
@@ -138,7 +112,7 @@ int Resource::read( const char *const file_path ) {
         {
             resource.get( byte );
 
-            data_p->addI8( byte );
+            this->data->addI8( byte );
         }
 
         // The resource is complety read into memory.
@@ -160,20 +134,14 @@ int Resource::read( Utilities::Buffer::Reader& reader ) {
         return -1;
     else {
         // Make sure that there is a buffer to write to.
-        if( this->data_p == nullptr )
-            this->data_p = new Utilities::Buffer();
+        this->data = std::make_unique<Utilities::Buffer>();
         
-        if( this->data_p == nullptr )
-            return -2; // Ran out of memory.
-        else
-        {
-            // Add all the information that the reader has to this resource.
-            while( !reader.ended() ) {
-                this->data_p->addU8( reader.readU8() );
-            }
-            
-            return 1; // Successfully read the resource.
+        // Add all the information that the reader has to this resource.
+        while( !reader.ended() ) {
+            this->data->addU8( reader.readU8() );
         }
+
+        return 1; // Successfully read the resource.
     }
 }
 
@@ -190,9 +158,9 @@ int Resource::writeRaw( const std::string& file_path, const IFFOptions &iff_opti
 
     resource.open( file_path + "." + getFileExtension(), std::ios::binary | std::ios::out );
 
-    if( resource.is_open() && data_p != nullptr )
+    if( resource.is_open() && this->data != nullptr )
     {
-        auto reader = data_p->getReader();
+        auto reader = getDataReader();
         
         while( !reader.ended() )
             resource.put( reader.readI8() );
@@ -215,20 +183,20 @@ bool operator == ( const Resource& l_operand, const Resource& r_operand ) {
     if( l_operand.getResourceTagID() != r_operand.getResourceTagID() )
         return false;
     else // Same buffer means the same file.
-    if( l_operand.data_p == r_operand.data_p  )
+    if( l_operand.data == r_operand.data  )
         return true;
     else // If one of the buffers are null then they are not equal.
-    if( l_operand.data_p == nullptr || r_operand.data_p == nullptr )
+    if( l_operand.data == nullptr || r_operand.data == nullptr )
         return false;
     else // Check the size.
-    if( l_operand.data_p->getReader().totalSize() != r_operand.data_p->getReader().totalSize() ) // Then check the size
+    if( l_operand.data->getReader().totalSize() != r_operand.data->getReader().totalSize() ) // Then check the size
         return false;
     else
     {
         // Since they are both pointers that are not null they are
         // used as readers.
-        auto l_reader = l_operand.data_p->getReader();
-        auto r_reader = r_operand.data_p->getReader();
+        auto l_reader = l_operand.data->getReader();
+        auto r_reader = r_operand.data->getReader();
         
         // Check byte by byte to see if these files in fact match.
         // Since they are both equal in size only one can be checked for emptyness.
@@ -252,23 +220,23 @@ bool operator < ( const Resource& l_operand, const Resource& r_operand ) {
     if( l_operand.getResourceTagID() > r_operand.getResourceTagID() )
         return false;
     else // If l_operand's and r_operand's buffer are the same buffer then they are not greater than each other.
-    if( l_operand.data_p == r_operand.data_p )
+    if( l_operand.data == r_operand.data )
         return false;
     else // If l_operand has null it gets treated as 0, and r_operand gets treated as a one.
-    if( l_operand.data_p == nullptr )
+    if( l_operand.data == nullptr )
         return true; // 0 < 1
     else // If l_operand has null it gets treated as 0, and r_operand gets treated as a one.
-    if( r_operand.data_p == nullptr )
+    if( r_operand.data == nullptr )
         return false; // 0 !< 1
     else
-    if( l_operand.data_p->getReader().totalSize() < r_operand.data_p->getReader().totalSize() ) // First check the size
+    if( l_operand.data->getReader().totalSize() < r_operand.data->getReader().totalSize() ) // First check the size
         return true;
     else
-    if( l_operand.data_p->getReader().totalSize() > r_operand.data_p->getReader().totalSize() )
+    if( l_operand.data->getReader().totalSize() > r_operand.data->getReader().totalSize() )
         return false;
     else { // l_operand.buffer_p->totalSize() == r_operand.buffer_p->totalSize()
-        auto l_reader = l_operand.data_p->getReader();
-        auto r_reader = r_operand.data_p->getReader();
+        auto l_reader = l_operand.data->getReader();
+        auto r_reader = r_operand.data->getReader();
         
         // Check byte by byte to see if l_operand is in fact less than r_operand.
         while( !l_reader.empty() && !r_reader.empty() ) {

@@ -77,9 +77,9 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
     bool file_is_not_valid = false;
     
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
         size_t pdat_position = 0;
         size_t pdat_size = 0;
         size_t plut_position = 0;
