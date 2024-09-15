@@ -342,6 +342,8 @@ bool Utilities::Buffer::getSwap( Endian endianess ) {
     return swap_value;
 }
 
+Utilities::Buffer::Reader::Reader( const Reader& reader ) : data_r( reader.data_r ), size( reader.size ), current_index( reader.current_index ) {}
+
 Utilities::Buffer::Reader::Reader( const uint8_t *const buffer_r, size_t byte_amount ) : data_r( buffer_r ), size( byte_amount ), current_index( 0 ) {}
 
 Utilities::Buffer::Reader::~Reader() {

@@ -366,8 +366,8 @@ bool Data::Mission::TilResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr ) {
-        auto reader = this->data_p->getReader();
+    if( this->data != nullptr ) {
+        auto reader = this->getDataReader();
         
         bool file_is_not_valid = false;
         
@@ -1059,13 +1059,10 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
     til_p->setMisIndexNumber( 0 );
     til_p->setResourceID( resource_id );
 
-    if(til_p->data_p != nullptr)
-        delete til_p->data_p;
+    til_p->data = std::make_unique<Utilities::Buffer>();
 
-    til_p->data_p = new Utilities::Buffer();
-
-    til_p->data_p->addU32(0, endianess);
-    til_p->data_p->addU32(0, endianess);
+    til_p->data->addU32(0, endianess);
+    til_p->data->addU32(0, endianess);
 
     std::vector<glm::u8vec2> texture_uvs;
 
@@ -1123,40 +1120,40 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
     color_palette.push_back( Utilities::PixelFormatColor::GenericColor(1, 1, 1, 1) );
     color_palette.push_back( Utilities::PixelFormatColor::GenericColor(1, 0, 1, 1) );
 
-    til_p->data_p->addU16( color_palette.size(), endianess );
-    til_p->data_p->addU16( texture_uvs.size(), endianess );
+    til_p->data->addU16( color_palette.size(), endianess );
+    til_p->data->addU16( texture_uvs.size(), endianess );
 
     for( unsigned y = 0; y < AMOUNT_OF_TILES + 1; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES + 1; x++ ) {
-            til_p->data_p->addI8( -32 );
-            til_p->data_p->addI8(   0 );
-            til_p->data_p->addI8(  32 );
+            til_p->data->addI8( -32 );
+            til_p->data->addI8(   0 );
+            til_p->data->addI8(  32 );
         }
     }
 
-    til_p->data_p->addI8( 0 ); // Add unknown byte
+    til_p->data->addI8( 0 ); // Add unknown byte
 
     // These action types should all be normal
-    til_p->data_p->addI8( 0 );
-    til_p->data_p->addI8( 0 );
-    til_p->data_p->addI8( 0 );
-    til_p->data_p->addI8( 0 );
+    til_p->data->addI8( 0 );
+    til_p->data->addI8( 0 );
+    til_p->data->addI8( 0 );
+    til_p->data->addI8( 0 );
 
-    til_p->data_p->addU16( 5792, endianess ); // Trunk Radius
-    til_p->data_p->addU16( 5792, endianess ); // Trunk Height
+    til_p->data->addU16( 5792, endianess ); // Trunk Radius
+    til_p->data->addU16( 5792, endianess ); // Trunk Height
 
     for(size_t i = 0; i < 4; i++) {
-        til_p->data_p->addU16( 2896, endianess ); // Branch Radius
-        til_p->data_p->addU16( 2896, endianess ); // Branch Height
+        til_p->data->addU16( 2896, endianess ); // Branch Radius
+        til_p->data->addU16( 2896, endianess ); // Branch Height
     }
     for(size_t i = 0; i < 16; i++) {
-        til_p->data_p->addU16( 1448, endianess ); // Leaves Radius
-        til_p->data_p->addU16( 1448, endianess ); // Leaves Height
+        til_p->data->addU16( 1448, endianess ); // Leaves Radius
+        til_p->data->addU16( 1448, endianess ); // Leaves Height
     }
 
     // uv animation vector
-    til_p->data_p->addI8( 0 );
-    til_p->data_p->addI8( 0 );
+    til_p->data->addI8( 0 );
+    til_p->data->addI8( 0 );
 
     std::vector<Tile> section_polygons;
     Floor gen_reference_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
@@ -1285,25 +1282,25 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
         }
     }
 
-    til_p->data_p->addU16( section_polygons.size(), endianess );
+    til_p->data->addU16( section_polygons.size(), endianess );
 
     for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
         for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
-            til_p->data_p->addU16( gen_reference_grid[x][y].get(), endianess );
+            til_p->data->addU16( gen_reference_grid[x][y].get(), endianess );
         }
     }
 
-    til_p->data_p->addU16( 0, endianess ); // It turned out that Future Cop: LAPD does not care about this value.
+    til_p->data->addU16( 0, endianess ); // It turned out that Future Cop: LAPD does not care about this value.
 
-    til_p->data_p->addU16( 0, endianess ); // Unknown two bytes
+    til_p->data->addU16( 0, endianess ); // Unknown two bytes
 
     for( size_t i = 0; i < section_polygons.size(); i++ ) {
-        til_p->data_p->addU32( section_polygons[i].get(), endianess );
+        til_p->data->addU32( section_polygons[i].get(), endianess );
     }
 
     for( size_t i = 0; i < texture_uvs.size(); i++ ) {
-        til_p->data_p->addU8( texture_uvs[i].x );
-        til_p->data_p->addU8( texture_uvs[i].y );
+        til_p->data->addU8( texture_uvs[i].x );
+        til_p->data->addU8( texture_uvs[i].y );
     }
 
     Utilities::PixelFormatColor_R5G5B5A1 palette_format;
@@ -1317,7 +1314,7 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
         palette_format.writePixel( color_writer, endianess, color_palette[i] );
     }
 
-    color_writer.addToBuffer( *til_p->data_p );
+    color_writer.addToBuffer( *til_p->data );
 
     TileGraphics default_graphics;
 
@@ -1332,24 +1329,24 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
     default_graphics.rectangle = 1; // This is a rectangle.
     default_graphics.type = 0; // Make a pure flat
 
-    til_p->data_p->addU16( default_graphics.get(), endianess );
+    til_p->data->addU16( default_graphics.get(), endianess );
 
     if( !is_monochrome ) {
         default_graphics.shading = 0;
         default_graphics.type = 0b10; // Color Palette
 
-        til_p->data_p->addU16( default_graphics.get(), endianess );
+        til_p->data->addU16( default_graphics.get(), endianess );
 
         DynamicColorGraphics dynamic_color;
         dynamic_color.second = 1;
         dynamic_color.third  = 2;
 
-        til_p->data_p->addU16( dynamic_color.get(), endianess );
+        til_p->data->addU16( dynamic_color.get(), endianess );
 
         dynamic_color.second = 3;
         dynamic_color.third  = 4;
 
-        til_p->data_p->addU16( dynamic_color.get(), endianess );
+        til_p->data->addU16( dynamic_color.get(), endianess );
     }
     else {
         for(int i = 0; i < 4; i++) {
@@ -1372,17 +1369,16 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
             else
                 dynamic_monochrome.forth = 0;
 
-            til_p->data_p->addU16( default_graphics.get(), endianess );
-            til_p->data_p->addU16( dynamic_monochrome.get(), endianess );
+            til_p->data->addU16( default_graphics.get(), endianess );
+            til_p->data->addU16( dynamic_monochrome.get(), endianess );
         }
     }
 
-    auto tag_size_writer = til_p->data_p->getWriter(0, 2 * sizeof(uint32_t));
+    auto tag_size_writer = til_p->data->getWriter(0, 2 * sizeof(uint32_t));
     tag_size_writer.writeU32( TAG_SECT );
-    tag_size_writer.writeU32( til_p->data_p->getReader().totalSize() );
+    tag_size_writer.writeU32( til_p->data->getReader().totalSize() );
 
     Resource::ParseSettings parse_settings;
-    parse_settings.type = Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 

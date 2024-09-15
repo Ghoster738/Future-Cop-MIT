@@ -104,7 +104,7 @@ public:
      */
     virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
-    virtual Resource* genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const;
+    virtual Resource* genResourceByType( const Utilities::Buffer::Reader &data ) const;
     
     virtual ACTResource* duplicate( const ACTResource &original ) const = 0;
 

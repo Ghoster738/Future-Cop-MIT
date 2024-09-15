@@ -84,9 +84,9 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
     auto error_log = settings.logger_r->getLog( Utilities::Logger::ERROR );
     error_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
         
         const size_t SIZE_OF_HEADER = 0x10;
         const size_t SIZE_OF_NODE   = 0x0C;

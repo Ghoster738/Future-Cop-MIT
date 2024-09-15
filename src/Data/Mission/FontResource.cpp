@@ -116,9 +116,9 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
 
         bool file_is_not_valid;
 
@@ -351,7 +351,6 @@ Data::Mission::FontResource* Data::Mission::FontResource::getWindows( uint32_t r
     windows_font_p->read( loading );
 
     Data::Mission::Resource::ParseSettings parse_settings;
-    parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 
@@ -377,7 +376,6 @@ Data::Mission::FontResource* Data::Mission::FontResource::getPlaystation( uint32
     playstation_font_p->read( loading );
 
     Data::Mission::Resource::ParseSettings parse_settings;
-    parse_settings.type = Data::Mission::Resource::ParseSettings::Playstation;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 

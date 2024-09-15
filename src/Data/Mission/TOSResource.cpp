@@ -20,9 +20,9 @@ uint32_t TOSResource::getResourceTagID() const {
 }
 
 bool TOSResource::parse( const ParseSettings &settings ) {
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
 
         const auto identifier = reader.readU32( settings.endian );
 

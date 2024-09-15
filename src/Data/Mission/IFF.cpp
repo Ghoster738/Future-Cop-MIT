@@ -27,9 +27,9 @@
 
 #include "../../Utilities/Buffer.h"
 
-#include <fstream>
 #include <algorithm>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <unordered_set>
 
@@ -93,6 +93,7 @@ namespace {
         { 0x43746474, new Data::Mission::UnkResource( 0x43746474, "tdt" ) },
         { 0x436d6963, new Data::Mission::UnkResource( 0x436d6963, "mic" ) }
     };
+    // TODO Find purpose of this code!
     class AutoDelete {
     public:
         ~AutoDelete() {
@@ -101,6 +102,55 @@ namespace {
             }
         }
     } auto_delete_file_type_list;
+
+    std::map<uint32_t, uint32_t> pc_header_enum_numbers = {
+        {0x43616374, 3}, // Cact
+        {0x43616966, 0}, // Caif
+        {0x43626d70, 2}, // Cbmp
+        {0x43637472, 1}, // Cctr
+        {0x43646373, 2}, // Cdcs
+        {0x43666e74, 2}, // Cfnt
+        {0x4366756e, 2}, // Cfun
+        {0x436e6574, 2}, // Cnet
+        {0x436f626a, 2}, // Cobj
+        {0x43707463, 2}, // Cptc
+        {0x43707972, 0}, // Cpyr
+        {0x43736163, 2}, // Csac
+        {0x43736678, 0}, // Csfx
+        {0x43736864, 2}, // Cshd
+        {0x4374696c, 2}, // Ctil
+        {0x43746f73, 2}, // Ctos
+        {0x43776176, 1}, // Cwav
+        {0x52504e53, 2}, // RPNS
+        {0x63616e6d, 6}, // canm
+        {0x736e6473, 5}, // snds
+    };
+
+    std::map<uint32_t, uint32_t> ps_header_enum_numbers = {
+        {0x43616374, 3}, // Cact
+        {0x43626d70, 2}, // Cbmp
+        {0x43637472, 1}, // Cctr
+        {0x43646373, 2}, // Cdcs
+        {0x43666e74, 2}, // Cfnt
+        {0x4366756e, 2}, // Cfun
+        {0x436d6463, 2}, // Cmdc
+        {0x436d6963, 1}, // Cmic
+        {0x436e6574, 2}, // Cnet
+        {0x436f626a, 2}, // Cobj
+        {0x43707463, 2}, // Cptc
+        {0x43707972, 1}, // Cpyr
+        {0x43736163, 2}, // Csac
+        {0x43736678, 1}, // Csfx
+        {0x43736864, 2}, // Cshd
+        {0x43746474, 1}, // Ctdt
+        {0x4374696c, 2}, // Ctil
+        {0x4374696e, 2}, // Ctin
+        {0x43746f73, 2}, // Ctos
+        {0x43747273, 2}, // Ctrs
+        {0x43766b62, 1}, // Cvkb
+        {0x43766b68, 2}, // Cvkh
+        {0x52504e53, 2}  // RPNS
+    };
 }
 
 bool Data::Mission::IFF::compareFunction( const Data::Mission::Resource *const l_operand, const Data::Mission::Resource *const r_operand ) {
@@ -216,8 +266,10 @@ namespace {
         uint32_t offset;
         uint32_t iff_index;
         uint32_t resource_id;
+        uint32_t rpns_offsets[Data::Mission::Resource::RPNS_OFFSET_AMOUNT];
+        uint32_t code_sizes[Data::Mission::Resource::CODE_AMOUNT];
+        uint32_t header_size;
         Data::Mission::Resource::SWVREntry swvr_entry;
-        Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
     };
 
@@ -275,6 +327,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         uint32_t first_swvr_offset;
         Resource::SWVREntry swvr_entry;
 
+        std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
+        uint32_t rpns_size = 0xFFFFFFFF;
+        bool rpns_error_not_found = true;
+
         uint32_t block_index = 0;
 
         data_writer.setPosition(0);
@@ -291,13 +347,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 // This determines if the file is big endian or little endian.
                 if( WIN_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     info_log.output << "This IFF file is little endian (Windows/Playstation) formated.\n";
-                    default_settings.type = Resource::ParseSettings::Windows; // Might be Playstation file as well.
                     default_settings.endian = Utilities::Buffer::Endian::LITTLE;
                 }
                 else
                 if( MAC_CTRL_TAG[ 0 ] == reinterpret_cast<const char*>(&TYPE_ID)[ 0 ] ) {
                     info_log.output << "This IFF file is big endian (Macintosh) formated.\n";
-                    default_settings.type = Resource::ParseSettings::Macintosh;
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
 
@@ -362,12 +416,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                 case PS1_CANM_TAG:
                 case PS1_VAGB_TAG:
                 case PS1_VAGM_TAG:
+                    header_enum_numbers_r = &ps_header_enum_numbers;
                     break;
                 case SHOC_TAG:
                     {
-                        block_chunk_reader.setPosition( 8 );
-
+                        const auto METADATA = block_chunk_reader.readU32( default_settings.endian );
+                        const auto ZERO = block_chunk_reader.readU32( default_settings.endian );
                         const auto CURRENT_TAG = block_chunk_reader.readU32( default_settings.endian );
+
+                        if( ZERO != 0 )
+                            warning_log.output << "ZERO for SHOC_TAG is " << std::dec << ZERO << ".\n";
 
                         // this checks if the chunk holds a file header!
                         if( CURRENT_TAG == SHDR_TAG ) {
@@ -375,15 +433,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             if( DATA_SIZE >= 0x14 ) {
                                 resource_pool.push_back( ResourceType() );
 
-                                // These are the tag sizes to be expected.
-                                // Subtract them by 20 and we would get the header size.
-                                // The smallest DATA_SIZE is 52, and the biggest data size is 120.
-                                if( !((DATA_SIZE == 0x34) || (DATA_SIZE == 0x38) || (DATA_SIZE == 0x3c) || (DATA_SIZE == 0x40) ||
-                                      (DATA_SIZE == 0x48) || (DATA_SIZE == 0x4c) || (DATA_SIZE == 0x50) || (DATA_SIZE == 0x54) ||
-                                      (DATA_SIZE == 0x60) || (DATA_SIZE == 0x64) || (DATA_SIZE == 0x74) || (DATA_SIZE == 0x78)) )
-                                    warning_log.output << "ID: " << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF) << " RID: " << std::dec << resource_pool.back().resource_id << " CHUNK_SIZE has an unexpected size of 0x" << std::hex << CHUNK_SIZE << " at 0x" << file_offset << ".\n";
-
-                                block_chunk_reader.setPosition( 0x10 );
+                                const auto ENUM_NUMBER = block_chunk_reader.readU32( default_settings.endian );
 
                                 resource_pool.back().type_enum = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().offset    = file_offset;
@@ -391,11 +441,50 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 resource_pool.back().resource_id = block_chunk_reader.readU32( default_settings.endian );
                                 resource_pool.back().swvr_entry = swvr_entry;
 
-                                resource_pool.back().data_p = new Utilities::Buffer();
-                                resource_pool.back().data_p->reserve( block_chunk_reader.readU32( default_settings.endian ) );
+                                auto test_enum_number = header_enum_numbers_r->find(resource_pool.back().type_enum);
 
-                                resource_pool.back().header_p = new Utilities::Buffer();
-                                block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x1c );
+                                if(test_enum_number == header_enum_numbers_r->end() && ps_header_enum_numbers.find(resource_pool.back().type_enum) != ps_header_enum_numbers.end()) {
+                                    test_enum_number = ps_header_enum_numbers.find(resource_pool.back().type_enum);
+                                    header_enum_numbers_r = &ps_header_enum_numbers;
+                                }
+
+                                if(test_enum_number == header_enum_numbers_r->end()) {
+                                    warning_log.output << "SHDR_TAG "
+                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
+                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << ": Enum Number Not Present in Table. ENUM_NUMBER = " << std::dec << ENUM_NUMBER << "\n";
+                                }
+                                else if((*test_enum_number).second != ENUM_NUMBER) {
+                                    warning_log.output << "SHDR_TAG "
+                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
+                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << ": Expected ENUM_NUMBER " << std::dec << (*test_enum_number).second << ", but got " << ENUM_NUMBER << "\n";
+                                }
+
+                                if( METADATA != 0 )
+                                    debug_log.output << "SHDR_TAG "
+                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
+                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
+
+                                const auto RESOURCE_SIZE = block_chunk_reader.readU32( default_settings.endian );
+
+                                // 0x1c
+
+                                for(size_t i = 0; i < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; i++) {
+                                    resource_pool.back().rpns_offsets[i] = block_chunk_reader.readU32( default_settings.endian );
+                                } // 0x28
+
+
+                                for(size_t i = 0; i < Data::Mission::Resource::CODE_AMOUNT; i++) {
+                                    resource_pool.back().code_sizes[i] = block_chunk_reader.readU32( default_settings.endian );
+                                } // 0x30
+
+                                resource_pool.back().header_size = block_chunk_reader.getPosition( Utilities::Buffer::Direction::END );
+
+                                resource_pool.back().data_p = new Utilities::Buffer();
+                                resource_pool.back().data_p->reserve( RESOURCE_SIZE + resource_pool.back().header_size );
+                                block_chunk_reader.addToBuffer(*resource_pool.back().data_p, resource_pool.back().header_size );
                             }
                             else {
                                 error_in_read = true;
@@ -404,6 +493,12 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
                         else
                         if( DATA_SIZE >= 0xc && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
+                            if( METADATA != 0 )
+                                debug_log.output << "SHDR_TAG "
+                                    << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
+                                    << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                    << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
+
                             block_chunk_reader.addToBuffer(*resource_pool.back().data_p, DATA_SIZE - 0xc );
                         }
                         else
@@ -515,25 +610,30 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             // If an element is found.
             if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( *i.header_p, *i.data_p );
+                new_resource_p = (*file_type_it).second->genResourceByType( i.data_p->getReader( i.header_size ) );
             else // Default to generic resource.
                 new_resource_p = new UnkResource( i.type_enum, "unk" );
 
+            new_resource_p->setHeaderSize( i.header_size );
             new_resource_p->setOffset( i.offset );
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( id_to_resource_p[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
+            for(size_t a = 0; a < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; a++) {
+                new_resource_p->setRPNSOffset(a, i.rpns_offsets[a]);
+            }
+            for(size_t a = 0; a < Data::Mission::Resource::CODE_AMOUNT; a++) {
+                new_resource_p->setCodeAmount(a, i.code_sizes[a]);
+            }
             new_resource_p->getSWVREntry() = i.swvr_entry;
 
-            new_resource_p->setMemory( i.header_p, i.data_p );
-            new_resource_p->processHeader( default_settings );
+            new_resource_p->setMemory( i.data_p );
             new_resource_p->parse( default_settings );
             
             // TODO Add option to discard memory once loaded.
-            // new_resource_p->setMemory( nullptr, nullptr );
+            // new_resource_p->setMemory( nullptr );
             
-            i.header_p = nullptr;
-            i.data_p   = nullptr;
+            i.data_p = nullptr;
             
             // Check for naming conflicts
             const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
@@ -552,10 +652,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         if( msic_p != nullptr )
         {
             // This gives msic_data_p to msic so there is no need to delete it.
-            msic_p->setMemory( nullptr, msic_data_p );
+            msic_p->setMemory( msic_data_p );
             msic_p->parse( default_settings );
             
-            // msic_p->setMemory( nullptr, nullptr );
+            // msic_p->setMemory( nullptr );
             addResource( msic_p );
         }
 

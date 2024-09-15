@@ -52,8 +52,8 @@ bool SHDResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr ) {
-        auto reader = this->data_p->getReader();
+    if( this->data != nullptr ) {
+        auto reader = this->getDataReader();
 
         auto header_4  = reader.readU16( settings.endian ); // Always 4
         this->id_0 = reader.readU16( settings.endian );

@@ -27,11 +27,6 @@ int testCBMP( Utilities::Buffer::Endian endian, std::string name, const uint8_t 
     {
         Data::Mission::Resource::ParseSettings parse_settings;
         
-        if( endian == Utilities::Buffer::LITTLE )
-            parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
-        else
-            parse_settings.type = Data::Mission::Resource::ParseSettings::Macintosh;
-        
         parse_settings.endian = endian;
         
         if( !cbmp.parse( parse_settings ) ) {
@@ -124,11 +119,6 @@ int testTrianglesCBMP( Utilities::Buffer::Endian endian, std::string name, const
     else
     {
         Data::Mission::Resource::ParseSettings parse_settings;
-
-        if( endian == Utilities::Buffer::LITTLE )
-            parse_settings.type = Data::Mission::Resource::ParseSettings::Windows;
-        else
-            parse_settings.type = Data::Mission::Resource::ParseSettings::Macintosh;
 
         parse_settings.endian = endian;
 

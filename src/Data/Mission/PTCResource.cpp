@@ -87,9 +87,9 @@ bool Data::Mission::PTCResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
 
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
         bool file_is_not_valid = false;
 
         while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
@@ -284,29 +284,26 @@ Data::Mission::PTCResource* Data::Mission::PTCResource::getTest( uint32_t resour
     const uint32_t X_DIMENSION = BORDER_SPACE + X_SPACE;
     const uint32_t Y_DIMENSION = BORDER_SPACE + Y_SPACE;
 
-    if(ptc_p->data_p != nullptr)
-        delete ptc_p->data_p;
+    ptc_p->data = std::make_unique<Utilities::Buffer>();
 
-    ptc_p->data_p = new Utilities::Buffer();
+    ptc_p->data->addU32(GRDB_TAG, endianess);
+    ptc_p->data->addU32(0, endianess); // Make sure to write resource size.
 
-    ptc_p->data_p->addU32(GRDB_TAG, endianess);
-    ptc_p->data_p->addU32(0, endianess); // Make sure to write resource size.
+    ptc_p->data->addU32(1, endianess); // Add mysterious one.
 
-    ptc_p->data_p->addU32(1, endianess); // Add mysterious one.
-
-    ptc_p->data_p->addU32(16, endianess); // Amount of Ctils.
-    ptc_p->data_p->addU32(X_DIMENSION, endianess); // Dimension X
-    ptc_p->data_p->addU32(Y_DIMENSION, endianess); // Dimension Y
+    ptc_p->data->addU32(16, endianess); // Amount of Ctils.
+    ptc_p->data->addU32(X_DIMENSION, endianess); // Dimension X
+    ptc_p->data->addU32(Y_DIMENSION, endianess); // Dimension Y
 
     // Zero unknowns
     for(unsigned i = 0; i < 3; i++) {
-        ptc_p->data_p->addU32(0, endianess);
+        ptc_p->data->addU32(0, endianess);
     }
 
-    ptc_p->data_p->addU32(BORDER_AMOUNT, endianess);
+    ptc_p->data->addU32(BORDER_AMOUNT, endianess);
 
     // Zero unknown.
-    ptc_p->data_p->addU32(0, endianess);
+    ptc_p->data->addU32(0, endianess);
 
     Utilities::GridBase2D<uint32_t> generated_grid;
 
@@ -333,15 +330,14 @@ Data::Mission::PTCResource* Data::Mission::PTCResource::getTest( uint32_t resour
 
     for( unsigned y = 0; y < generated_grid.getHeight(); y++ ) {
         for( unsigned x = 0; x < generated_grid.getWidth(); x++) {
-            ptc_p->data_p->addU32(generated_grid.getValue( x, y ), endianess);
+            ptc_p->data->addU32(generated_grid.getValue( x, y ), endianess);
         }
     }
 
-    auto tag_size_writer = ptc_p->data_p->getWriter(sizeof(uint32_t), sizeof(uint32_t));
-    tag_size_writer.writeU32( ptc_p->data_p->getReader().totalSize() );
+    auto tag_size_writer = ptc_p->data->getWriter(sizeof(uint32_t), sizeof(uint32_t));
+    tag_size_writer.writeU32( ptc_p->data->getReader().totalSize() );
 
     Resource::ParseSettings parse_settings;
-    parse_settings.type = Resource::ParseSettings::Windows;
     parse_settings.endian = Utilities::Buffer::LITTLE;
     parse_settings.logger_r = logger_r;
 

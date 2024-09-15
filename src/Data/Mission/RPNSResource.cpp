@@ -24,9 +24,9 @@ bool Data::Mission::RPNSResource::parse( const ParseSettings &settings ) {
     Bitfield bitfield;
     uint8_t byte;
     
-    if( this->data_p != nullptr )
+    if( this->data != nullptr )
     {
-        auto reader = this->data_p->getReader();
+        auto reader = this->getDataReader();
         
         bitfields.reserve( reader.totalSize() );
         
