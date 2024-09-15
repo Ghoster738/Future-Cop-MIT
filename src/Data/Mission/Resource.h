@@ -63,7 +63,7 @@ private:
     // This data is contained within the tag.
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
     uint32_t rpns_offsets[RPNS_OFFSET_AMOUNT];
-    uint32_t size_of_code[CODE_AMOUNT];
+    uint32_t code_sizes[CODE_AMOUNT];
 
     SWVREntry swvr_entry;
 
@@ -163,7 +163,7 @@ public:
     /**
      * Get the RPNS Offset from the array.
      * @param index The index of the array to retrieve.
-     * @return RPNSOffset of the array or crash if index is greater than arrays capacity.
+     * @return RPNSOffset of the array or crash if index is greater than array's capacity.
      */
     uint32_t getRPNSOffset( unsigned index ) const;
 
@@ -173,6 +173,20 @@ public:
      * @param value The value of the RPNSOffset
      */
     void setRPNSOffset( unsigned index, uint32_t value );
+
+    /**
+     * Get the code amount from the index.
+     * @param index The index of the array to retrieve.
+     * @return code count of the array or crash if index is greater than array's capacity.
+     */
+    uint32_t getCode( unsigned index ) const;
+
+    /**
+     * Set the code amount from the array.
+     * @param index The index of the array to modify.
+     * @param value The value of the amount
+     */
+    void setCodeAmount( unsigned index, uint32_t amount );
 
     /**
      * This gets the full name of this class.
@@ -188,8 +202,6 @@ public:
      * Note: After this is called writeRaw will not work anymore.
      */
     void setMemory( Utilities::Buffer *header_p = nullptr, Utilities::Buffer *data_p = nullptr );
-    
-    virtual void processHeader( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
     
     /**
      * This is to be used when the file is finished loading everything into raw_data.

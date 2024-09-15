@@ -13,11 +13,11 @@ Resource::ParseSettings::ParseSettings() :
     logger_r( &Utilities::logger ) {
 }
 
-Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, size_of_code{0, 0} {
+Resource::Resource() : header_p( nullptr ), data_p( nullptr ), mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0} {
 
 }
 
-Resource::Resource( const Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0], obj.rpns_offsets[1], obj.rpns_offsets[2]}, size_of_code{obj.size_of_code[0], obj.size_of_code[1]} {
+Resource::Resource( const Resource &obj ) : header_p( nullptr ), data_p( nullptr ), mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0], obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]} {
     if( obj.header_p != nullptr )
         header_p = new Utilities::Buffer( *obj.header_p );
     
@@ -56,6 +56,18 @@ void Resource::setRPNSOffset( unsigned index, uint32_t value ) {
     this->rpns_offsets[index] = value;
 }
 
+uint32_t Resource::getCode( unsigned index ) const {
+    assert( index < CODE_AMOUNT );
+
+    return this->code_sizes[index];
+}
+
+void Resource::setCodeAmount( unsigned index, uint32_t amount ) {
+    assert( index < CODE_AMOUNT );
+
+    this->code_sizes[index] = amount;
+}
+
 std::string Resource::getFullName( unsigned int index ) const {
     std::string full_name = getFileExtension();
     full_name += "_";
@@ -72,24 +84,6 @@ std::string Resource::getFullName( unsigned int index ) const {
 
 Resource* Resource::genResourceByType( const Utilities::Buffer &header, const Utilities::Buffer &data ) const {
     return duplicate();
-}
-
-void Resource::processHeader( const ParseSettings &settings ) {
-    auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
-    warning_log.info << getFileExtension() << ": " << getResourceID() << " process header.\n";
-
-    auto reader = header_p->getReader();
-    
-    for(size_t i = 0; i < RPNS_OFFSET_AMOUNT; i++) {
-        this->rpns_offsets[i] = reader.readU32( settings.endian );
-    } // 0x0c
-
-
-    for(size_t i = 0; i < CODE_AMOUNT; i++) {
-        this->size_of_code[i] = reader.readU32( settings.endian );
-    } // 0x14
-
-    // The rest are bytes.
 }
 
 void Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {

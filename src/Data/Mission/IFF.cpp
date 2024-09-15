@@ -266,6 +266,8 @@ namespace {
         uint32_t offset;
         uint32_t iff_index;
         uint32_t resource_id;
+        uint32_t rpns_offsets[Data::Mission::Resource::RPNS_OFFSET_AMOUNT];
+        uint32_t code_sizes[Data::Mission::Resource::CODE_AMOUNT];
         Data::Mission::Resource::SWVREntry swvr_entry;
         Utilities::Buffer *header_p;
         Utilities::Buffer *data_p;
@@ -475,14 +477,21 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                                 resource_pool.back().data_p = new Utilities::Buffer();
 
-                                const auto RESOURCE_SIZE = block_chunk_reader.readU32( default_settings.endian );
+                                resource_pool.back().data_p->reserve( block_chunk_reader.readU32( default_settings.endian ) );
 
-                                resource_pool.back().data_p->reserve( RESOURCE_SIZE );
+                                // 0x1c
 
-                                block_chunk_reader.setPosition( 0x1c );
+                                for(size_t i = 0; i < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; i++) {
+                                    resource_pool.back().rpns_offsets[i] = block_chunk_reader.readU32( default_settings.endian );
+                                } // 0x28
+
+
+                                for(size_t i = 0; i < Data::Mission::Resource::CODE_AMOUNT; i++) {
+                                    resource_pool.back().code_sizes[i] = block_chunk_reader.readU32( default_settings.endian );
+                                } // 0x30
 
                                 resource_pool.back().header_p = new Utilities::Buffer();
-                                block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x1c );
+                                block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x30 );
                             }
                             else {
                                 error_in_read = true;
@@ -616,10 +625,15 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( id_to_resource_p[ i.type_enum ].size() );
             new_resource_p->setResourceID( i.resource_id );
+            for(size_t a = 0; a < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; a++) {
+                new_resource_p->setRPNSOffset(a, i.rpns_offsets[a]);
+            }
+            for(size_t a = 0; a < Data::Mission::Resource::CODE_AMOUNT; a++) {
+                new_resource_p->setCodeAmount(a, i.code_sizes[a]);
+            }
             new_resource_p->getSWVREntry() = i.swvr_entry;
 
             new_resource_p->setMemory( i.header_p, i.data_p );
-            new_resource_p->processHeader( default_settings );
             new_resource_p->parse( default_settings );
             
             // TODO Add option to discard memory once loaded.
