@@ -268,6 +268,7 @@ namespace {
         uint32_t resource_id;
         uint32_t rpns_offsets[Data::Mission::Resource::RPNS_OFFSET_AMOUNT];
         uint32_t code_sizes[Data::Mission::Resource::CODE_AMOUNT];
+        uint32_t header_size;
         Data::Mission::Resource::SWVREntry swvr_entry;
         Utilities::Buffer *data_p;
     };
@@ -474,9 +475,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                         << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
                                         << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
 
-                                resource_pool.back().data_p = new Utilities::Buffer();
-
-                                resource_pool.back().data_p->reserve( block_chunk_reader.readU32( default_settings.endian ) );
+                                const auto RESOURCE_SIZE = block_chunk_reader.readU32( default_settings.endian );
 
                                 // 0x1c
 
@@ -489,8 +488,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                     resource_pool.back().code_sizes[i] = block_chunk_reader.readU32( default_settings.endian );
                                 } // 0x30
 
-                                //resource_pool.back().header_p = new Utilities::Buffer();
-                                //block_chunk_reader.addToBuffer(*resource_pool.back().header_p, DATA_SIZE - 0x30 );
+                                resource_pool.back().header_size = block_chunk_reader.getPosition( Utilities::Buffer::Direction::END );
+
+                                resource_pool.back().data_p = new Utilities::Buffer();
+                                resource_pool.back().data_p->reserve( RESOURCE_SIZE + resource_pool.back().header_size );
+                                block_chunk_reader.addToBuffer(*resource_pool.back().data_p, resource_pool.back().header_size );
                             }
                             else {
                                 error_in_read = true;
@@ -616,10 +618,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             // If an element is found.
             if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( i.data_p->getReader() );
+                new_resource_p = (*file_type_it).second->genResourceByType( i.data_p->getReader( i.header_size ) );
             else // Default to generic resource.
                 new_resource_p = new UnkResource( i.type_enum, "unk" );
 
+            new_resource_p->setHeaderSize( i.header_size );
             new_resource_p->setOffset( i.offset );
             new_resource_p->setMisIndexNumber( i.iff_index );
             new_resource_p->setIndexNumber( id_to_resource_p[ i.type_enum ].size() );

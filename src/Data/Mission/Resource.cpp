@@ -14,16 +14,16 @@ Resource::ParseSettings::ParseSettings() :
 }
 
 Utilities::Buffer::Reader Resource::getDataReader() const {
-    return this->data->getReader( data_offset );
+    return this->data->getReader( this->header_size );
 }
 
-Resource::Resource() : mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0}, data_offset(0), data(nullptr) {
+Resource::Resource() : mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0}, header_size(0), data(nullptr) {
 }
 
 Resource::Resource( const Resource &obj ) :
     mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0],
     obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]},
-    data_offset(obj.data_offset), data(nullptr) {
+    header_size(obj.header_size), data(nullptr) {
 
     if(obj.data != nullptr) {
         data = std::make_unique<Utilities::Buffer>(*obj.data);

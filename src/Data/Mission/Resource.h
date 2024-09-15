@@ -58,7 +58,7 @@ private:
     SWVREntry swvr_entry;
 
 protected:
-    size_t data_offset;
+    size_t header_size;
     std::unique_ptr<Utilities::Buffer> data;
 
     Utilities::Buffer::Reader getDataReader() const;
@@ -79,6 +79,21 @@ public:
      * @note the behavior can be overriden by successors of this class.
      */
     virtual uint32_t getResourceTagID() const = 0;
+
+    /**
+     * Sets the header size of the file. To be used by loaders only.
+     * @warning this is very important to get right.
+     */
+    void setHeaderSize( size_t header_size ) {
+        this->header_size = header_size;
+    }
+
+    /**
+     * @return the header size.
+     */
+    size_t getHeaderSize() const {
+        return this->header_size;
+    }
 
     /**
      * This gets the SWVR entry.
