@@ -1,5 +1,6 @@
 #include "Resource.h"
 
+#include <cassert>
 #include <fstream>
 
 const Data::Mission::Resource::ParseSettings Data::Mission::Resource::DEFAULT_PARSE_SETTINGS = Data::Mission::Resource::ParseSettings();
@@ -40,6 +41,18 @@ bool Data::Mission::Resource::noResourceID() const {
     return false;
 }
 
+uint32_t Data::Mission::Resource::getRPNSOffset( unsigned index ) const {
+    assert( index < RPNS_OFFSET_AMOUNT );
+
+    return this->rpns_offsets[index];
+}
+
+void Data::Mission::Resource::setRPNSOffset( unsigned index, uint32_t value ) {
+    assert( index < RPNS_OFFSET_AMOUNT );
+
+    this->rpns_offsets[index] = value;
+}
+
 std::string Data::Mission::Resource::getFullName( unsigned int index ) const {
     std::string full_name = getFileExtension();
     full_name += "_";
@@ -64,9 +77,10 @@ void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
 
     auto reader = header_p->getReader();
     
-    auto unk_0  = reader.readU32( settings.endian ); // 0x00
-    auto unk_1  = reader.readU32( settings.endian ); // 0x04
-    auto unk_2  = reader.readU32( settings.endian ); // 0x08
+    this->rpns_offsets[0] = reader.readU32( settings.endian ); // 0x00
+    this->rpns_offsets[1] = reader.readU32( settings.endian ); // 0x04
+    this->rpns_offsets[2] = reader.readU32( settings.endian ); // 0x08
+
     auto unk_3  = reader.readU32( settings.endian ); // 0x0C
     auto unk_4  = reader.readU32( settings.endian ); // 0x10
     // For Mac and Windows these are the values.

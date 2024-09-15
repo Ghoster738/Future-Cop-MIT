@@ -17,6 +17,8 @@ namespace Mission {
 
 class Resource {
 public:
+    static constexpr size_t const RPNS_OFFSET_AMOUNT = 3;
+
     class ParseSettings {
     public:
         Utilities::Buffer::Endian endian;
@@ -59,6 +61,7 @@ private:
     
     // This data is contained within the tag.
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
+    uint32_t rpns_offsets[RPNS_OFFSET_AMOUNT];
 
     SWVREntry swvr_entry;
 
@@ -142,6 +145,7 @@ public:
 
     /**
      * Sets the offset in which this file starts. To be used by loaders only.
+     * @param offset the value of the offset which the resource is given.
      */
     void setOffset( size_t offset ) {
         this->offset = offset;
@@ -153,6 +157,20 @@ public:
     size_t getOffset() const {
         return this->offset;
     }
+
+    /**
+     * Get the RPNS Offset from the array.
+     * @param index The index of the array to retrieve.
+     * @return RPNSOffset of the array or crash if index is greater than arrays capacity.
+     */
+    uint32_t getRPNSOffset( unsigned index ) const;
+
+    /**
+     * Set the RPNS Offset from the array.
+     * @param index The index of the array to modify.
+     * @param value The value of the RPNSOffset
+     */
+    void setRPNSOffset( unsigned index, uint32_t value );
 
     /**
      * This gets the full name of this class.
