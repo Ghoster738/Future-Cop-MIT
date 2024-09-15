@@ -18,6 +18,7 @@ namespace Mission {
 class Resource {
 public:
     static constexpr size_t const RPNS_OFFSET_AMOUNT = 3;
+    static constexpr size_t const CODE_AMOUNT = 2;
 
     class ParseSettings {
     public:
@@ -62,6 +63,7 @@ private:
     // This data is contained within the tag.
     uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
     uint32_t rpns_offsets[RPNS_OFFSET_AMOUNT];
+    uint32_t size_of_code[CODE_AMOUNT];
 
     SWVREntry swvr_entry;
 

@@ -77,25 +77,16 @@ void Data::Mission::Resource::processHeader( const ParseSettings &settings ) {
 
     auto reader = header_p->getReader();
     
-    this->rpns_offsets[0] = reader.readU32( settings.endian ); // 0x00
-    this->rpns_offsets[1] = reader.readU32( settings.endian ); // 0x04
-    this->rpns_offsets[2] = reader.readU32( settings.endian ); // 0x08
+    for(size_t i = 0; i < RPNS_OFFSET_AMOUNT; i++) {
+        this->rpns_offsets[i] = reader.readU32( settings.endian );
+    } // 0x0c
 
-    auto unk_3  = reader.readU32( settings.endian ); // 0x0C
-    auto unk_4  = reader.readU32( settings.endian ); // 0x10
-    // For Mac and Windows these are the values.
-    if( !((unk_4 ==  1) || (unk_4 ==  2) || (unk_4 ==  3) || (unk_4 ==  4) || (unk_4 ==  5) || (unk_4 ==  6) || (unk_4 ==  7) ||
-          (unk_4 == 10) || (unk_4 == 11) || (unk_4 == 12) || (unk_4 == 13) || (unk_4 == 15) || (unk_4 == 19) || (unk_4 == 20) ||
-          (unk_4 == 21) || (unk_4 == 22) || (unk_4 == 23) || (unk_4 == 25) || (unk_4 == 31) || (unk_4 == 39) || (unk_4 == 43) ||
-          (unk_4 == 55)) )
-        warning_log.output << std::dec << "unk_4 is " << unk_4 << ".\n";
-    auto unk_5 = reader.readU8(); // 0x14
-    if( !((unk_5 == 0) || (unk_5 == 0x81) || (unk_5 == 0x82) || (unk_5 == 0x83) || (unk_5 == 0x89) || (unk_5 == 0x8a) ||
-          (unk_5 == 0x8b) || (unk_5 == 0x8c)) )
-        warning_log.output << std::dec << "unk_5 is " << unk_5 << ".\n";
-    auto unk_6 = reader.readU8(); // 0x16
-    // I gave up on unk_6 for this assertion test run.
-    // assert( (unk_6 == 0) || (unk_6 == 2) || (unk_6 == 16) || (unk_6 == 129) || (unk_6 == 130) || (unk_6 == 135) || (unk_6 == 151) || (unk_6 == 170) || (unk_6 == 207) );
+
+    for(size_t i = 0; i < CODE_AMOUNT; i++) {
+        this->size_of_code[i] = reader.readU32( settings.endian );
+    } // 0x14
+
+    // The rest are bytes.
 }
 
 void Data::Mission::Resource::setMemory( Utilities::Buffer *header_p, Utilities::Buffer *data_p ) {
