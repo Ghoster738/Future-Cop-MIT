@@ -17,12 +17,12 @@ Utilities::Buffer::Reader Resource::getDataReader() const {
     return this->data->getReader( this->header_size );
 }
 
-Resource::Resource() : mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0}, header_size(0), data(nullptr) {
+Resource::Resource() : mis_index_number( -1 ), index_number( -1 ), offset( 0 ), resource_id( 0 ), rpns_offsets{0, 0, 0}, code_sizes{0, 0}, header_size(0), data(nullptr), swvr_entry() {
 }
 
 Resource::Resource( const Resource &obj ) :
     mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0],
-    obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]},
+    obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]}, swvr_entry( obj.swvr_entry ),
     header_size(obj.header_size), data(nullptr) {
 
     if(obj.data != nullptr) {
@@ -55,7 +55,7 @@ void Resource::setRPNSOffset( unsigned index, uint32_t value ) {
     this->rpns_offsets[index] = value;
 }
 
-uint32_t Resource::getCode( unsigned index ) const {
+uint32_t Resource::getCodeAmount( unsigned index ) const {
     assert( index < CODE_AMOUNT );
 
     return this->code_sizes[index];

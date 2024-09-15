@@ -135,6 +135,10 @@ uint32_t Data::Mission::ANMResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+bool Data::Mission::ANMResource::noResourceID() const {
+    return true;
+}
+
 bool Data::Mission::ANMResource::parse( const ParseSettings &settings ) {
     auto debug_log = settings.logger_r->getLog( Utilities::Logger::DEBUG );
     debug_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";

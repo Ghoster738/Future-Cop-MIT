@@ -190,7 +190,7 @@ public:
      * @param index The index of the array to retrieve.
      * @return code count of the array or crash if index is greater than array's capacity.
      */
-    uint32_t getCode( unsigned index ) const;
+    uint32_t getCodeAmount( unsigned index ) const;
 
     /**
      * Set the code amount from the array.
