@@ -433,14 +433,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             if( DATA_SIZE >= 0x14 ) {
                                 resource_pool.push_back( ResourceType() );
 
-                                // These are the tag sizes to be expected.
-                                // Subtract them by 20 and we would get the header size.
-                                // The smallest DATA_SIZE is 52, and the biggest data size is 120.
-                                if( !((DATA_SIZE == 0x34) || (DATA_SIZE == 0x38) || (DATA_SIZE == 0x3c) || (DATA_SIZE == 0x40) ||
-                                      (DATA_SIZE == 0x48) || (DATA_SIZE == 0x4c) || (DATA_SIZE == 0x50) || (DATA_SIZE == 0x54) ||
-                                      (DATA_SIZE == 0x60) || (DATA_SIZE == 0x64) || (DATA_SIZE == 0x74) || (DATA_SIZE == 0x78)) )
-                                    warning_log.output << "ID: " << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF) << " RID: " << std::dec << resource_pool.back().resource_id << " CHUNK_SIZE has an unexpected size of 0x" << std::hex << CHUNK_SIZE << " at 0x" << file_offset << ".\n";
-
                                 const auto ENUM_NUMBER = block_chunk_reader.readU32( default_settings.endian );
 
                                 resource_pool.back().type_enum = block_chunk_reader.readU32( default_settings.endian );
