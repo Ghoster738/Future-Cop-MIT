@@ -93,15 +93,6 @@ namespace {
         { 0x43746474, new Data::Mission::UnkResource( 0x43746474, "tdt" ) },
         { 0x436d6963, new Data::Mission::UnkResource( 0x436d6963, "mic" ) }
     };
-    // TODO Find purpose of this code!
-    class AutoDelete {
-    public:
-        ~AutoDelete() {
-            for( auto &i : file_type_list ) {
-                delete i.second;
-            }
-        }
-    } auto_delete_file_type_list;
 
     std::map<uint32_t, uint32_t> pc_header_enum_numbers = {
         {0x43616374, 3}, // Cact
@@ -333,7 +324,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
         std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
         uint32_t rpns_size = 0xFFFFFFFF;
-        bool rpns_error_not_found = true;
 
         uint32_t block_index = 0;
 
