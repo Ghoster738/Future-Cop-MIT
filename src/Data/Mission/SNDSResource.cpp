@@ -19,6 +19,10 @@ uint32_t Data::Mission::SNDSResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
+bool Data::Mission::SNDSResource::noResourceID() const {
+    return true;
+}
+
 bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
     if( this->data != nullptr ) {
         auto reader = this->getDataReader();

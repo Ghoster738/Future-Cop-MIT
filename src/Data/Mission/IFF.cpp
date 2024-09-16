@@ -93,15 +93,6 @@ namespace {
         { 0x43746474, new Data::Mission::UnkResource( 0x43746474, "tdt" ) },
         { 0x436d6963, new Data::Mission::UnkResource( 0x436d6963, "mic" ) }
     };
-    // TODO Find purpose of this code!
-    class AutoDelete {
-    public:
-        ~AutoDelete() {
-            for( auto &i : file_type_list ) {
-                delete i.second;
-            }
-        }
-    } auto_delete_file_type_list;
 
     std::map<uint32_t, uint32_t> pc_header_enum_numbers = {
         {0x43616374, 3}, // Cact
@@ -261,17 +252,64 @@ std::string Data::Mission::IFF::getName() const {
 }
 
 namespace {
-    struct ResourceType {
-        uint32_t type_enum;
-        uint32_t offset;
-        uint32_t iff_index;
-        uint32_t resource_id;
-        uint32_t rpns_offsets[Data::Mission::Resource::RPNS_OFFSET_AMOUNT];
-        uint32_t code_sizes[Data::Mission::Resource::CODE_AMOUNT];
-        uint32_t header_size;
-        Data::Mission::Resource::SWVREntry swvr_entry;
-        Utilities::Buffer *data_p;
+    class UnidentifiedResource : public Data::Mission::UnkResource {
+    protected:
+        static const std::string ext;
+
+    public:
+        UnidentifiedResource() : Data::Mission::UnkResource( 0, ext ) {}
+
+        Data::Mission::Resource* newResource( const Data::Mission::Resource::ParseSettings &default_settings, std::unordered_set<std::string> &filenames, unsigned index_value, Utilities::Logger::Log& debug_log, Utilities::Logger::Log& error_log ) {
+            Resource *new_resource_p;
+
+            // Find a resource
+            auto file_type_it = file_type_list.find( this->getResourceTagID() );
+
+            // If an element is found.
+            if( file_type_it != file_type_list.end() )
+                new_resource_p = (*file_type_it).second->genResourceByType( data->getReader( this->header_size ) );
+            else // Default to generic resource.
+                new_resource_p = new UnkResource( this->getResourceTagID(), "unk" );
+
+            new_resource_p->setHeaderSize( this->header_size );
+            new_resource_p->setOffset( this->getOffset() );
+            new_resource_p->setMisIndexNumber( this->getMisIndexNumber() );
+            new_resource_p->setIndexNumber( index_value );
+            new_resource_p->setResourceID( this->getResourceID() );
+            for(size_t a = 0; a < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; a++) {
+                new_resource_p->setRPNSOffset(a, this->getRPNSOffset(a));
+            }
+            for(size_t a = 0; a < Data::Mission::Resource::CODE_AMOUNT; a++) {
+                new_resource_p->setCodeAmount(a, this->getCodeAmount(a));
+            }
+            new_resource_p->getSWVREntry() = this->getSWVREntry();
+
+            new_resource_p->setMemory( data.release() );
+
+            new_resource_p->parse( default_settings );
+
+            // TODO Add option to discard memory once loaded.
+            // new_resource_p->setMemory( nullptr );
+
+            // Check for naming conflicts
+            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
+
+            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
+
+            if( filenames.find( file_name ) != filenames.end() ) {
+                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
+                error_log.output << "Index \"" << new_resource_p->getIndexNumber() << "\".\n";
+            }
+
+            filenames.emplace( file_name );
+
+            return new_resource_p;
+        }
+
+        std::unique_ptr<Utilities::Buffer>& getDataReference() { return data; }
     };
+
+    const std::string UnidentifiedResource::ext = "unidentified";
 
     inline uint32_t chunkToDataSize( uint32_t chunk_size ) {
         auto TYPE_CHUNK_SIZE = sizeof( int32_t ) * 2;
@@ -318,7 +356,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer::Writer data_writer = data_buffer.getWriter();
         Utilities::Buffer::Reader data_reader = data_buffer.getReader();
 
-        std::vector<ResourceType> resource_pool;
+        UnidentifiedResource unidentified_resource;
+        size_t resources_amount = 0;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
 
@@ -329,7 +368,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
         std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
         uint32_t rpns_size = 0xFFFFFFFF;
-        bool rpns_error_not_found = true;
 
         uint32_t block_index = 0;
 
@@ -431,40 +469,45 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         if( CURRENT_TAG == SHDR_TAG ) {
 
                             if( DATA_SIZE >= 0x14 ) {
-                                resource_pool.push_back( ResourceType() );
+                                if( resources_amount != 0 ) {
+                                    addResource( unidentified_resource.newResource(default_settings, filenames, id_to_resource_p[ unidentified_resource.getResourceTagID() ].size(), debug_log, error_log ) );
+                                }
 
                                 const auto ENUM_NUMBER = block_chunk_reader.readU32( default_settings.endian );
 
-                                resource_pool.back().type_enum = block_chunk_reader.readU32( default_settings.endian );
-                                resource_pool.back().offset    = file_offset;
-                                resource_pool.back().iff_index = resource_pool.size() - 1;
-                                resource_pool.back().resource_id = block_chunk_reader.readU32( default_settings.endian );
-                                resource_pool.back().swvr_entry = swvr_entry;
+                                const auto TYPE_ENUM = block_chunk_reader.readU32( default_settings.endian );
 
-                                auto test_enum_number = header_enum_numbers_r->find(resource_pool.back().type_enum);
+                                unidentified_resource.setResourceTagID( TYPE_ENUM );
+                                unidentified_resource.setOffset( file_offset );
+                                unidentified_resource.setMisIndexNumber( resources_amount );
+                                resources_amount++;
+                                unidentified_resource.setResourceID( block_chunk_reader.readU32( default_settings.endian ) );
+                                unidentified_resource.getSWVREntry() = swvr_entry;
 
-                                if(test_enum_number == header_enum_numbers_r->end() && ps_header_enum_numbers.find(resource_pool.back().type_enum) != ps_header_enum_numbers.end()) {
-                                    test_enum_number = ps_header_enum_numbers.find(resource_pool.back().type_enum);
+                                auto test_enum_number = header_enum_numbers_r->find(TYPE_ENUM);
+
+                                if(test_enum_number == header_enum_numbers_r->end() && ps_header_enum_numbers.find(TYPE_ENUM) != ps_header_enum_numbers.end()) {
+                                    test_enum_number = ps_header_enum_numbers.find(TYPE_ENUM);
                                     header_enum_numbers_r = &ps_header_enum_numbers;
                                 }
 
                                 if(test_enum_number == header_enum_numbers_r->end()) {
                                     warning_log.output << "SHDR_TAG "
-                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
-                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << static_cast<char>((TYPE_ENUM >> 24) & 0xFF) << static_cast<char>((TYPE_ENUM >> 16) & 0xFF)
+                                        << static_cast<char>((TYPE_ENUM >>  8) & 0xFF) << static_cast<char>(TYPE_ENUM & 0xFF)
                                         << ": Enum Number Not Present in Table. ENUM_NUMBER = " << std::dec << ENUM_NUMBER << "\n";
                                 }
                                 else if((*test_enum_number).second != ENUM_NUMBER) {
                                     warning_log.output << "SHDR_TAG "
-                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
-                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << static_cast<char>((TYPE_ENUM >> 24) & 0xFF) << static_cast<char>((TYPE_ENUM >> 16) & 0xFF)
+                                        << static_cast<char>((TYPE_ENUM >>  8) & 0xFF) << static_cast<char>(TYPE_ENUM & 0xFF)
                                         << ": Expected ENUM_NUMBER " << std::dec << (*test_enum_number).second << ", but got " << ENUM_NUMBER << "\n";
                                 }
 
                                 if( METADATA != 0 )
                                     debug_log.output << "SHDR_TAG "
-                                        << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
-                                        << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
+                                        << static_cast<char>((TYPE_ENUM >> 24) & 0xFF) << static_cast<char>((TYPE_ENUM >> 16) & 0xFF)
+                                        << static_cast<char>((TYPE_ENUM >>  8) & 0xFF) << static_cast<char>(TYPE_ENUM & 0xFF)
                                         << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
 
                                 const auto RESOURCE_SIZE = block_chunk_reader.readU32( default_settings.endian );
@@ -472,19 +515,22 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 // 0x1c
 
                                 for(size_t i = 0; i < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; i++) {
-                                    resource_pool.back().rpns_offsets[i] = block_chunk_reader.readU32( default_settings.endian );
+                                    unidentified_resource.setRPNSOffset( i, block_chunk_reader.readU32( default_settings.endian ) );
                                 } // 0x28
 
 
                                 for(size_t i = 0; i < Data::Mission::Resource::CODE_AMOUNT; i++) {
-                                    resource_pool.back().code_sizes[i] = block_chunk_reader.readU32( default_settings.endian );
+                                    unidentified_resource.setCodeAmount( i, block_chunk_reader.readU32( default_settings.endian ) );
                                 } // 0x30
 
-                                resource_pool.back().header_size = block_chunk_reader.getPosition( Utilities::Buffer::Direction::END );
+                                unidentified_resource.setHeaderSize( block_chunk_reader.getPosition( Utilities::Buffer::Direction::END ) );
 
-                                resource_pool.back().data_p = new Utilities::Buffer();
-                                resource_pool.back().data_p->reserve( RESOURCE_SIZE + resource_pool.back().header_size );
-                                block_chunk_reader.addToBuffer(*resource_pool.back().data_p, resource_pool.back().header_size );
+                                unidentified_resource.getDataReference() = std::make_unique<Utilities::Buffer>();
+
+                                assert( unidentified_resource.getDataReference() != nullptr );
+
+                                unidentified_resource.getDataReference()->reserve( RESOURCE_SIZE + unidentified_resource.getHeaderSize() );
+                                block_chunk_reader.addToBuffer(*unidentified_resource.getDataReference(), unidentified_resource.getHeaderSize() );
                             }
                             else {
                                 error_in_read = true;
@@ -492,14 +538,17 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
                         }
                         else
-                        if( DATA_SIZE >= 0xc && !resource_pool.empty() && CURRENT_TAG == SDAT_TAG ) {
-                            if( METADATA != 0 )
-                                debug_log.output << "SHDR_TAG "
-                                    << static_cast<char>((resource_pool.back().type_enum >> 24) & 0xFF) << static_cast<char>((resource_pool.back().type_enum >> 16) & 0xFF)
-                                    << static_cast<char>((resource_pool.back().type_enum >>  8) & 0xFF) << static_cast<char>(resource_pool.back().type_enum & 0xFF)
-                                    << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
+                        if( DATA_SIZE >= 0xc && resources_amount != 0 && CURRENT_TAG == SDAT_TAG ) {
+                            if( METADATA != 0 ) {
+                                const auto TYPE_ENUM = unidentified_resource.getResourceTagID();
 
-                            block_chunk_reader.addToBuffer(*resource_pool.back().data_p, DATA_SIZE - 0xc );
+                                debug_log.output << "SHDR_TAG "
+                                    << static_cast<char>((TYPE_ENUM >> 24) & 0xFF) << static_cast<char>((TYPE_ENUM >> 16) & 0xFF)
+                                    << static_cast<char>((TYPE_ENUM >>  8) & 0xFF) << static_cast<char>(TYPE_ENUM & 0xFF)
+                                    << ": METADATA is " << std::dec << METADATA << " for 0x" << std::hex << file_offset << ".\n";
+                            }
+
+                            block_chunk_reader.addToBuffer(*unidentified_resource.getDataReference(), DATA_SIZE - 0xc );
                         }
                         else
                             error_log.output << "This SHOC chunk is either too small or has an invalid tag." << std::endl;
@@ -602,50 +651,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         file.close();
 
         // Now, every resource can be parsed.
-        for( auto &i : resource_pool ) {
-            Resource *new_resource_p;
-
-            // Find a resource
-            auto file_type_it = file_type_list.find( i.type_enum );
-
-            // If an element is found.
-            if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( i.data_p->getReader( i.header_size ) );
-            else // Default to generic resource.
-                new_resource_p = new UnkResource( i.type_enum, "unk" );
-
-            new_resource_p->setHeaderSize( i.header_size );
-            new_resource_p->setOffset( i.offset );
-            new_resource_p->setMisIndexNumber( i.iff_index );
-            new_resource_p->setIndexNumber( id_to_resource_p[ i.type_enum ].size() );
-            new_resource_p->setResourceID( i.resource_id );
-            for(size_t a = 0; a < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; a++) {
-                new_resource_p->setRPNSOffset(a, i.rpns_offsets[a]);
-            }
-            for(size_t a = 0; a < Data::Mission::Resource::CODE_AMOUNT; a++) {
-                new_resource_p->setCodeAmount(a, i.code_sizes[a]);
-            }
-            new_resource_p->getSWVREntry() = i.swvr_entry;
-
-            new_resource_p->setMemory( i.data_p );
-            new_resource_p->parse( default_settings );
-            
-            // TODO Add option to discard memory once loaded.
-            // new_resource_p->setMemory( nullptr );
-            
-            i.data_p = nullptr;
-            
-            // Check for naming conflicts
-            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
-            
-            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
-
-            if( filenames.find( file_name ) != filenames.end() )
-                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
-
-            filenames.emplace( file_name );
-
-            addResource( new_resource_p );
+        if( resources_amount != 0 ) {
+            addResource( unidentified_resource.newResource(default_settings, filenames, id_to_resource_p[ unidentified_resource.getResourceTagID() ].size(), debug_log, error_log ) );
         }
 
         // Then write the MISC file.

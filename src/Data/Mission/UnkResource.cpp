@@ -2,34 +2,32 @@
 
 Data::Mission::UnkResource::UnkResource( uint32_t identifier_tag, const std::string &file_extension, bool no_resource_id ) {
     setResourceTagID( identifier_tag );
-	setFileExtension( file_extension );
+    setFileExtension( file_extension );
     this->no_resource_id = no_resource_id;
 }
 
-Data::Mission::UnkResource::UnkResource( const Data::Mission::UnkResource &obj ) {
-    setResourceTagID( obj.identifier_tag );
-	setFileExtension( obj.file_extension );
-    this->no_resource_id = obj.no_resource_id;
-}
+Data::Mission::UnkResource::UnkResource( const Data::Mission::UnkResource &obj ) :
+    Resource( obj ), file_extension( obj.file_extension ), identifier_tag( obj.identifier_tag ), no_resource_id( obj.no_resource_id )
+{}
 
 void Data::Mission::UnkResource::setFileExtension( const std::string & file_extension ) {
-	this->file_extension = file_extension;
+    this->file_extension = file_extension;
 }
 
 std::string Data::Mission::UnkResource::getFileExtension() const {
-	return file_extension;
+    return this->file_extension;
 }
 
-void Data::Mission::UnkResource::setResourceTagID( uint32_t tagID ) {
-    identifier_tag = tagID;
+void Data::Mission::UnkResource::setResourceTagID( uint32_t tag_id ) {
+    this->identifier_tag = tag_id;
 }
 
 uint32_t Data::Mission::UnkResource::getResourceTagID() const {
-    return identifier_tag;
+    return this->identifier_tag;
 }
 
 bool Data::Mission::UnkResource::noResourceID() const {
-    return no_resource_id;
+    return this->no_resource_id;
 }
 
 bool Data::Mission::UnkResource::parse( const ParseSettings &settings ) {
