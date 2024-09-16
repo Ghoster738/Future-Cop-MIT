@@ -366,10 +366,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         uint32_t first_swvr_offset;
         Resource::SWVREntry swvr_entry;
 
-        swvr_entry.tos_offset = 0xfff;
-        swvr_entry.offset = 0;
-        swvr_entry.name = "NOT SUPPOSED";
-
         std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
         uint32_t rpns_size = 0xFFFFFFFF;
 

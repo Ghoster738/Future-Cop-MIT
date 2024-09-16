@@ -15,19 +15,19 @@ void Data::Mission::UnkResource::setFileExtension( const std::string & file_exte
 }
 
 std::string Data::Mission::UnkResource::getFileExtension() const {
-    return file_extension;
+    return this->file_extension;
 }
 
 void Data::Mission::UnkResource::setResourceTagID( uint32_t tag_id ) {
-    identifier_tag = tag_id;
+    this->identifier_tag = tag_id;
 }
 
 uint32_t Data::Mission::UnkResource::getResourceTagID() const {
-    return identifier_tag;
+    return this->identifier_tag;
 }
 
 bool Data::Mission::UnkResource::noResourceID() const {
-    return no_resource_id;
+    return this->no_resource_id;
 }
 
 bool Data::Mission::UnkResource::parse( const ParseSettings &settings ) {
