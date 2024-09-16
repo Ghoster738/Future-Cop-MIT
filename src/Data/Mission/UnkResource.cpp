@@ -6,11 +6,9 @@ Data::Mission::UnkResource::UnkResource( uint32_t identifier_tag, const std::str
     this->no_resource_id = no_resource_id;
 }
 
-Data::Mission::UnkResource::UnkResource( const Data::Mission::UnkResource &obj ) : Resource( obj ) {
-    setResourceTagID( obj.identifier_tag );
-    setFileExtension( obj.file_extension );
-    this->no_resource_id = obj.no_resource_id;
-}
+Data::Mission::UnkResource::UnkResource( const Data::Mission::UnkResource &obj ) :
+    Resource( obj ), file_extension( obj.file_extension ), identifier_tag( obj.identifier_tag ), no_resource_id( obj.no_resource_id )
+{}
 
 void Data::Mission::UnkResource::setFileExtension( const std::string & file_extension ) {
     this->file_extension = file_extension;

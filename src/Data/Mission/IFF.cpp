@@ -259,6 +259,53 @@ namespace {
     public:
         UnidentifiedResource() : Data::Mission::UnkResource( 0, ext ) {}
 
+        Data::Mission::Resource* newResource( const Data::Mission::Resource::ParseSettings &default_settings, std::unordered_set<std::string> &filenames, unsigned index_value, Utilities::Logger::Log& debug_log, Utilities::Logger::Log& error_log ) {
+            Resource *new_resource_p;
+
+            // Find a resource
+            auto file_type_it = file_type_list.find( this->getResourceTagID() );
+
+            // If an element is found.
+            if( file_type_it != file_type_list.end() )
+                new_resource_p = (*file_type_it).second->genResourceByType( data->getReader( this->header_size ) );
+            else // Default to generic resource.
+                new_resource_p = new UnkResource( this->getResourceTagID(), "unk" );
+
+            new_resource_p->setHeaderSize( this->header_size );
+            new_resource_p->setOffset( this->getOffset() );
+            new_resource_p->setMisIndexNumber( this->getMisIndexNumber() );
+            new_resource_p->setIndexNumber( index_value );
+            new_resource_p->setResourceID( this->getResourceID() );
+            for(size_t a = 0; a < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; a++) {
+                new_resource_p->setRPNSOffset(a, this->getRPNSOffset(a));
+            }
+            for(size_t a = 0; a < Data::Mission::Resource::CODE_AMOUNT; a++) {
+                new_resource_p->setCodeAmount(a, this->getCodeAmount(a));
+            }
+            new_resource_p->getSWVREntry() = this->getSWVREntry();
+
+            new_resource_p->setMemory( data.release() );
+
+            new_resource_p->parse( default_settings );
+
+            // TODO Add option to discard memory once loaded.
+            // new_resource_p->setMemory( nullptr );
+
+            // Check for naming conflicts
+            const std::string file_name = new_resource_p->getFullName( this->getResourceID() );
+
+            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
+
+            if( filenames.find( file_name ) != filenames.end() ) {
+                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
+                error_log.output << "Index \"" << new_resource_p->getIndexNumber() << "\".\n";
+            }
+
+            filenames.emplace( file_name );
+
+            return new_resource_p;
+        }
+
         std::unique_ptr<Utilities::Buffer>& getDataReference() { return data; }
     };
 
@@ -605,50 +652,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
         // Now, every resource can be parsed.
         for( auto &i : resource_pool ) {
-            Resource *new_resource_p;
-
-            // Find a resource
-            auto file_type_it = file_type_list.find( i.getResourceTagID() );
-
-            // If an element is found.
-            if( file_type_it != file_type_list.end() )
-                new_resource_p = (*file_type_it).second->genResourceByType( i.getDataReference()->getReader( i.getHeaderSize() ) );
-            else // Default to generic resource.
-                new_resource_p = new UnkResource( i.getResourceTagID(), "unk" );
-
-            new_resource_p->setHeaderSize( i.getHeaderSize() );
-            new_resource_p->setOffset( i.getOffset() );
-            new_resource_p->setMisIndexNumber( i.getMisIndexNumber() );
-            new_resource_p->setIndexNumber( id_to_resource_p[ i.getResourceTagID() ].size() );
-            new_resource_p->setResourceID( i.getResourceID() );
-            for(size_t a = 0; a < Data::Mission::Resource::RPNS_OFFSET_AMOUNT; a++) {
-                new_resource_p->setRPNSOffset(a, i.getRPNSOffset(a));
-            }
-            for(size_t a = 0; a < Data::Mission::Resource::CODE_AMOUNT; a++) {
-                new_resource_p->setCodeAmount(a, i.getCodeAmount(a));
-            }
-            new_resource_p->getSWVREntry() = i.getSWVREntry();
-
-            new_resource_p->setMemory( i.getDataReference().release() );
-
-            new_resource_p->parse( default_settings );
-            
-            // TODO Add option to discard memory once loaded.
-            // new_resource_p->setMemory( nullptr );
-            
-            // Check for naming conflicts
-            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
-            
-            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
-
-            if( filenames.find( file_name ) != filenames.end() ) {
-                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
-                error_log.output << "Index \"" << new_resource_p->getIndexNumber() << "\".\n";
-            }
-
-            filenames.emplace( file_name );
-
-            addResource( new_resource_p );
+            addResource( i.newResource(default_settings, filenames, id_to_resource_p[ i.getResourceTagID() ].size(), debug_log, error_log ) );
         }
 
         // Then write the MISC file.
