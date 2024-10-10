@@ -393,7 +393,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     default_settings.endian = Utilities::Buffer::Endian::BIG;
                 }
 
-                const int32_t CHUNK_SIZE = data_reader.readI32( default_settings.endian );
+                const int32_t  CHUNK_SIZE    = data_reader.readI32( default_settings.endian );
+                const uint32_t ZERO          = data_reader.readU32( default_settings.endian );
+                const uint32_t SIZE_OF_MUSIC = data_reader.readU32( default_settings.endian );
+                const uint32_t SIZE_OF_SWVR  = data_reader.readU32( default_settings.endian );
+                const uint32_t SIZE_OF_DATA  = data_reader.readU32( default_settings.endian );
+
+                assert(ZERO == 0);
 
                 data_reader.setPosition( CHUNK_SIZE );
 
