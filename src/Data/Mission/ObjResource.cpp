@@ -141,7 +141,14 @@ glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) 
             break;
     }
 
-    color.a = max_number;
+    if(material.uses_texture || !material.polygon_color_transparent)
+        color.a = max_number;
+    else {
+        color.a = std::max(color.r, std::max(color.g, color.b));
+
+        if(material.visability != VisabilityMode::ADDITION)
+            color.a /= 2;
+    }
 
     return color;
 }
@@ -1409,92 +1416,108 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     bool            normal_shadows;
                     VisabilityMode  visability_mode;
                     VertexColorMode vertex_color_mode;
+                    bool            vertex_color_semi;
 
                     switch( bitfield ) {
                         case 0b0000:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0001:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0010:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
                             break;
                         case 0b0011:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b0100:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0101:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0110:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
                             break;
                         case 0b0111:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b1000:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b1001:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b1010:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
                             break;
                         case 0b1011:
                             normal_shadows    = true;
-                            visability_mode   = VisabilityMode::OPAQUE;
+                            if(is_texture == true)
+                                visability_mode = VisabilityMode::OPAQUE;
+                            else
+                                visability_mode = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b1100:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::ADDITION;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b1101:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::ADDITION;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b1110:
-                            normal_shadows    = false;
-                            visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::BLACK;
-                            break;
                         case 0b1111:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::BLACK;
+                            vertex_color_semi = false;
                             break;
                         default:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
                             break;
                     }
 
@@ -1512,12 +1535,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.face_type_r                 = nullptr;
                     primitive.vertex_color_override_index = 0;
 
-                    primitive.visual.uses_texture       = is_texture;
-                    primitive.visual.normal_shading     = normal_shadows;
-                    primitive.visual.polygon_color_type = vertex_color_mode;
-                    primitive.visual.visability         = visability_mode;
-                    primitive.visual.is_reflective      = is_reflect;
-                    primitive.visual.is_color_fade      = false;
+                    primitive.visual.uses_texture              = is_texture;
+                    primitive.visual.normal_shading            = normal_shadows;
+                    primitive.visual.polygon_color_transparent = vertex_color_semi;
+                    primitive.visual.polygon_color_type        = vertex_color_mode;
+                    primitive.visual.visability                = visability_mode;
+                    primitive.visual.is_reflective             = is_reflect;
+                    primitive.visual.is_color_fade             = false;
                     
                     primitive.v[0] = reader3DQL.readU8();
                     primitive.v[1] = reader3DQL.readU8();

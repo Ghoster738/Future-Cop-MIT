@@ -41,17 +41,18 @@ public:
         LINE           = 7
     };
     struct Material {
-        uint8_t uses_texture:       1; // Does the face use a texture or not?
-        uint8_t normal_shading:     1;
-        uint8_t polygon_color_type: 2; // Please see enum VertexColorMode
-        uint8_t visability:         2; // Please see enum VisabilityMode
-        uint8_t is_reflective:      1;
-        uint8_t is_color_fade:      1; // Only circles use this kind of value.
+        uint8_t uses_texture:              1; // Does the face use a texture or not?
+        uint8_t normal_shading:            1;
+        uint8_t polygon_color_transparent: 1;
+        uint8_t polygon_color_type:        2; // Please see enum VertexColorMode
+        uint8_t visability:                2; // Please see enum VisabilityMode
+        uint8_t is_reflective:             1;
+        uint8_t is_color_fade:             1; // Only circles use this kind of value.
 
-        Material() : uses_texture(0), normal_shading(0), polygon_color_type(0), visability(0), is_reflective(0), is_color_fade(0)
+        Material() : uses_texture(0), normal_shading(0), polygon_color_transparent(0), polygon_color_type(0), visability(0), is_reflective(0), is_color_fade(0)
         {}
 
-        Material(const Material& m) : uses_texture(m.uses_texture), normal_shading(m.normal_shading), polygon_color_type(m.polygon_color_type), visability(m.visability), is_reflective(m.is_reflective), is_color_fade(m.is_color_fade)
+        Material(const Material& m) : uses_texture(m.uses_texture), normal_shading(m.normal_shading), polygon_color_transparent(m.polygon_color_transparent), polygon_color_type(m.polygon_color_type), visability(m.visability), is_reflective(m.is_reflective), is_color_fade(m.is_color_fade)
         {}
     };
     struct FaceOverrideType {
