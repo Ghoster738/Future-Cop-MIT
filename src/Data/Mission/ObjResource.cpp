@@ -123,22 +123,22 @@ glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) 
 
     const uint_fast16_t max_number = 0xFF;
 
-    if( material.polygon_color_type == VertexColorMode::FULL ) {
-        if( material.visability == ADDITION) {
+    switch(material.polygon_color_type) {
+        case VertexColorMode::FULL:
             color.r = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
             color.g = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
             color.b = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
-        }
-        else {
+            break;
+        case VertexColorMode::MONOCHROME:
             color.r = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
-            color.g = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
-            color.b = 0;
-        }
-    }
-    else {
-        color.r = max_number;
-        color.g = max_number;
-        color.b = max_number;
+            color.g = color.r;
+            color.b = color.r;
+            break;
+        case VertexColorMode::BLACK:
+            color.r = 0;
+            color.g = color.r;
+            color.b = color.r;
+            break;
     }
 
     color.a = max_number;
@@ -1406,40 +1406,42 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     const uint8_t un_array_amount =  (opcode_0 & 0x07);
                     const uint8_t bitfield        =  (opcode_0 & 0x78) >> 3;
 
-                    bool            normal_shadows = false;
-                    VisabilityMode  visability_mode = VisabilityMode::OPAQUE;
-                    VertexColorMode vertex_color_mode = VertexColorMode::NON;
+                    bool            normal_shadows;
+                    VisabilityMode  visability_mode;
+                    VertexColorMode vertex_color_mode;
 
                     switch( bitfield ) {
                         case 0b0000:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
                             break;
                         case 0b0001:
-                        case 0b0011:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
                             break;
                         case 0b0010:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            break;
+                        case 0b0011:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::FULL;
                             break;
                         case 0b0100:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
                             break;
                         case 0b0101:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
                             break;
                         case 0b0110:
-                        case 0b1010:
-                        case 0b1011:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::FULL;
@@ -1452,25 +1454,49 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                         case 0b1000:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
                             break;
                         case 0b1001:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            break;
+                        case 0b1010:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            break;
+                        case 0b1011:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            break;
+                        case 0b1100:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::ADDITION;
+                            vertex_color_mode = VertexColorMode::FULL;
                             break;
                         case 0b1101:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::ADDITION;
                             vertex_color_mode = VertexColorMode::FULL;
                             break;
-                        default: // Nothing
+                        case 0b1110:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::BLACK;
+                            break;
+                        case 0b1111:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::BLACK;
+                            break;
+                        default:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::FULL;
                             break;
                     }
-
-                    // TODO Remove this workaround
-                    if(visability_mode != VisabilityMode::ADDITION)
-                        vertex_color_mode = VertexColorMode::NON;
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
                     const uint16_t un_unk   =  (opcode_1 & 0x78) >> 3;

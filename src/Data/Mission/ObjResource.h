@@ -23,9 +23,9 @@ public:
     static const float ANGLE_UNIT;
 
     enum VertexColorMode {
-        NON = 0,
+        BLACK      = 0,
         MONOCHROME = 1,
-        FULL = 2
+        FULL       = 2
     };
     enum VisabilityMode {
         OPAQUE   = 0,
