@@ -1717,7 +1717,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
 
                 if(tag_size != 0x14)
-                    info_log.output << "3DAL is an extended format.\n";
+                    debug_log.output << "3DAL is an extended format.\n";
 
                 if(tag_size < 0x14)
                     error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
