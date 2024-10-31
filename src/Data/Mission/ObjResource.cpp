@@ -1717,27 +1717,32 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
 
                 if(tag_size != 0x14)
-                    warning_log.output << "3DAL size is unusual.\n";
+                    info_log.output << "3DAL is an extended format.\n";
 
                 if(tag_size < 0x14)
                     error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
                 else {
-                    auto count = reader3DAL.readU32( settings.endian );
+                    auto unused = reader3DAL.readU32( settings.endian );
 
-                    if(count != 1)
-                        warning_log.output << "3DAL count = " << std::dec << count << ".\n";
+                    if(unused != 1)
+                        warning_log.output << "3DAL unused = " << std::dec << unused << ".\n";
 
                     // 3DAL is almost like 3DTA
-                    face_color_overrides.push_back(VertexColorOverride());
 
-                    face_color_overrides.back().face_index = reader3DAL.readU8(); // 3DQL index to primative type star
-                    face_color_overrides.back().speed_factor = 2.0f * (0.0757594 * reader3DAL.readU8() + 0.0520309);
-                    face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[1].r = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[1].g = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[1].b = reader3DAL.readU8() * (1. / 256.);
+                    size_t count = (tag_size - 2 * sizeof(uint32_t)) / (8 * sizeof(uint8_t));
+
+                    for(size_t i = 0; i < count; i++) {
+                        face_color_overrides.push_back(VertexColorOverride());
+
+                        face_color_overrides.back().face_index = reader3DAL.readU8(); // 3DQL index to primative type star
+                        face_color_overrides.back().speed_factor = 2.0f * (0.0757594 * reader3DAL.readU8() + 0.0520309);
+                        face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[1].r = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[1].g = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[1].b = reader3DAL.readU8() * (1. / 256.);
+                    }
                 }
             }
             else
