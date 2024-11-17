@@ -33,12 +33,13 @@ public:
         MIX      = 2
     };
     enum PrimitiveType {
-        STAR           = 0,
-        TRIANGLE_OTHER = 2,
-        TRIANGLE       = 3,
-        QUAD           = 4,
-        BILLBOARD      = 5,
-        LINE           = 7
+        STAR            = 0,
+        TRIANGLE_QUAD_0 = 1,
+        TRIANGLE_QUAD_1 = 2,
+        TRIANGLE        = 3,
+        QUAD            = 4,
+        BILLBOARD       = 5,
+        LINE            = 7
     };
     struct Material {
         uint8_t uses_texture:              1; // Does the face use a texture or not?

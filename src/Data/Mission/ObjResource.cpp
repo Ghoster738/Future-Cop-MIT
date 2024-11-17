@@ -41,7 +41,7 @@ namespace {
     // 3D bounding box
     const uint32_t TAG_3DBB = 0x33444242; // which is { 0x33, 0x44, 0x42, 0x42 } or { '3', 'D', 'B', 'B' } or "3DBB"
 
-    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
+    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 3}, {2, 3, 1}};
 
     void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords, int16_t *face_override_index )
     {
@@ -58,33 +58,35 @@ namespace {
             face_override_index[2] = 0;
         }
         else
-        if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
-            coords[0] = texture_quad.coords[QUAD_TABLE[0][0]];
-            coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
-            coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
+            uint8_t textureCoords[3];
+
+            switch(triangle.type) {
+                case Data::Mission::ObjResource::PrimitiveType::TRIANGLE_QUAD_0:
+                    textureCoords[0] = QUAD_TABLE[0][0];
+                    textureCoords[1] = QUAD_TABLE[0][1];
+                    textureCoords[2] = QUAD_TABLE[0][2];
+                    break;
+                case Data::Mission::ObjResource::PrimitiveType::TRIANGLE_QUAD_1:
+                    textureCoords[0] = QUAD_TABLE[1][0];
+                    textureCoords[1] = QUAD_TABLE[1][1];
+                    textureCoords[2] = QUAD_TABLE[1][2];
+                    break;
+                default:
+                    textureCoords[0] = 0;
+                    textureCoords[1] = 1;
+                    textureCoords[2] = 2;
+                    break;
+            }
+
+            coords[0] = texture_quad.coords[textureCoords[0]];
+            coords[1] = texture_quad.coords[textureCoords[1]];
+            coords[2] = texture_quad.coords[textureCoords[2]];
 
             if(texture_quad.face_override_index != 0) {
-                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][0] + 1;
-                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][1] + 1;
-                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][2] + 1;
-            }
-            else {
-                face_override_index[0] = 0;
-                face_override_index[1] = 0;
-                face_override_index[2] = 0;
-            }
-        }
-        else
-        {
-            coords[0] = texture_quad.coords[QUAD_TABLE[1][0]];
-            coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
-            coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
-
-            if(texture_quad.face_override_index != 0) {
-                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][0] + 1;
-                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][1] + 1;
-                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + textureCoords[0] + 1;
+                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + textureCoords[1] + 1;
+                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + textureCoords[2] + 1;
             }
             else {
                 face_override_index[0] = 0;
@@ -543,7 +545,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
 }
 
 int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
-    const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
+    const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE_QUAD_0, PrimitiveType::TRIANGLE_QUAD_1};
 
     Primitive new_tri;
 
@@ -1018,7 +1020,8 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
         case PrimitiveType::STAR:
             return 48;
         case PrimitiveType::TRIANGLE:
-        case PrimitiveType::TRIANGLE_OTHER:
+        case PrimitiveType::TRIANGLE_QUAD_0:
+        case PrimitiveType::TRIANGLE_QUAD_1:
             return 1;
         case PrimitiveType::QUAD:
             return 2;
@@ -2498,8 +2501,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                     if(allowed_primitives.star)
                         primitive_buffer.push_back( (*i) );
                     break;
-                case PrimitiveType::TRIANGLE_OTHER:
                 case PrimitiveType::TRIANGLE:
+                case PrimitiveType::TRIANGLE_QUAD_0:
+                case PrimitiveType::TRIANGLE_QUAD_1:
                     if(allowed_primitives.triangle)
                         primitive_buffer.push_back( (*i) );
                     break;
