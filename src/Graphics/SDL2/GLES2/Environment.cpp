@@ -168,7 +168,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         this->world_p = new Internal::World();
 
         // Setup the vertex and fragment shaders
-        this->world_p->setVertexShader();
+        this->world_p->setVertexShader(map_sections);
         this->world_p->setFragmentShader();
         this->world_p->compileProgram();
 

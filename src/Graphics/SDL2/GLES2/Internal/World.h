@@ -110,13 +110,13 @@ public:
      * This is to be used for internal shaders.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    void setVertexShader( const std::basic_string<GLchar>& shader_source = getDefaultVertexShader() );
+    void setVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources = {}, const std::basic_string<GLchar>& shader_source = getDefaultVertexShader() );
 
     /**
      * This loads a shader from a text file, and compiles it.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    int loadVertexShader( const char *const file_path );
+    int loadVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources, const char *const file_path );
 
     /**
      * This sets up and compiles this shader from memory.

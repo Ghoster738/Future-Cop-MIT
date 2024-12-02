@@ -7,6 +7,24 @@
 #include "SDL.h"
 #include <iostream>
 
+namespace {
+    std::basic_string<GLchar> genPreambleFrameAmount(const std::vector<const Data::Mission::TilResource*> &til_resources) {
+        std::basic_string<GLchar> ANIMATED_UV_FRAME_AMOUNT = "const int ANIMATED_UV_FRAME_AMOUNT = ";
+
+        size_t frame_amount = 1;
+
+        for( auto i = til_resources.begin(); i != til_resources.end(); i++ ) {
+            frame_amount = std::max<size_t>(frame_amount, (*i)->getInfoSCTA().size());
+        }
+
+        ANIMATED_UV_FRAME_AMOUNT += std::to_string(frame_amount);
+
+        ANIMATED_UV_FRAME_AMOUNT += ";\n";
+
+        return ANIMATED_UV_FRAME_AMOUNT;
+    }
+}
+
 void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
     const glm::vec4 frag_inv = glm::vec4( 1, 1, 1, 1 );
     double unused;
@@ -64,7 +82,6 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
 }
 
 const std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
-    "const int ANIMATED_UV_FRAME_AMOUNT = 16;\n"
     "const int QUAD_VERTEX_AMOUNT = 4;\n"
     "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
 
@@ -145,12 +162,16 @@ const std::basic_string<GLchar>& Graphics::SDL2::GLES2::Internal::World::getDefa
     return default_fragment_shader;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const std::basic_string<GLchar>& shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
+void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources, const std::basic_string<GLchar>& shader_source ) {
+    std::basic_string<GLchar> preamble = genPreambleFrameAmount(til_resources);
+
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings, preamble );
 }
 
-int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const file_path ) {
-    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path, attributes, varyings );
+int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources, const char *const file_path ) {
+    std::basic_string<GLchar> preamble = genPreambleFrameAmount(til_resources);
+
+    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path, attributes, varyings, preamble );
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const std::basic_string<GLchar>& shader_source ) {
