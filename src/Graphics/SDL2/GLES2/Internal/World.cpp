@@ -63,7 +63,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
     }
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
+const std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "const int ANIMATED_UV_FRAME_AMOUNT = 16;\n"
     "const int QUAD_VERTEX_AMOUNT = 4;\n"
     "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
@@ -102,7 +102,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   gl_Position = Transform * full_position;\n"
     "}\n";
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
+const std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "uniform sampler2D Texture;\n"
 
     "void main() {\n"
@@ -137,15 +137,15 @@ Graphics::SDL2::GLES2::Internal::World::~World() {
         delete vertex_animation_p;
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
+const std::basic_string<GLchar>& Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
     return default_vertex_shader;
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader() {
+const std::basic_string<GLchar>& Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader() {
     return default_fragment_shader;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *const shader_source ) {
+void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const std::basic_string<GLchar>& shader_source ) {
     vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
 }
 
@@ -153,7 +153,7 @@ int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const 
     return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path, attributes, varyings );
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const GLchar *const shader_source ) {
+void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const std::basic_string<GLchar>& shader_source ) {
     fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings );
 }
 

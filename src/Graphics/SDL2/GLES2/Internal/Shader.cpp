@@ -84,7 +84,7 @@ Graphics::SDL2::GLES2::Internal::Shader::Varying::Varying( PRECISION param_preci
 Graphics::SDL2::GLES2::Internal::Shader::Shader() : shader_type( EMPTY ), shader_id( 0 ) {
 }
 
-Graphics::SDL2::GLES2::Internal::Shader::Shader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes_param, std::vector<Varying> varyings_param ) :
+Graphics::SDL2::GLES2::Internal::Shader::Shader( TYPE type, const std::basic_string<GLchar>& shader_source, std::vector<Attribute> attributes_param, std::vector<Varying> varyings_param ) :
         shader_type( EMPTY ), // Set these values to the defaults just in case.
         shader_id( 0 )
 {
@@ -96,7 +96,7 @@ Graphics::SDL2::GLES2::Internal::Shader::~Shader() {
     deallocate();
 }
 
-void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar *const primary_shader_source, std::vector<Attribute> attributes, std::vector<Varying> varyings ) {
+void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const std::basic_string<GLchar>& primary_shader_source, std::vector<Attribute> attributes, std::vector<Varying> varyings ) {
     int opengl_profile;
     
     GLchar glsl_es2_version[] = "#version 100\nprecision mediump float;\n";

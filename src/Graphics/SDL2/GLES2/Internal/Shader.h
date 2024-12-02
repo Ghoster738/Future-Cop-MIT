@@ -76,7 +76,7 @@ public:
      * @param attributes These are the attributes.
      * @param varyings These are the varyings.
      */
-    Shader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
+    Shader( TYPE type, const std::basic_string<GLchar> &shader_source, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
 
     /**
      * This calls deallocate() in which it sets this Shader to an Empty state, and calls OpenGLES to delete this very shader.
@@ -91,12 +91,12 @@ public:
      * @param attributes These are the attributes.
      * @param varyings These are the varyings.
      */
-    void setShader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
+    void setShader( TYPE type, const std::basic_string<GLchar> &shader_source, std::vector<Attribute> attributes = {}, std::vector<Varying> varyings = {} );
 
     /**
      * This loads a shader from a text file, and compiles it.
      * @param type This holds the type of the Shader. If this has the value of EMPTY then this method does load the text file into memory, but it does nothing with it.
-     * @param shader_source The memory pointer to the source code of the shader.
+     * @param file_path The path to the shader.
      * @param attributes These are the attributes.
      * @param varyings These are the varyings.
      */
