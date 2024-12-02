@@ -138,6 +138,7 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const std::b
             }
         }
         
+        this->generated_shader += shader_preamble;
         this->generated_shader += primary_shader_source;
         
         address_generated_shader_r = generated_shader.c_str();
@@ -165,7 +166,7 @@ int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *
         shader_file.read( shader_buffer, FILE_SIZE );
 
         // Set this shader with the shader buffer.
-        setShader( type, shader_buffer, attributes, varyings );
+        setShader( type, shader_buffer, attributes, varyings, shader_preamble );
 
         // DO NOT FORGET TO DELETE THE BUFFFER WHEN DONE.
         delete [] shader_buffer;
