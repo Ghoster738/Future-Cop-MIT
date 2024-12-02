@@ -150,7 +150,7 @@ void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *cons
 }
 
 int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const file_path ) {
-    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path );
+    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path, attributes, varyings );
 }
 
 void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const GLchar *const shader_source ) {
@@ -158,7 +158,7 @@ void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const GLchar *co
 }
 
 int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *const file_path ) {
-    return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
+    return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path, {}, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
