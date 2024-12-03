@@ -7,6 +7,24 @@
 #include "SDL.h"
 #include <iostream>
 
+namespace {
+    std::basic_string<GLchar> genPreambleFrameAmount(const std::vector<const Data::Mission::TilResource*> &til_resources) {
+        std::basic_string<GLchar> ANIMATED_UV_FRAME_AMOUNT = "const int ANIMATED_UV_FRAME_AMOUNT = ";
+
+        size_t frame_amount = 1;
+
+        for( auto i = til_resources.begin(); i != til_resources.end(); i++ ) {
+            frame_amount = std::max<size_t>(frame_amount, (*i)->getInfoSCTA().size());
+        }
+
+        ANIMATED_UV_FRAME_AMOUNT += std::to_string(frame_amount);
+
+        ANIMATED_UV_FRAME_AMOUNT += ";\n";
+
+        return ANIMATED_UV_FRAME_AMOUNT;
+    }
+}
+
 void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( const std::vector<DynamicTriangleDraw::Triangle> &triangles, DynamicTriangleDraw::DrawCommand &triangles_draw ) const {
     const glm::vec4 frag_inv = glm::vec4( 1, 1, 1, 1 );
     double unused;
@@ -63,8 +81,7 @@ void Graphics::SDL2::GLES2::Internal::World::MeshDraw::Animation::addTriangles( 
     }
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
-    "const int ANIMATED_UV_FRAME_AMOUNT = 16;\n"
+const std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "const int QUAD_VERTEX_AMOUNT = 4;\n"
     "const int ANIMATED_UV_FRAME_VEC_AMOUNT = ANIMATED_UV_FRAME_AMOUNT * QUAD_VERTEX_AMOUNT;\n"
 
@@ -102,7 +119,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::World::default_vertex_shader =
     "   gl_Position = Transform * full_position;\n"
     "}\n";
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
+const std::basic_string<GLchar> Graphics::SDL2::GLES2::Internal::World::default_fragment_shader =
     "uniform sampler2D Texture;\n"
 
     "void main() {\n"
@@ -137,28 +154,32 @@ Graphics::SDL2::GLES2::Internal::World::~World() {
         delete vertex_animation_p;
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
+const std::basic_string<GLchar>& Graphics::SDL2::GLES2::Internal::World::getDefaultVertexShader() {
     return default_vertex_shader;
 }
 
-const GLchar* Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader() {
+const std::basic_string<GLchar>& Graphics::SDL2::GLES2::Internal::World::getDefaultFragmentShader() {
     return default_fragment_shader;
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
+void Graphics::SDL2::GLES2::Internal::World::setVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources, const std::basic_string<GLchar>& shader_source ) {
+    std::basic_string<GLchar> preamble = genPreambleFrameAmount(til_resources);
+
+    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings, preamble );
 }
 
-int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const char *const file_path ) {
-    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path );
+int Graphics::SDL2::GLES2::Internal::World::loadVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources, const char *const file_path ) {
+    std::basic_string<GLchar> preamble = genPreambleFrameAmount(til_resources);
+
+    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path, attributes, varyings, preamble );
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const GLchar *const shader_source ) {
+void Graphics::SDL2::GLES2::Internal::World::setFragmentShader( const std::basic_string<GLchar>& shader_source ) {
     fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::World::loadFragmentShader( const char *const file_path ) {
-    return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
+    return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path, {}, varyings );
 }
 
 int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
@@ -215,28 +236,28 @@ int Graphics::SDL2::GLES2::Internal::World::compileProgram() {
     }
 }
 
-void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, std::vector<const Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
-    tiles.resize( resources_til.size() );
+void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<const Data::Mission::TilResource*> &til_resources, const std::map<uint32_t, Internal::Texture2D*>& textures ) {
+    tiles.resize( til_resources.size() );
 
     std::map<uint32_t, uint32_t> resource_id_index;
 
-    for( auto i = resources_til.begin(); i != resources_til.end(); i++ ) {
-        resource_id_index[(*i)->getResourceID()] = i - resources_til.begin();
+    for( auto i = til_resources.begin(); i != til_resources.end(); i++ ) {
+        resource_id_index[(*i)->getResourceID()] = i - til_resources.begin();
     }
 
     // Set up the primary tiles. O(n)
     for( auto i = tiles.begin(); i != tiles.end(); i++ ) {
-        const Data::Mission::TilResource *data = resources_til[ i - tiles.begin() ];
-        auto model_p = data->createCulledModel();
+        const Data::Mission::TilResource *data_p = til_resources[ i - tiles.begin() ];
+        auto model_p = data_p->createCulledModel();
 
         assert( model_p != nullptr );
 
         (*i).mesh_p = new Graphics::SDL2::GLES2::Internal::Mesh( &program );
-        (*i).til_resource_r = data;
+        (*i).til_resource_r = data_p;
         (*i).change_rate = -1.0;
         (*i).current = 0.0;
 
-        (*i).displacement_uv_factor = data->getUVAnimation();
+        (*i).displacement_uv_factor = data_p->getUVAnimation();
         (*i).displacement_uv_destination = glm::vec2( 0, 0 );
         (*i).displacement_uv_time = glm::vec2( 0, 0 );
 
@@ -259,7 +280,7 @@ void Graphics::SDL2::GLES2::Internal::World::setWorld( const Data::Mission::PTCR
             }
         }
 
-        (*i).animation_slfx.setInfo( data->getInfoSLFX() );
+        (*i).animation_slfx.setInfo( data_p->getInfoSLFX() );
 
         if( vertex_animation_p == nullptr)
             vertex_animation_p = (*i).animation_slfx.getImage();

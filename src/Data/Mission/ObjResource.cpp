@@ -41,7 +41,7 @@ namespace {
     // 3D bounding box
     const uint32_t TAG_3DBB = 0x33444242; // which is { 0x33, 0x44, 0x42, 0x42 } or { '3', 'D', 'B', 'B' } or "3DBB"
 
-    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 2}, {2, 3, 0}};
+    const uint8_t QUAD_TABLE[2][3] = { {0, 1, 3}, {2, 3, 1}};
 
     void triangleToCoords( const Data::Mission::ObjResource::Primitive &triangle, const Data::Mission::ObjResource::FaceType &texture_quad, glm::u8vec2 *coords, int16_t *face_override_index )
     {
@@ -58,33 +58,35 @@ namespace {
             face_override_index[2] = 0;
         }
         else
-        if( triangle.type != Data::Mission::ObjResource::PrimitiveType::TRIANGLE_OTHER )
         {
-            coords[0] = texture_quad.coords[QUAD_TABLE[0][0]];
-            coords[1] = texture_quad.coords[QUAD_TABLE[0][1]];
-            coords[2] = texture_quad.coords[QUAD_TABLE[0][2]];
+            uint8_t textureCoords[3];
+
+            switch(triangle.type) {
+                case Data::Mission::ObjResource::PrimitiveType::TRIANGLE_QUAD_0:
+                    textureCoords[0] = QUAD_TABLE[0][0];
+                    textureCoords[1] = QUAD_TABLE[0][1];
+                    textureCoords[2] = QUAD_TABLE[0][2];
+                    break;
+                case Data::Mission::ObjResource::PrimitiveType::TRIANGLE_QUAD_1:
+                    textureCoords[0] = QUAD_TABLE[1][0];
+                    textureCoords[1] = QUAD_TABLE[1][1];
+                    textureCoords[2] = QUAD_TABLE[1][2];
+                    break;
+                default:
+                    textureCoords[0] = 0;
+                    textureCoords[1] = 1;
+                    textureCoords[2] = 2;
+                    break;
+            }
+
+            coords[0] = texture_quad.coords[textureCoords[0]];
+            coords[1] = texture_quad.coords[textureCoords[1]];
+            coords[2] = texture_quad.coords[textureCoords[2]];
 
             if(texture_quad.face_override_index != 0) {
-                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][0] + 1;
-                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][1] + 1;
-                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[0][2] + 1;
-            }
-            else {
-                face_override_index[0] = 0;
-                face_override_index[1] = 0;
-                face_override_index[2] = 0;
-            }
-        }
-        else
-        {
-            coords[0] = texture_quad.coords[QUAD_TABLE[1][0]];
-            coords[1] = texture_quad.coords[QUAD_TABLE[1][1]];
-            coords[2] = texture_quad.coords[QUAD_TABLE[1][2]];
-
-            if(texture_quad.face_override_index != 0) {
-                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][0] + 1;
-                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][1] + 1;
-                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + QUAD_TABLE[1][2] + 1;
+                face_override_index[0] = 4 * (texture_quad.face_override_index - 1) + textureCoords[0] + 1;
+                face_override_index[1] = 4 * (texture_quad.face_override_index - 1) + textureCoords[1] + 1;
+                face_override_index[2] = 4 * (texture_quad.face_override_index - 1) + textureCoords[2] + 1;
             }
             else {
                 face_override_index[0] = 0;
@@ -123,25 +125,32 @@ glm::u8vec4 Data::Mission::ObjResource::FaceType::getColor( Material material ) 
 
     const uint_fast16_t max_number = 0xFF;
 
-    if( material.polygon_color_type == VertexColorMode::FULL ) {
-        if( material.visability == ADDITION) {
+    switch(material.polygon_color_type) {
+        case VertexColorMode::FULL:
             color.r = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
             color.g = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
             color.b = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[3]) * 2), max_number );
-        }
-        else {
+            break;
+        case VertexColorMode::MONOCHROME:
             color.r = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[1]) * 2), max_number );
-            color.g = std::min( static_cast<uint_fast16_t>(static_cast<uint_fast16_t>(opcodes[2]) * 2), max_number );
-            color.b = 0;
-        }
-    }
-    else {
-        color.r = max_number;
-        color.g = max_number;
-        color.b = max_number;
+            color.g = color.r;
+            color.b = color.r;
+            break;
+        case VertexColorMode::BLACK:
+            color.r = 0;
+            color.g = color.r;
+            color.b = color.r;
+            break;
     }
 
-    color.a = max_number;
+    if(material.uses_texture || !material.polygon_color_transparent)
+        color.a = max_number;
+    else {
+        color.a = std::max(color.r, std::max(color.g, color.b));
+
+        if(material.visability != VisabilityMode::ADDITION)
+            color.a /= 2;
+    }
 
     return color;
 }
@@ -536,7 +545,7 @@ int Data::Mission::ObjResource::Primitive::setTriangle(const VertexData& vertex_
 }
 
 int Data::Mission::ObjResource::Primitive::setQuad(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
-    const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE, PrimitiveType::TRIANGLE_OTHER};
+    const PrimitiveType TYPES[] = {PrimitiveType::TRIANGLE_QUAD_0, PrimitiveType::TRIANGLE_QUAD_1};
 
     Primitive new_tri;
 
@@ -1011,7 +1020,8 @@ size_t Data::Mission::ObjResource::Primitive::getTriangleAmount( PrimitiveType t
         case PrimitiveType::STAR:
             return 48;
         case PrimitiveType::TRIANGLE:
-        case PrimitiveType::TRIANGLE_OTHER:
+        case PrimitiveType::TRIANGLE_QUAD_0:
+        case PrimitiveType::TRIANGLE_QUAD_1:
             return 1;
         case PrimitiveType::QUAD:
             return 2;
@@ -1406,71 +1416,113 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     const uint8_t un_array_amount =  (opcode_0 & 0x07);
                     const uint8_t bitfield        =  (opcode_0 & 0x78) >> 3;
 
-                    bool            normal_shadows = false;
-                    VisabilityMode  visability_mode = VisabilityMode::OPAQUE;
-                    VertexColorMode vertex_color_mode = VertexColorMode::NON;
+                    bool            normal_shadows;
+                    VisabilityMode  visability_mode;
+                    VertexColorMode vertex_color_mode;
+                    bool            vertex_color_semi;
 
                     switch( bitfield ) {
                         case 0b0000:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0001:
-                        case 0b0011:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0010:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
+                            break;
+                        case 0b0011:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b0100:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0101:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b0110:
-                        case 0b1010:
-                        case 0b1011:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
                             break;
                         case 0b0111:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b1000:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::OPAQUE;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
                             break;
                         case 0b1001:
                             normal_shadows    = true;
                             visability_mode   = VisabilityMode::MIX;
-                            vertex_color_mode = VertexColorMode::NON;
+                            vertex_color_mode = VertexColorMode::MONOCHROME;
+                            vertex_color_semi = false;
+                            break;
+                        case 0b1010:
+                            normal_shadows    = true;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
+                            break;
+                        case 0b1011:
+                            normal_shadows    = true;
+                            if(is_texture == true)
+                                visability_mode = VisabilityMode::OPAQUE;
+                            else
+                                visability_mode = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
+                            break;
+                        case 0b1100:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::ADDITION;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
                         case 0b1101:
                             normal_shadows    = false;
                             visability_mode   = VisabilityMode::ADDITION;
                             vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = true;
                             break;
-                        default: // Nothing
+                        case 0b1110:
+                        case 0b1111:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::MIX;
+                            vertex_color_mode = VertexColorMode::BLACK;
+                            vertex_color_semi = false;
+                            break;
+                        default:
+                            normal_shadows    = false;
+                            visability_mode   = VisabilityMode::OPAQUE;
+                            vertex_color_mode = VertexColorMode::FULL;
+                            vertex_color_semi = false;
                             break;
                     }
-
-                    // TODO Remove this workaround
-                    if(visability_mode != VisabilityMode::ADDITION)
-                        vertex_color_mode = VertexColorMode::NON;
 
                     const bool is_reflect   = ((opcode_1 & 0x80) != 0) & info.environment_map;
                     const uint16_t un_unk   =  (opcode_1 & 0x78) >> 3;
@@ -1486,12 +1538,13 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     primitive.face_type_r                 = nullptr;
                     primitive.vertex_color_override_index = 0;
 
-                    primitive.visual.uses_texture       = is_texture;
-                    primitive.visual.normal_shading     = normal_shadows;
-                    primitive.visual.polygon_color_type = vertex_color_mode;
-                    primitive.visual.visability         = visability_mode;
-                    primitive.visual.is_reflective      = is_reflect;
-                    primitive.visual.is_color_fade      = false;
+                    primitive.visual.uses_texture              = is_texture;
+                    primitive.visual.normal_shading            = normal_shadows;
+                    primitive.visual.polygon_color_transparent = vertex_color_semi;
+                    primitive.visual.polygon_color_type        = vertex_color_mode;
+                    primitive.visual.visability                = visability_mode;
+                    primitive.visual.is_reflective             = is_reflect;
+                    primitive.visual.is_color_fade             = false;
                     
                     primitive.v[0] = reader3DQL.readU8();
                     primitive.v[1] = reader3DQL.readU8();
@@ -1667,27 +1720,32 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reader3DAL = reader.getReader( data_tag_size );
 
                 if(tag_size != 0x14)
-                    warning_log.output << "3DAL size is unusual.\n";
+                    debug_log.output << "3DAL is an extended format.\n";
 
                 if(tag_size < 0x14)
                     error_log.output << "3DAL chunk cannot be parsed. It is too small!\n";
                 else {
-                    auto count = reader3DAL.readU32( settings.endian );
+                    auto unused = reader3DAL.readU32( settings.endian );
 
-                    if(count != 1)
-                        warning_log.output << "3DAL count = " << std::dec << count << ".\n";
+                    if(unused != 1)
+                        warning_log.output << "3DAL unused = " << std::dec << unused << ".\n";
 
                     // 3DAL is almost like 3DTA
-                    face_color_overrides.push_back(VertexColorOverride());
 
-                    face_color_overrides.back().face_index = reader3DAL.readU8(); // 3DQL index to primative type star
-                    face_color_overrides.back().speed_factor = 2.0f * (0.0757594 * reader3DAL.readU8() + 0.0520309);
-                    face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[1].r = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[1].g = reader3DAL.readU8() * (1. / 256.);
-                    face_color_overrides.back().colors[1].b = reader3DAL.readU8() * (1. / 256.);
+                    size_t count = (tag_size - 2 * sizeof(uint32_t)) / (8 * sizeof(uint8_t));
+
+                    for(size_t i = 0; i < count; i++) {
+                        face_color_overrides.push_back(VertexColorOverride());
+
+                        face_color_overrides.back().face_index = reader3DAL.readU8(); // 3DQL index to primative type star
+                        face_color_overrides.back().speed_factor = 2.0f * (0.0757594 * reader3DAL.readU8() + 0.0520309);
+                        face_color_overrides.back().colors[0].r = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[0].g = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[0].b = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[1].r = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[1].g = reader3DAL.readU8() * (1. / 256.);
+                        face_color_overrides.back().colors[1].b = reader3DAL.readU8() * (1. / 256.);
+                    }
                 }
             }
             else
@@ -2443,8 +2501,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
                     if(allowed_primitives.star)
                         primitive_buffer.push_back( (*i) );
                     break;
-                case PrimitiveType::TRIANGLE_OTHER:
                 case PrimitiveType::TRIANGLE:
+                case PrimitiveType::TRIANGLE_QUAD_0:
+                case PrimitiveType::TRIANGLE_QUAD_1:
                     if(allowed_primitives.triangle)
                         primitive_buffer.push_back( (*i) );
                     break;

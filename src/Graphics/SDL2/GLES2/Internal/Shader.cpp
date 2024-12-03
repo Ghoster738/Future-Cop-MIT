@@ -84,11 +84,11 @@ Graphics::SDL2::GLES2::Internal::Shader::Varying::Varying( PRECISION param_preci
 Graphics::SDL2::GLES2::Internal::Shader::Shader() : shader_type( EMPTY ), shader_id( 0 ) {
 }
 
-Graphics::SDL2::GLES2::Internal::Shader::Shader( TYPE type, const GLchar *const shader_source, std::vector<Attribute> attributes_param, std::vector<Varying> varyings_param ) :
+Graphics::SDL2::GLES2::Internal::Shader::Shader( TYPE type, const std::basic_string<GLchar>& shader_source, std::vector<Attribute> attributes_param, std::vector<Varying> varyings_param, const std::basic_string<GLchar> &shader_preamble_param ) :
         shader_type( EMPTY ), // Set these values to the defaults just in case.
         shader_id( 0 )
 {
-    setShader( type, shader_source, attributes_param, varyings_param );
+    setShader( type, shader_source, attributes_param, varyings_param, shader_preamble_param );
 }
 
 Graphics::SDL2::GLES2::Internal::Shader::~Shader() {
@@ -96,7 +96,7 @@ Graphics::SDL2::GLES2::Internal::Shader::~Shader() {
     deallocate();
 }
 
-void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar *const primary_shader_source, std::vector<Attribute> attributes, std::vector<Varying> varyings ) {
+void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const std::basic_string<GLchar>& primary_shader_source, std::vector<Attribute> attributes, std::vector<Varying> varyings, const std::basic_string<GLchar> &shader_preamble ) {
     int opengl_profile;
     
     GLchar glsl_es2_version[] = "#version 100\nprecision mediump float;\n";
@@ -138,6 +138,7 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar
             }
         }
         
+        this->generated_shader += shader_preamble;
         this->generated_shader += primary_shader_source;
         
         address_generated_shader_r = generated_shader.c_str();
@@ -147,7 +148,7 @@ void Graphics::SDL2::GLES2::Internal::Shader::setShader( TYPE type, const GLchar
     }
 }
 
-int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *const file_path, std::vector<Attribute> attributes, std::vector<Varying> varyings ) {
+int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *const file_path, std::vector<Attribute> attributes, std::vector<Varying> varyings, const std::basic_string<GLchar> &shader_preamble ) {
     std::ifstream shader_file;
     shader_file.open( file_path, std::ios::out );
 
@@ -165,7 +166,7 @@ int Graphics::SDL2::GLES2::Internal::Shader::loadShader( TYPE type, const char *
         shader_file.read( shader_buffer, FILE_SIZE );
 
         // Set this shader with the shader buffer.
-        setShader( type, shader_buffer, attributes, varyings );
+        setShader( type, shader_buffer, attributes, varyings, shader_preamble );
 
         // DO NOT FORGET TO DELETE THE BUFFFER WHEN DONE.
         delete [] shader_buffer;

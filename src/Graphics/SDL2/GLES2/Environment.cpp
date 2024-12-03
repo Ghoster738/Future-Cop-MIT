@@ -160,15 +160,15 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     this->world_p = nullptr;
 
     const Data::Mission::PTCResource* ptc_r = accessor.getConstPTC( 1 );
-    std::vector<const Data::Mission::TilResource*> tiles = accessor.getAllConstTIL();
+    std::vector<const Data::Mission::TilResource*> map_sections = accessor.getAllConstTIL();
 
     // Make sure that the pointers are not pointers.
-    if( ptc_r != nullptr && tiles.size() != 0 ) {
+    if( ptc_r != nullptr && map_sections.size() != 0 ) {
         // Allocate the world
         this->world_p = new Internal::World();
 
         // Setup the vertex and fragment shaders
-        this->world_p->setVertexShader();
+        this->world_p->setVertexShader(map_sections);
         this->world_p->setFragmentShader();
         this->world_p->compileProgram();
 
@@ -176,7 +176,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         this->map_section_height = ptc_r->getHeight();
 
         // Turn the map into a world.
-        this->world_p->setWorld( *ptc_r, tiles, this->textures );
+        this->world_p->setWorld( *ptc_r, map_sections, this->textures );
     }
 
     auto err = glGetError();

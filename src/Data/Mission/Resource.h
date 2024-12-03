@@ -125,7 +125,7 @@ public:
     /**
      * Sets the index number of the file. To be used by loaders only.
      */
-    void setMisIndexNumber( int index_number ) {
+    void setMisIndexNumber( int mis_index_number ) {
         this->mis_index_number = mis_index_number;
     }
 

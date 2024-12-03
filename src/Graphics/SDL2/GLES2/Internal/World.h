@@ -64,8 +64,8 @@ public:
         Data::Mission::TilResource::AnimationSLFX animation_slfx;
     };
 
-    static const GLchar* default_vertex_shader;
-    static const GLchar* default_fragment_shader;
+    static const std::basic_string<GLchar> default_vertex_shader;
+    static const std::basic_string<GLchar> default_fragment_shader;
 protected:
     Program program;
     std::vector<Shader::Attribute> attributes;
@@ -96,34 +96,34 @@ public:
      * @warning make sure the correct context is binded, or else you would get an improper shader.
      * @return a pointer to a vertex shader.
      */
-    static const GLchar* getDefaultVertexShader();
+    static const std::basic_string<GLchar>& getDefaultVertexShader();
 
     /**
      * This method gets the default fragment shader depending on the GL version.
      * @warning make sure the correct context is binded, or else you would get an improper shader.
      * @return a pointer to a fragment shader.
      */
-    static const GLchar* getDefaultFragmentShader();
+    static const std::basic_string<GLchar>& getDefaultFragmentShader();
 
     /**
      * This sets up and compiles this shader from memory.
      * This is to be used for internal shaders.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    void setVertexShader( const GLchar *const shader_source = getDefaultVertexShader() );
+    void setVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources = {}, const std::basic_string<GLchar>& shader_source = getDefaultVertexShader() );
 
     /**
      * This loads a shader from a text file, and compiles it.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    int loadVertexShader( const char *const file_path );
+    int loadVertexShader( const std::vector<const Data::Mission::TilResource*> &til_resources, const char *const file_path );
 
     /**
      * This sets up and compiles this shader from memory.
      * This is to be used for internal shaders.
      * @param shader_source The memory pointer to the source code of the shader.
      */
-    void setFragmentShader( const GLchar *const shader_source = getDefaultFragmentShader() );
+    void setFragmentShader( const std::basic_string<GLchar>& shader_source = getDefaultFragmentShader() );
 
     /**
      * This loads a shader from a text file, and compiles it.
@@ -144,7 +144,7 @@ public:
      * @param textures The default textures also color the map.
      * @return If ptc does not exist in the parameter resource it will return false and do nothing.
      */
-    void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, std::vector<const Data::Mission::TilResource*> resources_til, const std::map<uint32_t, Internal::Texture2D*>& textures );
+    void setWorld( const Data::Mission::PTCResource &pointer_tile_cluster, const std::vector<const Data::Mission::TilResource*> &til_resources, const std::map<uint32_t, Internal::Texture2D*>& textures );
 
     /**
      * Update the culling meta data for the camera.
