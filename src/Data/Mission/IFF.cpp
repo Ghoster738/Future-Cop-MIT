@@ -457,10 +457,23 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                     block_chunk_reader.addToBuffer(*msic_data_p, DATA_SIZE);
                     break;
+                case PS1_VAGM_TAG:
                 case PS1_CANM_TAG:
                 case PS1_VAGB_TAG:
-                case PS1_VAGM_TAG:
-                    header_enum_numbers_r = &ps_header_enum_numbers;
+                    {
+                        header_enum_numbers_r = &ps_header_enum_numbers;
+
+                        const auto METADATA = block_chunk_reader.readU32( default_settings.endian );
+
+                        if(TYPE_ID == PS1_VAGM_TAG && METADATA != 0) {
+                            warning_log.output << "VAGM is " << std::dec << METADATA << " not zero.\n";
+                        } else if(TYPE_ID == PS1_CANM_TAG && METADATA != 1) {
+                            warning_log.output << "CANM is " << std::dec << METADATA << " not one.\n";
+                        } else if(TYPE_ID == PS1_VAGB_TAG && METADATA != 2) {
+                            warning_log.output << "VAGB is " << std::dec << METADATA << " not two.\n";
+                        }
+                    }
+
                     break;
                 case SHOC_TAG:
                     {
