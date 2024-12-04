@@ -61,6 +61,7 @@ namespace {
     const uint32_t PS1_VAGB_TAG = 0x56414742; // Dynamic size
     // which is { 0x56, 0x41, 0x47, 0x4D } or { 'V', 'A', 'G', 'M' } or "VAGM"
     const uint32_t PS1_VAGM_TAG = 0x5641474D; // Dynamic size
+    const uint32_t PS1_MDEC_TAG = 0x4D444543;
 
     const std::map<uint32_t, Data::Mission::Resource*> file_type_list {
         { Data::Mission::ACTResource::IDENTIFIER_TAG, new Data::Mission::ACT::Unknown() },
@@ -472,6 +473,20 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         } else if(TYPE_ID == PS1_VAGB_TAG && METADATA != 2) {
                             warning_log.output << "VAGB is " << std::dec << METADATA << " not two.\n";
                         }
+
+                        const auto ZERO = block_chunk_reader.readU32( default_settings.endian );
+
+                        if( ZERO != 0 )
+                            error_log.output << "ZERO for PS1 SWVR is " << std::dec << ZERO << " not zero.\n";
+
+                        const auto MATCHING_TAG_DATA = block_chunk_reader.readU32( default_settings.endian );
+
+                        if(TYPE_ID == PS1_CANM_TAG) {
+                            if(MATCHING_TAG_DATA != PS1_MDEC_TAG)
+                                error_log.output << "PS1_CANM_TAG is 0x" << std::hex << TYPE_ID << " while 0x" << MATCHING_TAG_DATA << " is not MDEC.\n";
+                        }
+                        else if(TYPE_ID != MATCHING_TAG_DATA)
+                            error_log.output << "MATCHING_TAG_DATA is 0x" << std::hex << TYPE_ID << " vs 0x" << MATCHING_TAG_DATA << ".\n";
                     }
 
                     break;
