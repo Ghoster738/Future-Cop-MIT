@@ -464,6 +464,15 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     {
                         header_enum_numbers_r = &ps_header_enum_numbers;
 
+                        switch(TYPE_ID) {
+                            case PS1_VAGM_TAG:
+                                error_log.output << "VAGM\n";
+                            case PS1_CANM_TAG:
+                                error_log.output << "CANM\n";
+                            case PS1_VAGB_TAG:
+                                error_log.output << "VAGB\n";
+                        }
+
                         const auto METADATA = block_chunk_reader.readU32( default_settings.endian );
 
                         if(TYPE_ID == PS1_VAGM_TAG && METADATA != 0) {
@@ -650,6 +659,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                     << "  SWVR name \"" << swvr_entry.name << "\" probably invalid.\n";
                             }
                         }
+
+                        error_log.output << "SWVR " << swvr_entry.name << "\n";
                     }
                     break;
                 default:
