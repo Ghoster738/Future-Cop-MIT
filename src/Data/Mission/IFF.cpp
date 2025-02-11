@@ -513,7 +513,18 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                 error_log.output << "PS1_VAGM_TAG MAGIC_NUMBER is 0x" << std::hex << MAGIC_NUMBER << ".\n";
                             }
 
-                            // Followed by what is seemly 0x10 byte blocks.
+                            // Followed by what are seemly 0x10 byte blocks.
+                        }
+                        else if(TYPE_ID == PS1_VAGB_TAG) {
+                            const auto TOTAL_CHUNKS  = block_chunk_reader.readU16( default_settings.endian );
+                            const auto CURRENT_CHUNK = block_chunk_reader.readU16( default_settings.endian );
+
+                            if(TOTAL_CHUNKS < CURRENT_CHUNK) {
+                                error_log.output << "\tPS1_VAGB_TAG TOTAL_CHUNKS is 0x" << std::hex << TOTAL_CHUNKS << ".\n";
+                                error_log.output << "\tPS1_VAGB_TAG CURRENT_CHUNK is 0x" << std::hex << CURRENT_CHUNK << ".\n";
+                            }
+
+                            // Followed by what are seemly 0x10 byte blocks.
                         }
                     }
 
