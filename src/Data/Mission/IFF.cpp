@@ -501,6 +501,20 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
                         else if(TYPE_ID != MATCHING_TAG_DATA)
                             error_log.output << "MATCHING_TAG_DATA is 0x" << std::hex << TYPE_ID << " vs 0x" << MATCHING_TAG_DATA << ".\n";
+
+                        if(TYPE_ID == PS1_VAGM_TAG) {
+                            const auto TOTAL_COUNT = block_chunk_reader.readU16( default_settings.endian );
+                            const auto INDEX = block_chunk_reader.readU16( default_settings.endian );
+                            const auto MAGIC_NUMBER = block_chunk_reader.readU32( default_settings.endian );
+
+                            if(INDEX >= TOTAL_COUNT || MAGIC_NUMBER != 0x2fc0) {
+                                error_log.output << "PS1_VAGM_TAG TOTAL_COUNT is 0x" << std::hex << TOTAL_COUNT << ".\n";
+                                error_log.output << "PS1_VAGM_TAG INDEX is 0x" << std::hex << INDEX << ".\n";
+                                error_log.output << "PS1_VAGM_TAG MAGIC_NUMBER is 0x" << std::hex << MAGIC_NUMBER << ".\n";
+                            }
+
+                            // Followed by what is seemly 0x10 byte blocks.
+                        }
                     }
 
                     break;
