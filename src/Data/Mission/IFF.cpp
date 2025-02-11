@@ -514,6 +514,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
 
                             // Followed by what are seemly 0x10 byte blocks.
+                            // block_chunk_reader.addToBuffer(*msic_data_p, DATA_SIZE);
                         }
                         else if(TYPE_ID == PS1_VAGB_TAG) {
                             const auto TOTAL_CHUNKS  = block_chunk_reader.readU16( default_settings.endian );
@@ -525,6 +526,11 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
 
                             // Followed by what are seemly 0x10 byte blocks.
+                        }
+                        else {
+                            // CANM and MDEC CHUNK_SIZE = 0x4228, 0x5428, 0x5a28, 0x5bf4, 0x5c78, 0x5fa0, 0x5fc4, 0x5fc8, 0x5fdc
+
+                            // All that I know is that this is MDEC data.
                         }
                     }
 
