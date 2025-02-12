@@ -361,8 +361,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         size_t resources_amount = 0;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
-        UnkResource *mdec_p = nullptr;
-        Utilities::Buffer *mdec_data_p;
+        UnkResource *vagm_p = nullptr;
+        Utilities::Buffer *vagm_data_p;
 
         default_settings.endian = Utilities::Buffer::Endian::NO_SWAP;
 
@@ -516,16 +516,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
 
                             // Followed by what are seemly 0x10 byte blocks.
-                            if( mdec_p == nullptr ) {
-                                mdec_p = new UnkResource(PS1_VAGM_TAG, ".vag", true);
-                                mdec_p->setIndexNumber( 0 );
-                                mdec_p->setResourceID( 1 );
-                                mdec_p->getSWVREntry() = swvr_entry;
-                                mdec_p->setOffset( file_offset );
+                            if( vagm_p == nullptr ) {
+                                vagm_p = new UnkResource(PS1_VAGM_TAG, "vag", true);
+                                vagm_p->setIndexNumber( 0 );
+                                vagm_p->setResourceID( 1 );
+                                vagm_p->getSWVREntry() = swvr_entry;
+                                vagm_p->setOffset( file_offset );
 
-                                mdec_data_p = new Utilities::Buffer();
+                                vagm_data_p = new Utilities::Buffer();
                             }
-                            block_chunk_reader.addToBuffer(*mdec_data_p, DATA_SIZE - 20);
+                            block_chunk_reader.addToBuffer(*vagm_data_p, DATA_SIZE - 20);
                         }
                         else if(TYPE_ID == PS1_VAGB_TAG) {
                             const auto TOTAL_CHUNKS  = block_chunk_reader.readU16( default_settings.endian );
@@ -759,14 +759,14 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         }
 
         // Then write the MISC file.
-        if( mdec_p != nullptr )
+        if( vagm_p != nullptr )
         {
             // This gives msic_data_p to msic so there is no need to delete it.
-            mdec_p->setMemory( mdec_data_p );
-            mdec_p->parse( default_settings );
+            vagm_p->setMemory( vagm_data_p );
+            vagm_p->parse( default_settings );
 
             // msic_p->setMemory( nullptr );
-            addResource( mdec_p );
+            addResource( vagm_p );
         }
 
         Data::Accessor accessor;
