@@ -365,6 +365,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer *vagm_data_p;
         UnkResource *vagb_p = nullptr;
         Utilities::Buffer *vagb_data_p;
+        UnkResource *mdec_p = nullptr;
+        Utilities::Buffer *mdec_data_p;
 
         default_settings.endian = Utilities::Buffer::Endian::NO_SWAP;
 
@@ -554,6 +556,18 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             // CANM and MDEC CHUNK_SIZE = 0x4228, 0x5428, 0x5a28, 0x5bf4, 0x5c78, 0x5fa0, 0x5fc4, 0x5fc8, 0x5fdc
 
                             // All that I know is that this is MDEC data.
+
+                            // Then write the video file.
+                            if( mdec_p == nullptr ) {
+                                mdec_p = new UnkResource(PS1_CANM_TAG, "mdec", true);
+                                mdec_p->setIndexNumber( 0 );
+                                mdec_p->setResourceID( 1 );
+                                mdec_p->getSWVREntry() = swvr_entry;
+                                mdec_p->setOffset( file_offset );
+
+                                mdec_data_p = new Utilities::Buffer();
+                            }
+                            block_chunk_reader.addToBuffer(*mdec_data_p, DATA_SIZE - 12);
                         }
                     }
 
@@ -733,6 +747,19 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                             vagb_p = nullptr;
                         }
+
+                        // Then write the video file.
+                        if( mdec_p != nullptr )
+                        {
+                            // This gives msic_data_p to msic so there is no need to delete it.
+                            mdec_p->setMemory( mdec_data_p );
+                            mdec_p->parse( default_settings );
+
+                            // msic_p->setMemory( nullptr );
+                            addResource( mdec_p );
+
+                            mdec_p = nullptr;
+                        }
                     }
                     break;
                 default:
@@ -794,7 +821,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             addResource( vagm_p );
         }
 
-        // Then write the music file.
+        // Then write the voice file.
         if( vagb_p != nullptr )
         {
             // This gives msic_data_p to msic so there is no need to delete it.
@@ -803,6 +830,17 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             // msic_p->setMemory( nullptr );
             addResource( vagb_p );
+        }
+
+        // Then write the video file.
+        if( mdec_p != nullptr )
+        {
+            // This gives msic_data_p to msic so there is no need to delete it.
+            mdec_p->setMemory( mdec_data_p );
+            mdec_p->parse( default_settings );
+
+            // msic_p->setMemory( nullptr );
+            addResource( mdec_p );
         }
 
         Data::Accessor accessor;
