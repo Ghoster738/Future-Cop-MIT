@@ -363,6 +363,8 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         Utilities::Buffer *msic_data_p;
         UnkResource *vagm_p = nullptr;
         Utilities::Buffer *vagm_data_p;
+        UnkResource *vagb_p = nullptr;
+        Utilities::Buffer *vagb_data_p;
 
         default_settings.endian = Utilities::Buffer::Endian::NO_SWAP;
 
@@ -537,6 +539,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
 
                             // Followed by what are seemly 0x10 byte blocks.
+                            if( vagb_p == nullptr ) {
+                                vagb_p = new UnkResource(PS1_VAGB_TAG, "vag", true);
+                                vagb_p->setIndexNumber( 0 );
+                                vagb_p->setResourceID( 1 );
+                                vagb_p->getSWVREntry() = swvr_entry;
+                                vagb_p->setOffset( file_offset );
+
+                                vagb_data_p = new Utilities::Buffer();
+                            }
+                            block_chunk_reader.addToBuffer(*vagb_data_p, DATA_SIZE - 16);
                         }
                         else {
                             // CANM and MDEC CHUNK_SIZE = 0x4228, 0x5428, 0x5a28, 0x5bf4, 0x5c78, 0x5fa0, 0x5fc4, 0x5fc8, 0x5fdc
@@ -708,6 +720,19 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
 
                         error_log.output << "SWVR " << swvr_entry.name << "\n";
+
+                        // Then write the voice file.
+                        if( vagb_p != nullptr )
+                        {
+                            // This gives msic_data_p to msic so there is no need to delete it.
+                            vagb_p->setMemory( vagb_data_p );
+                            vagb_p->parse( default_settings );
+
+                            // msic_p->setMemory( nullptr );
+                            addResource( vagb_p );
+
+                            vagb_p = nullptr;
+                        }
                     }
                     break;
                 default:
@@ -758,7 +783,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             addResource( msic_p );
         }
 
-        // Then write the MISC file.
+        // Then write the music file.
         if( vagm_p != nullptr )
         {
             // This gives msic_data_p to msic so there is no need to delete it.
@@ -767,6 +792,17 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
             // msic_p->setMemory( nullptr );
             addResource( vagm_p );
+        }
+
+        // Then write the music file.
+        if( vagb_p != nullptr )
+        {
+            // This gives msic_data_p to msic so there is no need to delete it.
+            vagb_p->setMemory( vagb_data_p );
+            vagb_p->parse( default_settings );
+
+            // msic_p->setMemory( nullptr );
+            addResource( vagb_p );
         }
 
         Data::Accessor accessor;
