@@ -364,8 +364,10 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         size_t resources_amount = 0;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
-        VAGMResource *vagm_p = nullptr;
-        Utilities::Buffer *vagm_data_p;
+        VAGMResource *vagm_0_p = nullptr;
+        Utilities::Buffer *vagm_0_data_p;
+        VAGMResource *vagm_1_p = nullptr; // TODO Replace this code with a more professional solution. This is sterographic sound.
+        Utilities::Buffer *vagm_1_data_p;
         VAGBResource *vagb_p = nullptr;
         Utilities::Buffer *vagb_data_p;
         UnkResource *mdec_p = nullptr;
@@ -523,16 +525,33 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
 
                             // Followed by what are seemly 0x10 byte blocks.
-                            if( vagm_p == nullptr ) {
-                                vagm_p = new VAGMResource();
-                                vagm_p->setIndexNumber( 0 );
-                                vagm_p->setResourceID( 1 );
-                                vagm_p->getSWVREntry() = swvr_entry;
-                                vagm_p->setOffset( file_offset );
+                            if( vagm_0_p == nullptr ) {
+                                std::string name_backup = swvr_entry.name;
+                                swvr_entry.name += "_0";
 
-                                vagm_data_p = new Utilities::Buffer();
+                                vagm_0_p = new VAGMResource();
+                                vagm_0_p->setIndexNumber( 0 );
+                                vagm_0_p->setResourceID( 1 );
+                                vagm_0_p->getSWVREntry() = swvr_entry;
+                                vagm_0_p->setOffset( file_offset );
+
+                                vagm_0_data_p = new Utilities::Buffer();
+
+                                swvr_entry.name = name_backup;
+                                swvr_entry.name += "_1";
+
+                                vagm_1_p = new VAGMResource();
+                                vagm_1_p->setIndexNumber( 1 );
+                                vagm_1_p->setResourceID( 2 );
+                                vagm_1_p->getSWVREntry() = swvr_entry;
+                                vagm_1_p->setOffset( file_offset );
+
+                                vagm_1_data_p = new Utilities::Buffer();
+
+                                swvr_entry.name = name_backup;
                             }
-                            block_chunk_reader.addToBuffer(*vagm_data_p, DATA_SIZE - 20);
+                            block_chunk_reader.addToBuffer(*vagm_0_data_p, (DATA_SIZE - 20) / 2);
+                            block_chunk_reader.addToBuffer(*vagm_1_data_p, (DATA_SIZE - 20) / 2);
                         }
                         else if(TYPE_ID == PS1_VAGB_TAG) {
                             const auto TOTAL_CHUNKS  = block_chunk_reader.readU16( default_settings.endian );
@@ -814,14 +833,16 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         }
 
         // Then write the music file.
-        if( vagm_p != nullptr )
+        if( vagm_0_p != nullptr )
         {
-            // This gives msic_data_p to msic so there is no need to delete it.
-            vagm_p->setMemory( vagm_data_p );
-            vagm_p->parse( default_settings );
+            // This gives vagm_0_data_p to vagm_0_p so there is no need to delete it.
+            vagm_0_p->setMemory( vagm_0_data_p );
+            vagm_0_p->parse( default_settings );
+            addResource( vagm_0_p );
 
-            // msic_p->setMemory( nullptr );
-            addResource( vagm_p );
+            vagm_1_p->setMemory( vagm_1_data_p );
+            vagm_1_p->parse( default_settings );
+            addResource( vagm_1_p );
         }
 
         // Then write the voice file.
