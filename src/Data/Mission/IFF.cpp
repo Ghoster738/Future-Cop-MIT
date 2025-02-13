@@ -475,20 +475,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                     {
                         header_enum_numbers_r = &ps_header_enum_numbers;
 
-                        switch(TYPE_ID) {
-                            case PS1_VAGM_TAG:
-                                error_log.output << "VAGM ";
-                                break;
-                            case PS1_CANM_TAG:
-                                error_log.output << "CANM ";
-                                break;
-                            case PS1_VAGB_TAG:
-                                error_log.output << "VAGB ";
-                                break;
-                        }
-                        error_log.output << "0x" << std::hex << CHUNK_SIZE << "\n";
-
-
                         const auto METADATA = block_chunk_reader.readU32( default_settings.endian );
 
                         if(TYPE_ID == PS1_VAGM_TAG && METADATA != 0) {
