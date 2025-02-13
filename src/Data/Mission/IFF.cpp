@@ -20,6 +20,9 @@
 #include "WAVResource.h"
 #include "ObjResource.h"
 #include "UnkResource.h"
+#include "VAGBResource.h"
+#include "VAGMResource.h"
+#include "VKBResource.h"
 #include "RPNSResource.h"
 
 #include "ACT/Unknown.h"
@@ -87,7 +90,7 @@ namespace {
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
         { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
-        { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
+        { Data::Mission::VKBResource::IDENTIFIER_TAG, new Data::Mission::VKBResource() },
         { 0x43747273, new Data::Mission::UnkResource( 0x43747273, "trs" ) }, // PS1 Global.
         { 0x436d6463, new Data::Mission::UnkResource( 0x436d6463, "mdc" ) },
         { 0x4374696e, new Data::Mission::UnkResource( 0x4374696e, "tin" ) },
@@ -361,9 +364,9 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         size_t resources_amount = 0;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
-        UnkResource *vagm_p = nullptr;
+        VAGMResource *vagm_p = nullptr;
         Utilities::Buffer *vagm_data_p;
-        UnkResource *vagb_p = nullptr;
+        VAGBResource *vagb_p = nullptr;
         Utilities::Buffer *vagb_data_p;
         UnkResource *mdec_p = nullptr;
         Utilities::Buffer *mdec_data_p;
@@ -521,7 +524,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                             // Followed by what are seemly 0x10 byte blocks.
                             if( vagm_p == nullptr ) {
-                                vagm_p = new UnkResource(PS1_VAGM_TAG, "vag", true);
+                                vagm_p = new VAGMResource();
                                 vagm_p->setIndexNumber( 0 );
                                 vagm_p->setResourceID( 1 );
                                 vagm_p->getSWVREntry() = swvr_entry;
@@ -542,7 +545,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                             // Followed by what are seemly 0x10 byte blocks.
                             if( vagb_p == nullptr ) {
-                                vagb_p = new UnkResource(PS1_VAGB_TAG, "vag", true);
+                                vagb_p = new VAGBResource();
                                 vagb_p->setIndexNumber( 0 );
                                 vagb_p->setResourceID( 1 );
                                 vagb_p->getSWVREntry() = swvr_entry;
