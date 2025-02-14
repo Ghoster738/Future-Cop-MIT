@@ -46,9 +46,8 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
         if(swvr_accessor_r != nullptr) {
             auto snds_array_r = swvr_accessor_r->getAllConstSNDS();
 
-            assert(!snds_array_r.empty());
-
-            this->announcements.push_back(snds_array_r[0]);
+            if(!snds_array_r.empty())
+                this->announcements.push_back(snds_array_r[0]);
         }
     }
 }

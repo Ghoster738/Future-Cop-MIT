@@ -20,6 +20,9 @@
 #include "WAVResource.h"
 #include "ObjResource.h"
 #include "UnkResource.h"
+#include "VAGBResource.h"
+#include "VAGMResource.h"
+#include "VKBResource.h"
 #include "RPNSResource.h"
 
 #include "ACT/Unknown.h"
@@ -61,6 +64,7 @@ namespace {
     const uint32_t PS1_VAGB_TAG = 0x56414742; // Dynamic size
     // which is { 0x56, 0x41, 0x47, 0x4D } or { 'V', 'A', 'G', 'M' } or "VAGM"
     const uint32_t PS1_VAGM_TAG = 0x5641474D; // Dynamic size
+    const uint32_t PS1_MDEC_TAG = 0x4D444543;
 
     const std::map<uint32_t, Data::Mission::Resource*> file_type_list {
         { Data::Mission::ACTResource::IDENTIFIER_TAG, new Data::Mission::ACT::Unknown() },
@@ -86,7 +90,7 @@ namespace {
         { Data::Mission::SNDSResource::IDENTIFIER_TAG, new Data::Mission::SNDSResource() },
         { Data::Mission::FUNResource::IDENTIFIER_TAG, new Data::Mission::FUNResource() },
         { 0x43766b68, new Data::Mission::UnkResource( 0x43766b68, "vkh" ) }, // PS1 Missions.
-        { 0x43766b62, new Data::Mission::UnkResource( 0x43766b68, "vkb" ) },
+        { Data::Mission::VKBResource::IDENTIFIER_TAG, new Data::Mission::VKBResource() },
         { 0x43747273, new Data::Mission::UnkResource( 0x43747273, "trs" ) }, // PS1 Global.
         { 0x436d6463, new Data::Mission::UnkResource( 0x436d6463, "mdc" ) },
         { 0x4374696e, new Data::Mission::UnkResource( 0x4374696e, "tin" ) },
@@ -360,6 +364,14 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
         size_t resources_amount = 0;
         MSICResource *msic_p = nullptr;
         Utilities::Buffer *msic_data_p;
+        VAGMResource *vagm_0_p = nullptr;
+        Utilities::Buffer *vagm_0_data_p;
+        VAGMResource *vagm_1_p = nullptr; // TODO Replace this code with a more professional solution. This is sterographic sound.
+        Utilities::Buffer *vagm_1_data_p;
+        VAGBResource *vagb_p = nullptr;
+        Utilities::Buffer *vagb_data_p;
+        UnkResource *mdec_p = nullptr;
+        Utilities::Buffer *mdec_data_p;
 
         default_settings.endian = Utilities::Buffer::Endian::NO_SWAP;
 
@@ -457,10 +469,116 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                     block_chunk_reader.addToBuffer(*msic_data_p, DATA_SIZE);
                     break;
+                case PS1_VAGM_TAG:
                 case PS1_CANM_TAG:
                 case PS1_VAGB_TAG:
-                case PS1_VAGM_TAG:
-                    header_enum_numbers_r = &ps_header_enum_numbers;
+                    {
+                        header_enum_numbers_r = &ps_header_enum_numbers;
+
+                        const auto METADATA = block_chunk_reader.readU32( default_settings.endian );
+
+                        if(TYPE_ID == PS1_VAGM_TAG && METADATA != 0) {
+                            warning_log.output << "VAGM is " << std::dec << METADATA << " not zero.\n";
+                        } else if(TYPE_ID == PS1_CANM_TAG && METADATA != 1) {
+                            warning_log.output << "CANM is " << std::dec << METADATA << " not one.\n";
+                        } else if(TYPE_ID == PS1_VAGB_TAG && METADATA != 2) {
+                            warning_log.output << "VAGB is " << std::dec << METADATA << " not two.\n";
+                        }
+
+                        const auto ZERO = block_chunk_reader.readU32( default_settings.endian );
+
+                        if( ZERO != 0 )
+                            error_log.output << "ZERO for PS1 SWVR is " << std::dec << ZERO << " not zero.\n";
+
+                        const auto MATCHING_TAG_DATA = block_chunk_reader.readU32( default_settings.endian );
+
+                        if(TYPE_ID == PS1_CANM_TAG) {
+                            if(MATCHING_TAG_DATA != PS1_MDEC_TAG)
+                                error_log.output << "PS1_CANM_TAG is 0x" << std::hex << TYPE_ID << " while 0x" << MATCHING_TAG_DATA << " is not MDEC.\n";
+                        }
+                        else if(TYPE_ID != MATCHING_TAG_DATA)
+                            error_log.output << "MATCHING_TAG_DATA is 0x" << std::hex << TYPE_ID << " vs 0x" << MATCHING_TAG_DATA << ".\n";
+
+                        if(TYPE_ID == PS1_VAGM_TAG) {
+                            const auto TOTAL_COUNT = block_chunk_reader.readU16( default_settings.endian );
+                            const auto INDEX = block_chunk_reader.readU16( default_settings.endian );
+                            const auto MAGIC_NUMBER = block_chunk_reader.readU32( default_settings.endian );
+
+                            if(INDEX >= TOTAL_COUNT || MAGIC_NUMBER != 0x2fc0) {
+                                error_log.output << "PS1_VAGM_TAG TOTAL_COUNT is 0x" << std::hex << TOTAL_COUNT << ".\n";
+                                error_log.output << "PS1_VAGM_TAG INDEX is 0x" << std::hex << INDEX << ".\n";
+                                error_log.output << "PS1_VAGM_TAG MAGIC_NUMBER is 0x" << std::hex << MAGIC_NUMBER << ".\n";
+                            }
+
+                            // Followed by what are seemly 0x10 byte blocks.
+                            if( vagm_0_p == nullptr ) {
+                                std::string name_backup = swvr_entry.name;
+                                swvr_entry.name += "_0";
+
+                                vagm_0_p = new VAGMResource();
+                                vagm_0_p->setIndexNumber( 0 );
+                                vagm_0_p->setResourceID( 1 );
+                                vagm_0_p->getSWVREntry() = swvr_entry;
+                                vagm_0_p->setOffset( file_offset );
+
+                                vagm_0_data_p = new Utilities::Buffer();
+
+                                swvr_entry.name = name_backup;
+                                swvr_entry.name += "_1";
+
+                                vagm_1_p = new VAGMResource();
+                                vagm_1_p->setIndexNumber( 1 );
+                                vagm_1_p->setResourceID( 2 );
+                                vagm_1_p->getSWVREntry() = swvr_entry;
+                                vagm_1_p->setOffset( file_offset );
+
+                                vagm_1_data_p = new Utilities::Buffer();
+
+                                swvr_entry.name = name_backup;
+                            }
+                            block_chunk_reader.addToBuffer(*vagm_0_data_p, (DATA_SIZE - 20) / 2);
+                            block_chunk_reader.addToBuffer(*vagm_1_data_p, (DATA_SIZE - 20) / 2);
+                        }
+                        else if(TYPE_ID == PS1_VAGB_TAG) {
+                            const auto TOTAL_CHUNKS  = block_chunk_reader.readU16( default_settings.endian );
+                            const auto CURRENT_CHUNK = block_chunk_reader.readU16( default_settings.endian );
+
+                            if(TOTAL_CHUNKS < CURRENT_CHUNK) {
+                                error_log.output << "\tPS1_VAGB_TAG TOTAL_CHUNKS is 0x" << std::hex << TOTAL_CHUNKS << ".\n";
+                                error_log.output << "\tPS1_VAGB_TAG CURRENT_CHUNK is 0x" << std::hex << CURRENT_CHUNK << ".\n";
+                            }
+
+                            // Followed by what are seemly 0x10 byte blocks.
+                            if( vagb_p == nullptr ) {
+                                vagb_p = new VAGBResource();
+                                vagb_p->setIndexNumber( 0 );
+                                vagb_p->setResourceID( 1 );
+                                vagb_p->getSWVREntry() = swvr_entry;
+                                vagb_p->setOffset( file_offset );
+
+                                vagb_data_p = new Utilities::Buffer();
+                            }
+                            block_chunk_reader.addToBuffer(*vagb_data_p, DATA_SIZE - 16);
+                        }
+                        else {
+                            // CANM and MDEC CHUNK_SIZE = 0x4228, 0x5428, 0x5a28, 0x5bf4, 0x5c78, 0x5fa0, 0x5fc4, 0x5fc8, 0x5fdc
+
+                            // All that I know is that this is MDEC data.
+
+                            // Then write the video file.
+                            if( mdec_p == nullptr ) {
+                                mdec_p = new UnkResource(PS1_CANM_TAG, "mdec", true);
+                                mdec_p->setIndexNumber( 0 );
+                                mdec_p->setResourceID( 1 );
+                                mdec_p->getSWVREntry() = swvr_entry;
+                                mdec_p->setOffset( file_offset );
+
+                                mdec_data_p = new Utilities::Buffer();
+                            }
+                            block_chunk_reader.addToBuffer(*mdec_data_p, DATA_SIZE - 12);
+                        }
+                    }
+
                     break;
                 case SHOC_TAG:
                     {
@@ -622,6 +740,32 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                                     << "  SWVR name \"" << swvr_entry.name << "\" probably invalid.\n";
                             }
                         }
+
+                        // Then write the voice file.
+                        if( vagb_p != nullptr )
+                        {
+                            // This gives msic_data_p to msic so there is no need to delete it.
+                            vagb_p->setMemory( vagb_data_p );
+                            vagb_p->parse( default_settings );
+
+                            // msic_p->setMemory( nullptr );
+                            addResource( vagb_p );
+
+                            vagb_p = nullptr;
+                        }
+
+                        // Then write the video file.
+                        if( mdec_p != nullptr )
+                        {
+                            // This gives msic_data_p to msic so there is no need to delete it.
+                            mdec_p->setMemory( mdec_data_p );
+                            mdec_p->parse( default_settings );
+
+                            // msic_p->setMemory( nullptr );
+                            addResource( mdec_p );
+
+                            mdec_p = nullptr;
+                        }
                     }
                     break;
                 default:
@@ -670,6 +814,41 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
             
             // msic_p->setMemory( nullptr );
             addResource( msic_p );
+        }
+
+        // Then write the music file.
+        if( vagm_0_p != nullptr )
+        {
+            // This gives vagm_0_data_p to vagm_0_p so there is no need to delete it.
+            vagm_0_p->setMemory( vagm_0_data_p );
+            vagm_0_p->parse( default_settings );
+            addResource( vagm_0_p );
+
+            vagm_1_p->setMemory( vagm_1_data_p );
+            vagm_1_p->parse( default_settings );
+            addResource( vagm_1_p );
+        }
+
+        // Then write the voice file.
+        if( vagb_p != nullptr )
+        {
+            // This gives msic_data_p to msic so there is no need to delete it.
+            vagb_p->setMemory( vagb_data_p );
+            vagb_p->parse( default_settings );
+
+            // msic_p->setMemory( nullptr );
+            addResource( vagb_p );
+        }
+
+        // Then write the video file.
+        if( mdec_p != nullptr )
+        {
+            // This gives msic_data_p to msic so there is no need to delete it.
+            mdec_p->setMemory( mdec_data_p );
+            mdec_p->parse( default_settings );
+
+            // msic_p->setMemory( nullptr );
+            addResource( mdec_p );
         }
 
         Data::Accessor accessor;
