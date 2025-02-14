@@ -741,8 +741,6 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                             }
                         }
 
-                        error_log.output << "SWVR " << swvr_entry.name << "\n";
-
                         // Then write the voice file.
                         if( vagb_p != nullptr )
                         {
