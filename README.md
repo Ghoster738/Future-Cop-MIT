@@ -248,7 +248,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	
 	Then run cmake. This command turns on the post build unit test on purpose because the unit tests requires WINE to run in order to get the tests working.
 	```
-	cmake -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DCMAKE_INSTALL_PREFIX=../../rootpath -DJSONCPP_WITH_PORT_BUILD_UNITTEST=OFF ../../../../submodules/jsoncpp
+	cmake ../../../../submodules/jsoncpp -DCMAKE_TOOLCHAIN_FILE=../../mingw-w64-x86_64.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-flto -DJSONCPP_WITH_TESTS=OFF -DCMAKE_INSTALL_PREFIX=../../rootpath
 	```
 	
 	If cmake is successful use this command. Note: Normally install would require root access, but the install prefix is set to rootpath directory.
