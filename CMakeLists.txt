@@ -27,12 +27,7 @@ add_library(FC_IFF_IO STATIC ${UTILITIES_SOURCE_FILES} ${DATA_SOURCE_FILES} )
 
 target_include_directories(FC_IFF_IO PUBLIC "${PROJECT_BINARY_DIR}/src/" )
 
-if( EXISTS "${CMAKE_SOURCE_DIR}/submodules/mINI/CMakeLists.txt" )
-  add_subdirectory(submodules/mINI)
-  target_link_libraries( FC_IFF_IO mINI )
-else()
-  message( ERROR "Sorry, but the mINI submodule is required for the compilation of this project.")
-endif()
+include_directories("${CMAKE_SOURCE_DIR}/src/Utilities/HeaderOnlyLibraries/")
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
