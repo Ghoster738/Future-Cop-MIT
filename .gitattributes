@@ -7,3 +7,4 @@
 submodules/* linguist-vendored
 src/Sound/OpenAL/MojoAL/Library/* linguist-vendored
 src/Graphics/SDL2/GLES2/glad/* linguist-vendored
+src/Utilities/HeaderOnlyLibraries/* linguist-vendored
