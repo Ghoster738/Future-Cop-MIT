@@ -186,7 +186,7 @@ size_t Utilities::ImageFormat::QuiteOkImage::getSpace( const ImageBase2D<Grid2DP
 }
 
 bool Utilities::ImageFormat::QuiteOkImage::supports( const PixelFormatColor& pixel_format ) const {
-    return true;
+    return true; // TODO Remove Potential bug!
     if( dynamic_cast<const Utilities::PixelFormatColor_W8*>( &pixel_format ) != nullptr )
         return true;
     else
