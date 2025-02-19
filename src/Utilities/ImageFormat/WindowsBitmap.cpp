@@ -44,6 +44,14 @@ bool WindowsBitmap::isFormat( const Buffer& buffer ) const {
     return true;
 }
 
+bool WindowsBitmap::canRead() const {
+    return true; // By default this program can load windows bmp files.
+}
+
+bool WindowsBitmap::canWrite() const {
+    return true; // By default this program can write windows bmp files.
+}
+
 }
 
 }
