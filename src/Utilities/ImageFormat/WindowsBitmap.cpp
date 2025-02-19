@@ -86,6 +86,10 @@ bool WindowsBitmap::supports( const PixelFormatColor& pixel_format ) const {
         return false;
 }
 
+std::string WindowsBitmap::getExtension() const {
+    return FILE_EXTENSION;
+}
+
 }
 
 }
