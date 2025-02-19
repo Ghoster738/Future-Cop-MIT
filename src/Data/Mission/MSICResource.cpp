@@ -33,8 +33,8 @@ bool Data::Mission::MSICResource::parse( const ParseSettings &settings ) {
 
     if( this->data != nullptr )
     {
-        sound.setChannelNumber( 1 );
-        sound.setSampleRate( 28000 ); // Assumed rate
+        sound.setChannelNumber( 2 );
+        sound.setSampleRate( 14000 ); // Assumed rate
         sound.setBitsPerSample( 8 );
         
         auto reader = this->getDataReader();
