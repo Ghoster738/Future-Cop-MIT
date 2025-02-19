@@ -1,5 +1,12 @@
 #include "WindowsBitmap.h"
 
+namespace {
+
+const size_t   INFO_STRUCT_SIZE =  0xE;
+const size_t HEADER_STRUCT_SIZE = 0x28;
+
+}
+
 namespace Utilities {
 
 namespace ImageFormat {
@@ -24,8 +31,6 @@ ImageFormat* WindowsBitmap::duplicate() const {
 
 bool WindowsBitmap::isFormat( const Buffer& buffer ) const {
     auto reader = buffer.getReader();
-    const size_t HEADER_STRUCT_SIZE =  0xE;
-    // const size_t   HEADER_STRUCT_SIZE = 0x28; // Not needed
 
     // Check the header
     if(reader.totalSize() <= INFO_STRUCT_SIZE)
@@ -45,11 +50,40 @@ bool WindowsBitmap::isFormat( const Buffer& buffer ) const {
 }
 
 bool WindowsBitmap::canRead() const {
-    return true; // By default this program can load windows bmp files.
+    return true; // By default this program can load Windows BMP files.
 }
 
 bool WindowsBitmap::canWrite() const {
-    return true; // By default this program can write windows bmp files.
+    return true; // By default this program can write Windows BMP files.
+}
+
+size_t WindowsBitmap::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_data ) const {
+    size_t current_size = 0;
+
+    if( supports( *image_data.getPixelFormat() ) ) {
+        current_size += INFO_STRUCT_SIZE + HEADER_STRUCT_SIZE;
+
+        const size_t BIT_AMOUNT = 8 * image_data.getPixelFormat()->byteSize();
+
+        const size_t ROW_SIZE = 4 * ((BIT_AMOUNT * image_data.getWidth() + 31) / 32);
+
+        current_size += ROW_SIZE * image_data.getHeight();
+    }
+
+    return current_size;
+}
+
+bool WindowsBitmap::supports( const PixelFormatColor& pixel_format ) const {
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+        return true;
+    else
+        return false;
 }
 
 }
