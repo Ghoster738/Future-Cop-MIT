@@ -176,6 +176,9 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
                 color |= static_cast<uint16_t>(std::min( generic_color.green * 32.0, 31.)) <<  5;
                 color |= static_cast<uint16_t>(std::min( generic_color.red   * 32.0, 31.)) << 10;
 
+                if(generic_color.alpha > 0.5)
+                    color |= 0x8000;
+
                 buffer.addU16(color, Buffer::Endian::LITTLE);
             }
 
@@ -278,8 +281,6 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
         if(compression != 0)
             return -8;
 
-        m_color.alpha = 1.0;
-
         if(bit_amount == 16) {
             uint16_t bmp_sample;
 
@@ -294,6 +295,10 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
                     m_color.blue  = static_cast<float>( (bmp_sample & 0x001F) >>  0 ) / 32.0;
                     m_color.green = static_cast<float>( (bmp_sample & 0x03E0) >>  5 ) / 32.0;
                     m_color.red   = static_cast<float>( (bmp_sample & 0x7C00) >> 10 ) / 32.0;
+                    m_color.alpha = 0.0;
+
+                    if((bmp_sample & 0x8000) != 0 )
+                        m_color.alpha = 1.0;
 
                     image_data.writePixel( x, image_data.getHeight() - y - 1, m_color );
                 }
@@ -301,6 +306,8 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
             return 1;
 
         } else if(bit_amount == 24) {
+            m_color.alpha = 1.0;
+
             image_data.setDimensions( width, height );
 
             for( size_t y = 0; y < image_data.getHeight(); y++ ) {
