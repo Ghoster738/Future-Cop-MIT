@@ -249,20 +249,78 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
     if(color_plane != 1)
         return -5;
 
-    // Only these three formats.
-    if(bit_amount != 16 && bit_amount != 24 && bit_amount != 32)
-        return -6;
-
     // No compression.
     if(compression != 0)
-        return -7;
+        return -6;
 
     // Color palettes not supported.
     if(color_palette != 0)
-        return -8;
+        return -7;
 
     if(important_color_amount != 0)
-        return -9;
+        return -8;
+
+    Buffer::Reader pixel_buffer = buffer.getReader(BMP_IMAGE_DATA_OFFSET, image_size);
+    const size_t ROW_SIZE = 4 * ((bit_amount * image_data.getWidth() + 31) / 32);
+    PixelFormatColor::GenericColor m_color;
+
+    if(BMP_INFO_STRUCT != HEADER_32_STRUCT_SIZE) {
+        // *** Small Header Case ***
+
+        m_color.alpha = 1.0;
+
+        if(bit_amount == 16) {
+            uint16_t bmp_sample;
+
+            image_data.setDimensions( width, height );
+
+            for( size_t y = 0; y < image_data.getHeight(); y++ ) {
+                Buffer::Reader pixel_row_buffer = buffer.getReader(y * ROW_SIZE, ROW_SIZE);
+
+                for( size_t x = 0; x < image_data.getWidth(); x++ ) {
+                    bmp_sample = pixel_row_buffer.readU16(Buffer::Endian::LITTLE);
+
+                    m_color.blue  = static_cast<float>( (bmp_sample & 0x001F) >>  0 ) / 32.0;
+                    m_color.green = static_cast<float>( (bmp_sample & 0x03E0) >>  5 ) / 32.0;
+                    m_color.red   = static_cast<float>( (bmp_sample & 0x7C00) >> 10 ) / 32.0;
+
+                    image_data.writePixel( x, y, m_color );
+                }
+            }
+            return 1;
+
+        } else if(bit_amount == 24) {
+            image_data.setDimensions( width, height );
+
+            for( size_t y = 0; y < image_data.getHeight(); y++ ) {
+                Buffer::Reader pixel_row_buffer = buffer.getReader(y * ROW_SIZE, ROW_SIZE);
+
+                for( size_t x = 0; x < image_data.getWidth(); x++ ) {
+
+                    m_color.blue  = static_cast<float>( pixel_row_buffer.readU8() ) / 256.0;
+                    m_color.green = static_cast<float>( pixel_row_buffer.readU8() ) / 256.0;
+                    m_color.red   = static_cast<float>( pixel_row_buffer.readU8() ) / 256.0;
+
+                    image_data.writePixel( x, y, m_color );
+                }
+            }
+            return 1;
+
+        } else
+            return -9; // Restrict supported bit depths.
+    }
+    else {
+        // *** Big Header Case ***
+
+        // Restrict supported bit depths.
+        if(bit_amount != 32) {
+            return -11;
+        }
+
+        // TODO Read more of the header
+        return -12;
+    }
+    return 1;
 }
 
 }
