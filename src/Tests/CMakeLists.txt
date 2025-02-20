@@ -68,6 +68,11 @@ add_executable(image_palette_2D_test Utilities/ImagePalette2D.cpp)
 target_link_libraries(image_palette_2D_test PRIVATE FC_IFF_IO)
 add_test( NAME image_palette_2D_test COMMAND $<TARGET_FILE:image_palette_2D_test> )
 
+# Test Windows Bitmap Code
+add_executable(windows_bitmap_format_test Utilities/ImageFormat/WindowsBitmap.cpp)
+target_link_libraries(windows_bitmap_format_test PRIVATE FC_IFF_IO)
+add_test( NAME windows_bitmap_format_test COMMAND $<TARGET_FILE:windows_bitmap_format_test> )
+
 # Test Quite Okay Image Code
 add_executable(qoi_image_format_test Utilities/ImageFormat/QuiteOkImage.cpp)
 target_link_libraries(qoi_image_format_test PRIVATE FC_IFF_IO)
