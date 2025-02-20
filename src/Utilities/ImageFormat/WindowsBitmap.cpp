@@ -2,9 +2,11 @@
 
 namespace {
 
-const size_t   INFO_STRUCT_SIZE =  0xE;
-const size_t HEADER_STRUCT_SIZE = 0x28;
-const size_t        OFFSET_SIZE = INFO_STRUCT_SIZE + HEADER_STRUCT_SIZE;
+const size_t      INFO_STRUCT_SIZE =  0xE;
+const size_t    HEADER_STRUCT_SIZE = 0x28;
+const size_t HEADER_32_STRUCT_SIZE = 0x38;
+const size_t           OFFSET_SIZE = INFO_STRUCT_SIZE +    HEADER_STRUCT_SIZE;
+const size_t        OFFSET_32_SIZE = INFO_STRUCT_SIZE + HEADER_32_STRUCT_SIZE;
 
 }
 
@@ -62,7 +64,12 @@ size_t WindowsBitmap::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_
     size_t current_size = 0;
 
     if( supports( *image_data.getPixelFormat() ) ) {
-        current_size += INFO_STRUCT_SIZE + HEADER_STRUCT_SIZE;
+        current_size += INFO_STRUCT_SIZE;
+
+        if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+            current_size += HEADER_STRUCT_SIZE;
+        else
+            current_size += HEADER_32_STRUCT_SIZE;
 
         const size_t BIT_AMOUNT = 8 * image_data.getPixelFormat()->byteSize();
 
@@ -110,7 +117,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     buffer.addU32( OFFSET_SIZE, Buffer::Endian::LITTLE ); // This is where the pixels start.
 
     // Write the info struct.
-    buffer.addU32(                     40, Buffer::Endian::LITTLE );
+    buffer.addU32(     HEADER_STRUCT_SIZE, Buffer::Endian::LITTLE );
     buffer.addI32(  image_data.getWidth(), Buffer::Endian::LITTLE );
     buffer.addI32( image_data.getHeight(), Buffer::Endian::LITTLE );
     buffer.addU16(                      1, Buffer::Endian::LITTLE ); // Only one color plane please.
