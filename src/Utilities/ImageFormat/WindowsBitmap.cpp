@@ -6,6 +6,12 @@ const size_t      INFO_STRUCT_SIZE =  0xE;
 const size_t    HEADER_STRUCT_SIZE = 0x28;
 const size_t HEADER_32_STRUCT_SIZE = 0x6C;
 
+const uint32_t MASK[4] = {
+    0x000000FF,
+    0x0000FF00,
+    0x00FF0000,
+    0xFF000000 };
+
 }
 
 namespace Utilities {
@@ -314,13 +320,58 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
 
         // Restrict supported bit depths.
         if(bit_amount != 32) {
-            return -11;
+            return -10;
         }
 
-        // TODO Read more of the header
-        return -12;
+        const unsigned   red_index = 0;
+        const unsigned green_index = 1;
+        const unsigned  blue_index = 2;
+        const unsigned alpha_index = 3;
+
+        uint32_t channels[4];
+
+        channels[  red_index] = reader.readU32(Buffer::Endian::LITTLE);
+        channels[green_index] = reader.readU32(Buffer::Endian::LITTLE);
+        channels[ blue_index] = reader.readU32(Buffer::Endian::LITTLE);
+        channels[alpha_index] = reader.readU32(Buffer::Endian::LITTLE);
+
+        for(size_t i = 0; i < 4; i++) {
+            if(MASK[0])
+                channels[i] = 0;
+            else if(MASK[1])
+                channels[i] = 1;
+            else if(MASK[2])
+                channels[i] = 2;
+            else if(MASK[3])
+                channels[i] = 3;
+            else
+                return -11; // Unsupported bitfield
+        }
+
+        image_data.setDimensions( width, height );
+
+        uint8_t samples[4];
+
+        for( size_t y = 0; y < image_data.getHeight(); y++ ) {
+            Buffer::Reader pixel_row_buffer = buffer.getReader(y * ROW_SIZE, ROW_SIZE);
+
+            for( size_t x = 0; x < image_data.getWidth(); x++ ) {
+
+                samples[0] = pixel_row_buffer.readU8();
+                samples[1] = pixel_row_buffer.readU8();
+                samples[2] = pixel_row_buffer.readU8();
+                samples[3] = pixel_row_buffer.readU8();
+
+                m_color.red   = static_cast<float>( samples[channels[  red_index]] ) / 256.0;
+                m_color.green = static_cast<float>( samples[channels[green_index]] ) / 256.0;
+                m_color.blue  = static_cast<float>( samples[channels[ blue_index]] ) / 256.0;
+                m_color.alpha = static_cast<float>( samples[channels[alpha_index]] ) / 256.0;
+
+                image_data.writePixel( x, y, m_color );
+            }
+        }
+        return 1;
     }
-    return 1;
 }
 
 }
