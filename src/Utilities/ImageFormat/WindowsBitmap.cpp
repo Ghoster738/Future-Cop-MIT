@@ -171,7 +171,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
 
                 color |= static_cast<uint16_t>(std::min( generic_color.blue  * 32.0, 31.)) <<  0;
                 color |= static_cast<uint16_t>(std::min( generic_color.green * 32.0, 31.)) <<  5;
-                color |= static_cast<uint16_t>(std::min( generic_color.red   * 32.0, 31.)) << 15;
+                color |= static_cast<uint16_t>(std::min( generic_color.red   * 32.0, 31.)) << 10;
 
                 buffer.addU16(color, Buffer::Endian::LITTLE);
             }
