@@ -163,7 +163,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
 
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
             for( size_t x = 0; x < image_data.getWidth(); x++ ) {
-                auto generic_color = image_data.readPixel( x, y );
+                auto generic_color = image_data.readPixel( x, image_data.getHeight() - y - 1 );
 
                 color = 0;
 
@@ -182,7 +182,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( image_data.getPixelFormat() ) != nullptr ) {
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
             for( size_t x = 0; x < image_data.getWidth(); x++ ) {
-                auto generic_color = image_data.readPixel( x, y );
+                auto generic_color = image_data.readPixel( x, image_data.getHeight() - y - 1 );
 
                 buffer.addU8(std::min( generic_color.blue  * 256.0, 255.));
                 buffer.addU8(std::min( generic_color.green * 256.0, 255.));
@@ -197,7 +197,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr ) {
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
             for( size_t x = 0; x < image_data.getWidth(); x++ ) {
-                auto generic_color = image_data.readPixel( x, y );
+                auto generic_color = image_data.readPixel( x, image_data.getHeight() - y - 1 );
 
                 buffer.addU8(std::min( generic_color.blue  * 256.0, 255.));
                 buffer.addU8(std::min( generic_color.green * 256.0, 255.));
@@ -290,7 +290,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
                     m_color.green = static_cast<float>( (bmp_sample & 0x03E0) >>  5 ) / 32.0;
                     m_color.red   = static_cast<float>( (bmp_sample & 0x7C00) >> 10 ) / 32.0;
 
-                    image_data.writePixel( x, y, m_color );
+                    image_data.writePixel( x, image_data.getHeight() - y - 1, m_color );
                 }
             }
             return 1;
@@ -307,7 +307,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
                     m_color.green = static_cast<float>( pixel_row_buffer.readU8() ) / 256.0;
                     m_color.red   = static_cast<float>( pixel_row_buffer.readU8() ) / 256.0;
 
-                    image_data.writePixel( x, y, m_color );
+                    image_data.writePixel( x, image_data.getHeight() - y - 1, m_color );
                 }
             }
             return 1;
@@ -367,7 +367,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
                 m_color.blue  = static_cast<float>( samples[channels[ blue_index]] ) / 256.0;
                 m_color.alpha = static_cast<float>( samples[channels[alpha_index]] ) / 256.0;
 
-                image_data.writePixel( x, y, m_color );
+                image_data.writePixel( x, image_data.getHeight() - y - 1, m_color );
             }
         }
         return 1;
