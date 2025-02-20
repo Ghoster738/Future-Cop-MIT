@@ -59,6 +59,8 @@ These are the third party libraries that this project uses.
 
 * [OpenGL Mathematics Library (GLM)][glm-library-link]
 
+* [plmpeg][plmpeg-library-link]
+
 * [SDL2][sdl-library-link]
 
 * [zlib][zlib-library-link]
@@ -69,6 +71,7 @@ These are the third party libraries that this project uses.
 [mini-library-link]: https://github.com/metayeti/mINI "mINI's source code repository"
 [mojo-al-library-link]: https://github.com/icculus/mojoAL "mojoAL's source code repository"
 [glm-library-link]: https://github.com/g-truc/glm "OpenGL Mathematic's source code repository"
+[plmpeg-library-link]: https://github.com/phoboslab/pl_mpeg "This decodes MPEG videos"
 [sdl-library-link]: https://github.com/libsdl-org/SDL "SDL2's source code repository"
 [zlib-library-link]: https://github.com/madler/zlib "zlib's source code repository"
 
