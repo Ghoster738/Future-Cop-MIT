@@ -1,10 +1,12 @@
 #include "Chooser.h"
 #include "PortableNetworkGraphics.h"
 #include "QuiteOkImage.h"
+#include "WindowsBitmap.h"
 
 Utilities::ImageFormat::Chooser::Chooser() {
     formats.push_back( new Utilities::ImageFormat::PortableNetworkGraphics() );
     formats.push_back( new Utilities::ImageFormat::QuiteOkImage() );
+    formats.push_back( new Utilities::ImageFormat::WindowsBitmap() );
     
     for( auto x : formats ) {
         if( x->canWrite() )
