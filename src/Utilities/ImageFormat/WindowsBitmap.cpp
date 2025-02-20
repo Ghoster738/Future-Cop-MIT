@@ -345,13 +345,13 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
         channels[alpha_index] = reader.readU32(Buffer::Endian::LITTLE);
 
         for(size_t i = 0; i < 4; i++) {
-            if(MASK[0])
+            if(channels[i] == MASK[0])
                 channels[i] = 0;
-            else if(MASK[1])
+            else if(channels[i] == MASK[1])
                 channels[i] = 1;
-            else if(MASK[2])
+            else if(channels[i] == MASK[2])
                 channels[i] = 2;
-            else if(MASK[3])
+            else if(channels[i] == MASK[3])
                 channels[i] = 3;
             else
                 return -11; // Unsupported bitfield
