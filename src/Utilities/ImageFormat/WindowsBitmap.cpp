@@ -268,7 +268,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
         return -7;
 
     Buffer::Reader pixel_buffer = buffer.getReader(BMP_IMAGE_DATA_OFFSET, image_size);
-    const size_t ROW_SIZE = 4 * ((bit_amount * image_data.getWidth() + 31) / 32);
+    const size_t ROW_SIZE = 4 * ((bit_amount * width + 31) / 32);
     PixelFormatColor::GenericColor m_color;
 
     if(BMP_INFO_STRUCT != HEADER_32_STRUCT_SIZE) {
@@ -286,7 +286,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
             image_data.setDimensions( width, height );
 
             for( size_t y = 0; y < image_data.getHeight(); y++ ) {
-                Buffer::Reader pixel_row_buffer = buffer.getReader(y * ROW_SIZE, ROW_SIZE);
+                Buffer::Reader pixel_row_buffer = pixel_buffer.getReader(ROW_SIZE);
 
                 for( size_t x = 0; x < image_data.getWidth(); x++ ) {
                     bmp_sample = pixel_row_buffer.readU16(Buffer::Endian::LITTLE);
@@ -304,7 +304,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
             image_data.setDimensions( width, height );
 
             for( size_t y = 0; y < image_data.getHeight(); y++ ) {
-                Buffer::Reader pixel_row_buffer = buffer.getReader(y * ROW_SIZE, ROW_SIZE);
+                Buffer::Reader pixel_row_buffer = pixel_buffer.getReader(ROW_SIZE);
 
                 for( size_t x = 0; x < image_data.getWidth(); x++ ) {
 
@@ -362,7 +362,7 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
         uint8_t samples[4];
 
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
-            Buffer::Reader pixel_row_buffer = buffer.getReader(y * ROW_SIZE, ROW_SIZE);
+            Buffer::Reader pixel_row_buffer = pixel_buffer.getReader(ROW_SIZE);
 
             for( size_t x = 0; x < image_data.getWidth(); x++ ) {
 
