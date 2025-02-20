@@ -71,9 +71,9 @@ size_t WindowsBitmap::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_
         current_size += INFO_STRUCT_SIZE;
 
         if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
-            current_size += HEADER_STRUCT_SIZE;
-        else
             current_size += HEADER_32_STRUCT_SIZE;
+        else
+            current_size += HEADER_STRUCT_SIZE;
 
         const size_t BIT_AMOUNT = 8 * image_data.getPixelFormat()->byteSize();
 
