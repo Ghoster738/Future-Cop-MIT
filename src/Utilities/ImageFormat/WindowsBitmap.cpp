@@ -151,7 +151,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
         buffer.addU32( 0xFF000000, Buffer::Endian::LITTLE ); // alpha channel
         buffer.addU32( 0x42475273, Buffer::Endian::BIG );
 
-        for(unsigned i = 0; i < 10; i++) {
+        for(unsigned i = 0; i < 9; i++) {
             buffer.addU32( 0, Buffer::Endian::LITTLE );
         }
 
