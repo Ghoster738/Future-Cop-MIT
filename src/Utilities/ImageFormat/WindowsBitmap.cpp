@@ -64,7 +64,7 @@ size_t WindowsBitmap::getSpace( const ImageBase2D<Grid2DPlacementNormal>& image_
     if( supports( *image_data.getPixelFormat() ) ) {
         current_size += INFO_STRUCT_SIZE;
 
-        if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+        if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
             current_size += HEADER_STRUCT_SIZE;
         else
             current_size += HEADER_32_STRUCT_SIZE;
@@ -108,7 +108,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
 
     size_t header_size;
 
-    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
         header_size = HEADER_STRUCT_SIZE;
     else
         header_size = HEADER_32_STRUCT_SIZE;
@@ -211,7 +211,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
 int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNormal>& image_data ) {
     Buffer::Reader reader = buffer.getReader();
 
-    // Check the header
+    // *** Check the header structure ***
     if(reader.totalSize() <= INFO_STRUCT_SIZE)
         return -1;
 
@@ -228,7 +228,41 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
 
     const auto BMP_IMAGE_DATA_OFFSET = reader.readU32( Utilities::Buffer::Endian::LITTLE );
 
-    // if(HEADER_STRUCT_SIZE)
+    // *** Check the info structure ***
+    const auto BMP_INFO_STRUCT = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+
+    if(BMP_INFO_STRUCT != HEADER_STRUCT_SIZE && BMP_INFO_STRUCT != HEADER_32_STRUCT_SIZE)
+        return -4;
+
+    const auto width       = reader.readI32(Buffer::Endian::LITTLE);
+    const auto height      = reader.readI32(Buffer::Endian::LITTLE);
+    const auto color_plane = reader.readU16(Buffer::Endian::LITTLE);
+    const auto bit_amount  = reader.readU16(Buffer::Endian::LITTLE);
+    const auto compression = reader.readU32(Buffer::Endian::LITTLE);
+    const auto image_size  = reader.readU32(Buffer::Endian::LITTLE);
+    reader.readU32(Buffer::Endian::LITTLE);
+    reader.readU32(Buffer::Endian::LITTLE);
+    const auto color_palette = reader.readU32(Buffer::Endian::LITTLE);
+    const auto important_color_amount = reader.readU32(Buffer::Endian::LITTLE);
+
+    // Only one color plane.
+    if(color_plane != 1)
+        return -5;
+
+    // Only these three formats.
+    if(bit_amount != 16 && bit_amount != 24 && bit_amount != 32)
+        return -6;
+
+    // No compression.
+    if(compression != 0)
+        return -7;
+
+    // Color palettes not supported.
+    if(color_palette != 0)
+        return -8;
+
+    if(important_color_amount != 0)
+        return -9;
 }
 
 }
