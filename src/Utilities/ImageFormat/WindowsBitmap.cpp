@@ -137,7 +137,10 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     buffer.addI32( image_data.getHeight(), Buffer::Endian::LITTLE );
     buffer.addU16(                      1, Buffer::Endian::LITTLE ); // Only one color plane please.
     buffer.addU16(             BIT_AMOUNT, Buffer::Endian::LITTLE );
-    buffer.addU32(                      0, Buffer::Endian::LITTLE ); // Uncompressed
+    if(header_size == HEADER_32_STRUCT_SIZE)
+        buffer.addU32(                  3, Buffer::Endian::LITTLE ); // BI_BITFIELDS
+    else
+        buffer.addU32(                  0, Buffer::Endian::LITTLE ); // Uncompressed
     buffer.addU32(     SIZE - offset_size, Buffer::Endian::LITTLE ); // Raw image size can be optained through this method.
     buffer.addI32(                    512, Buffer::Endian::LITTLE ); // horizontal 512 pixels per metre
     buffer.addI32(                    512, Buffer::Endian::LITTLE ); //   vertical 512 pixels per metre
@@ -257,16 +260,12 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
     if(color_plane != 1)
         return -5;
 
-    // No compression.
-    if(compression != 0)
-        return -6;
-
     // Color palettes not supported.
     if(color_palette != 0)
-        return -7;
+        return -6;
 
     if(important_color_amount != 0)
-        return -8;
+        return -7;
 
     Buffer::Reader pixel_buffer = buffer.getReader(BMP_IMAGE_DATA_OFFSET, image_size);
     const size_t ROW_SIZE = 4 * ((bit_amount * image_data.getWidth() + 31) / 32);
@@ -274,6 +273,10 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
 
     if(BMP_INFO_STRUCT != HEADER_32_STRUCT_SIZE) {
         // *** Small Header Case ***
+
+        // No compression.
+        if(compression != 0)
+            return -8;
 
         m_color.alpha = 1.0;
 
@@ -320,9 +323,13 @@ int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNorma
     else {
         // *** Big Header Case ***
 
+        // BI_BITFIELDS
+        if(compression != 3)
+            return -10;
+
         // Restrict supported bit depths.
         if(bit_amount != 32) {
-            return -10;
+            return -11;
         }
 
         const unsigned   red_index = 0;
