@@ -1,8 +1,7 @@
 #ifndef GRAPHICS_IMAGE_H
 #define GRAPHICS_IMAGE_H
 
-#include <glm/vec4.hpp>
-#include <glm/vec2.hpp>
+#include "ImageBase.h"
 
 namespace Graphics {
 
