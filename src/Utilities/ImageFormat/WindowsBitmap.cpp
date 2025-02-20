@@ -31,7 +31,7 @@ ImageFormat* WindowsBitmap::duplicate() const {
 }
 
 bool WindowsBitmap::isFormat( const Buffer& buffer ) const {
-    auto reader = buffer.getReader();
+    Buffer::Reader reader = buffer.getReader();
 
     // Check the header
     if(reader.totalSize() <= INFO_STRUCT_SIZE)
@@ -175,6 +175,30 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     }
 
     return 1;
+}
+
+
+int WindowsBitmap::read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNormal>& image_data ) {
+    Buffer::Reader reader = buffer.getReader();
+
+    // Check the header
+    if(reader.totalSize() <= INFO_STRUCT_SIZE)
+        return -1;
+
+    if( reader.readI8() != 'B' || reader.readI8() != 'M' )
+        return -2;
+
+    const auto BMP_SIZE = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+
+    if(BMP_SIZE != reader.totalSize())
+        return -3;
+
+    reader.readU16(Buffer::Endian::LITTLE);
+    reader.readU16(Buffer::Endian::LITTLE);
+
+    const auto BMP_IMAGE_DATA_OFFSET = reader.readU32( Utilities::Buffer::Endian::LITTLE );
+
+    // if(HEADER_STRUCT_SIZE)
 }
 
 }
