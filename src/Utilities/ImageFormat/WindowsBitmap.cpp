@@ -103,8 +103,10 @@ std::string WindowsBitmap::getExtension() const {
 }
 
 int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
+    const PixelFormatColor& pixel_format = *image_data.getPixelFormat();
+
     const size_t SIZE = getSpace(image_data);
-    const size_t BIT_AMOUNT = 8 * image_data.getPixelFormat()->byteSize();
+    const size_t BIT_AMOUNT = 8 * pixel_format.byteSize();
     const size_t ROW_SIZE = 4 * ((BIT_AMOUNT * image_data.getWidth() + 31) / 32);
     const size_t ROW_PAD_SIZE = ROW_SIZE - 4 * ((BIT_AMOUNT * image_data.getWidth()) / 32);
 
@@ -114,7 +116,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
 
     size_t header_size;
 
-    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr )
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
         header_size = HEADER_STRUCT_SIZE;
     else
         header_size = HEADER_32_STRUCT_SIZE;
@@ -158,7 +160,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
         buffer.addU32( 0, Buffer::Endian::LITTLE );
     }
 
-    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr ) {
+    if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( &pixel_format ) != nullptr ) {
         uint16_t color;
 
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
@@ -179,7 +181,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
         }
     }
     else
-    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( image_data.getPixelFormat() ) != nullptr ) {
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8*>( &pixel_format ) != nullptr ) {
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
             for( size_t x = 0; x < image_data.getWidth(); x++ ) {
                 auto generic_color = image_data.readPixel( x, image_data.getHeight() - y - 1 );
@@ -194,7 +196,7 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
         }
     }
     else
-    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( image_data.getPixelFormat() ) != nullptr ) {
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr ) {
         for( size_t y = 0; y < image_data.getHeight(); y++ ) {
             for( size_t x = 0; x < image_data.getWidth(); x++ ) {
                 auto generic_color = image_data.readPixel( x, image_data.getHeight() - y - 1 );
