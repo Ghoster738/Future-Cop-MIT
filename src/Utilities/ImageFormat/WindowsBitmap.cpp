@@ -117,9 +117,9 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     size_t header_size;
 
     if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
-        header_size = HEADER_STRUCT_SIZE;
-    else
         header_size = HEADER_32_STRUCT_SIZE;
+    else
+        header_size = HEADER_STRUCT_SIZE;
 
     size_t offset_size = INFO_STRUCT_SIZE + header_size;
 
