@@ -4,9 +4,7 @@ namespace {
 
 const size_t      INFO_STRUCT_SIZE =  0xE;
 const size_t    HEADER_STRUCT_SIZE = 0x28;
-const size_t HEADER_32_STRUCT_SIZE = 0x38;
-const size_t           OFFSET_SIZE = INFO_STRUCT_SIZE +    HEADER_STRUCT_SIZE;
-const size_t        OFFSET_32_SIZE = INFO_STRUCT_SIZE + HEADER_32_STRUCT_SIZE;
+const size_t HEADER_32_STRUCT_SIZE = 0x6C;
 
 }
 
@@ -108,26 +106,51 @@ int WindowsBitmap::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, 
     if(SIZE == 0)
         return -1;
 
+    size_t header_size;
+
+    if( dynamic_cast<const Utilities::PixelFormatColor_R8G8B8A8*>( &pixel_format ) != nullptr )
+        header_size = HEADER_STRUCT_SIZE;
+    else
+        header_size = HEADER_32_STRUCT_SIZE;
+
+    size_t offset_size = INFO_STRUCT_SIZE + header_size;
+
     // Write the header
     buffer.addI8( 'B' );
     buffer.addI8( 'M' );
     buffer.addU32(        SIZE, Buffer::Endian::LITTLE );
     buffer.addU16(           0, Buffer::Endian::LITTLE );
     buffer.addU16(           0, Buffer::Endian::LITTLE );
-    buffer.addU32( OFFSET_SIZE, Buffer::Endian::LITTLE ); // This is where the pixels start.
+    buffer.addU32( offset_size, Buffer::Endian::LITTLE ); // This is where the pixels start.
 
     // Write the info struct.
-    buffer.addU32(     HEADER_STRUCT_SIZE, Buffer::Endian::LITTLE );
+    buffer.addU32(            header_size, Buffer::Endian::LITTLE );
     buffer.addI32(  image_data.getWidth(), Buffer::Endian::LITTLE );
     buffer.addI32( image_data.getHeight(), Buffer::Endian::LITTLE );
     buffer.addU16(                      1, Buffer::Endian::LITTLE ); // Only one color plane please.
     buffer.addU16(             BIT_AMOUNT, Buffer::Endian::LITTLE );
     buffer.addU32(                      0, Buffer::Endian::LITTLE ); // Uncompressed
-    buffer.addU32(     SIZE - OFFSET_SIZE, Buffer::Endian::LITTLE ); // Raw image size can be optained through this method.
+    buffer.addU32(     SIZE - offset_size, Buffer::Endian::LITTLE ); // Raw image size can be optained through this method.
     buffer.addI32(                    512, Buffer::Endian::LITTLE ); // horizontal 512 pixels per metre
     buffer.addI32(                    512, Buffer::Endian::LITTLE ); //   vertical 512 pixels per metre
     buffer.addU32(                      0, Buffer::Endian::LITTLE ); // No color palette
     buffer.addU32(                      0, Buffer::Endian::LITTLE ); // No color palette
+
+    if(header_size == HEADER_32_STRUCT_SIZE) {
+        buffer.addU32( 0x00FF0000, Buffer::Endian::LITTLE ); // red   channel
+        buffer.addU32( 0x0000FF00, Buffer::Endian::LITTLE ); // green channel
+        buffer.addU32( 0x000000FF, Buffer::Endian::LITTLE ); // blue  channel
+        buffer.addU32( 0xFF000000, Buffer::Endian::LITTLE ); // alpha channel
+        buffer.addU32( 0x42475273, Buffer::Endian::BIG );
+
+        for(unsigned i = 0; i < 10; i++) {
+            buffer.addU32( 0, Buffer::Endian::LITTLE );
+        }
+
+        buffer.addU32( 0, Buffer::Endian::LITTLE );
+        buffer.addU32( 0, Buffer::Endian::LITTLE );
+        buffer.addU32( 0, Buffer::Endian::LITTLE );
+    }
 
     if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( image_data.getPixelFormat() ) != nullptr ) {
         uint16_t color;
