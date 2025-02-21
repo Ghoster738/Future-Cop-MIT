@@ -1,5 +1,5 @@
 #include "Image.h"
-#include "Internal/ImageDraw.h"
+#include "Internal/Draw2D.h"
 
 namespace Graphics::SDL2::GLES2 {
 
