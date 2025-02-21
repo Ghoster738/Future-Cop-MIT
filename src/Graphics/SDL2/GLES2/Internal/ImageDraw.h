@@ -33,7 +33,7 @@ public:
     };
 
 private:
-    std::map<uint32_t, std::map<const Image *const, ImageData>> images;
+    std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
     std::map<const ExternalImage *const, ExternalImageData> external_images;
 
 public:
@@ -46,9 +46,9 @@ public:
      */
     void draw(Graphics::SDL2::GLES2::Camera& camera);
 
-    void updateImageData(uint32_t cbmp_id, const ImageData *const image_r, const ImageData& image_data);
+    void updateImageData(const Texture2D *const, const ImageData *const image_r, const ImageData& image_data);
 
-    void removeImageData(uint32_t cbmp_id, const ImageData *const image_r);
+    void removeImageData(const Texture2D *const, const ImageData *const image_r);
 
     void updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data);
 
