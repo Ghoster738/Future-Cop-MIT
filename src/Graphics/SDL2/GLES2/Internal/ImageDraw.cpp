@@ -8,9 +8,33 @@ ImageDraw::~ImageDraw() {}
 
 void ImageDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {}
 
-void ImageDraw::updateImageData(const Texture2D *const, const ImageData *const image_r, const ImageData& image_data) {}
+void ImageDraw::updateImageData(const Texture2D *const internal_texture_r, const Image *const image_r, const ImageData& image_data) {
+    auto internal_texture_it = this->images.find( internal_texture_r );
 
-void ImageDraw::removeImageData(const Texture2D *const, const ImageData *const image_r) {}
+    if(internal_texture_it == this->images.end())
+        this->images[ internal_texture_r ]; // This allocates the texture
+
+    this->images[ internal_texture_r ][ image_r ] = image_data;
+}
+
+void ImageDraw::removeImageData(const Texture2D *const internal_texture_r, const Image *const image_r) {
+    auto internal_texture_it = this->images.find( internal_texture_r );
+
+    // Check for emptiness
+    if(internal_texture_it == this->images.end())
+        return;
+
+    auto image_it = this->images[ internal_texture_r ].find( image_r );
+
+    // Check for emptiness
+    if(image_it == this->images[ internal_texture_r ].end())
+        return;
+
+    this->images[ internal_texture_r ].erase(image_it);
+
+    if(this->images[ internal_texture_r ].empty())
+        this->images.erase(internal_texture_it);
+}
 
 void ImageDraw::updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data) {
     this->external_images[external_image_r] = external_image_data;

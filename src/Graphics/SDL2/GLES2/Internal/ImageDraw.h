@@ -46,9 +46,9 @@ public:
      */
     void draw(Graphics::SDL2::GLES2::Camera& camera);
 
-    void updateImageData(const Texture2D *const, const ImageData *const image_r, const ImageData& image_data);
+    void updateImageData(const Texture2D *const internal_texture_r, const Image *const image_r, const ImageData& image_data);
 
-    void removeImageData(const Texture2D *const, const ImageData *const image_r);
+    void removeImageData(const Texture2D *const internal_texture_r, const Image *const image_r);
 
     void updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data);
 
