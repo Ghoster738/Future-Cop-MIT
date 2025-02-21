@@ -3,6 +3,7 @@
 
 #include "Texture2D.h"
 #include "../Camera.h"
+#include "FontSystem.h"
 
 #include <cstdint>
 #include <map>
@@ -17,6 +18,8 @@ namespace Internal {
 
 class Draw2D {
 public:
+    FontSystem *text_draw_routine_p;
+
     struct Vertex {
         float x, y;
         float u, v;
@@ -34,7 +37,7 @@ public:
         }
     };
 
-    const uint8_t DEFAULT_COLOR[4] = { 0xFF, 0xFF, 0xFF, 0xFF };
+    static constexpr uint8_t DEFAULT_COLOR[4] = { 0xFF, 0xFF, 0xFF, 0xFF };
 
     struct Color {
         uint32_t color_rgba;
@@ -72,10 +75,13 @@ protected:
     std::vector<Shader::Varying>   varyings;
     Shader  vertex_shader;
     Shader  fragment_shader;
+
+public:
     VertexAttributeArray vertex_array;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
 
+protected:
     std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
     std::map<const ExternalImage *const, ExternalImageData> external_images;
 
@@ -128,6 +134,13 @@ public:
      * @return false if one of the shaders are not loaded.
      */
     int compileProgram();
+
+    /**
+     * @return vertex buffer size in bytes.
+     */
+    static size_t getVertexSize() { return sizeof( Vertex ); }
+
+    const VertexAttributeArray *const getVertexAttributeArray() const { return &vertex_array; };
 
     /**
      * Draw all the images to be render

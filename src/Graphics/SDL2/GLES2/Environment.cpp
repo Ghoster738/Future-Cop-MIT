@@ -14,7 +14,6 @@ namespace Graphics::SDL2::GLES2 {
 
 Environment::Environment() {
     this->world_p             = nullptr;
-    this->text_draw_routine_p = nullptr;
     this->shiney_texture_p    = nullptr;
 
     this->display_world = false;
@@ -23,12 +22,6 @@ Environment::Environment() {
 }
 
 Environment::~Environment() {
-    if( this->text_draw_routine_p != nullptr )
-    {
-        delete this->text_draw_routine_p;
-        this->text_draw_routine_p = nullptr;
-    }
-    
     for( auto texture : this->textures ) {
         delete texture.second;
         texture.second = nullptr;
@@ -352,7 +345,6 @@ void Environment::drawFrame() {
     
     auto window_SDL_r = dynamic_cast<GLES2::Window*>( window_r );
     GLES2::Camera* current_camera_r; // Used to store the camera.
-    glm::mat4 camera_3D_projection_view_model; // This holds the two transforms from above.
 
     // Clear the screen to black
     glClearColor(0.125f, 0.125f, 0.25f, 1.0f);
@@ -407,19 +399,7 @@ void Environment::drawFrame() {
 
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            current_camera_r->getProjectionView2D( camera_3D_projection_view_model );
-
             this->draw_2d_routine.draw( *current_camera_r );
-
-            for( auto i = current_camera_r->getText2DBuffer()->begin(); i != current_camera_r->getText2DBuffer()->end(); i++ )
-            {
-                // TODO Eventually remove this kind of upcasts. They are dangerious.
-                auto text_2d_draw_routine = dynamic_cast<Text2DBuffer*>( *i );
-                
-                assert( text_2d_draw_routine != nullptr );
-                
-                text_2d_draw_routine->draw( camera_3D_projection_view_model );
-            }
         }
 
         // Finally swap the window.

@@ -8,7 +8,6 @@
 #include "Internal/MorphModelDraw.h"
 #include "Internal/Texture2D.h"
 #include "Internal/Draw2D.h"
-#include "Internal/FontSystem.h"
 #include "Internal/StaticModelDraw.h"
 #include "Internal/SkeletalModelDraw.h"
 #include "Internal/ParticleDraw.h"
@@ -20,8 +19,6 @@ namespace Graphics::SDL2::GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
-    SDL2::GLES2::Internal::FontSystem                   *text_draw_routine_p;
-
     std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> textures;
     Graphics::SDL2::GLES2::Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
     Graphics::SDL2::GLES2::Internal::World              *world_p; // This handles drawing the whole world.

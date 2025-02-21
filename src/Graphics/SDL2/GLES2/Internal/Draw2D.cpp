@@ -111,9 +111,16 @@ Draw2D::Draw2D() {
 
     this->varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
     this->varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
+
+    this->text_draw_routine_p = nullptr;
 }
 
-Draw2D::~Draw2D() {}
+Draw2D::~Draw2D() {
+    if( this->text_draw_routine_p != nullptr ) {
+        delete this->text_draw_routine_p;
+        this->text_draw_routine_p = nullptr;
+    }
+}
 
 void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     // Get the 2D matrix
@@ -125,6 +132,15 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
     // We can now send the matrix to the program.
     glUniformMatrix4fv( this->matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model ) );
+
+    for( auto i = camera.getText2DBuffer()->begin(); i != camera.getText2DBuffer()->end(); i++ ) {
+        // TODO Eventually remove this kind of upcasts. They are dangerious.
+        auto text_2d_draw_routine = dynamic_cast<Text2DBuffer*>( *i );
+
+        assert( text_2d_draw_routine != nullptr );
+
+        text_2d_draw_routine->draw( camera_3D_projection_view_model );
+    }
 }
 
 void Draw2D::updateImageData(const Texture2D *const internal_texture_r, const Image *const image_r, const ImageData& image_data) {

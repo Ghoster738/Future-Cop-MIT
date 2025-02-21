@@ -7,14 +7,12 @@
 #include "VertexAttributeArray.h"
 #include "Texture2D.h"
 
-namespace Graphics {
-namespace SDL2 {
-namespace GLES2 {
-namespace Internal {
+namespace Graphics::SDL2::GLES2::Internal {
 
 class FontSystem {
 public:
     class Text2D;
+
     struct Font {
         uint32_t resource_id;
         const Data::Mission::FontResource *font_resource_r;
@@ -109,17 +107,6 @@ public:
          */
         void draw( const VertexAttributeArray &vertex_array ) const;
     };
-    static const GLchar* default_vertex_shader;
-    static const GLchar* default_fragment_shader;
-protected:
-    Program program;
-    std::vector<Shader::Attribute> attributes;
-    std::vector<Shader::Varying>   varyings;
-    Shader  vertex_shader;
-    Shader  fragment_shader;
-    VertexAttributeArray vertex_array;
-    GLuint texture_uniform_id;
-    GLuint matrix_uniform_id;
 
     std::vector<Font> font_bank;
 public:
@@ -133,8 +120,6 @@ public:
     ~FontSystem();
     
     std::map<uint32_t, Text2D*> getText2D();
-
-    const VertexAttributeArray *const getVertexAttributeArray() const { return &vertex_array; };
     
     /**
      * @return the number of fonts in the class.
@@ -145,64 +130,10 @@ public:
      * This gets a font from the class.
      */
     Font* accessFont( unsigned int index );
-    
-    /**
-     * @return vertex buffer size in bytes.
-     */
-    static size_t getVertexSize();
 
-    /**
-     * This method gets the default vertex shader depending on the GL version.
-     * @warning make sure the correct context is binded, or else you would get an improper shader.
-     * @return a pointer to a vertex shader.
-     */
-    static const GLchar* getDefaultVertexShader();
-
-    /**
-     * This method gets the default fragment shader depending on the GL version.
-     * @warning make sure the correct context is binded, or else you would get an improper shader.
-     * @return a pointer to a fragment shader.
-     */
-    static const GLchar* getDefaultFragmentShader();
-
-    /**
-     * This sets up and compiles this shader from memory.
-     * This is to be used for internal shaders.
-     * @param shader_source The memory pointer to the source code of the shader.
-     */
-    void setVertexShader( const GLchar *const shader_source = getDefaultVertexShader() );
-
-    /**
-     * This loads a shader from a text file, and compiles it.
-     * @param shader_source The memory pointer to the source code of the shader.
-     */
-    int loadVertexShader( const char *const file_path );
-
-    /**
-     * This sets up and compiles this shader from memory.
-     * This is to be used for internal shaders.
-     * @param shader_source The memory pointer to the source code of the shader.
-     */
-    void setFragmentShader( const GLchar *const shader_source = getDefaultFragmentShader() );
-
-    /**
-     * This loads a shader from a text file, and compiles it.
-     * @param shader_source The memory pointer to the source code of the shader.
-     */
-    int loadFragmentShader( const char *const file_path );
-
-    /**
-     * Link every shader to the program.
-     * @return false if one of the shaders are not loaded.
-     */
-    int compileProgram();
-
-    void draw( const glm::mat4 &projection, const std::map<uint32_t, Text2D*> &text_2d_array );
+    void draw( const glm::mat4 &projection, GLuint texture_uniform_id, VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array );
 };
 
-}
-}
-}
 }
 
 #endif // GRAPHICS_GLES2_INTERNAL_FONT_SYSTEM_H
