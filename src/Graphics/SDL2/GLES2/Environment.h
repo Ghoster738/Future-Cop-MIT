@@ -46,6 +46,9 @@ public:
 
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+
+    virtual Graphics::Image* allocateImage();
+    virtual Graphics::ExternalImage* allocateExternalImage();
     virtual Graphics::ParticleInstance* allocateParticleInstance();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;

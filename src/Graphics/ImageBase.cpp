@@ -4,6 +4,8 @@
 
 namespace Graphics {
 
+ImageBase::~ImageBase() {}
+
 float ImageBase::getAspectRatio() const {
     glm::vec2 dimensions = glm::abs(positions[0] - positions[1]);
     return dimensions.x / dimensions.y;
