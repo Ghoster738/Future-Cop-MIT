@@ -7,6 +7,7 @@
 
 #include "Internal/MorphModelDraw.h"
 #include "Internal/Texture2D.h"
+#include "Internal/ImageDraw.h"
 #include "Internal/FontSystem.h"
 #include "Internal/StaticModelDraw.h"
 #include "Internal/SkeletalModelDraw.h"
@@ -15,9 +16,7 @@
 #include "../../Camera.h"
 #include "../../Environment.h"
 
-namespace Graphics {
-namespace SDL2 {
-namespace GLES2 {
+namespace Graphics::SDL2::GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
@@ -32,6 +31,7 @@ public:
     Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_routine;
     Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
+    SDL2::GLES2::Internal::ImageDraw                     image_draw_routine;
     Graphics::SDL2::GLES2::Internal::ParticleDraw        particle_draw_routine;
     Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
@@ -62,8 +62,6 @@ public:
     virtual void advanceTime( float seconds_passed );
 };
 
-}
-}
 }
 
 #endif // GRAPHICS_ENVIRONMENT_DATA_H

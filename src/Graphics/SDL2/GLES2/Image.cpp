@@ -23,7 +23,9 @@ Graphics::Image* Environment::allocateImage() {
     return image_p;
 }
 
-Image::~Image() {}
+Image::~Image() {
+    this->environment_r->image_draw_routine.removeImageData(this->environment_r->shiney_texture_p, this);
+}
 
 void Image::update() {
     Internal::ImageDraw::ImageData image_data;
@@ -34,6 +36,8 @@ void Image::update() {
     image_data.visable           = this->is_visable;
     image_data.texture_coords[0] = this->texture_coords[0];
     image_data.texture_coords[1] = this->texture_coords[1];
+
+    this->environment_r->image_draw_routine.updateImageData(this->environment_r->shiney_texture_p, this, image_data);
 }
 
 }
