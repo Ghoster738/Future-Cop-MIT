@@ -32,6 +32,10 @@ int Draw2D::loadVertexShader( const char *const file_path ) {
     return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path );
 }
 
+void Draw2D::setVertexShader( const GLchar *const shader_source ) {
+    this->vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, this->attributes, this->varyings );
+}
+
 const GLchar* Draw2D::getDefaultFragmentShader() {
     return default_fragment_shader;
 }
@@ -40,20 +44,24 @@ int Draw2D::loadFragmentShader( const char *const file_path ) {
     return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
 }
 
+void Draw2D::setFragmentShader( const GLchar *const shader_source ) {
+    this->fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, this->varyings );
+}
+
 int Draw2D::compileProgram() {
     bool link_success     = true;
     bool uniform_failed   = false;
     bool attribute_failed = false;
 
     // The two shaders should be allocated first.
-    if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
+    if( this->vertex_shader.getType() == Shader::TYPE::VERTEX && this->fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
 
         // Allocate the opengl program for the map.
-        program.allocate();
+        this->program.allocate();
 
         // Give the program these two shaders.
-        program.setVertexShader( &vertex_shader );
-        program.setFragmentShader( &fragment_shader );
+        this->program.setVertexShader( &vertex_shader );
+        this->program.setFragmentShader( &fragment_shader );
 
         // Link the shader
         if( !program.link() )
@@ -61,29 +69,29 @@ int Draw2D::compileProgram() {
         else
         {
             // Setup the uniforms for the map.
-            texture_uniform_id = program.getUniform( "Texture",   &std::cout, &uniform_failed );
-            matrix_uniform_id  = program.getUniform( "Transform", &std::cout, &uniform_failed );
+            this->texture_uniform_id = this->program.getUniform( "Texture",   &std::cout, &uniform_failed );
+            this->matrix_uniform_id  = this->program.getUniform( "Transform", &std::cout, &uniform_failed );
 
-            attribute_failed |= !program.isAttribute(   "POSITION", &std::cout );
-            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute(    "COLOR_0", &std::cout );
+            attribute_failed |= !this->program.isAttribute(   "POSITION", &std::cout );
+            attribute_failed |= !this->program.isAttribute( "TEXCOORD_0", &std::cout );
+            attribute_failed |= !this->program.isAttribute(    "COLOR_0", &std::cout );
         }
 
-        vertex_array.addAttribute( "POSITION",   2, GL_FLOAT,         false, sizeof( Vertex ), 0 );
-        vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT,         false, sizeof( Vertex ), reinterpret_cast<void*>(2 * alignof( Vertex )) );
-        vertex_array.addAttribute( "COLOR_0",    4, GL_UNSIGNED_BYTE, true,  sizeof( Vertex ), reinterpret_cast<void*>(4 * alignof( Vertex )) );
+        this->vertex_array.addAttribute( "POSITION",   2, GL_FLOAT,         false, sizeof( Vertex ), 0 );
+        this->vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT,         false, sizeof( Vertex ), reinterpret_cast<void*>(2 * alignof( Vertex )) );
+        this->vertex_array.addAttribute( "COLOR_0",    4, GL_UNSIGNED_BYTE, true,  sizeof( Vertex ), reinterpret_cast<void*>(4 * alignof( Vertex )) );
 
-        vertex_array.allocate( program );
-        vertex_array.cullUnfound();
+        this->vertex_array.allocate( program );
+        this->vertex_array.cullUnfound();
 
         if( !link_success || uniform_failed || attribute_failed )
         {
             std::cout << "Font System Error\n"
-                << program.getInfoLog()
+                << this->program.getInfoLog()
                 << "\nVertex shader log\n"
-                << vertex_shader.getInfoLog()
+                << this->vertex_shader.getInfoLog()
                 << "\nFragment shader log\n"
-                << fragment_shader.getInfoLog() << std::endl;
+                << this->fragment_shader.getInfoLog() << std::endl;
 
             return 1;
         }
@@ -93,23 +101,31 @@ int Draw2D::compileProgram() {
         return 1;
     }
     else
-    {
         return 0; // Not every shader was loaded.
-    }
 }
 
 Draw2D::Draw2D() {
-    attributes.push_back( Shader::Attribute( Shader::Type::HIGH,   "vec4 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
+    this->attributes.push_back( Shader::Attribute( Shader::Type::HIGH,   "vec4 POSITION" ) );
+    this->attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 TEXCOORD_0" ) );
+    this->attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
 
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
-    varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
+    this->varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
+    this->varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
 }
 
 Draw2D::~Draw2D() {}
 
-void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {}
+void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
+    // Get the 2D matrix
+    glm::mat4 camera_3D_projection_view_model;
+    camera.getProjectionView2D( camera_3D_projection_view_model );
+
+    // Use the text shader.
+    this->program.use();
+
+    // We can now send the matrix to the program.
+    glUniformMatrix4fv( this->matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model ) );
+}
 
 void Draw2D::updateImageData(const Texture2D *const internal_texture_r, const Image *const image_r, const ImageData& image_data) {
     auto internal_texture_it = this->images.find( internal_texture_r );

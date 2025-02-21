@@ -185,6 +185,10 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
 
     if( !this->has_initialized_routines ) {
+        // Setup the 2D vertex and fragment shaders
+        this->draw_2d_routine.setVertexShader();
+        this->draw_2d_routine.setFragmentShader();
+        this->draw_2d_routine.compileProgram();
 
         // Setup the vertex and fragment shaders
         this->static_model_draw_routine.setVertexShader();
