@@ -24,11 +24,11 @@ Graphics::Image* Environment::allocateImage() {
 }
 
 Image::~Image() {
-    this->environment_r->image_draw_routine.removeImageData(this->environment_r->shiney_texture_p, this);
+    this->environment_r->draw_2d_routine.removeImageData(this->environment_r->shiney_texture_p, this);
 }
 
 void Image::update() {
-    Internal::ImageDraw::ImageData image_data;
+    Internal::Draw2D::ImageData image_data;
 
     image_data.positions[0]      = this->positions[0];
     image_data.positions[1]      = this->positions[1];
@@ -37,7 +37,7 @@ void Image::update() {
     image_data.texture_coords[0] = this->texture_coords[0];
     image_data.texture_coords[1] = this->texture_coords[1];
 
-    this->environment_r->image_draw_routine.updateImageData(this->environment_r->shiney_texture_p, this, image_data);
+    this->environment_r->draw_2d_routine.updateImageData(this->environment_r->shiney_texture_p, this, image_data);
 }
 
 }

@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_GLES2_INTERNAL_IMAGE_DRAW_H
-#define GRAPHICS_GLES2_INTERNAL_IMAGE_DRAW_H
+#ifndef GRAPHICS_GLES2_INTERNAL_DRAW_2D_H
+#define GRAPHICS_GLES2_INTERNAL_DRAW_2D_H
 
 #include "Texture2D.h"
 #include "../Camera.h"
@@ -15,7 +15,7 @@ class ExternalImage;
 
 namespace Internal {
 
-class ImageDraw {
+class Draw2D {
 public:
     struct ImageBaseData {
         glm::vec2 positions[2];
@@ -37,8 +37,8 @@ private:
     std::map<const ExternalImage *const, ExternalImageData> external_images;
 
 public:
-    ImageDraw();
-    virtual ~ImageDraw();
+    Draw2D();
+    virtual ~Draw2D();
 
     /**
      * Draw all the images to be render
@@ -61,4 +61,4 @@ public:
 
 
 
-#endif // GRAPHICS_GLES2_INTERNAL_PARTICLE_DRAW_H
+#endif // GRAPHICS_GLES2_INTERNAL_DRAW_2D_H
