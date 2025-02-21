@@ -3,10 +3,13 @@
 
 #include "ImageBase.h"
 
+#include <cstdint>
+
 namespace Graphics {
 
 class Image : public ImageBase {
 public:
+    uint32_t  cbmp_id;
     glm::vec2 texture_coords[2];
 
     /**
