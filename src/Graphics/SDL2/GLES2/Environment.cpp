@@ -405,6 +405,8 @@ void Environment::drawFrame() {
 
             current_camera_r->getProjectionView2D( camera_3D_projection_view_model );
 
+            this->image_draw_routine.draw( *current_camera_r );
+
             for( auto i = current_camera_r->getText2DBuffer()->begin(); i != current_camera_r->getText2DBuffer()->end(); i++ )
             {
                 // TODO Eventually remove this kind of upcasts. They are dangerious.
