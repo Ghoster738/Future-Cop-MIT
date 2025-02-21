@@ -76,12 +76,10 @@ protected:
     Shader  vertex_shader;
     Shader  fragment_shader;
 
-public:
     VertexAttributeArray vertex_array;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
 
-protected:
     std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
     std::map<const ExternalImage *const, ExternalImageData> external_images;
 

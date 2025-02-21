@@ -184,15 +184,6 @@ float Graphics::SDL2::GLES2::Text2DBuffer::getLineLength( const Font &font, cons
     return font.scale * static_cast<float>(font_resource_r->getLineLength( filtered_text ));
 }
 
-void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
-    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
-    
-    assert( font_system_r != nullptr );
-    assert( text_data_p.size() != 0 );
-
-    font_system_r->draw( projection, gl_environment_r->draw_2d_routine.texture_uniform_id, gl_environment_r->draw_2d_routine.vertex_array, text_data_p );
-}
-
 int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
     auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     

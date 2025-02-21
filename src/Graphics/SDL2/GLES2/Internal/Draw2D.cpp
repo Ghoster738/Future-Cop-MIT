@@ -133,13 +133,17 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     // We can now send the matrix to the program.
     glUniformMatrix4fv( this->matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model ) );
 
+    // Lastly, draw the font.
     for( auto i = camera.getText2DBuffer()->begin(); i != camera.getText2DBuffer()->end(); i++ ) {
         // TODO Eventually remove this kind of upcasts. They are dangerious.
-        auto text_2d_draw_routine = dynamic_cast<Text2DBuffer*>( *i );
+        auto text_2d_buffer_r = dynamic_cast<Text2DBuffer*>( *i );
 
-        assert( text_2d_draw_routine != nullptr );
+        assert( text_2d_buffer_r != nullptr );
 
-        text_2d_draw_routine->draw( camera_3D_projection_view_model );
+        assert( this->text_draw_routine_p != nullptr );
+        assert( text_2d_buffer_r->text_data_p.size() != 0 );
+
+        this->text_draw_routine_p->draw( camera_3D_projection_view_model, this->texture_uniform_id, this->vertex_array, text_2d_buffer_r->text_data_p );
     }
 }
 
