@@ -134,6 +134,8 @@ Draw2D::~Draw2D() {
 }
 
 void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
+    Color color;
+
     // Get the 2D matrix
     glm::mat4 camera_3D_projection_view_model;
     camera.getProjectionView2D( camera_3D_projection_view_model );
@@ -165,14 +167,16 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
             if(!image_data_r->visable || num_triangles + 2 >= this->max_triangles)
                 continue;
 
-            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
-            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
-            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            color.set(image_data_r->color.x * 255.0, image_data_r->color.y * 255.0, image_data_r->color.z * 255.0, image_data_r->color.w * 255.0);
+
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
             num_triangles++;
 
-            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
             num_triangles++;
         }
 
