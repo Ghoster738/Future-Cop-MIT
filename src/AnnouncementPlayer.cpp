@@ -50,10 +50,19 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
                 this->announcements.push_back(snds_array_r[0]);
         }
     }
+
+    image_p = main_program.environment_p->allocateImage();
+
+    image_p->positions[0] = glm::vec2(   0.0, -400.0);
+    image_p->positions[1] = glm::vec2( 400.0,  000.0);
+    image_p->is_visable = true;
+    image_p->update();
 }
 
 void AnnouncementPlayer::unload( MainProgram &main_program ) {
     this->announcements.clear();
+
+    delete image_p;
 }
 
 void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {

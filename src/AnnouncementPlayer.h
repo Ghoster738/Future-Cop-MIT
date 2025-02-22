@@ -6,6 +6,7 @@
 #include <vector>
 #include "Data/Mission/SNDSResource.h"
 #include "Graphics/Text2DBuffer.h"
+#include "Graphics/Image.h"
 
 class AnnouncementPlayer : public GameState {
 public:
@@ -18,6 +19,7 @@ private:
     float count_down;
 
     Graphics::Text2DBuffer::Font font;
+    Graphics::Image *image_p;
     unsigned font_height;
 
 public:

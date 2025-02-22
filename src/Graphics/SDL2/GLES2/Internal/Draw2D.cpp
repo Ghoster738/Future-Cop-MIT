@@ -92,15 +92,8 @@ int Draw2D::compileProgram() {
                 << this->vertex_shader.getInfoLog()
                 << "\nFragment shader log\n"
                 << this->fragment_shader.getInfoLog() << std::endl;
-        }
-        else
             return -1;
-
-        this->buffer_p = new Draw2D::Vertex [ 3 * this->max_triangles ];
-
-        glGenBuffers( 1, &this->vertex_buffer_object );
-        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
-        glBufferData( GL_ARRAY_BUFFER, 3 * sizeof( Draw2D::Vertex ) * this->max_triangles, nullptr, GL_DYNAMIC_DRAW );
+        }
 
         return 1;
     }
@@ -145,6 +138,14 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     // We can now send the matrix to the program.
     glUniformMatrix4fv( this->matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model ) );
 
+    if(this->buffer_p == nullptr) {
+        this->buffer_p = new Draw2D::Vertex [ 3 * this->max_triangles ];
+
+        glGenBuffers( 1, &this->vertex_buffer_object );
+        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
+        glBufferData( GL_ARRAY_BUFFER, 3 * sizeof( Draw2D::Vertex ) * this->max_triangles, nullptr, GL_DYNAMIC_DRAW );
+    }
+
     for(auto texture_iterator = images.begin(); texture_iterator != images.end(); texture_iterator++) {
         texture_iterator->first->bind( 0, this->texture_uniform_id );
 
@@ -163,6 +164,7 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
         }
 
         glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
+        glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( Draw2D::Vertex ) * 6, this->buffer_p);
         this->vertex_array.bind();
         glDrawArrays( GL_TRIANGLES, 0, 6 );
     }
