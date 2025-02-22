@@ -92,11 +92,15 @@ int Draw2D::compileProgram() {
                 << this->vertex_shader.getInfoLog()
                 << "\nFragment shader log\n"
                 << this->fragment_shader.getInfoLog() << std::endl;
-
-            return 1;
         }
         else
             return -1;
+
+        this->buffer_p = new Draw2D::Vertex [ 3 * this->max_triangles ];
+
+        glGenBuffers( 1, &this->vertex_buffer_object );
+        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
+        glBufferData( GL_ARRAY_BUFFER, 3 * sizeof( Draw2D::Vertex ) * this->max_triangles, nullptr, GL_DYNAMIC_DRAW );
 
         return 1;
     }
@@ -113,9 +117,17 @@ Draw2D::Draw2D() {
     this->varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
 
     this->text_draw_routine_p = nullptr;
+
+    this->buffer_p = nullptr;
+    this->max_triangles = 1024;
 }
 
 Draw2D::~Draw2D() {
+    if( this->buffer_p != nullptr ) {
+        delete [] this->buffer_p;
+        glDeleteBuffers( 1, &this->vertex_buffer_object );
+    }
+
     if( this->text_draw_routine_p != nullptr ) {
         delete this->text_draw_routine_p;
         this->text_draw_routine_p = nullptr;
@@ -132,6 +144,28 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
     // We can now send the matrix to the program.
     glUniformMatrix4fv( this->matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model ) );
+
+    for(auto texture_iterator = images.begin(); texture_iterator != images.end(); texture_iterator++) {
+        texture_iterator->first->bind( 0, this->texture_uniform_id );
+
+        for(auto image_instance_iterator = texture_iterator->second.begin(); image_instance_iterator != texture_iterator->second.end(); image_instance_iterator++) {
+            ImageData *image_data_r = &image_instance_iterator->second;
+
+            if(!image_data_r->visable)
+                continue;
+
+            this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[4].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+        }
+
+        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
+        this->vertex_array.bind();
+        glDrawArrays( GL_TRIANGLES, 0, 6 );
+    }
 
     // Lastly, draw the font.
     for( auto i = camera.getText2DBuffer()->begin(); i != camera.getText2DBuffer()->end(); i++ ) {

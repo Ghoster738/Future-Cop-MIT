@@ -24,6 +24,8 @@ public:
         float x, y;
         float u, v;
         uint32_t color_rgba;
+
+        Vertex() {}
         Vertex( float set_x, float set_y, float set_u, float set_v,
             uint32_t set_color_rgba ) :
             x( set_x ), y( set_y ), u( set_u ), v( set_v ),
@@ -79,6 +81,10 @@ protected:
     VertexAttributeArray vertex_array;
     GLuint texture_uniform_id;
     GLuint matrix_uniform_id;
+
+    GLuint vertex_buffer_object;
+    size_t max_triangles;
+    Vertex *buffer_p;
 
     std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
     std::map<const ExternalImage *const, ExternalImageData> external_images;
