@@ -243,7 +243,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const
             this->font_bank.back().texture_scale.y *= 2;
         }
         
-        auto color_format = Utilities::PixelFormatColor_W8();
+        auto color_format = Utilities::PixelFormatColor_W8A8();
         Utilities::Image2D image(
             this->font_bank.back().texture_scale.x,
             this->font_bank.back().texture_scale.y,
@@ -262,7 +262,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const
 
         assert( state == true );
         this->font_bank.back().texture.setFilters( 0, GL_NEAREST, GL_LINEAR );
-        this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getDirectGridData() );
+        this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE_ALPHA, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     }
 }
 

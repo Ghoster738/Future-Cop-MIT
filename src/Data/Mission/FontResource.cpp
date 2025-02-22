@@ -224,7 +224,7 @@ bool Data::Mission::FontResource::parse( const ParseSettings &settings ) {
 
                 // The pixels are compressed with 4 bit color palettes.
                 // Playstation did not support 1 bit, so their best option is 4 bit.
-                auto color_format = Utilities::PixelFormatColor_W8();
+                auto color_format = Utilities::PixelFormatColor_W8A8();
                 Utilities::ColorPalette color_palette( color_format );
                 
                 color_palette.setAmount( 0x10 );
