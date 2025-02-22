@@ -5,10 +5,7 @@
 
 #include <string>
 
-namespace Graphics {
-namespace SDL2 {
-namespace GLES2 {
-namespace Internal {
+namespace Graphics::SDL2::GLES2::Internal {
 
 /**
  * This is the texture handler for OpenGLES 2.0.
@@ -89,9 +86,6 @@ public:
     void genChecker( GLuint active_texture, GLsizei width, GLsizei height, GLubyte pixel1[3], GLubyte pixel2[3] );
 };
 
-}
-}
-}
 }
 
 #endif // GL_TEXTURE_3591_INCLUDE

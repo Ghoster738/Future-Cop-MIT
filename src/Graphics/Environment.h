@@ -5,6 +5,8 @@
 #include "Window.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
+#include "Image.h"
+#include "ExternalImage.h"
 #include <vector>
 #include "SDL.h"
 #include "../Data/Mission/BMPResource.h"
@@ -78,6 +80,10 @@ public:
     virtual std::string getEnvironmentIdentifier() const = 0;
 
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
+
+    virtual Image* allocateImage() = 0;
+
+    virtual ExternalImage* allocateExternalImage(bool has_alpha = false) = 0;
 
     virtual ParticleInstance* allocateParticleInstance() = 0;
 

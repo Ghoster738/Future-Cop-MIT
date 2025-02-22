@@ -245,6 +245,31 @@ bool Utilities::Buffer::write( const std::string& file_path ) const {
         return false;
 }
 
+bool Utilities::Buffer::read( const std::string& file_path ) {
+    std::ifstream input;
+    size_t size;
+    uint8_t byte;
+
+    input.open( file_path, std::ios::binary | std::ios::in );
+
+    if( input.is_open() ) {
+        input.seekg(0, input.end);
+        size = input.tellg();
+        input.seekg(0, input.beg);
+
+        for(size_t i = 0; i < size; i++) {
+            input.read(reinterpret_cast<char*>(&byte), 1);
+            addU8(byte);
+        }
+
+        input.close();
+
+        return true;
+    }
+    else
+        return false;
+}
+
 uint8_t* Utilities::Buffer::dangerousPointer() {
     return data.data();
 }

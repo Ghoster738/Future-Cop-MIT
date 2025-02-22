@@ -19,13 +19,13 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
     // To be set by the environment when this buffer gets attached.
     current_text_2D_r = nullptr;
     buffer_size_per_font_KiB = buffer_size_per_font_KiB;
-    text_2D_expand_factor = (buffer_size_per_font_KiB * KIBIBYTE_TO_BYTE) / (Graphics::SDL2::GLES2::Internal::FontSystem::getVertexSize() * VERTICES_PER_CHARACTER);
+    text_2D_expand_factor = (buffer_size_per_font_KiB * KIBIBYTE_TO_BYTE) / (Graphics::SDL2::GLES2::Internal::Draw2D::getVertexSize() * VERTICES_PER_CHARACTER);
 
     // To be sure that the text_2D_expand_factor will not be zero.
     if( text_2D_expand_factor < 0x100 )
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
-    text_data_p = gl_environment_r->text_draw_routine_p->getText2D();
+    text_data_p = gl_environment_r->draw_2d_routine.text_draw_routine_p->getText2D();
 
     this->scale_font = 1.0f;
 }
@@ -41,15 +41,12 @@ int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &envir
 
     assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
     
-    if( gl_environment_r->text_draw_routine_p != nullptr )
-        delete gl_environment_r->text_draw_routine_p;
+    if( gl_environment_r->draw_2d_routine.text_draw_routine_p != nullptr )
+        delete gl_environment_r->draw_2d_routine.text_draw_routine_p;
     
     std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
 
-    gl_environment_r->text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
-    gl_environment_r->text_draw_routine_p->setVertexShader();
-    gl_environment_r->text_draw_routine_p->setFragmentShader();
-    gl_environment_r->text_draw_routine_p->compileProgram();
+    gl_environment_r->draw_2d_routine.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
     
     return fonts_r.size();
 }
@@ -187,17 +184,8 @@ float Graphics::SDL2::GLES2::Text2DBuffer::getLineLength( const Font &font, cons
     return font.scale * static_cast<float>(font_resource_r->getLineLength( filtered_text ));
 }
 
-void Graphics::SDL2::GLES2::Text2DBuffer::draw( const glm::mat4 &projection ) const {
-    auto font_system_r = gl_environment_r->text_draw_routine_p;
-    
-    assert( font_system_r != nullptr );
-    assert( text_data_p.size() != 0 );
-
-    font_system_r->draw( projection, text_data_p );
-}
-
 int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
-    auto font_system_r = gl_environment_r->text_draw_routine_p;
+    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     
     auto last_text_2D_r = current_text_2D_r;
 
@@ -224,7 +212,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position ) {
-    auto font_system_r = gl_environment_r->text_draw_routine_p;
+    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     
     if( font_system_r != nullptr )
     {
@@ -244,7 +232,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position 
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
-    auto font_system_r = gl_environment_r->text_draw_routine_p;
+    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     uint8_t color_rgba[4];
 
     if( font_system_r != nullptr )
@@ -288,7 +276,7 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setCenterMode( enum CenterMode center_m
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::print( const std::string &text ) {
-    auto font_system_r = gl_environment_r->text_draw_routine_p;
+    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     size_t expand_amount;
     size_t expand_sum;
     int add_text_state;
@@ -376,7 +364,7 @@ glm::vec2 Graphics::SDL2::GLES2::Text2DBuffer::getBoxEnd() const {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
-    auto font_system_r = gl_environment_r->text_draw_routine_p;
+    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     int problematic_font = 0;
 
     if( font_system_r != nullptr )

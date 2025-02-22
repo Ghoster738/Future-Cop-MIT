@@ -3,68 +3,7 @@
 #include <cassert>
 #include "SDL.h"
 
-namespace {
-    /**
-     * This holds the vertex for the font system.
-     */
-    struct TextVertex {
-        float x, y;
-        float u, v;
-        uint32_t color_rgba;
-        TextVertex( float set_x, float set_y, float set_u, float set_v,
-            uint32_t set_color_rgba ) :
-            x( set_x ), y( set_y ), u( set_u ), v( set_v ),
-            color_rgba( set_color_rgba )
-        {
-        }
-        void set( float set_x, float set_y, float set_u, float set_v,
-            uint32_t set_color_rgba ) {
-            x = set_x, y = set_y, u = set_u, v = set_v;
-            color_rgba = set_color_rgba;
-        }
-    };
-
-    const uint8_t DEFAULT_COLOR[4] = { 0xFF, 0xFF, 0xFF, 0xFF };
-
-    struct Color {
-        uint32_t color_rgba;
-        uint8_t* toPointer() { return reinterpret_cast<uint8_t*>(&color_rgba); }
-        void set( uint8_t r, uint8_t b, uint8_t g, uint8_t a ) {
-            uint8_t *color = toPointer();
-            color[0] = r;
-            color[1] = b;
-            color[2] = g;
-            color[3] = a;
-        }
-    };
-}
-
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_vertex_shader =
-    // Vertex shader uniforms
-    "uniform mat4  Transform;\n" // projection * view * model.
-    "void main()\n"
-    "{\n"
-    "   texture_coord = TEXCOORD_0;\n"
-    "   vertex_color = COLOR_0;\n"
-    "   gl_Position = Transform * vec4(POSITION.xy, 0.0, 1.0);\n"
-    "}\n";
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::default_fragment_shader =
-    "uniform sampler2D Texture;\n"
-    "void main()\n"
-    "{\n"
-    "    float visable = texture2D(Texture, texture_coord).r;\n"
-    "    if( visable < 0.03125 )\n"
-    "        discard;\n"
-    "    gl_FragColor = vertex_color;\n"
-    "}\n";
-
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultVertexShader() {
-    return default_vertex_shader;
-}
-
-const GLchar* Graphics::SDL2::GLES2::Internal::FontSystem::getDefaultFragmentShader() {
-    return default_fragment_shader;
-}
+#include "Draw2D.h"
 
 Graphics::SDL2::GLES2::Internal::FontSystem::Text2D * Graphics::SDL2::GLES2::Internal::FontSystem::Font::allocateText2D() {
     return new Text2D( this );
@@ -77,7 +16,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::Text2D( Graphics::SDL2::GLE
     this->max_amount_of_characters = 0;
     this->vertex_buffer_object = 0;
 
-    setPenColor( DEFAULT_COLOR );
+    setPenColor( Draw2D::DEFAULT_COLOR );
     setPenPosition( glm::vec2( 0, 0 ) );
 
     // font_r should never be null!
@@ -126,7 +65,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setTextMax( size_t max_
     else
     {
         // Attempt to allocate data.
-        size_t max_text_buffer_size = max_text * sizeof( TextVertex ) * 6;
+        size_t max_text_buffer_size = max_text * sizeof( Draw2D::Vertex ) * 6;
         auto new_buffer_p = new uint8_t [ max_text_buffer_size ];
 
         if( new_buffer_p == nullptr ) {
@@ -144,15 +83,15 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::setTextMax( size_t max_
             if( this->amount_of_characters != 0 )
             {
                 for( size_t i = 0; i < this->amount_of_characters * 6; i++ ) {
-                     reinterpret_cast<TextVertex*>(new_buffer_p)[ i ] =
-                        reinterpret_cast<TextVertex*>(this->buffer_p)[ i ];
+                     reinterpret_cast<Draw2D::Vertex*>(new_buffer_p)[ i ] =
+                        reinterpret_cast<Draw2D::Vertex*>(this->buffer_p)[ i ];
                 }
                 // If the this->amount_of_characters is a nonzero,
                 // then these two values are allocated.
                 delete [] this->buffer_p;
 
                 // Post the copied data to OpenGL for good measure.
-                glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( TextVertex ) * this->amount_of_characters * 6, new_buffer_p );
+                glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( Draw2D::Vertex ) * this->amount_of_characters * 6, new_buffer_p );
             }
 
             // Finally, we can allocate this->text_p and this->buffer_p
@@ -170,7 +109,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
     this->pen_span_min = glm::vec2( std::numeric_limits<float>::max());
 
     size_t appended_size = 0;
-    auto text_vertex_buffer_r = reinterpret_cast<TextVertex*>(this->buffer_p);
+    auto text_vertex_buffer_r = reinterpret_cast<Draw2D::Vertex*>(this->buffer_p);
     auto char_vertex_buffer_r = text_vertex_buffer_r;
     glm::vec2 lower_font, higher_font;
     glm::vec2 texture_low, texture_high;
@@ -245,7 +184,7 @@ int Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::addText( const std::str
             this->pen_span_min.x -= (pen_position.x - last_line_pos);
         }
 
-        glBufferSubData( GL_ARRAY_BUFFER, sizeof( TextVertex ) * this->amount_of_characters * 6, sizeof( TextVertex ) * (appended_size + this->amount_of_characters) * 6, this->buffer_p);
+        glBufferSubData( GL_ARRAY_BUFFER, sizeof( Draw2D::Vertex ) * this->amount_of_characters * 6, sizeof( Draw2D::Vertex ) * (appended_size + this->amount_of_characters) * 6, this->buffer_p);
 
         this->amount_of_characters += appended_size;
 
@@ -280,13 +219,6 @@ void Graphics::SDL2::GLES2::Internal::FontSystem::Text2D::draw( const VertexAttr
 Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const Data::Mission::FontResource*> &font_resources ) {
     this->font_bank.reserve( font_resources.size() );
 
-    attributes.push_back( Shader::Attribute( Shader::Type::HIGH,   "vec4 POSITION" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::MEDIUM, "vec2 TEXCOORD_0" ) );
-    attributes.push_back( Shader::Attribute( Shader::Type::LOW,    "vec4 COLOR_0" ) );
-
-    varyings.push_back( Shader::Varying( Shader::Type::LOW, "vec4 vertex_color" ) );
-    varyings.push_back( Shader::Varying( Shader::Type::MEDIUM, "vec2 texture_coord" ) );
-
     for( unsigned i = 0; i < font_resources.size(); i++ )
     {
         this->font_bank.push_back( Font() );
@@ -311,7 +243,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const
             this->font_bank.back().texture_scale.y *= 2;
         }
         
-        auto color_format = Utilities::PixelFormatColor_W8();
+        auto color_format = Utilities::PixelFormatColor_W8A8();
         Utilities::Image2D image(
             this->font_bank.back().texture_scale.x,
             this->font_bank.back().texture_scale.y,
@@ -330,7 +262,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const
 
         assert( state == true );
         this->font_bank.back().texture.setFilters( 0, GL_NEAREST, GL_LINEAR );
-        this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, image.getDirectGridData() );
+        this->font_bank.back().texture.setImage( 0, 0, GL_LUMINANCE_ALPHA, image.getWidth(), image.getHeight(), 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, image.getDirectGridData() );
     }
 }
 
@@ -361,91 +293,7 @@ Graphics::SDL2::GLES2::Internal::FontSystem::Font* Graphics::SDL2::GLES2::Intern
         return nullptr;
 }
 
-void Graphics::SDL2::GLES2::Internal::FontSystem::setVertexShader( const GLchar *const shader_source ) {
-    vertex_shader.setShader( Shader::TYPE::VERTEX, shader_source, attributes, varyings );
-}
-
-int Graphics::SDL2::GLES2::Internal::FontSystem::loadVertexShader( const char *const file_path ) {
-    return vertex_shader.loadShader( Shader::TYPE::VERTEX, file_path );
-}
-
-void Graphics::SDL2::GLES2::Internal::FontSystem::setFragmentShader( const GLchar *const shader_source ) {
-    fragment_shader.setShader( Shader::TYPE::FRAGMENT, shader_source, {}, varyings );
-}
-
-int Graphics::SDL2::GLES2::Internal::FontSystem::loadFragmentShader( const char *const file_path ) {
-    return fragment_shader.loadShader( Shader::TYPE::FRAGMENT, file_path );
-}
-
-size_t Graphics::SDL2::GLES2::Internal::FontSystem::getVertexSize() {
-    return sizeof( TextVertex );
-}
-
-int Graphics::SDL2::GLES2::Internal::FontSystem::compileProgram() {
-    bool link_success     = true;
-    bool uniform_failed   = false;
-    bool attribute_failed = false;
-    
-    // The two shaders should be allocated first.
-    if( vertex_shader.getType() == Shader::TYPE::VERTEX && fragment_shader.getType() == Shader::TYPE::FRAGMENT ) {
-
-        // Allocate the opengl program for the map.
-        program.allocate();
-
-        // Give the program these two shaders.
-        program.setVertexShader( &vertex_shader );
-        program.setFragmentShader( &fragment_shader );
-        
-        // Link the shader
-        if( !program.link() )
-            link_success = false;
-        else
-        {
-            // Setup the uniforms for the map.
-            texture_uniform_id = program.getUniform( "Texture",   &std::cout, &uniform_failed );
-            matrix_uniform_id  = program.getUniform( "Transform", &std::cout, &uniform_failed );
-            
-            attribute_failed |= !program.isAttribute(   "POSITION", &std::cout );
-            attribute_failed |= !program.isAttribute( "TEXCOORD_0", &std::cout );
-            attribute_failed |= !program.isAttribute(    "COLOR_0", &std::cout );
-        }
-        
-        vertex_array.addAttribute( "POSITION",   2, GL_FLOAT,         false, sizeof( TextVertex ), 0 );
-        vertex_array.addAttribute( "TEXCOORD_0", 2, GL_FLOAT,         false, sizeof( TextVertex ), reinterpret_cast<void*>(2 * alignof( TextVertex )) );
-        vertex_array.addAttribute( "COLOR_0",    4, GL_UNSIGNED_BYTE, true,  sizeof( TextVertex ), reinterpret_cast<void*>(4 * alignof( TextVertex )) );
-
-        vertex_array.allocate( program );
-        vertex_array.cullUnfound();
-        
-        if( !link_success || uniform_failed || attribute_failed )
-        {
-            std::cout << "Font System Error\n";
-            std::cout << program.getInfoLog();
-            std::cout << "\nVertex shader log\n";
-            std::cout << vertex_shader.getInfoLog();
-            std::cout << "\nFragment shader log\n";
-            std::cout << fragment_shader.getInfoLog() << std::endl;
-            
-            return 1;
-        }
-        else
-            return -1;
-
-        return 1;
-    }
-    else
-    {
-        return 0; // Not every shader was loaded.
-    }
-}
-
-void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &projection, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array ) {
-    // Use the text shader.
-    program.use();
-
-    // We can now send the matrix to the program.
-    glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &projection ) );
-
+void Graphics::SDL2::GLES2::Internal::FontSystem::draw( const glm::mat4 &projection, GLuint texture_uniform_id, VertexAttributeArray &vertex_array, const std::map<uint32_t, Graphics::SDL2::GLES2::Internal::FontSystem::Text2D*> &text_2d_array ) {
     for( auto i = text_2d_array.begin(); i != text_2d_array.end(); i++ )
     {
         (*i).second->getFont()->texture.bind( 0, texture_uniform_id );

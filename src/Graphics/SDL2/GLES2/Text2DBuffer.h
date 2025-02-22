@@ -37,8 +37,6 @@ public:
     static int loadFonts( Graphics::Environment &env_r, const Data::Accessor &accessor );
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const;
-    
-    void draw( const glm::mat4 &projection ) const;
 
     virtual bool selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const;
     virtual bool scaleFont( Font &font, unsigned height ) const;

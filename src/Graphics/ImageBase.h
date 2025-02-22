@@ -7,7 +7,7 @@
 namespace Graphics {
 
 class ImageBase {
-protected:
+public:
     glm::vec2 positions[2];
     glm::vec4 color;
     bool      is_visable;
