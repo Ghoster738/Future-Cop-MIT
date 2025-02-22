@@ -45,7 +45,7 @@ public:
     virtual int loadResources( const Data::Accessor &accessor );
 
     virtual Graphics::Image* allocateImage();
-    virtual Graphics::ExternalImage* allocateExternalImage();
+    virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
     virtual Graphics::ParticleInstance* allocateParticleInstance();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;

@@ -8,7 +8,9 @@ namespace Graphics {
 
 class ExternalImage : public ImageBase {
 public:
-    const Utilities::Image2D *image_2d_r;
+    Utilities::Image2D image_2d;
+
+    ExternalImage(const Utilities::PixelFormatColor &color) : image_2d(1, 1, color) {}
 
     /**
      * @warning Calling this is required.

@@ -83,7 +83,7 @@ public:
 
     virtual Image* allocateImage() = 0;
 
-    virtual ExternalImage* allocateExternalImage() = 0;
+    virtual ExternalImage* allocateExternalImage(bool has_alpha = false) = 0;
 
     virtual ParticleInstance* allocateParticleInstance() = 0;
 
