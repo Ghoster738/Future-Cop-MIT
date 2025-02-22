@@ -18,10 +18,10 @@ const GLchar* Draw2D::default_fragment_shader =
     "uniform sampler2D Texture;\n"
     "void main()\n"
     "{\n"
-    "    float visable = texture2D(Texture, texture_coord).r;\n"
-    "    if( visable < 0.03125 )\n"
+    "    vec4 color = texture2D(Texture, texture_coord).rgba;\n"
+    "    if( color.a < 0.03125 )\n"
     "        discard;\n"
-    "    gl_FragColor = vertex_color;\n"
+    "    gl_FragColor = vertex_color * color;\n"
     "}\n";
 
 const GLchar* Draw2D::getDefaultVertexShader() {
