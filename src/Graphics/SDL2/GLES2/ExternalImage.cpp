@@ -52,9 +52,11 @@ void ExternalImage::upload() {
 
     if(this->texture_2d_p != nullptr)
         delete this->texture_2d_p;
+    this->texture_2d_p = new Internal::Texture2D;
 
     //TODO Add type safety!
 
+    this->texture_2d_p->setFilters( 0, GL_NEAREST, GL_LINEAR );
     this->texture_2d_p->setImage(0, 0, GL_RGB, this->image_2d_r->getWidth(), this->image_2d_r->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, this->image_2d_r->getDirectGridData() );
 }
 

@@ -59,6 +59,7 @@ public:
     bool addI64(  int64_t value, Endian endianess = NO_SWAP );
     
     bool write( const std::string& file_path ) const;
+    bool read( const std::string& file_path );
     
     uint8_t* dangerousPointer();
     const uint8_t *const dangerousPointer() const;
