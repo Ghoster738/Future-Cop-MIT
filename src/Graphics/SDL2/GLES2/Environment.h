@@ -19,18 +19,18 @@ namespace Graphics::SDL2::GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
-    std::map<uint32_t, Graphics::SDL2::GLES2::Internal::Texture2D*> textures;
-    Graphics::SDL2::GLES2::Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
-    Graphics::SDL2::GLES2::Internal::World              *world_p; // This handles drawing the whole world.
+    std::map<uint32_t, Internal::Texture2D*> textures;
+    Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
+    Internal::World              *world_p; // This handles drawing the whole world.
     bool display_world;
 
     bool has_initialized_routines;
-    Graphics::SDL2::GLES2::Internal::StaticModelDraw     static_model_draw_routine;
-    Graphics::SDL2::GLES2::Internal::MorphModelDraw      morph_model_draw_routine;
-    Graphics::SDL2::GLES2::Internal::SkeletalModelDraw   skeletal_model_draw_routine;
-    SDL2::GLES2::Internal::Draw2D                        draw_2d_routine;
-    Graphics::SDL2::GLES2::Internal::ParticleDraw        particle_draw_routine;
-    Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
+    Internal::StaticModelDraw     static_model_draw_routine;
+    Internal::MorphModelDraw      morph_model_draw_routine;
+    Internal::SkeletalModelDraw   skeletal_model_draw_routine;
+    Internal::Draw2D              draw_2d_routine;
+    Internal::ParticleDraw        particle_draw_routine;
+    Internal::DynamicTriangleDraw dynamic_triangle_draw_routine;
 
     bool draw_bounding_boxes;
 

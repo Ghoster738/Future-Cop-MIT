@@ -12,6 +12,8 @@ namespace GLES2 {
 class Image : public Graphics::Image {
 public:
     Environment *environment_r;
+    const Internal::Texture2D *cbmp_texture_r;
+    uint32_t                   cbmp_last_id;
 
     virtual ~Image();
 

@@ -55,6 +55,7 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
 
     image_p->positions[0] = glm::vec2(   0.0, -400.0);
     image_p->positions[1] = glm::vec2( 400.0,  000.0);
+    image_p->cbmp_id = 11;
     image_p->is_visable = true;
     image_p->update();
 }
