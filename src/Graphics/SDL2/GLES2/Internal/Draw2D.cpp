@@ -155,12 +155,13 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
             if(!image_data_r->visable)
                 continue;
 
-            this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
-            this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[4].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+
+            this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[4].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
         }
 
         glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
