@@ -8,7 +8,7 @@ namespace Graphics {
 
 class ExternalImage : public ImageBase {
 public:
-    const Utilities::Image2D *image_2d;
+    const Utilities::Image2D *image_2d_r;
 
     /**
      * @warning Calling this is required.
