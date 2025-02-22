@@ -12,10 +12,13 @@ namespace GLES2 {
 class ExternalImage : public Graphics::ExternalImage {
 public:
     Environment *environment_r;
+    Internal::Texture2D *texture_2d_p;
 
     virtual ~ExternalImage();
 
     virtual void update();
+
+    virtual void upload();
 };
 
 }

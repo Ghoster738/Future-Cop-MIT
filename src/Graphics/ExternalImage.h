@@ -14,6 +14,11 @@ public:
      * @warning Calling this is required.
      */
     virtual void update() = 0;
+
+    /**
+     * @warning Calling this is required.
+     */
+    virtual void upload() = 0;
 };
 
 }
