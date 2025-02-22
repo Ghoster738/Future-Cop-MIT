@@ -154,7 +154,7 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
         for(auto image_instance_iterator = texture_iterator->second.begin(); image_instance_iterator != texture_iterator->second.end(); image_instance_iterator++) {
             ImageData *image_data_r = &image_instance_iterator->second;
 
-            if(!image_data_r->visable && num_triangles + 2 < this->max_triangles)
+            if(!image_data_r->visable || num_triangles + 2 >= this->max_triangles)
                 continue;
 
             this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
