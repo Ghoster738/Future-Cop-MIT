@@ -40,7 +40,6 @@ void ExternalImage::update() {
     external_image_data.positions[1] = this->positions[1];
     external_image_data.color        = this->color;
     external_image_data.visable      = this->is_visable;
-    external_image_data.image_2d     = this->image_2d_r;
     external_image_data.texture_2d   = this->texture_2d_p;
 
     this->environment_r->draw_2d_routine.updateExternalImageData(this, external_image_data);

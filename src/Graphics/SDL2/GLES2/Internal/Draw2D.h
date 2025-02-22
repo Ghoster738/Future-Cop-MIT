@@ -64,7 +64,6 @@ public:
     };
 
     struct ExternalImageData : public ImageBaseData {
-        const Utilities::Image2D *image_2d;
         Texture2D *texture_2d;
     };
 
