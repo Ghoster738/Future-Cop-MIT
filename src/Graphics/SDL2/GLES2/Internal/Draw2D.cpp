@@ -151,8 +151,18 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
         size_t num_triangles = 0;
 
+        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
+
         for(auto image_instance_iterator = texture_iterator->second.begin(); image_instance_iterator != texture_iterator->second.end(); image_instance_iterator++) {
             ImageData *image_data_r = &image_instance_iterator->second;
+
+            // Flush the memory to make more space
+            if(num_triangles + 2 >= this->max_triangles) {
+                glBufferSubData( GL_ARRAY_BUFFER, 0, 3 * num_triangles * sizeof( Draw2D::Vertex ), this->buffer_p );
+                this->vertex_array.bind();
+                glDrawArrays( GL_TRIANGLES, 0, 3 * num_triangles );
+                num_triangles = 0;
+            }
 
             if(!image_data_r->visable || num_triangles + 2 >= this->max_triangles)
                 continue;
@@ -168,7 +178,6 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
             num_triangles++;
         }
 
-        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
         glBufferSubData( GL_ARRAY_BUFFER, 0, 3 * num_triangles * sizeof( Draw2D::Vertex ), this->buffer_p );
         this->vertex_array.bind();
         glDrawArrays( GL_TRIANGLES, 0, 3 * num_triangles );
