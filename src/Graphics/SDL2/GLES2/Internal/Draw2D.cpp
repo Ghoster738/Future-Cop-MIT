@@ -149,25 +149,29 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     for(auto texture_iterator = images.begin(); texture_iterator != images.end(); texture_iterator++) {
         texture_iterator->first->bind( 0, this->texture_uniform_id );
 
+        size_t num_triangles = 0;
+
         for(auto image_instance_iterator = texture_iterator->second.begin(); image_instance_iterator != texture_iterator->second.end(); image_instance_iterator++) {
             ImageData *image_data_r = &image_instance_iterator->second;
 
-            if(!image_data_r->visable)
+            if(!image_data_r->visable && num_triangles + 2 < this->max_triangles)
                 continue;
 
-            this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
-            this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
-            this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            num_triangles++;
 
-            this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[4].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
-            this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, 0xFFFFFFFF);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, 0xFFFFFFFF);
+            num_triangles++;
         }
 
         glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
-        glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( Draw2D::Vertex ) * 6, this->buffer_p);
+        glBufferSubData( GL_ARRAY_BUFFER, 0, 3 * num_triangles * sizeof( Draw2D::Vertex ), this->buffer_p );
         this->vertex_array.bind();
-        glDrawArrays( GL_TRIANGLES, 0, 6 );
+        glDrawArrays( GL_TRIANGLES, 0, 3 * num_triangles );
     }
 
     // Lastly, draw the font.
