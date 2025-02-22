@@ -146,6 +146,7 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     // We can now send the matrix to the program.
     glUniformMatrix4fv( this->matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model ) );
 
+    // Draw the cbmp images.
     for(auto texture_iterator = images.begin(); texture_iterator != images.end(); texture_iterator++) {
         texture_iterator->first->bind( 0, this->texture_uniform_id );
 
@@ -183,6 +184,31 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glBufferSubData( GL_ARRAY_BUFFER, 0, 3 * num_triangles * sizeof( Draw2D::Vertex ), this->buffer_p );
         this->vertex_array.bind();
         glDrawArrays( GL_TRIANGLES, 0, 3 * num_triangles );
+    }
+
+    // Draw the external images.
+    for(auto texture_iterator = this->external_images.begin(); texture_iterator != this->external_images.end(); texture_iterator++) {
+        ExternalImageData *image_data_r = &texture_iterator->second;
+
+        if(!image_data_r->visable)
+            continue;
+
+       image_data_r->texture_2d->bind( 0, this->texture_uniform_id );
+
+       color.set(image_data_r->color.x * 255.0, image_data_r->color.y * 255.0, image_data_r->color.z * 255.0, image_data_r->color.w * 255.0);
+
+        this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, 0, 1, color.color_rgba);
+        this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, 1, 1, color.color_rgba);
+        this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, 1, 0, color.color_rgba);
+
+        this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, 1, 0, color.color_rgba);
+        this->buffer_p[4].set(image_data_r->positions[0].x, image_data_r->positions[1].y, 0, 0, color.color_rgba);
+        this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, 0, 1, color.color_rgba);
+
+        glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
+        glBufferSubData( GL_ARRAY_BUFFER, 0, 6 * sizeof( Draw2D::Vertex ), this->buffer_p );
+        this->vertex_array.bind();
+        glDrawArrays( GL_TRIANGLES, 0, 6 );
     }
 
     // Lastly, draw the font.
