@@ -29,6 +29,8 @@ Graphics::ExternalImage* Environment::allocateExternalImage(bool has_alpha) {
     // OpenGL Info
     image_p->environment_r = this;
     image_p->texture_2d_p  = nullptr;
+    image_p->width         = image_p->image_2d.getWidth();
+    image_p->height        = image_p->image_2d.getHeight();
 
     return image_p;
 }
@@ -56,12 +58,21 @@ void ExternalImage::update() {
 }
 
 void ExternalImage::upload() {
-    if(this->texture_2d_p != nullptr)
-        delete this->texture_2d_p;
-    this->texture_2d_p = new Internal::Texture2D;
+    if(this->texture_2d_p == nullptr || (this->image_2d.getWidth() != this->width || this->image_2d.getHeight() != this->height)) {
+        if(this->texture_2d_p != nullptr)
+            delete this->texture_2d_p;
 
-    this->texture_2d_p->setFilters( 0, GL_NEAREST, GL_LINEAR);
-    this->texture_2d_p->setImage(0, 0, image_gl_format, this->image_2d.getWidth(), this->image_2d.getHeight(), 0, image_gl_format, GL_UNSIGNED_BYTE, this->image_2d.getDirectGridData());
+        this->texture_2d_p = new Internal::Texture2D;
+
+        this->texture_2d_p->setFilters( 0, GL_NEAREST, GL_LINEAR);
+        this->texture_2d_p->setImage(0, 0, image_gl_format, this->image_2d.getWidth(), this->image_2d.getHeight(), 0, image_gl_format, GL_UNSIGNED_BYTE, this->image_2d.getDirectGridData());
+
+        this->width  = this->image_2d.getWidth();
+        this->height = this->image_2d.getHeight();
+    }
+    else {
+        this->texture_2d_p->updateImage(0, 0, this->image_2d.getWidth(), this->image_2d.getHeight(), image_gl_format, GL_UNSIGNED_BYTE, this->image_2d.getDirectGridData());
+    }
 }
 
 }
