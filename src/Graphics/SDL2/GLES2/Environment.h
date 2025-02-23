@@ -47,6 +47,7 @@ public:
     virtual Graphics::Image* allocateImage();
     virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
     virtual Graphics::ParticleInstance* allocateParticleInstance();
+    virtual Graphics::VideoANM* allocateVideoANM(uint32_t track_offset);
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
