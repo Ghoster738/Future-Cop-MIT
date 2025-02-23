@@ -64,7 +64,7 @@ void ExternalImage::upload() {
 
         this->texture_2d_p = new Internal::Texture2D;
 
-        this->texture_2d_p->setFilters( 0, GL_NEAREST, GL_LINEAR);
+        this->texture_2d_p->setFilters( 0, GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
         this->texture_2d_p->setImage(0, 0, image_gl_format, this->image_2d.getWidth(), this->image_2d.getHeight(), 0, image_gl_format, GL_UNSIGNED_BYTE, this->image_2d.getDirectGridData());
 
         this->width  = this->image_2d.getWidth();
