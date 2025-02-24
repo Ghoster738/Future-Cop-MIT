@@ -17,6 +17,9 @@ Graphics::VideoANM* Environment::allocateVideoANM(uint32_t track_offset) {
 
     // OpenGL Info
     image_p->environment_r = this;
+    image_p->image_index = 0;
+    image_p->factor = 0.0;
+    image_p->seconds_to_next_frame = image_p->factor;
 
     return image_p;
 }
@@ -28,10 +31,22 @@ VideoANM::~VideoANM() {
     //this->environment_r->draw_2d_routine.removeExternalImageData(this);
 }
 
-void VideoANM::repeat() {}
-void VideoANM::play(){}
-void VideoANM::stop() {}
-void VideoANM::pause() {}
+void VideoANM::play() {
+    this->factor = 0.125;
+    update();
+}
+
+void VideoANM::stop() {
+    this->image_index = 0;
+    this->seconds_to_next_frame = this->factor;
+    this->factor = 0.0;
+    update();
+}
+
+void VideoANM::pause() {
+    this->factor = 0.0;
+    update();
+}
 
 void VideoANM::update() {
     Internal::Draw2D::ExternalImageData external_image_data;

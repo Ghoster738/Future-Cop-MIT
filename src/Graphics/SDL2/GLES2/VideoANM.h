@@ -12,10 +12,12 @@ namespace GLES2 {
 class VideoANM : public Graphics::VideoANM {
 public:
     Environment *environment_r;
+    unsigned image_index;
+    float factor;
+    float seconds_to_next_frame;
 
     virtual ~VideoANM();
 
-    virtual void repeat();
     virtual void play();
     virtual void stop();
     virtual void pause();
