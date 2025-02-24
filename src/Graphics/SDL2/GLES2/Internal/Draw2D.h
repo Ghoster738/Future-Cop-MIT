@@ -65,6 +65,7 @@ public:
 
     struct ExternalImageData : public ImageBaseData {
         Texture2D *texture_2d;
+        GLsizei width, height;
     };
 
     static const GLchar* default_vertex_shader;
@@ -156,6 +157,8 @@ public:
     void removeImageData(const Texture2D *const internal_texture_r, const Image *const image_r);
 
     void updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data);
+
+    void uploadExternalImageData(const ExternalImage *const external_image_r);
 
     void removeExternalImageData(const ExternalImage *const external_image_r);
 

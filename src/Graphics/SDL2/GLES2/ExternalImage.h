@@ -12,9 +12,7 @@ namespace GLES2 {
 class ExternalImage : public Graphics::ExternalImage {
 public:
     Environment *environment_r;
-    Internal::Texture2D *texture_2d_p;
     GLenum image_gl_format;
-    GLsizei width, height;
 
     ExternalImage(const Utilities::PixelFormatColor &color);
 

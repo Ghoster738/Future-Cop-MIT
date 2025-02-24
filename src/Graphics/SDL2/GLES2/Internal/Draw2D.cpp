@@ -1,5 +1,7 @@
 #include "Draw2D.h"
 
+#include "../ExternalImage.h"
+
 #include <iostream>
 
 namespace Graphics::SDL2::GLES2::Internal {
@@ -257,11 +259,40 @@ void Draw2D::updateExternalImageData(const ExternalImage *const external_image_r
     this->external_images[external_image_r] = external_image_data;
 }
 
+void Draw2D::uploadExternalImageData(const ExternalImage *const external_image_r) {
+    auto search = this->external_images.find( external_image_r );
+
+    if(search == this->external_images.end())
+        return;
+
+    ExternalImageData *image_data_r = &search->second;
+
+    if(image_data_r->texture_2d == nullptr || (external_image_r->image_2d.getWidth() != image_data_r->width || external_image_r->image_2d.getHeight() != image_data_r->height)) {
+        if(image_data_r->texture_2d != nullptr)
+            delete image_data_r->texture_2d;
+
+        image_data_r->texture_2d = new Internal::Texture2D;
+
+        image_data_r->texture_2d->setFilters( 0, GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+        image_data_r->texture_2d->setImage(0, 0, external_image_r->image_gl_format, external_image_r->image_2d.getWidth(), external_image_r->image_2d.getHeight(), 0, external_image_r->image_gl_format, GL_UNSIGNED_BYTE, external_image_r->image_2d.getDirectGridData());
+
+        image_data_r->width  = external_image_r->image_2d.getWidth();
+        image_data_r->height = external_image_r->image_2d.getHeight();
+    }
+    else {
+        image_data_r->texture_2d->updateImage(0, 0, external_image_r->image_2d.getWidth(), external_image_r->image_2d.getHeight(), external_image_r->image_gl_format, GL_UNSIGNED_BYTE, external_image_r->image_2d.getDirectGridData());
+    }
+}
+
 void Draw2D::removeExternalImageData(const ExternalImage *const external_image_r) {
     auto search = this->external_images.find( external_image_r );
 
-    if(search != this->external_images.end())
+    if(search != this->external_images.end()) {
+        if(search->second.texture_2d != nullptr)
+            delete search->second.texture_2d;
+
         this->external_images.erase(search);
+    }
 }
 
 
