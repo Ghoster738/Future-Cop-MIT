@@ -87,7 +87,7 @@ protected:
     Vertex *buffer_p;
 
     std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
-    std::map<const ExternalImage *const, DynamicImageData> external_images;
+    std::map<const Graphics::ImageBase *const, DynamicImageData> external_images;
 
 public:
     Draw2D();
@@ -156,11 +156,11 @@ public:
 
     void removeImageData(const Texture2D *const internal_texture_r, const Image *const image_r);
 
-    void updateDynamicImageData(const ExternalImage *const external_image_r, const DynamicImageData& external_image_data);
+    void updateDynamicImageData(const Graphics::ImageBase *const image_base_r, const DynamicImageData& dynamic_image_data);
 
-    void uploadDynamicImageData(const ExternalImage *const external_image_r);
+    void uploadDynamicImageData(const Graphics::ImageBase *const image_base_r, const Utilities::Image2D& image_2d, GLenum image_gl_format);
 
-    void removeDynamicImageData(const ExternalImage *const external_image_r);
+    void removeDynamicImageData(const Graphics::ImageBase *const image_base_r);
 
     void clear();
 };

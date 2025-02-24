@@ -40,18 +40,18 @@ ExternalImage::~ExternalImage() {
 }
 
 void ExternalImage::update() {
-    Internal::Draw2D::DynamicImageData external_image_data;
+    Internal::Draw2D::DynamicImageData dynamic_image_data;
 
-    external_image_data.positions[0] = this->positions[0];
-    external_image_data.positions[1] = this->positions[1];
-    external_image_data.color        = this->color;
-    external_image_data.visable      = this->is_visable;
+    dynamic_image_data.positions[0] = this->positions[0];
+    dynamic_image_data.positions[1] = this->positions[1];
+    dynamic_image_data.color        = this->color;
+    dynamic_image_data.visable      = this->is_visable;
 
-    this->environment_r->draw_2d_routine.updateDynamicImageData(this, external_image_data);
+    this->environment_r->draw_2d_routine.updateDynamicImageData(this, dynamic_image_data);
 }
 
 void ExternalImage::upload() {
-    this->environment_r->draw_2d_routine.uploadDynamicImageData(this);
+    this->environment_r->draw_2d_routine.uploadDynamicImageData(this, this->image_2d, this->image_gl_format);
 }
 
 }

@@ -255,37 +255,37 @@ void Draw2D::removeImageData(const Texture2D *const internal_texture_r, const Im
         this->images.erase(internal_texture_it);
 }
 
-void Draw2D::updateDynamicImageData(const ExternalImage *const external_image_r, const DynamicImageData& external_image_data) {
-    this->external_images[external_image_r] = external_image_data;
+void Draw2D::updateDynamicImageData(const Graphics::ImageBase *const image_base_r, const DynamicImageData& dynamic_image_data) {
+    this->external_images[image_base_r] = dynamic_image_data;
 }
 
-void Draw2D::uploadDynamicImageData(const ExternalImage *const external_image_r) {
-    auto search = this->external_images.find( external_image_r );
+void Draw2D::uploadDynamicImageData(const Graphics::ImageBase *const image_base_r, const Utilities::Image2D& image_2d, GLenum image_gl_format) {
+    auto search = this->external_images.find( image_base_r );
 
     if(search == this->external_images.end())
         return;
 
     DynamicImageData *image_data_r = &search->second;
 
-    if(image_data_r->texture_2d == nullptr || (external_image_r->image_2d.getWidth() != image_data_r->width || external_image_r->image_2d.getHeight() != image_data_r->height)) {
+    if(image_data_r->texture_2d == nullptr || (image_2d.getWidth() != image_data_r->width || image_2d.getHeight() != image_data_r->height)) {
         if(image_data_r->texture_2d != nullptr)
             delete image_data_r->texture_2d;
 
         image_data_r->texture_2d = new Internal::Texture2D;
 
         image_data_r->texture_2d->setFilters( 0, GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-        image_data_r->texture_2d->setImage(0, 0, external_image_r->image_gl_format, external_image_r->image_2d.getWidth(), external_image_r->image_2d.getHeight(), 0, external_image_r->image_gl_format, GL_UNSIGNED_BYTE, external_image_r->image_2d.getDirectGridData());
+        image_data_r->texture_2d->setImage(0, 0, image_gl_format, image_2d.getWidth(), image_2d.getHeight(), 0, image_gl_format, GL_UNSIGNED_BYTE, image_2d.getDirectGridData());
 
-        image_data_r->width  = external_image_r->image_2d.getWidth();
-        image_data_r->height = external_image_r->image_2d.getHeight();
+        image_data_r->width  = image_2d.getWidth();
+        image_data_r->height = image_2d.getHeight();
     }
     else {
-        image_data_r->texture_2d->updateImage(0, 0, external_image_r->image_2d.getWidth(), external_image_r->image_2d.getHeight(), external_image_r->image_gl_format, GL_UNSIGNED_BYTE, external_image_r->image_2d.getDirectGridData());
+        image_data_r->texture_2d->updateImage(0, 0, image_2d.getWidth(), image_2d.getHeight(), image_gl_format, GL_UNSIGNED_BYTE, image_2d.getDirectGridData());
     }
 }
 
-void Draw2D::removeDynamicImageData(const ExternalImage *const external_image_r) {
-    auto search = this->external_images.find( external_image_r );
+void Draw2D::removeDynamicImageData(const Graphics::ImageBase *const image_base_r) {
+    auto search = this->external_images.find( image_base_r );
 
     if(search != this->external_images.end()) {
         if(search->second.texture_2d != nullptr)
