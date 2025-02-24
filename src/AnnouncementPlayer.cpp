@@ -91,6 +91,15 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
                 delete this->anm_p;
             this->anm_p = main_program.environment_p->allocateVideoANM(tos_offset);
 
+            if(this->anm_p != nullptr) {
+                this->anm_p->positions[0] = glm::vec2(   0.0, -400.0);
+                this->anm_p->positions[1] = glm::vec2( 400.0,  000.0);
+                this->anm_p->is_visable = true;
+
+                this->anm_p->upload();
+                this->anm_p->update();
+            }
+
             this->count_down = 0.5;
         }
 
