@@ -36,22 +36,22 @@ ExternalImage::ExternalImage(const Utilities::PixelFormatColor &color) : Graphic
 }
 
 ExternalImage::~ExternalImage() {
-    this->environment_r->draw_2d_routine.removeExternalImageData(this);
+    this->environment_r->draw_2d_routine.removeDynamicImageData(this);
 }
 
 void ExternalImage::update() {
-    Internal::Draw2D::ExternalImageData external_image_data;
+    Internal::Draw2D::DynamicImageData external_image_data;
 
     external_image_data.positions[0] = this->positions[0];
     external_image_data.positions[1] = this->positions[1];
     external_image_data.color        = this->color;
     external_image_data.visable      = this->is_visable;
 
-    this->environment_r->draw_2d_routine.updateExternalImageData(this, external_image_data);
+    this->environment_r->draw_2d_routine.updateDynamicImageData(this, external_image_data);
 }
 
 void ExternalImage::upload() {
-    this->environment_r->draw_2d_routine.uploadExternalImageData(this);
+    this->environment_r->draw_2d_routine.uploadDynamicImageData(this);
 }
 
 }

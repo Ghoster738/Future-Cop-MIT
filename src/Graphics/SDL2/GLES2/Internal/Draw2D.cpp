@@ -190,7 +190,7 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
     // Draw the external images.
     for(auto texture_iterator = this->external_images.begin(); texture_iterator != this->external_images.end(); texture_iterator++) {
-        ExternalImageData *image_data_r = &texture_iterator->second;
+        DynamicImageData *image_data_r = &texture_iterator->second;
 
         if(!image_data_r->visable)
             continue;
@@ -255,17 +255,17 @@ void Draw2D::removeImageData(const Texture2D *const internal_texture_r, const Im
         this->images.erase(internal_texture_it);
 }
 
-void Draw2D::updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data) {
+void Draw2D::updateDynamicImageData(const ExternalImage *const external_image_r, const DynamicImageData& external_image_data) {
     this->external_images[external_image_r] = external_image_data;
 }
 
-void Draw2D::uploadExternalImageData(const ExternalImage *const external_image_r) {
+void Draw2D::uploadDynamicImageData(const ExternalImage *const external_image_r) {
     auto search = this->external_images.find( external_image_r );
 
     if(search == this->external_images.end())
         return;
 
-    ExternalImageData *image_data_r = &search->second;
+    DynamicImageData *image_data_r = &search->second;
 
     if(image_data_r->texture_2d == nullptr || (external_image_r->image_2d.getWidth() != image_data_r->width || external_image_r->image_2d.getHeight() != image_data_r->height)) {
         if(image_data_r->texture_2d != nullptr)
@@ -284,7 +284,7 @@ void Draw2D::uploadExternalImageData(const ExternalImage *const external_image_r
     }
 }
 
-void Draw2D::removeExternalImageData(const ExternalImage *const external_image_r) {
+void Draw2D::removeDynamicImageData(const ExternalImage *const external_image_r) {
     auto search = this->external_images.find( external_image_r );
 
     if(search != this->external_images.end()) {

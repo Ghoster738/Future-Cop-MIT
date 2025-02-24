@@ -49,7 +49,7 @@ void VideoANM::pause() {
 }
 
 void VideoANM::update() {
-    Internal::Draw2D::ExternalImageData external_image_data;
+    Internal::Draw2D::DynamicImageData external_image_data;
 
     external_image_data.positions[0] = this->positions[0];
     external_image_data.positions[1] = this->positions[1];
