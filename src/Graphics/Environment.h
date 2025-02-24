@@ -7,7 +7,7 @@
 #include "ParticleInstance.h"
 #include "Image.h"
 #include "ExternalImage.h"
-#include "VideoANM.h"
+#include "ANMFrame.h"
 #include <vector>
 #include "SDL.h"
 #include "../Data/Mission/BMPResource.h"
@@ -86,7 +86,7 @@ public:
 
     virtual ExternalImage* allocateExternalImage(bool has_alpha = false) = 0;
 
-    virtual VideoANM* allocateVideoANM(uint32_t track_offset) = 0;
+    virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
 
     virtual ParticleInstance* allocateParticleInstance() = 0;
 
