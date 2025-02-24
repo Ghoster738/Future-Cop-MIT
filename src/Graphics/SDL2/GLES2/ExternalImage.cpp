@@ -16,7 +16,6 @@ Graphics::ExternalImage* Environment::allocateExternalImage(bool has_alpha) {
     }
     else {
         image_p = new Graphics::SDL2::GLES2::ExternalImage(RGB_COLOR_FORMAT);
-        //image_p->image_2d = Utilities::Image2D(1, 1, RGB_COLOR_FORMAT);
         image_p->image_gl_format = GL_RGB;
     }
 
