@@ -8,8 +8,7 @@
 AnnouncementPlayer AnnouncementPlayer::announcement_player;
 
 AnnouncementPlayer::AnnouncementPlayer() {
-    this->anm_p   = nullptr;
-    this->image_p = nullptr;
+    this->anm_p = nullptr;
 }
 
 AnnouncementPlayer::~AnnouncementPlayer() {}
@@ -59,19 +58,6 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
     this->anm_p = nullptr;
     this->anm_rate = std::chrono::microseconds(66667);
     this->anm_timer = this->anm_rate;
-
-    if(this->image_p != nullptr)
-        delete this->image_p;
-    this->image_p = main_program.environment_p->allocateImage();
-
-    this->image_p->positions[0] = glm::vec2(   0.0,   0.0); // Origin
-    this->image_p->positions[1] = glm::vec2( 112.0, 112.0); // End
-    this->image_p->is_visable = true;
-    this->image_p->cbmp_id = 10;
-    this->image_p->texture_coords[0] = static_cast<float>(1. / 256.) * glm::vec2(199, 148);
-    this->image_p->texture_coords[1] = static_cast<float>(1. / 256.) * glm::vec2(255, 204);
-
-    this->image_p->update();
 }
 
 void AnnouncementPlayer::unload( MainProgram &main_program ) {
@@ -80,10 +66,6 @@ void AnnouncementPlayer::unload( MainProgram &main_program ) {
     if(this->anm_p != nullptr)
         delete this->anm_p;
     this->anm_p = nullptr;
-
-    if(this->image_p != nullptr)
-        delete this->image_p;
-    this->image_p = nullptr;
 }
 
 void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {

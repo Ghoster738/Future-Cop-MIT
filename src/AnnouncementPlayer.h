@@ -26,8 +26,6 @@ private:
     std::chrono::microseconds anm_rate;
     std::chrono::microseconds anm_timer;
 
-    Graphics::Image *image_p;
-
 public:
     AnnouncementPlayer();
     virtual ~AnnouncementPlayer();
