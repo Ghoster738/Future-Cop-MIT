@@ -20,9 +20,13 @@ private:
     float count_down;
 
     Graphics::Text2DBuffer::Font font;
-    Graphics::ANMFrame *anm_p;
-    Graphics::Image *image_p;
     unsigned font_height;
+
+    Graphics::ANMFrame *anm_p;
+    std::chrono::microseconds anm_rate;
+    std::chrono::microseconds anm_timer;
+
+    Graphics::Image *image_p;
 
 public:
     AnnouncementPlayer();

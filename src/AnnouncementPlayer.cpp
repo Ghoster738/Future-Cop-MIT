@@ -57,6 +57,8 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
     if(this->anm_p != nullptr)
         delete this->anm_p;
     this->anm_p = nullptr;
+    this->anm_rate = std::chrono::microseconds(66667);
+    this->anm_timer = this->anm_rate;
 
     if(this->image_p != nullptr)
         delete this->image_p;
@@ -88,8 +90,14 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
     if( main_program.getMenu() != nullptr )
         return;
 
-    if(this->anm_p != nullptr)
-        this->anm_p->nextFrame();
+    if(this->anm_p != nullptr) {
+        if(this->anm_timer < std::chrono::microseconds(0)) {
+            this->anm_timer = this->anm_rate;
+            this->anm_p->nextFrame();
+        }
+
+        this->anm_timer -= delta;
+    }
 
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
