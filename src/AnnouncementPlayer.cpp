@@ -57,8 +57,8 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
         delete this->anm_p;
     this->anm_p = nullptr;
 
-    this->anm_positions[0] = glm::vec2((scale.x - scale.y) / 2, (scale.x - scale.x * 0.75) / 2);
-    this->anm_positions[1] = this->anm_positions[0] + 0.5f * glm::vec2(scale.x, scale.x * 0.75);
+    this->anm_positions[0] = 0.5f * glm::vec2(scale.x, scale.y) - 0.5f * glm::vec2(scale.y, scale.y * 0.75);
+    this->anm_positions[1] = 0.5f * glm::vec2(scale.x, scale.y) + 0.5f * glm::vec2(scale.y, scale.y * 0.75);
     this->anm_rate = std::chrono::microseconds(66667);
     this->anm_timer = this->anm_rate;
 }
