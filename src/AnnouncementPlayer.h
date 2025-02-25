@@ -7,7 +7,6 @@
 #include "Data/Mission/SNDSResource.h"
 #include "Graphics/Text2DBuffer.h"
 #include "Graphics/ANMFrame.h"
-#include "Graphics/Image.h"
 
 class AnnouncementPlayer : public GameState {
 public:

@@ -59,6 +59,11 @@ public:
 Menu::ItemClickSwitchMenu item_click_menu_done( nullptr );
 Menu::ItemClickSwitchMenu item_click_options( &OptionsMenu::options_menu );
 
+
+}
+
+MainMenu::MainMenu() {
+    this->title_background_p = nullptr;
 }
 
 MainMenu::~MainMenu() {
@@ -124,10 +129,26 @@ void MainMenu::load( MainProgram &main_program ) {
         this->items.emplace_back( new Menu::TextButton( "Exit to OS",          glm::vec2( center, scale.y -  2 * step ), 6, 7, 0, 7, &item_click_exit_game,           this->prime_font, selected_font ) );
         this->current_item_index = 0;
     }
+
+    if(this->title_background_p != nullptr)
+        delete this->title_background_p;
+
+    this->title_background_p = main_program.environment_p->allocateImage();
+
+    this->title_background_p->positions[0] = glm::vec2(   0.0,   0.0); // Origin
+    this->title_background_p->positions[1] = glm::vec2( 112.0, 112.0); // End
+    this->title_background_p->is_visable = true;
+    this->title_background_p->cbmp_id = 10;
+    this->title_background_p->texture_coords[0] = static_cast<float>(1. / 256.) * glm::vec2(199, 148);
+    this->title_background_p->texture_coords[1] = static_cast<float>(1. / 256.) * glm::vec2(255, 204);
+
+    this->title_background_p->update();
 }
 
 void MainMenu::unload( MainProgram &main_program ) {
-
+    if(this->title_background_p != nullptr)
+        delete this->title_background_p;
+    this->title_background_p = nullptr;
 }
 
 void MainMenu::update( MainProgram &main_program, std::chrono::microseconds delta ) {

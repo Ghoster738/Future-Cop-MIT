@@ -2,6 +2,7 @@
 #define FC_MAIN_MENU_H
 
 #include "Menu.h"
+#include "Graphics/Image.h"
 
 class MainMenu : public Menu {
 public:
@@ -11,11 +12,13 @@ public:
     bool is_game_on;
 
     Graphics::Text2DBuffer::Font title_font;
+    Graphics::Image *title_background_p;
     Graphics::Text2DBuffer::Font prime_font;
     Graphics::Text2DBuffer::Font spec_detail_font;
 
     glm::vec2 top_title_position, bottom_title_position, warning_position, info_position;
 
+    MainMenu();
     virtual ~MainMenu();
 
     virtual void load( MainProgram &main_program );
