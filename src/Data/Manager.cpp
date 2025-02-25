@@ -309,10 +309,20 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( hells_gate_prison );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M1A1" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m1a1.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M1A1" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m1a1ld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm1a1.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom1a1.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M1A1" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdHg.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief5.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_hell.mpg" );
+    }
     setIFFEntry( hells_gate_prison, entry );
 
     entry = getIFFEntry( studio_city );
