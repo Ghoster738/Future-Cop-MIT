@@ -87,7 +87,7 @@ protected:
     Vertex *buffer_p;
 
     std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
-    std::map<const Graphics::ImageBase *const, DynamicImageData> external_images;
+    std::map<const Graphics::ImageBase *const, DynamicImageData> dynamic_images;
 
 public:
     Draw2D();

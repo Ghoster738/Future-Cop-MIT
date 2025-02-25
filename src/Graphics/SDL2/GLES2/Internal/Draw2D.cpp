@@ -188,8 +188,8 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glDrawArrays( GL_TRIANGLES, 0, 3 * num_triangles );
     }
 
-    // Draw the external images.
-    for(auto texture_iterator = this->external_images.begin(); texture_iterator != this->external_images.end(); texture_iterator++) {
+    // Draw the dynamic images.
+    for(auto texture_iterator = this->dynamic_images.begin(); texture_iterator != this->dynamic_images.end(); texture_iterator++) {
         DynamicImageData *image_data_r = &texture_iterator->second;
 
         if(!image_data_r->visable)
@@ -256,13 +256,13 @@ void Draw2D::removeImageData(const Texture2D *const internal_texture_r, const Im
 }
 
 void Draw2D::updateDynamicImageData(const Graphics::ImageBase *const image_base_r, const DynamicImageData& dynamic_image_data) {
-    this->external_images[image_base_r] = dynamic_image_data;
+    this->dynamic_images[image_base_r] = dynamic_image_data;
 }
 
 void Draw2D::uploadDynamicImageData(const Graphics::ImageBase *const image_base_r, const Utilities::Image2D& image_2d, GLenum image_gl_format) {
-    auto search = this->external_images.find( image_base_r );
+    auto search = this->dynamic_images.find( image_base_r );
 
-    if(search == this->external_images.end())
+    if(search == this->dynamic_images.end())
         return;
 
     DynamicImageData *image_data_r = &search->second;
@@ -285,13 +285,13 @@ void Draw2D::uploadDynamicImageData(const Graphics::ImageBase *const image_base_
 }
 
 void Draw2D::removeDynamicImageData(const Graphics::ImageBase *const image_base_r) {
-    auto search = this->external_images.find( image_base_r );
+    auto search = this->dynamic_images.find( image_base_r );
 
-    if(search != this->external_images.end()) {
+    if(search != this->dynamic_images.end()) {
         if(search->second.texture_2d != nullptr)
             delete search->second.texture_2d;
 
-        this->external_images.erase(search);
+        this->dynamic_images.erase(search);
     }
 }
 
