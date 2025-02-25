@@ -6,6 +6,7 @@
 #include <vector>
 #include "Data/Mission/SNDSResource.h"
 #include "Graphics/Text2DBuffer.h"
+#include "Graphics/ANMFrame.h"
 
 class AnnouncementPlayer : public GameState {
 public:
@@ -19,6 +20,11 @@ private:
 
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
+
+    Graphics::ANMFrame *anm_p;
+    glm::vec2 anm_positions[2];
+    std::chrono::microseconds anm_rate;
+    std::chrono::microseconds anm_timer;
 
 public:
     AnnouncementPlayer();

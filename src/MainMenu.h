@@ -2,6 +2,7 @@
 #define FC_MAIN_MENU_H
 
 #include "Menu.h"
+#include "Graphics/Image.h"
 
 class MainMenu : public Menu {
 public:
@@ -16,6 +17,10 @@ public:
 
     glm::vec2 top_title_position, bottom_title_position, warning_position, info_position;
 
+    Graphics::Image *test_radar_p;
+    Graphics::Image *background_p;
+
+    MainMenu();
     virtual ~MainMenu();
 
     virtual void load( MainProgram &main_program );

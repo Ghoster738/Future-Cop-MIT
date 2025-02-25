@@ -105,7 +105,7 @@ public:
 
     /**
      * This method sets the audio track by its TOS offset. First-In-First-Out
-     * @param tos_offset The offset to the SWVR resource to play.
+     * @param track_offset The offset to the SWVR resource to play.
      * @return True if the track was added to the queue.
      */
     virtual bool queueTrack(uint32_t track_offset) = 0;

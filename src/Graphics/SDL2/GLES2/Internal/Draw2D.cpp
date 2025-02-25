@@ -1,5 +1,7 @@
 #include "Draw2D.h"
 
+#include "../ExternalImage.h"
+
 #include <iostream>
 
 namespace Graphics::SDL2::GLES2::Internal {
@@ -170,14 +172,14 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
             color.set(image_data_r->color.x * 255.0, image_data_r->color.y * 255.0, image_data_r->color.z * 255.0, image_data_r->color.w * 255.0);
 
-            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, -image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
             num_triangles++;
 
-            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, -image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
             num_triangles++;
         }
 
@@ -186,24 +188,24 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glDrawArrays( GL_TRIANGLES, 0, 3 * num_triangles );
     }
 
-    // Draw the external images.
-    for(auto texture_iterator = this->external_images.begin(); texture_iterator != this->external_images.end(); texture_iterator++) {
-        ExternalImageData *image_data_r = &texture_iterator->second;
+    // Draw the dynamic images.
+    for(auto texture_iterator = this->dynamic_images.begin(); texture_iterator != this->dynamic_images.end(); texture_iterator++) {
+        DynamicImageData *image_data_r = &texture_iterator->second;
 
-        if(!image_data_r->visable)
+        if(!image_data_r->visable || image_data_r->texture_2d == nullptr)
             continue;
 
        image_data_r->texture_2d->bind( 0, this->texture_uniform_id );
 
        color.set(image_data_r->color.x * 255.0, image_data_r->color.y * 255.0, image_data_r->color.z * 255.0, image_data_r->color.w * 255.0);
 
-        this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, 0, 1, color.color_rgba);
-        this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, 1, 1, color.color_rgba);
-        this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, 1, 0, color.color_rgba);
+        this->buffer_p[0].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, 0, 1, color.color_rgba);
+        this->buffer_p[1].set(image_data_r->positions[1].x, -image_data_r->positions[1].y, 1, 1, color.color_rgba);
+        this->buffer_p[2].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, 1, 0, color.color_rgba);
 
-        this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, 1, 0, color.color_rgba);
-        this->buffer_p[4].set(image_data_r->positions[0].x, image_data_r->positions[1].y, 0, 0, color.color_rgba);
-        this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, 0, 1, color.color_rgba);
+        this->buffer_p[3].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, 1, 0, color.color_rgba);
+        this->buffer_p[4].set(image_data_r->positions[0].x, -image_data_r->positions[0].y, 0, 0, color.color_rgba);
+        this->buffer_p[5].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, 0, 1, color.color_rgba);
 
         glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
         glBufferSubData( GL_ARRAY_BUFFER, 0, 6 * sizeof( Draw2D::Vertex ), this->buffer_p );
@@ -253,15 +255,50 @@ void Draw2D::removeImageData(const Texture2D *const internal_texture_r, const Im
         this->images.erase(internal_texture_it);
 }
 
-void Draw2D::updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data) {
-    this->external_images[external_image_r] = external_image_data;
+void Draw2D::updateDynamicImageData(const Graphics::ImageBase *const image_base_r, const DynamicImageData& dynamic_image_data) {
+    auto search = this->dynamic_images.find( image_base_r );
+
+    this->dynamic_images[image_base_r] = dynamic_image_data;
+
+    if(search == this->dynamic_images.end()) {
+        this->dynamic_images[image_base_r].texture_2d = nullptr;
+    }
 }
 
-void Draw2D::removeExternalImageData(const ExternalImage *const external_image_r) {
-    auto search = this->external_images.find( external_image_r );
+void Draw2D::uploadDynamicImageData(const Graphics::ImageBase *const image_base_r, const Utilities::Image2D& image_2d, GLenum image_gl_format) {
+    auto search = this->dynamic_images.find( image_base_r );
 
-    if(search != this->external_images.end())
-        this->external_images.erase(search);
+    if(search == this->dynamic_images.end())
+        return;
+
+    DynamicImageData *image_data_r = &search->second;
+
+    if(image_data_r->texture_2d == nullptr || (image_2d.getWidth() != image_data_r->width || image_2d.getHeight() != image_data_r->height)) {
+        if(image_data_r->texture_2d != nullptr)
+            delete image_data_r->texture_2d;
+
+        image_data_r->texture_2d = new Internal::Texture2D;
+
+        image_data_r->texture_2d->setFilters( 0, GL_NEAREST, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+        image_data_r->texture_2d->setImage(0, 0, image_gl_format, image_2d.getWidth(), image_2d.getHeight(), 0, image_gl_format, GL_UNSIGNED_BYTE, image_2d.getDirectGridData());
+
+        image_data_r->width  = image_2d.getWidth();
+        image_data_r->height = image_2d.getHeight();
+    }
+    else {
+        image_data_r->texture_2d->updateImage(0, 0, image_2d.getWidth(), image_2d.getHeight(), image_gl_format, GL_UNSIGNED_BYTE, image_2d.getDirectGridData());
+    }
+}
+
+void Draw2D::removeDynamicImageData(const Graphics::ImageBase *const image_base_r) {
+    auto search = this->dynamic_images.find( image_base_r );
+
+    if(search != this->dynamic_images.end()) {
+        if(search->second.texture_2d != nullptr)
+            delete search->second.texture_2d;
+
+        this->dynamic_images.erase(search);
+    }
 }
 
 

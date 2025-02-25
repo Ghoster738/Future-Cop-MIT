@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include <iostream>
+#include "../../../Data/Mission/TOSResource.h"
 
 // This source code is a decendent of https://gist.github.com/SuperV1234/5c5ad838fe5fe1bf54f9 or SuperV1234
 
@@ -52,6 +53,26 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
+    auto tos_resource_r = accessor.getConstTOS( 1 );
+
+    this->anm_resources.clear();
+
+    if(tos_resource_r != nullptr) {
+        for(const uint32_t tos_offset: tos_resource_r->getOffsets()) {
+            const Data::Accessor *swvr_accessor_r = accessor.getSWVRAccessor(tos_offset);
+
+            if(swvr_accessor_r == nullptr)
+                continue;
+
+            auto canm_r = swvr_accessor_r->getConstANM(1);
+
+            if(canm_r == nullptr)
+                continue;
+
+            this->anm_resources[tos_offset] = canm_r;
+        }
+    }
+
     std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
 
     int failed_texture_loads = 0; // A counter for how many textures failed to load at first.

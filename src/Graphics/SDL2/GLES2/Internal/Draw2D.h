@@ -63,8 +63,9 @@ public:
         glm::vec2 texture_coords[2];
     };
 
-    struct ExternalImageData : public ImageBaseData {
+    struct DynamicImageData : public ImageBaseData {
         Texture2D *texture_2d;
+        GLsizei width, height;
     };
 
     static const GLchar* default_vertex_shader;
@@ -86,7 +87,7 @@ protected:
     Vertex *buffer_p;
 
     std::map<const Texture2D *const, std::map<const Image *const, ImageData>> images;
-    std::map<const ExternalImage *const, ExternalImageData> external_images;
+    std::map<const Graphics::ImageBase *const, DynamicImageData> dynamic_images;
 
 public:
     Draw2D();
@@ -155,9 +156,11 @@ public:
 
     void removeImageData(const Texture2D *const internal_texture_r, const Image *const image_r);
 
-    void updateExternalImageData(const ExternalImage *const external_image_r, const ExternalImageData& external_image_data);
+    void updateDynamicImageData(const Graphics::ImageBase *const image_base_r, const DynamicImageData& dynamic_image_data);
 
-    void removeExternalImageData(const ExternalImage *const external_image_r);
+    void uploadDynamicImageData(const Graphics::ImageBase *const image_base_r, const Utilities::Image2D& image_2d, GLenum image_gl_format);
+
+    void removeDynamicImageData(const Graphics::ImageBase *const image_base_r);
 
     void clear();
 };

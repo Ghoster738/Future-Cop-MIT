@@ -7,8 +7,8 @@ Graphics::Image* Environment::allocateImage() {
     auto image_p = new Graphics::SDL2::GLES2::Image();
 
     // ImageBase
-    image_p->positions[0]      = glm::vec2(-1.0, -1.0);
-    image_p->positions[1]      = glm::vec2( 1.0,  1.0);
+    image_p->positions[0]      = glm::vec2( 00.0, 00.0);
+    image_p->positions[1]      = glm::vec2( 16.0, 16.0);
     image_p->color             = glm::vec4( 1.0,  1.0,  1.0,  1.0);
     image_p->is_visable        = false;
 

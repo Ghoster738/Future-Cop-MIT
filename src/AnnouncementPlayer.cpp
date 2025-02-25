@@ -7,7 +7,9 @@
 
 AnnouncementPlayer AnnouncementPlayer::announcement_player;
 
-AnnouncementPlayer::AnnouncementPlayer() {}
+AnnouncementPlayer::AnnouncementPlayer() {
+    this->anm_p = nullptr;
+}
 
 AnnouncementPlayer::~AnnouncementPlayer() {}
 
@@ -50,15 +52,37 @@ void AnnouncementPlayer::load( MainProgram &main_program ) {
                 this->announcements.push_back(snds_array_r[0]);
         }
     }
+
+    if(this->anm_p != nullptr)
+        delete this->anm_p;
+    this->anm_p = nullptr;
+
+    this->anm_positions[0] = 0.5f * glm::vec2(scale.x, scale.y) - 0.5f * glm::vec2(scale.y, scale.y * 0.75);
+    this->anm_positions[1] = 0.5f * glm::vec2(scale.x, scale.y) + 0.5f * glm::vec2(scale.y, scale.y * 0.75);
+    this->anm_rate = std::chrono::microseconds(66667);
+    this->anm_timer = this->anm_rate;
 }
 
 void AnnouncementPlayer::unload( MainProgram &main_program ) {
     this->announcements.clear();
+
+    if(this->anm_p != nullptr)
+        delete this->anm_p;
+    this->anm_p = nullptr;
 }
 
 void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     if( main_program.getMenu() != nullptr )
         return;
+
+    if(this->anm_p != nullptr) {
+        if(this->anm_timer < std::chrono::microseconds(0)) {
+            this->anm_timer = this->anm_rate;
+            this->anm_p->nextFrame();
+        }
+
+        this->anm_timer -= delta;
+    }
 
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
@@ -72,7 +96,23 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
         auto input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::ACTION );
         if( input_r->isChanged() && this->count_down < 0.0f && !this->announcements.empty() ) {
             main_program.sound_system_p->setTrackPlayerState(Sound::PlayerState::PLAY);
-            main_program.sound_system_p->queueTrack(this->announcements.at(this->announcement_index)->getSWVREntry().tos_offset);
+
+            const auto tos_offset = this->announcements.at(this->announcement_index)->getSWVREntry().tos_offset;
+
+            main_program.sound_system_p->queueTrack(tos_offset);
+
+            if(this->anm_p != nullptr)
+                delete this->anm_p;
+            this->anm_p = main_program.environment_p->allocateVideoANM(tos_offset);
+
+            if(this->anm_p != nullptr) {
+                this->anm_p->positions[0] = this->anm_positions[0]; // Origin
+                this->anm_p->positions[1] = this->anm_positions[1]; // End
+                this->anm_p->is_visable = true;
+
+                this->anm_p->update();
+                this->anm_p->upload();
+            }
 
             this->count_down = 0.5;
         }

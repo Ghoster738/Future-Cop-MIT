@@ -19,6 +19,7 @@ namespace Graphics::SDL2::GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
+    std::map<uint32_t, const Data::Mission::ANMResource*> anm_resources;
     std::map<uint32_t, Internal::Texture2D*> textures;
     Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
     Internal::World              *world_p; // This handles drawing the whole world.
@@ -47,6 +48,7 @@ public:
     virtual Graphics::Image* allocateImage();
     virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
     virtual Graphics::ParticleInstance* allocateParticleInstance();
+    virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
