@@ -264,7 +264,7 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
 
         entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdCuc.BMP" );
         entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief2.mpg" );
-        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_griff.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_zuma.mpg" );
     }
     setIFFEntry( zuma_beach, entry );
 
