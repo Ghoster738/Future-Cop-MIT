@@ -25,7 +25,7 @@ Graphics::ANMFrame* Environment::allocateVideoANM(uint32_t track_offset) {
     // External Image
     image_p->image_2d.setDimensions(Data::Mission::ANMResource::Video::WIDTH, Data::Mission::ANMResource::Video::HEIGHT);
 
-    image_p->video.gotoFrame(0);
+    image_p->video.reset();
     const Utilities::ImagePalette2D *image_r = image_p->video.getImage();
     image_p->image_2d.inscribeSubImage( 0, 0, *image_r );
     image_p->total_frames = search->second->getTotalScanlines();
@@ -43,10 +43,17 @@ ANMFrame::~ANMFrame() {
 }
 
 bool ANMFrame::nextFrame() {
-    bool status = video.nextFrame();
+    bool status = true;
+
+    for( unsigned d = 0; d < Data::Mission::ANMResource::Video::SCAN_LINE_POSITIONS; d++ )
+        status &= video.nextFrame();
+
     const Utilities::ImagePalette2D *image_r = this->video.getImage();
     this->image_2d.inscribeSubImage( 0, 0, *image_r );
     upload();
+
+    if(!status)
+        this->video.reset();
 
     return status;
 }
