@@ -38,17 +38,22 @@ const std::string *const Data::Manager::map_iffs[] =
 const size_t Data::Manager::AMOUNT_OF_IFF_IDS = Data::Manager::AMOUNT_OF_PRECINCT_ASSAULT_IDS + Data::Manager::AMOUNT_OF_CRIME_WAR_IDS;
 
 Data::Manager::IFFEntry::IFFEntry() : paths(), iff_p(),
+                                loading_media_paths(), intro_media_paths(), outro_media_paths(),
                                 importance( NOT_NEEDED ) {
     for( unsigned i = 0; i < Platform::ALL; i++ )
         this->iff_p[ i ] = nullptr;
 }
 
-Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths(),
-                                   iff_p(), importance( obj.importance ) {
-    for( unsigned i = 0; i < Platform::ALL; i++ )
+Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths(), iff_p(),
+                                loading_media_paths(), intro_media_paths(), outro_media_paths(),
+                                importance( obj.importance ) {
+    for( unsigned i = 0; i < Platform::ALL; i++ ) {
         this->paths[ i ] = obj.paths[ i ];
-    for( unsigned i = 0; i < Platform::ALL; i++ )
         this->iff_p[ i ] = obj.iff_p[ i ];
+        this->loading_media_paths[ i ] = obj.loading_media_paths[ i ];
+        this->intro_media_paths[ i ]   = obj.intro_media_paths[ i ];
+        this->outro_media_paths[ i ]   = obj.outro_media_paths[ i ];
+    }
 }
 
 Data::Manager::IFFEntry::~IFFEntry() {
