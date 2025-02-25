@@ -404,10 +404,18 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( pa_urban_jungle );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "ConFt" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "conft.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "ConFt" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "conftld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poconft.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "ConFt" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdConF.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_jungle.mpg" );
+    }
     setIFFEntry( pa_urban_jungle, entry );
 
     entry = getIFFEntry( pa_venice_beach );
