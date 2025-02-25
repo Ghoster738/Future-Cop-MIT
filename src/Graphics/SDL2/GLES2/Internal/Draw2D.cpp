@@ -259,6 +259,8 @@ void Draw2D::updateDynamicImageData(const Graphics::ImageBase *const image_base_
     auto search = this->dynamic_images.find( image_base_r );
 
     this->dynamic_images[image_base_r] = dynamic_image_data;
+    this->dynamic_images[image_base_r].positions[0].y = -dynamic_image_data.positions[1].y;
+    this->dynamic_images[image_base_r].positions[1].y = -dynamic_image_data.positions[0].y;
 
     if(search == this->dynamic_images.end()) {
         this->dynamic_images[image_base_r].texture_2d = nullptr;
