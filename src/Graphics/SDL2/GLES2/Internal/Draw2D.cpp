@@ -256,7 +256,13 @@ void Draw2D::removeImageData(const Texture2D *const internal_texture_r, const Im
 }
 
 void Draw2D::updateDynamicImageData(const Graphics::ImageBase *const image_base_r, const DynamicImageData& dynamic_image_data) {
+    auto search = this->dynamic_images.find( image_base_r );
+
     this->dynamic_images[image_base_r] = dynamic_image_data;
+
+    if(search == this->dynamic_images.end()) {
+        this->dynamic_images[image_base_r].texture_2d = nullptr;
+    }
 }
 
 void Draw2D::uploadDynamicImageData(const Graphics::ImageBase *const image_base_r, const Utilities::Image2D& image_2d, GLenum image_gl_format) {
