@@ -209,10 +209,25 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry.importance = Importance::NEEDED; // The global IFF is always used for loading the IFF mission files.
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "GlblData" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "fe.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "GlblData" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "alegal.lsc" );
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,  PSX_BASE_PATH + "ea_logo.fsv" );
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION, PSX_MOVIE_PATH + "intro.wve" );
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "feld.lsc" );
+
+        entry.appendOutroMediaPath( Platform::PLAYSTATION, PSX_MOVIE_PATH + "credits.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "GlblData" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "Legal_E.BMP" );
+        entry.appendLoadingMediaPath( Platform::WINDOWS, WIN_MOVIE_PATH + "ea_logo.mpg" );
+        entry.appendLoadingMediaPath( Platform::WINDOWS, WIN_MOVIE_PATH + "intro.mpg" );
+
+        entry.appendOutroMediaPath( Platform::WINDOWS, WIN_MOVIE_PATH + "credits.mpg" );
+    }
     setIFFEntry( global, entry );
 
     entry = getIFFEntry( griffith_park );
