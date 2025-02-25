@@ -23,6 +23,7 @@ private:
     unsigned font_height;
 
     Graphics::ANMFrame *anm_p;
+    glm::vec2 anm_positions[2];
     std::chrono::microseconds anm_rate;
     std::chrono::microseconds anm_timer;
 
