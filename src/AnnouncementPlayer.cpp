@@ -96,8 +96,8 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
                 this->anm_p->positions[1] = glm::vec2( 400.0,  000.0);
                 this->anm_p->is_visable = true;
 
-                this->anm_p->upload();
                 this->anm_p->update();
+                this->anm_p->upload();
             }
 
             this->count_down = 0.5;
