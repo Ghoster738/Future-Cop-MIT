@@ -28,7 +28,7 @@ Graphics::ANMFrame* Environment::allocateVideoANM(uint32_t track_offset) {
     image_p->video.gotoFrame(0);
     const Utilities::ImagePalette2D *image_r = image_p->video.getImage();
     image_p->image_2d.inscribeSubImage( 0, 0, *image_r );
-    image_p->total_frames = search->second->getTotalFrames();
+    image_p->total_frames = search->second->getTotalScanlines();
 
     // OpenGL Info
     image_p->environment_r = this;
@@ -44,7 +44,8 @@ ANMFrame::~ANMFrame() {
 
 bool ANMFrame::nextFrame() {
     bool status = video.nextFrame();
-    video.setImage(this->image_2d);
+    const Utilities::ImagePalette2D *image_r = this->video.getImage();
+    this->image_2d.inscribeSubImage( 0, 0, *image_r );
     upload();
 
     return status;

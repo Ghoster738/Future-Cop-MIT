@@ -88,6 +88,9 @@ void AnnouncementPlayer::update( MainProgram &main_program, std::chrono::microse
     if( main_program.getMenu() != nullptr )
         return;
 
+    if(this->anm_p != nullptr)
+        this->anm_p->nextFrame();
+
     float delta_f = std::chrono::duration<float, std::ratio<1>>( delta ).count();
 
     if( main_program.control_system_p->isOrderedToExit() )
