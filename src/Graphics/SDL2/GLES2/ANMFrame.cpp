@@ -17,10 +17,10 @@ Graphics::ANMFrame* Environment::allocateVideoANM(uint32_t track_offset) {
     auto *image_p = new Graphics::SDL2::GLES2::ANMFrame(*search->second, RGB_COLOR_FORMAT);
 
     // ImageBase
-    image_p->positions[0]      = glm::vec2(-1.0, -1.0);
-    image_p->positions[1]      = glm::vec2( 1.0,  1.0);
-    image_p->color             = glm::vec4( 1.0,  1.0,  1.0,  1.0);
-    image_p->is_visable        = false;
+    image_p->positions[0] = glm::vec2( 00.0,  00.0);
+    image_p->positions[1] = glm::vec2( 16.0,  16.0);
+    image_p->color        = glm::vec4( 1.0,  1.0,  1.0,  1.0);
+    image_p->is_visable   = false;
 
     // External Image
     image_p->image_2d.setDimensions(Data::Mission::ANMResource::Video::WIDTH, Data::Mission::ANMResource::Video::HEIGHT);
