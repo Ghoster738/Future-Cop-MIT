@@ -192,7 +192,7 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     for(auto texture_iterator = this->dynamic_images.begin(); texture_iterator != this->dynamic_images.end(); texture_iterator++) {
         DynamicImageData *image_data_r = &texture_iterator->second;
 
-        if(!image_data_r->visable)
+        if(!image_data_r->visable || image_data_r->texture_2d == nullptr)
             continue;
 
        image_data_r->texture_2d->bind( 0, this->texture_uniform_id );
