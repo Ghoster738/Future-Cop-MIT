@@ -183,22 +183,23 @@ bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry 
 }
 
 void Data::Manager::autoSetEntries( const std::string &base_path, Platform platform ) {
-    std::string MACINT_PATH = base_path;
-    std::string PSX_CW_PATH = base_path;
-    std::string PSX_PA_PATH = base_path;
-    std::string WINDOW_PATH = base_path;
+    std::string MAC_BASE_PATH = base_path;
+    std::string PSX_BASE_PATH = base_path;
+    std::string WIN_BASE_PATH = base_path;
 
     if( platform == Platform::ALL ) {
-        MACINT_PATH += "Macintosh/";
-        PSX_CW_PATH += "Playstation/";
-        PSX_PA_PATH += "Playstation/";
-        WINDOW_PATH += "Windows/";
+        MAC_BASE_PATH += "Macintosh/";
+        PSX_BASE_PATH += "Playstation/";
+        WIN_BASE_PATH += "Windows/";
     }
 
-    MACINT_PATH += "missions/";
-    PSX_CW_PATH += "cw/";
-    PSX_PA_PATH += "pa/";
-    WINDOW_PATH += "missions/";
+    std::string MACINT_PATH = MAC_BASE_PATH + "missions/";
+    std::string PSX_CW_PATH = PSX_BASE_PATH + "cw/";
+    std::string PSX_PA_PATH = PSX_BASE_PATH + "pa/";
+    std::string WINDOW_PATH = WIN_BASE_PATH + "missions/";
+
+    std::string WIN_MOVIE_PATH = WIN_BASE_PATH + "movies/";
+    std::string PSX_MOVIE_PATH = PSX_BASE_PATH + "movies/";
 
     const bool MAKE_MAC_PATH = (platform == Platform::MACINTOSH)   | (platform == Platform::ALL);
     const bool MAKE_PSX_PATH = (platform == Platform::PLAYSTATION) | (platform == Platform::ALL);
