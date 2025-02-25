@@ -172,14 +172,14 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
             color.set(image_data_r->color.x * 255.0, image_data_r->color.y * 255.0, image_data_r->color.z * 255.0, image_data_r->color.w * 255.0);
 
-            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[1].x, -image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
             num_triangles++;
 
-            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, image_data_r->positions[1].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, color.color_rgba);
-            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 0].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, image_data_r->texture_coords[1].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 1].set(image_data_r->positions[0].x, -image_data_r->positions[0].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[0].y, color.color_rgba);
+            this->buffer_p[3 * num_triangles + 2].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, image_data_r->texture_coords[0].x, image_data_r->texture_coords[1].y, color.color_rgba);
             num_triangles++;
         }
 
