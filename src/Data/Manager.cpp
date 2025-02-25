@@ -260,7 +260,7 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
         entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom3a.wve" );
     }
     if( MAKE_WIN_PATH ) {
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M3A" );
 
         entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdCuc.BMP" );
         entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief2.mpg" );
@@ -271,10 +271,20 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( la_brea_tar_pits );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3B" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3b.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3B" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m3bld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm3b.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom3b.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M3B" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdMaw.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief3.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_walka.mpg" );
+    }
     setIFFEntry( la_brea_tar_pits, entry );
 
     entry = getIFFEntry( venice_beach );
