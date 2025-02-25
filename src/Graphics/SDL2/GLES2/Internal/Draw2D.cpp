@@ -199,13 +199,13 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
        color.set(image_data_r->color.x * 255.0, image_data_r->color.y * 255.0, image_data_r->color.z * 255.0, image_data_r->color.w * 255.0);
 
-        this->buffer_p[0].set(image_data_r->positions[0].x, image_data_r->positions[0].y, 0, 1, color.color_rgba);
-        this->buffer_p[1].set(image_data_r->positions[1].x, image_data_r->positions[0].y, 1, 1, color.color_rgba);
-        this->buffer_p[2].set(image_data_r->positions[1].x, image_data_r->positions[1].y, 1, 0, color.color_rgba);
+        this->buffer_p[0].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, 0, 1, color.color_rgba);
+        this->buffer_p[1].set(image_data_r->positions[1].x, -image_data_r->positions[1].y, 1, 1, color.color_rgba);
+        this->buffer_p[2].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, 1, 0, color.color_rgba);
 
-        this->buffer_p[3].set(image_data_r->positions[1].x, image_data_r->positions[1].y, 1, 0, color.color_rgba);
-        this->buffer_p[4].set(image_data_r->positions[0].x, image_data_r->positions[1].y, 0, 0, color.color_rgba);
-        this->buffer_p[5].set(image_data_r->positions[0].x, image_data_r->positions[0].y, 0, 1, color.color_rgba);
+        this->buffer_p[3].set(image_data_r->positions[1].x, -image_data_r->positions[0].y, 1, 0, color.color_rgba);
+        this->buffer_p[4].set(image_data_r->positions[0].x, -image_data_r->positions[0].y, 0, 0, color.color_rgba);
+        this->buffer_p[5].set(image_data_r->positions[0].x, -image_data_r->positions[1].y, 0, 1, color.color_rgba);
 
         glBindBuffer( GL_ARRAY_BUFFER, this->vertex_buffer_object );
         glBufferSubData( GL_ARRAY_BUFFER, 0, 6 * sizeof( Draw2D::Vertex ), this->buffer_p );
@@ -259,8 +259,6 @@ void Draw2D::updateDynamicImageData(const Graphics::ImageBase *const image_base_
     auto search = this->dynamic_images.find( image_base_r );
 
     this->dynamic_images[image_base_r] = dynamic_image_data;
-    this->dynamic_images[image_base_r].positions[0].y = -dynamic_image_data.positions[1].y;
-    this->dynamic_images[image_base_r].positions[1].y = -dynamic_image_data.positions[0].y;
 
     if(search == this->dynamic_images.end()) {
         this->dynamic_images[image_base_r].texture_2d = nullptr;
