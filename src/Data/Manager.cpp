@@ -166,8 +166,6 @@ Data::Manager::IFFEntry Data::Manager::getIFFEntry( const std::string &name ) {
     return entry;
 }
 
-#include <iostream>
-
 bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry ) {
     // thread_lock.lock();
 
