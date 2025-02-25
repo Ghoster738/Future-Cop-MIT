@@ -233,10 +233,20 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( griffith_park );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M2C" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m2c.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M2C" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m2cld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm2c.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom2c.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M2C" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdConF.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief1.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_griff.mpg" );
+    }
     setIFFEntry( griffith_park, entry );
 
     entry = getIFFEntry( zuma_beach );
