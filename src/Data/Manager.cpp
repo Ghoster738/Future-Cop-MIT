@@ -243,7 +243,7 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     if( MAKE_WIN_PATH ) {
         entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M2C" );
 
-        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdConF.BMP" );
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdGrf.BMP" );
         entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief1.mpg" );
         entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_griff.mpg" );
     }
@@ -252,10 +252,20 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( zuma_beach );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3A" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3a.mis" );
-    if( MAKE_WIN_PATH )
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m3ald.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm3a.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom3a.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
         entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdCuc.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief2.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_griff.mpg" );
+    }
     setIFFEntry( zuma_beach, entry );
 
     entry = getIFFEntry( la_brea_tar_pits );
