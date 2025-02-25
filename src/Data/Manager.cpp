@@ -489,10 +489,19 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( pa_la_centina );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Mp" );
-    if( MAKE_PSX_PATH )
-        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" ); // Playstation does not have this
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Mp" );
+    if( MAKE_PSX_PATH ) {
+        // Playstation does not have these
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "mpld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pomp.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "Mp" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "Load.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_mp.mpg" );
+    }
     setIFFEntry( pa_la_centina, entry );
 }
 
