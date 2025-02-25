@@ -421,19 +421,35 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry = getIFFEntry( pa_venice_beach );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OVMP" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "ovmp.mis" );
-    if( MAKE_WIN_PATH )
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "ovmpld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poovmp.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
         entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OVMP" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdOVMP.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_ovmp.mpg" );
+    }
     setIFFEntry( pa_venice_beach, entry );
 
     entry = getIFFEntry( pa_hollywood_keys );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "HK" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "hk.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "HK" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "hkld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pohk.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "HK" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdHk.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_hk.mpg" );
+    }
     setIFFEntry( pa_hollywood_keys, entry );
 
     entry = getIFFEntry( pa_proving_ground );
