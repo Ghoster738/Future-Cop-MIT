@@ -18,21 +18,7 @@ MediaPlayer MediaPlayer::media_player;
 bool MediaPlayer::readMedia( const std::string &path ) {
     if(pl_video_p != nullptr)
         plm_destroy(pl_video_p);
-
-    pl_video_p = plm_create_with_filename(path.c_str());
-
-    if(pl_video_p != nullptr) {
-        plm_set_audio_enabled(pl_video_p, 0);
-
-        this->is_image = false;
-
-        int width  = plm_get_width( pl_video_p);
-        int height = plm_get_height(pl_video_p);
-
-        this->external_image_p->image_2d.setDimensions( width, height );
-
-        return true;
-    }
+    pl_video_p = nullptr;
 
     Utilities::Buffer image_buffer;
 
@@ -50,6 +36,20 @@ bool MediaPlayer::readMedia( const std::string &path ) {
 
     this->next_picture_count_down = std::chrono::microseconds(0);
 
+    pl_video_p = plm_create_with_filename(path.c_str());
+
+    if(pl_video_p != nullptr) {
+        plm_set_audio_enabled(pl_video_p, 0);
+
+        this->is_image = false;
+
+        int width  = plm_get_width( pl_video_p);
+        int height = plm_get_height(pl_video_p);
+
+        this->external_image_p->image_2d.setDimensions( width, height );
+
+        return true;
+    }
     return false;
 }
 
