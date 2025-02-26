@@ -62,10 +62,13 @@ Data::Manager::IFFEntry::~IFFEntry() {
 
 void Data::Manager::IFFEntry::set( const IFFEntry& obj ) {
     importance = obj.importance;
-    for( unsigned i = 0; i < Platform::ALL; i++ )
+    for( unsigned i = 0; i < Platform::ALL; i++ ) {
         this->paths[ i ] = obj.paths[ i ];
-    for( unsigned i = 0; i < Platform::ALL; i++ )
         this->iff_p[ i ] = obj.iff_p[ i ];
+        this->loading_media_paths[ i ] = obj.loading_media_paths[ i ];
+        this->intro_media_paths[ i ]   = obj.intro_media_paths[ i ];
+        this->outro_media_paths[ i ]   = obj.outro_media_paths[ i ];
+    }
 }
 
 void Data::Manager::IFFEntry::setPath( Platform platform, const std::string &path ) {
