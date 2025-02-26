@@ -5,9 +5,35 @@
 #include "PrimaryGame.h"
 #include "Utilities/ImageFormat/Chooser.h"
 
+#define PL_MPEG_IMPLEMENTATION
+#include <pl_mpeg.h>
+
+// TODO Remove this in favor of a simpiler video format.
+namespace {
+    plm_t *pl_video_p = nullptr;
+}
+
 MediaPlayer MediaPlayer::media_player;
 
 bool MediaPlayer::readMedia( const std::string &path ) {
+    if(pl_video_p != nullptr)
+        plm_destroy(pl_video_p);
+
+    pl_video_p = plm_create_with_filename(path.c_str());
+
+    if(pl_video_p != nullptr) {
+        plm_set_audio_enabled(pl_video_p, 0);
+
+        this->is_image = false;
+
+        int width  = plm_get_width( pl_video_p);
+        int height = plm_get_height(pl_video_p);
+
+        this->external_image_p->image_2d.setDimensions( width, height );
+
+        return true;
+    }
+
     Utilities::Buffer image_buffer;
 
     if(image_buffer.read( path )) {
@@ -62,20 +88,40 @@ void MediaPlayer::unload( MainProgram &main_program ) {
 }
 
 void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-    this->next_picture_count_down -= delta;
+    if(this->is_image) {
+        this->next_picture_count_down -= delta;
 
-    if(this->next_picture_count_down < std::chrono::microseconds(0)) {
-        this->next_picture_count_down = this->picture_display_time;
+        if(this->next_picture_count_down < std::chrono::microseconds(0)) {
+            this->next_picture_count_down = this->picture_display_time;
 
-        if(this->media_index == media_list.size()) {
-            // Exit out of the media player
-            main_program.switchMenu( &MainMenu::main_menu );
-            main_program.switchPrimaryGame( &PrimaryGame::primary_game );
-            return;
+            if(this->media_index == media_list.size()) {
+                // Exit out of the media player
+                main_program.switchMenu( &MainMenu::main_menu );
+                main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+                return;
+            }
+
+            readMedia( this->media_list.at(this->media_index) );
+            this->media_index++;
         }
+    }
+    else {
+        plm_frame_t *frame_p = plm_decode_video(pl_video_p);
 
-        readMedia( this->media_list.at(this->media_index) );
+        if(frame_p == nullptr) {
+            if(this->media_index == media_list.size()) {
+                // Exit out of the media player
+                main_program.switchMenu( &MainMenu::main_menu );
+                main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+                return;
+            }
 
-        this->media_index++;
+            readMedia( this->media_list.at(this->media_index) );
+            this->media_index++;
+        }
+        else {
+            plm_frame_to_rgb(frame_p, this->external_image_p->image_2d.getDirectGridData(), 3);
+            this->external_image_p->upload();
+        }
     }
 }
