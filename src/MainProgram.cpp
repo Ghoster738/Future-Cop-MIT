@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "InputMenu.h"
+#include "MediaPlayer.h"
 
 #include <iostream>
 
@@ -372,7 +373,11 @@ void MainProgram::initialLoadResources() {
 
     this->accessor.load( this->embedded );
 
-    this->global_r = manager.getIFFEntry( Data::Manager::global ).getIFF( this->platform );
+    entry = manager.getIFFEntry( Data::Manager::global );
+
+    MediaPlayer::media_player.media_list = entry.getLoadingMediaPaths( this->platform );
+
+    this->global_r = entry.getIFF( this->platform );
     if( this->global_r == nullptr ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The global IFF " << Data::Manager::global << " did not load.";
