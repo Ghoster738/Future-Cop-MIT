@@ -67,8 +67,6 @@ public:
         IFFEntry( const IFFEntry & );
         ~IFFEntry(); // DO NOT SET THIS TO VIRTUAL.
 
-        void set( const IFFEntry & );
-
         /**
          * Set a path for the given platform.
          * @param platform The platform for the resource file.
@@ -164,8 +162,6 @@ public:
         IFFEntryStorage();
         IFFEntryStorage( const IFFEntry & );
         ~IFFEntryStorage(); // This will delete the iff_p!
-
-        void set( const IFFEntry & );
 
         bool load( Platform platform );
         bool unload( Platform platform );
