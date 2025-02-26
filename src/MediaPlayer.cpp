@@ -69,15 +69,16 @@ void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &pat
         if(this->external_image_p->image_2d.getWidth() == 0 || this->external_image_p->image_2d.getHeight() == 0) {
             return; // Do nothing.
         }
-        double w_aspect_ratio = static_cast<double>(main_program.getWindowScale().x) / static_cast<double>(main_program.getWindowScale().y);
-        double i_aspect_ratio = static_cast<double>(this->external_image_p->image_2d.getWidth()) / static_cast<double>(this->external_image_p->image_2d.getHeight());
+        const double i_aspect_ratio = static_cast<double>(this->external_image_p->image_2d.getWidth()) / static_cast<double>(this->external_image_p->image_2d.getHeight());
+        const double adjusted_width  = main_program.getWindowScale().y * 2.0 / i_aspect_ratio;
+        const double adjusted_height = main_program.getWindowScale().x * i_aspect_ratio / 2.0;
 
-        if(w_aspect_ratio > i_aspect_ratio) {
+        if(adjusted_width <= main_program.getWindowScale().x) {
             this->external_image_p->positions[0] = glm::vec2(0, 0);
-            this->external_image_p->positions[1].x = main_program.getWindowScale().y * 2.0 / i_aspect_ratio;
+            this->external_image_p->positions[1].x = adjusted_width;
             this->external_image_p->positions[1].y = main_program.getWindowScale().y;
 
-            double center = 0.5 * (main_program.getWindowScale().x - this->external_image_p->positions[1].x);
+            const double center = 0.5 * (main_program.getWindowScale().x - this->external_image_p->positions[1].x);
             this->external_image_p->positions[0].x += center;
             this->external_image_p->positions[1].x += center;
 
@@ -86,9 +87,9 @@ void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &pat
         else {
             this->external_image_p->positions[0] = glm::vec2(0, 0);
             this->external_image_p->positions[1].x = main_program.getWindowScale().x;
-            this->external_image_p->positions[1].y = main_program.getWindowScale().x * i_aspect_ratio / 2.0;
+            this->external_image_p->positions[1].y = adjusted_height;
 
-            double center = 0.5 * (main_program.getWindowScale().y - this->external_image_p->positions[1].y);
+            const double center = 0.5 * (main_program.getWindowScale().y - this->external_image_p->positions[1].y);
             this->external_image_p->positions[0].y += center;
             this->external_image_p->positions[1].y += center;
 
