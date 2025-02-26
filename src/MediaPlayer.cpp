@@ -11,6 +11,13 @@
 // TODO Remove this in favor of a simpiler video format.
 namespace {
     plm_t *pl_video_p = nullptr;
+
+    void decode_video(plm_t *self_r, plm_frame_t *frame_r, void *user_r) {
+        MediaPlayer *media_player_r = reinterpret_cast<MediaPlayer*>(user_r);
+
+        plm_frame_to_rgb(frame_r, media_player_r->external_image_p->image_2d.getDirectGridData(), 3 * media_player_r->external_image_p->image_2d.getWidth());
+        media_player_r->external_image_p->upload();
+    }
 }
 
 MediaPlayer MediaPlayer::media_player;
@@ -45,6 +52,8 @@ bool MediaPlayer::readMedia( const std::string &path ) {
 
         int width  = plm_get_width( pl_video_p);
         int height = plm_get_height(pl_video_p);
+
+        plm_set_video_decode_callback(pl_video_p, decode_video, this);
 
         this->external_image_p->image_2d.setDimensions( width, height );
 
@@ -85,9 +94,20 @@ void MediaPlayer::unload( MainProgram &main_program ) {
     if(this->external_image_p != nullptr)
         delete this->external_image_p;
     this->external_image_p = nullptr;
+
+    if(pl_video_p != nullptr)
+        plm_destroy(pl_video_p);
+    pl_video_p = nullptr;
 }
 
 void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() ) {
+        // Exit out of the media player
+        main_program.switchMenu( &MainMenu::main_menu );
+        main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+        return;
+    }
+
     if(this->is_image) {
         this->next_picture_count_down -= delta;
 
@@ -106,9 +126,9 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
         }
     }
     else {
-        plm_frame_t *frame_p = plm_decode_video(pl_video_p);
+        plm_decode(pl_video_p, std::chrono::duration<float, std::ratio<1>>( delta ).count() );
 
-        if(frame_p == nullptr) {
+        if(plm_has_ended(pl_video_p)) {
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
                 main_program.switchMenu( &MainMenu::main_menu );
@@ -120,7 +140,7 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
             this->media_index++;
         }
         else {
-            plm_frame_to_rgb(frame_p, this->external_image_p->image_2d.getDirectGridData(), 3 * this->external_image_p->image_2d.getWidth());
+            //plm_frame_to_rgb(frame_p, this->external_image_p->image_2d.getDirectGridData(), 3 * this->external_image_p->image_2d.getWidth());
             this->external_image_p->upload();
         }
     }
