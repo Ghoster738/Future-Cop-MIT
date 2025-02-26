@@ -1,6 +1,7 @@
 #include "MainProgram.h"
 
 #include "PrimaryGame.h"
+#include "MediaPlayer.h"
 #include "ModelViewer.h"
 
 #include "MainMenu.h"
@@ -22,12 +23,13 @@ int main(int argc, char** argv)
     InputMenu::input_menu.name = main_program.paths.getConfigDirPath() + "controls";
     InputMenu::input_menu.menu_r = &MainMenu::main_menu;
 
-    if( main_program.control_system_p->read( InputMenu::input_menu.name ) > 0 )
-        main_program.switchMenu( &MainMenu::main_menu );
-    else
+    if( main_program.control_system_p->read( InputMenu::input_menu.name ) > 0 ) {
+        main_program.switchPrimaryGame( &MediaPlayer::media_player );
+    }
+    else {
         main_program.switchMenu( &InputMenu::input_menu );
-
-    main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+        main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+    }
 
     main_program.displayLoop();
 
