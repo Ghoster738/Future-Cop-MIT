@@ -24,6 +24,8 @@ protected:
 
     bool readMedia( const std::string &path );
 
+    std::chrono::microseconds button_timer;
+
 public:
     MediaPlayer();
     virtual ~MediaPlayer();

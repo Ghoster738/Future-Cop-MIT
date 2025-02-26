@@ -88,6 +88,8 @@ void MediaPlayer::load( MainProgram &main_program ) {
     this->external_image_p->update();
 
     this->is_image = true;
+
+    button_timer = std::chrono::microseconds(0);
 }
 
 void MediaPlayer::unload( MainProgram &main_program ) {
@@ -104,13 +106,27 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
     if( main_program.control_system_p->isOrderedToExit() )
         main_program.play_loop = false;
 
+    button_timer -= delta;
+    if(button_timer < std::chrono::microseconds(0)) {
+        button_timer = std::chrono::microseconds(0);
+    }
+
     bool end_video = false;
 
-    if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() ) {
-        if(this->is_image)
-            this->next_picture_count_down = std::chrono::microseconds(0);
-        else
-            end_video = true;
+    if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() && button_timer == std::chrono::microseconds(0)) {
+        if(this->media_index == media_list.size()) {
+            // Exit out of the media player
+            main_program.switchMenu( &MainMenu::main_menu );
+            main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+            return;
+        }
+
+        readMedia( this->media_list.at(this->media_index) );
+        this->media_index++;
+
+        button_timer = std::chrono::microseconds(500000);
+
+        return;
     }
 
     if(this->is_image) {
