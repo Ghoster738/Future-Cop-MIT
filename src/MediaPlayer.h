@@ -24,6 +24,8 @@ protected:
 
     bool readMedia( const std::string &path );
 
+    void updateMedia( MainProgram &main_program, const std::string &path );
+
     std::chrono::microseconds button_timer;
 
 public:

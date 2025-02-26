@@ -62,6 +62,31 @@ bool MediaPlayer::readMedia( const std::string &path ) {
     return false;
 }
 
+void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &path ) {
+    bool successful_read = readMedia( path );
+
+    if(successful_read) {
+        if(this->external_image_p->image_2d.getWidth() == 0 || this->external_image_p->image_2d.getHeight() == 0) {
+            return; // Do nothing.
+        }
+        double w_aspect_ratio = static_cast<double>(main_program.getWindowScale().x) / static_cast<double>(main_program.getWindowScale().y);
+        double i_aspect_ratio = static_cast<double>(this->external_image_p->image_2d.getWidth()) / static_cast<double>(this->external_image_p->image_2d.getHeight());
+
+        if(w_aspect_ratio > i_aspect_ratio) {
+            this->external_image_p->positions[0] = glm::vec2(0, 0);
+            this->external_image_p->positions[1].x = main_program.getWindowScale().y * 2.0 / i_aspect_ratio;
+            this->external_image_p->positions[1].y = main_program.getWindowScale().y;
+            this->external_image_p->update();
+        }
+        else {
+            this->external_image_p->positions[0] = glm::vec2(0, 0);
+            this->external_image_p->positions[1].x = main_program.getWindowScale().x;
+            this->external_image_p->positions[1].y = main_program.getWindowScale().x * i_aspect_ratio / 2.0;
+            this->external_image_p->update();
+        }
+    }
+}
+
 MediaPlayer::MediaPlayer() {
     this->external_image_p = nullptr;
     this->picture_display_time = std::chrono::microseconds(5000000);
@@ -121,7 +146,7 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
             return;
         }
 
-        readMedia( this->media_list.at(this->media_index) );
+        updateMedia(main_program, this->media_list.at(this->media_index));
         this->media_index++;
 
         button_timer = std::chrono::microseconds(500000);
@@ -142,7 +167,7 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
                 return;
             }
 
-            readMedia( this->media_list.at(this->media_index) );
+            updateMedia(main_program, this->media_list.at(this->media_index));
             this->media_index++;
         }
     }
@@ -157,7 +182,7 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
                 return;
             }
 
-            readMedia( this->media_list.at(this->media_index) );
+            updateMedia(main_program, this->media_list.at(this->media_index));
             this->media_index++;
         }
     }
