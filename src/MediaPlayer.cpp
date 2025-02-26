@@ -101,11 +101,16 @@ void MediaPlayer::unload( MainProgram &main_program ) {
 }
 
 void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if( main_program.control_system_p->isOrderedToExit() )
+        main_program.play_loop = false;
+
+    bool end_video = false;
+
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() ) {
-        // Exit out of the media player
-        main_program.switchMenu( &MainMenu::main_menu );
-        main_program.switchPrimaryGame( &PrimaryGame::primary_game );
-        return;
+        if(this->is_image)
+            this->next_picture_count_down = std::chrono::microseconds(0);
+        else
+            end_video = true;
     }
 
     if(this->is_image) {
@@ -128,7 +133,7 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
     else {
         plm_decode(pl_video_p, std::chrono::duration<float, std::ratio<1>>( delta ).count() );
 
-        if(plm_has_ended(pl_video_p)) {
+        if(plm_has_ended(pl_video_p) || end_video) {
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
                 main_program.switchMenu( &MainMenu::main_menu );
