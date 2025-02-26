@@ -8,7 +8,7 @@
 #define PL_MPEG_IMPLEMENTATION
 #include <pl_mpeg.h>
 
-// TODO Remove this in favor of a simpiler video format.
+// TODO Remove this in favor of abstraction.
 namespace {
     plm_t *pl_video_p = nullptr;
 
@@ -159,10 +159,6 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
 
             readMedia( this->media_list.at(this->media_index) );
             this->media_index++;
-        }
-        else {
-            //plm_frame_to_rgb(frame_p, this->external_image_p->image_2d.getDirectGridData(), 3 * this->external_image_p->image_2d.getWidth());
-            this->external_image_p->upload();
         }
     }
 }
