@@ -76,12 +76,22 @@ void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &pat
             this->external_image_p->positions[0] = glm::vec2(0, 0);
             this->external_image_p->positions[1].x = main_program.getWindowScale().y * 2.0 / i_aspect_ratio;
             this->external_image_p->positions[1].y = main_program.getWindowScale().y;
+
+            double center = 0.5 * (main_program.getWindowScale().x - this->external_image_p->positions[1].x);
+            this->external_image_p->positions[0].x += center;
+            this->external_image_p->positions[1].x += center;
+
             this->external_image_p->update();
         }
         else {
             this->external_image_p->positions[0] = glm::vec2(0, 0);
             this->external_image_p->positions[1].x = main_program.getWindowScale().x;
             this->external_image_p->positions[1].y = main_program.getWindowScale().x * i_aspect_ratio / 2.0;
+
+            double center = 0.5 * (main_program.getWindowScale().y - this->external_image_p->positions[1].y);
+            this->external_image_p->positions[0].y += center;
+            this->external_image_p->positions[1].y += center;
+
             this->external_image_p->update();
         }
     }
