@@ -19,7 +19,11 @@ protected:
     unsigned int media_index;
     std::chrono::microseconds next_picture_count_down;
 
+    bool is_image;
+
     Graphics::ExternalImage *external_image_p;
+
+    bool readMedia( const std::string &path );
 
 public:
     MediaPlayer();

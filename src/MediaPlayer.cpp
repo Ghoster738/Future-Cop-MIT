@@ -7,6 +7,26 @@
 
 MediaPlayer MediaPlayer::media_player;
 
+bool MediaPlayer::readMedia( const std::string &path ) {
+    Utilities::Buffer image_buffer;
+
+    if(image_buffer.read( path )) {
+        Utilities::ImageFormat::Chooser chooser;
+        auto the_choosen_r = chooser.getReaderReference( image_buffer );
+
+        if( the_choosen_r != nullptr && this->external_image_p != nullptr &&
+            the_choosen_r->read( image_buffer, this->external_image_p->image_2d )) {
+                this->external_image_p->upload();
+                this->is_image = true;
+                return true;
+        }
+    }
+
+    this->next_picture_count_down = std::chrono::microseconds(0);
+
+    return false;
+}
+
 MediaPlayer::MediaPlayer() {
     this->external_image_p = nullptr;
     this->picture_display_time = std::chrono::microseconds(5000000);
@@ -31,6 +51,8 @@ void MediaPlayer::load( MainProgram &main_program ) {
     this->external_image_p->is_visable = true;
 
     this->external_image_p->update();
+
+    this->is_image = true;
 }
 
 void MediaPlayer::unload( MainProgram &main_program ) {
@@ -52,21 +74,7 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
             return;
         }
 
-        Utilities::Buffer image_buffer;
-
-        if(image_buffer.read( media_list.at(this->media_index) )) {
-            Utilities::ImageFormat::Chooser chooser;
-            auto the_choosen_r = chooser.getReaderReference( image_buffer );
-
-            if( the_choosen_r != nullptr && this->external_image_p != nullptr &&
-                the_choosen_r->read( image_buffer, this->external_image_p->image_2d )) {
-                    this->external_image_p->upload();
-            }
-            else
-                this->next_picture_count_down = std::chrono::microseconds(0);
-        }
-        else
-            this->next_picture_count_down = std::chrono::microseconds(0);
+        readMedia( this->media_list.at(this->media_index) );
 
         this->media_index++;
     }
