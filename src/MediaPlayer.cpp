@@ -15,6 +15,9 @@ MediaPlayer::MediaPlayer() {
 MediaPlayer::~MediaPlayer() {}
 
 void MediaPlayer::load( MainProgram &main_program ) {
+    main_program.loadGraphics( false );
+    main_program.loadSound();
+
     this->media_index = 0;
     this->next_picture_count_down = std::chrono::microseconds(0);
 
@@ -59,7 +62,11 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
                 the_choosen_r->read( image_buffer, this->external_image_p->image_2d )) {
                     this->external_image_p->upload();
             }
+            else
+                this->next_picture_count_down = std::chrono::microseconds(0);
         }
+        else
+            this->next_picture_count_down = std::chrono::microseconds(0);
 
         this->media_index++;
     }
