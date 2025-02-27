@@ -84,7 +84,7 @@ bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channel
         error_state = alGetError();
     }
 
-    if(interleaved_samples_r != NULL)
+    if(interleaved_samples_r == NULL)
         return false;
 
     if(this->num_of_channels != num_of_channels)
