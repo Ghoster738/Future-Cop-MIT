@@ -28,9 +28,6 @@ namespace {
 
         if(samples_r->time == 0)
             media_player_r->audio_stream_p->setSpeakerState(Sound::PlayerState::PLAY);
-        std::cout
-            << "Time = " << samples_r->time << "\n"
-            << "count = " << samples_r->count << std::endl;
     }
 }
 
@@ -64,7 +61,7 @@ bool MediaPlayer::readMedia( const std::string &path ) {
 
         plm_set_audio_enabled(pl_video_p, 1);
         plm_set_audio_stream(pl_video_p, 0);
-        // plm_set_audio_lead_time(pl_video_p, 1.0);
+        plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / (double)44100);
 
         int samplerate = plm_get_samplerate(pl_video_p);
 
