@@ -24,7 +24,12 @@ namespace {
     void decode_audio(plm_t *self_r, plm_samples_t *samples_r, void *user_r) {
         MediaPlayer *media_player_r = reinterpret_cast<MediaPlayer*>(user_r);
 
-        std::cout << "Time = " << samples_r->time << "\n"
+        media_player_r->audio_stream_p->appendSamples(samples_r->interleaved, 2, samples_r->count);
+
+        if(samples_r->time == 0)
+            media_player_r->audio_stream_p->setSpeakerState(Sound::PlayerState::PLAY);
+        std::cout
+            << "Time = " << samples_r->time << "\n"
             << "count = " << samples_r->count << std::endl;
     }
 }
@@ -112,6 +117,7 @@ void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &pat
 
 MediaPlayer::MediaPlayer() {
     this->external_image_p = nullptr;
+    this->audio_stream_p   = nullptr;
     this->picture_display_time = std::chrono::microseconds(5000000);
 }
 
@@ -128,22 +134,27 @@ void MediaPlayer::load( MainProgram &main_program ) {
         delete this->external_image_p;
     this->external_image_p = main_program.environment_p->allocateExternalImage();
 
-    glm::u32vec2 scale = main_program.getWindowScale();
-    this->external_image_p->positions[0] = glm::vec2(0, 0); // Origin
-    this->external_image_p->positions[1] =           scale; // End
+    this->external_image_p->positions[0] =               glm::vec2(0, 0); // Origin
+    this->external_image_p->positions[1] = main_program.getWindowScale(); // End
     this->external_image_p->is_visable = true;
 
     this->external_image_p->update();
 
     this->is_image = true;
 
-    button_timer = std::chrono::microseconds(0);
+    this->button_timer = std::chrono::microseconds(0);
+
+    this->audio_stream_p = main_program.sound_system_p->allocateStream(32, 2, PLM_AUDIO_SAMPLES_PER_FRAME, 44100);
 }
 
 void MediaPlayer::unload( MainProgram &main_program ) {
     if(this->external_image_p != nullptr)
         delete this->external_image_p;
     this->external_image_p = nullptr;
+
+    if(this->audio_stream_p != nullptr)
+        delete this->audio_stream_p;
+    this->audio_stream_p = nullptr;
 
     if(pl_video_p != nullptr)
         plm_destroy(pl_video_p);

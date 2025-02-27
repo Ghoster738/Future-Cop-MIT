@@ -5,6 +5,7 @@
 
 #include <vector>
 #include "Data/Mission/SNDSResource.h"
+#include "Sound/Stream.h"
 #include "Graphics/Text2DBuffer.h"
 #include "Graphics/ExternalImage.h"
 
@@ -13,11 +14,13 @@ public:
     static MediaPlayer media_player;
 
     std::vector<std::string> media_list;
-    std::chrono::microseconds picture_display_time;
 
     Graphics::ExternalImage *external_image_p;
+    Sound::Stream *audio_stream_p;
+
 protected:
     unsigned int media_index;
+    std::chrono::microseconds picture_display_time;
     std::chrono::microseconds next_picture_count_down;
 
     bool is_image;
