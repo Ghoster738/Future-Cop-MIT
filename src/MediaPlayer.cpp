@@ -5,6 +5,8 @@
 #include "PrimaryGame.h"
 #include "Utilities/ImageFormat/Chooser.h"
 
+#include <iostream>
+
 #define PL_MPEG_IMPLEMENTATION
 #include <pl_mpeg.h>
 
@@ -17,6 +19,13 @@ namespace {
 
         plm_frame_to_rgb(frame_r, media_player_r->external_image_p->image_2d.getDirectGridData(), 3 * media_player_r->external_image_p->image_2d.getWidth());
         media_player_r->external_image_p->upload();
+    }
+
+    void decode_audio(plm_t *self_r, plm_samples_t *samples_r, void *user_r) {
+        MediaPlayer *media_player_r = reinterpret_cast<MediaPlayer*>(user_r);
+
+        std::cout << "Time = " << samples_r->time << "\n"
+            << "count = " << samples_r->count << std::endl;
     }
 }
 
@@ -46,15 +55,22 @@ bool MediaPlayer::readMedia( const std::string &path ) {
     pl_video_p = plm_create_with_filename(path.c_str());
 
     if(pl_video_p != nullptr) {
-        plm_set_audio_enabled(pl_video_p, 0);
+        // This fixes the video's audio.
+        plm_probe(pl_video_p, 1024 * 500);
+
+        plm_set_video_decode_callback(pl_video_p, decode_video, this);
+        plm_set_audio_decode_callback(pl_video_p, decode_audio, this);
+
+        plm_set_audio_enabled(pl_video_p, 1);
+        plm_set_audio_stream(pl_video_p, 0);
+        // plm_set_audio_lead_time(pl_video_p, 1.0);
+
+        int samplerate = plm_get_samplerate(pl_video_p);
 
         this->is_image = false;
 
         int width  = plm_get_width( pl_video_p);
         int height = plm_get_height(pl_video_p);
-
-        plm_set_video_decode_callback(pl_video_p, decode_video, this);
-
         this->external_image_p->image_2d.setDimensions( width, height );
 
         return true;
