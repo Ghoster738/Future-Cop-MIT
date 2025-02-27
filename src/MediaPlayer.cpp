@@ -32,10 +32,6 @@ namespace {
 MediaPlayer MediaPlayer::media_player;
 
 bool MediaPlayer::readMedia( const std::string &path ) {
-    if(pl_video_p != nullptr)
-        plm_destroy(pl_video_p);
-    pl_video_p = nullptr;
-
     Utilities::Buffer image_buffer;
 
     if(image_buffer.read( path )) {
@@ -202,6 +198,9 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
         plm_decode(pl_video_p, std::chrono::duration<float, std::ratio<1>>( delta ).count() );
 
         if(plm_has_ended(pl_video_p) || end_video) {
+            plm_destroy(pl_video_p);
+            pl_video_p = nullptr;
+
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
                 main_program.switchMenu( &MainMenu::main_menu );
