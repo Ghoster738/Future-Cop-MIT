@@ -8,6 +8,7 @@
 
 #include "Listener.h"
 #include "Speaker.h"
+#include "Stream.h"
 #include "PlayerState.h"
 
 #include "../Data/Accessor.h"
@@ -136,6 +137,8 @@ public:
      * @return The pointer to the speaker. This function should not return null unless if this environment is a dummy.
      */
     virtual Speaker* allocateSpeaker(uint32_t resource_id) = 0;
+
+    virtual Stream* allocateStream(size_t total_buffers, unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) = 0;
 
     /**
      * Advance the time.
