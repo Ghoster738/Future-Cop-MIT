@@ -55,7 +55,7 @@ public:
 
     virtual Sound::Speaker* allocateSpeaker(uint32_t resource_id);
 
-    virtual Sound::Stream* allocateStream(size_t total_buffers, unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency);
+    virtual Sound::Stream* allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency);
 
     virtual void advanceTime( std::chrono::high_resolution_clock::duration duration );
 };

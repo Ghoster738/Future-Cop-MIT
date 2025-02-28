@@ -141,7 +141,7 @@ void MediaPlayer::load( MainProgram &main_program ) {
 
     this->button_timer = std::chrono::microseconds(0);
 
-    this->audio_stream_p = main_program.sound_system_p->allocateStream(32, 2, PLM_AUDIO_SAMPLES_PER_FRAME, 44100);
+    this->audio_stream_p = main_program.sound_system_p->allocateStream(2, PLM_AUDIO_SAMPLES_PER_FRAME, 44100);
 }
 
 void MediaPlayer::unload( MainProgram &main_program ) {

@@ -5,7 +5,7 @@
 
 namespace Sound::OpenAL {
 
-Sound::Stream* Environment::allocateStream(size_t total_buffers, unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) {
+Sound::Stream* Environment::allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) {
     // Detect errors early.
     if(num_of_channels != 1 && num_of_channels != 2)
         return NULL;
