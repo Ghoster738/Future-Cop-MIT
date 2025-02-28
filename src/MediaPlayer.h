@@ -15,10 +15,10 @@ public:
 
     std::vector<std::string> media_list;
 
+protected:
     Graphics::ExternalImage *external_image_p;
     Sound::Stream *audio_stream_p;
 
-protected:
     unsigned int media_index;
     std::chrono::microseconds picture_display_time;
     std::chrono::microseconds next_picture_count_down;
