@@ -13,7 +13,6 @@ Sound::Stream* Environment::allocateStream(size_t total_buffers, unsigned num_of
     // Attempt to allocate required OpenAL stuff.
     ALenum error_state;
     ALuint source;
-    std::vector<ALuint> buffers;
 
     // Generate the source.
     alGenSources(1, &source);
@@ -34,26 +33,11 @@ Sound::Stream* Environment::allocateStream(size_t total_buffers, unsigned num_of
         return NULL;
     }
 
-    // Generate the buffers.
-    buffers.resize(total_buffers);
-
-    alGenBuffers(buffers.size(), &buffers[0]);
-
-    error_state = alGetError();
-    if(error_state != AL_NO_ERROR) {
-        alDeleteSources(1, &source);
-
-        error_state = alGetError();
-
-        return NULL;
-    }
-
     // Finally, allocate this class.
     auto stream_p = new Stream();
 
     stream_p->source = source;
-    stream_p->buffers = buffers;
-    stream_p->free_buffers = buffers;
+    // stream_p->buffers = buffers; // appendSamples will generate buffers anyways.
 
     stream_p->num_of_channels = num_of_channels;
     stream_p->audio_samples_per_channel = audio_samples_per_channel;
@@ -73,17 +57,6 @@ bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channel
     ALenum error_state;
     ALint buffer_processed_amount;
 
-    alGetSourcei(this->source, AL_BUFFERS_PROCESSED, &buffer_processed_amount);
-
-    error_state = alGetError();
-    if(buffer_processed_amount > 0) {
-        this->free_buffers.resize(this->free_buffers.size() + buffer_processed_amount);
-
-        alSourceUnqueueBuffers(this->source, buffer_processed_amount, &this->free_buffers[this->free_buffers.size() - buffer_processed_amount]);
-
-        error_state = alGetError();
-    }
-
     if(interleaved_samples_r == NULL)
         return false;
 
@@ -93,25 +66,36 @@ bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channel
     if(this->audio_samples_per_channel != audio_samples_per_channel)
         return false;
 
-    if(this->free_buffers.empty())
-        return false;
+    alGetSourcei(this->source, AL_BUFFERS_PROCESSED, &buffer_processed_amount);
+
+    ALuint buffer;
+
+    error_state = alGetError();
+    if(buffer_processed_amount != 0) {
+        alSourceUnqueueBuffers(this->source, 1, &buffer);
+
+        error_state = alGetError();
+    }
+    else {
+        alGenBuffers(1, &buffer);
+
+        this->buffers.push_back(buffer);
+    }
 
     if(num_of_channels == 1)
-        alBufferData(this->free_buffers.back(),   AL_FORMAT_MONO_FLOAT32, interleaved_samples_r,     sizeof(float) * audio_samples_per_channel, this->frequency);
+        alBufferData(buffer,   AL_FORMAT_MONO_FLOAT32, interleaved_samples_r,     sizeof(float) * audio_samples_per_channel, this->frequency);
     else
-        alBufferData(this->free_buffers.back(), AL_FORMAT_STEREO_FLOAT32, interleaved_samples_r, 2 * sizeof(float) * audio_samples_per_channel, this->frequency);
+        alBufferData(buffer, AL_FORMAT_STEREO_FLOAT32, interleaved_samples_r, 2 * sizeof(float) * audio_samples_per_channel, this->frequency);
 
     error_state = alGetError();
     if(error_state != AL_NO_ERROR)
         return false;
 
-    alSourceQueueBuffers(this->source, 1, &this->free_buffers.back());
+    alSourceQueueBuffers(this->source, 1, &buffer);
 
     error_state = alGetError();
     if(error_state != AL_NO_ERROR)
         return false;
-
-    this->free_buffers.pop_back();
 
     return true;
 }

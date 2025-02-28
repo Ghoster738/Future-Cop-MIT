@@ -12,7 +12,6 @@ public:
 
     ALuint source;
     std::vector<ALuint> buffers;
-    std::vector<ALuint> free_buffers;
 
     unsigned num_of_channels;
     ALsizei audio_samples_per_channel;
