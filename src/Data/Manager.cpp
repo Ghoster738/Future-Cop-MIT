@@ -81,17 +81,11 @@ Data::Mission::IFF* Data::Manager::IFFEntry::getIFF( Platform platform ) {
 const Data::Mission::IFF* Data::Manager::IFFEntry::getIFF( Platform platform ) const {
     return const_cast<Data::Manager::IFFEntry*>( this )->getIFF( platform );
 }
-Data::Manager::IFFEntryStorage::IFFEntryStorage() {
-}
+Data::Manager::IFFEntryStorage::IFFEntryStorage() {}
 
-Data::Manager::IFFEntryStorage::IFFEntryStorage( const IFFEntry& obj ) : IFFEntry( obj ) {
-}
+Data::Manager::IFFEntryStorage::IFFEntryStorage( const IFFEntry& obj ) : IFFEntry( obj ) {}
 
-Data::Manager::IFFEntryStorage::~IFFEntryStorage() {
-    for( auto &i : iff_p )
-        if( i != nullptr )
-            delete i;
-}
+Data::Manager::IFFEntryStorage::~IFFEntryStorage() {}
 
 bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] == nullptr ) {
@@ -114,13 +108,23 @@ bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
 }
 
 bool Data::Manager::IFFEntryStorage::unload( Platform platform ) {
-    if( platform < Platform::ALL && this->iff_p[ platform ] != nullptr ) {
-        delete this->iff_p[ platform ];
-        this->iff_p[ platform ] = nullptr;
+    if(platform == Platform::ALL) {
+        for(size_t i = 0; i < Platform::ALL; i++) {
+            if( this->iff_p[i] != nullptr )
+                delete this->iff_p[i];
+            this->iff_p[i] = nullptr;
+        }
         return true;
     }
-    else
+    else if( platform < Platform::ALL ) {
+        if(this->iff_p[ platform ] != nullptr) {
+            delete this->iff_p[ platform ];
+            this->iff_p[ platform ] = nullptr;
+        }
         return true; // Already unloaded.
+    }
+    else
+        return false;
 }
 
 Data::Manager::Manager() : /*thread_lock(),*/ entries(), currently_loaded_platforms( {false} ),
@@ -128,6 +132,8 @@ Data::Manager::Manager() : /*thread_lock(),*/ entries(), currently_loaded_platfo
 }
 
 Data::Manager::~Manager() {
+    for(auto &i : this->entries)
+        i.second.unload(Platform::ALL);
 }
 
 bool Data::Manager::hasEntry( const std::string &name ) {

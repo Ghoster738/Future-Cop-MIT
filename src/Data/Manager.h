@@ -161,7 +161,7 @@ public:
     public:
         IFFEntryStorage();
         IFFEntryStorage( const IFFEntry & );
-        ~IFFEntryStorage(); // This will delete the iff_p!
+        ~IFFEntryStorage();
 
         bool load( Platform platform );
         bool unload( Platform platform );
