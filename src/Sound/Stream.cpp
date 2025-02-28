@@ -13,12 +13,4 @@ PlayerState Stream::getSpeakerState() const {
     return this->speaker_state;
 }
 
-unsigned Stream::getNumOfChannels() const {
-    return this->num_of_channels;
-}
-
-unsigned Stream::getSamplesPerChannel() const {
-    return this->audio_samples_per_channel;
-}
-
 }

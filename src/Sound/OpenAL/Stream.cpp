@@ -124,6 +124,14 @@ PlayerState Stream::getSpeakerState() const {
     return Sound::Stream::getSpeakerState();
 }
 
+unsigned Stream::getNumOfChannels() const {
+    return this->num_of_channels;
+}
+
+unsigned Stream::getSamplesPerChannel() const {
+    return this->audio_samples_per_channel;
+}
+
 size_t Stream::getFrequency() const {
     return this->frequency;
 }

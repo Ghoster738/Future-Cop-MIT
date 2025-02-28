@@ -25,6 +25,10 @@ public:
 
     virtual PlayerState getSpeakerState() const;
 
+    virtual unsigned getNumOfChannels() const;
+
+    virtual unsigned getSamplesPerChannel() const;
+
     virtual size_t getFrequency() const;
 };
 

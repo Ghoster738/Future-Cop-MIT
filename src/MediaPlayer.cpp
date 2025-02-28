@@ -33,7 +33,7 @@ namespace {
 
 MediaPlayer MediaPlayer::media_player;
 
-bool MediaPlayer::readMedia( const std::string &path ) {
+bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path ) {
     Utilities::Buffer image_buffer;
 
     if(image_buffer.read( path )) {
@@ -64,11 +64,29 @@ bool MediaPlayer::readMedia( const std::string &path ) {
         int height = plm_get_height(pl_video_p);
         this->external_image_p->image_2d.setDimensions( width, height );
 
-        double samplerate = plm_get_samplerate(pl_video_p);
-        plm_set_audio_enabled(pl_video_p, 1);
-        plm_set_audio_stream(pl_video_p, 0);
-        plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / samplerate);
-        plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
+        if(plm_get_audio_enabled(pl_video_p)) {
+            double samplerate = plm_get_samplerate(pl_video_p);
+
+            plm_set_audio_stream(pl_video_p, 0);
+            plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / samplerate);
+
+            if(this->audio_stream_p != nullptr) {
+                const auto num_channels = this->audio_stream_p->getNumOfChannels();
+                const auto samples_per_channel = this->audio_stream_p->getSamplesPerChannel();
+                const auto frequency = this->audio_stream_p->getFrequency();
+
+                if(num_channels != 2 || samples_per_channel != PLM_AUDIO_SAMPLES_PER_FRAME || frequency != samplerate) {
+                    delete this->audio_stream_p;
+                    this->audio_stream_p = nullptr;
+                }
+            }
+
+            if(this->audio_stream_p == nullptr)
+                this->audio_stream_p = main_program.sound_system_p->allocateStream(2, PLM_AUDIO_SAMPLES_PER_FRAME, samplerate);
+
+            if(this->audio_stream_p != nullptr)
+                plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
+        }
 
         return true;
     }
@@ -76,7 +94,7 @@ bool MediaPlayer::readMedia( const std::string &path ) {
 }
 
 void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &path ) {
-    bool successful_read = readMedia( path );
+    bool successful_read = readMedia( main_program, path );
 
     if(successful_read) {
         if(this->external_image_p->image_2d.getWidth() == 0 || this->external_image_p->image_2d.getHeight() == 0) {
@@ -139,8 +157,6 @@ void MediaPlayer::load( MainProgram &main_program ) {
     this->is_image = true;
 
     this->button_timer = std::chrono::microseconds(0);
-
-    this->audio_stream_p = main_program.sound_system_p->allocateStream(2, PLM_AUDIO_SAMPLES_PER_FRAME, 44100);
 }
 
 void MediaPlayer::unload( MainProgram &main_program ) {

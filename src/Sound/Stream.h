@@ -8,9 +8,7 @@ namespace Sound {
 
 class Stream {
 protected:
-    size_t audio_samples_per_channel;
     PlayerState speaker_state;
-    unsigned num_of_channels;
 
 public:
     virtual ~Stream() = 0;
@@ -27,11 +25,11 @@ public:
     /**
      * @return The state of the speaker.
      */
-    virtual PlayerState getSpeakerState() const;
+    virtual PlayerState getSpeakerState() const = 0;
 
-    virtual unsigned getNumOfChannels() const;
+    virtual unsigned getNumOfChannels() const = 0;
 
-    virtual unsigned getSamplesPerChannel() const;
+    virtual unsigned getSamplesPerChannel() const = 0;
 
     virtual size_t getFrequency() const = 0;
 };

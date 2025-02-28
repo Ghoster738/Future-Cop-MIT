@@ -25,7 +25,7 @@ protected:
 
     bool is_image;
 
-    bool readMedia( const std::string &path );
+    bool readMedia( MainProgram &main_program, const std::string &path );
 
     void updateMedia( MainProgram &main_program, const std::string &path );
 
