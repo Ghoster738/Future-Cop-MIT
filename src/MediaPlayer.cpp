@@ -22,12 +22,12 @@ namespace {
     }
 
     void decode_audio(plm_t *self_r, plm_samples_t *samples_r, void *user_r) {
-        MediaPlayer *media_player_r = reinterpret_cast<MediaPlayer*>(user_r);
+        auto *audio_stream_r = reinterpret_cast<Sound::Stream*>(user_r);
 
-        media_player_r->audio_stream_p->appendSamples(samples_r->interleaved, 2, samples_r->count);
+        audio_stream_r->appendSamples(samples_r->interleaved, 2, samples_r->count);
 
         if(samples_r->time == 0)
-            media_player_r->audio_stream_p->setSpeakerState(Sound::PlayerState::PLAY);
+            audio_stream_r->setSpeakerState(Sound::PlayerState::PLAY);
     }
 }
 
@@ -57,7 +57,7 @@ bool MediaPlayer::readMedia( const std::string &path ) {
         plm_probe(pl_video_p, 1024 * 500);
 
         plm_set_video_decode_callback(pl_video_p, decode_video, this->external_image_p);
-        plm_set_audio_decode_callback(pl_video_p, decode_audio, this);
+        plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
 
         plm_set_audio_enabled(pl_video_p, 1);
         plm_set_audio_stream(pl_video_p, 0);
