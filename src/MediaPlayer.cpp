@@ -59,11 +59,11 @@ bool MediaPlayer::readMedia( const std::string &path ) {
         plm_set_video_decode_callback(pl_video_p, decode_video, this->external_image_p);
         plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
 
+        double samplerate = plm_get_samplerate(pl_video_p);
+
         plm_set_audio_enabled(pl_video_p, 1);
         plm_set_audio_stream(pl_video_p, 0);
-        plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / (double)44100);
-
-        int samplerate = plm_get_samplerate(pl_video_p);
+        plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / samplerate);
 
         this->is_image = false;
 
