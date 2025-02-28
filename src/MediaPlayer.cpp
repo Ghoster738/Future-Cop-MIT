@@ -57,19 +57,18 @@ bool MediaPlayer::readMedia( const std::string &path ) {
         plm_probe(pl_video_p, 1024 * 500);
 
         plm_set_video_decode_callback(pl_video_p, decode_video, this->external_image_p);
-        plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
-
-        double samplerate = plm_get_samplerate(pl_video_p);
-
-        plm_set_audio_enabled(pl_video_p, 1);
-        plm_set_audio_stream(pl_video_p, 0);
-        plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / samplerate);
 
         this->is_image = false;
 
         int width  = plm_get_width( pl_video_p);
         int height = plm_get_height(pl_video_p);
         this->external_image_p->image_2d.setDimensions( width, height );
+
+        double samplerate = plm_get_samplerate(pl_video_p);
+        plm_set_audio_enabled(pl_video_p, 1);
+        plm_set_audio_stream(pl_video_p, 0);
+        plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / samplerate);
+        plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
 
         return true;
     }
