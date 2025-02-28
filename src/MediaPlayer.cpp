@@ -34,23 +34,12 @@ namespace {
 MediaPlayer MediaPlayer::media_player;
 
 bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path ) {
-    Utilities::Buffer image_buffer;
-
-    if(image_buffer.read( path )) {
-        Utilities::ImageFormat::Chooser chooser;
-        auto the_choosen_r = chooser.getReaderReference( image_buffer );
-
-        if( the_choosen_r != nullptr && this->external_image_p != nullptr &&
-            the_choosen_r->read( image_buffer, this->external_image_p->image_2d )) {
-                this->external_image_p->upload();
-                this->is_image = true;
-                return true;
-        }
-    }
-
-    this->next_picture_count_down = std::chrono::microseconds(0);
-
     pl_video_p = plm_create_with_filename(path.c_str());
+
+    if(pl_video_p != nullptr && !plm_has_headers(pl_video_p)) {
+        plm_destroy(pl_video_p);
+        pl_video_p = nullptr;
+    }
 
     if(pl_video_p != nullptr) {
         // This fixes the video's audio.
@@ -90,6 +79,23 @@ bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path 
 
         return true;
     }
+
+    Utilities::Buffer image_buffer;
+
+    if(image_buffer.read( path )) {
+        Utilities::ImageFormat::Chooser chooser;
+        auto the_choosen_r = chooser.getReaderReference( image_buffer );
+
+        if( the_choosen_r != nullptr && this->external_image_p != nullptr &&
+            the_choosen_r->read( image_buffer, this->external_image_p->image_2d )) {
+                this->external_image_p->upload();
+                this->is_image = true;
+                return true;
+        }
+    }
+
+    this->next_picture_count_down = std::chrono::microseconds(0);
+
     return false;
 }
 
