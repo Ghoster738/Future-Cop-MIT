@@ -15,10 +15,10 @@ namespace {
     plm_t *pl_video_p = nullptr;
 
     void decode_video(plm_t *self_r, plm_frame_t *frame_r, void *user_r) {
-        MediaPlayer *media_player_r = reinterpret_cast<MediaPlayer*>(user_r);
+        auto external_image_r = reinterpret_cast<Graphics::ExternalImage*>(user_r);
 
-        plm_frame_to_rgb(frame_r, media_player_r->external_image_p->image_2d.getDirectGridData(), 3 * media_player_r->external_image_p->image_2d.getWidth());
-        media_player_r->external_image_p->upload();
+        plm_frame_to_rgb(frame_r, external_image_r->image_2d.getDirectGridData(), 3 * external_image_r->image_2d.getWidth());
+        external_image_r->upload();
     }
 
     void decode_audio(plm_t *self_r, plm_samples_t *samples_r, void *user_r) {
@@ -56,7 +56,7 @@ bool MediaPlayer::readMedia( const std::string &path ) {
         // This fixes the video's audio.
         plm_probe(pl_video_p, 1024 * 500);
 
-        plm_set_video_decode_callback(pl_video_p, decode_video, this);
+        plm_set_video_decode_callback(pl_video_p, decode_video, this->external_image_p);
         plm_set_audio_decode_callback(pl_video_p, decode_audio, this);
 
         plm_set_audio_enabled(pl_video_p, 1);
