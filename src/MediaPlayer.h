@@ -4,9 +4,7 @@
 #include "GameState.h"
 
 #include <vector>
-#include "Data/Mission/SNDSResource.h"
 #include "Sound/Stream.h"
-#include "Graphics/Text2DBuffer.h"
 #include "Graphics/ExternalImage.h"
 
 class MediaPlayer : public GameState {
