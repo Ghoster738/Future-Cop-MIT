@@ -113,6 +113,11 @@ MediaPlayer::MediaPlayer() {
 
 MediaPlayer::~MediaPlayer() {}
 
+void MediaPlayer::clearMediaPaths() {
+    this->media_list.clear();
+    this->next_media_list.clear();
+}
+
 void MediaPlayer::appendMediaPaths(std::vector<std::filesystem::path> &media_paths) {
     this->media_list.insert( this->media_list.end(), media_paths.begin(), media_paths.end() );
 }

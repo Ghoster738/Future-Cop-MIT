@@ -44,6 +44,7 @@ public:
     MediaPlayer();
     virtual ~MediaPlayer();
 
+    void clearMediaPaths();
     void appendMediaPaths(std::vector<std::filesystem::path> &media_paths);
     void appendNextMediaPaths(std::vector<std::filesystem::path> &media_paths);
 
