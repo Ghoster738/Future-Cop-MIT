@@ -8,6 +8,7 @@
 #include "OptionsMenu.h"
 
 #include "AnnouncementPlayer.h"
+#include "MediaPlayer.h"
 #include "ModelViewer.h"
 #include "ParticleViewer.h"
 #include "PrimaryGame.h"
@@ -52,7 +53,11 @@ item_click_player_sound( "Sound Player", &SoundPlayer::sound_player );
 class ItemClickExitGame : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        main_program.play_loop = false;
+        MediaPlayer::media_player.next_menu_r = nullptr;
+        MediaPlayer::media_player.next_state_r = nullptr;
+
+        main_program.switchMenu( nullptr );
+        main_program.switchPrimaryGame( &MediaPlayer::media_player );
     }
 } item_click_exit_game;
 

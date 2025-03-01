@@ -104,6 +104,8 @@ void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &pat
 }
 
 MediaPlayer::MediaPlayer() {
+    this->next_menu_r  = &MainMenu::main_menu;
+    this->next_state_r = &PrimaryGame::primary_game;
     this->external_image_p = nullptr;
     this->audio_stream_p   = nullptr;
     this->picture_display_time = std::chrono::microseconds(5000000);
@@ -161,8 +163,10 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() && button_timer == std::chrono::microseconds(0)) {
         if(this->media_index == media_list.size()) {
             // Exit out of the media player
-            main_program.switchMenu( &MainMenu::main_menu );
-            main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+            main_program.switchMenu( this->next_menu_r );
+            main_program.switchPrimaryGame( this->next_state_r );
+            if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)
+                main_program.play_loop = false;
             return;
         }
 
@@ -182,8 +186,10 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
 
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
-                main_program.switchMenu( &MainMenu::main_menu );
-                main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+                main_program.switchMenu( this->next_menu_r );
+                main_program.switchPrimaryGame( this->next_state_r );
+                if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)
+                    main_program.play_loop = false;
                 return;
             }
 
@@ -201,8 +207,10 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
 
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
-                main_program.switchMenu( &MainMenu::main_menu );
-                main_program.switchPrimaryGame( &PrimaryGame::primary_game );
+                main_program.switchMenu( this->next_menu_r );
+                main_program.switchPrimaryGame( this->next_state_r );
+                if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)
+                    main_program.play_loop = false;
                 return;
             }
 

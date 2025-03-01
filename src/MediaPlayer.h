@@ -4,6 +4,8 @@
 #include "GameState.h"
 
 #include <vector>
+#include "Menu.h"
+#include "GameState.h"
 #include "Utilities/Video.h"
 #include "Sound/Stream.h"
 #include "Graphics/ExternalImage.h"
@@ -13,6 +15,8 @@ public:
     static MediaPlayer media_player;
 
     std::vector<std::string> media_list;
+    Menu      *next_menu_r;
+    GameState *next_state_r;
 
 protected:
     Utilities::Video *video_p;
