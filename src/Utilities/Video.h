@@ -30,6 +30,8 @@ public:
     virtual void setAudioCallback(AudioCallback audio_callback, void *user_r) = 0;
 
     virtual bool update(std::chrono::microseconds delta) = 0;
+
+    virtual bool hasEnded() const = 0;
 };
 
 }

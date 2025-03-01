@@ -71,8 +71,13 @@ public:
     }
 
     virtual bool update(std::chrono::microseconds delta) {
+        this->image_2d_updated = false;
         plm_decode(this->pl_video_p, std::chrono::duration<float, std::ratio<1>>( delta ).count() );
-        return plm_has_ended(pl_video_p);
+        return this->image_2d_updated;
+    }
+
+    virtual bool hasEnded() const {
+        return plm_has_ended(this->pl_video_p);
     }
 };
 
