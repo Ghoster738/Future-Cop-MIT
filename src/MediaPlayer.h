@@ -16,11 +16,12 @@ class MediaPlayer : public GameState {
 public:
     static MediaPlayer media_player;
 
-    std::vector<std::filesystem::path> media_list;
     Menu      *next_menu_r;
     GameState *next_state_r;
 
 protected:
+    std::vector<std::filesystem::path> media_list;
+
     Utilities::Video *video_p;
 
     Graphics::ExternalImage *external_image_p;
@@ -41,6 +42,8 @@ protected:
 public:
     MediaPlayer();
     virtual ~MediaPlayer();
+
+    void appendMediaPaths(std::vector<std::filesystem::path> &media_paths);
 
     virtual void load( MainProgram &main_program );
     virtual void unload( MainProgram &main_program );
