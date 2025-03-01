@@ -1,5 +1,7 @@
 #include "Stream.h"
 
+#include <algorithm>
+
 namespace Sound::OpenAL {
 
 Sound::Stream* Environment::allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) {
@@ -81,10 +83,35 @@ bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channel
         this->buffers.push_back(buffer);
     }
 
-    if(num_of_channels == 1)
-        alBufferData(buffer, this->environment_r->AL_FORMAT_MONO_FLOAT32, interleaved_samples_r, sizeof(float) * audio_samples_per_channel, this->frequency);
-    else
-        alBufferData(buffer, this->environment_r->AL_FORMAT_STEREO_FLOAT32, interleaved_samples_r, 2 * sizeof(float) * audio_samples_per_channel, this->frequency);
+    if(num_of_channels == 1) {
+        if(this->environment_r->AL_FORMAT_MONO_FLOAT32 != AL_NONE)
+            alBufferData(buffer, this->environment_r->AL_FORMAT_MONO_FLOAT32, interleaved_samples_r, sizeof(float) * audio_samples_per_channel, this->frequency);
+        else {
+            if(this->resample_buffer.empty())
+                this->resample_buffer.resize(audio_samples_per_channel);
+
+            for(size_t i = 0; i < this->resample_buffer.size(); i++) {
+                this->resample_buffer[i] = interleaved_samples_r[i] * (32767 / 1.414);
+            }
+
+            alBufferData(buffer, AL_FORMAT_MONO16, this->resample_buffer.data(), sizeof(this->resample_buffer[0]) * audio_samples_per_channel, this->frequency);
+        }
+    }
+    else {
+        if((this->environment_r->AL_FORMAT_STEREO_FLOAT32 != AL_NONE))
+            alBufferData(buffer, this->environment_r->AL_FORMAT_STEREO_FLOAT32, interleaved_samples_r, 2 * sizeof(float) * audio_samples_per_channel, this->frequency);
+        else {
+            if(this->resample_buffer.empty())
+                this->resample_buffer.resize(2 * audio_samples_per_channel);
+
+            for(size_t i = 0; i < this->resample_buffer.size(); i++) {
+                this->resample_buffer[i] = interleaved_samples_r[i] * (32767 / 1.414);
+            }
+
+            alBufferData(buffer, AL_FORMAT_STEREO16, this->resample_buffer.data(), 2 * sizeof(this->resample_buffer[0]) * audio_samples_per_channel, this->frequency);
+        }
+
+    }
 
     error_state = alGetError();
     if(error_state != AL_NO_ERROR)

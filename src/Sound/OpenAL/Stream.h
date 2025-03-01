@@ -17,6 +17,8 @@ public:
     ALsizei audio_samples_per_channel;
     ALsizei frequency;
 
+    std::vector<int16_t> resample_buffer;
+
     virtual ~Stream();
 
     virtual bool appendSamples(float *interleaved_samples_r, unsigned num_of_channels, unsigned audio_samples_per_channel);
