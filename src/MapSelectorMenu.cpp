@@ -5,6 +5,7 @@
 #include "MainProgram.h"
 #include "ParticleViewer.h"
 #include "MainMenu.h"
+#include "MediaPlayer.h"
 
 namespace {
 class ItemClickMapSelect : public Menu::ItemClick {
@@ -23,8 +24,11 @@ public:
                 menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
         }
         else {
+            MediaPlayer::media_player.next_menu_r  = nullptr;
+            MediaPlayer::media_player.next_state_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
+
             main_program.switchMenu( nullptr );
-            main_program.switchPrimaryGame( dynamic_cast<MapSelectorMenu*>(menu_r)->game_r );
+            main_program.switchPrimaryGame( &MediaPlayer::media_player );
 
             main_program.transitionToResource( item_r->name, main_program.platform );
         }
