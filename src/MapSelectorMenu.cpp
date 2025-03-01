@@ -27,6 +27,10 @@ public:
             MediaPlayer::media_player.next_menu_r  = nullptr;
             MediaPlayer::media_player.next_state_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
 
+            MediaPlayer::media_player.media_list = entry.getIntroMediaPaths( main_program.platform );
+            auto loading_media_paths = entry.getLoadingMediaPaths( main_program.platform );
+            MediaPlayer::media_player.media_list.insert( MediaPlayer::media_player.media_list.end(), loading_media_paths.begin(), loading_media_paths.end() );
+
             main_program.switchMenu( nullptr );
             main_program.switchPrimaryGame( &MediaPlayer::media_player );
 
