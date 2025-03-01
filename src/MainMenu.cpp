@@ -53,6 +53,7 @@ item_click_player_sound( "Sound Player", &SoundPlayer::sound_player );
 class ItemClickExitGame : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
+        MediaPlayer::media_player.media_list = main_program.exiting_media;
         MediaPlayer::media_player.next_menu_r = nullptr;
         MediaPlayer::media_player.next_state_r = nullptr;
 
