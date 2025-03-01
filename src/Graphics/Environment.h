@@ -80,16 +80,45 @@ public:
      */
     virtual std::string getEnvironmentIdentifier() const = 0;
 
+    /**
+     * Load the resources and place them into graphics.
+     * @param accessor The accessor to the resources to the resources.
+     * @return TODO Fix this return function.
+     */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
+    /**
+     * This declares an Image instance. This instance holds a 2D image of a CBMP resource.
+     * This is useful for drawing GUI of Future Cop or making backgrounds.
+     * @return nullptr or a valid pointer to an Image.
+     */
     virtual Image* allocateImage() = 0;
 
+    /**
+     * This declares an ExternalImage instance. This instance holds a small image that can be drawn in 2D.
+     * This is useful for things like images and videos.
+     * @param has_alpha Use this if you want an alpha channel.
+     * @return nullptr or a valid pointer to an ExternalImage.
+     */
     virtual ExternalImage* allocateExternalImage(bool has_alpha = false) = 0;
 
+    /**
+     * This declares an ANMFrame instance. This instance shows small animations.
+     * @param track_offset The offset to the SWVR resource to play.
+     * @return nullptr or a valid pointer to a ANMFrame.
+     */
     virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
 
+    /**
+     * This declares an ParticleInstance instance. This instance shows a "particle"
+     * @return nullptr or a valid pointer to the ParticleInstance.
+     */
     virtual ParticleInstance* allocateParticleInstance() = 0;
 
+    /**
+     * This sets the draw mode for the map.
+     * @return True if the state is applied successfully.
+     */
     virtual bool displayMap( bool state ) = 0;
 
     /**

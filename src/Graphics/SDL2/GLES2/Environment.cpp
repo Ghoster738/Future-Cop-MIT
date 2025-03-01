@@ -293,6 +293,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if(!particle_types.empty())
         this->particle_draw_routine.inputParticles(*particle_types[0], this->textures);
 
+    // TODO Fix this function.
     return number_of_failures;
 
     if( failed_texture_loads == 0 )
