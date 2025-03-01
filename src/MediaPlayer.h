@@ -21,6 +21,7 @@ public:
 
 protected:
     std::vector<std::filesystem::path> media_list;
+    std::vector<std::filesystem::path> next_media_list;
 
     Utilities::Video *video_p;
 
@@ -44,6 +45,7 @@ public:
     virtual ~MediaPlayer();
 
     void appendMediaPaths(std::vector<std::filesystem::path> &media_paths);
+    void appendNextMediaPaths(std::vector<std::filesystem::path> &media_paths);
 
     virtual void load( MainProgram &main_program );
     virtual void unload( MainProgram &main_program );

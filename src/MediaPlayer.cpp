@@ -117,6 +117,10 @@ void MediaPlayer::appendMediaPaths(std::vector<std::filesystem::path> &media_pat
     this->media_list.insert( this->media_list.end(), media_paths.begin(), media_paths.end() );
 }
 
+void MediaPlayer::appendNextMediaPaths(std::vector<std::filesystem::path> &media_paths) {
+    this->next_media_list.insert( this->next_media_list.end(), media_paths.begin(), media_paths.end() );
+}
+
 void MediaPlayer::load( MainProgram &main_program ) {
     main_program.loadGraphics( false );
     main_program.loadSound();
@@ -167,7 +171,8 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
     if( !main_program.controllers_r.empty() && main_program.controllers_r[0]->isChanged() && button_timer == std::chrono::microseconds(0)) {
         if(this->media_index == media_list.size()) {
             // Exit out of the media player
-            this->media_list.clear();
+            this->media_list = this->next_media_list;
+            this->next_media_list.clear();
             main_program.switchMenu( this->next_menu_r );
             main_program.switchPrimaryGame( this->next_state_r );
             if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)
@@ -191,7 +196,8 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
 
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
-                this->media_list.clear();
+                this->media_list = this->next_media_list;
+                this->next_media_list.clear();
                 main_program.switchMenu( this->next_menu_r );
                 main_program.switchPrimaryGame( this->next_state_r );
                 if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)
@@ -213,7 +219,8 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
 
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
-                this->media_list.clear();
+                this->media_list = this->next_media_list;
+                this->next_media_list.clear();
                 main_program.switchMenu( this->next_menu_r );
                 main_program.switchPrimaryGame( this->next_state_r );
                 if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)

@@ -29,6 +29,7 @@ public:
 
             MediaPlayer::media_player.appendMediaPaths( entry.getIntroMediaPaths( main_program.platform ) );
             MediaPlayer::media_player.appendMediaPaths( entry.getLoadingMediaPaths( main_program.platform ) );
+            MediaPlayer::media_player.appendNextMediaPaths( entry.getOutroMediaPaths( main_program.platform ) );
 
             main_program.switchMenu( nullptr );
             main_program.switchPrimaryGame( &MediaPlayer::media_player );
