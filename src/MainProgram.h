@@ -70,7 +70,7 @@ public:
 
     bool play_loop;
 
-    std::vector<std::string> exiting_media;
+    std::vector<std::filesystem::path> exiting_media;
 
 protected:
     GameState *menu_r;

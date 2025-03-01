@@ -18,7 +18,7 @@ void decode_audio(float *data_r, unsigned channels, unsigned samples_per_channel
 
 MediaPlayer MediaPlayer::media_player;
 
-bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path ) {
+bool MediaPlayer::readMedia( MainProgram &main_program, const std::filesystem::path &path ) {
     this->video_p = Utilities::Video::allocateVideo(path);
 
     if(this->video_p != nullptr) {
@@ -67,7 +67,7 @@ bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path 
     return false;
 }
 
-void MediaPlayer::updateMedia( MainProgram &main_program, const std::string &path ) {
+void MediaPlayer::updateMedia( MainProgram &main_program, const std::filesystem::path &path ) {
     bool successful_read = readMedia( main_program, path );
 
     if(successful_read) {

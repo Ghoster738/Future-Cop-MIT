@@ -3,7 +3,9 @@
 
 #include "GameState.h"
 
+#include <filesystem>
 #include <vector>
+
 #include "Menu.h"
 #include "GameState.h"
 #include "Utilities/Video.h"
@@ -14,7 +16,7 @@ class MediaPlayer : public GameState {
 public:
     static MediaPlayer media_player;
 
-    std::vector<std::string> media_list;
+    std::vector<std::filesystem::path> media_list;
     Menu      *next_menu_r;
     GameState *next_state_r;
 
@@ -30,9 +32,9 @@ protected:
 
     bool is_image;
 
-    bool readMedia( MainProgram &main_program, const std::string &path );
+    bool readMedia( MainProgram &main_program, const std::filesystem::path &path );
 
-    void updateMedia( MainProgram &main_program, const std::string &path );
+    void updateMedia( MainProgram &main_program, const std::filesystem::path &path );
 
     std::chrono::microseconds button_timer;
 

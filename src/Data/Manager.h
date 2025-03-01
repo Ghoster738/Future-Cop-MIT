@@ -5,9 +5,10 @@
 
 // #include <thread>
 // #include <mutex>
+#include <filesystem>
 #include <string>
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace Data {
 
@@ -54,11 +55,11 @@ public:
 
     class IFFEntry {
     protected:
-        std::string                            paths[ Platform::ALL ];
-        Mission::IFF                          *iff_p[ Platform::ALL ];
-        std::vector<std::string> loading_media_paths[ Platform::ALL ];
-        std::vector<std::string>   intro_media_paths[ Platform::ALL ];
-        std::vector<std::string>   outro_media_paths[ Platform::ALL ];
+        std::string                                      paths[ Platform::ALL ];
+        Mission::IFF                                    *iff_p[ Platform::ALL ];
+        std::vector<std::filesystem::path> loading_media_paths[ Platform::ALL ];
+        std::vector<std::filesystem::path>   intro_media_paths[ Platform::ALL ];
+        std::vector<std::filesystem::path>   outro_media_paths[ Platform::ALL ];
 
     public:
         Importance importance;
@@ -86,63 +87,63 @@ public:
          * @param platform of the resource file.
          * @param path The path to append to the array of paths.
          */
-        void appendLoadingMediaPath( Platform platform, const std::string &path ) { this->loading_media_paths[ platform ].push_back( path ); }
+        void appendLoadingMediaPath( Platform platform, const std::filesystem::path &path ) { this->loading_media_paths[ platform ].push_back( path ); }
 
         /**
          * Get loading media, image or video, file path.
          * @param platform of the resource file.
          * @return Get the paths of the resource file.
          */
-        std::vector<std::string>& getLoadingMediaPaths( Platform platform ) { return this->loading_media_paths[ platform ]; }
+        std::vector<std::filesystem::path>& getLoadingMediaPaths( Platform platform ) { return this->loading_media_paths[ platform ]; }
 
         /**
          * Get loading media, image or video, file path.
          * @param platform of the resource file.
          * @return Get the paths of the resource file.
          */
-        const std::vector<std::string>& getLoadingMediaPaths( Platform platform ) const { return this->loading_media_paths[ platform ]; }
+        const std::vector<std::filesystem::path>& getLoadingMediaPaths( Platform platform ) const { return this->loading_media_paths[ platform ]; }
 
         /**
          * Append a intro media, image or video, file path.
          * @param platform of the resource file.
          * @param path The path to append to the array of paths.
          */
-        void appendIntroMediaPath( Platform platform, const std::string &path ) { this->intro_media_paths[ platform ].push_back( path ); }
+        void appendIntroMediaPath( Platform platform, const std::filesystem::path &path ) { this->intro_media_paths[ platform ].push_back( path ); }
 
         /**
          * Get intro media, image or video, file path.
          * @param platform of the resource file.
          * @return Get the paths of the resource file.
          */
-        std::vector<std::string>& getIntroMediaPaths( Platform platform ) { return this->intro_media_paths[ platform ]; }
+        std::vector<std::filesystem::path>& getIntroMediaPaths( Platform platform ) { return this->intro_media_paths[ platform ]; }
 
         /**
          * Get intro media, image or video, file path.
          * @param platform of the resource file.
          * @return Get the paths of the resource file.
          */
-        const std::vector<std::string>& getIntroMediaPaths( Platform platform ) const { return this->intro_media_paths[ platform ]; }
+        const std::vector<std::filesystem::path>& getIntroMediaPaths( Platform platform ) const { return this->intro_media_paths[ platform ]; }
 
         /**
          * Append a outro media, image or video, file path.
          * @param platform of the resource file.
          * @param path The path to append to the array of paths.
          */
-        void appendOutroMediaPath( Platform platform, const std::string &path ) { this->outro_media_paths[ platform ].push_back( path ); }
+        void appendOutroMediaPath( Platform platform, const std::filesystem::path &path ) { this->outro_media_paths[ platform ].push_back( path ); }
 
         /**
          * Get outro media, image or video, file path.
          * @param platform of the resource file.
          * @return Get the paths of the resource file.
          */
-        std::vector<std::string>& getOutroMediaPaths( Platform platform ) { return this->outro_media_paths[ platform ]; }
+        std::vector<std::filesystem::path>& getOutroMediaPaths( Platform platform ) { return this->outro_media_paths[ platform ]; }
 
         /**
          * Get outro media, image or video, file path.
          * @param platform of the resource file.
          * @return Get the paths of the resource file.
          */
-        const std::vector<std::string>& getOutroMediaPaths( Platform platform ) const { return this->outro_media_paths[ platform ]; }
+        const std::vector<std::filesystem::path>& getOutroMediaPaths( Platform platform ) const { return this->outro_media_paths[ platform ]; }
 
         /**
          * Note: Do not delete the returned pointer!
