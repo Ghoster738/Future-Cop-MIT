@@ -94,7 +94,8 @@ void decode_video_plmpeg(plm_t *self_r, plm_frame_t *frame_r, void *user_r) {
 void decode_audio_plmpeg(plm_t *self_r, plm_samples_t *samples_r, void *user_r) {
     auto *audio_stream_r = reinterpret_cast<MPEGVideo*>(user_r);
 
-    audio_stream_r->audio_callback(samples_r->interleaved, audio_stream_r->num_of_audio_channels, audio_stream_r->audio_samples_per_channel, audio_stream_r->audio_user_r);
+    if(audio_stream_r != nullptr)
+        audio_stream_r->audio_callback(samples_r->interleaved, audio_stream_r->num_of_audio_channels, audio_stream_r->audio_samples_per_channel, audio_stream_r->audio_user_r);
 }
 
 }
