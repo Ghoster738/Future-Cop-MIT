@@ -121,7 +121,25 @@ bool Stream::setSpeakerState(PlayerState speaker_state) {
 }
 
 PlayerState Stream::getSpeakerState() const {
-    return Sound::Stream::getSpeakerState();
+    ALint value;
+    alGetSourcei(this->source, AL_SOURCE_STATE, &value);
+
+    ALenum error_state = alGetError();
+
+    if(error_state != AL_NO_ERROR) {
+        return Sound::Stream::getSpeakerState();
+    }
+
+    switch(value) {
+        case AL_PLAYING:
+            return PlayerState::PLAY;
+        case AL_STOPPED:
+            return PlayerState::STOP;
+        case AL_PAUSED:
+            return PlayerState::PAUSE;
+        default:
+            return Sound::Stream::getSpeakerState();
+    }
 }
 
 unsigned Stream::getNumOfChannels() const {
