@@ -33,6 +33,10 @@ public:
     ALfloat master_gain;
 
     std::map<uint32_t, Internal::SoundSource> id_to_sound;
+
+    // Extensions.
+    ALenum   AL_FORMAT_MONO_FLOAT32;
+    ALenum AL_FORMAT_STEREO_FLOAT32;
 public:
     Environment();
     virtual ~Environment();

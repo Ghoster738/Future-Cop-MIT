@@ -1,8 +1,5 @@
 #include "Stream.h"
 
-#define AL_FORMAT_MONO_FLOAT32 0x10010
-#define AL_FORMAT_STEREO_FLOAT32 0x10011
-
 namespace Sound::OpenAL {
 
 Sound::Stream* Environment::allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) {
@@ -35,6 +32,8 @@ Sound::Stream* Environment::allocateStream(unsigned num_of_channels, size_t audi
 
     // Finally, allocate this class.
     auto stream_p = new Stream();
+
+    stream_p->environment_r = this;
 
     stream_p->source = source;
     // stream_p->buffers = buffers; // appendSamples will generate buffers anyways.
@@ -83,9 +82,9 @@ bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channel
     }
 
     if(num_of_channels == 1)
-        alBufferData(buffer,   AL_FORMAT_MONO_FLOAT32, interleaved_samples_r,     sizeof(float) * audio_samples_per_channel, this->frequency);
+        alBufferData(buffer, this->environment_r->AL_FORMAT_MONO_FLOAT32, interleaved_samples_r, sizeof(float) * audio_samples_per_channel, this->frequency);
     else
-        alBufferData(buffer, AL_FORMAT_STEREO_FLOAT32, interleaved_samples_r, 2 * sizeof(float) * audio_samples_per_channel, this->frequency);
+        alBufferData(buffer, this->environment_r->AL_FORMAT_STEREO_FLOAT32, interleaved_samples_r, 2 * sizeof(float) * audio_samples_per_channel, this->frequency);
 
     error_state = alGetError();
     if(error_state != AL_NO_ERROR)
