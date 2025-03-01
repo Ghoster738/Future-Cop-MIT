@@ -4,6 +4,7 @@
 #include "GameState.h"
 
 #include <vector>
+#include "Utilities/Video.h"
 #include "Sound/Stream.h"
 #include "Graphics/ExternalImage.h"
 
@@ -14,6 +15,8 @@ public:
     std::vector<std::string> media_list;
 
 protected:
+    Utilities::Video *video_p;
+
     Graphics::ExternalImage *external_image_p;
     Sound::Stream *audio_stream_p;
 

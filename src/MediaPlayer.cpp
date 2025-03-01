@@ -5,75 +5,44 @@
 #include "PrimaryGame.h"
 #include "Utilities/ImageFormat/Chooser.h"
 
-#include <iostream>
-
-#include <pl_mpeg.h>
-
-// TODO Remove this in favor of abstraction.
 namespace {
-    plm_t *pl_video_p = nullptr;
+void decode_audio(float *data_r, unsigned channels, unsigned samples_per_channel, void *user_r) {
+    auto *audio_stream_r = reinterpret_cast<Sound::Stream*>(user_r);
 
-    void decode_video(plm_t *self_r, plm_frame_t *frame_r, void *user_r) {
-        auto external_image_r = reinterpret_cast<Graphics::ExternalImage*>(user_r);
+    audio_stream_r->appendSamples(data_r, channels, samples_per_channel);
 
-        plm_frame_to_rgb(frame_r, external_image_r->image_2d.getDirectGridData(), 3 * external_image_r->image_2d.getWidth());
-        external_image_r->upload();
-    }
-
-    void decode_audio(plm_t *self_r, plm_samples_t *samples_r, void *user_r) {
-        auto *audio_stream_r = reinterpret_cast<Sound::Stream*>(user_r);
-
-        audio_stream_r->appendSamples(samples_r->interleaved, 2, samples_r->count);
-
-        if(samples_r->time == 0)
-            audio_stream_r->setSpeakerState(Sound::PlayerState::PLAY);
-    }
+    if(audio_stream_r->getSpeakerState() != Sound::PlayerState::PLAY)
+        audio_stream_r->setSpeakerState(Sound::PlayerState::PLAY);
+}
 }
 
 MediaPlayer MediaPlayer::media_player;
 
 bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path ) {
-    pl_video_p = plm_create_with_filename(path.c_str());
+    this->video_p = Utilities::Video::allocateVideo(path);
 
-    if(pl_video_p != nullptr && !plm_has_headers(pl_video_p)) {
-        plm_destroy(pl_video_p);
-        pl_video_p = nullptr;
-    }
-
-    if(pl_video_p != nullptr) {
+    if(this->video_p != nullptr) {
         this->is_image = false;
 
-        // This fixes the video's audio.
-        plm_probe(pl_video_p, 1024 * 500);
+        this->video_p->setupImage2D(this->external_image_p->image_2d);
 
-        plm_set_video_decode_callback(pl_video_p, decode_video, this->external_image_p);
-
-        int width  = plm_get_width( pl_video_p);
-        int height = plm_get_height(pl_video_p);
-        this->external_image_p->image_2d.setDimensions( width, height );
-
-        if(plm_get_audio_enabled(pl_video_p)) {
-            double samplerate = plm_get_samplerate(pl_video_p);
-
-            plm_set_audio_stream(pl_video_p, 0);
-            plm_set_audio_lead_time(pl_video_p, 2 * PLM_AUDIO_SAMPLES_PER_FRAME / samplerate);
-
+        if(this->video_p->hasAudio()) {
             if(this->audio_stream_p != nullptr) {
-                const auto num_channels = this->audio_stream_p->getNumOfChannels();
+                const auto num_channels        = this->audio_stream_p->getNumOfChannels();
                 const auto samples_per_channel = this->audio_stream_p->getSamplesPerChannel();
-                const auto frequency = this->audio_stream_p->getFrequency();
+                const auto frequency           = this->audio_stream_p->getFrequency();
 
-                if(num_channels != 2 || samples_per_channel != PLM_AUDIO_SAMPLES_PER_FRAME || frequency != samplerate) {
+                if(num_channels != this->video_p->getNumOfAudioChannels() || samples_per_channel != this->video_p->getAudioSamplesPerChannel() || frequency != this->video_p->getAudioFrequency()) {
                     delete this->audio_stream_p;
                     this->audio_stream_p = nullptr;
                 }
             }
 
             if(this->audio_stream_p == nullptr)
-                this->audio_stream_p = main_program.sound_system_p->allocateStream(2, PLM_AUDIO_SAMPLES_PER_FRAME, samplerate);
+                this->audio_stream_p = main_program.sound_system_p->allocateStream(this->video_p->getNumOfAudioChannels(), this->video_p->getAudioSamplesPerChannel(), this->video_p->getAudioFrequency());
 
             if(this->audio_stream_p != nullptr)
-                plm_set_audio_decode_callback(pl_video_p, decode_audio, this->audio_stream_p);
+                this->video_p->setAudioCallback(decode_audio, this->audio_stream_p);
         }
 
         return true;
@@ -173,9 +142,9 @@ void MediaPlayer::unload( MainProgram &main_program ) {
         delete this->audio_stream_p;
     this->audio_stream_p = nullptr;
 
-    if(pl_video_p != nullptr)
-        plm_destroy(pl_video_p);
-    pl_video_p = nullptr;
+    if(this->video_p != nullptr)
+        delete this->video_p;
+    this->video_p = nullptr;
 }
 
 void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds delta ) {
@@ -223,11 +192,12 @@ void MediaPlayer::update( MainProgram &main_program, std::chrono::microseconds d
         }
     }
     else {
-        plm_decode(pl_video_p, std::chrono::duration<float, std::ratio<1>>( delta ).count() );
+        if(this->video_p->update(delta))
+            this->external_image_p->upload();
 
-        if(plm_has_ended(pl_video_p) || end_video) {
-            plm_destroy(pl_video_p);
-            pl_video_p = nullptr;
+        if(this->video_p->hasEnded() || end_video) {
+            delete this->video_p;
+            this->video_p = nullptr;
 
             if(this->media_index == media_list.size()) {
                 // Exit out of the media player
