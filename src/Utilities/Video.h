@@ -9,7 +9,7 @@
 
 namespace Utilities {
 
-typedef void(*AudioCallback)(unsigned channels, unsigned samples_per_channel, size_t frequency, void *user_r);
+typedef void(*AudioCallback)(float *data_r, unsigned channels, unsigned samples_per_channel, void *user_r);
 
 class Video {
 public:
