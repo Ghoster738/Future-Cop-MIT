@@ -19,8 +19,10 @@ public:
     Controls::InputSet *input_set_r;
     unsigned input_index;
 
-    Menu *menu_r;
+    Menu *next_menu_r;
+    GameState *next_state_r;
 
+    InputMenu();
     virtual ~InputMenu() {};
 
     virtual void load( MainProgram &main_program );
