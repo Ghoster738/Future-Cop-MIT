@@ -54,8 +54,8 @@ public:
     /**
      * Set the callback that would be used for audio.
      * @note This function would only work if the audio is working.
-     * @param audio_callback
-     * @param user_r
+     * @param audio_callback This is the function that would be called by update. @note this can also be nullptr if you do not want audio.
+     * @param user_r This is the metadata to be included to the user_r of the audio_callback.
      */
     virtual void setAudioCallback(AudioCallback audio_callback, void *user_r) = 0;
 
