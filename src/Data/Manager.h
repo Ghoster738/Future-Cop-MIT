@@ -182,12 +182,34 @@ public:
     Manager();
     virtual ~Manager();
 
+    /**
+     * This is used to know if IFF entries are present.
+     * @param name IFF entry id which can be "griffith-park"
+     * @return True if the entry exists.
+     */
     bool hasEntry( const std::string &name );
 
+    /**
+     * This is to give you an entry.
+     * @param name IFF entry id which can be "griffith-park"
+     * @return IFFEntry for the given name.
+     */
     IFFEntry getIFFEntry( const std::string &name );
 
+    /**
+     * This sets the IFF entry.
+     * @param name IFF entry id which can be "griffith-park"
+     * @param entry The iff entry which would overwrite the old one.
+     * @return If the IFF entry is successfully set then return true.
+     */
     bool setIFFEntry( const std::string &name, const IFFEntry &entry );
 
+    /**
+     * This sets up the resources.
+     * @warning Make sure that this method is called before using the manager.
+     * @param base_path This is the base path to where the primary executable. If the parameter is PLATFORM::ALL then it expects folders with "Windows", "Macintosh", and "Playstation".
+     * @param platform This specifies which platform the game has.
+     */
     void autoSetEntries( const std::string &base_path, Platform platform = Platform::ALL );
 
     /**
@@ -212,8 +234,18 @@ public:
      */
     int reload( unsigned core_amount = 1 );
     
+    /**
+     * List all the IFF entry IDs that the manager handles.
+     * @param stream This is where the list will go to.
+     */
     static void listIDs( std::ostream &stream );
 
+    /**
+     * This converts a string to a platform.
+     * @note this is for the file parsing.
+     * @param name The name that will be translated for platform.
+     * @return if name starts with 'p' then PLAYSTATION. If 'w' then WINDOWS and 'm' then MAC.
+     */
     static Platform getPlatformFromString( const std::string &name );
 };
 
