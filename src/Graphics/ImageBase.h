@@ -6,17 +6,20 @@
 
 namespace Graphics {
 
+/**
+ * @note This class is abstract.
+ * Image and ImageExternal inheriets from this class.
+ */
 class ImageBase {
 public:
-    glm::vec2 positions[2];
-    glm::vec4 color;
-    bool      is_visable;
+    glm::vec2 positions[2]; // Screen coordinates
+    glm::vec4 color; // The color of the image.
+    bool      is_visable; // Determines whether the image is visable.
 
     virtual ~ImageBase() = 0;
 
-    float getAspectRatio() const;
-
     /**
+     * This is to update the ImageBase to the graphics.
      * @warning Calling this is required.
      */
     virtual void update() = 0;
