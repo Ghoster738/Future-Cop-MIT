@@ -7,7 +7,6 @@
 
 #include <iostream>
 
-#define PL_MPEG_IMPLEMENTATION
 #include <pl_mpeg.h>
 
 // TODO Remove this in favor of abstraction.
@@ -42,12 +41,12 @@ bool MediaPlayer::readMedia( MainProgram &main_program, const std::string &path 
     }
 
     if(pl_video_p != nullptr) {
+        this->is_image = false;
+
         // This fixes the video's audio.
         plm_probe(pl_video_p, 1024 * 500);
 
         plm_set_video_decode_callback(pl_video_p, decode_video, this->external_image_p);
-
-        this->is_image = false;
 
         int width  = plm_get_width( pl_video_p);
         int height = plm_get_height(pl_video_p);

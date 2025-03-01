@@ -4,6 +4,8 @@
 #include "Location.h"
 #include "PlayerState.h"
 
+#include <stddef.h>
+
 namespace Sound {
 
 class Stream {
