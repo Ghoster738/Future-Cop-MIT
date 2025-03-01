@@ -138,6 +138,13 @@ public:
      */
     virtual Speaker* allocateSpeaker(uint32_t resource_id) = 0;
 
+    /**
+     * This method allocates the Steam class. Which would be used to stream audio. For example, a video decoding frames.
+     * @param num_of_channels This is the number of channels that this class would support
+     * @param audio_samples_per_channel This is the number of samples per audio channel.
+     * @param frequency This is the frequncy for the audio stream.
+     * @return NULL if failure or a pointer to a new Stream class.
+     */
     virtual Stream* allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) = 0;
 
     /**
