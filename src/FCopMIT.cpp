@@ -21,13 +21,20 @@ int main(int argc, char** argv)
         main_program.sound_system_p->readConfig(main_program.paths.getConfigDirPath() + "sound");
 
     InputMenu::input_menu.name = main_program.paths.getConfigDirPath() + "controls";
-    InputMenu::input_menu.next_menu_r  = &MainMenu::main_menu;
-    InputMenu::input_menu.next_state_r = nullptr;
 
     if( main_program.control_system_p->read( InputMenu::input_menu.name ) > 0 ) {
+        InputMenu::input_menu.next_menu_r  = &MainMenu::main_menu;
+        InputMenu::input_menu.next_state_r = nullptr;
+
         main_program.switchPrimaryGame( &MediaPlayer::media_player );
     }
     else {
+        InputMenu::input_menu.next_menu_r  = nullptr;
+        InputMenu::input_menu.next_state_r = &MediaPlayer::media_player;
+
+        MediaPlayer::media_player.next_menu_r  = &MainMenu::main_menu;
+        MediaPlayer::media_player.next_state_r = &PrimaryGame::primary_game;
+
         main_program.switchMenu( &InputMenu::input_menu );
         main_program.switchPrimaryGame( &PrimaryGame::primary_game );
     }
