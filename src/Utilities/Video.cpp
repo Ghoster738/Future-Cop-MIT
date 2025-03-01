@@ -70,8 +70,9 @@ public:
         plm_set_audio_decode_callback(this->pl_video_p, decode_audio_plmpeg, this);
     }
 
-    virtual void update(std::chrono::microseconds delta) {
+    virtual bool update(std::chrono::microseconds delta) {
         plm_decode(this->pl_video_p, std::chrono::duration<float, std::ratio<1>>( delta ).count() );
+        return plm_has_ended(pl_video_p);
     }
 };
 
