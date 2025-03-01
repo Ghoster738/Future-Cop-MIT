@@ -44,7 +44,7 @@ public:
     virtual uint16_t getParticleIndex() const = 0;
 
     /**
-     *
+     * This updates the particle to the renderer.
      * @warning Calling this is required for the particle to fully display.
      */
     virtual void update() = 0;
