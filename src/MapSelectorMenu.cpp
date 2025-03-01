@@ -2,6 +2,7 @@
 
 #include <glm/vec4.hpp>
 
+#include "PrimaryGame.h"
 #include "MainProgram.h"
 #include "ParticleViewer.h"
 #include "MainMenu.h"
@@ -22,6 +23,12 @@ public:
 
             if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) )
                 menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+        }
+        else if(dynamic_cast<MapSelectorMenu*>(menu_r)->game_r != &PrimaryGame::primary_game) {
+            main_program.switchMenu( nullptr );
+            main_program.switchPrimaryGame( dynamic_cast<MapSelectorMenu*>(menu_r)->game_r );
+
+            main_program.transitionToResource( item_r->name, main_program.platform );
         }
         else {
             MediaPlayer::media_player.next_menu_r  = nullptr;
