@@ -562,8 +562,13 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
                         }
                         else {
                             // CANM and MDEC CHUNK_SIZE = 0x4228, 0x5428, 0x5a28, 0x5bf4, 0x5c78, 0x5fa0, 0x5fc4, 0x5fc8, 0x5fdc
-
-                            // All that I know is that this is MDEC data.
+                            auto magic_number = block_chunk_reader.readU32( default_settings.endian );
+                            auto frame_count  = block_chunk_reader.readU16( default_settings.endian );
+                            auto byte_size    = block_chunk_reader.readU16( default_settings.endian );
+                            auto width        = block_chunk_reader.readU16( default_settings.endian );
+                            auto height       = block_chunk_reader.readU16( default_settings.endian );
+                            auto zero_block_0 = block_chunk_reader.readU32( default_settings.endian );
+                            auto zero_block_1 = block_chunk_reader.readU32( default_settings.endian );
 
                             // Then write the video file.
                             if( mdec_p == nullptr ) {
@@ -575,7 +580,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
 
                                 mdec_data_p = new Utilities::Buffer();
                             }
-                            block_chunk_reader.addToBuffer(*mdec_data_p, DATA_SIZE - 12);
+                            block_chunk_reader.addToBuffer(*mdec_data_p, DATA_SIZE - 32);
                         }
                     }
 
