@@ -376,7 +376,6 @@ void MainProgram::initialLoadResources() {
     entry = manager.getIFFEntry( Data::Manager::global );
 
     MediaPlayer::media_player.appendMediaPaths( entry.getLoadingMediaPaths( this->platform ) );
-    this->exiting_media = entry.getOutroMediaPaths( this->platform );
 
     this->global_r = entry.getIFF( this->platform );
     if( this->global_r == nullptr ) {

@@ -53,7 +53,9 @@ item_click_player_sound( "Sound Player", &SoundPlayer::sound_player );
 class ItemClickExitGame : public Menu::ItemClick {
 public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* ) {
-        MediaPlayer::media_player.appendMediaPaths( main_program.exiting_media );
+        auto entry = main_program.manager.getIFFEntry( Data::Manager::global );
+        MediaPlayer::media_player.appendMediaPaths( entry.getOutroMediaPaths( main_program.platform ) );
+
         MediaPlayer::media_player.next_menu_r = nullptr;
         MediaPlayer::media_player.next_state_r = nullptr;
 
