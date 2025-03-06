@@ -141,7 +141,7 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 		git clone --depth 1 https://github.com/Ghoster738/Future-Cop-MIT.git
 		```
 		
-		Get into the source code and get its submodules. **Submodule mINI is required for compilation**:
+		Get into the source code and get its submodules. Useful for compiling the dependenices:
 		```
 		cd Future-Cop-MIT
 		git submodule update --init --recursive --progress --depth 1
@@ -149,12 +149,8 @@ These build instructions are for Ubuntu, might work on Ubuntu derivatives.
 	
 	* Download the latest [source code][source-code-link]. (Warning: using git is strongly recommended, because of the ease of automatically downloading the submodules.)
 	
-	For the direct download all that is required is to get [mINI][mini-source-code-link] and put it into the submodules mINI directory.
-	
 	Open the terminal inside the extracted folder where you can find this readme.
 	
-	
-[mini-source-code-link]: https://github.com/pulzed/mINI/archive/refs/heads/master.zip
 [source-code-link]: https://github.com/Ghoster738/Future-Cop-MIT/archive/refs/heads/main.zip "Download as zip"
 	
 
