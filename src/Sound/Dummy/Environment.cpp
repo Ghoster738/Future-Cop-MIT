@@ -1,7 +1,6 @@
 #include "Environment.h"
 
-namespace Sound {
-namespace Dummy {
+namespace Sound::Dummy {
 
 Environment::Environment() {}
 Environment::~Environment() {}
@@ -54,8 +53,12 @@ Sound::Speaker* Environment::allocateSpeaker(uint32_t resource_id) {
     return nullptr;
 }
 
+Sound::Stream* Environment::allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency) {
+    return nullptr;
+}
+
 void Environment::advanceTime(std::chrono::high_resolution_clock::duration duration) {
 }
 
 }
-}
+

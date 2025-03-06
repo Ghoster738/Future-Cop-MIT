@@ -38,29 +38,26 @@ const std::string *const Data::Manager::map_iffs[] =
 const size_t Data::Manager::AMOUNT_OF_IFF_IDS = Data::Manager::AMOUNT_OF_PRECINCT_ASSAULT_IDS + Data::Manager::AMOUNT_OF_CRIME_WAR_IDS;
 
 Data::Manager::IFFEntry::IFFEntry() : paths(), iff_p(),
+                                loading_media_paths(), intro_media_paths(), outro_media_paths(),
                                 importance( NOT_NEEDED ) {
     for( unsigned i = 0; i < Platform::ALL; i++ )
         this->iff_p[ i ] = nullptr;
 }
 
-Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths(),
-                                   iff_p(), importance( obj.importance ) {
-    for( unsigned i = 0; i < Platform::ALL; i++ )
+Data::Manager::IFFEntry::IFFEntry( const IFFEntry& obj ) : paths(), iff_p(),
+                                loading_media_paths(), intro_media_paths(), outro_media_paths(),
+                                importance( obj.importance ) {
+    for( unsigned i = 0; i < Platform::ALL; i++ ) {
         this->paths[ i ] = obj.paths[ i ];
-    for( unsigned i = 0; i < Platform::ALL; i++ )
         this->iff_p[ i ] = obj.iff_p[ i ];
+        this->loading_media_paths[ i ] = obj.loading_media_paths[ i ];
+        this->intro_media_paths[ i ]   = obj.intro_media_paths[ i ];
+        this->outro_media_paths[ i ]   = obj.outro_media_paths[ i ];
+    }
 }
 
 Data::Manager::IFFEntry::~IFFEntry() {
     // DO NOT DELETE ANYTHING. deleting iff_p is IFFEntryStorage's job.
-}
-
-void Data::Manager::IFFEntry::set( const IFFEntry& obj ) {
-    importance = obj.importance;
-    for( unsigned i = 0; i < Platform::ALL; i++ )
-        this->paths[ i ] = obj.paths[ i ];
-    for( unsigned i = 0; i < Platform::ALL; i++ )
-        this->iff_p[ i ] = obj.iff_p[ i ];
 }
 
 void Data::Manager::IFFEntry::setPath( Platform platform, const std::string &path ) {
@@ -84,21 +81,11 @@ Data::Mission::IFF* Data::Manager::IFFEntry::getIFF( Platform platform ) {
 const Data::Mission::IFF* Data::Manager::IFFEntry::getIFF( Platform platform ) const {
     return const_cast<Data::Manager::IFFEntry*>( this )->getIFF( platform );
 }
-Data::Manager::IFFEntryStorage::IFFEntryStorage() {
-}
+Data::Manager::IFFEntryStorage::IFFEntryStorage() {}
 
-Data::Manager::IFFEntryStorage::IFFEntryStorage( const IFFEntry& obj ) : IFFEntry( obj ) {
-}
+Data::Manager::IFFEntryStorage::IFFEntryStorage( const IFFEntry& obj ) : IFFEntry( obj ) {}
 
-Data::Manager::IFFEntryStorage::~IFFEntryStorage() {
-    for( auto &i : iff_p )
-        if( i != nullptr )
-            delete i;
-}
-
-void Data::Manager::IFFEntryStorage::set( const IFFEntry& obj ) {
-    IFFEntry::set( obj );
-}
+Data::Manager::IFFEntryStorage::~IFFEntryStorage() {}
 
 bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
     if( platform < Platform::ALL && this->iff_p[ platform ] == nullptr ) {
@@ -121,13 +108,23 @@ bool Data::Manager::IFFEntryStorage::load( Platform platform ) {
 }
 
 bool Data::Manager::IFFEntryStorage::unload( Platform platform ) {
-    if( platform < Platform::ALL && this->iff_p[ platform ] != nullptr ) {
-        delete this->iff_p[ platform ];
-        this->iff_p[ platform ] = nullptr;
+    if(platform == Platform::ALL) {
+        for(size_t i = 0; i < Platform::ALL; i++) {
+            if( this->iff_p[i] != nullptr )
+                delete this->iff_p[i];
+            this->iff_p[i] = nullptr;
+        }
         return true;
     }
-    else
+    else if( platform < Platform::ALL ) {
+        if(this->iff_p[ platform ] != nullptr) {
+            delete this->iff_p[ platform ];
+            this->iff_p[ platform ] = nullptr;
+        }
         return true; // Already unloaded.
+    }
+    else
+        return false;
 }
 
 Data::Manager::Manager() : /*thread_lock(),*/ entries(), currently_loaded_platforms( {false} ),
@@ -135,6 +132,8 @@ Data::Manager::Manager() : /*thread_lock(),*/ entries(), currently_loaded_platfo
 }
 
 Data::Manager::~Manager() {
+    for(auto &i : this->entries)
+        i.second.unload(Platform::ALL);
 }
 
 bool Data::Manager::hasEntry( const std::string &name ) {
@@ -161,16 +160,10 @@ Data::Manager::IFFEntry Data::Manager::getIFFEntry( const std::string &name ) {
     return entry;
 }
 
-#include <iostream>
-
 bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry ) {
     // thread_lock.lock();
 
-    if( entries.find( name ) == entries.end() )
-        entries[ name ] = IFFEntryStorage( entry );
-    else {
-        entries.at( name ).set( entry );
-    }
+    entries[ name ] = IFFEntryStorage( entry );
 
     // thread_lock.unlock();
 
@@ -178,22 +171,23 @@ bool Data::Manager::setIFFEntry( const std::string &name, const IFFEntry &entry 
 }
 
 void Data::Manager::autoSetEntries( const std::string &base_path, Platform platform ) {
-    std::string MACINT_PATH = base_path;
-    std::string PSX_CW_PATH = base_path;
-    std::string PSX_PA_PATH = base_path;
-    std::string WINDOW_PATH = base_path;
+    std::string MAC_BASE_PATH = base_path;
+    std::string PSX_BASE_PATH = base_path;
+    std::string WIN_BASE_PATH = base_path;
 
     if( platform == Platform::ALL ) {
-        MACINT_PATH += "Macintosh/";
-        PSX_CW_PATH += "Playstation/";
-        PSX_PA_PATH += "Playstation/";
-        WINDOW_PATH += "Windows/";
+        MAC_BASE_PATH += "Macintosh/";
+        PSX_BASE_PATH += "Playstation/";
+        WIN_BASE_PATH += "Windows/";
     }
 
-    MACINT_PATH += "missions/";
-    PSX_CW_PATH += "cw/";
-    PSX_PA_PATH += "pa/";
-    WINDOW_PATH += "missions/";
+    std::string MACINT_PATH = MAC_BASE_PATH + "missions/";
+    std::string PSX_CW_PATH = PSX_BASE_PATH + "cw/";
+    std::string PSX_PA_PATH = PSX_BASE_PATH + "pa/";
+    std::string WINDOW_PATH = WIN_BASE_PATH + "missions/";
+
+    std::string WIN_MOVIE_PATH = WIN_BASE_PATH + "movies/";
+    std::string PSX_MOVIE_PATH = PSX_BASE_PATH + "movies/";
 
     const bool MAKE_MAC_PATH = (platform == Platform::MACINTOSH)   | (platform == Platform::ALL);
     const bool MAKE_PSX_PATH = (platform == Platform::PLAYSTATION) | (platform == Platform::ALL);
@@ -203,145 +197,295 @@ void Data::Manager::autoSetEntries( const std::string &base_path, Platform platf
     entry.importance = Importance::NEEDED; // The global IFF is always used for loading the IFF mission files.
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "GlblData" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "fe.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "GlblData" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "alegal.lsc" );
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,  PSX_BASE_PATH + "ea_logo.fsv" );
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION, PSX_MOVIE_PATH + "intro.wve" );
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "feld.lsc" );
+
+        entry.appendOutroMediaPath( Platform::PLAYSTATION, PSX_MOVIE_PATH + "credits.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "GlblData" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "Legal_E.BMP" );
+        entry.appendLoadingMediaPath( Platform::WINDOWS, WIN_MOVIE_PATH + "ea_logo.mpg" );
+        entry.appendLoadingMediaPath( Platform::WINDOWS, WIN_MOVIE_PATH + "intro.mpg" );
+
+        entry.appendOutroMediaPath( Platform::WINDOWS, WIN_MOVIE_PATH + "credits.mpg" );
+    }
     setIFFEntry( global, entry );
 
     entry = getIFFEntry( griffith_park );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M2C" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m2c.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M2C" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m2cld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm2c.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom2c.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M2C" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdGrf.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief1.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_griff.mpg" );
+    }
     setIFFEntry( griffith_park, entry );
 
     entry = getIFFEntry( zuma_beach );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3A" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3a.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3A" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m3ald.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm3a.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom3a.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M3A" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdCuc.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief2.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_zuma.mpg" );
+    }
     setIFFEntry( zuma_beach, entry );
 
     entry = getIFFEntry( la_brea_tar_pits );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M3B" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m3b.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M3B" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m3bld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm3b.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom3b.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M3B" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdMaw.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief3.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_walka.mpg" );
+    }
     setIFFEntry( la_brea_tar_pits, entry );
 
     entry = getIFFEntry( venice_beach );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OV" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "ov.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OV" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "ovld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfov.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poov.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "OV" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdOV.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief4.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_venice.mpg" );
+    }
     setIFFEntry( venice_beach, entry );
 
     entry = getIFFEntry( hells_gate_prison );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M1A1" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m1a1.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M1A1" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m1a1ld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm1a1.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom1a1.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M1A1" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdHg.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief5.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_hell.mpg" );
+    }
     setIFFEntry( hells_gate_prison, entry );
 
     entry = getIFFEntry( studio_city );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Un" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "un.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Un" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "unld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfun.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poun.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "Un" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdUN.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief6.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_studio.mpg" );
+    }
     setIFFEntry( studio_city, entry );
 
     entry = getIFFEntry( lax_spaceport );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX1" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax1.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX1" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "lax1ld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brflax.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "LAX1" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdLAX1.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief7.mpg" );
+    }
     setIFFEntry( lax_spaceport, entry );
 
     entry = getIFFEntry( lax_spaceport_part_2 );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "LAX2" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "lax2.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "LAX2" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "lax2ld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "polax.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "LAX2" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdLAX2.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_space.mpg" );
+    }
     setIFFEntry( lax_spaceport_part_2, entry );
 
     entry = getIFFEntry( long_beach );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "M4A1" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_CW_PATH + "m4a1.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "M4A1" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_CW_PATH + "m4a1ld.lsc" );
+        entry.appendIntroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "brfm4a1.wve" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pom4a1.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "M4A1" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdLb.BMP" );
+        entry.appendIntroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "brief8.mpg" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_lbeach.mpg" );
+    }
     setIFFEntry( long_beach, entry );
 
     entry = getIFFEntry( pa_urban_jungle );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "ConFt" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "conft.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "ConFt" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "conftld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poconft.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "ConFt" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdConF.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_jungle.mpg" );
+    }
     setIFFEntry( pa_urban_jungle, entry );
 
     entry = getIFFEntry( pa_venice_beach );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "OVMP" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "ovmp.mis" );
-    if( MAKE_WIN_PATH )
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "ovmpld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poovmp.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
         entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "OVMP" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdOVMP.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_ovmp.mpg" );
+    }
     setIFFEntry( pa_venice_beach, entry );
 
     entry = getIFFEntry( pa_hollywood_keys );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "HK" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "hk.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "HK" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "hkld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pohk.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "HK" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdHk.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_hk.mpg" );
+    }
     setIFFEntry( pa_hollywood_keys, entry );
 
     entry = getIFFEntry( pa_proving_ground );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Slim" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "slim.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Slim" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "slimld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "poslim.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "Slim" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdSlim.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_slim.mpg" );
+    }
     setIFFEntry( pa_proving_ground, entry );
 
     entry = getIFFEntry( pa_bug_hunt );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "JOKE" );
-    if( MAKE_PSX_PATH )
+    if( MAKE_PSX_PATH ) {
         entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "joke.mis" );
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "JOKE" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "jokeld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pojoke.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "JOKE" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "LdJk.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_joke.mpg" );
+    }
     setIFFEntry( pa_bug_hunt, entry );
 
     entry = getIFFEntry( pa_la_centina );
     if( MAKE_MAC_PATH )
         entry.setPath( Platform::MACINTOSH,   MACINT_PATH + "Mp" );
-    if( MAKE_PSX_PATH )
-        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" ); // Playstation does not have this
-    if( MAKE_WIN_PATH )
-        entry.setPath( Platform::WINDOWS,     WINDOW_PATH + "Mp" );
+    if( MAKE_PSX_PATH ) {
+        // Playstation does not have these
+        entry.setPath( Platform::PLAYSTATION, PSX_PA_PATH + "mp.mis" );
+
+        entry.appendLoadingMediaPath( Platform::PLAYSTATION,    PSX_PA_PATH + "mpld.lsc" );
+        entry.appendOutroMediaPath(   Platform::PLAYSTATION, PSX_MOVIE_PATH + "pomp.wve" );
+    }
+    if( MAKE_WIN_PATH ) {
+        entry.setPath( Platform::WINDOWS, WINDOW_PATH + "Mp" );
+
+        entry.appendLoadingMediaPath( Platform::WINDOWS,    WINDOW_PATH + "Load.BMP" );
+        entry.appendOutroMediaPath(   Platform::WINDOWS, WIN_MOVIE_PATH + "po_mp.mpg" );
+    }
     setIFFEntry( pa_la_centina, entry );
 }
 

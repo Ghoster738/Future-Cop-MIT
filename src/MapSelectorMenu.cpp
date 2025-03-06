@@ -2,9 +2,11 @@
 
 #include <glm/vec4.hpp>
 
+#include "PrimaryGame.h"
 #include "MainProgram.h"
 #include "ParticleViewer.h"
 #include "MainMenu.h"
+#include "MediaPlayer.h"
 
 namespace {
 class ItemClickMapSelect : public Menu::ItemClick {
@@ -22,9 +24,24 @@ public:
             if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) )
                 menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
         }
-        else {
+        else if(dynamic_cast<MapSelectorMenu*>(menu_r)->game_r != &PrimaryGame::primary_game) {
+            MediaPlayer::media_player.clearMediaPaths();
+
             main_program.switchMenu( nullptr );
             main_program.switchPrimaryGame( dynamic_cast<MapSelectorMenu*>(menu_r)->game_r );
+
+            main_program.transitionToResource( item_r->name, main_program.platform );
+        }
+        else {
+            MediaPlayer::media_player.next_menu_r  = nullptr;
+            MediaPlayer::media_player.next_state_r = dynamic_cast<MapSelectorMenu*>(menu_r)->game_r;
+
+            MediaPlayer::media_player.appendMediaPaths( entry.getIntroMediaPaths( main_program.platform ) );
+            MediaPlayer::media_player.appendMediaPaths( entry.getLoadingMediaPaths( main_program.platform ) );
+            MediaPlayer::media_player.appendNextMediaPaths( entry.getOutroMediaPaths( main_program.platform ) );
+
+            main_program.switchMenu( nullptr );
+            main_program.switchPrimaryGame( &MediaPlayer::media_player );
 
             main_program.transitionToResource( item_r->name, main_program.platform );
         }

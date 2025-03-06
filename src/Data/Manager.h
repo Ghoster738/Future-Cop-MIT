@@ -5,9 +5,10 @@
 
 // #include <thread>
 // #include <mutex>
+#include <filesystem>
 #include <string>
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace Data {
 
@@ -54,8 +55,12 @@ public:
 
     class IFFEntry {
     protected:
-        std::string   paths[ Platform::ALL ];
-        Mission::IFF *iff_p[ Platform::ALL ];
+        std::string                                      paths[ Platform::ALL ];
+        Mission::IFF                                    *iff_p[ Platform::ALL ];
+        std::vector<std::filesystem::path> loading_media_paths[ Platform::ALL ];
+        std::vector<std::filesystem::path>   intro_media_paths[ Platform::ALL ];
+        std::vector<std::filesystem::path>   outro_media_paths[ Platform::ALL ];
+
     public:
         Importance importance;
 
@@ -63,11 +68,82 @@ public:
         IFFEntry( const IFFEntry & );
         ~IFFEntry(); // DO NOT SET THIS TO VIRTUAL.
 
-        void set( const IFFEntry & );
-
+        /**
+         * Set a path for the given platform.
+         * @param platform The platform for the resource file.
+         * @param path The path of the resource file.
+         */
         void setPath( Platform platform, const std::string &path );
         
-        std::string getPath( Platform platform ) const { return paths[ platform ]; }
+        /**
+         * Get the path for the given platform.
+         * @param platform of the resource file.
+         * @return The path to the resource file.
+         */
+        std::string getPath( Platform platform ) const { return this->paths[ platform ]; }
+
+        /**
+         * Append a loading media, image or video, file path.
+         * @param platform of the resource file.
+         * @param path The path to append to the array of paths.
+         */
+        void appendLoadingMediaPath( Platform platform, const std::filesystem::path &path ) { this->loading_media_paths[ platform ].push_back( path ); }
+
+        /**
+         * Get loading media, image or video, file path.
+         * @param platform of the resource file.
+         * @return Get the paths of the resource file.
+         */
+        std::vector<std::filesystem::path>& getLoadingMediaPaths( Platform platform ) { return this->loading_media_paths[ platform ]; }
+
+        /**
+         * Get loading media, image or video, file path.
+         * @param platform of the resource file.
+         * @return Get the paths of the resource file.
+         */
+        const std::vector<std::filesystem::path>& getLoadingMediaPaths( Platform platform ) const { return this->loading_media_paths[ platform ]; }
+
+        /**
+         * Append a intro media, image or video, file path.
+         * @param platform of the resource file.
+         * @param path The path to append to the array of paths.
+         */
+        void appendIntroMediaPath( Platform platform, const std::filesystem::path &path ) { this->intro_media_paths[ platform ].push_back( path ); }
+
+        /**
+         * Get intro media, image or video, file path.
+         * @param platform of the resource file.
+         * @return Get the paths of the resource file.
+         */
+        std::vector<std::filesystem::path>& getIntroMediaPaths( Platform platform ) { return this->intro_media_paths[ platform ]; }
+
+        /**
+         * Get intro media, image or video, file path.
+         * @param platform of the resource file.
+         * @return Get the paths of the resource file.
+         */
+        const std::vector<std::filesystem::path>& getIntroMediaPaths( Platform platform ) const { return this->intro_media_paths[ platform ]; }
+
+        /**
+         * Append a outro media, image or video, file path.
+         * @param platform of the resource file.
+         * @param path The path to append to the array of paths.
+         */
+        void appendOutroMediaPath( Platform platform, const std::filesystem::path &path ) { this->outro_media_paths[ platform ].push_back( path ); }
+
+        /**
+         * Get outro media, image or video, file path.
+         * @param platform of the resource file.
+         * @return Get the paths of the resource file.
+         */
+        std::vector<std::filesystem::path>& getOutroMediaPaths( Platform platform ) { return this->outro_media_paths[ platform ]; }
+
+        /**
+         * Get outro media, image or video, file path.
+         * @param platform of the resource file.
+         * @return Get the paths of the resource file.
+         */
+        const std::vector<std::filesystem::path>& getOutroMediaPaths( Platform platform ) const { return this->outro_media_paths[ platform ]; }
 
         /**
          * Note: Do not delete the returned pointer!
@@ -86,9 +162,7 @@ public:
     public:
         IFFEntryStorage();
         IFFEntryStorage( const IFFEntry & );
-        ~IFFEntryStorage(); // This will delete the iff_p!
-
-        void set( const IFFEntry & );
+        ~IFFEntryStorage();
 
         bool load( Platform platform );
         bool unload( Platform platform );
@@ -108,12 +182,34 @@ public:
     Manager();
     virtual ~Manager();
 
+    /**
+     * This is used to know if IFF entries are present.
+     * @param name IFF entry id which can be "griffith-park"
+     * @return True if the entry exists.
+     */
     bool hasEntry( const std::string &name );
 
+    /**
+     * This is to give you an entry.
+     * @param name IFF entry id which can be "griffith-park"
+     * @return IFFEntry for the given name.
+     */
     IFFEntry getIFFEntry( const std::string &name );
 
+    /**
+     * This sets the IFF entry.
+     * @param name IFF entry id which can be "griffith-park"
+     * @param entry The iff entry which would overwrite the old one.
+     * @return If the IFF entry is successfully set then return true.
+     */
     bool setIFFEntry( const std::string &name, const IFFEntry &entry );
 
+    /**
+     * This sets up the resources.
+     * @warning Make sure that this method is called before using the manager.
+     * @param base_path This is the base path to where the primary executable. If the parameter is PLATFORM::ALL then it expects folders with "Windows", "Macintosh", and "Playstation".
+     * @param platform This specifies which platform the game has.
+     */
     void autoSetEntries( const std::string &base_path, Platform platform = Platform::ALL );
 
     /**
@@ -138,8 +234,18 @@ public:
      */
     int reload( unsigned core_amount = 1 );
     
+    /**
+     * List all the IFF entry IDs that the manager handles.
+     * @param stream This is where the list will go to.
+     */
     static void listIDs( std::ostream &stream );
 
+    /**
+     * This converts a string to a platform.
+     * @note this is for the file parsing.
+     * @param name The name that will be translated for platform.
+     * @return if name starts with 'p' then PLAYSTATION. If 'w' then WINDOWS and 'm' then MAC.
+     */
     static Platform getPlatformFromString( const std::string &name );
 };
 

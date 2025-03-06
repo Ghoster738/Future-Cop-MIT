@@ -58,6 +58,20 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     ALenum error_state = alGetError();
 
+    this->AL_FORMAT_MONO_FLOAT32   = AL_NONE;
+    this->AL_FORMAT_STEREO_FLOAT32 = AL_NONE;
+
+    if(alIsExtensionPresent("AL_EXT_float32")) {
+        this->AL_FORMAT_MONO_FLOAT32   = alGetEnumValue("AL_FORMAT_MONO_FLOAT32");
+        this->AL_FORMAT_STEREO_FLOAT32 = alGetEnumValue("AL_FORMAT_STEREO_FLOAT32");
+
+        assert(this->AL_FORMAT_MONO_FLOAT32   == 0x10010);
+        assert(this->AL_FORMAT_STEREO_FLOAT32 == 0x10011);
+    }
+
+    // NOTE: I do not think they are that important.
+    error_state = alGetError();
+
     const Data::Mission::MSICResource* misc_r = accessor.getConstMSIC(1);
 
     if(music_source != 0)

@@ -70,6 +70,9 @@ public:
     virtual void onPress( MainProgram &main_program, Menu* menu_r, Menu::Item* item_r) {
         main_program.control_system_p->clearAllInputSets();
 
+        InputMenu::input_menu.next_menu_r  = &MainMenu::main_menu;
+        InputMenu::input_menu.next_state_r = nullptr;
+
         ItemClickSwitchMenu::onPress( main_program, menu_r, item_r );
     }
 } item_click_reconfigure_controls;

@@ -33,6 +33,10 @@ public:
     ALfloat master_gain;
 
     std::map<uint32_t, Internal::SoundSource> id_to_sound;
+
+    // Extensions.
+    ALenum   AL_FORMAT_MONO_FLOAT32;
+    ALenum AL_FORMAT_STEREO_FLOAT32;
 public:
     Environment();
     virtual ~Environment();
@@ -54,6 +58,8 @@ public:
     virtual Sound::Listener* getListenerReference(Listener::WhichEar listener_type);
 
     virtual Sound::Speaker* allocateSpeaker(uint32_t resource_id);
+
+    virtual Sound::Stream* allocateStream(unsigned num_of_channels, size_t audio_samples_per_channel, size_t frequency);
 
     virtual void advanceTime( std::chrono::high_resolution_clock::duration duration );
 };

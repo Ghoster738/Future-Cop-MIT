@@ -10,6 +10,11 @@
 
 InputMenu InputMenu::input_menu;
 
+InputMenu::InputMenu() {
+    InputMenu::next_menu_r  = nullptr;
+    InputMenu::next_state_r = nullptr;
+}
+
 void InputMenu::load( MainProgram &main_program ) {
     this->input_set_index = 0;
     this->input_set_r = main_program.control_system_p->getInputSet( input_set_index );
@@ -46,7 +51,10 @@ void InputMenu::update( MainProgram &main_program, std::chrono::microseconds del
             if( this->input_set_index >= main_program.control_system_p->amountOfInputSets() ) {
                 main_program.control_system_p->write( name );
 
-                main_program.switchMenu( this->menu_r );
+                main_program.switchMenu( this->next_menu_r );
+                main_program.switchPrimaryGame( this->next_state_r );
+                if(this->next_menu_r == nullptr && this->next_menu_r == this->next_state_r)
+                    main_program.play_loop = false;
 
                 return;
             }
