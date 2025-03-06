@@ -103,7 +103,7 @@ void decode_audio_plmpeg(plm_t *self_r, plm_samples_t *samples_r, void *user_r) 
 namespace Utilities {
 
 Video* Video::allocateVideo(const std::filesystem::path &file) {
-    plm_t *pl_video_p = plm_create_with_filename(file.c_str());
+    plm_t *pl_video_p = plm_create_with_filename(file.string().c_str());
 
     if(pl_video_p == nullptr )
         return nullptr;

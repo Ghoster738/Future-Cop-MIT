@@ -50,7 +50,7 @@ bool MediaPlayer::readMedia( MainProgram &main_program, const std::filesystem::p
 
     Utilities::Buffer image_buffer;
 
-    if(image_buffer.read( path )) {
+    if(image_buffer.read( path.string() )) {
         Utilities::ImageFormat::Chooser chooser;
         auto the_choosen_r = chooser.getReaderReference( image_buffer );
 
