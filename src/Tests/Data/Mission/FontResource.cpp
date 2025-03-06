@@ -36,7 +36,7 @@ int checkImage( const Data::Mission::FontResource &font, size_t qoi_len,
     int problem = 0;
     Utilities::ImageFormat::QuiteOkImage qoi_reader;
     
-    Utilities::Image2D expected_image( 0, 0, Utilities::PixelFormatColor_W8() );
+    Utilities::Image2D expected_image( 0, 0, Utilities::PixelFormatColor_W8A8() );
     
     Utilities::Buffer expected_buffer( qoi_r, qoi_len );
     
