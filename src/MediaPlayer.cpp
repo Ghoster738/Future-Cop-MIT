@@ -75,8 +75,8 @@ void MediaPlayer::updateMedia( MainProgram &main_program, const std::filesystem:
             return; // Do nothing.
         }
         const double i_aspect_ratio = static_cast<double>(this->external_image_p->image_2d.getWidth()) / static_cast<double>(this->external_image_p->image_2d.getHeight());
-        const double adjusted_width  = main_program.getWindowScale().y * 2.0 / i_aspect_ratio;
-        const double adjusted_height = main_program.getWindowScale().x * i_aspect_ratio / 2.0;
+        const double adjusted_width  = main_program.getWindowScale().y * i_aspect_ratio / 1.0;
+        const double adjusted_height = main_program.getWindowScale().x * 1.0 / i_aspect_ratio;
 
         if(adjusted_width <= main_program.getWindowScale().x) {
             this->external_image_p->positions[0] = glm::vec2(0, 0);
