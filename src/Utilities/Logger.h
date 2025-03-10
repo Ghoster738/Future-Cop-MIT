@@ -78,7 +78,6 @@ public:
 
     void setTimeStampMode( bool status );
     
-    bool setOutputLog( std::string file_path, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
     bool setOutputLog( std::filesystem::path file, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
     bool setOutputLog( std::ostream *mode_r, size_t memory_bytes_limit, unsigned lower, unsigned upper = CRITICAL );
     

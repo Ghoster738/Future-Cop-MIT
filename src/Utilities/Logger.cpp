@@ -122,10 +122,14 @@ std::string Utilities::Logger::getTime() {
     return time_text_buffer;
 }
 
-bool Utilities::Logger::setOutputLog( std::string file_path, size_t memory_bytes_limit, unsigned lower, unsigned upper ) {
+bool Utilities::Logger::setOutputLog( std::filesystem::path file, size_t memory_bytes_limit, unsigned lower, unsigned upper ) {
+    // File names are required.
+    if( !file.has_filename() )
+        return false;
+
     auto *output_stream_p = new OutputStreamFile;
 
-    output_stream_p->output = std::shared_ptr<std::ofstream>(new std::ofstream( file_path, std::ofstream::out ) );
+    output_stream_p->output = std::shared_ptr<std::ofstream>(new std::ofstream( file, std::ofstream::out ) );
     output_stream_p->memory_bytes_limit = memory_bytes_limit;
     output_stream_p->lower = lower;
     output_stream_p->upper = upper;
@@ -141,14 +145,6 @@ bool Utilities::Logger::setOutputLog( std::string file_path, size_t memory_bytes
     outputs.push_back( output_stream_p );
 
     return true;
-}
-
-bool Utilities::Logger::setOutputLog( std::filesystem::path file, size_t memory_bytes_limit, unsigned lower, unsigned upper ) {
-    // File names are required.
-    if( !file.has_filename() )
-        return false;
-
-    return setOutputLog( file.string(), memory_bytes_limit, lower, upper );
 }
 
 bool Utilities::Logger::setOutputLog( std::ostream *mode_r, size_t memory_bytes_limit, unsigned lower, unsigned upper ) {
