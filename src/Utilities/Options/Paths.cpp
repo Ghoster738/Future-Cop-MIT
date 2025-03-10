@@ -43,7 +43,7 @@ std::filesystem::path Utilities::Options::Paths::getConfigDirPath() {
     return path_config;
 }
 
-std::string Utilities::Options::Paths::findConfigDirPath() const {
+std::filesystem::path Utilities::Options::Paths::findConfigDirPath() const {
     // Work with the user-supplied value, if any
     std::string config_dir = parameters.config_dir.getValue().string();
 
@@ -158,7 +158,7 @@ std::filesystem::path Utilities::Options::Paths::getUserDirPath( UserDirectory t
     }
 }
 
-std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) const
+std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub_type) const
 {
     // Work with the user-supplied value, if any
     std::string user_path = parameters.user_dir.getValue().string();
@@ -294,7 +294,7 @@ std::filesystem::path Utilities::Options::Paths::getDataDirPath( DataDirectory t
     }
 }
 
-std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
+std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
 {
     const std::string PROGRAM_FILES_X86 = "PROGRAMFILES(X86)";
     const std::string PROGRAM_FILES = "PROGRAMFILES";

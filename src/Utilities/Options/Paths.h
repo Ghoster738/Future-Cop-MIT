@@ -55,9 +55,9 @@ private:
     std::string path_psx_game_data = "";
 
     // Path calculations
-    std::string findConfigDirPath() const;
-    std::string findUserDirPath( std::string sub_type ) const;
-    std::string findDataDirPath( DataDirectory type ) const;
+    std::filesystem::path findConfigDirPath() const;
+    std::filesystem::path findUserDirPath( std::string sub_type ) const;
+    std::filesystem::path findDataDirPath( DataDirectory type ) const;
 
     // Path data structure
     struct PathData {
