@@ -2,10 +2,11 @@
 #define UTILITIES_BUFFER_938223_H
 
 #include <exception>
-#include <stdint.h>
-#include <vector>
-#include <string>
 #include <istream>
+#include <filesystem>
+#include <stdint.h>
+#include <string>
+#include <vector>
 
 namespace Utilities {
 
@@ -58,8 +59,8 @@ public:
     bool addU64( uint64_t value, Endian endianess = NO_SWAP );
     bool addI64(  int64_t value, Endian endianess = NO_SWAP );
     
-    bool write( const std::string& file_path ) const;
-    bool read( const std::string& file_path );
+    bool write( const std::filesystem::path& file_path ) const;
+    bool read( const std::filesystem::path& file_path );
     
     uint8_t* dangerousPointer();
     const uint8_t *const dangerousPointer() const;
