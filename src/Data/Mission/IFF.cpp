@@ -325,7 +325,7 @@ namespace {
     }
 }
 
-int Data::Mission::IFF::open( const std::string &file_path ) {
+int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
     const size_t BLOCK_SIZE = 0x6000;
 
     std::unordered_set<std::string> filenames; // Check for potential conflicts.
@@ -341,7 +341,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
     auto error_log = logger.getLog( Utilities::Logger::ERROR );
     error_log.info << "IFF: " << file_path << "\n";
 
-    this->setName( file_path );
+    this->setName( file_path.string() );
 
     file.open( file_path, std::ios::binary | std::ios::in );
 

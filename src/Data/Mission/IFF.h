@@ -2,10 +2,11 @@
 #define MISSION_FILE_HEADER
 
 #include <cstdint>
+#include <filesystem>
 #include <map>
-#include <vector>
-#include <string>
 #include <ostream>
+#include <string>
+#include <vector>
 
 namespace Data {
 
@@ -99,7 +100,7 @@ public:
      * This opens the mission file and reads every resource in that file.
      * @return TODO add some returns
      */
-    int open( const std::string &file_path );
+    int open( const std::filesystem::path &file_path );
 
     /**
      * This exports all the resources from this mission file.

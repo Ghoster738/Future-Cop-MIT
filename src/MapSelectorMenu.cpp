@@ -17,12 +17,12 @@ public:
         if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) ) {
             auto menu_select_r = dynamic_cast<MapSelectorMenu*>(menu_r);
 
-            menu_select_r->missing_resource = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+            menu_select_r->missing_resource = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ).string(), menu_select_r->missing_line_length );
 
             entry = main_program.manager.getIFFEntry( Data::Manager::global );
 
             if( !Utilities::Options::Tools::isFile( entry.getPath( main_program.platform ) ) )
-                menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ), menu_select_r->missing_line_length );
+                menu_select_r->missing_global = main_program.text_2d_buffer_r->splitText( menu_select_r->error_font, entry.getPath( main_program.platform ).string(), menu_select_r->missing_line_length );
         }
         else if(dynamic_cast<MapSelectorMenu*>(menu_r)->game_r != &PrimaryGame::primary_game) {
             MediaPlayer::media_player.clearMediaPaths();
