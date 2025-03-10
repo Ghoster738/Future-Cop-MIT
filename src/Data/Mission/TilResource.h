@@ -298,7 +298,7 @@ private:
     uint32_t slfx_bitfield;
     
     struct TextureInfo {
-        std::string name;
+        std::filesystem::path path;
     };
     TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture resource IDs.
     
