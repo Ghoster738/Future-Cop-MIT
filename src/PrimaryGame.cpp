@@ -14,7 +14,7 @@
 
 namespace {
 
-void writeThreadedImage( std::string NAME, Utilities::Image2D *image_screenshot_p ) {
+void writeThreadedImage( std::filesystem::path NAME, Utilities::Image2D *image_screenshot_p ) {
     Utilities::Buffer file;
     Utilities::ImageFormat::Chooser chooser;
     auto the_choosen_r = chooser.getWriterReference( *image_screenshot_p );
@@ -220,7 +220,8 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
         input_r = main_program.controllers_r.front()->getInput( Controls::StandardInputSet::Buttons::CAMERA );
         if( input_r->isChanged() && input_r->getState() > 0.5 )
         {
-            const std::string NAME = main_program.options.getScreenshotsDirectory() + Utilities::Logger::getTime();
+            std::filesystem::path NAME = main_program.options.getScreenshotsDirectory();
+            NAME += std::filesystem::path(Utilities::Logger::getTime());
 
             {
                 auto log = Utilities::logger.getLog( Utilities::Logger::INFO );
