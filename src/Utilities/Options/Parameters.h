@@ -1,6 +1,7 @@
 #ifndef UTILITIES_OPTIONS_PARAMETERS_H
 #define UTILITIES_OPTIONS_PARAMETERS_H
 
+#include <filesystem>
 #include <ostream>
 #include <string.h>
 
@@ -78,6 +79,20 @@ public:
     private:
         bool modified     = false;
         std::string value = "";
+    };
+    /**
+     * Single parameter definition - path
+     */
+    class PathParam {
+    public:
+        bool                  wasModified() const {return modified;}
+        std::filesystem::path getValue()    const {return value;   }
+
+        PathParam()                      {};
+        PathParam(std::filesystem::path init_value) {value = init_value; modified = true;}
+    private:
+        bool modified               = false;
+        std::filesystem::path value = "";
     };
 
     // These should be "read only public members", if the code is correct
