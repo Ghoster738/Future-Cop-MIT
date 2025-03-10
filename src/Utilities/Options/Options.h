@@ -67,6 +67,12 @@ private:
 
     std::set<std::string> modified;
 
+    // Data is always set and retrieved as path
+    std::filesystem::path getPath(std::string section, std::string key);
+
+    // Data is always set and retrieved as path
+    void setPath(std::string section, std::string key, std::filesystem::path value);
+
     // Data is always set and retrieved as string
     std::string getString(std::string section, std::string key);
 
