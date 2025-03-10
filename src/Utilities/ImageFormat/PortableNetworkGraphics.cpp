@@ -4,7 +4,7 @@
 
 #include <cstring>
 
-std::string Utilities::ImageFormat::PortableNetworkGraphics::getExtension() const {
+std::filesystem::path Utilities::ImageFormat::PortableNetworkGraphics::getExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -20,7 +20,7 @@ bool Utilities::ImageFormat::PortableNetworkGraphics::isFormat( const Buffer& bu
 }
 
 
-const std::string Utilities::ImageFormat::PortableNetworkGraphics::FILE_EXTENSION = "png";
+const std::filesystem::path Utilities::ImageFormat::PortableNetworkGraphics::FILE_EXTENSION = "png";
 
 Utilities::ImageFormat::PortableNetworkGraphics::PortableNetworkGraphics() {}
 

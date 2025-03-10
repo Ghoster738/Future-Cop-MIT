@@ -221,7 +221,7 @@ public:
     };
     struct TextureReference {
         uint32_t resource_id;
-        std::string name;
+        std::filesystem::path path;
     };
     struct AllowedPrimitives {
         unsigned star:      1;

@@ -12,7 +12,7 @@ namespace ImageFormat {
  */
 class WindowsBitmap : public ImageFormat {
 public:
-    const static std::string FILE_EXTENSION;
+    const static std::filesystem::path FILE_EXTENSION;
     
 public:
     WindowsBitmap();
@@ -27,7 +27,7 @@ public:
     
     virtual bool supports( const PixelFormatColor& pixel_format ) const;
     
-    virtual std::string getExtension() const;
+    virtual std::filesystem::path getExtension() const;
     
     int write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer );
     int read( const Buffer& buffer, ImageColor2D<Grid2DPlacementNormal>& image_data );

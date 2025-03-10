@@ -12,9 +12,9 @@ bool Utilities::ImageFormat::ImageFormat::isSupported() const {
     return canRead() | canWrite();
 }
 
-std::string Utilities::ImageFormat::ImageFormat::appendExtension( const std::string &name ) const {
-    std::string path = name;
-    path += ".";
+std::filesystem::path Utilities::ImageFormat::ImageFormat::appendExtension( const std::filesystem::path &name ) const {
+    std::filesystem::path path = name;
+    path += std::filesystem::path(".");
     path += this->getExtension();
     return path;
 }

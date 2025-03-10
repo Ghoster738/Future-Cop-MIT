@@ -2405,7 +2405,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
         // Make a null texture.
         resource_id_to_reference[0].resource_id = 0;
-        resource_id_to_reference[0].name = "";
+        resource_id_to_reference[0].path = "";
 
         for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
             // Check for the texture bit on the opcode.
@@ -2421,9 +2421,9 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
                         auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 
-                        resource_id_to_reference[ RESOURCE_ID ].name = bmp_reference_r->getImageFormat()->appendExtension( bmp_reference_r->getFullName( RESOURCE_ID ) );
+                        resource_id_to_reference[ RESOURCE_ID ].path = bmp_reference_r->getImageFormat()->appendExtension( bmp_reference_r->getFullName( RESOURCE_ID ) );
                         
-                        assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
+                        assert( !resource_id_to_reference[ RESOURCE_ID ].path.empty() );
                     }
                 }
                 else
@@ -2654,7 +2654,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
 
                 // Set this material.
-                model_output_p->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+                model_output_p->setMaterial( texture_references.at( t_index ).path, texture_references.at( t_index ).resource_id, true );
 
                 // The material is found.
                 found = true;
