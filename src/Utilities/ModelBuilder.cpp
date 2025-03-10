@@ -418,7 +418,7 @@ void Utilities::ModelBuilder::allocateVertices( unsigned size ) {
     vertex_amount = size;
 }
 
-bool Utilities::ModelBuilder::setMaterial( std::string file_name, uint32_t cbmp_resource_id, bool culling_enabled ) {
+bool Utilities::ModelBuilder::setMaterial( const std::filesystem::path& file_name, uint32_t cbmp_resource_id, bool culling_enabled ) {
     if( is_model_finished )
         throw CannotAddVerticesWhenFinished();
 
@@ -1267,7 +1267,7 @@ bool Utilities::ModelBuilder::write( const std::filesystem::path& file_path, std
 
         if( !(*i).file_name.empty() )
         {
-            root["images"][texture_index]["uri"] = (*i).file_name;
+            root["images"][texture_index]["uri"] = (*i).file_name.string();
 
             root["textures"][texture_index]["source"]  = texture_index;
             root["textures"][texture_index]["sampler"] = 0;
