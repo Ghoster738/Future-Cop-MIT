@@ -2,7 +2,10 @@
 #define MODEL_BUILDER_HEADER
 
 #include "DataTypes.h"
+
 #include <glm/gtc/quaternion.hpp>
+
+#include <filesystem>
 #include <ostream>
 
 namespace Utilities {
@@ -417,7 +420,7 @@ public:
      * @param title if this is not some empty string then this will give the model a name when exported.
      * @return true if the model is successfully written to the hard drive.
      */
-    bool write( std::string file_path, std::string title = "" ) const;
+    bool write( const std::filesystem::path& file_path, std::string title = "" ) const;
     
     /**
      * Display the number of vertices, vertex types, morph types, and what not.

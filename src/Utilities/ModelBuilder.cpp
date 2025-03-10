@@ -1036,7 +1036,7 @@ int Utilities::ModelBuilder::getTransformation( glm::vec4& attributes, unsigned 
     return element_amount;
 }
 
-bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) const {
+bool Utilities::ModelBuilder::write( const std::filesystem::path& file_path, std::string title ) const {
     std::ofstream resource;
 
     Json::Value root;
@@ -1064,8 +1064,8 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
 
     std::ofstream binary;
 
-    std::string binary_location = file_path + ".bin";
-    std::string binary_name = binary_location.substr( binary_location.find_last_of("/") + 1);
+    std::filesystem::path binary_location = file_path;
+    binary_location += std::filesystem::path(".bin");
     binary.open( binary_location, std::ios::binary | std::ios::out );
 
     // Write the binary file first.
@@ -1084,7 +1084,7 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         }
 
         // Write the primary buffer info to this file as well
-        root["buffers"][0]["uri"] = binary_name;
+        root["buffers"][0]["uri"] = binary_location.stem().string();
 
         unsigned index = 0;
 
@@ -1463,7 +1463,10 @@ bool Utilities::ModelBuilder::write( std::string file_path, std::string title ) 
         }
     }
 
-    resource.open( std::string(file_path) + ".gltf", std::ios::out );
+    std::filesystem::path file_path_gltf = file_path;
+    file_path_gltf += std::filesystem::path(".gltf");
+
+    resource.open( file_path_gltf, std::ios::out );
     if( resource.is_open() )
     {
         resource << root;
