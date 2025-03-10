@@ -144,7 +144,7 @@ private:
     virtual void parseHeight( std::string value );
     virtual void parseRes( std::string value );
     virtual void parseConfigDir( std::string path );
-    virtual void parseExportPath( std::string directory );
+    virtual void parseExportDir( std::string directory );
     virtual void parseUserDir( std::string directory );
     virtual void parseWindowsDataDir( std::string directory );
     virtual void parseMacintoshDataDir( std::string directory );

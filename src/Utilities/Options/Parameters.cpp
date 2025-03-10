@@ -153,7 +153,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_RES_HEIGHT:      parseHeight(optarg);             break;
             case OPT_RES:             parseRes(optarg);                break;
             case OPT_CONFIG_DIR:      parseConfigDir(optarg);          break;
-            case OPT_EXPORT_DIR:      parseExportPath(optarg);         break;
+            case OPT_EXPORT_DIR:      parseExportDir(optarg);          break;
             case OPT_USER_DIR:        parseUserDir(optarg);            break;
             case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
             case OPT_MAC_DATA_DIR:    parseMacintoshDataDir(optarg);   break;
@@ -306,7 +306,7 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
     storeError("invalid config dir specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
+void Utilities::Options::Parameters::parseExportDir( std::string directory ) {
     if( p_export_dir.wasModified() ) {
         storeError("multiple export path directory parameters specified in commandline");
         return;
