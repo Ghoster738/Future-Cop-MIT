@@ -143,15 +143,15 @@ private:
     virtual void parseWidth( std::string value );
     virtual void parseHeight( std::string value );
     virtual void parseRes( std::string value );
-    virtual void parseConfigDir( std::string path );
-    virtual void parseExportDir( std::string directory );
-    virtual void parseUserDir( std::string directory );
-    virtual void parseWindowsDataDir( std::string directory );
-    virtual void parseMacintoshDataDir( std::string directory );
-    virtual void parsePlaystationDataDir( std::string directory );
+    virtual void parseConfigDir( std::filesystem::path directory );
+    virtual void parseExportDir( std::filesystem::path directory );
+    virtual void parseUserDir( std::filesystem::path directory );
+    virtual void parseWindowsDataDir( std::filesystem::path directory );
+    virtual void parseMacintoshDataDir( std::filesystem::path directory );
+    virtual void parsePlaystationDataDir( std::filesystem::path directory );
     virtual void parseLoadAllMaps( std::string value );
-    virtual void parseGlobalPath( std::string path );
-    virtual void parseMissionPath( std::string path );
+    virtual void parseGlobalPath( std::filesystem::path path );
+    virtual void parseMissionPath( std::filesystem::path path );
     virtual void parseEmbeddedMap();
 
     // Errors management
