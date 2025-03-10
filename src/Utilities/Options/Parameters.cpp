@@ -289,7 +289,7 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
     
     // Nothing more to do if it is a regular file or directory
     if( std::filesystem::is_directory(path) ) {
-        p_config_dir = StringParam(path);
+        p_config_dir = PathParam(path);
         return;
     }
     
@@ -298,7 +298,7 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(path);
         
         if( std::filesystem::is_directory(real_path) ) {
-            p_config_dir = StringParam(path);
+            p_config_dir = PathParam(path);
             return;
         }
     }
@@ -321,7 +321,7 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_export_dir = StringParam(directory);
+        p_export_dir = PathParam(directory);
         return;
     }
 
@@ -329,7 +329,7 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_export_dir = StringParam(directory);
+            p_export_dir = PathParam(directory);
             return;
         }
     }
@@ -352,7 +352,7 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
     
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_user_dir = StringParam(directory);
+        p_user_dir = PathParam(directory);
         return;
     }
     
@@ -360,7 +360,7 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
         
         if (std::filesystem::is_directory(real_path)) {
-            p_user_dir = StringParam(directory);
+            p_user_dir = PathParam(directory);
             return;
         }
     }
@@ -383,7 +383,7 @@ void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory 
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_win_data_dir = StringParam(directory);
+        p_win_data_dir = PathParam(directory);
         return;
     }
 
@@ -391,7 +391,7 @@ void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory 
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_win_data_dir = StringParam(directory);
+            p_win_data_dir = PathParam(directory);
             return;
         }
     }
@@ -414,7 +414,7 @@ void Utilities::Options::Parameters::parseMacintoshDataDir( std::string director
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_mac_data_dir = StringParam(directory);
+        p_mac_data_dir = PathParam(directory);
         return;
     }
 
@@ -422,7 +422,7 @@ void Utilities::Options::Parameters::parseMacintoshDataDir( std::string director
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_mac_data_dir = StringParam(directory);
+            p_mac_data_dir = PathParam(directory);
             return;
         }
     }
@@ -445,7 +445,7 @@ void Utilities::Options::Parameters::parsePlaystationDataDir( std::string direct
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_psx_data_dir = StringParam(directory);
+        p_psx_data_dir = PathParam(directory);
         return;
     }
 
@@ -453,7 +453,7 @@ void Utilities::Options::Parameters::parsePlaystationDataDir( std::string direct
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_psx_data_dir = StringParam(directory);
+            p_psx_data_dir = PathParam(directory);
             return;
         }
     }
@@ -485,7 +485,7 @@ void Utilities::Options::Parameters::parseGlobalPath( std::string path ) {
     }
 
     if( Tools::isFile( path ) ) {
-        p_global_path = StringParam( path );
+        p_global_path = PathParam( path );
         return;
     }
 
@@ -504,7 +504,7 @@ void Utilities::Options::Parameters::parseMissionPath( std::string path ) {
     }
 
     if( Tools::isFile( path ) ) {
-        p_mission_path = StringParam( path );
+        p_mission_path = PathParam( path );
         return;
     }
 
