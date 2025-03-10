@@ -4,6 +4,8 @@
 #include "Input.h"
 #include "InputSet.h"
 #include "CursorInputSet.h"
+
+#include <filesystem>
 #include <vector>
 
 namespace Controls {
@@ -56,14 +58,14 @@ public:
      * @param filepath The location of the configuration file.
      * @return -1 if the configuration file being read is not compatible, 0 if this operation is not supported, 1 file is successfully read.
      */
-    int read( std::string filepath );
+    int read( const std::filesystem::path& file_path );
 
     /**
      * This writes a json file containing all of the controls.
-     * @param filepath The location of the configuration file.
+     * @param file_path The location of the configuration file.
      * @return -1 if the file cannot be written, 0 if the operation is not supported, 1 file is successfully written.
      */
-    int write( std::string filepath ) const;
+    int write( const std::filesystem::path& file_path ) const;
 
     /**
      * Add the InputSet to the System.

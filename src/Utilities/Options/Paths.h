@@ -34,11 +34,11 @@ public:
     ~Paths() { /* empty */ };
 
     // Calculates the configuration file path, based on user input (if any), points to a file
-    std::string getConfigDirPath();
+    std::filesystem::path getConfigDirPath();
     // Calculates the user directory path, based on user input (if any)
-    std::string getUserDirPath( UserDirectory type );
+    std::filesystem::path getUserDirPath( UserDirectory type );
     // Calculate the data directory path, based on user input (if any)
-    std::string getDataDirPath( DataDirectory type );
+    std::filesystem::path getDataDirPath( DataDirectory type );
 
 
 private:

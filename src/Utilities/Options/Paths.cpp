@@ -35,7 +35,7 @@ const std::string Utilities::Options::Paths::PATH_SEPARATOR = "/";
 const std::string Utilities::Options::Paths::CONFIG_FILE_NAME = "futurecop.ini";
 
 // Retrieve the configuration file path
-std::string Utilities::Options::Paths::getConfigDirPath() {
+std::filesystem::path Utilities::Options::Paths::getConfigDirPath() {
     if( path_config.empty() ) {
         path_config = findConfigDirPath();
     }
@@ -132,7 +132,7 @@ std::string Utilities::Options::Paths::findConfigDirPath() const {
     throw std::logic_error("failed to find or create a configuration file path");
 }
 
-std::string Utilities::Options::Paths::getUserDirPath( UserDirectory type )
+std::filesystem::path Utilities::Options::Paths::getUserDirPath( UserDirectory type )
 {
     switch( type ) {
         case UserDirectory::SAVED_GAMES:
@@ -268,7 +268,7 @@ std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) con
     throw std::logic_error("failed to find or create a user directory path of type: " + sub_type);
 }
 
-std::string Utilities::Options::Paths::getDataDirPath( DataDirectory type )
+std::filesystem::path Utilities::Options::Paths::getDataDirPath( DataDirectory type )
 {
     switch( type ) {
     case WINDOWS:

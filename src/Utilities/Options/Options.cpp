@@ -24,7 +24,10 @@ namespace Options {
 
 // Constructor
 Options::Options (Paths& paths, Parameters& parameters) : paths(paths), parameters(parameters) {
-    ini_file_p = new mINI::INIFile( paths.getConfigDirPath() + Paths::CONFIG_FILE_NAME );
+    auto config_path = paths.getConfigDirPath();
+    config_path += Paths::CONFIG_FILE_NAME;
+
+    ini_file_p = new mINI::INIFile( config_path.string() );
     ini_file_p->read(ini_data);
 
     bool changed = false;
@@ -34,12 +37,12 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
     changed |= init( VIDEO, VIDEO_HEIGHT,     "600" );
     changed |= init( VIDEO, VIDEO_FULLSCREEN, "false" );
 
-    changed |= init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ));
-    changed |= init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ));
-    // init( DIRECTORIES, DIRECTORIES_MODS,        paths.getUserDirPath( Paths::MODS ));
-    changed |= init( DIRECTORIES, DIRECTORIES_WIN_DATA, paths.getDataDirPath( Paths::WINDOWS ));
-    changed |= init( DIRECTORIES, DIRECTORIES_MAC_DATA, paths.getDataDirPath( Paths::MACINTOSH ));
-    changed |= init( DIRECTORIES, DIRECTORIES_PSX_DATA, paths.getDataDirPath( Paths::PLAYSTATION ));
+    changed |= init( DIRECTORIES, DIRECTORIES_SAVES,       paths.getUserDirPath( Paths::SAVED_GAMES ).string());
+    changed |= init( DIRECTORIES, DIRECTORIES_SCREENSHOTS, paths.getUserDirPath( Paths::SCREENSHOTS ).string());
+    // init( DIRECTORIES, DIRECTORIES_MODS,        paths.getUserDirPath( Paths::MODS ).string());
+    changed |= init( DIRECTORIES, DIRECTORIES_WIN_DATA, paths.getDataDirPath( Paths::WINDOWS ).string());
+    changed |= init( DIRECTORIES, DIRECTORIES_MAC_DATA, paths.getDataDirPath( Paths::MACINTOSH ).string());
+    changed |= init( DIRECTORIES, DIRECTORIES_PSX_DATA, paths.getDataDirPath( Paths::PLAYSTATION ).string());
 
     changed |= init( DATA, DATA_PLATFORM, "windows" );
     changed |= init( DATA, DATA_LOAD_ALL_MAPS, "false" ); // Loads all maps from storage memory to Random Access Memory. Set to false by default.

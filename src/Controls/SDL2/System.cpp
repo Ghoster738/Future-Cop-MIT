@@ -246,10 +246,13 @@ bool Controls::System::isOrderedToExit() const {
     return controls_p->window_exit_command;
 }
 
-int Controls::System::read( std::string filepath ) {
+int Controls::System::read( const std::filesystem::path& filepath ) {
+    auto control_config_path = filepath;
+    control_config_path += ".json";
+
     std::ifstream resource;
     
-    resource.open( filepath + ".json", std::ios::in );
+    resource.open( control_config_path, std::ios::in );
     
     if( !resource.is_open() ) {
         return 0; // The config file either does not exist or could not be read.
@@ -323,7 +326,10 @@ int Controls::System::read( std::string filepath ) {
     }
 }
 
-int Controls::System::write( std::string filepath ) const {
+int Controls::System::write( const std::filesystem::path& filepath ) const {
+    auto control_config_path = filepath;
+    control_config_path += ".json";
+
     std::ofstream resource;
     Json::Value root;
     
@@ -349,7 +355,7 @@ int Controls::System::write( std::string filepath ) const {
             }
         }
     }
-    resource.open( std::string(filepath) + ".json", std::ios::out );
+    resource.open( control_config_path, std::ios::out );
 
     if( resource.is_open() )
     {
