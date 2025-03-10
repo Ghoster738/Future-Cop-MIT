@@ -307,7 +307,7 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
 }
 
 void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
-    if( p_export_path.wasModified() ) {
+    if( p_export_dir.wasModified() ) {
         storeError("multiple export path directory parameters specified in commandline");
         return;
     }
@@ -321,7 +321,7 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_export_path = StringParam(directory);
+        p_export_dir = StringParam(directory);
         return;
     }
 
@@ -329,7 +329,7 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_export_path = StringParam(directory);
+            p_export_dir = StringParam(directory);
             return;
         }
     }

@@ -29,10 +29,10 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->rotation = 0;
     this->exported_textures = false;
 
-    if( !main_program.parameters.export_path.wasModified() )
+    if( !main_program.parameters.export_dir.wasModified() )
         this->resource_export_path = "";
     else
-        this->resource_export_path = main_program.parameters.export_path.getValue();
+        this->resource_export_path = main_program.parameters.export_dir.getValue();
 
     main_program.camera_position = { 0, 0, 0 };
     main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
