@@ -45,7 +45,7 @@ std::string Utilities::Options::Paths::getConfigDirPath() {
 
 std::string Utilities::Options::Paths::findConfigDirPath() const {
     // Work with the user-supplied value, if any
-    std::string config_dir = parameters.config_dir.getValue();
+    std::string config_dir = parameters.config_dir.getValue().string();
 
     if (!config_dir.empty()) {
         // If it is a directory, just return it as-is
@@ -161,7 +161,7 @@ std::string Utilities::Options::Paths::getUserDirPath( UserDirectory type )
 std::string Utilities::Options::Paths::findUserDirPath(std::string sub_type) const
 {
     // Work with the user-supplied value, if any
-    std::string user_path = parameters.user_dir.getValue();
+    std::string user_path = parameters.user_dir.getValue().string();
 
     if (!user_path.empty()) {
         // Add the directory separator if not in the provided path
@@ -305,15 +305,15 @@ std::string Utilities::Options::Paths::findDataDirPath( DataDirectory type ) con
     switch( type ) {
     case WINDOWS:
         platform = "Windows";
-        data_path = parameters.win_data_dir.getValue();
+        data_path = parameters.win_data_dir.getValue().string();
         break;
     case MACINTOSH:
         platform = "Macintosh";
-        data_path = parameters.mac_data_dir.getValue();
+        data_path = parameters.mac_data_dir.getValue().string();
         break;
     case PLAYSTATION:
         platform = "Playstation";
-        data_path = parameters.psx_data_dir.getValue();
+        data_path = parameters.psx_data_dir.getValue().string();
         break;
     default:
         platform = "Error";

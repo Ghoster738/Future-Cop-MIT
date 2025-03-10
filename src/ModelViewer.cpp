@@ -111,9 +111,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 auto bmps = main_program.accessor.getAllConstBMP();
 
                 for( auto it : bmps ) {
-                    auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
+                    auto str = resource_export_path;
+                    str += (*it).getFullName( (*it).getResourceID() );
 
-                    (*it).write( str.c_str() );
+                    (*it).write( str.string() ); // TODO Remove .string()
                 }
 
                 exported_textures = true;
@@ -121,9 +122,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
             auto obj = this->obj_vector[ cobj_index ];
 
-            auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
+            auto str = resource_export_path;
+            str += obj->getFullName( obj->getResourceID() );
 
-            obj->write( str.c_str() );
+            obj->write( str.string() ); // TODO Remove .string()
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::MENU );

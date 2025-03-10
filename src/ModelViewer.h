@@ -5,7 +5,10 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+
+#include <filesystem>
 #include <vector>
+
 #include "Data/Mission/ObjResource.h"
 #include "Graphics/ModelInstance.h"
 
@@ -25,7 +28,7 @@ private:
     float count_down;
 
     bool exported_textures;
-    std::string resource_export_path;
+    std::filesystem::path resource_export_path;
 
     Graphics::Text2DBuffer::Font font;
     unsigned font_height;
