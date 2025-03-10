@@ -5,6 +5,8 @@
 
 #include "Menu.h"
 
+#include <filesystem>
+
 class InputMenu : public Menu {
 private:
     Graphics::Text2DBuffer::Font input_set_font;
@@ -14,7 +16,7 @@ private:
 public:
     static InputMenu input_menu;
 
-    std::string name;
+    std::filesystem::path path;
     unsigned input_set_index;
     Controls::InputSet *input_set_r;
     unsigned input_index;
