@@ -289,7 +289,7 @@ Data::Mission::WAVResource::WAVResource( const WAVResource &obj ) : Resource( ob
     audio_stream(obj.audio_stream),
     audio_stream_length(obj.audio_stream_length), sample_rate(obj.sample_rate), byte_rate(obj.byte_rate), loop_begin(obj.loop_begin), loop_end(obj.loop_end), block_align(obj.block_align), num_channels(obj.num_channels), bits_per_sample(obj.bits_per_sample) {}
 
-std::string Data::Mission::WAVResource::getFileExtension() const {
+std::filesystem::path Data::Mission::WAVResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

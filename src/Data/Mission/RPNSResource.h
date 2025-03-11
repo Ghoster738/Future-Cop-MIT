@@ -24,7 +24,7 @@ public:
     RPNSResource();
     RPNSResource( const RPNSResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

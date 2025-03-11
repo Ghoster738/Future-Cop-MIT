@@ -38,7 +38,7 @@ Data::Mission::FUNResource::FUNResource( const FUNResource &obj ) {
     spawn_all_neutral_turrets = false;
 }
 
-std::string Data::Mission::FUNResource::getFileExtension() const {
+std::filesystem::path Data::Mission::FUNResource::getFileExtension() const {
     return Data::Mission::FUNResource::FILE_EXTENSION;
 }
 

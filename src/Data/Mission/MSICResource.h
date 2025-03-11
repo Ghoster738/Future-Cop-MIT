@@ -19,7 +19,7 @@ public:
     MSICResource();
     MSICResource( const MSICResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

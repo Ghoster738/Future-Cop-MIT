@@ -127,7 +127,7 @@ Data::Mission::ANMResource::~ANMResource() {
     }
 }
 
-std::string Data::Mission::ANMResource::getFileExtension() const {
+std::filesystem::path Data::Mission::ANMResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

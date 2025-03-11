@@ -17,7 +17,7 @@ Data::Mission::MSICResource::MSICResource( const MSICResource &obj ) : Resource(
 
 }
 
-std::string Data::Mission::MSICResource::getFileExtension() const {
+std::filesystem::path Data::Mission::MSICResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

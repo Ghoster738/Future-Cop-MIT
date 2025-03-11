@@ -1158,7 +1158,7 @@ Data::Mission::ObjResource::~ObjResource() {
     delete [] this->bone_animation_data;
 } 
 
-std::string Data::Mission::ObjResource::getFileExtension() const {
+std::filesystem::path Data::Mission::ObjResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

@@ -72,7 +72,7 @@ public:
      * This returns the data type extension of the exported version of the resource.
      * @note the behavior can be overriden by successors of this class.
      */
-    virtual std::string getFileExtension() const = 0;
+    virtual std::filesystem::path getFileExtension() const = 0;
 
     /**
      * This returns the resouce tag id of the resource file.

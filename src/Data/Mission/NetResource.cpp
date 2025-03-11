@@ -72,7 +72,7 @@ Data::Mission::NetResource::NetResource( const NetResource &obj ) : Resource( ob
     // Other than this do nothing else.
 }
 
-std::string Data::Mission::NetResource::getFileExtension() const {
+std::filesystem::path Data::Mission::NetResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

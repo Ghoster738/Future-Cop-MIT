@@ -94,7 +94,7 @@ Data::Mission::PYRResource::~PYRResource() {
     primary_image_p = nullptr;
 }
 
-std::string Data::Mission::PYRResource::getFileExtension() const {
+std::filesystem::path Data::Mission::PYRResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -417,8 +417,7 @@ int Data::Mission::PYRResource::write( const std::filesystem::path& file_path, c
             continue;
 
         std::filesystem::path file_path_texture = file_path;
-        file_path_texture += " ";
-        file_path_texture += std::to_string( static_cast<int>( (*current_particle).getID() ) );
+        file_path_texture += (" " + std::to_string( static_cast<int>( (*current_particle).getID() ) ));
 
         Utilities::Image2D texture_strip( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize() * (*current_particle).getNumSprites(), PYR_COLOR_FORMAT );
 

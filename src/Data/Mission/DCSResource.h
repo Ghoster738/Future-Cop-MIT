@@ -32,7 +32,7 @@ public:
     DCSResource();
     DCSResource( const DCSResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

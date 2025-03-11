@@ -326,7 +326,7 @@ Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResourc
     texture_info[7] = obj.texture_info[7];
 }
 
-std::string Data::Mission::TilResource::getFileExtension() const {
+std::filesystem::path Data::Mission::TilResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

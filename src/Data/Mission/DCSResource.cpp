@@ -9,7 +9,7 @@ Data::Mission::DCSResource::DCSResource() {
 Data::Mission::DCSResource::DCSResource( const DCSResource &obj ) : element( obj.element ) {
 }
 
-std::string Data::Mission::DCSResource::getFileExtension() const {
+std::filesystem::path Data::Mission::DCSResource::getFileExtension() const {
     return Data::Mission::DCSResource::FILE_EXTENSION;
 }
 

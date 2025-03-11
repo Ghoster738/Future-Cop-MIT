@@ -54,7 +54,7 @@ public:
     FontResource( const FontResource &obj );
     virtual ~FontResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

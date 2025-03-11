@@ -20,7 +20,7 @@ public:
     TOSResource();
     TOSResource( const TOSResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

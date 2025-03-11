@@ -73,12 +73,13 @@ protected:
 
     static float getRotation( uint16_t rotation_value );
     static glm::quat getRotationQuaternion( float rotation );
+
 public:
     ACTResource();
     ACTResource( const ACTResource *const obj );
     virtual ~ACTResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

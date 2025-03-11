@@ -64,7 +64,7 @@ public:
     size_t getTotalScanlines() const { return total_scanlines; }
     size_t getTotalFrames() const { return total_scanlines / Video::SCAN_LINE_POSITIONS; }
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

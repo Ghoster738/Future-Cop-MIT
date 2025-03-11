@@ -33,7 +33,7 @@ public:
     PTCResource( const PTCResource &obj );
     ~PTCResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
     /**

@@ -43,7 +43,7 @@ Data::Mission::ACTResource::ACTResource( const ACTResource *const obj ) : Resour
 Data::Mission::ACTResource::~ACTResource() {
 }
 
-std::string Data::Mission::ACTResource::getFileExtension() const {
+std::filesystem::path Data::Mission::ACTResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

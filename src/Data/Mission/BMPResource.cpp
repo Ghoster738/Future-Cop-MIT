@@ -61,7 +61,7 @@ Data::Mission::BMPResource::~BMPResource() {
     }
 }
 
-std::string Data::Mission::BMPResource::getFileExtension() const {
+std::filesystem::path Data::Mission::BMPResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

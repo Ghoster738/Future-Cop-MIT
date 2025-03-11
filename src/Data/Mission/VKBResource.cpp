@@ -12,7 +12,7 @@ VKBResource::VKBResource( const VKBResource &obj ) : WAVResource(obj) {}
 
 // TODO Remove these when fully supporting PS1 files.
 // These lines prevent the program from treating this data as a WAV file.
-std::string VKBResource::getFileExtension() const {
+std::filesystem::path VKBResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

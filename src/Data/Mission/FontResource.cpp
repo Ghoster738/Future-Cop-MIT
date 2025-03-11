@@ -59,7 +59,7 @@ Data::Mission::FontResource::~FontResource() {
     image_p = nullptr;
 }
 
-std::string Data::Mission::FontResource::getFileExtension() const {
+std::filesystem::path Data::Mission::FontResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

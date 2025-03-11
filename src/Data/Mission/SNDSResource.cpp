@@ -11,7 +11,7 @@ Data::Mission::SNDSResource::SNDSResource( const Data::Mission::SNDSResource &ob
 
 }
 
-std::string Data::Mission::SNDSResource::getFileExtension() const {
+std::filesystem::path Data::Mission::SNDSResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

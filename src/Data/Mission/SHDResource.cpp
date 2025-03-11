@@ -34,7 +34,7 @@ std::string SHDResource::Entry::getString() const {
 SHDResource::SHDResource() {}
 SHDResource::SHDResource( const SHDResource &obj ) : Resource( obj ), entries( obj.entries ) {}
 
-std::string SHDResource::getFileExtension() const {
+std::filesystem::path SHDResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

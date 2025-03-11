@@ -152,7 +152,8 @@ int Resource::write( const std::filesystem::path& file_path, const IFFOptions &i
 
 int Resource::writeRaw( const std::filesystem::path& file_path, const IFFOptions &iff_options ) const {
     std::filesystem::path file_path_complete = file_path;
-    file_path_complete += ("." + getFileExtension());
+    file_path_complete += ".";
+    file_path_complete += getFileExtension();
 
     std::ofstream resource;
 

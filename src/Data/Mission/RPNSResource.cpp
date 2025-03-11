@@ -11,7 +11,7 @@ Data::Mission::RPNSResource::RPNSResource() {
 Data::Mission::RPNSResource::RPNSResource( const RPNSResource &obj ) {
 }
 
-std::string Data::Mission::RPNSResource::getFileExtension() const {
+std::filesystem::path Data::Mission::RPNSResource::getFileExtension() const {
     return Data::Mission::RPNSResource::FILE_EXTENSION;
 }
 

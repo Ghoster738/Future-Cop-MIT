@@ -11,7 +11,7 @@ const uint32_t TOSResource::IDENTIFIER_TAG = 0x43746F73; // which is { 0x43, 0x7
 TOSResource::TOSResource() {}
 TOSResource::TOSResource( const TOSResource &obj ) : Resource( obj ), offsets( obj.offsets ) {}
 
-std::string TOSResource::getFileExtension() const {
+std::filesystem::path TOSResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

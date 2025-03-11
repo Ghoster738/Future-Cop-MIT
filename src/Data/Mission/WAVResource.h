@@ -29,7 +29,7 @@ public:
     WAVResource();
     WAVResource( const WAVResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 

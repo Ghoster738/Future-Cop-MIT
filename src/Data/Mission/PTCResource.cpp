@@ -26,7 +26,7 @@ Data::Mission::PTCResource::~PTCResource() {
         delete debug_map_display_p;
 }
 
-std::string Data::Mission::PTCResource::getFileExtension() const {
+std::filesystem::path Data::Mission::PTCResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

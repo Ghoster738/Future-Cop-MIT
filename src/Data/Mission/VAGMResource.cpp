@@ -10,7 +10,7 @@ VAGMResource::VAGMResource() {}
 
 VAGMResource::VAGMResource( const VAGMResource &obj ) : Resource( obj ), sound( obj.sound ) {}
 
-std::string VAGMResource::getFileExtension() const {
+std::filesystem::path VAGMResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 

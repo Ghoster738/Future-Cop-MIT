@@ -36,7 +36,7 @@ public:
     BMPResource( const BMPResource &obj );
     virtual ~BMPResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
