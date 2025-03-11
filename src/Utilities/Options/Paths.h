@@ -46,13 +46,13 @@ private:
     Parameters &parameters;
 
     // Paths cache
-    std::string path_config = "";
-    std::string path_user_savedgames = "";
-    std::string path_user_screenshots = "";
-    std::string path_user_mods = "";
-    std::string path_win_game_data = "";
-    std::string path_mac_game_data = "";
-    std::string path_psx_game_data = "";
+    std::filesystem::path path_config = "";
+    std::filesystem::path path_user_savedgames = "";
+    std::filesystem::path path_user_screenshots = "";
+    std::filesystem::path path_user_mods = "";
+    std::filesystem::path path_win_game_data = "";
+    std::filesystem::path path_mac_game_data = "";
+    std::filesystem::path path_psx_game_data = "";
 
     // Path calculations
     std::filesystem::path findConfigDirPath() const;
