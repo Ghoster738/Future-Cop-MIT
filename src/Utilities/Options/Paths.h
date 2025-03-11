@@ -13,9 +13,6 @@ namespace Options {
 // Finding the config, user and data paths in a cross-platform (hopefully) compliant manner
 class Paths {
 public:
-    // Path separator
-    static const std::filesystem::path PATH_SEPARATOR;
-
     // Default config file name
     static const std::filesystem::path CONFIG_FILE_NAME;
 
