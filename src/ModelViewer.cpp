@@ -114,7 +114,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                     auto str = resource_export_path;
                     str += (*it).getFullName( (*it).getResourceID() );
 
-                    (*it).write( str.string() ); // TODO Remove .string()
+                    (*it).write( str );
                 }
 
                 exported_textures = true;
@@ -125,7 +125,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
             auto str = resource_export_path;
             str += obj->getFullName( obj->getResourceID() );
 
-            obj->write( str.string() ); // TODO Remove .string()
+            obj->write( str );
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::MENU );
