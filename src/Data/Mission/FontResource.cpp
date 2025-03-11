@@ -35,8 +35,8 @@ Data::Mission::FontResource::Glyph::Glyph( Utilities::Buffer::Reader& reader ) {
     this->offset.y  = reader.readI8();
 }
 
-const std::string Data::Mission::FontResource::FILE_EXTENSION = "fnt";
-const uint32_t Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
+const std::filesystem::path Data::Mission::FontResource::FILE_EXTENSION = "fnt";
+const uint32_t              Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
 
 Data::Mission::FontResource::FontResource() : image_p( nullptr ), height(0), missing_char_symbol(0x7F) {
     for( unsigned int i = 0; i < MAX_GLYPHS; i++ ) {
@@ -59,7 +59,7 @@ Data::Mission::FontResource::~FontResource() {
     image_p = nullptr;
 }
 
-std::string Data::Mission::FontResource::getFileExtension() const {
+std::filesystem::path Data::Mission::FontResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -288,12 +288,16 @@ Utilities::Image2D *const Data::Mission::FontResource::getImage() const {
     return const_cast<Utilities::Image2D *const>(image_p);
 }
 
-int Data::Mission::FontResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::FontResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
     Utilities::ImageFormat::Chooser chooser;
 
     if( iff_options.font.shouldWrite( iff_options.enable_global_dry_default ) ) {
-        resource.open( std::string(file_path) + "." + getFileExtension(), std::ios::out );
+        std::filesystem::path full_file_path = file_path;
+        full_file_path += ".";
+        full_file_path += this->getFileExtension();
+
+        resource.open( full_file_path, std::ios::out );
 
         if( resource.is_open() ) {
             Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( *image_p );

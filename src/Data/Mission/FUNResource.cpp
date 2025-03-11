@@ -1,7 +1,7 @@
 #include "FUNResource.h"
 #include <limits>
 
-const std::string Data::Mission::FUNResource::FILE_EXTENSION = "fun";
+const std::filesystem::path Data::Mission::FUNResource::FILE_EXTENSION = "fun";
 // which is { 0x43, 0x66, 0x75, 0x6E } or { 'C', 'f', 'u', 'n' } or "Cfun"
 const uint32_t Data::Mission::FUNResource::IDENTIFIER_TAG = 0x4366756e;
 
@@ -38,7 +38,7 @@ Data::Mission::FUNResource::FUNResource( const FUNResource &obj ) {
     spawn_all_neutral_turrets = false;
 }
 
-std::string Data::Mission::FUNResource::getFileExtension() const {
+std::filesystem::path Data::Mission::FUNResource::getFileExtension() const {
     return Data::Mission::FUNResource::FILE_EXTENSION;
 }
 
@@ -147,7 +147,7 @@ Data::Mission::Resource * Data::Mission::FUNResource::duplicate() const {
     return new FUNResource( *this );
 }
 
-int Data::Mission::FUNResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::FUNResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 

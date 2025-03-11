@@ -100,8 +100,8 @@ void Data::Mission::ANMResource::Video::setImage( Utilities::ImagePalette2D& ima
     image.inscribeSubImage( 0, 0, *getImage() );
 }
 
-const std::string Data::Mission::ANMResource::FILE_EXTENSION = "anm";
-const uint32_t Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
+const std::filesystem::path Data::Mission::ANMResource::FILE_EXTENSION = "anm";
+const uint32_t              Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
 
 Data::Mission::ANMResource::ANMResource() :
     palette( Utilities::PixelFormatColor_R5G5B5A1() ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
@@ -127,7 +127,7 @@ Data::Mission::ANMResource::~ANMResource() {
     }
 }
 
-std::string Data::Mission::ANMResource::getFileExtension() const {
+std::filesystem::path Data::Mission::ANMResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -286,7 +286,7 @@ void Data::Mission::ANMResource::setColorPalette( Utilities::ColorPalette &rgba_
     }
 }
 
-int Data::Mission::ANMResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::ANMResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
     // Check if there is data to export.
@@ -314,7 +314,11 @@ int Data::Mission::ANMResource::write( const std::string& file_path, const Data:
                 Utilities::ImagePalette2D palette_image( palette );
                 
                 the_choosen_r->write( palette_image, buffer );
-                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + " clut" ) );
+
+                std::filesystem::path full_file_path = file_path;
+                full_file_path +=  " clut";
+
+                buffer.write( the_choosen_r->appendExtension( full_file_path ) );
                 buffer.set( nullptr, 0 );
             }
 

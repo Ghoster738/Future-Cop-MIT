@@ -11,7 +11,7 @@ namespace Mission {
 
 class ANMResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
     class Video {
@@ -64,7 +64,7 @@ public:
     size_t getTotalScanlines() const { return total_scanlines; }
     size_t getTotalFrames() const { return total_scanlines / Video::SCAN_LINE_POSITIONS; }
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -78,7 +78,7 @@ public:
     
     Utilities::ImagePalette2D* generateAnimationSheet( unsigned columns = 0, bool rgba_palette = false ) const;
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
     
     const Utilities::ColorPalette& getColorPalette() const { return palette; }
     void setColorPalette( Utilities::ColorPalette &rgba_palette ) const;

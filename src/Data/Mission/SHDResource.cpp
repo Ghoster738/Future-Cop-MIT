@@ -6,7 +6,7 @@
 namespace Data {
 namespace Mission {
 
-const std::string SHDResource::FILE_EXTENSION = "shd";
+const std::filesystem::path SHDResource::FILE_EXTENSION = "shd";
 const uint32_t SHDResource::IDENTIFIER_TAG = 0x43736864; // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
 
 std::string SHDResource::Entry::getString() const {
@@ -34,7 +34,7 @@ std::string SHDResource::Entry::getString() const {
 SHDResource::SHDResource() {}
 SHDResource::SHDResource( const SHDResource &obj ) : Resource( obj ), entries( obj.entries ) {}
 
-std::string SHDResource::getFileExtension() const {
+std::filesystem::path SHDResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -138,7 +138,7 @@ Resource * SHDResource::duplicate() const {
     return new Data::Mission::SHDResource( *this );
 }
 
-int SHDResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int SHDResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 

@@ -1,7 +1,7 @@
 #include "RPNSResource.h"
 #include <limits>
 
-const std::string Data::Mission::RPNSResource::FILE_EXTENSION = "rpns";
+const std::filesystem::path Data::Mission::RPNSResource::FILE_EXTENSION = "rpns";
 // which is { 0x52, 0x50, 0x4E, 0x53 } or { 'R', 'P', 'N', 'S' } or "RPNS"
 const uint32_t Data::Mission::RPNSResource::IDENTIFIER_TAG = 0x52504E53;
 
@@ -11,7 +11,7 @@ Data::Mission::RPNSResource::RPNSResource() {
 Data::Mission::RPNSResource::RPNSResource( const RPNSResource &obj ) {
 }
 
-std::string Data::Mission::RPNSResource::getFileExtension() const {
+std::filesystem::path Data::Mission::RPNSResource::getFileExtension() const {
     return Data::Mission::RPNSResource::FILE_EXTENSION;
 }
 
@@ -47,7 +47,7 @@ Data::Mission::Resource * Data::Mission::RPNSResource::duplicate() const {
     return new RPNSResource( *this );
 }
 
-int Data::Mission::RPNSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_option ) const {
+int Data::Mission::RPNSResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_option ) const {
     return 0;
 }
 

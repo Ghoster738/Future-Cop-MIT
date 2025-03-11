@@ -3,7 +3,7 @@
 
 const Utilities::ImageFormat::QuiteOkImage::Pixel Utilities::ImageFormat::QuiteOkImage::INITIAL_PIXEL = { 0, 0, 0, 0xFF };
 const Utilities::ImageFormat::QuiteOkImage::Pixel Utilities::ImageFormat::QuiteOkImage::ZERO_PIXEL = { 0, 0, 0, 0 };
-const std::string Utilities::ImageFormat::QuiteOkImage::FILE_EXTENSION = "qoi";
+const std::filesystem::path Utilities::ImageFormat::QuiteOkImage::FILE_EXTENSION = "qoi";
 
 void Utilities::ImageFormat::QuiteOkImage::reset() {
     previous_pixel = INITIAL_PIXEL;
@@ -202,7 +202,7 @@ bool Utilities::ImageFormat::QuiteOkImage::supports( const PixelFormatColor& pix
         return false;
 }
 
-std::string Utilities::ImageFormat::QuiteOkImage::getExtension() const {
+std::filesystem::path Utilities::ImageFormat::QuiteOkImage::getExtension() const {
     return FILE_EXTENSION;
 }
 

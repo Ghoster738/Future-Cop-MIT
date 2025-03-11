@@ -298,7 +298,7 @@ bool Data::Mission::TilResource::InfoSCTA::setMemorySafe( size_t source_size, si
     return !is_unsafe;
 }
 
-const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
+const std::filesystem::path Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
 
 const std::string Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME = "_TILE_TYPE";
@@ -326,7 +326,7 @@ Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResourc
     texture_info[7] = obj.texture_info[7];
 }
 
-std::string Data::Mission::TilResource::getFileExtension() const {
+std::filesystem::path Data::Mission::TilResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -599,7 +599,7 @@ Data::Mission::Resource * Data::Mission::TilResource::duplicate() const {
 }
 
 bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::BMPResource*> &textures ) {
-    const static size_t TEXTURE_LIMIT = sizeof(texture_info) / sizeof( texture_info[0] );
+    const static size_t TEXTURE_LIMIT = sizeof(this->texture_info) / sizeof( this->texture_info[0] );
     bool valid = true;
 
     for( auto cur = textures.begin(); cur != textures.end(); cur++ ) {
@@ -607,13 +607,13 @@ bool Data::Mission::TilResource::loadTextures( const std::vector<Data::Mission::
 
         if( offset < TEXTURE_LIMIT ) {
             if( (*cur)->getImageFormat() != nullptr ) {
-                texture_info[ offset ].name = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
+                this->texture_info[ offset ].path = (*cur)->getImageFormat()->appendExtension( (*cur)->getFullName( (*cur)->getResourceID() ) );
             }
         }
     }
 
     for( size_t i = 0; i < TEXTURE_LIMIT; i++ ) {
-        if( texture_info[ i ].name.empty() )
+        if( this->texture_info[ i ].path.empty() )
             valid = false;
     }
 
@@ -625,7 +625,7 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-int Data::Mission::TilResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::TilResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
 
@@ -650,8 +650,12 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
             Utilities::Buffer buffer;
             the_choosen_r->write( heightmap, buffer );
 
-            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) )
-                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) ) {
+                std::filesystem::path file_path_complete = file_path;
+                file_path_complete += "_height";
+
+                buffer.write( the_choosen_r->appendExtension( file_path_complete ) );
+            }
         }
     }
 
@@ -739,7 +743,7 @@ Utilities::ModelBuilder * Data::Mission::TilResource::createPartial( unsigned in
         has_texture_displayed = false;
         
         if( texture_index < TEXTURE_INFO_AMOUNT )
-            model_output_p->setMaterial( texture_info[ texture_index ].name, texture_index + 1, is_culled );
+            model_output_p->setMaterial( this->texture_info[ texture_index ].path, texture_index + 1, is_culled );
 
         for( unsigned int not_opaque = 0; not_opaque < 2; not_opaque++) {
 

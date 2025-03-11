@@ -9,7 +9,7 @@ namespace Mission {
 
 class WAVResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
 protected:
@@ -29,7 +29,7 @@ public:
     WAVResource();
     WAVResource( const WAVResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -74,7 +74,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     /**
      * This would write the audio stream to the filesystem if successful.
@@ -83,7 +83,7 @@ public:
      * @param is_dry The boolean to prevent the writing.
      * @return 1 if the file is written to the filesystem. 0 if nothing has been written.
      */
-    int writeAudio( const std::string& file_path, bool is_dry = false ) const;
+    int writeAudio( const std::filesystem::path& file_path, bool is_dry = false ) const;
 };
 
 }

@@ -49,7 +49,7 @@ void InputMenu::update( MainProgram &main_program, std::chrono::microseconds del
             this->input_set_index++;
 
             if( this->input_set_index >= main_program.control_system_p->amountOfInputSets() ) {
-                main_program.control_system_p->write( name );
+                main_program.control_system_p->write( this->path );
 
                 main_program.switchMenu( this->next_menu_r );
                 main_program.switchPrimaryGame( this->next_state_r );

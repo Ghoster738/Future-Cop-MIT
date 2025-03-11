@@ -13,24 +13,24 @@ namespace Mission {
  */
 class UnkResource : public Resource {
 private:
-    std::string file_extension; // This holds the declared extension to the unknown file.
+    std::filesystem::path file_extension; // This holds the declared extension to the unknown file.
     uint32_t identifier_tag;
     bool no_resource_id;
 
 public:
-    UnkResource( uint32_t identifier_tag, const std::string &file_extension, bool no_resource_id = false );
+    UnkResource( uint32_t identifier_tag, const std::filesystem::path& file_extension, bool no_resource_id = false );
     UnkResource( const UnkResource &obj );
 
     /**
      * Sets the file extension for this unknown or unsupported resource.
      * @param file_extension The file extension for this file.
      */
-    void setFileExtension( const std::string & file_extension );
+    void setFileExtension( const std::filesystem::path& file_extension );
 
     /**
      * This gets the assigned file extension from this file.
      */
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     /**
      * Sets the resource tag id for this unknown or unsupported resource.

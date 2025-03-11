@@ -11,7 +11,7 @@ namespace Mission {
 
 class FontResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static constexpr uint32_t MAX_GLYPHS = 0x100;
 
@@ -54,7 +54,7 @@ public:
     FontResource( const FontResource &obj );
     virtual ~FontResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -95,7 +95,7 @@ public:
      * @param arguments Only one command is recognized --dry.
      * @return 1 if the file has successfully been written.
      */
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     std::string getValidCharacters() const;
 

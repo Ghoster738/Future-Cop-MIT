@@ -1,10 +1,11 @@
 #ifndef UTILITIES_OPTIONS_PATHS_H
 #define UTILITIES_OPTIONS_PATHS_H
 
-#include <vector>
-#include <string>
 #include "Tools.h"
 #include "Parameters.h"
+
+#include <filesystem>
+#include <vector>
 
 namespace Utilities {
 namespace Options {
@@ -12,11 +13,8 @@ namespace Options {
 // Finding the config, user and data paths in a cross-platform (hopefully) compliant manner
 class Paths {
 public:
-    // Path separator
-    static const std::string PATH_SEPARATOR;
-
     // Default config file name
-    static const std::string CONFIG_FILE_NAME;
+    static const std::filesystem::path CONFIG_FILE_NAME;
 
     // User directory types, for path disambiguation
     enum UserDirectory {
@@ -34,11 +32,11 @@ public:
     ~Paths() { /* empty */ };
 
     // Calculates the configuration file path, based on user input (if any), points to a file
-    std::string getConfigDirPath();
+    std::filesystem::path getConfigDirPath();
     // Calculates the user directory path, based on user input (if any)
-    std::string getUserDirPath( UserDirectory type );
+    std::filesystem::path getUserDirPath( UserDirectory type );
     // Calculate the data directory path, based on user input (if any)
-    std::string getDataDirPath( DataDirectory type );
+    std::filesystem::path getDataDirPath( DataDirectory type );
 
 
 private:
@@ -46,23 +44,23 @@ private:
     Parameters &parameters;
 
     // Paths cache
-    std::string path_config = "";
-    std::string path_user_savedgames = "";
-    std::string path_user_screenshots = "";
-    std::string path_user_mods = "";
-    std::string path_win_game_data = "";
-    std::string path_mac_game_data = "";
-    std::string path_psx_game_data = "";
+    std::filesystem::path path_config = "";
+    std::filesystem::path path_user_savedgames = "";
+    std::filesystem::path path_user_screenshots = "";
+    std::filesystem::path path_user_mods = "";
+    std::filesystem::path path_win_game_data = "";
+    std::filesystem::path path_mac_game_data = "";
+    std::filesystem::path path_psx_game_data = "";
 
     // Path calculations
-    std::string findConfigDirPath() const;
-    std::string findUserDirPath( std::string sub_type ) const;
-    std::string findDataDirPath( DataDirectory type ) const;
+    std::filesystem::path findConfigDirPath() const;
+    std::filesystem::path findUserDirPath( std::filesystem::path sub_type ) const;
+    std::filesystem::path findDataDirPath( DataDirectory type ) const;
 
     // Path data structure
     struct PathData {
-        std::string root_dir; // Usually some env variable value
-        std::string sub_dir;  // Associated subdir
+        std::filesystem::path root_dir; // Usually some env variable value
+        std::filesystem::path sub_dir;  // Associated subdir
         bool no_end = false;
     };
 };

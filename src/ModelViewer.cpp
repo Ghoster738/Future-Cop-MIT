@@ -29,10 +29,10 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->rotation = 0;
     this->exported_textures = false;
 
-    if( !main_program.parameters.export_path.wasModified() )
+    if( !main_program.parameters.export_dir.wasModified() )
         this->resource_export_path = "";
     else
-        this->resource_export_path = main_program.parameters.export_path.getValue();
+        this->resource_export_path = main_program.parameters.export_dir.getValue();
 
     main_program.camera_position = { 0, 0, 0 };
     main_program.camera_rotation = glm::vec2( glm::pi<float>() / 4.0f, glm::pi<float>() / 4.0f );
@@ -111,9 +111,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 auto bmps = main_program.accessor.getAllConstBMP();
 
                 for( auto it : bmps ) {
-                    auto str = resource_export_path + (*it).getFullName( (*it).getResourceID() );
+                    auto str = resource_export_path;
+                    str += (*it).getFullName( (*it).getResourceID() );
 
-                    (*it).write( str.c_str() );
+                    (*it).write( str );
                 }
 
                 exported_textures = true;
@@ -121,9 +122,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
             auto obj = this->obj_vector[ cobj_index ];
 
-            auto str = resource_export_path + obj->getFullName( obj->getResourceID() );
+            auto str = resource_export_path;
+            str += obj->getFullName( obj->getResourceID() );
 
-            obj->write( str.c_str() );
+            obj->write( str );
         }
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::MENU );

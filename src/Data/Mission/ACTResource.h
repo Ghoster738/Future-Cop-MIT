@@ -22,7 +22,7 @@ namespace Mission {
  */
 class ACTResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static const uint32_t SAC_IDENTI_TAG;
     
@@ -73,12 +73,13 @@ protected:
 
     static float getRotation( uint16_t rotation_value );
     static glm::quat getRotationQuaternion( float rotation );
+
 public:
     ACTResource();
     ACTResource( const ACTResource *const obj );
     virtual ~ACTResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -87,7 +88,7 @@ public:
      * @param index the index of the resource.
      * @return The full name of the file.
      */
-    virtual std::string getFullName( unsigned int index ) const;
+    virtual std::filesystem::path getFullName( unsigned int index ) const;
     
     virtual std::string getTypeIDName() const = 0;
 
@@ -102,7 +103,7 @@ public:
      * @param iff_options The two commands are --dry for no exporting.
      * @return If there was an error while writing it will return false.
      */
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Resource* genResourceByType( const Utilities::Buffer::Reader &data ) const;
     

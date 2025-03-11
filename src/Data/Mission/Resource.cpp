@@ -67,8 +67,8 @@ void Resource::setCodeAmount( unsigned index, uint32_t amount ) {
     this->code_sizes[index] = amount;
 }
 
-std::string Resource::getFullName( unsigned int index ) const {
-    std::string full_name = getFileExtension();
+std::filesystem::path Resource::getFullName( unsigned int index ) const {
+    std::filesystem::path full_name = getFileExtension();
     full_name += "_";
     
     if( !swvr_entry.isPresent() )
@@ -89,7 +89,7 @@ void Resource::setMemory( Utilities::Buffer *data_p ) {
     this->data = std::unique_ptr<Utilities::Buffer>(data_p);
 }
 
-int Resource::read( const char *const file_path ) {
+int Resource::read( const std::filesystem::path& file_path ) {
     std::ifstream resource;
 
     resource.open(file_path, std::ios::binary | std::ios::in | std::ios::ate );
@@ -146,18 +146,18 @@ int Resource::read( Utilities::Buffer::Reader& reader ) {
     }
 }
 
-int Resource::read( const std::string &file_path ) {
-    return read( file_path.c_str() );
-}
-
-int Resource::write( const std::string& file_path, const IFFOptions &iff_options  ) const {
+int Resource::write( const std::filesystem::path& file_path, const IFFOptions &iff_options  ) const {
     return -1;
 }
 
-int Resource::writeRaw( const std::string& file_path, const IFFOptions &iff_options ) const {
+int Resource::writeRaw( const std::filesystem::path& file_path, const IFFOptions &iff_options ) const {
+    std::filesystem::path file_path_complete = file_path;
+    file_path_complete += ".";
+    file_path_complete += getFileExtension();
+
     std::ofstream resource;
 
-    resource.open( file_path + "." + getFileExtension(), std::ios::binary | std::ios::out );
+    resource.open( file_path_complete, std::ios::binary | std::ios::out );
 
     if( resource.is_open() && this->data != nullptr )
     {

@@ -1,6 +1,6 @@
 #include "SNDSResource.h"
 
-const std::string Data::Mission::SNDSResource::FILE_EXTENSION = "snds";
+const std::filesystem::path Data::Mission::SNDSResource::FILE_EXTENSION = "snds";
 const uint32_t Data::Mission::SNDSResource::IDENTIFIER_TAG = 0x736E6473; // which is { 0x73, 0x6E, 0x64, 0x73 } or { 's', 'n', 'd', 's' } or "snds"
 
 Data::Mission::SNDSResource::SNDSResource() {
@@ -11,7 +11,7 @@ Data::Mission::SNDSResource::SNDSResource( const Data::Mission::SNDSResource &ob
 
 }
 
-std::string Data::Mission::SNDSResource::getFileExtension() const {
+std::filesystem::path Data::Mission::SNDSResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -47,7 +47,7 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::SNDSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::SNDSResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return sound.writeAudio( file_path, iff_options.snds.shouldWrite( iff_options.enable_global_dry_default ) );
 }
 

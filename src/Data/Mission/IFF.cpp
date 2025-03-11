@@ -263,7 +263,7 @@ namespace {
     public:
         UnidentifiedResource() : Data::Mission::UnkResource( 0, ext ) {}
 
-        Data::Mission::Resource* newResource( const Data::Mission::Resource::ParseSettings &default_settings, std::unordered_set<std::string> &filenames, unsigned index_value, Utilities::Logger::Log& debug_log, Utilities::Logger::Log& error_log ) {
+        Data::Mission::Resource* newResource( const Data::Mission::Resource::ParseSettings &default_settings, std::unordered_set<std::filesystem::path> &filenames, unsigned index_value, Utilities::Logger::Log& debug_log, Utilities::Logger::Log& error_log ) {
             Resource *new_resource_p;
 
             // Find a resource
@@ -296,13 +296,13 @@ namespace {
             // new_resource_p->setMemory( nullptr );
 
             // Check for naming conflicts
-            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
+            const std::filesystem::path file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
 
-            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
+            debug_log.output << "Resource Name = " << file_name << ".\n";
 
             if( filenames.find( file_name ) != filenames.end() ) {
-                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
-                error_log.output << "Index \"" << new_resource_p->getIndexNumber() << "\".\n";
+                error_log.output << "Duplicate file name detected for resource name " << file_name << ".\n";
+                error_log.output << "Index " << new_resource_p->getIndexNumber() << ".\n";
             }
 
             filenames.emplace( file_name );
@@ -325,10 +325,10 @@ namespace {
     }
 }
 
-int Data::Mission::IFF::open( const std::string &file_path ) {
+int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
     const size_t BLOCK_SIZE = 0x6000;
 
-    std::unordered_set<std::string> filenames; // Check for potential conflicts.
+    std::unordered_set<std::filesystem::path> filenames; // Check for potential conflicts.
     Utilities::Logger &logger = Utilities::logger;
     std::fstream file;
 
@@ -341,7 +341,7 @@ int Data::Mission::IFF::open( const std::string &file_path ) {
     auto error_log = logger.getLog( Utilities::Logger::ERROR );
     error_log.info << "IFF: " << file_path << "\n";
 
-    this->setName( file_path );
+    this->setName( file_path.string() );
 
     file.open( file_path, std::ios::binary | std::ios::in );
 
@@ -975,14 +975,11 @@ std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResour
 }
 
 
-int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
+int Data::Mission::IFF::exportAllResources( const std::filesystem::path &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
     // This algorithm is an O(n) algorithm and it is as good as it is going to get in terms of data complexity. :)
     if( resource_amount != 0 )
     {
-        std::string path = folder_path;
-
-        if( path.back() != '/' )
-            path += '/';
+        std::filesystem::path path = folder_path;
 
         Data::Mission::IFFOptions iff_options;
 
@@ -990,7 +987,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
             // For every resource type categories in the Mission file.
             for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
                 for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ ) {
-                    std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
+                    std::filesystem::path full_path = path;
+                    full_path /= (*it)->getFullName( (*it)->getResourceID() );
 
                     if( raw_file_mode )
                         (*it)->write( full_path, iff_options );
@@ -1002,7 +1000,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
             for( auto tos_it : tos_to_map_p ) {
                 for( auto map_it : tos_it.second ) {
                     for( auto it : map_it.second ) {
-                        std::string full_path = path + it->getFullName( it->getResourceID() );
+                        std::filesystem::path full_path = path;
+                        full_path /= it->getFullName( it->getResourceID() );
 
                         if( raw_file_mode )
                             it->write( full_path, iff_options );
@@ -1013,7 +1012,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
                 }
             }
             if( this->music_p != nullptr ) {
-                std::string full_path = path + this->music_p->getFullName( this->music_p->getResourceID() );
+                std::filesystem::path full_path = path;
+                full_path /= this->music_p->getFullName( this->music_p->getResourceID() );
 
                 if( raw_file_mode )
                     this->music_p->write( full_path, iff_options );
@@ -1050,7 +1050,7 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
     size_t index_of_operand = 0;
     int successful_finds = 0;
     int previous_count = 0;
-    std::string currentType = "@@@@"; // This value simply states which
+    std::filesystem::path current_type = "@@@@"; // This value simply states which
 
     // This is for comparision between IFFs.
     std::vector<Resource*> operand1( const_cast< Data::Mission::IFF* >(  this  )->getAllResources() );
@@ -1061,12 +1061,12 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
     std::sort( operand2.begin(), operand2.end(), compareFunction );
 
     while( index_of_this < operand1.size() && index_of_operand < operand2.size() ) {
-        if( currentType.compare( operand1.at( index_of_this )->getFileExtension() ) != 0 ) {
+        if( current_type.compare( operand1.at( index_of_this )->getFileExtension() ) != 0 ) {
             if( previous_count != 0 )
-                out << previous_count << " pairs of " << currentType << " found!" << std::endl;
+                out << previous_count << " pairs of " << current_type << " found!" << std::endl;
 
-            currentType = operand1.at( index_of_this )->getFileExtension();
-            out << std::endl << "For format " << currentType << std::endl;
+            current_type = operand1.at( index_of_this )->getFileExtension();
+            out << std::endl << "For format " << current_type << std::endl;
 
             previous_count = 0;
         }
@@ -1093,7 +1093,7 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
        }
     }
     if( previous_count != 0 )
-        out << previous_count << " pairs of " << currentType << " found!" << std::endl;
+        out << previous_count << " pairs of " << current_type << " found!" << std::endl;
 
     out << "Overall there where " << successful_finds << " matches" << std::endl;
 

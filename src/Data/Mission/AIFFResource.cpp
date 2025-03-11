@@ -50,8 +50,8 @@ namespace {
 namespace Data {
 namespace Mission {
 
-const std::string AIFFResource::FILE_EXTENSION = "aif";
-const uint32_t AIFFResource::IDENTIFIER_TAG = 0x43616966; // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
+const std::filesystem::path AIFFResource::FILE_EXTENSION = "aif";
+const uint32_t              AIFFResource::IDENTIFIER_TAG = 0x43616966; // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
 
 AIFFResource::AIFFResource() : WAVResource() {}
 
@@ -362,7 +362,7 @@ Resource* AIFFResource::duplicate() const {
     return new Data::Mission::AIFFResource( *this );
 }
 
-int AIFFResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
+int AIFFResource::write( const std::filesystem::path& file_path, const IFFOptions &iff_options ) const {
     if(iff_options.aiff.to_wav || this->data == nullptr)
         return writeAudio( file_path, iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ));
     else if(iff_options.aiff.shouldWrite( iff_options.enable_global_dry_default ))

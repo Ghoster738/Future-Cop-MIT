@@ -18,7 +18,7 @@ namespace Utilities {
 
 namespace ImageFormat {
 
-const std::string WindowsBitmap::FILE_EXTENSION = "bmp";
+const std::filesystem::path WindowsBitmap::FILE_EXTENSION = "bmp";
 
 // 16 bit color for bitmap urrrrrgggggbbbbb
 // Low Blue   = 0x0001
@@ -98,7 +98,7 @@ bool WindowsBitmap::supports( const PixelFormatColor& pixel_format ) const {
         return false;
 }
 
-std::string WindowsBitmap::getExtension() const {
+std::filesystem::path WindowsBitmap::getExtension() const {
     return FILE_EXTENSION;
 }
 

@@ -61,7 +61,7 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     return filled_indices;
 }
 
-const std::string Data::Mission::NetResource::FILE_EXTENSION = "net";
+const std::filesystem::path Data::Mission::NetResource::FILE_EXTENSION = "net";
 const uint32_t Data::Mission::NetResource::IDENTIFIER_TAG = 0x436E6574; // which is { 0x43, 0x6E, 0x65, 0x74 } or { 'C', 'n', 'e', 't' } or "Cnet"
 
 Data::Mission::NetResource::NetResource() {
@@ -72,7 +72,7 @@ Data::Mission::NetResource::NetResource( const NetResource &obj ) : Resource( ob
     // Other than this do nothing else.
 }
 
-std::string Data::Mission::NetResource::getFileExtension() const {
+std::filesystem::path Data::Mission::NetResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -119,14 +119,18 @@ Data::Mission::Resource * Data::Mission::NetResource::duplicate() const {
     return new Data::Mission::NetResource( *this );
 }
 
-int Data::Mission::NetResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::NetResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
     int state = -2;
 
     if( iff_options.net.enable_obj )
     {
-        if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) )
-            resource.open( std::string(file_path) + ".obj", std::ios::out );
+        if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) ) {
+            std::filesystem::path full_file_path = file_path;
+            full_file_path += ".obj";
+
+            resource.open( full_file_path, std::ios::out );
+        }
 
         if( resource.is_open() )
         {
@@ -189,7 +193,10 @@ int Data::Mission::NetResource::write( const std::string& file_path, const Data:
 
         if( iff_options.net.shouldWrite( iff_options.enable_global_dry_default ) )
         {
-            resource.open( std::string(file_path) + ".json", std::ios::out );
+            std::filesystem::path full_file_path = file_path;
+            full_file_path += ".json";
+
+            resource.open( full_file_path, std::ios::out );
 
             if( resource.is_open() )
             {

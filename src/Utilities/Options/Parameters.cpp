@@ -153,7 +153,7 @@ void Utilities::Options::Parameters::parseOptions(int argc, char* argv[]) {
             case OPT_RES_HEIGHT:      parseHeight(optarg);             break;
             case OPT_RES:             parseRes(optarg);                break;
             case OPT_CONFIG_DIR:      parseConfigDir(optarg);          break;
-            case OPT_EXPORT_DIR:      parseExportPath(optarg);         break;
+            case OPT_EXPORT_DIR:      parseExportDir(optarg);          break;
             case OPT_USER_DIR:        parseUserDir(optarg);            break;
             case OPT_WIN_DATA_DIR:    parseWindowsDataDir(optarg);     break;
             case OPT_MAC_DATA_DIR:    parseMacintoshDataDir(optarg);   break;
@@ -275,7 +275,7 @@ void Utilities::Options::Parameters::parseRes( std::string param ) {
     parseHeight( matches[2].str() );
 }
 
-void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
+void Utilities::Options::Parameters::parseConfigDir( std::filesystem::path path ) {
     if( p_config_dir.wasModified())  {
         storeError("multiple config dir parameters specified in commandline");
         return;
@@ -283,13 +283,13 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
     
     // Path needs to exist if manually specified
     if( !std::filesystem::exists(path) ) {
-        storeError("cannot access config dir \"" + path + "\" specified in commandline");
+        storeError("cannot access config dir \"" + path.string() + "\" specified in commandline");
         return;
     }
     
     // Nothing more to do if it is a regular file or directory
     if( std::filesystem::is_directory(path) ) {
-        p_config_dir = StringParam(path);
+        p_config_dir = PathParam(path);
         return;
     }
     
@@ -298,7 +298,7 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(path);
         
         if( std::filesystem::is_directory(real_path) ) {
-            p_config_dir = StringParam(path);
+            p_config_dir = PathParam(path);
             return;
         }
     }
@@ -306,14 +306,14 @@ void Utilities::Options::Parameters::parseConfigDir( std::string path ) {
     storeError("invalid config dir specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
-    if( p_export_path.wasModified() ) {
+void Utilities::Options::Parameters::parseExportDir( std::filesystem::path directory ) {
+    if( p_export_dir.wasModified() ) {
         storeError("multiple export path directory parameters specified in commandline");
         return;
     }
 
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access export path directory \"" + directory + "\" specified in commandline");
+        storeError("cannot access export path directory \"" + directory.string() + "\" specified in commandline");
         return;
     }
 
@@ -321,7 +321,7 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_export_path = StringParam(directory);
+        p_export_dir = PathParam(directory);
         return;
     }
 
@@ -329,7 +329,7 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_export_path = StringParam(directory);
+            p_export_dir = PathParam(directory);
             return;
         }
     }
@@ -337,14 +337,14 @@ void Utilities::Options::Parameters::parseExportPath( std::string directory ) {
     storeError("non-directory export path specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
+void Utilities::Options::Parameters::parseUserDir( std::filesystem::path directory ) {
     if (p_user_dir.wasModified()) {
         storeError("multiple user data directory parameters specified in commandline");
         return;
     }
     
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access user data directory path \"" + directory + "\" specified in commandline");
+        storeError("cannot access user data directory path \"" + directory.string() + "\" specified in commandline");
         return;
     }
     
@@ -352,7 +352,7 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
     
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_user_dir = StringParam(directory);
+        p_user_dir = PathParam(directory);
         return;
     }
     
@@ -360,7 +360,7 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
         
         if (std::filesystem::is_directory(real_path)) {
-            p_user_dir = StringParam(directory);
+            p_user_dir = PathParam(directory);
             return;
         }
     }
@@ -368,14 +368,14 @@ void Utilities::Options::Parameters::parseUserDir( std::string directory ) {
     storeError("non-directory user data path specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory ) {
+void Utilities::Options::Parameters::parseWindowsDataDir( std::filesystem::path directory ) {
     if (p_win_data_dir.wasModified()) {
         storeError("multiple Windows game data directory parameters specified in commandline");
         return;
     }
 
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access Windows game data directory path \"" + directory + "\" specified in commandline");
+        storeError("cannot access Windows game data directory path \"" + directory.string() + "\" specified in commandline");
         return;
     }
 
@@ -383,7 +383,7 @@ void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory 
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_win_data_dir = StringParam(directory);
+        p_win_data_dir = PathParam(directory);
         return;
     }
 
@@ -391,7 +391,7 @@ void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory 
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_win_data_dir = StringParam(directory);
+            p_win_data_dir = PathParam(directory);
             return;
         }
     }
@@ -399,14 +399,14 @@ void Utilities::Options::Parameters::parseWindowsDataDir( std::string directory 
     storeError("non-directory Windows game data path specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseMacintoshDataDir( std::string directory ) {
+void Utilities::Options::Parameters::parseMacintoshDataDir( std::filesystem::path directory ) {
     if (p_mac_data_dir.wasModified()) {
         storeError("multiple Macintosh game data directory parameters specified in commandline");
         return;
     }
 
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access Macintosh game data directory path \"" + directory + "\" specified in commandline");
+        storeError("cannot access Macintosh game data directory path \"" + directory.string() + "\" specified in commandline");
         return;
     }
 
@@ -414,7 +414,7 @@ void Utilities::Options::Parameters::parseMacintoshDataDir( std::string director
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_mac_data_dir = StringParam(directory);
+        p_mac_data_dir = PathParam(directory);
         return;
     }
 
@@ -422,7 +422,7 @@ void Utilities::Options::Parameters::parseMacintoshDataDir( std::string director
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_mac_data_dir = StringParam(directory);
+            p_mac_data_dir = PathParam(directory);
             return;
         }
     }
@@ -430,14 +430,14 @@ void Utilities::Options::Parameters::parseMacintoshDataDir( std::string director
     storeError("non-directory Macintosh game data path specified in commandline");
 }
 
-void Utilities::Options::Parameters::parsePlaystationDataDir( std::string directory ) {
+void Utilities::Options::Parameters::parsePlaystationDataDir( std::filesystem::path directory ) {
     if (p_psx_data_dir.wasModified()) {
         storeError("multiple Playstation game data directory parameters specified in commandline");
         return;
     }
 
     if (!std::filesystem::exists(directory)) {
-        storeError("cannot access Playstation game data directory path \"" + directory + "\" specified in commandline");
+        storeError("cannot access Playstation game data directory path \"" + directory.string() + "\" specified in commandline");
         return;
     }
 
@@ -445,7 +445,7 @@ void Utilities::Options::Parameters::parsePlaystationDataDir( std::string direct
 
     // Nothing more to do if it is a directory
     if (std::filesystem::is_directory(directory)) {
-        p_psx_data_dir = StringParam(directory);
+        p_psx_data_dir = PathParam(directory);
         return;
     }
 
@@ -453,7 +453,7 @@ void Utilities::Options::Parameters::parsePlaystationDataDir( std::string direct
         std::filesystem::path real_path = std::filesystem::read_symlink(directory);
 
         if (std::filesystem::is_directory(real_path)) {
-            p_psx_data_dir = StringParam(directory);
+            p_psx_data_dir = PathParam(directory);
             return;
         }
     }
@@ -473,38 +473,38 @@ void Utilities::Options::Parameters::parseLoadAllMaps( std::string value ) {
         p_load_all_maps = BoolParam(false);
 }
 
-void Utilities::Options::Parameters::parseGlobalPath( std::string path ) {
+void Utilities::Options::Parameters::parseGlobalPath( std::filesystem::path path ) {
     if( p_global_path.wasModified() ) {
         storeError("multiple global path parameters specified in commandline");
         return;
     }
 
     if( !std::filesystem::exists( path ) ) {
-        storeError("cannot access global game data directory path \"" + path + "\" specified in commandline");
+        storeError("cannot access global game data directory path \"" + path.string() + "\" specified in commandline");
         return;
     }
 
     if( Tools::isFile( path ) ) {
-        p_global_path = StringParam( path );
+        p_global_path = PathParam( path );
         return;
     }
 
     storeError("improper global file path specified in commandline");
 }
 
-void Utilities::Options::Parameters::parseMissionPath( std::string path ) {
+void Utilities::Options::Parameters::parseMissionPath( std::filesystem::path path ) {
     if( p_mission_path.wasModified() ) {
         storeError("multiple mission path parameters specified in commandline");
         return;
     }
 
     if( !std::filesystem::exists( path ) ) {
-        storeError("cannot access mission game data directory path \"" + path + "\" specified in commandline");
+        storeError("cannot access mission game data directory path \"" + path.string() + "\" specified in commandline");
         return;
     }
 
     if( Tools::isFile( path ) ) {
-        p_mission_path = StringParam( path );
+        p_mission_path = PathParam( path );
         return;
     }
 

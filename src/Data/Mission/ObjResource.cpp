@@ -1140,9 +1140,9 @@ std::string Data::Mission::ObjResource::Bone::getString() const {
     return form.str();
 }
         
-const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
-const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
-const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
+const std::filesystem::path Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
+const uint32_t              Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
+const std::string  Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT  = 1.0 / 512.0;
 const float Data::Mission::ObjResource::FIXED_NORMAL_UNIT = 1.0 / 4096.0;
@@ -1158,7 +1158,7 @@ Data::Mission::ObjResource::~ObjResource() {
     delete [] this->bone_animation_data;
 } 
 
-std::string Data::Mission::ObjResource::getFileExtension() const {
+std::filesystem::path Data::Mission::ObjResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -2176,7 +2176,7 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
     return position;
 }
 
-int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::ObjResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
     AllowedPrimitives allowed_primitives;
@@ -2197,13 +2197,16 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
                 if( !bones.empty() )
                     model_output_p->applyJointTransforms( 0 );
 
-                glTF_return = model_output_p->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
+                glTF_return = model_output_p->write( file_path, "cobj_" + std::to_string( getResourceID() ) );
             }
             else {
                 // Make it easier on the user to identify empty Obj's
                 std::ofstream resource;
 
-                resource.open( std::string(file_path) + "_empty.txt", std::ios::out );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_empty.txt";
+
+                resource.open( full_file_path, std::ios::out );
 
                 if( resource.is_open() ) {
                     resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " is empty." << std::endl;
@@ -2216,14 +2219,20 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
             Utilities::ModelBuilder *bounding_boxes_p = createBoundingBoxes();
 
             if(bounding_boxes_p != nullptr) {
-                bounding_boxes_p->write( std::string( file_path + "_bb"), "cobj_" + std::to_string( getResourceID() )+ "_bb"  );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_bb";
+
+                bounding_boxes_p->write( full_file_path, "cobj_" + std::to_string( getResourceID() )+ "_bb"  );
 
                 delete bounding_boxes_p;
             }
             else {
                 std::ofstream resource;
 
-                resource.open( std::string(file_path) + "_empty_bb.txt", std::ios::out );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_empty_bb.txt";
+
+                resource.open( full_file_path, std::ios::out );
 
                 if( resource.is_open() ) {
                     resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " has failed!" << std::endl;
@@ -2405,7 +2414,7 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
 
         // Make a null texture.
         resource_id_to_reference[0].resource_id = 0;
-        resource_id_to_reference[0].name = "";
+        resource_id_to_reference[0].path = "";
 
         for( auto i = face_types.begin(); i != face_types.end(); i++ ) {
             // Check for the texture bit on the opcode.
@@ -2421,9 +2430,9 @@ bool Data::Mission::ObjResource::loadTextures( const std::vector<BMPResource*> &
                     if( resource_id_to_bmp[ RESOURCE_ID ]->getImageFormat() != nullptr ) {
                         auto bmp_reference_r = resource_id_to_bmp[ RESOURCE_ID ];
 
-                        resource_id_to_reference[ RESOURCE_ID ].name = bmp_reference_r->getImageFormat()->appendExtension( bmp_reference_r->getFullName( RESOURCE_ID ) );
+                        resource_id_to_reference[ RESOURCE_ID ].path = bmp_reference_r->getImageFormat()->appendExtension( bmp_reference_r->getFullName( RESOURCE_ID ) );
                         
-                        assert( !resource_id_to_reference[ RESOURCE_ID ].name.empty() );
+                        assert( !resource_id_to_reference[ RESOURCE_ID ].path.empty() );
                     }
                 }
                 else
@@ -2654,7 +2663,7 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             if( texture_references.at( t_index ).resource_id == (*count_it).first ) {
 
                 // Set this material.
-                model_output_p->setMaterial( texture_references.at( t_index ).name, texture_references.at( t_index ).resource_id, true );
+                model_output_p->setMaterial( texture_references.at( t_index ).path, texture_references.at( t_index ).resource_id, true );
 
                 // The material is found.
                 found = true;

@@ -254,7 +254,7 @@ void MainProgram::setupLogging() {
     // Export some info.
     {
         auto info_log = Utilities::logger.getLog( Utilities::Logger::INFO );
-        info_log.output << "Using config file: " << paths.getConfigDirPath() << Utilities::Options::Paths::CONFIG_FILE_NAME << "\n";
+        info_log.output << "Using Config File: " << Utilities::Options::Paths::CONFIG_FILE_NAME << " in path "<< paths.getConfigDirPath() << "\n";
     }
     {
         auto debug_log = Utilities::logger.getLog( Utilities::Logger::DEBUG );

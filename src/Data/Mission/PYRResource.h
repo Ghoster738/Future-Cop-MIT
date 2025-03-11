@@ -11,7 +11,7 @@ namespace Mission {
 
 class PYRResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static constexpr uint32_t PS1_PALETTE_SIZE = 0x010;
     static constexpr uint32_t PC_PALETTE_SIZE  = 0x100;
@@ -84,7 +84,7 @@ public:
     PYRResource( const PYRResource &obj );
     ~PYRResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -96,7 +96,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_option = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_option = IFFOptions() ) const;
 };
 
 }

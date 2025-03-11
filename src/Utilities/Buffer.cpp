@@ -227,7 +227,7 @@ bool Utilities::Buffer::addI64(  int64_t value, Endian endianess ) {
     return true;
 }
 
-bool Utilities::Buffer::write( const std::string& file_path ) const {
+bool Utilities::Buffer::write( const std::filesystem::path& file_path ) const {
     std::ofstream output;
     
     output.open( file_path, std::ios::binary | std::ios::out );
@@ -245,7 +245,7 @@ bool Utilities::Buffer::write( const std::string& file_path ) const {
         return false;
 }
 
-bool Utilities::Buffer::read( const std::string& file_path ) {
+bool Utilities::Buffer::read( const std::filesystem::path& file_path ) {
     std::ifstream input;
     size_t size;
     uint8_t byte;

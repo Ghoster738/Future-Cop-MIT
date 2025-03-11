@@ -7,7 +7,7 @@
 
 #include <json/json.h>
 
-const std::string Data::Mission::ACTResource::FILE_EXTENSION = "act";
+const std::filesystem::path Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
 const uint32_t Data::Mission::ACTResource::SAC_IDENTI_TAG = 0x43736163; // which is { 0x43, 0x73, 0x61, 0x63 } or { 'C', s, 'a', 'c' } or "Csac"
 
@@ -43,7 +43,7 @@ Data::Mission::ACTResource::ACTResource( const ACTResource *const obj ) : Resour
 Data::Mission::ACTResource::~ACTResource() {
 }
 
-std::string Data::Mission::ACTResource::getFileExtension() const {
+std::filesystem::path Data::Mission::ACTResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -51,11 +51,13 @@ uint32_t Data::Mission::ACTResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-std::string Data::Mission::ACTResource::getFullName( unsigned int index ) const {
-    if( tSAC.exists )
-        return Resource::getFullName( index ) + "_sac";
-    else
-        return Resource::getFullName( index );
+std::filesystem::path Data::Mission::ACTResource::getFullName( unsigned int index ) const {
+    if( tSAC.exists ) {
+        std::filesystem::path full_name = Resource::getFullName( index );
+        full_name += "_sac";
+        return full_name;
+    }
+    return Resource::getFullName( index );
 
 }
 
@@ -280,12 +282,14 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::ACTResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::ACTResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
 
-    if( iff_options.act.shouldWrite( iff_options.enable_global_dry_default ) )
-    {
-        resource.open( file_path + ".json", std::ios::out );
+    if( iff_options.act.shouldWrite( iff_options.enable_global_dry_default ) ) {
+        std::filesystem::path full_file_path = file_path;
+        full_file_path += ".json";
+
+        resource.open( full_file_path, std::ios::out );
 
         if( resource.is_open() )
         {

@@ -5,13 +5,13 @@
 namespace Data {
 namespace Mission {
 
-const std::string TOSResource::FILE_EXTENSION = "tos";
+const std::filesystem::path TOSResource::FILE_EXTENSION = "tos";
 const uint32_t TOSResource::IDENTIFIER_TAG = 0x43746F73; // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
 
 TOSResource::TOSResource() {}
 TOSResource::TOSResource( const TOSResource &obj ) : Resource( obj ), offsets( obj.offsets ) {}
 
-std::string TOSResource::getFileExtension() const {
+std::filesystem::path TOSResource::getFileExtension() const {
     return FILE_EXTENSION;
 }
 
@@ -107,7 +107,7 @@ Resource * TOSResource::duplicate() const {
     return new Data::Mission::TOSResource( *this );
 }
 
-int TOSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int TOSResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 

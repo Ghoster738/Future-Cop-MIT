@@ -51,7 +51,7 @@ private:
     size_t offset; // This tells the offset in which this file is loaded.
     
     // This data is contained within the tag.
-    uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop. The ACT resources I have agree with this assement.
+    uint32_t resource_id; // Judging by the ACT resources, this is the main ID system used by Future Cop.
     uint32_t rpns_offsets[RPNS_OFFSET_AMOUNT];
     uint32_t code_sizes[CODE_AMOUNT];
 
@@ -72,7 +72,7 @@ public:
      * This returns the data type extension of the exported version of the resource.
      * @note the behavior can be overriden by successors of this class.
      */
-    virtual std::string getFileExtension() const = 0;
+    virtual std::filesystem::path getFileExtension() const = 0;
 
     /**
      * This returns the resouce tag id of the resource file.
@@ -204,7 +204,7 @@ public:
      * @param index the index of the resource.
      * @return The full name of the file.
      */
-    virtual std::string getFullName( unsigned int index ) const;
+    virtual std::filesystem::path getFullName( unsigned int index ) const;
     
     void setMemory( Utilities::Buffer *data_p );
     
@@ -235,13 +235,7 @@ public:
      * This loads a sepecific as a raw binary.
      * The parse command will load it into memory, or to raw_data.
      */
-    int read( const char *const file_path );
-
-    /**
-     * This loads a sepecific as a raw binary.
-     * The parse command will load it into memory, or to raw_data.
-     */
-    int read( const std::string &file_path );
+    int read( const std::filesystem::path& file_path );
     
     int read( Utilities::Buffer::Reader& reader );
 
@@ -252,7 +246,7 @@ public:
      * @param iff_options These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     /**
      * This method writes the resource's raw\_data, as it was in the file format. Byte to byte.
@@ -260,7 +254,7 @@ public:
      * @param iff_options These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    int writeRaw( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const;
+    int writeRaw( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const;
 
     friend bool operator == ( const Resource& l_operand, const Resource& r_operand );
     friend bool operator != ( const Resource& l_operand, const Resource& r_operand );

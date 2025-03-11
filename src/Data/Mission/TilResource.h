@@ -20,7 +20,7 @@ namespace Mission {
  */
 class TilResource : public ModelResource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
     struct HeightmapPixel {
@@ -298,7 +298,7 @@ private:
     uint32_t slfx_bitfield;
     
     struct TextureInfo {
-        std::string name;
+        std::filesystem::path path;
     };
     TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture resource IDs.
     
@@ -309,7 +309,7 @@ public:
     TilResource();
     TilResource( const TilResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -321,7 +321,7 @@ public:
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Utilities::ModelBuilder * createModel() const { return createModel( false, true ); }
     virtual Utilities::ModelBuilder * createCulledModel() const { return createModel( true, true ); }

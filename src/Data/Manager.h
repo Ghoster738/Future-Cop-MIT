@@ -55,7 +55,7 @@ public:
 
     class IFFEntry {
     protected:
-        std::string                                      paths[ Platform::ALL ];
+        std::filesystem::path                            paths[ Platform::ALL ];
         Mission::IFF                                    *iff_p[ Platform::ALL ];
         std::vector<std::filesystem::path> loading_media_paths[ Platform::ALL ];
         std::vector<std::filesystem::path>   intro_media_paths[ Platform::ALL ];
@@ -73,14 +73,14 @@ public:
          * @param platform The platform for the resource file.
          * @param path The path of the resource file.
          */
-        void setPath( Platform platform, const std::string &path );
+        void setPath( Platform platform, const std::filesystem::path &path );
         
         /**
          * Get the path for the given platform.
          * @param platform of the resource file.
          * @return The path to the resource file.
          */
-        std::string getPath( Platform platform ) const { return this->paths[ platform ]; }
+        std::filesystem::path getPath( Platform platform ) const { return this->paths[ platform ]; }
 
         /**
          * Append a loading media, image or video, file path.
@@ -210,7 +210,7 @@ public:
      * @param base_path This is the base path to where the primary executable. If the parameter is PLATFORM::ALL then it expects folders with "Windows", "Macintosh", and "Playstation".
      * @param platform This specifies which platform the game has.
      */
-    void autoSetEntries( const std::string &base_path, Platform platform = Platform::ALL );
+    void autoSetEntries( const std::filesystem::path &base_path, Platform platform = Platform::ALL );
 
     /**
      * This enables which platform can be loaded.

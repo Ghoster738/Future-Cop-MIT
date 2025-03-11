@@ -2,10 +2,11 @@
 #define MISSION_FILE_HEADER
 
 #include <cstdint>
+#include <filesystem>
 #include <map>
-#include <vector>
-#include <string>
 #include <ostream>
+#include <string>
+#include <vector>
 
 namespace Data {
 
@@ -99,7 +100,7 @@ public:
      * This opens the mission file and reads every resource in that file.
      * @return TODO add some returns
      */
-    int open( const std::string &file_path );
+    int open( const std::filesystem::path& file_path );
 
     /**
      * This exports all the resources from this mission file.
@@ -109,7 +110,7 @@ public:
      * @param arguments The arguments to be passed into every file in this resource.
      * @return 1 for a successfull, 0 for no export. TODO add yet more return values
      */
-    int exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
+    int exportAllResources( const std::filesystem::path& folder_path, bool raw_file_mode, const std::vector<std::string> & arguments ) const;
 
     /**
      * This compares this mission file to another IFF.

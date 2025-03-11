@@ -3,7 +3,10 @@
 
 #include "Paths.h"
 #include "Parameters.h"
+
 #include <mini/ini.h>
+
+#include <filesystem>
 #include <set>
 
 namespace Utilities {
@@ -37,23 +40,23 @@ public:
     bool getVideoFullscreen();
     void setVideoFullscreen(bool value);
 
-    std::string getSaveDirectory();
-    void setSaveDirectory( std::string value );
+    std::filesystem::path getSaveDirectory();
+    void setSaveDirectory( std::filesystem::path value );
 
-    std::string getScreenshotsDirectory();
-    void setScreenshotsDirectory( std::string value );
+    std::filesystem::path getScreenshotsDirectory();
+    void setScreenshotsDirectory( std::filesystem::path value );
 
-    // std::string getModsDirectory();
-    // void setModsDirectory( std::string value );
+    // std::filesystem::path getModsDirectory();
+    // void setModsDirectory( std::filesystem::path value );
 
-    std::string getWindowsDataDirectory();
-    void setWindowsDataDirectory( std::string value );
+    std::filesystem::path getWindowsDataDirectory();
+    void setWindowsDataDirectory( std::filesystem::path value );
 
-    std::string getMacintoshDataDirectory();
-    void setMacintoshDataDirectory( std::string value );
+    std::filesystem::path getMacintoshDataDirectory();
+    void setMacintoshDataDirectory( std::filesystem::path value );
 
-    std::string getPlaystationDataDirectory();
-    void setPlaystationDataDirectory( std::string value );
+    std::filesystem::path getPlaystationDataDirectory();
+    void setPlaystationDataDirectory( std::filesystem::path value );
 
 private:
     Paths& paths;
@@ -63,6 +66,12 @@ private:
     mINI::INIFile* ini_file_p;
 
     std::set<std::string> modified;
+
+    // Data is always set and retrieved as path
+    std::filesystem::path getPath(std::string section, std::string key);
+
+    // Data is always set and retrieved as path
+    void setPath(std::string section, std::string key, std::filesystem::path value);
 
     // Data is always set and retrieved as string
     std::string getString(std::string section, std::string key);

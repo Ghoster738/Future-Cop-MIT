@@ -14,8 +14,9 @@ namespace Mission {
 
 class BMPResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::filesystem::path FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
+
 private:
     // The Windows and Mac versions are strange. Both of the desktop versions still used a color pallete despite using 16 bit color.
     // Note: PS1 Versions do not have lookUpData
@@ -31,12 +32,13 @@ private:
     bool isPSX; // True if this CBMP file is from PlayStation.
     
     Utilities::ImageFormat::ImageFormat *format_p;
+
 public:
     BMPResource();
     BMPResource( const BMPResource &obj );
     virtual ~BMPResource();
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -44,7 +46,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     const Utilities::ImageFormat::ImageFormat *const getImageFormat() const;
 

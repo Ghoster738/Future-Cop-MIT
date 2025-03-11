@@ -9,14 +9,14 @@ namespace Mission {
 
 class VKBResource : public WAVResource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
 public:
     VKBResource();
     VKBResource( const VKBResource &obj );
 
-    virtual std::string getFileExtension() const;
+    virtual std::filesystem::path getFileExtension() const;
 
     virtual uint32_t getResourceTagID() const;
 
@@ -24,7 +24,7 @@ public:
 
     virtual Resource * duplicate() const;
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 };
 
 }

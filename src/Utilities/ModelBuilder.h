@@ -2,7 +2,10 @@
 #define MODEL_BUILDER_HEADER
 
 #include "DataTypes.h"
+
 #include <glm/gtc/quaternion.hpp>
+
+#include <filesystem>
 #include <ostream>
 
 namespace Utilities {
@@ -70,7 +73,7 @@ public:
         TextureMaterial( const TextureMaterial& mat );
 
         uint32_t cbmp_resource_id;
-        std::string file_name; // The file is relative to the texture.
+        std::filesystem::path file_name; // The file is relative to the texture.
         unsigned starting_vertex_index; // The index of the starting vertices.
         unsigned count; // The amount of vertices that the texture material covers.
         unsigned addition_index;
@@ -277,7 +280,7 @@ public:
      * @return True if the setupVertexComponents() method was called.
      * @throw CannotAddVerticesWhenFinished When this is called after the method finish.
      */
-    bool setMaterial( std::string file_name, uint32_t cbmp_resource_id = 0, bool has_culling = false );
+    bool setMaterial( const std::filesystem::path& file_name, uint32_t cbmp_resource_id = 0, bool has_culling = false );
 
     /**
      * This gets the number of materials for this class.
@@ -417,7 +420,7 @@ public:
      * @param title if this is not some empty string then this will give the model a name when exported.
      * @return true if the model is successfully written to the hard drive.
      */
-    bool write( std::string file_path, std::string title = "" ) const;
+    bool write( const std::filesystem::path& file_path, std::string title = "" ) const;
     
     /**
      * Display the number of vertices, vertex types, morph types, and what not.
