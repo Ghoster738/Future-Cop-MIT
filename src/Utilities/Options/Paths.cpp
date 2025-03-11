@@ -316,24 +316,24 @@ std::filesystem::path Utilities::Options::Paths::getDataDirPath( DataDirectory t
 
 std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory type ) const
 {
-    const std::string PROGRAM_FILES_X86 = "PROGRAMFILES(X86)";
-    const std::string PROGRAM_FILES = "PROGRAMFILES";
+    const std::filesystem::path PROGRAM_FILES_X86 = "PROGRAMFILES(X86)";
+    const std::filesystem::path PROGRAM_FILES = "PROGRAMFILES";
 
     // Platform
     std::string platform;
-    std::string data_path;
+    std::filesystem::path data_path;
     switch( type ) {
     case WINDOWS:
         platform = "Windows";
-        data_path = parameters.win_data_dir.getValue().string();
+        data_path = parameters.win_data_dir.getValue();
         break;
     case MACINTOSH:
         platform = "Macintosh";
-        data_path = parameters.mac_data_dir.getValue().string();
+        data_path = parameters.mac_data_dir.getValue();
         break;
     case PLAYSTATION:
         platform = "Playstation";
-        data_path = parameters.psx_data_dir.getValue().string();
+        data_path = parameters.psx_data_dir.getValue();
         break;
     default:
         platform = "Error";
@@ -347,7 +347,11 @@ std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory 
     // No path was specified by the user, search the local directory first
     #ifdef USE_ONLY_RELATIVE_PATHS
 
-    data_path = "." + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+    data_path = ".";
+    data_path /= "Data";
+    data_path /= "Platform";
+    data_path /= platform
+    data_path += PATH_SEPARATOR;
 
     // If it points to a directory path, return it
     if( Tools::isDir( data_path ) ) {
@@ -360,12 +364,9 @@ std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory 
     #else
 
     data_path  = std::filesystem::current_path();
-    data_path += PATH_SEPARATOR;
-    data_path += "Data";
-    data_path += PATH_SEPARATOR;
-    data_path += "Platform";
-    data_path += PATH_SEPARATOR;
-    data_path += platform;
+    data_path /= "Data";
+    data_path /= "Platform";
+    data_path /= platform;
     data_path += PATH_SEPARATOR;
 
     // If it points to a directory path, return it
@@ -412,9 +413,9 @@ std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory 
     // Future Cop Locations on Windows.
     if( type == WINDOWS ) {
         #if defined(_WIN64)
-        paths_map.push_back( {std::getenv(PROGRAM_FILES_X86.c_str()) ?: "", "Electronic Arts\\Future Cop", true} );
+        paths_map.push_back( {std::getenv(PROGRAM_FILES_X86.string().c_str()) ?: "", "Electronic Arts\\Future Cop", true} );
         #else
-        paths_map.push_back( {std::getenv(PROGRAM_FILES.c_str()) ?: "", "Electronic Arts\\Future Cop", true} );
+        paths_map.push_back( {std::getenv(PROGRAM_FILES.string().c_str()) ?: "", "Electronic Arts\\Future Cop", true} );
         #endif
     }
 
