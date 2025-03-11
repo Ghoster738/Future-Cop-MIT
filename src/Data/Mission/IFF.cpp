@@ -975,14 +975,11 @@ std::vector<const Data::Mission::Resource*> Data::Mission::IFF::getAllSWVRResour
 }
 
 
-int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
+int Data::Mission::IFF::exportAllResources( const std::filesystem::path &folder_path, bool raw_file_mode, const std::vector<std::string>& arguments ) const {
     // This algorithm is an O(n) algorithm and it is as good as it is going to get in terms of data complexity. :)
     if( resource_amount != 0 )
     {
-        std::string path = folder_path;
-
-        if( path.back() != '/' )
-            path += '/';
+        std::filesystem::path path = folder_path;
 
         Data::Mission::IFFOptions iff_options;
 
@@ -990,7 +987,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
             // For every resource type categories in the Mission file.
             for( auto map_it = id_to_resource_p.begin(); map_it != id_to_resource_p.end(); map_it++ ) {
                 for( auto it = map_it->second.begin(); it != map_it->second.end(); it++ ) {
-                    std::string full_path = path + (*it)->getFullName( (*it)->getResourceID() );
+                    std::filesystem::path full_path = path;
+                    full_path /= (*it)->getFullName( (*it)->getResourceID() );
 
                     if( raw_file_mode )
                         (*it)->write( full_path, iff_options );
@@ -1002,7 +1000,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
             for( auto tos_it : tos_to_map_p ) {
                 for( auto map_it : tos_it.second ) {
                     for( auto it : map_it.second ) {
-                        std::string full_path = path + it->getFullName( it->getResourceID() );
+                        std::filesystem::path full_path = path;
+                        full_path /= it->getFullName( it->getResourceID() );
 
                         if( raw_file_mode )
                             it->write( full_path, iff_options );
@@ -1013,7 +1012,8 @@ int Data::Mission::IFF::exportAllResources( const std::string &folder_path, bool
                 }
             }
             if( this->music_p != nullptr ) {
-                std::string full_path = path + this->music_p->getFullName( this->music_p->getResourceID() );
+                std::filesystem::path full_path = path;
+                full_path /= this->music_p->getFullName( this->music_p->getResourceID() );
 
                 if( raw_file_mode )
                     this->music_p->write( full_path, iff_options );

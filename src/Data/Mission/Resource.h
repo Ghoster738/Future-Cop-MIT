@@ -204,7 +204,7 @@ public:
      * @param index the index of the resource.
      * @return The full name of the file.
      */
-    virtual std::string getFullName( unsigned int index ) const;
+    virtual std::filesystem::path getFullName( unsigned int index ) const;
     
     void setMemory( Utilities::Buffer *data_p );
     

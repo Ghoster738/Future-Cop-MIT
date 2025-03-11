@@ -51,11 +51,13 @@ uint32_t Data::Mission::ACTResource::getResourceTagID() const {
     return IDENTIFIER_TAG;
 }
 
-std::string Data::Mission::ACTResource::getFullName( unsigned int index ) const {
-    if( tSAC.exists )
-        return Resource::getFullName( index ) + "_sac";
-    else
-        return Resource::getFullName( index );
+std::filesystem::path Data::Mission::ACTResource::getFullName( unsigned int index ) const {
+    if( tSAC.exists ) {
+        std::filesystem::path full_name = Resource::getFullName( index );
+        full_name += "_sac";
+        return full_name;
+    }
+    return Resource::getFullName( index );
 
 }
 
