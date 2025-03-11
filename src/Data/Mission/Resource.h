@@ -235,7 +235,7 @@ public:
      * This loads a sepecific as a raw binary.
      * The parse command will load it into memory, or to raw_data.
      */
-    int read( const std::string &file_path );
+    int read( const std::filesystem::path& file_path );
     
     int read( Utilities::Buffer::Reader& reader );
 
