@@ -296,7 +296,7 @@ namespace {
             // new_resource_p->setMemory( nullptr );
 
             // Check for naming conflicts
-            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
+            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() ).string();
 
             debug_log.output << "Resource Name = \"" << file_name << "\".\n";
 
