@@ -150,10 +150,13 @@ int Resource::write( const std::string& file_path, const IFFOptions &iff_options
     return -1;
 }
 
-int Resource::writeRaw( const std::string& file_path, const IFFOptions &iff_options ) const {
+int Resource::writeRaw( const std::filesystem::path& file_path, const IFFOptions &iff_options ) const {
+    std::filesystem::path file_path_complete = file_path;
+    file_path_complete += ("." + getFileExtension());
+
     std::ofstream resource;
 
-    resource.open( file_path + "." + getFileExtension(), std::ios::binary | std::ios::out );
+    resource.open( file_path_complete, std::ios::binary | std::ios::out );
 
     if( resource.is_open() && this->data != nullptr )
     {

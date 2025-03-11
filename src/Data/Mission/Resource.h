@@ -254,7 +254,7 @@ public:
      * @param iff_options These are program permeters for the resources.
      * @return If everything is written correctly it will be 1 or true.
      */
-    int writeRaw( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const;
+    int writeRaw( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const;
 
     friend bool operator == ( const Resource& l_operand, const Resource& r_operand );
     friend bool operator != ( const Resource& l_operand, const Resource& r_operand );
