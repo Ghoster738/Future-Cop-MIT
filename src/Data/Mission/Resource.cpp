@@ -68,7 +68,7 @@ void Resource::setCodeAmount( unsigned index, uint32_t amount ) {
 }
 
 std::string Resource::getFullName( unsigned int index ) const {
-    std::string full_name = getFileExtension();
+    std::string full_name = getFileExtension().string(); // TODO Remove this.
     full_name += "_";
     
     if( !swvr_entry.isPresent() )

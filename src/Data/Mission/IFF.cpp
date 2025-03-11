@@ -1050,7 +1050,7 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
     size_t index_of_operand = 0;
     int successful_finds = 0;
     int previous_count = 0;
-    std::string currentType = "@@@@"; // This value simply states which
+    std::filesystem::path current_type = "@@@@"; // This value simply states which
 
     // This is for comparision between IFFs.
     std::vector<Resource*> operand1( const_cast< Data::Mission::IFF* >(  this  )->getAllResources() );
@@ -1061,12 +1061,12 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
     std::sort( operand2.begin(), operand2.end(), compareFunction );
 
     while( index_of_this < operand1.size() && index_of_operand < operand2.size() ) {
-        if( currentType.compare( operand1.at( index_of_this )->getFileExtension() ) != 0 ) {
+        if( current_type.compare( operand1.at( index_of_this )->getFileExtension() ) != 0 ) {
             if( previous_count != 0 )
-                out << previous_count << " pairs of " << currentType << " found!" << std::endl;
+                out << previous_count << " pairs of " << current_type << " found!" << std::endl;
 
-            currentType = operand1.at( index_of_this )->getFileExtension();
-            out << std::endl << "For format " << currentType << std::endl;
+            current_type = operand1.at( index_of_this )->getFileExtension();
+            out << std::endl << "For format " << current_type << std::endl;
 
             previous_count = 0;
         }
@@ -1093,7 +1093,7 @@ int Data::Mission::IFF::compare( const IFF &operand, std::ostream &out ) const {
        }
     }
     if( previous_count != 0 )
-        out << previous_count << " pairs of " << currentType << " found!" << std::endl;
+        out << previous_count << " pairs of " << current_type << " found!" << std::endl;
 
     out << "Overall there where " << successful_finds << " matches" << std::endl;
 
