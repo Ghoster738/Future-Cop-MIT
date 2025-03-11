@@ -100,8 +100,8 @@ void Data::Mission::ANMResource::Video::setImage( Utilities::ImagePalette2D& ima
     image.inscribeSubImage( 0, 0, *getImage() );
 }
 
-const std::string Data::Mission::ANMResource::FILE_EXTENSION = "anm";
-const uint32_t Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
+const std::filesystem::path Data::Mission::ANMResource::FILE_EXTENSION = "anm";
+const uint32_t              Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
 
 Data::Mission::ANMResource::ANMResource() :
     palette( Utilities::PixelFormatColor_R5G5B5A1() ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )

@@ -3,7 +3,7 @@
 namespace Data {
 namespace Mission {
 
-const std::string VKBResource::FILE_EXTENSION = "vkb";
+const std::filesystem::path VKBResource::FILE_EXTENSION = "vkb";
 const uint32_t VKBResource::IDENTIFIER_TAG = 0x43766b62; // which is { 0x43, 0x76, 0x6b, 0x62 } or { 'C', 'v', 'k', 'b' } or "Cvkb"
 
 VKBResource::VKBResource() : WAVResource() {}

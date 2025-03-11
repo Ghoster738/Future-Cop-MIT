@@ -9,7 +9,7 @@ namespace Mission {
 
 class FUNResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
     static const float FUNCTION_TIME_UNITS_TO_SECONDS;

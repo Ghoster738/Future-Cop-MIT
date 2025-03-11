@@ -27,7 +27,7 @@ const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
 #include "Embedded/CBMP.h"
 }
 
-const std::string Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
+const std::filesystem::path Data::Mission::BMPResource::FILE_EXTENSION = "cbmp";
 const uint32_t Data::Mission::BMPResource::IDENTIFIER_TAG = 0x43626D70; // which is { 0x43, 0x62, 0x6D, 0x70 } or { 'C', 'b', 'm', 'p' } or "Cbmp"
 
 Data::Mission::BMPResource::BMPResource() : image_p( nullptr ), image_palette_p( nullptr ), isPSX(false), format_p(nullptr) {

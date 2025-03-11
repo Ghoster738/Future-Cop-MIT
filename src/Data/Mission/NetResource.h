@@ -17,7 +17,7 @@ namespace Mission {
  */
 class NetResource : public Resource {
 public:
-	static const std::string FILE_EXTENSION;
+	static const std::filesystem::path FILE_EXTENSION;
 	static const uint32_t IDENTIFIER_TAG;
 
     class Node {

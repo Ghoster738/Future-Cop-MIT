@@ -6,7 +6,7 @@ namespace {
     const size_t SIZE_OF_READ    = SIZE_OF_HEADERS + SIZE_OF_DATA;
 }
 
-const std::string Data::Mission::MSICResource::FILE_EXTENSION = "msic";
+const std::filesystem::path Data::Mission::MSICResource::FILE_EXTENSION = "msic";
 const uint32_t Data::Mission::MSICResource::IDENTIFIER_TAG = 0x4D534943; // which is { 0x4D, 0x53, 0x49, 0x43 } or { 'M', 'S', 'I', 'C' } or "MSIC"
 
 Data::Mission::MSICResource::MSICResource() {

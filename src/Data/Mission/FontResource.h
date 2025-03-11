@@ -11,7 +11,7 @@ namespace Mission {
 
 class FontResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static constexpr uint32_t MAX_GLYPHS = 0x100;
 

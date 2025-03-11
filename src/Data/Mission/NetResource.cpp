@@ -61,7 +61,7 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     return filled_indices;
 }
 
-const std::string Data::Mission::NetResource::FILE_EXTENSION = "net";
+const std::filesystem::path Data::Mission::NetResource::FILE_EXTENSION = "net";
 const uint32_t Data::Mission::NetResource::IDENTIFIER_TAG = 0x436E6574; // which is { 0x43, 0x6E, 0x65, 0x74 } or { 'C', 'n', 'e', 't' } or "Cnet"
 
 Data::Mission::NetResource::NetResource() {

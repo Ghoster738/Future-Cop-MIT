@@ -13,7 +13,7 @@ namespace Mission {
 
 class ObjResource : public ModelResource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
     static const std::string METADATA_COMPONENT_NAME;

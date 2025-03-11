@@ -1140,9 +1140,9 @@ std::string Data::Mission::ObjResource::Bone::getString() const {
     return form.str();
 }
         
-const std::string Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
-const uint32_t    Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
-const std::string Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
+const std::filesystem::path Data::Mission::ObjResource::FILE_EXTENSION = "cobj";
+const uint32_t              Data::Mission::ObjResource::IDENTIFIER_TAG = 0x436F626A; // which is { 0x43, 0x6F, 0x62, 0x6A } or { 'C', 'o', 'b', 'j' } or "Cobj"
+const std::string  Data::Mission::ObjResource::METADATA_COMPONENT_NAME = "_METADATA";
 
 const float Data::Mission::ObjResource::FIXED_POINT_UNIT  = 1.0 / 512.0;
 const float Data::Mission::ObjResource::FIXED_NORMAL_UNIT = 1.0 / 4096.0;

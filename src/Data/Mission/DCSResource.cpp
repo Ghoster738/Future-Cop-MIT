@@ -1,7 +1,7 @@
 #include "DCSResource.h"
 
-const std::string Data::Mission::DCSResource::FILE_EXTENSION = "dcs";
-const uint32_t    Data::Mission::DCSResource::IDENTIFIER_TAG = 0x43646373; // which is { 0x43, 0x64, 0x63, 0x73 } or { 'C', 'd', 'c', 's' } or "Cdcs"
+const std::filesystem::path Data::Mission::DCSResource::FILE_EXTENSION = "dcs";
+const uint32_t              Data::Mission::DCSResource::IDENTIFIER_TAG = 0x43646373; // which is { 0x43, 0x64, 0x63, 0x73 } or { 'C', 'd', 'c', 's' } or "Cdcs"
 
 Data::Mission::DCSResource::DCSResource() {
 }

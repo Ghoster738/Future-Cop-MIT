@@ -50,8 +50,8 @@ namespace {
 namespace Data {
 namespace Mission {
 
-const std::string AIFFResource::FILE_EXTENSION = "aif";
-const uint32_t AIFFResource::IDENTIFIER_TAG = 0x43616966; // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
+const std::filesystem::path AIFFResource::FILE_EXTENSION = "aif";
+const uint32_t              AIFFResource::IDENTIFIER_TAG = 0x43616966; // which is { 0x43, 0x61, 0x69, 0x66 } or { 'C', 'a', 'i', 'f' } or "Caif"
 
 AIFFResource::AIFFResource() : WAVResource() {}
 

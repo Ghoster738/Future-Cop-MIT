@@ -6,7 +6,7 @@
 namespace Data {
 namespace Mission {
 
-const std::string SHDResource::FILE_EXTENSION = "shd";
+const std::filesystem::path SHDResource::FILE_EXTENSION = "shd";
 const uint32_t SHDResource::IDENTIFIER_TAG = 0x43736864; // which is { 0x43, 0x73, 0x68, 0x64 } or { 'C', 's', 'h', 'd' } or "Cshd"
 
 std::string SHDResource::Entry::getString() const {

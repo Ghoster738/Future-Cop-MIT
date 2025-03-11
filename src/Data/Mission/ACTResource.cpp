@@ -7,7 +7,7 @@
 
 #include <json/json.h>
 
-const std::string Data::Mission::ACTResource::FILE_EXTENSION = "act";
+const std::filesystem::path Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
 const uint32_t Data::Mission::ACTResource::SAC_IDENTI_TAG = 0x43736163; // which is { 0x43, 0x73, 0x61, 0x63 } or { 'C', s, 'a', 'c' } or "Csac"
 

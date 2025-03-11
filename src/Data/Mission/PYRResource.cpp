@@ -76,7 +76,7 @@ Utilities::ColorPalette* Data::Mission::PYRResource::Particle::Texture::getPalet
     return &palette;
 }
 
-const std::string Data::Mission::PYRResource::FILE_EXTENSION = "pyr";
+const std::filesystem::path Data::Mission::PYRResource::FILE_EXTENSION = "pyr";
 const uint32_t Data::Mission::PYRResource::IDENTIFIER_TAG = 0x43707972; // which is { 0x43, 0x70, 0x79, 0x72 } or { 'C', 'p', 'y', 'r' } or "Cpyr"
 
 Data::Mission::PYRResource::PYRResource() : primary_image_p( nullptr ) {

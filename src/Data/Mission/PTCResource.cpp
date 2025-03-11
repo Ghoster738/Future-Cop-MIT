@@ -9,7 +9,7 @@ namespace {
     const uint32_t GRDB_TAG = 0x47524442; // which is { 0x47, 0x52, 0x44, 0x42 } or { 'G', 'R', 'D', 'B' } or "GRDB"
 }
 
-const std::string Data::Mission::PTCResource::FILE_EXTENSION = "ptc";
+const std::filesystem::path Data::Mission::PTCResource::FILE_EXTENSION = "ptc";
 const uint32_t Data::Mission::PTCResource::IDENTIFIER_TAG = 0x43707463; // which is { 0x43, 0x70, 0x74, 0x63 } or { 'C', 'p', 't', 'c' } or "Cptc"
 
 Data::Mission::PTCResource::PTCResource() : grid(), debug_map_display_p( nullptr ) {

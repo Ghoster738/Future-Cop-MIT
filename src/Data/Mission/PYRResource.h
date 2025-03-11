@@ -11,7 +11,7 @@ namespace Mission {
 
 class PYRResource : public Resource {
 public:
-    static const std::string FILE_EXTENSION;
+    static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
     static constexpr uint32_t PS1_PALETTE_SIZE = 0x010;
     static constexpr uint32_t PC_PALETTE_SIZE  = 0x100;

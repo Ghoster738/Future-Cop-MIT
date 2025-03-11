@@ -35,8 +35,8 @@ Data::Mission::FontResource::Glyph::Glyph( Utilities::Buffer::Reader& reader ) {
     this->offset.y  = reader.readI8();
 }
 
-const std::string Data::Mission::FontResource::FILE_EXTENSION = "fnt";
-const uint32_t Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
+const std::filesystem::path Data::Mission::FontResource::FILE_EXTENSION = "fnt";
+const uint32_t              Data::Mission::FontResource::IDENTIFIER_TAG = 0x43666E74; // which is { 0x43, 0x66, 0x6E, 0x74 } or { 'C', 'f', 'n', 't' } or "Cfnt"
 
 Data::Mission::FontResource::FontResource() : image_p( nullptr ), height(0), missing_char_symbol(0x7F) {
     for( unsigned int i = 0; i < MAX_GLYPHS; i++ ) {

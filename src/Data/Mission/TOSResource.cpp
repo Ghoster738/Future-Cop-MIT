@@ -5,7 +5,7 @@
 namespace Data {
 namespace Mission {
 
-const std::string TOSResource::FILE_EXTENSION = "tos";
+const std::filesystem::path TOSResource::FILE_EXTENSION = "tos";
 const uint32_t TOSResource::IDENTIFIER_TAG = 0x43746F73; // which is { 0x43, 0x74, 0x6F, 0x73 } or { 'C', 't', 'o', 's' } or "Ctos"
 
 TOSResource::TOSResource() {}

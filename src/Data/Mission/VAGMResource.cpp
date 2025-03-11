@@ -3,7 +3,7 @@
 namespace Data {
 namespace Mission {
 
-const std::string VAGMResource::FILE_EXTENSION = "vagm";
+const std::filesystem::path VAGMResource::FILE_EXTENSION = "vagm";
 const uint32_t VAGMResource::IDENTIFIER_TAG = 0x5641474D; // which is { 0x56, 0x41, 0x47, 0x4D } or { 'V', 'A', 'G', 'M' } or "VAGM"
 
 VAGMResource::VAGMResource() {}

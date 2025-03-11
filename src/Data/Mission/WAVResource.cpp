@@ -276,7 +276,7 @@ bool Data::Mission::WAVResource::parse( const ParseSettings &settings ) {
     return true;
 }
 
-const std::string Data::Mission::WAVResource::FILE_EXTENSION = "wav";
+const std::filesystem::path Data::Mission::WAVResource::FILE_EXTENSION = "wav";
 const uint32_t Data::Mission::WAVResource::IDENTIFIER_TAG = 0x43776176; // which is { 0x43, 0x77, 0x61, 0x76 } or { 'C', 'w', 'a', 'v' } or "Cwav"
 
 Data::Mission::WAVResource::WAVResource() : audio_stream(), audio_stream_length(0), sample_rate(22050), byte_rate(0), loop_begin(0), loop_end(0), block_align(0), num_channels(1), bits_per_sample(8) {
@@ -370,7 +370,8 @@ int Data::Mission::WAVResource::writeAudio( const std::filesystem::path& file_pa
 
     if( is_not_dry ) {
         std::filesystem::path file_path_complete = file_path;
-        file_path_complete += ("." + Data::Mission::WAVResource::FILE_EXTENSION);
+        file_path_complete += ".";
+        file_path_complete += Data::Mission::WAVResource::FILE_EXTENSION;
         resource.open( file_path_complete, std::ios::binary | std::ios::out );
     }
 

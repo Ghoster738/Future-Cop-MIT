@@ -298,7 +298,7 @@ bool Data::Mission::TilResource::InfoSCTA::setMemorySafe( size_t source_size, si
     return !is_unsafe;
 }
 
-const std::string Data::Mission::TilResource::FILE_EXTENSION = "til";
+const std::filesystem::path Data::Mission::TilResource::FILE_EXTENSION = "til";
 const uint32_t Data::Mission::TilResource::IDENTIFIER_TAG = 0x4374696C; // which is { 0x43, 0x74, 0x69, 0x6C } or { 'C', 't', 'i', 'l' } or "Ctil"
 
 const std::string Data::Mission::TilResource::TILE_TYPE_COMPONENT_NAME = "_TILE_TYPE";
