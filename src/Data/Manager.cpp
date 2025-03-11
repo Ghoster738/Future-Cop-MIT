@@ -4,7 +4,7 @@ namespace {
 
 std::filesystem::path makePath(const std::filesystem::path &base, const std::filesystem::path &file) {
     std::filesystem::path full_path = base;
-    full_path += file;
+    full_path /= file;
     return full_path;
 }
 
@@ -186,18 +186,18 @@ void Data::Manager::autoSetEntries( const std::filesystem::path &base_path, Plat
     std::filesystem::path WIN_BASE_PATH = base_path;
 
     if( platform == Platform::ALL ) {
-        MAC_BASE_PATH += "Macintosh/";
-        PSX_BASE_PATH += "Playstation/";
-        WIN_BASE_PATH += "Windows/";
+        MAC_BASE_PATH /= "Macintosh";
+        PSX_BASE_PATH /= "Playstation";
+        WIN_BASE_PATH /= "Windows";
     }
 
-    std::filesystem::path MACINT_PATH = makePath(MAC_BASE_PATH, "missions/");
-    std::filesystem::path PSX_CW_PATH = makePath(PSX_BASE_PATH, "cw/");
-    std::filesystem::path PSX_PA_PATH = makePath(PSX_BASE_PATH, "pa/");
-    std::filesystem::path WINDOW_PATH = makePath(WIN_BASE_PATH, "missions/");
+    std::filesystem::path MACINT_PATH = makePath(MAC_BASE_PATH, "missions");
+    std::filesystem::path PSX_CW_PATH = makePath(PSX_BASE_PATH, "cw");
+    std::filesystem::path PSX_PA_PATH = makePath(PSX_BASE_PATH, "pa");
+    std::filesystem::path WINDOW_PATH = makePath(WIN_BASE_PATH, "missions");
 
-    std::filesystem::path WIN_MOVIE_PATH = makePath(WIN_BASE_PATH, "movies/");
-    std::filesystem::path PSX_MOVIE_PATH = makePath(PSX_BASE_PATH, "movies/");
+    std::filesystem::path WIN_MOVIE_PATH = makePath(WIN_BASE_PATH, "movies");
+    std::filesystem::path PSX_MOVIE_PATH = makePath(PSX_BASE_PATH, "movies");
 
     const bool MAKE_MAC_PATH = (platform == Platform::MACINTOSH)   | (platform == Platform::ALL);
     const bool MAKE_PSX_PATH = (platform == Platform::PLAYSTATION) | (platform == Platform::ALL);
