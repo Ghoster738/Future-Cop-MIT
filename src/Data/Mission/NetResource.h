@@ -61,7 +61,7 @@ public:
      * @param iff_options The two commands are --dry for no exporting, and --NET_EXPORT_OBJ for exporting obj instead of json.
      * @return If there was an error while writing it will return false.
      */
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 };
 
 }

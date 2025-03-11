@@ -138,7 +138,7 @@ Resource * SHDResource::duplicate() const {
     return new Data::Mission::SHDResource( *this );
 }
 
-int SHDResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int SHDResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 

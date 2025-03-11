@@ -2176,7 +2176,7 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
     return position;
 }
 
-int Data::Mission::ObjResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::ObjResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
     AllowedPrimitives allowed_primitives;
@@ -2197,13 +2197,16 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
                 if( !bones.empty() )
                     model_output_p->applyJointTransforms( 0 );
 
-                glTF_return = model_output_p->write( std::string( file_path ), "cobj_" + std::to_string( getResourceID() ) );
+                glTF_return = model_output_p->write( file_path, "cobj_" + std::to_string( getResourceID() ) );
             }
             else {
                 // Make it easier on the user to identify empty Obj's
                 std::ofstream resource;
 
-                resource.open( std::string(file_path) + "_empty.txt", std::ios::out );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_empty.txt";
+
+                resource.open( full_file_path, std::ios::out );
 
                 if( resource.is_open() ) {
                     resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " is empty." << std::endl;
@@ -2216,14 +2219,20 @@ int Data::Mission::ObjResource::write( const std::string& file_path, const Data:
             Utilities::ModelBuilder *bounding_boxes_p = createBoundingBoxes();
 
             if(bounding_boxes_p != nullptr) {
-                bounding_boxes_p->write( std::string( file_path + "_bb"), "cobj_" + std::to_string( getResourceID() )+ "_bb"  );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_bb";
+
+                bounding_boxes_p->write( full_file_path, "cobj_" + std::to_string( getResourceID() )+ "_bb"  );
 
                 delete bounding_boxes_p;
             }
             else {
                 std::ofstream resource;
 
-                resource.open( std::string(file_path) + "_empty_bb.txt", std::ios::out );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_empty_bb.txt";
+
+                resource.open( full_file_path, std::ios::out );
 
                 if( resource.is_open() ) {
                     resource << "Obj with index number of " << getIndexNumber() << " or with id number " << getResourceID() << " has failed!" << std::endl;

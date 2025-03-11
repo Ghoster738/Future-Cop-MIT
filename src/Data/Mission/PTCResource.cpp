@@ -137,7 +137,7 @@ Data::Mission::Resource * Data::Mission::PTCResource::duplicate() const {
     return new PTCResource( *this );
 }
 
-int Data::Mission::PTCResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::PTCResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
     if( iff_options.ptc.shouldWrite( iff_options.enable_global_dry_default ) ) {
@@ -177,13 +177,16 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const Data:
                 Utilities::Buffer buffer;
                 the_choosen_r->write( ptc_height_map, buffer );
 
-                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+                std::filesystem::path full_file_path = file_path;
+                full_file_path += "_height";
+
+                buffer.write( the_choosen_r->appendExtension( full_file_path ) );
             }
         }
 
         if( !iff_options.ptc.no_model ) {
             // Write the entire map.
-            return writeEntireMap( std::string(file_path), iff_options.ptc.enable_backface_culling );
+            return writeEntireMap( file_path, iff_options.ptc.enable_backface_culling );
         }
         else
             return 1;
@@ -192,7 +195,7 @@ int Data::Mission::PTCResource::write( const std::string& file_path, const Data:
         return 0;
 }
 
-int Data::Mission::PTCResource::writeEntireMap( std::string file_path, bool make_culled ) const {
+int Data::Mission::PTCResource::writeEntireMap( const std::filesystem::path& file_path, bool make_culled ) const {
     // Write the entire map
     std::vector<Utilities::ModelBuilder*> map_tils;
 

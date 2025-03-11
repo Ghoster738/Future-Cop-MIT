@@ -147,7 +147,7 @@ Data::Mission::Resource * Data::Mission::FUNResource::duplicate() const {
     return new FUNResource( *this );
 }
 
-int Data::Mission::FUNResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::FUNResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 

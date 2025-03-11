@@ -146,7 +146,7 @@ int Resource::read( Utilities::Buffer::Reader& reader ) {
     }
 }
 
-int Resource::write( const std::string& file_path, const IFFOptions &iff_options  ) const {
+int Resource::write( const std::filesystem::path& file_path, const IFFOptions &iff_options  ) const {
     return -1;
 }
 

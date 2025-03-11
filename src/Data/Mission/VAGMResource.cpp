@@ -26,7 +26,7 @@ bool VAGMResource::parse( const ParseSettings &settings ) {
     return true;
 }
 
-int VAGMResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
+int VAGMResource::write( const std::filesystem::path& file_path, const IFFOptions &iff_options ) const {
     return 0;
 }
 

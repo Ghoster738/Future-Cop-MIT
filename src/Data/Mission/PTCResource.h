@@ -18,6 +18,7 @@ class PTCResource : public Resource {
 public:
     static const std::string FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
+
 private:
     Utilities::GridBase2D<uint32_t> grid;
     Utilities::Image2D *debug_map_display_p;
@@ -26,6 +27,7 @@ private:
     uint32_t border_range; // Thank you BahKooJ.
 
     std::map<uint32_t, TilResource*> ctil_id_r;
+
 public:
     PTCResource();
     PTCResource( const PTCResource &obj );
@@ -77,9 +79,9 @@ public:
      * @param iff_option --dry for no writing operations.
      * @return zero if it is a dry run or the return results of the Image2D write operations.
      */
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
     
-    int writeEntireMap( std::string file_path, bool make_culled = false ) const;
+    int writeEntireMap( const std::filesystem::path& file_path, bool make_culled = false ) const;
     
     float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
     float getRayCast2D( float x, float y ) const;

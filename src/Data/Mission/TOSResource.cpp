@@ -107,7 +107,7 @@ Resource * TOSResource::duplicate() const {
     return new Data::Mission::TOSResource( *this );
 }
 
-int TOSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int TOSResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return 0;
 }
 

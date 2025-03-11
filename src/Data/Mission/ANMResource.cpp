@@ -286,7 +286,7 @@ void Data::Mission::ANMResource::setColorPalette( Utilities::ColorPalette &rgba_
     }
 }
 
-int Data::Mission::ANMResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::ANMResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     Utilities::ImageFormat::Chooser chooser;
 
     // Check if there is data to export.
@@ -314,7 +314,11 @@ int Data::Mission::ANMResource::write( const std::string& file_path, const Data:
                 Utilities::ImagePalette2D palette_image( palette );
                 
                 the_choosen_r->write( palette_image, buffer );
-                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + " clut" ) );
+
+                std::filesystem::path full_file_path = file_path;
+                full_file_path +=  " clut";
+
+                buffer.write( the_choosen_r->appendExtension( full_file_path ) );
                 buffer.set( nullptr, 0 );
             }
 

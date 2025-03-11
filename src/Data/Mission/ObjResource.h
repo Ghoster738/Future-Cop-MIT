@@ -318,7 +318,7 @@ public:
 
     bool loadTextures( const std::vector<BMPResource*> &textures );
 
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     virtual Utilities::ModelBuilder * createModel() const;
     

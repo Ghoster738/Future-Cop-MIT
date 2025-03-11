@@ -280,12 +280,14 @@ bool Data::Mission::ACTResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::ACTResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::ACTResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     std::ofstream resource;
 
-    if( iff_options.act.shouldWrite( iff_options.enable_global_dry_default ) )
-    {
-        resource.open( file_path + ".json", std::ios::out );
+    if( iff_options.act.shouldWrite( iff_options.enable_global_dry_default ) ) {
+        std::filesystem::path full_file_path = file_path;
+        full_file_path += ".json";
+
+        resource.open( full_file_path, std::ios::out );
 
         if( resource.is_open() )
         {

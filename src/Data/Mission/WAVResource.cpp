@@ -355,7 +355,7 @@ void Data::Mission::WAVResource::updateAudioStreamLength() {
     audio_stream_length = audio_stream.size();
 }
 
-int Data::Mission::WAVResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::WAVResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     if(iff_options.wav.reencode_wav || this->data == nullptr)
         return writeAudio( file_path, iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ));
     else if(iff_options.wav.shouldWrite( iff_options.enable_global_dry_default ))
@@ -364,12 +364,15 @@ int Data::Mission::WAVResource::write( const std::string& file_path, const Data:
         return 0;
 }
 
-int Data::Mission::WAVResource::writeAudio( const std::string& file_path, bool is_not_dry ) const {
+int Data::Mission::WAVResource::writeAudio( const std::filesystem::path& file_path, bool is_not_dry ) const {
     std::ofstream resource;
     Utilities::Buffer header;
 
-    if( is_not_dry )
-        resource.open( file_path + "." + Data::Mission::WAVResource::FILE_EXTENSION, std::ios::binary | std::ios::out );
+    if( is_not_dry ) {
+        std::filesystem::path file_path_complete = file_path;
+        file_path_complete += ("." + Data::Mission::WAVResource::FILE_EXTENSION);
+        resource.open( file_path_complete, std::ios::binary | std::ios::out );
+    }
 
     if( resource.is_open() )
     {

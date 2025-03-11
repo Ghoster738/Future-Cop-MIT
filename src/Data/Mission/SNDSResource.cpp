@@ -47,7 +47,7 @@ bool Data::Mission::SNDSResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-int Data::Mission::SNDSResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::SNDSResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     return sound.writeAudio( file_path, iff_options.snds.shouldWrite( iff_options.enable_global_dry_default ) );
 }
 

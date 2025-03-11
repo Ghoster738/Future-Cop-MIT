@@ -95,7 +95,7 @@ public:
      * @param arguments Only one command is recognized --dry.
      * @return 1 if the file has successfully been written.
      */
-    virtual int write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
+    virtual int write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options = IFFOptions() ) const;
 
     std::string getValidCharacters() const;
 

@@ -28,7 +28,7 @@ Resource * VKBResource::duplicate() const {
     return new VKBResource( *this );
 }
 
-int VKBResource::write( const std::string& file_path, const IFFOptions &iff_options) const {
+int VKBResource::write( const std::filesystem::path& file_path, const IFFOptions &iff_options) const {
     return 0;
 }
 

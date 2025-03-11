@@ -276,7 +276,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
-int Data::Mission::BMPResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::BMPResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
 
     if( iff_options.bmp.shouldWrite( iff_options.enable_global_dry_default ) && getImage() != nullptr ) {
@@ -316,7 +316,11 @@ int Data::Mission::BMPResource::write( const std::string& file_path, const Data:
                 auto palette = Utilities::ImagePalette2D( rgba_palette );
                 
                 state = this->format_p->write( palette, buffer );
-                buffer.write( this->format_p->appendExtension( file_path + "_paletted" ) );
+
+                std::filesystem::path full_file_path = file_path;
+                full_file_path +=  "_paletted";
+
+                buffer.write( this->format_p->appendExtension( full_file_path ) );
             }
 
             return state;

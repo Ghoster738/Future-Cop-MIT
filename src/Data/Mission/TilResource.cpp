@@ -625,7 +625,7 @@ using Data::Mission::Til::Mesh::BACK_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_RIGHT;
 using Data::Mission::Til::Mesh::FRONT_LEFT;
 
-int Data::Mission::TilResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::TilResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
 
@@ -650,8 +650,12 @@ int Data::Mission::TilResource::write( const std::string& file_path, const Data:
             Utilities::Buffer buffer;
             the_choosen_r->write( heightmap, buffer );
 
-            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) )
-                buffer.write( the_choosen_r->appendExtension( std::string( file_path ) + "_height" ) );
+            if( iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) ) {
+                std::filesystem::path file_path_complete = file_path;
+                file_path_complete += "_height";
+
+                buffer.write( the_choosen_r->appendExtension( file_path_complete ) );
+            }
         }
     }
 

@@ -26,7 +26,7 @@ bool VAGBResource::parse( const ParseSettings &settings ) {
     return true;
 }
 
-int VAGBResource::write( const std::string& file_path, const IFFOptions &iff_options ) const {
+int VAGBResource::write( const std::filesystem::path& file_path, const IFFOptions &iff_options ) const {
     return 0;
 }
 

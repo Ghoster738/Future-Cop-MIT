@@ -406,7 +406,7 @@ Data::Mission::Resource * Data::Mission::PYRResource::duplicate() const {
     return new Data::Mission::PYRResource( *this );
 }
 
-int Data::Mission::PYRResource::write( const std::string& file_path, const Data::Mission::IFFOptions &iff_options ) const {
+int Data::Mission::PYRResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int return_value = 0;
     Utilities::ImageFormat::Chooser chooser;
 
@@ -416,7 +416,7 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
         if((*current_particle).getNumSprites() == 0)
             continue;
 
-        std::string file_path_texture = std::string( file_path );
+        std::filesystem::path file_path_texture = file_path;
         file_path_texture += " ";
         file_path_texture += std::to_string( static_cast<int>( (*current_particle).getID() ) );
 
@@ -463,7 +463,11 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
 
         if( the_choosen_r != nullptr ) {
             the_choosen_r->write( *palettless_atlas_p, buffer );
-            buffer.write( the_choosen_r->appendExtension( file_path + "_atlas" ) );
+
+            std::filesystem::path full_file_path = file_path;
+            full_file_path += "_atlas";
+
+            buffer.write( the_choosen_r->appendExtension( full_file_path ) );
             buffer.set( nullptr, 0 );
         }
 
@@ -484,7 +488,10 @@ int Data::Mission::PYRResource::write( const std::string& file_path, const Data:
 
         std::ofstream resource;
 
-        resource.open( file_path + "_atlas.json", std::ios::out );
+        std::filesystem::path full_file_path = file_path;
+        full_file_path += "_atlas.json";
+
+        resource.open( full_file_path, std::ios::out );
 
         if( resource.is_open() )
         {
