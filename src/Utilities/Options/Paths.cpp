@@ -1,8 +1,8 @@
-#include <filesystem>
-#include <string>
 #include "Paths.h"
 
 #include "Config.h"
+
+#include <string>
 
 #ifdef FCOption_RELATIVE_PATHS_ONLY
 #define USE_ONLY_RELATIVE_PATHS
@@ -27,12 +27,12 @@
 
 // Path separator
 #ifdef _WIN32
-const std::string Utilities::Options::Paths::PATH_SEPARATOR = "\\";
+const std::filesystem::path Utilities::Options::Paths::PATH_SEPARATOR = "\\";
 #else
-const std::string Utilities::Options::Paths::PATH_SEPARATOR = "/";
+const std::filesystem::path Utilities::Options::Paths::PATH_SEPARATOR = "/";
 #endif
 
-const std::string Utilities::Options::Paths::CONFIG_FILE_NAME = "futurecop.ini";
+const std::filesystem::path Utilities::Options::Paths::CONFIG_FILE_NAME = "futurecop.ini";
 
 // Retrieve the configuration file path
 std::filesystem::path Utilities::Options::Paths::getConfigDirPath() {
@@ -173,14 +173,9 @@ std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::filesystem
     std::filesystem::path user_path = parameters.user_dir.getValue();
 
     if (!user_path.empty()) {
-        // Add the directory separator if not in the provided path
-        if(user_path.string().compare(user_path.string().size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR) != 0) {
-            user_path += PATH_SEPARATOR;
-        }
-
         // Create the subdirectory
         std::filesystem::path sub_directory = user_path;
-        sub_directory += sub_type;
+        sub_directory /= sub_type;
 
         if( !Tools::createDirectories( sub_directory ) ) {
             throw std::invalid_argument("cannot create user directory " + sub_directory.string());
@@ -364,7 +359,14 @@ std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory 
 
     #else
 
-    data_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + "Data" + PATH_SEPARATOR + "Platform" + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+    data_path  = std::filesystem::current_path();
+    data_path += PATH_SEPARATOR;
+    data_path += "Data";
+    data_path += PATH_SEPARATOR;
+    data_path += "Platform";
+    data_path += PATH_SEPARATOR;
+    data_path += platform;
+    data_path += PATH_SEPARATOR;
 
     // If it points to a directory path, return it
     if (Tools::isDir(data_path)) {

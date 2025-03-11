@@ -1,10 +1,11 @@
 #ifndef UTILITIES_OPTIONS_PATHS_H
 #define UTILITIES_OPTIONS_PATHS_H
 
-#include <vector>
-#include <string>
 #include "Tools.h"
 #include "Parameters.h"
+
+#include <filesystem>
+#include <vector>
 
 namespace Utilities {
 namespace Options {
@@ -13,10 +14,10 @@ namespace Options {
 class Paths {
 public:
     // Path separator
-    static const std::string PATH_SEPARATOR;
+    static const std::filesystem::path PATH_SEPARATOR;
 
     // Default config file name
-    static const std::string CONFIG_FILE_NAME;
+    static const std::filesystem::path CONFIG_FILE_NAME;
 
     // User directory types, for path disambiguation
     enum UserDirectory {
