@@ -89,7 +89,7 @@ void Resource::setMemory( Utilities::Buffer *data_p ) {
     this->data = std::unique_ptr<Utilities::Buffer>(data_p);
 }
 
-int Resource::read( const char *const file_path ) {
+int Resource::read( const std::string &file_path ) {
     std::ifstream resource;
 
     resource.open(file_path, std::ios::binary | std::ios::in | std::ios::ate );
@@ -144,10 +144,6 @@ int Resource::read( Utilities::Buffer::Reader& reader ) {
 
         return 1; // Successfully read the resource.
     }
-}
-
-int Resource::read( const std::string &file_path ) {
-    return read( file_path.c_str() );
 }
 
 int Resource::write( const std::string& file_path, const IFFOptions &iff_options  ) const {
