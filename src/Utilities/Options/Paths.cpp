@@ -99,8 +99,12 @@ std::filesystem::path Utilities::Options::Paths::findConfigDirPath() const {
             continue;
         }
 
-        config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
-        config_path = config_dir + CONFIG_FILE_NAME;
+        config_dir  = path_map.root_dir;
+        config_dir += PATH_SEPARATOR;
+        config_dir += path_map.sub_dir;
+        config_dir += PATH_SEPARATOR;
+        config_path  = config_dir;
+        config_path += CONFIG_FILE_NAME;
 
         // If it exists in this location, return it
         if( Tools::isFile(config_path) ) {
@@ -119,7 +123,10 @@ std::filesystem::path Utilities::Options::Paths::findConfigDirPath() const {
         }
 
         // Try and create the directory
-        std::string config_dir = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
+        config_dir  = path_map.root_dir;
+        config_dir += PATH_SEPARATOR;
+        config_dir += path_map.sub_dir;
+        config_dir += PATH_SEPARATOR;
 
         if( !Tools::createDirectories( config_dir ) ) {
             continue;
@@ -158,22 +165,23 @@ std::filesystem::path Utilities::Options::Paths::getUserDirPath( UserDirectory t
     }
 }
 
-std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub_type) const
+std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::filesystem::path sub_type) const
 {
     // Work with the user-supplied value, if any
-    std::string user_path = parameters.user_dir.getValue().string();
+    std::filesystem::path user_path = parameters.user_dir.getValue();
 
     if (!user_path.empty()) {
         // Add the directory separator if not in the provided path
-        if (0 != user_path.compare(user_path.size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR)) {
-                user_path += PATH_SEPARATOR;
+        if(user_path.string().compare(user_path.string().size() - PATH_SEPARATOR.size(), PATH_SEPARATOR.size(), PATH_SEPARATOR) != 0) {
+            user_path += PATH_SEPARATOR;
         }
 
         // Create the subdirectory
-        std::string sub_directory = user_path + sub_type;
+        std::filesystem::path sub_directory = user_path;
+        sub_directory += sub_type;
 
         if( !Tools::createDirectories( sub_directory ) ) {
-            throw std::invalid_argument("cannot create user directory '" + sub_directory + "'");
+            throw std::invalid_argument("cannot create user directory " + sub_directory.string());
         }
 
         return sub_directory;
@@ -182,7 +190,10 @@ std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub
     #ifdef USE_ONLY_RELATIVE_PATHS
 
     // No path was specified by the user, search the local directory first
-    user_path = "." + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+    user_path = ".";
+    user_path += PATH_SEPARATOR;
+    user_path += sub_type;
+    user_path += PATH_SEPARATOR;
 
     // If it points to a directory path, return it
     if( Tools::isDir(user_path) ) {
@@ -195,7 +206,10 @@ std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub
     #else
 
     // No path was specified by the user, search the local directory first
-    user_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+    user_path = std::filesystem::current_path();
+    user_path += PATH_SEPARATOR;
+    user_path += sub_type;
+    user_path += PATH_SEPARATOR;
 
     // If it points to a directory path, return it
     if (Tools::isDir(user_path)) {
@@ -231,7 +245,12 @@ std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub
             continue;
         }
 
-        std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+        std::filesystem::path sub_directory = path_map.root_dir;
+        sub_directory += PATH_SEPARATOR;
+        sub_directory += path_map.sub_dir;
+        sub_directory += PATH_SEPARATOR;
+        sub_directory += sub_type;
+        sub_directory += PATH_SEPARATOR;
 
         if (Tools::isDir(sub_directory)) {
             return sub_directory;
@@ -248,12 +267,16 @@ std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub
             continue;
         }
 
-        std::string sub_directory;
+        std::filesystem::path sub_directory = path_map.root_dir;
+        sub_directory += PATH_SEPARATOR;
 
-        if( !path_map.sub_dir.empty() )
-            sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
-        else
-            sub_directory = path_map.root_dir + PATH_SEPARATOR + sub_type + PATH_SEPARATOR;
+        if( !path_map.sub_dir.empty() ) {
+            sub_directory += path_map.sub_dir;
+            sub_directory += PATH_SEPARATOR;
+        }
+
+        sub_directory += sub_type;
+        sub_directory += PATH_SEPARATOR;
 
 
         if( !Tools::createDirectories( sub_directory ) ) {
@@ -265,7 +288,7 @@ std::filesystem::path Utilities::Options::Paths::findUserDirPath(std::string sub
     #endif
 
     // Step three: hard fail - just in case we cannot work with anything
-    throw std::logic_error("failed to find or create a user directory path of type: " + sub_type);
+    throw std::logic_error("failed to find or create a user directory path of type: " + sub_type.string());
 }
 
 std::filesystem::path Utilities::Options::Paths::getDataDirPath( DataDirectory type )
@@ -403,12 +426,15 @@ std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory 
             continue;
         }
 
-        std::string sub_directory;
+        std::filesystem::path sub_directory = path_map.root_dir;
+        sub_directory += PATH_SEPARATOR;
+        sub_directory += path_map.sub_dir;
+        sub_directory += PATH_SEPARATOR;
 
-        if( path_map.no_end )
-            sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR;
-        else
-            sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+        if( !path_map.no_end ) {
+            sub_directory += platform;
+            sub_directory += PATH_SEPARATOR;
+        }
 
         if (Tools::isDir(sub_directory)) {
             return sub_directory;
@@ -426,7 +452,12 @@ std::filesystem::path Utilities::Options::Paths::findDataDirPath( DataDirectory 
         }
 
         if( !path_map.no_end ) {
-            std::string sub_directory = path_map.root_dir + PATH_SEPARATOR + path_map.sub_dir + PATH_SEPARATOR + platform + PATH_SEPARATOR;
+            std::filesystem::path sub_directory = path_map.root_dir;
+            sub_directory += PATH_SEPARATOR;
+            sub_directory += path_map.sub_dir;
+            sub_directory += PATH_SEPARATOR;
+            sub_directory += platform;
+            sub_directory += PATH_SEPARATOR;
 
             if( !Tools::createDirectories( sub_directory ) ) {
                 continue;

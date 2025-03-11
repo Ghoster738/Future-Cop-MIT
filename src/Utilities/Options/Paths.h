@@ -56,13 +56,13 @@ private:
 
     // Path calculations
     std::filesystem::path findConfigDirPath() const;
-    std::filesystem::path findUserDirPath( std::string sub_type ) const;
+    std::filesystem::path findUserDirPath( std::filesystem::path sub_type ) const;
     std::filesystem::path findDataDirPath( DataDirectory type ) const;
 
     // Path data structure
     struct PathData {
-        std::string root_dir; // Usually some env variable value
-        std::string sub_dir;  // Associated subdir
+        std::filesystem::path root_dir; // Usually some env variable value
+        std::filesystem::path sub_dir;  // Associated subdir
         bool no_end = false;
     };
 };
