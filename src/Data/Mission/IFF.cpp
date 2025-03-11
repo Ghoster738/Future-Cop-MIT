@@ -263,7 +263,7 @@ namespace {
     public:
         UnidentifiedResource() : Data::Mission::UnkResource( 0, ext ) {}
 
-        Data::Mission::Resource* newResource( const Data::Mission::Resource::ParseSettings &default_settings, std::unordered_set<std::string> &filenames, unsigned index_value, Utilities::Logger::Log& debug_log, Utilities::Logger::Log& error_log ) {
+        Data::Mission::Resource* newResource( const Data::Mission::Resource::ParseSettings &default_settings, std::unordered_set<std::filesystem::path> &filenames, unsigned index_value, Utilities::Logger::Log& debug_log, Utilities::Logger::Log& error_log ) {
             Resource *new_resource_p;
 
             // Find a resource
@@ -296,13 +296,13 @@ namespace {
             // new_resource_p->setMemory( nullptr );
 
             // Check for naming conflicts
-            const std::string file_name = new_resource_p->getFullName( new_resource_p->getResourceID() ).string();
+            const std::filesystem::path file_name = new_resource_p->getFullName( new_resource_p->getResourceID() );
 
-            debug_log.output << "Resource Name = \"" << file_name << "\".\n";
+            debug_log.output << "Resource Name = " << file_name << ".\n";
 
             if( filenames.find( file_name ) != filenames.end() ) {
-                error_log.output << "Duplicate file name detected for resource name \"" << file_name << "\".\n";
-                error_log.output << "Index \"" << new_resource_p->getIndexNumber() << "\".\n";
+                error_log.output << "Duplicate file name detected for resource name " << file_name << ".\n";
+                error_log.output << "Index " << new_resource_p->getIndexNumber() << ".\n";
             }
 
             filenames.emplace( file_name );
@@ -328,7 +328,7 @@ namespace {
 int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
     const size_t BLOCK_SIZE = 0x6000;
 
-    std::unordered_set<std::string> filenames; // Check for potential conflicts.
+    std::unordered_set<std::filesystem::path> filenames; // Check for potential conflicts.
     Utilities::Logger &logger = Utilities::logger;
     std::fstream file;
 
