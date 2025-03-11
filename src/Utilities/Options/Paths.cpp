@@ -45,7 +45,7 @@ std::filesystem::path Utilities::Options::Paths::getConfigDirPath() {
 
 std::filesystem::path Utilities::Options::Paths::findConfigDirPath() const {
     // Work with the user-supplied value, if any
-    std::string config_dir = parameters.config_dir.getValue().string();
+    std::filesystem::path config_dir = parameters.config_dir.getValue();
 
     if (!config_dir.empty()) {
         // If it is a directory, just return it as-is
@@ -60,7 +60,9 @@ std::filesystem::path Utilities::Options::Paths::findConfigDirPath() const {
     // The user did not specify a value, search for the default configuration file in the local directory first
     // on any platform, as a local configuration has the highest priority when searching for existing configuration files
     // (and the least priority when creating an empty configuration file - see below)
-    std::string config_path = std::filesystem::current_path().generic_string() + PATH_SEPARATOR + CONFIG_FILE_NAME;
+    std::filesystem::path config_path = std::filesystem::current_path();
+    config_path += PATH_SEPARATOR;
+    config_path += CONFIG_FILE_NAME;
 
     // If it points to a directory with the config file, return the directory path.
     if( Tools::isFile(config_path) ) {
