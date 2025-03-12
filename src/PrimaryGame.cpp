@@ -14,21 +14,21 @@
 
 namespace {
 
-void writeThreadedImage( std::filesystem::path NAME, Utilities::Image2D *image_screenshot_p ) {
+void writeThreadedImage( std::filesystem::path path, Utilities::Image2D *image_screenshot_p ) {
     Utilities::Buffer file;
     Utilities::ImageFormat::Chooser chooser;
     auto the_choosen_r = chooser.getWriterReference( *image_screenshot_p );
 
     if( the_choosen_r != nullptr ) {
         the_choosen_r->write( *image_screenshot_p, file );
-        file.write( the_choosen_r->appendExtension( NAME ) );
+        file.write( the_choosen_r->appendExtension( path ) );
 
         auto log = Utilities::logger.getLog( Utilities::Logger::INFO );
-        log.output << "Successfully written \"" << the_choosen_r->appendExtension( NAME ) << "\".\n";
+        log.output << "Successfully written " << the_choosen_r->appendExtension( path ) << ".\n";
     }
     else {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "\"" << NAME << "\" cannot be written because there is not image format that supports the particular pixel format color.\n";
+        log.output << path << " cannot be written because there is not image format that supports the particular pixel format color.\n";
     }
 
     delete image_screenshot_p;
@@ -230,7 +230,7 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
 
             const auto dimensions = main_program.environment_p->window_p->getDimensions();
 
-            Utilities::Image2D *image_screenshot_p = new Utilities::Image2D( dimensions.x, dimensions.y, Utilities::PixelFormatColor_R8G8B8A8() );
+            Utilities::Image2D *image_screenshot_p = new Utilities::Image2D( dimensions.x, dimensions.y, Utilities::PixelFormatColor_R8G8B8A8::linear );
 
             if( main_program.environment_p->screenshot( *image_screenshot_p ) ) {
                 {
