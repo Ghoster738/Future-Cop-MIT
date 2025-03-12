@@ -52,8 +52,8 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
         }
     }
     {
-        I dec_test( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1() );
-        const std::string name = image_2D_type + "( x, y, Utilities::PixelFormatColor_R5G5B5A1() )";
+        I dec_test( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1::linear );
+        const std::string name = image_2D_type + "( x, y, Utilities::PixelFormatColor_R5G5B5A1::linear )";
         
         if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( dec_test.getPixelFormat() ) == nullptr )
         {
@@ -70,10 +70,10 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
         problem |= testPixel<I>( dec_test, 0, HEIGHT - 1, Utilities::PixelFormatColor::GenericColor( 0.0f, 1.0f, 0.0, 1.0f), name );
     }
     {
-        I dec_test_little( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE);
-        I dec_test_big(    WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::BIG);
-        const std::string little_name = image_2D_type + "( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::LITTLE )";
-        const std::string    big_name = image_2D_type + "( x, y, Utilities::PixelFormatColor_R5G5B5A1(), Utilities::Buffer::Endian::BIG )";
+        I dec_test_little( WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1::linear, Utilities::Buffer::Endian::LITTLE);
+        I dec_test_big(    WIDTH, HEIGHT, Utilities::PixelFormatColor_R5G5B5A1::linear, Utilities::Buffer::Endian::BIG);
+        const std::string little_name = image_2D_type + "( x, y, Utilities::PixelFormatColor_R5G5B5A1::linear, Utilities::Buffer::Endian::LITTLE )";
+        const std::string    big_name = image_2D_type + "( x, y, Utilities::PixelFormatColor_R5G5B5A1::linear, Utilities::Buffer::Endian::BIG )";
         
         problem |= testScale<I>( dec_test_little, WIDTH, HEIGHT, little_name );
         problem |= testScale<I>( dec_test_big,    WIDTH, HEIGHT,    big_name );
@@ -90,14 +90,14 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
         if( little_r[ 0 ] != big_r[ 1 ] || little_r[ 1 ] != big_r[ 0 ] )
         {
             problem = 1;
-            std::cout << "Endianess is wrong! for Image2D Utilities::PixelFormatColor_R5G5B5A1()" << std::endl;
+            std::cout << "Endianess is wrong! for Image2D Utilities::PixelFormatColor_R5G5B5A1::linear" << std::endl;
         }
     }
     {
-        const std::string name = "dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8())";
-        const std::string name_0 = image_2D_type + "( dec_test_0, Utilities::PixelFormatColor_R8G8B8() )";
-        const std::string name_1 = image_2D_type + "( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1() )";
-        I dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8());
+        const std::string name = "dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8::linear)";
+        const std::string name_0 = image_2D_type + "( dec_test_0, Utilities::PixelFormatColor_R8G8B8::linear )";
+        const std::string name_1 = image_2D_type + "( dec_test_1, Utilities::PixelFormatColor_R5G5B5A1::linear )";
+        I dec_confirmed( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8::linear);
         
         // Write a Julia Set fractal in order to catch bugs.
         for( Utilities::grid_2d_unit y = 0; y < HEIGHT; y++ )
@@ -135,13 +135,13 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
         
         problem |= testCopyOperator<I>( dec_confirmed, dec_test_0, WIDTH, HEIGHT, name_0 );
         
-        I dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1() );
+        I dec_test_1( dec_confirmed,  Utilities::PixelFormatColor_R5G5B5A1::linear );
         
         problem |= testCopyOperator<I>( dec_confirmed, dec_test_1, WIDTH, HEIGHT, name_1 );
     }
     {
-        const std::string name = image_2D_type + "( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8()) Julia Generated ";
-        I image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
+        const std::string name = image_2D_type + "( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8::linear) Julia Generated ";
+        I image_julia( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8::linear );
         
         // Write a Julia Set fractal.
         for( Utilities::grid_2d_unit y = 0; y < image_julia.getHeight(); y++ )
@@ -158,8 +158,8 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
         }
         
         {
-            std::string sub_name = image_2D_type + "( 0, 0, Utilities::PixelFormatColor_R8G8B8() ) Sub Image ";
-            I sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8() );
+            std::string sub_name = image_2D_type + "( 0, 0, Utilities::PixelFormatColor_R8G8B8::linear ) Sub Image ";
+            I sub_image( 0, 0, Utilities::PixelFormatColor_R8G8B8::linear );
             
             if( image_julia.subImage( 0, 1, image_julia.getWidth(), image_julia.getHeight(), sub_image ) )
             {
@@ -230,8 +230,8 @@ int testImage2D( const unsigned WIDTH, const unsigned HEIGHT, std::string image_
             }
         }
         {
-            std::string inscribe_name = image_2D_type + "( image_julia.getHeight() * 2, image_julia.getWidth() * 2, Utilities::PixelFormatColor_R8G8B8() ) inscribe image ";
-            I inscribe_image( image_julia.getWidth() * 2, image_julia.getHeight() * 2, Utilities::PixelFormatColor_R8G8B8() );
+            std::string inscribe_name = image_2D_type + "( image_julia.getHeight() * 2, image_julia.getWidth() * 2, Utilities::PixelFormatColor_R8G8B8::linear ) inscribe image ";
+            I inscribe_image( image_julia.getWidth() * 2, image_julia.getHeight() * 2, Utilities::PixelFormatColor_R8G8B8::linear );
             
             int julia_problem = 0;
             
@@ -369,7 +369,7 @@ int testConversions( const unsigned WIDTH, const unsigned HEIGHT, std::string im
 {
     int problem = 0;
     std::string name = "morbin & normal test for " + image_2D_type;
-    I source( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8() );
+    I source( WIDTH, HEIGHT, Utilities::PixelFormatColor_R8G8B8::linear );
     
     // Write a Julia Set fractal.
     for( Utilities::grid_2d_unit y = 0; y < source.getHeight(); y++ )
@@ -702,7 +702,7 @@ int main() {
     for( auto endian = ENDIANESS.begin(); endian != ENDIANESS.end(); endian++ ) {
         // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader Image2D";
-        Utilities::Image2D image( 2, 3, Utilities::PixelFormatColor_R5G5B5A1() );
+        Utilities::Image2D image( 2, 3, Utilities::PixelFormatColor_R5G5B5A1::linear );
         Utilities::Buffer buffer;
         
         problem |= testFromReader<Utilities::Image2D, NonSquareImage2D<Utilities::Image2D>>( image, buffer, title, *endian );
@@ -721,7 +721,7 @@ int main() {
     for( auto endian = ENDIANESS.begin(); endian != ENDIANESS.end(); endian++ ) {
         // test fromReader( Buffer::Reader &reader, Buffer::Endian endian )
         std::string title = "fromReader ImageMorbin2D";
-        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_R5G5B5A1() );
+        Utilities::ImageMorbin2D image( 4, 4, Utilities::PixelFormatColor_R5G5B5A1::linear );
         Utilities::Buffer buffer;
         
         {
