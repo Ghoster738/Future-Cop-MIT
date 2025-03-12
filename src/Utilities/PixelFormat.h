@@ -86,6 +86,9 @@ namespace Utilities {
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         
         virtual std::string getName() const { return "Black & White 8-bit"; }
+
+        static const PixelFormatColor_W8 linear;
+        static const PixelFormatColor_W8  s_rgb;
     };
 
     class PixelFormatColor_W8A8 : public PixelFormatColor {
@@ -109,6 +112,9 @@ namespace Utilities {
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Black & White 8-bit, Alpha 8-bit"; }
+
+        static const PixelFormatColor_W8A8 linear;
+        static const PixelFormatColor_W8A8  s_rgb;
     };
 
     class PixelFormatColor_R5G5B5A1 : public PixelFormatColor {
@@ -134,6 +140,9 @@ namespace Utilities {
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 5-bit, Green 5-bit, Blue 5-bit, Alpha 1-bit"; }
+
+        static const PixelFormatColor_R5G5B5A1 linear;
+        static const PixelFormatColor_R5G5B5A1  s_rgb;
     };
     
     class PixelFormatColor_B5G5R5A1 : public PixelFormatColor {
@@ -159,6 +168,9 @@ namespace Utilities {
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Blue 5-bit, Green 5-bit, Red 5-bit, Alpha 1-bit"; }
+
+        static const PixelFormatColor_B5G5R5A1 linear;
+        static const PixelFormatColor_B5G5R5A1  s_rgb;
     };
 
     class PixelFormatColor_R5G5B5T1 : public PixelFormatColor {
@@ -187,6 +199,9 @@ namespace Utilities {
         virtual PixelFormatColor::GenericColor readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::NO_SWAP ) const;
         
         virtual std::string getName() const { return "Red 5-bit, Green 5-bit, Blue 5-bit, Semi-Transparent 1-bit"; }
+
+        static const PixelFormatColor_R5G5B5T1 linear;
+        static const PixelFormatColor_R5G5B5T1  s_rgb;
     };
 
     class PixelFormatColor_B5G5R5T1 : public Utilities::PixelFormatColor {
@@ -214,6 +229,9 @@ namespace Utilities {
         virtual void writePixel( Utilities::Buffer::Writer &buffer, Utilities::Buffer::Endian endian, const PixelFormatColor::GenericColor& coloring ) const;
         virtual PixelFormatColor::GenericColor readPixel( Utilities::Buffer::Reader &buffer, Utilities::Buffer::Endian endian = Utilities::Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Blue 5-bit, Green 5-bit, Red 5-bit, Semi-Transparent 1-bit"; }
+
+        static const PixelFormatColor_B5G5R5T1 linear;
+        static const PixelFormatColor_B5G5R5T1  s_rgb;
     };
 
     class PixelFormatColor_R8G8B8 : public PixelFormatColor {
@@ -238,6 +256,9 @@ namespace Utilities {
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 8-bit, Green 8-bit, Blue 8-bit"; }
+
+        static const PixelFormatColor_R8G8B8 linear;
+        static const PixelFormatColor_R8G8B8  s_rgb;
     };
 
     class PixelFormatColor_R8G8B8A8 : public PixelFormatColor {
@@ -263,6 +284,9 @@ namespace Utilities {
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
         virtual std::string getName() const { return "Red 8-bit, Green 8-bit, Blue 8-bit, Alpha 8-bit"; }
+
+        static const PixelFormatColor_R8G8B8A8 linear;
+        static const PixelFormatColor_R8G8B8A8  s_rgb;
     };
 
     class ColorPalette {
