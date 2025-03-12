@@ -81,7 +81,7 @@ protected:
     }
 public:
     ImageColor2D( Buffer::Endian endian = Buffer::Endian::NO_SWAP ) :
-        ImageColor2D(0, 0, PixelFormatColor_R8G8B8(), endian ) {}
+        ImageColor2D(0, 0, PixelFormatColor_R8G8B8::linear, endian ) {}
     ImageColor2D( grid_2d_unit width, grid_2d_unit height, const PixelFormatColor& format, Buffer::Endian endian_param = Buffer::Endian::NO_SWAP  ) :
         ImageBase2D<placement, grid_2d_value>( width, height ), endian( endian_param ) {
         pixel_format_p = dynamic_cast<PixelFormatColor*>( format.duplicate() );
