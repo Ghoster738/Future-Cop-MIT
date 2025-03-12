@@ -665,16 +665,12 @@ int main() {
         pixel_buffer.addI32( 0 );
         
         // Test W8.
-        {
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8::linear, "PixelFormatColor_W8::linear", 1 );
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8::s_rgb,  "PixelFormatColor_W8::s_rgb",  1 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8::linear, "PixelFormatColor_W8::linear", 1 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8::s_rgb,  "PixelFormatColor_W8::s_rgb",  1 );
         
         // Test W8A8.
-        {
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8A8::linear, "PixelFormatColor_W8A8::linear", 2 );
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8A8::s_rgb,  "PixelFormatColor_W8A8::s_rgb",  2 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8A8::linear, "PixelFormatColor_W8A8::linear", 2 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8A8::s_rgb,  "PixelFormatColor_W8A8::s_rgb",  2 );
         
         // Test R5G5B5A1.
         {
@@ -717,16 +713,12 @@ int main() {
         }
         
         // Test R8G8B8.
-        {
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8::linear, "PixelFormatColor_R8G8B8::linear", 3 );
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8::s_rgb,  "PixelFormatColor_R8G8B8::s_rgb",  3 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8::linear, "PixelFormatColor_R8G8B8::linear", 3 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8::s_rgb,  "PixelFormatColor_R8G8B8::s_rgb",  3 );
         
         // Test R8G8B8A8.
-        {
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8A8::linear, "PixelFormatColor_R8G8B8A8::linear", 4 );
-            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8A8::s_rgb,  "PixelFormatColor_R8G8B8A8::s_rgb",  4 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8A8::linear, "PixelFormatColor_R8G8B8A8::linear", 4 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8A8::s_rgb,  "PixelFormatColor_R8G8B8A8::s_rgb",  4 );
     }
     
     if( !checkColorPalette( Utilities::Buffer::Endian::BIG ) ) {
