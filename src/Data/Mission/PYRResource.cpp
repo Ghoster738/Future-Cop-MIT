@@ -11,8 +11,6 @@ namespace {
     const uint32_t TAG_PYPL = 0x5059504C; // which is { 0x50, 0x59, 0x50, 0x4C } or { 'P', 'Y', 'P', 'L' } or "PYPL"
     const uint32_t TAG_PIX8 = 0x50495838; // which is { 0x50, 0x49, 0x58, 0x38 } or { 'P', 'I', 'X', '8' } or "PIX8"
     const uint32_t TAG_PIX4 = 0x50495834; // which is { 0x50, 0x49, 0x58, 0x34 } or { 'P', 'I', 'X', '4' } or "PIX4" Playstation
-
-    const Utilities::PixelFormatColor_R8G8B8A8 PYR_COLOR_FORMAT;
 }
 
 Data::Mission::PYRResource::Particle::Particle( Utilities::Buffer::Reader &reader, Utilities::Buffer::Endian endian ) {
@@ -45,7 +43,7 @@ Data::Mission::PYRResource::Particle::Texture* Data::Mission::PYRResource::Parti
     return textures.data() + index;
 }
 
-Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reader &reader ) : location(), size(), palette( Utilities::PixelFormatColor_R5G5B5A1() ) {
+Data::Mission::PYRResource::Particle::Texture::Texture( Utilities::Buffer::Reader &reader ) : location(), size(), palette( Utilities::PixelFormatColor_R5G5B5A1::linear ) {
     this->location.x = reader.readU8();
     this->location.y = reader.readU8();
 
@@ -224,7 +222,7 @@ Utilities::Image2D* Data::Mission::PYRResource::generatePalettlessAtlas(std::vec
         std::max(particles[textures.back().first].getTexture(textures.back().second)->getSize().x,   particles[textures.back().first].getTexture(textures.back().second)->getSize().y) );
 
     // Generate image with rgba colors.
-    Utilities::Image2D *atlas_texture_p = new Utilities::Image2D( power_2_size, power_2_size, PYR_COLOR_FORMAT );
+    Utilities::Image2D *atlas_texture_p = new Utilities::Image2D( power_2_size, power_2_size, Utilities::PixelFormatColor_R8G8B8A8::linear );
 
     // Create method to draw upon the altas that must also be recursive.
     uint16_t text_pow_2 = findClosetPow2( particles[textures.front().first].getTexture(textures.front().second)->getSize() );
@@ -263,7 +261,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
         size_t PYPL_offset;
         size_t PYPL_tag_size = 0;
         bool is_PS1 = false;
-        auto color_profile_w8 = Utilities::PixelFormatColor_W8();
+        auto color_profile_w8 = Utilities::PixelFormatColor_W8::linear;
 
         while( reader.getPosition( Utilities::Buffer::BEGIN ) < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
@@ -389,7 +387,7 @@ bool Data::Mission::PYRResource::parse( const ParseSettings &settings ) {
                         color_palette_r->setAmount( PS1_PALETTE_SIZE );
 
                         for( unsigned int d = 0; d < PS1_PALETTE_SIZE; d++ ) {
-                            color_palette_r->setIndex( d, Utilities::PixelFormatColor_B5G5R5A1().readPixel( readerPYPL, settings.endian ) );
+                            color_palette_r->setIndex( d, Utilities::PixelFormatColor_B5G5R5A1::linear.readPixel( readerPYPL, settings.endian ) );
                         }
                     }
                 }
@@ -419,7 +417,7 @@ int Data::Mission::PYRResource::write( const std::filesystem::path& file_path, c
         std::filesystem::path file_path_texture = file_path;
         file_path_texture += (" " + std::to_string( static_cast<int>( (*current_particle).getID() ) ));
 
-        Utilities::Image2D texture_strip( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize() * (*current_particle).getNumSprites(), PYR_COLOR_FORMAT );
+        Utilities::Image2D texture_strip( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize() * (*current_particle).getNumSprites(), Utilities::PixelFormatColor_R8G8B8A8::linear );
 
         for( unsigned index = 0; index != (*current_particle).getNumSprites(); index++ ) {
             auto texture_r = (*current_particle).getTexture( index );
@@ -430,7 +428,7 @@ int Data::Mission::PYRResource::write( const std::filesystem::path& file_path, c
                 texture_r->getLocation().x, texture_r->getLocation().y,
                 texture_r->getSize().x,     texture_r->getSize().y, sub_image );
 
-            Utilities::Image2D current_image( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize(), PYR_COLOR_FORMAT );
+            Utilities::Image2D current_image( (*current_particle).getSpriteSize(), (*current_particle).getSpriteSize(), Utilities::PixelFormatColor_R8G8B8A8::linear );
 
             current_image.inscribeSubImage(
                 texture_r->getOffsetFromSize().x, texture_r->getOffsetFromSize().y,
