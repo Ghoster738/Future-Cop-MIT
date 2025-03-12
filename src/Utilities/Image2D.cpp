@@ -171,7 +171,7 @@ bool internalAddToBuffer( Utilities::Buffer &buffer, Utilities::Buffer::Endian e
 
 }
 
-Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
+Utilities::Image2D::Image2D( Buffer::Endian endian ) : Image2D( 0, 0, PixelFormatColor_R8G8B8::linear, endian )
 {
 }
 
@@ -261,7 +261,7 @@ bool Utilities::Image2D::addToBuffer( Buffer &buffer, Buffer::Endian endian ) co
     return internalAddToBuffer<Image2D>( buffer, endian, *this );
 }
 
-Utilities::ImageMorbin2D::ImageMorbin2D( Buffer::Endian endian ) : ImageMorbin2D( 0, 0, PixelFormatColor_R8G8B8(), endian )
+Utilities::ImageMorbin2D::ImageMorbin2D( Buffer::Endian endian ) : ImageMorbin2D( 0, 0, PixelFormatColor_R8G8B8::linear, endian )
 {
 }
 

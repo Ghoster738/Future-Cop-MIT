@@ -149,9 +149,8 @@ size_t Utilities::ImageFormat::PortableNetworkGraphics::getSpace( const ImageBas
 int Utilities::ImageFormat::PortableNetworkGraphics::write( const ImageBase2D<Grid2DPlacementNormal>& image_data, Buffer& buffer ) {
     bool is_valid;
     png_image image_write;
-    Utilities::PixelFormatColor_R8G8B8A8 rgba;
     Utilities::Image2D image_convert( 0, 0, *image_data.getPixelFormat() );
-    Utilities::Image2D image_convert_rbga( 0, 0, rgba );
+    Utilities::Image2D image_convert_rbga( 0, 0, Utilities::PixelFormatColor_R8G8B8A8::linear ); // TODO Check the color spaces. PNG's use sRGB space.
     auto selected_image_r = &image_data;
     
     if( dynamic_cast<const Utilities::ImagePalette2D*>( &image_data ) != nullptr ) {

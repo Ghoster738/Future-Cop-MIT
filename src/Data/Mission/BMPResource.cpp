@@ -18,12 +18,6 @@ const uint32_t PLUT_TAG = 0x504C5554; // which is { 0x50, 0x4C, 0x55, 0x54 } or 
 // This is the pixel data for the Playstation 1 version, and probably the computer versions.
 const uint32_t PDAT_TAG = 0x50444154; // which is { 0x50, 0x44, 0x41, 0x54 } or { 'P', 'D', 'A', 'T' } or "PDAT"
 
-const Utilities::PixelFormatColor_R5G5B5T1 COMPUTER_COLOR_FORMAT;
-const Utilities::ColorPalette COMPUTER_COLOR_PALETTE( COMPUTER_COLOR_FORMAT );
-
-const Utilities::PixelFormatColor_B5G5R5T1 PS1_COLOR_FORMAT;
-const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
-
 #include "Embedded/CBMP.h"
 }
 
@@ -84,7 +78,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
         size_t pdat_size = 0;
         size_t plut_position = 0;
         size_t plut_size = 0;
-        Utilities::ColorPalette color_palette( COMPUTER_COLOR_FORMAT );
+        Utilities::ColorPalette color_palette( Utilities::PixelFormatColor_R5G5B5T1::linear );
 
         while( reader.getPosition() < reader.totalSize() ) {
             auto identifier = reader.readU32( settings.endian );
@@ -190,7 +184,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
                 if( image_p != nullptr )
                     delete image_p;
                 
-                this->image_p = new Utilities::Image2D( 0x100, 0x100, COMPUTER_COLOR_FORMAT );
+                this->image_p = new Utilities::Image2D( 0x100, 0x100, Utilities::PixelFormatColor_R5G5B5T1::linear );
                  
                 if( !this->image_p->fromReader( px16_reader, settings.endian ) )
                     file_is_not_valid = true;
@@ -222,12 +216,12 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
 
             if( isPSX ) {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    color_palette.setIndex( d, PS1_COLOR_FORMAT.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE ) );
+                    color_palette.setIndex( d, Utilities::PixelFormatColor_B5G5R5T1::linear.readPixel( plut_reader, Utilities::Buffer::Endian::LITTLE ) );
                 }
             }
             else {
                 for( unsigned int d = 0; d <= color_palette.getLastIndex(); d++ ) {
-                    color_palette.setIndex( d, COMPUTER_COLOR_FORMAT.readPixel( plut_reader, settings.endian ) );
+                    color_palette.setIndex( d, Utilities::PixelFormatColor_R5G5B5T1::linear.readPixel( plut_reader, settings.endian ) );
                 }
             }
             
@@ -259,8 +253,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             error_log.output << "image_p should be allocated. The texture parsing has failed.\n";
         }
         
-        Utilities::PixelFormatColor_R8G8B8A8 rgba8;
-        this->format_p = chooser.getWriterCopy( rgba8 );
+        this->format_p = chooser.getWriterCopy( Utilities::PixelFormatColor_R8G8B8A8::linear );
 
         if( this->format_p == nullptr ) {
             file_is_not_valid = true;
@@ -277,15 +270,13 @@ Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
 int Data::Mission::BMPResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
-    auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
-
     if( iff_options.bmp.shouldWrite( iff_options.enable_global_dry_default ) && getImage() != nullptr ) {
         if( this->format_p != nullptr ) {
             Utilities::Buffer buffer;
             int state;
             
             {
-                auto image_convert = Utilities::Image2D( *this->image_p, rgba_color );
+                auto image_convert = Utilities::Image2D( *this->image_p, Utilities::PixelFormatColor_R8G8B8A8::linear );
                 
                 for( unsigned int x = 0; x <= image_convert.getWidth(); x++ ) {
                     for( unsigned int y = 0; y <= image_convert.getHeight(); y++ ) {
@@ -303,7 +294,7 @@ int Data::Mission::BMPResource::write( const std::filesystem::path& file_path, c
 
             if( iff_options.bmp.export_palette ) {
                 // Make a color palette that holds RGBA values
-                Utilities::ColorPalette rgba_palette( rgba_color );
+                Utilities::ColorPalette rgba_palette( Utilities::PixelFormatColor_R8G8B8A8::linear );
                 
                 rgba_palette.setAmount( 0x100 );
                 

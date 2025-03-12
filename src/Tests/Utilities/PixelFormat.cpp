@@ -342,7 +342,7 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
     return problem;
 }
 
-int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::PixelFormatColor::GenericColor generic, Utilities::PixelFormatColor &format, std::string display, uint_fast8_t pixel_size )
+int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::PixelFormatColor::GenericColor generic, const Utilities::PixelFormatColor &format, std::string display, uint_fast8_t pixel_size )
 {
     int problem = 0;
     auto pixel_writer = pixel_buffer.getWriter();
@@ -390,8 +390,7 @@ int checkReadWriteOperation( Utilities::Buffer &pixel_buffer, const Utilities::P
 
 
 bool checkColorPalette( Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE) {
-    Utilities::PixelFormatColor_R5G5B5A1 color;
-    Utilities::ColorPalette color_palette( color, endianess );
+    Utilities::ColorPalette color_palette( Utilities::PixelFormatColor_R5G5B5A1::linear, endianess );
     const auto FIRST_COLOR = Utilities::PixelFormatColor::GenericColor(1, 0, 0.5, 1);
     
     if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( color_palette.getColorFormat() ) == nullptr )
@@ -666,64 +665,60 @@ int main() {
         pixel_buffer.addI32( 0 );
         
         // Test W8.
-        {
-            Utilities::PixelFormatColor_W8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8", 1 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8::linear, "PixelFormatColor_W8::linear", 1 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8::s_rgb,  "PixelFormatColor_W8::s_rgb",  1 );
         
         // Test W8A8.
-        {
-            Utilities::PixelFormatColor_W8A8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_W8A8", 2 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8A8::linear, "PixelFormatColor_W8A8::linear", 2 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_W8A8::s_rgb,  "PixelFormatColor_W8A8::s_rgb",  2 );
         
         // Test R5G5B5A1.
         {
-            Utilities::PixelFormatColor_R5G5B5A1 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5A1::linear, "PixelFormatColor_R5G5B5A1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5A1::s_rgb,  "PixelFormatColor_R5G5B5A1::s_rgb",  2 );
             Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5A1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5A1::linear, "PixelFormatColor_R5G5B5A1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5A1::s_rgb,  "PixelFormatColor_R5G5B5A1::s_rgb",  2 );
         }
         
         // Test B5G5R5A1.
         {
-            Utilities::PixelFormatColor_B5G5R5A1 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5A1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5A1::linear, "PixelFormatColor_B5G5R5A1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5A1::s_rgb,  "PixelFormatColor_B5G5R5A1::s_rgb",  2 );
             Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5A1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5A1::linear, "PixelFormatColor_B5G5R5A1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5A1::s_rgb,  "PixelFormatColor_B5G5R5A1::s_rgb",  2 );
         }
         
         // Test R5G5B5T1.
         {
-            Utilities::PixelFormatColor_R5G5B5T1 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5T1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5T1::linear, "PixelFormatColor_R5G5B5T1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5T1::s_rgb,  "PixelFormatColor_B5G5R5T1::s_rgb",  2 );
             Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R5G5B5T1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5T1::linear, "PixelFormatColor_R5G5B5T1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R5G5B5T1::s_rgb,  "PixelFormatColor_B5G5R5T1::s_rgb",  2 );
             
             problem |= testSemiColor<Utilities::PixelFormatColor_R5G5B5T1::Color>( "PixelFormatColor_R5G5B5T1" );
         }
         
         // Test B5G5R5T1.
         {
-            Utilities::PixelFormatColor_B5G5R5T1 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5T1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5T1::linear, "PixelFormatColor_B5G5R5T1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5T1::s_rgb,  "PixelFormatColor_B5G5R5T1::s_rgb",  2 );
             Utilities::PixelFormatColor::GenericColor generic(0.125, 0.5, 0.8125, 0.0);
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_B5G5R5T1", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5T1::linear, "PixelFormatColor_B5G5R5T1::linear", 2 );
+            problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_B5G5R5T1::s_rgb,  "PixelFormatColor_B5G5R5T1::s_rgb",  2 );
             
             problem |= testSemiColor<Utilities::PixelFormatColor_B5G5R5T1::Color>( "PixelFormatColor_B5G5R5T1" );
         }
         
         // Test R8G8B8.
-        {
-            Utilities::PixelFormatColor_R8G8B8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8", 3 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8::linear, "PixelFormatColor_R8G8B8::linear", 3 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8::s_rgb,  "PixelFormatColor_R8G8B8::s_rgb",  3 );
         
         // Test R8G8B8A8.
-        {
-            Utilities::PixelFormatColor_R8G8B8A8 format;
-            problem |= checkReadWriteOperation( pixel_buffer, generic, format, "PixelFormatColor_R8G8B8A8", 4 );
-        }
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8A8::linear, "PixelFormatColor_R8G8B8A8::linear", 4 );
+        problem |= checkReadWriteOperation( pixel_buffer, generic, Utilities::PixelFormatColor_R8G8B8A8::s_rgb,  "PixelFormatColor_R8G8B8A8::s_rgb",  4 );
     }
     
     if( !checkColorPalette( Utilities::Buffer::Endian::BIG ) ) {

@@ -82,10 +82,9 @@ int testANM( Utilities::Buffer::Endian endian, std::string name, const uint8_t *
             is_not_success = true;
         }
 
-        Utilities::PixelFormatColor_R8G8B8A8 qoi_pixel_format;
-        Utilities::ColorPalette rgba_palette( qoi_pixel_format );
+        Utilities::ColorPalette rgba_palette( Utilities::PixelFormatColor_R8G8B8A8::linear );
         anm.setColorPalette( rgba_palette );
-        Utilities::Image2D expected_frame( 0, 0, qoi_pixel_format );
+        Utilities::Image2D expected_frame( 0, 0, Utilities::PixelFormatColor_R8G8B8A8::linear );
         
         // Do a normal scan at first
         for( size_t i = 0; i < anm.getTotalFrames() && !is_not_success; i++ ) {

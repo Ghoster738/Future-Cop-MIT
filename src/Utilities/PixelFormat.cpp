@@ -75,6 +75,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8::readPi
     return color.toGeneric( interpolation );
 }
 
+const Utilities::PixelFormatColor_W8 Utilities::PixelFormatColor_W8::linear = Utilities::PixelFormatColor_W8(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_W8 Utilities::PixelFormatColor_W8::s_rgb  = Utilities::PixelFormatColor_W8(Utilities::PixelFormatColor::sRGB);
+
 Utilities::PixelFormatColor_W8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     white = internalFromGenricColor8<uint8_t>( generic.red,   interpolate );
@@ -107,6 +110,10 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_W8A8::read
     
     return color.toGeneric( interpolation );
 }
+
+const Utilities::PixelFormatColor_W8A8 Utilities::PixelFormatColor_W8A8::linear = Utilities::PixelFormatColor_W8A8(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_W8A8 Utilities::PixelFormatColor_W8A8::s_rgb  = Utilities::PixelFormatColor_W8A8(Utilities::PixelFormatColor::sRGB);
+
 
 Utilities::PixelFormatColor_R5G5B5A1::Color::Color( PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate ) {
     
@@ -159,6 +166,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5A1::
     return color.toGeneric( interpolation );
 }
 
+const Utilities::PixelFormatColor_R5G5B5A1 Utilities::PixelFormatColor_R5G5B5A1::linear = Utilities::PixelFormatColor_R5G5B5A1(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_R5G5B5A1 Utilities::PixelFormatColor_R5G5B5A1::s_rgb  = Utilities::PixelFormatColor_R5G5B5A1(Utilities::PixelFormatColor::sRGB);
+
 Utilities::PixelFormatColor_B5G5R5A1::Color::Color( PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate ) {
     
     blue  = internalFromGenricColor5<uint8_t>( generic.blue,  interpolate );
@@ -209,6 +219,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5A1::
     
     return color.toGeneric( interpolation );
 }
+
+const Utilities::PixelFormatColor_B5G5R5A1 Utilities::PixelFormatColor_B5G5R5A1::linear = Utilities::PixelFormatColor_B5G5R5A1(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_B5G5R5A1 Utilities::PixelFormatColor_B5G5R5A1::s_rgb  = Utilities::PixelFormatColor_B5G5R5A1(Utilities::PixelFormatColor::sRGB);
 
 Utilities::PixelFormatColor_R5G5B5T1::Color::Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate ) {
     const float CUTOFF = 0.015625;
@@ -273,6 +286,8 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R5G5B5T1::
     
     return color.toGeneric( interpolation );
 }
+const Utilities::PixelFormatColor_R5G5B5T1 Utilities::PixelFormatColor_R5G5B5T1::linear = Utilities::PixelFormatColor_R5G5B5T1(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_R5G5B5T1 Utilities::PixelFormatColor_R5G5B5T1::s_rgb  = Utilities::PixelFormatColor_R5G5B5T1(Utilities::PixelFormatColor::sRGB);
 
 Utilities::PixelFormatColor_B5G5R5T1::Color::Color( Utilities::PixelFormatColor::GenericColor generic, PixelFormatColor::ChannelInterpolation interpolate ) {
     const float CUTOFF = 0.015625;
@@ -337,6 +352,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_B5G5R5T1::
     return color.toGeneric( interpolation );
 }
 
+const Utilities::PixelFormatColor_B5G5R5T1 Utilities::PixelFormatColor_B5G5R5T1::linear = Utilities::PixelFormatColor_B5G5R5T1(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_B5G5R5T1 Utilities::PixelFormatColor_B5G5R5T1::s_rgb  = Utilities::PixelFormatColor_B5G5R5T1(Utilities::PixelFormatColor::sRGB);
+
 Utilities::PixelFormatColor_R8G8B8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
     PixelFormatColor_R8G8B8A8::Color other_color( generic, interpolate );
@@ -375,6 +393,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8::re
     
     return color.toGeneric( interpolation );
 }
+
+const Utilities::PixelFormatColor_R8G8B8 Utilities::PixelFormatColor_R8G8B8::linear = Utilities::PixelFormatColor_R8G8B8(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_R8G8B8 Utilities::PixelFormatColor_R8G8B8::s_rgb  = Utilities::PixelFormatColor_R8G8B8(Utilities::PixelFormatColor::sRGB);
 
 Utilities::PixelFormatColor_R8G8B8A8::Color::Color( Utilities::PixelFormatColor::GenericColor generic, ChannelInterpolation interpolate )
 {
@@ -416,6 +437,9 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::
     
     return color.toGeneric( interpolation );
 }
+
+const Utilities::PixelFormatColor_R8G8B8A8 Utilities::PixelFormatColor_R8G8B8A8::linear = Utilities::PixelFormatColor_R8G8B8A8(Utilities::PixelFormatColor::LINEAR);
+const Utilities::PixelFormatColor_R8G8B8A8 Utilities::PixelFormatColor_R8G8B8A8::s_rgb  = Utilities::PixelFormatColor_R8G8B8A8(Utilities::PixelFormatColor::sRGB);
 
 Utilities::ColorPalette::ColorPalette( const Utilities::PixelFormatColor& color_palette, Buffer::Endian endianess_param ) : color_p(nullptr), buffer(), endianess( endianess_param )
 {

@@ -35,8 +35,7 @@ int testCBMP( Utilities::Buffer::Endian endian, std::string name, const uint8_t 
         }
 
         Utilities::Buffer image_data( answer_bytes_p, answer_bytes_len );
-        Utilities::PixelFormatColor_R8G8B8A8 color;
-        Utilities::Image2D image_answer( 0, 0, color );
+        Utilities::Image2D image_answer( 0, 0, Utilities::PixelFormatColor_R8G8B8A8::linear );
 
         if( qoi_reader.read( image_data, image_answer ) <= 0 ) {
             std::cout << name <<  ": There is something wrong with QOI reading not this module itself!" << std::endl;

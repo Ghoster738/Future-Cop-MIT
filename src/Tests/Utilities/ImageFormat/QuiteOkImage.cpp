@@ -108,8 +108,8 @@ int main() {
     equal_status.used_luma  = true;
     equal_status.used_run   = true;
     unequal_status = equal_status;
-    error_state |= testColorSpace( Utilities::PixelFormatColor_W8(), equal_status, unequal_status );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8(), equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_W8::linear, equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8::linear, equal_status, unequal_status );
     
     // Full Transparencey test.
     equal_status.used_RGBA  = true;
@@ -119,8 +119,8 @@ int main() {
     equal_status.used_luma  = false;
     equal_status.used_run   = true;
     unequal_status = equal_status;
-    error_state |= testColorSpace( Utilities::PixelFormatColor_W8A8(), equal_status, unequal_status );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8(), equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_W8A8::linear, equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8::linear, equal_status, unequal_status );
     
     // Strange PS1 color format that Future Cop uses test.
     equal_status.used_RGBA  = true;
@@ -131,8 +131,8 @@ int main() {
     equal_status.used_run   = true;
     unequal_status = equal_status;
     unequal_status.used_luma  = false;
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R5G5B5A1(), equal_status, unequal_status );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_B5G5R5A1(), equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R5G5B5A1::linear, equal_status, unequal_status );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_B5G5R5A1::linear, equal_status, unequal_status );
     
     return error_state;
 }

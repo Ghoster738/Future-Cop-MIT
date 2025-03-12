@@ -243,11 +243,10 @@ Graphics::SDL2::GLES2::Internal::FontSystem::FontSystem( const std::vector<const
             this->font_bank.back().texture_scale.y *= 2;
         }
         
-        auto color_format = Utilities::PixelFormatColor_W8A8();
         Utilities::Image2D image(
             this->font_bank.back().texture_scale.x,
             this->font_bank.back().texture_scale.y,
-            color_format );
+            Utilities::PixelFormatColor_W8A8::linear );
 
         auto state = image.inscribeSubImage( 0, 0, *font_image );
 
