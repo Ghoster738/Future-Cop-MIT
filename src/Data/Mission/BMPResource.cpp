@@ -19,10 +19,8 @@ const uint32_t PLUT_TAG = 0x504C5554; // which is { 0x50, 0x4C, 0x55, 0x54 } or 
 const uint32_t PDAT_TAG = 0x50444154; // which is { 0x50, 0x44, 0x41, 0x54 } or { 'P', 'D', 'A', 'T' } or "PDAT"
 
 const Utilities::PixelFormatColor_R5G5B5T1 COMPUTER_COLOR_FORMAT;
-const Utilities::ColorPalette COMPUTER_COLOR_PALETTE( COMPUTER_COLOR_FORMAT );
 
 const Utilities::PixelFormatColor_B5G5R5T1 PS1_COLOR_FORMAT;
-const Utilities::ColorPalette PS1_COLOR_PALETTE( PS1_COLOR_FORMAT );
 
 #include "Embedded/CBMP.h"
 }
