@@ -64,14 +64,14 @@ int main() {
     int error_state = 0;
     
     // Completely opaque test
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8() );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8::linear );
     
     // Full Transparencey test.
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8() );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8::linear );
     
     // Strange PS1 color format that Future Cop uses test.
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R5G5B5A1() );
-    // error_state |= testColorSpace( Utilities::PixelFormatColor_B5G5R5A1() );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R5G5B5A1::linear );
+    // error_state |= testColorSpace( Utilities::PixelFormatColor_B5G5R5A1::linear );
     
     return error_state;
 }
