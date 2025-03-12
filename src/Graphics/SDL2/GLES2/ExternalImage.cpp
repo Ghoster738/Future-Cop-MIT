@@ -1,21 +1,16 @@
 #include "ExternalImage.h"
 
-namespace {
-const Utilities::PixelFormatColor_R8G8B8   RGB_COLOR_FORMAT;
-const Utilities::PixelFormatColor_R8G8B8A8 RGB_ALPHA_COLOR_FORMAT;
-}
-
 namespace Graphics::SDL2::GLES2 {
 
 Graphics::ExternalImage* Environment::allocateExternalImage(bool has_alpha) {
     Graphics::SDL2::GLES2::ExternalImage *image_p;
 
     if(has_alpha) {
-        image_p = new Graphics::SDL2::GLES2::ExternalImage(RGB_ALPHA_COLOR_FORMAT);
+        image_p = new Graphics::SDL2::GLES2::ExternalImage(Utilities::PixelFormatColor_R8G8B8A8::linear);
         image_p->image_gl_format = GL_RGBA;
     }
     else {
-        image_p = new Graphics::SDL2::GLES2::ExternalImage(RGB_COLOR_FORMAT);
+        image_p = new Graphics::SDL2::GLES2::ExternalImage(Utilities::PixelFormatColor_R8G8B8::linear);
         image_p->image_gl_format = GL_RGB;
     }
 
