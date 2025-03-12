@@ -253,8 +253,7 @@ bool Data::Mission::BMPResource::parse( const ParseSettings &settings ) {
             error_log.output << "image_p should be allocated. The texture parsing has failed.\n";
         }
         
-        Utilities::PixelFormatColor_R8G8B8A8 rgba8;
-        this->format_p = chooser.getWriterCopy( rgba8 );
+        this->format_p = chooser.getWriterCopy( Utilities::PixelFormatColor_R8G8B8A8::linear );
 
         if( this->format_p == nullptr ) {
             file_is_not_valid = true;
@@ -271,15 +270,13 @@ Data::Mission::Resource * Data::Mission::BMPResource::duplicate() const {
     return new Mission::BMPResource( *this );
 }
 int Data::Mission::BMPResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
-    auto rgba_color = Utilities::PixelFormatColor_R8G8B8A8();
-
     if( iff_options.bmp.shouldWrite( iff_options.enable_global_dry_default ) && getImage() != nullptr ) {
         if( this->format_p != nullptr ) {
             Utilities::Buffer buffer;
             int state;
             
             {
-                auto image_convert = Utilities::Image2D( *this->image_p, rgba_color );
+                auto image_convert = Utilities::Image2D( *this->image_p, Utilities::PixelFormatColor_R8G8B8A8::linear );
                 
                 for( unsigned int x = 0; x <= image_convert.getWidth(); x++ ) {
                     for( unsigned int y = 0; y <= image_convert.getHeight(); y++ ) {
@@ -297,7 +294,7 @@ int Data::Mission::BMPResource::write( const std::filesystem::path& file_path, c
 
             if( iff_options.bmp.export_palette ) {
                 // Make a color palette that holds RGBA values
-                Utilities::ColorPalette rgba_palette( rgba_color );
+                Utilities::ColorPalette rgba_palette( Utilities::PixelFormatColor_R8G8B8A8::linear );
                 
                 rgba_palette.setAmount( 0x100 );
                 
