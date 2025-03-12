@@ -36,14 +36,12 @@ uint32_t Data::Mission::PTCResource::getResourceTagID() const {
 
 bool Data::Mission::PTCResource::makeTiles( const std::vector<Data::Mission::TilResource*> &tile_array_r )
 {
-    Utilities::PixelFormatColor_R8G8B8 color_format;
-
     if( tile_array_r.size() > 0 )
     {
         if( debug_map_display_p != nullptr )
             delete debug_map_display_p;
 
-        debug_map_display_p = new Utilities::Image2D( grid.getWidth() * 0x11,  grid.getHeight() * 0x11, color_format );
+        debug_map_display_p = new Utilities::Image2D( grid.getWidth() * 0x11,  grid.getHeight() * 0x11, Utilities::PixelFormatColor_R8G8B8::linear );
 
         for( auto i : tile_array_r ) {
             ctil_id_r[ i->getResourceID() ] = i;
@@ -154,9 +152,8 @@ int Data::Mission::PTCResource::write( const std::filesystem::path& file_path, c
 
         if( iff_options.ptc.entire_height_map ) {
             unsigned int rays_per_tile = 1;
-            Utilities::PixelFormatColor_R8G8B8 color_format;
 
-            Utilities::Image2D ptc_height_map( grid.getWidth() * rays_per_tile * 16, grid.getHeight() * rays_per_tile * 16, color_format );
+            Utilities::Image2D ptc_height_map( grid.getWidth() * rays_per_tile * 16, grid.getHeight() * rays_per_tile * 16, Utilities::PixelFormatColor_R8G8B8::linear );
 
             for( unsigned int x = 0; x < grid.getWidth(); x++ ) {
                 for( unsigned int y = 0; y < grid.getHeight(); y++ ) {
