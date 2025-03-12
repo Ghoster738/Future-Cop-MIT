@@ -17,8 +17,6 @@ namespace {
 uint32_t TAG_SECT = 0x53656374; // which is { 0x53, 0x65, 0x63, 0x74 } or { 'S', 'e', 'c', 't' } or "Sect"; // The most important data is stored here.
 uint32_t TAG_SLFX = 0x534C4658; // which is { 0x53, 0x4C, 0x46, 0x58 } or { 'S', 'L', 'F', 'X' } or "SLFX"; // Vertex Color Animations.
 uint32_t TAG_ScTA = 0x53635441; // which is { 0x53, 0x63, 0x54, 0x41 } or { 'S', 'c', 'T', 'A' } or "ScTA"; // Vertex UV Animation frames.
-
-const Utilities::PixelFormatColor_W8 SLFX_COLOR;
 }
 
 Data::Mission::TilResource::CullingData::CullingData() {
@@ -265,7 +263,7 @@ void Data::Mission::TilResource::AnimationSLFX::setImage( Utilities::Image2D &im
 }
 
 Utilities::Image2D* Data::Mission::TilResource::AnimationSLFX::getImage() const {
-    return new Utilities::Image2D( AMOUNT_OF_TILES, AMOUNT_OF_TILES, SLFX_COLOR );
+    return new Utilities::Image2D( AMOUNT_OF_TILES, AMOUNT_OF_TILES, Utilities::PixelFormatColor_W8::linear );
 }
 
 std::string Data::Mission::TilResource::InfoSCTA::getString() const {
@@ -335,8 +333,7 @@ uint32_t Data::Mission::TilResource::getResourceTagID() const {
 }
 
 Utilities::Image2D Data::Mission::TilResource::getImage() const {
-    Utilities::PixelFormatColor_R8G8B8 color_format;
-    Utilities::Image2D image( point_cloud_3_channel.getWidth(), point_cloud_3_channel.getHeight(), color_format );
+    Utilities::Image2D image( point_cloud_3_channel.getWidth(), point_cloud_3_channel.getHeight(), Utilities::PixelFormatColor_R8G8B8::linear );
     Utilities::PixelFormatColor::GenericColor color(0.0f, 0.0f, 0.0f, 1.0f);
     
     for( unsigned y = 0; y < point_cloud_3_channel.getHeight(); y++ ) {
@@ -629,8 +626,7 @@ int Data::Mission::TilResource::write( const std::filesystem::path& file_path, c
     int glTF_return = 0;
     Utilities::ImageFormat::Chooser chooser;
 
-    Utilities::PixelFormatColor_R8G8B8 rgb;
-    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( rgb );
+    Utilities::ImageFormat::ImageFormat* the_choosen_r = chooser.getWriterReference( Utilities::PixelFormatColor_R8G8B8::linear );
 
     if( the_choosen_r != nullptr && iff_options.til.shouldWrite( iff_options.enable_global_dry_default ) ) {
         if( iff_options.til.enable_point_cloud_export ) {
@@ -1010,8 +1006,7 @@ const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::g
 }
 
 Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_per_tile ) const {
-    Utilities::PixelFormatColor_R8G8B8 color_format;
-    Utilities::Image2D heightmap( AMOUNT_OF_TILES * rays_per_tile, AMOUNT_OF_TILES * rays_per_tile, color_format );
+    Utilities::Image2D heightmap( AMOUNT_OF_TILES * rays_per_tile, AMOUNT_OF_TILES * rays_per_tile, Utilities::PixelFormatColor_R8G8B8::linear );
     Utilities::PixelFormatColor::GenericColor color;
     
     const float LENGTH = static_cast<float>(AMOUNT_OF_TILES ) - (1.0f / static_cast<float>( rays_per_tile ));
@@ -1307,15 +1302,13 @@ Data::Mission::TilResource* Data::Mission::TilResource::getTest( uint32_t resour
         til_p->data->addU8( texture_uvs[i].y );
     }
 
-    Utilities::PixelFormatColor_R5G5B5A1 palette_format;
-
     Utilities::Buffer color_buffer;
     color_buffer.allocate( sizeof( uint16_t ) * color_palette.size() );
 
     auto color_writer = color_buffer.getWriter();
 
     for( size_t i = 0; i < color_palette.size(); i++ ) {
-        palette_format.writePixel( color_writer, endianess, color_palette[i] );
+        Utilities::PixelFormatColor_R5G5B5A1::linear.writePixel( color_writer, endianess, color_palette[i] );
     }
 
     color_writer.addToBuffer( *til_p->data );
