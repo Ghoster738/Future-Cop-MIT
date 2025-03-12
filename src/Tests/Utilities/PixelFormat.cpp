@@ -27,11 +27,11 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
             
             if( color[0].white != color[1].white )
             {
-                std::cout << "The color conversion for PixelFormatColor_W8 test has failed!" << std::endl;
-                std::cout << "  At " << i << " the colors do not match." << std::endl;
-                std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << std::endl;
-                std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << std::endl;
-                std::cout << "Generic: "<< generic.getString() << std::endl;
+                std::cout << "The color conversion for PixelFormatColor_W8 test has failed!\n"
+                    << "  At " << i << " the colors do not match.\n"
+                    << "  Color[0] " << static_cast<uint32_t>(color[0].white) << "\n"
+                    << "  Color[1] " << static_cast<uint32_t>(color[1].white) << "\n"
+                    << "Generic: "<< generic.getString() << std::endl;
                 //i = 256;
                 problem = 1;
             }
