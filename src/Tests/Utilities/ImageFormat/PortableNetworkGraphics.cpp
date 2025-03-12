@@ -57,12 +57,12 @@ int main() {
 #ifdef BUILD_WITH_LIBPNG
     int error_state = 0;
     
-    error_state |= testColorSpace( Utilities::PixelFormatColor_W8() );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8() );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_W8::linear );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8::linear );
     
     // Full Transparencey test.
-    error_state |= testColorSpace( Utilities::PixelFormatColor_W8A8() );
-    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8() );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_W8A8::linear );
+    error_state |= testColorSpace( Utilities::PixelFormatColor_R8G8B8A8::linear );
     
     return error_state;
 #else
