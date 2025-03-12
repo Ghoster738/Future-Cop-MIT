@@ -104,7 +104,7 @@ const std::filesystem::path Data::Mission::ANMResource::FILE_EXTENSION = "anm";
 const uint32_t              Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616E6D; // which is { 0x63, 0x61, 0x6E, 0x6D } or { 'c', 'a', 'n', 'm' } or "canm"
 
 Data::Mission::ANMResource::ANMResource() :
-    palette( Utilities::PixelFormatColor_R5G5B5A1::linear ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
+    palette( Utilities::PixelFormatColor_R5G5B5A1() ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
 {}
 
 Data::Mission::ANMResource::ANMResource( const ANMResource &obj ) : Resource( obj ), palette( obj.palette ), total_scanlines( obj.total_scanlines ), scanline_raw_bytes_p( nullptr )
