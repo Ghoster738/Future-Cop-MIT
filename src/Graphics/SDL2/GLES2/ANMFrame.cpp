@@ -2,10 +2,6 @@
 
 #include "../../../Data/Mission/ANMResource.h"
 
-namespace {
-const Utilities::PixelFormatColor_R8G8B8 RGB_COLOR_FORMAT;
-}
-
 namespace Graphics::SDL2::GLES2 {
 
 Graphics::ANMFrame* Environment::allocateVideoANM(uint32_t track_offset) {
@@ -14,7 +10,7 @@ Graphics::ANMFrame* Environment::allocateVideoANM(uint32_t track_offset) {
     if(search == this->anm_resources.end())
         return NULL;
 
-    auto *image_p = new Graphics::SDL2::GLES2::ANMFrame(*search->second, RGB_COLOR_FORMAT);
+    auto *image_p = new Graphics::SDL2::GLES2::ANMFrame(*search->second, Utilities::PixelFormatColor_R8G8B8::linear);
 
     // ImageBase
     image_p->positions[0] = glm::vec2( 00.0,  00.0);
