@@ -75,7 +75,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_W8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_W8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -102,7 +101,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_W8A8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_W8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -130,7 +128,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R5G5B5A1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_R5G5B5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -158,7 +155,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_B5G5R5A1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_B5G5R5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -186,7 +182,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R5G5B5T1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_R5G5B5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -217,7 +212,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_B5G5R5T1() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_B5G5R5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -246,7 +240,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R8G8B8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_R8G8B8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
@@ -274,7 +267,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R8G8B8A8() : PixelFormatColor(PixelFormatColor::LINEAR) {}
         PixelFormatColor_R8G8B8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
