@@ -100,7 +100,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             Utilities::PixelFormatColor::GenericColor( 0.5f, 0.0f, 1.0f, 1.0f ) };
 
 
-        Utilities::Image2D image_accessor( DIMENSION, DIMENSION, Utilities::PixelFormatColor_R8G8B8A8() );
+        Utilities::Image2D image_accessor( DIMENSION, DIMENSION, Utilities::PixelFormatColor_R8G8B8A8::linear );
 
         for( unsigned y = 0; y < DIMENSION; y++ ) {
             for( unsigned x = 0; x < DIMENSION; x++ ) {
@@ -128,7 +128,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         auto converted_texture = textures[i];
         if( converted_texture != nullptr )
         {
-            Utilities::Image2D image_accessor( *converted_texture->getImage(), Utilities::PixelFormatColor_R8G8B8A8() );
+            Utilities::Image2D image_accessor( *converted_texture->getImage(), Utilities::PixelFormatColor_R8G8B8A8::linear );
             
             const auto CBMP_ID = converted_texture->getResourceID();
 
@@ -145,7 +145,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     }
     
     if( !textures.empty() ) {
-        Utilities::Image2D environment_image( 0, 0, Utilities::PixelFormatColor_R8G8B8A8() );
+        Utilities::Image2D environment_image( 0, 0, Utilities::PixelFormatColor_R8G8B8A8::linear );
 
         if( shine_index < 0 )
             textures.back()->getImage()->subImage( 0, 124, 128, 128, environment_image );
