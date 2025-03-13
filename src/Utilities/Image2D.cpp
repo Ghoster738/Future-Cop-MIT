@@ -180,7 +180,7 @@ Utilities::Image2D::Image2D( const ImageMorbin2D &obj  ) : Image2D( obj.getWidth
     fillInImage<grid_2d_unit, ImageMorbin2D, Image2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
-Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_format_p )
+Utilities::Image2D::Image2D( const Image2D &obj ) : Image2D( obj, *obj.pixel_format_r )
 {
 }
 
@@ -270,7 +270,7 @@ Utilities::ImageMorbin2D::ImageMorbin2D( const Image2D &obj  ) : ImageMorbin2D( 
     fillInImage<grid_2d_unit, Image2D, ImageMorbin2D>( obj, 0, 0, obj.getWidth(), obj.getHeight(), *this, 0, 0, getWidth(), getHeight() );
 }
 
-Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj ) : ImageMorbin2D( obj, *obj.pixel_format_p )
+Utilities::ImageMorbin2D::ImageMorbin2D( const ImageMorbin2D &obj ) : ImageMorbin2D( obj, *obj.pixel_format_r )
 {
 }
 

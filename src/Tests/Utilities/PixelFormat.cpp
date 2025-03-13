@@ -15,7 +15,6 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
     // Brute force will be used to test the various color formats.
     
     {
-        Utilities::PixelFormatColor_W8 white( interpolate );
         Utilities::PixelFormatColor_W8::Color color[2];
         
         for( uint16_t i = 0; i <= 255; i++ )
@@ -27,11 +26,11 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
             
             if( color[0].white != color[1].white )
             {
-                std::cout << "The color conversion for PixelFormatColor_W8 test has failed!" << std::endl;
-                std::cout << "  At " << i << " the colors do not match." << std::endl;
-                std::cout << "  Color[0] " << static_cast<uint32_t>(color[0].white) << std::endl;
-                std::cout << "  Color[1] " << static_cast<uint32_t>(color[1].white) << std::endl;
-                std::cout << "Generic: "<< generic.getString() << std::endl;
+                std::cout << "The color conversion for PixelFormatColor_W8 test has failed!\n"
+                    << "  At " << i << " the colors do not match.\n"
+                    << "  Color[0] " << static_cast<uint32_t>(color[0].white) << "\n"
+                    << "  Color[1] " << static_cast<uint32_t>(color[1].white) << "\n"
+                    << "Generic: "<< generic.getString() << std::endl;
                 //i = 256;
                 problem = 1;
             }
@@ -39,7 +38,6 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
     }
     
     {
-        Utilities::PixelFormatColor_W8A8 white_alpha( interpolate );
         Utilities::PixelFormatColor_W8A8::Color color[2];
         
         for( uint16_t w = 0; w <= 255; w++ )
@@ -89,7 +87,6 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
     }
     
     {
-        Utilities::PixelFormatColor_R5G5B5A1 r5g5b5a1( interpolate );
         Utilities::PixelFormatColor_R5G5B5A1::Color color[2];
         
         for( uint16_t v = 0; v <= 31; v++ )
@@ -160,7 +157,6 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
     }
     
     {
-        Utilities::PixelFormatColor_R8G8B8 r8g8b8( interpolate );
         Utilities::PixelFormatColor_R8G8B8::Color color[2];
         
         for( uint16_t v = 0; v <= 255; v++ )
@@ -228,7 +224,6 @@ int testColorProfiles( const Utilities::PixelFormatColor::ChannelInterpolation i
     }
     
     {
-        Utilities::PixelFormatColor_R8G8B8A8 r8g8b8( interpolate );
         Utilities::PixelFormatColor_R8G8B8A8::Color color[2];
         
         for( uint16_t v = 0; v <= 255; v++ )

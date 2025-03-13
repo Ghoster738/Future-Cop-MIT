@@ -78,7 +78,7 @@ int testANM( Utilities::Buffer::Endian endian, std::string name, const uint8_t *
         if( dynamic_cast<const Utilities::PixelFormatColor_R5G5B5A1*>( frame->getPixelFormat() ) == nullptr ) {
             std::cout << full_name << " does not have the correct color palette!" << std::endl;
             std::cout << "  actual colors = " << frame->getPixelFormat()->getName() << std::endl;
-            std::cout << "  expected colors = " << Utilities::PixelFormatColor_R5G5B5A1().getName()<< std::endl;
+            std::cout << "  expected colors = " << Utilities::PixelFormatColor_R5G5B5A1::linear.getName()<< std::endl;
             is_not_success = true;
         }
 

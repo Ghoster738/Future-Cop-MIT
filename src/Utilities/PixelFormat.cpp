@@ -441,23 +441,20 @@ Utilities::PixelFormatColor::GenericColor Utilities::PixelFormatColor_R8G8B8A8::
 const Utilities::PixelFormatColor_R8G8B8A8 Utilities::PixelFormatColor_R8G8B8A8::linear = Utilities::PixelFormatColor_R8G8B8A8(Utilities::PixelFormatColor::LINEAR);
 const Utilities::PixelFormatColor_R8G8B8A8 Utilities::PixelFormatColor_R8G8B8A8::s_rgb  = Utilities::PixelFormatColor_R8G8B8A8(Utilities::PixelFormatColor::sRGB);
 
-Utilities::ColorPalette::ColorPalette( const Utilities::PixelFormatColor& color_palette, Buffer::Endian endianess_param ) : color_p(nullptr), buffer(), endianess( endianess_param )
+Utilities::ColorPalette::ColorPalette( const Utilities::PixelFormatColor& color_palette, Buffer::Endian endianess_param ) :
+    color_r( &color_palette ), buffer(), endianess( endianess_param )
 {
-    color_p = dynamic_cast<PixelFormatColor*>( color_palette.duplicate() );
-    
-    assert( color_p != nullptr );
+    assert( this->color_r != nullptr );
 }
 
 Utilities::ColorPalette::ColorPalette( Utilities::ColorPalette const &color ) :
-    color_p( nullptr ),  buffer( color.buffer ), endianess( color.endianess )
+    color_r( color.color_r ),  buffer( color.buffer ), endianess( color.endianess )
 {
-    color_p = dynamic_cast<PixelFormatColor*>( color.color_p->duplicate() );
-    
-    assert( color_p != nullptr );
+    assert( this->color_r != nullptr );
 }
 
 bool Utilities::ColorPalette::empty() const {
-    if( buffer.getReader().totalSize() < color_p->byteSize() )
+    if( buffer.getReader().totalSize() < this->color_r->byteSize() )
         return true;
     else
         return false;
@@ -468,22 +465,22 @@ uint_fast8_t Utilities::ColorPalette::getLastIndex() const
     if( empty() )
         return 0;
     else
-        return buffer.getReader().totalSize() / color_p->byteSize() - 1;
+        return buffer.getReader().totalSize() / this->color_r->byteSize() - 1;
 }
 
 Utilities::PixelFormatColor::GenericColor Utilities::ColorPalette::getIndex( palette_index index ) const
 {
-    auto reader = buffer.getReader( static_cast<size_t>(index) * color_p->byteSize(), color_p->byteSize() );
+    auto reader = buffer.getReader( static_cast<size_t>(index) * this->color_r->byteSize(), this->color_r->byteSize() );
     
-    return color_p->readPixel( reader, endianess );
+    return this->color_r->readPixel( reader, endianess );
 }
 
 bool Utilities::ColorPalette::setIndex( palette_index index, const PixelFormatColor::GenericColor& color )
 {
     if( !empty() && index <= getLastIndex() ) {
-        auto writer = buffer.getWriter( static_cast<size_t>(index) * color_p->byteSize(), color_p->byteSize() );
+        auto writer = buffer.getWriter( static_cast<size_t>(index) * this->color_r->byteSize(), this->color_r->byteSize() );
         
-        color_p->writePixel( writer, endianess, color );
+        this->color_r->writePixel( writer, endianess, color );
         
         return true;
     }
@@ -495,7 +492,7 @@ bool Utilities::ColorPalette::setAmount( uint16_t amount )
     if( amount > 256 )
         amount = 256;
     
-    auto palette_buffer_size = static_cast<size_t>( amount ) * static_cast<size_t>( color_p->byteSize() );
+    auto palette_buffer_size = static_cast<size_t>( amount ) * static_cast<size_t>( this->color_r->byteSize() );
     
     if( palette_buffer_size != buffer.getReader().totalSize() )
     {
