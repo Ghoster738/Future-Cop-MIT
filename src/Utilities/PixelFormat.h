@@ -14,7 +14,6 @@ namespace Utilities {
     class PixelFormat {
     public:
         virtual ~PixelFormat() {}
-        virtual PixelFormat* duplicate() const = 0;
         virtual std::string getName() const = 0;
         virtual uint_fast8_t byteSize() const = 0;
     };
@@ -79,9 +78,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_W8( interpolation );
-        }
         virtual uint_fast8_t byteSize() const { return 1; }
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
@@ -107,9 +103,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_W8A8( interpolation );
-        }
         virtual uint_fast8_t byteSize() const { return 2; }
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
@@ -136,9 +129,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_R5G5B5A1( interpolation );
-        }
         virtual uint_fast8_t byteSize() const { return 2; }
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
@@ -165,9 +155,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_B5G5R5A1( interpolation );
-        }
         virtual uint_fast8_t byteSize() const { return 2; }
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
@@ -193,10 +180,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_R5G5B5T1( interpolation );
-        }
         
         virtual uint_fast8_t byteSize() const { return 2; }
         
@@ -226,10 +209,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_B5G5R5T1( interpolation );
-        }
-        
         virtual uint_fast8_t byteSize() const { return 2; }
         
         virtual void writePixel( Utilities::Buffer::Writer &buffer, Utilities::Buffer::Endian endian, const PixelFormatColor::GenericColor& coloring ) const;
@@ -256,9 +235,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_R8G8B8( interpolation );
-        }
         virtual uint_fast8_t byteSize() const { return 3; }
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
@@ -285,9 +261,6 @@ namespace Utilities {
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
         
-        virtual PixelFormat* duplicate() const {
-            return new PixelFormatColor_R8G8B8A8( interpolation );
-        }
         virtual uint_fast8_t byteSize() const { return 4; }
         virtual void writePixel( Buffer::Writer &buffer, Buffer::Endian endian, const PixelFormatColor::GenericColor& color ) const;
         virtual PixelFormatColor::GenericColor readPixel( Buffer::Reader &buffer, Buffer::Endian endian = Buffer::Endian::NO_SWAP ) const;
