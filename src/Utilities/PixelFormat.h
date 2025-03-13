@@ -120,6 +120,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_R5G5B5A1 : public PixelFormatColor {
+    private:
+        PixelFormatColor_R5G5B5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint16_t red   : 5;
@@ -132,7 +135,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R5G5B5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R5G5B5A1( interpolation );
@@ -297,24 +299,22 @@ namespace Utilities {
 
     class ColorPalette {
     private:
-        PixelFormatColor *color_p;
+        const PixelFormatColor *color_r;
         Buffer buffer;
         Buffer::Endian endianess;
     public:
         ColorPalette( const ColorPalette& palette );
         ColorPalette( const PixelFormatColor& palette_color, Buffer::Endian endianess = Buffer::Endian::NO_SWAP );
-        virtual ~ColorPalette() {
-            delete color_p;
-        }
+        virtual ~ColorPalette() {}
         
         bool empty() const;
         
-        const PixelFormatColor* getColorFormat() const { return color_p; }
+        const PixelFormatColor* getColorFormat() const { return this->color_r; }
         PixelFormatColor::GenericColor getIndex( palette_index index ) const;
         uint_fast8_t getLastIndex() const;
         Buffer::Endian getEndian() const { return endianess; }
         Buffer::Reader getReader() const { return buffer.getReader(); }
-        Buffer::Reader getReader( palette_index index ) const { return buffer.getReader( static_cast<size_t>( index ) * color_p->byteSize(), color_p->byteSize() ); }
+        Buffer::Reader getReader( palette_index index ) const { return buffer.getReader( static_cast<size_t>( index ) * this->color_r->byteSize(), this->color_r->byteSize() ); }
         
         bool setIndex( palette_index index, const PixelFormatColor::GenericColor &color );
         bool setAmount( uint16_t amount );

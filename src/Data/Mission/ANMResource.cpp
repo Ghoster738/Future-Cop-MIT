@@ -105,7 +105,7 @@ const uint32_t              Data::Mission::ANMResource::IDENTIFIER_TAG = 0x63616
 
 // TODO Figure out why changing Utilities::PixelFormatColor_R5G5B5A1() to Utilities::PixelFormatColor_R5G5B5A1::linear causes the Windows build to segfault.
 Data::Mission::ANMResource::ANMResource() :
-    palette( Utilities::PixelFormatColor_R5G5B5A1(Utilities::PixelFormatColor::LINEAR) ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
+    palette( Utilities::PixelFormatColor_R5G5B5A1::linear ), total_scanlines( 0 ), scanline_raw_bytes_p( nullptr )
 {}
 
 Data::Mission::ANMResource::ANMResource( const ANMResource &obj ) : Resource( obj ), palette( obj.palette ), total_scanlines( obj.total_scanlines ), scanline_raw_bytes_p( nullptr )
