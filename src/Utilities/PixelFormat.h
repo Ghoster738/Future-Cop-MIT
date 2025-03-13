@@ -66,6 +66,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_W8 : public PixelFormatColor {
+    private:
+        PixelFormatColor_W8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint8_t white;
@@ -75,7 +78,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_W8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_W8( interpolation );
@@ -91,6 +93,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_W8A8 : public PixelFormatColor {
+    private:
+        PixelFormatColor_W8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint8_t white;
@@ -101,7 +106,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_W8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_W8A8( interpolation );
@@ -143,6 +147,9 @@ namespace Utilities {
     };
     
     class PixelFormatColor_B5G5R5A1 : public PixelFormatColor {
+    private:
+        PixelFormatColor_B5G5R5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint16_t blue  : 5;
@@ -155,7 +162,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_B5G5R5A1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_B5G5R5A1( interpolation );
@@ -170,6 +176,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_R5G5B5T1 : public PixelFormatColor {
+    private:
+        PixelFormatColor_R5G5B5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint16_t red   : 5;
@@ -182,7 +191,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R5G5B5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R5G5B5T1( interpolation );
@@ -200,6 +208,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_B5G5R5T1 : public Utilities::PixelFormatColor {
+    private:
+        PixelFormatColor_B5G5R5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint16_t red   : 5;
@@ -212,7 +223,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_B5G5R5T1( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_B5G5R5T1( interpolation );
@@ -229,6 +239,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_R8G8B8 : public PixelFormatColor {
+    private:
+        PixelFormatColor_R8G8B8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint8_t red;
@@ -240,7 +253,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R8G8B8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R8G8B8( interpolation );
@@ -255,6 +267,9 @@ namespace Utilities {
     };
 
     class PixelFormatColor_R8G8B8A8 : public PixelFormatColor {
+    private:
+        PixelFormatColor_R8G8B8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
+
     public:
         struct Color {
             uint8_t red;
@@ -267,7 +282,6 @@ namespace Utilities {
             
             PixelFormatColor::GenericColor toGeneric( PixelFormatColor::ChannelInterpolation interpolate ) const;
         };
-        PixelFormatColor_R8G8B8A8( PixelFormatColor::ChannelInterpolation color ) : PixelFormatColor(color) {}
         
         virtual PixelFormat* duplicate() const {
             return new PixelFormatColor_R8G8B8A8( interpolation );
