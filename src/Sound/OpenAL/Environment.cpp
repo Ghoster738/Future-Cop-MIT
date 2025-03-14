@@ -260,7 +260,7 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     bool changed_data = false;
 
-    ALfloat master_volume = 1.0f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume;
+    ALfloat master_volume = 1.0f, announcement_volume = master_volume, music_volume = master_volume, sfx_volume = master_volume, video_volume = master_volume;
     unsigned listener_sound_limit = 32, announcement_queue_limit = 32;
 
     if(!ini_data.has("general"))
@@ -272,6 +272,7 @@ int Environment::readConfig( std::filesystem::path file ) {
         AUDIO_VOLUME_SETTING(announcement_volume, "announcement_volume")
         AUDIO_VOLUME_SETTING(music_volume,               "music_volume")
         AUDIO_VOLUME_SETTING(sfx_volume,                   "sfx_volume")
+        AUDIO_VOLUME_SETTING(video_volume,               "video_volume")
     }
 
     if(!ini_data.has("listener") || !ini_data["listener"].has("sound_limit")) {
@@ -311,6 +312,8 @@ int Environment::readConfig( std::filesystem::path file ) {
     sound_queue.setGain(announcement_volume);
 
     music_gain = music_volume;
+
+    this->stream_gain = video_volume;
 
     alSourcef(music_source, AL_GAIN, music_gain);
 
