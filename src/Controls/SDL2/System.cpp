@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "InputSet.h"
 
+#include <mini/ini.h>
 #include <json/json.h>
 #include <fstream>
 
@@ -328,46 +329,42 @@ int Controls::System::read( const std::filesystem::path& filepath ) {
 
 int Controls::System::write( const std::filesystem::path& filepath ) const {
     auto control_config_path = filepath;
-    control_config_path += ".json";
+    control_config_path += ".ini";
 
-    std::ofstream resource;
-    Json::Value root;
-    
-    root[name_control_name][name_subsystem]["name"]  = "Simple Direct Media Layer 2";
-    root[name_control_name][name_subsystem]["major"] = 2;
-    root[name_control_name][name_subsystem]["minor"] = 0;
-    
-    root[name_control_name][name_input_sets];
-    
+    mINI::INIFile ini_file( control_config_path.string() );
+
+    mINI::INIStructure ini_data;
+
+    bool changed_data = false;
+
+    ini_data["general"];
+
+    ini_data["general"]["control_library"] = "SDL2";
+    ini_data["general"]["version_major"] = "0";
+    ini_data["general"]["version_minor"] = "0";
+
     for( auto it = input_sets.begin(); it != input_sets.end(); it++) {
         if( (*it) != nullptr ) {
             // Write out the name for the input set.
-            root[name_control_name][name_input_sets][ (*it)->getName() ];
-            
+            ini_data[(*it)->getName()];
+
             for( unsigned int i = 0; (*it)->getInput( i ) != nullptr; i++ ) {
                 auto single_input_r = (*it)->getInput( i );
                 auto single_input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( single_input_r->getInternalData() );
-                
+
                 if( single_input_internal_r->sdl_event.type == SDL_KEYUP ) {
                     // Write the keyname for the input set. Make sure that utf-8 is used on json.
-                    root[name_control_name][name_input_sets][ (*it)->getName() ][ single_input_r->getName() ][ "key" ] = SDL_GetKeyName( single_input_internal_r->sdl_event.key.keysym.sym );
+                    ini_data[(*it)->getName()][ single_input_r->getName() ] = SDL_GetKeyName( single_input_internal_r->sdl_event.key.keysym.sym );
                 }
             }
         }
     }
-    resource.open( control_config_path, std::ios::out );
 
-    if( resource.is_open() )
-    {
-        resource << root;
-
-        resource.close();
-
-        // TODO think of more ways to give an error.
+    if( ini_file.write(ini_data, true) ) {
         return 1;
     }
-    else
-        return 0;
+
+    return 0;
 }
 
 int Controls::System::addInputSet( InputSet *input_set_p ) {
