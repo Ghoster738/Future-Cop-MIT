@@ -400,8 +400,14 @@ void MainProgram::initialLoadResources() {
 }
 
 void MainProgram::loadGraphics( bool show_map ) {
-    if(!this->is_graphics_already_loaded)
-        this->environment_p->loadResources( this->accessor );
+    if(!this->is_graphics_already_loaded) {
+        auto result = this->environment_p->loadResources( this->accessor );
+
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+
+        if( result < 0 )
+            log.output << "Graphics did not load.";
+    }
 
     this->environment_p->displayMap( show_map );
     this->environment_p->setBoundingBoxDraw( false );
