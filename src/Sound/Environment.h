@@ -86,6 +86,8 @@ public:
 
     /**
      * This method reads an ini file containing configuration.
+     * @note If the configuration file is not found then this method will create a new ini file.
+     * @note If the configuration file has missing parameters then this method will update the ini file.
      * @param file The location of the configuration file.
      * @return -1 if the configuration file being read is not compatible, 0 if this operation is not supported, 1 file is successfully read.
      */
