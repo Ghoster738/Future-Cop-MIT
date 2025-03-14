@@ -265,6 +265,7 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     if(!ini_data.has("general"))
         ini_data["general"];
+
     {
         auto& general = ini_data["general"];
 
