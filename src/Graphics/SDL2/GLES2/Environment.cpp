@@ -53,6 +53,8 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
+    int problem_level = 1; // -1 means total failure, 0 means partial success, but some errors, 1 means loaded with no problems.
+
     auto tos_resource_r = accessor.getConstTOS( 1 );
 
     this->anm_resources.clear();
@@ -74,8 +76,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     }
 
     std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
-
-    int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
     int shine_index = -1;
 
@@ -141,7 +141,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 shine_index = i;
         }
         else
-            failed_texture_loads--;
+            problem_level = 0;
     }
     
     if( !textures.empty() ) {
@@ -254,7 +254,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     this->skeletal_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
     this->dynamic_triangle_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
 
-    int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder *model_r;
     std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllConstOBJ();
 
@@ -271,6 +270,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 else
                     this->static_model_draw_routine.inputModel( model_r, *model_types[ i ], this->textures );
             }
+            else
+                problem_level = 0;
 
             model_r = model_types[ i ]->createBoundingBoxes();
 
@@ -280,6 +281,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 else
                     this->static_model_draw_routine.inputBoundingBoxes( model_r, model_types[ i ]->getResourceID(), this->textures );
             }
+            else
+                problem_level = 0;
         }
     }
     
@@ -293,13 +296,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if(!particle_types.empty())
         this->particle_draw_routine.inputParticles(*particle_types[0], this->textures);
 
-    // TODO Fix this function.
-    return number_of_failures;
-
-    if( failed_texture_loads == 0 )
-        return 1;
-    else
-        return -failed_texture_loads;
+    return problem_level;
 }
 
 bool Environment::displayMap( bool state ) {

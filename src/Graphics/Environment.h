@@ -83,7 +83,7 @@ public:
     /**
      * Load the resources and place them into graphics.
      * @param accessor The accessor to the resources to the resources.
-     * @return TODO Fix this return function.
+     * @return -1 means a total failure; 0 means there is an error but some stuff is renderable; 1 means success.
      */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
