@@ -249,14 +249,12 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     full_file_path += ".ini";
 
-    auto ini_file_p = new mINI::INIFile( full_file_path.string() );
-
-    if(ini_file_p == nullptr)
-        return -1;
+    mINI::INIFile ini_file( full_file_path.string() );
 
     mINI::INIStructure ini_data;
 
-    ini_file_p->read(ini_data);
+    if(!ini_file.read(ini_data))
+        return -1;
 
     bool changed_data = false;
 
@@ -300,10 +298,8 @@ int Environment::readConfig( std::filesystem::path file ) {
     }
 
     if(changed_data || !std::filesystem::exists(full_file_path)) {
-        ini_file_p->write(ini_data, true); // Pretty print
+        ini_file.write(ini_data, true); // Pretty print
     }
-
-    delete ini_file_p;
 
     master_gain = master_volume;
 
