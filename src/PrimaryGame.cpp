@@ -225,7 +225,7 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
 
             {
                 auto log = Utilities::logger.getLog( Utilities::Logger::INFO );
-                log.output << "Creating screenshot \"" << NAME << "\"\n";
+                log.output << "Creating screenshot " << NAME << "\n";
             }
 
             const auto dimensions = main_program.environment_p->window_p->getDimensions();
@@ -235,7 +235,7 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
             if( main_program.environment_p->screenshot( *image_screenshot_p ) ) {
                 {
                     auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
-                    log.output << "Launching screenshot \"" << NAME << "\"\n";
+                    log.output << "Launching screenshot " << NAME << "\n";
                 }
                 std::thread thread( writeThreadedImage, NAME, image_screenshot_p );
 
@@ -245,7 +245,7 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
                 delete image_screenshot_p;
 
                 auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-                log.output << "Failed to generate screenshot \"" << NAME << "\"\n";
+                log.output << "Failed to generate screenshot " << NAME << "\n";
             }
         }
 
