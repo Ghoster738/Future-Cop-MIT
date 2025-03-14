@@ -32,6 +32,17 @@ Sound::Stream* Environment::allocateStream(unsigned num_of_channels, size_t audi
         return NULL;
     }
 
+    alSourcef(source, AL_GAIN, this->stream_gain);
+
+    error_state = alGetError();
+    if(error_state != AL_NO_ERROR) {
+        alDeleteSources(1, &source);
+
+        error_state = alGetError();
+
+        return NULL;
+    }
+
     // Finally, allocate this class.
     auto stream_p = new Stream();
 

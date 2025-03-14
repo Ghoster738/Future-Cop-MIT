@@ -30,6 +30,8 @@ public:
     ALuint music_source;
     ALfloat music_gain;
 
+    ALfloat stream_gain;
+
     ALfloat master_gain;
 
     std::map<uint32_t, Internal::SoundSource> id_to_sound;

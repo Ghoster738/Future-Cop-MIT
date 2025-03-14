@@ -313,6 +313,8 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     music_gain = music_volume;
 
+    this->stream_gain = video_volume;
+
     alSourcef(music_source, AL_GAIN, music_gain);
 
     listener_both.setGain(sfx_volume);
