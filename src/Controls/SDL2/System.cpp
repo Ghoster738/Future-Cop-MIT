@@ -6,7 +6,6 @@
 #include "InputSet.h"
 
 #include <mini/ini.h>
-#include <json/json.h>
 #include <fstream>
 
 namespace {
@@ -249,82 +248,66 @@ bool Controls::System::isOrderedToExit() const {
 
 int Controls::System::read( const std::filesystem::path& filepath ) {
     auto control_config_path = filepath;
-    control_config_path += ".json";
+    control_config_path += ".ini";
 
-    std::ifstream resource;
+    mINI::INIFile ini_file( control_config_path.string() );
+
+    mINI::INIStructure ini_data;
     
-    resource.open( control_config_path, std::ios::in );
-    
-    if( !resource.is_open() ) {
+    if( !ini_file.read(ini_data) )
         return 0; // The config file either does not exist or could not be read.
-    }
-    else {
-        Json::Value root;
-        Json::CharReaderBuilder reader_settings;
-        std::string error_stream;
-        
-        if( !Json::parseFromStream( reader_settings, resource, &root, &error_stream ) )
-            return -1; // Invaled Json file.
-        else {
-            
-            Json::Value control_base = root[name_control_name][name_subsystem]["name"];
-            Json::Value control_version = root[name_control_name][name_subsystem]["major"];
-            SDL_Event sdl_event;
-            
-            // Make sure that this is the SDL2 library config file.
-            if( control_base.isString() && control_base.asString().compare("Simple Direct Media Layer 2") == 0 &&
-                control_version.isInt() && control_version.asInt() == 2 ) {
-                // TODO Add more checks
-                
-                for( auto it = input_sets.begin(); it != input_sets.end(); it++) {
-                    Json::Value json_inputs = root[name_control_name][name_input_sets][(*it)->getName()];
-                    
-                    if( json_inputs.isObject() ) {
-                        for( auto const& member_name : json_inputs.getMemberNames() ) {
-                            auto input_r = (*it)->getInput( member_name );
-                            
-                            if( input_r != nullptr ) {
-                                Json::Value input_json = root[name_control_name][name_input_sets][(*it)->getName()][member_name];
-                                
-                                // This will test if there is a valid input event to input.
-                                if( input_json.isMember("key") ) {
-                                    memset( &sdl_event, 0, sizeof(sdl_event) );
-                                    
-                                    sdl_event.key.type = SDL_KEYUP;
-                                    sdl_event.key.state = SDL_PRESSED;
-                                    
-                                    SDL_Keycode key = SDL_GetKeyFromName( input_json["key"].asString().c_str() );
-                                    
-                                    if(key != SDLK_UNKNOWN) {
-                                        sdl_event.key.keysym.sym = key;
-                                        sdl_event.key.keysym.scancode = SDL_GetScancodeFromKey( key );
-                                    
-                                        auto input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( input_r->getInternalData() );
-                                        
-                                        input_internal_r->sdl_event = sdl_event;
-                                    }
-                                    else
-                                        return -5; // Unknown cannot be set.
-                                }
-                                else
-                                    return -4; // Unrecognized type.
-                            }
-                            else
-                                return -3; // Missing input.
-                        }
-                    }
-                    else
-                        return -5; // Json Inputs is missing.
-                }
-                
-                return 1; // Everything worked as predicted.
-            }
-            else
-                return -2; // Not the right configuration file.
+
+    if(!ini_data.has("general"))
+        return -1;
+
+    if(!ini_data["general"].has("control_library") && ini_data["general"]["control_library"].compare("SDL2") != 0)
+        return -2;
+
+    if(!ini_data["general"].has("version_major") && ini_data["general"]["version_major"].compare("0") != 0)
+        return -3;
+
+    if(!ini_data["general"].has("version_minor"))
+        return -4;
+
+    int version_minor = std::atoi(ini_data["general"]["version_minor"].c_str());
+
+    if(version_minor > 0)
+        return -5;
+
+    SDL_Event sdl_event;
+
+    for( auto it = input_sets.begin(); it != input_sets.end(); it++) {
+        if( !ini_data.has((*it)->getName()) )
+            return -6;
+
+        for( auto const& member_name : ini_data[(*it)->getName()] ) {
+            auto input_r = (*it)->getInput( member_name.first);
+
+            if( input_r == nullptr )
+                return -7;
+
+            auto input_ini_entry = member_name.second;
+
+            memset( &sdl_event, 0, sizeof(sdl_event) );
+
+            sdl_event.key.type = SDL_KEYUP;
+            sdl_event.key.state = SDL_PRESSED;
+
+            SDL_Keycode key = SDL_GetKeyFromName( input_ini_entry.c_str() );
+
+            if(key == SDLK_UNKNOWN)
+                return -8;
+
+            sdl_event.key.keysym.sym = key;
+            sdl_event.key.keysym.scancode = SDL_GetScancodeFromKey( key );
+
+            auto input_internal_r = reinterpret_cast<Controls::SDL2::Input*>( input_r->getInternalData() );
+
+            input_internal_r->sdl_event = sdl_event;
         }
-        
-        return 1;
     }
+
+    return 1;
 }
 
 int Controls::System::write( const std::filesystem::path& filepath ) const {

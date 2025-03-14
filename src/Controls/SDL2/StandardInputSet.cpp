@@ -9,21 +9,21 @@ void Controls::StandardInputSet::clearInputs() {
 }
 
 Controls::StandardInputSet::StandardInputSet( std::string name_param ) : InputSet( name_param ) {
-    this->states[ Buttons::MENU ].declare(          "MENU", &changed );
-    this->states[ Buttons::UP ].declare(            "UP", &changed );
-    this->states[ Buttons::DOWN ].declare(          "DOWN", &changed );
-    this->states[ Buttons::LEFT ].declare(          "LEFT", &changed );
-    this->states[ Buttons::RIGHT ].declare(         "RIGHT", &changed );
-    this->states[ Buttons::ROTATE_LEFT ].declare(   "ROTATE_LEFT", &changed );
-    this->states[ Buttons::ROTATE_RIGHT ].declare(  "ROTATE_RIGHT", &changed );
-    this->states[ Buttons::WEAPON_LIGHT ].declare(  "WEAPON_LIGHT", &changed );
-    this->states[ Buttons::WEAPON_MEDIUM ].declare( "WEAPON_MEDIUM", &changed );
-    this->states[ Buttons::WEAPON_HEAVY ].declare(  "WEAPON_HEAVY", &changed );
-    this->states[ Buttons::ACTION ].declare(        "ACTION", &changed );
-    this->states[ Buttons::JUMP ].declare(          "JUMP", &changed );
-    this->states[ Buttons::CAMERA ].declare(        "CAMERA", &changed );
-    this->states[ Buttons::CHANGE_TARGET ].declare( "CHANGE_TARGET", &changed );
-    this->states[ Buttons::MAP ].declare(           "MAP",  &changed );
+    this->states[ Buttons::MENU ].declare(          "menu", &changed );
+    this->states[ Buttons::UP ].declare(            "up", &changed );
+    this->states[ Buttons::DOWN ].declare(          "down", &changed );
+    this->states[ Buttons::LEFT ].declare(          "left", &changed );
+    this->states[ Buttons::RIGHT ].declare(         "right", &changed );
+    this->states[ Buttons::ROTATE_LEFT ].declare(   "rotate_left", &changed );
+    this->states[ Buttons::ROTATE_RIGHT ].declare(  "rotate_right", &changed );
+    this->states[ Buttons::WEAPON_LIGHT ].declare(  "weapon_light", &changed );
+    this->states[ Buttons::WEAPON_MEDIUM ].declare( "weapon_medium", &changed );
+    this->states[ Buttons::WEAPON_HEAVY ].declare(  "weapon_heavy", &changed );
+    this->states[ Buttons::ACTION ].declare(        "action", &changed );
+    this->states[ Buttons::JUMP ].declare(          "jump", &changed );
+    this->states[ Buttons::CAMERA ].declare(        "camera", &changed );
+    this->states[ Buttons::CHANGE_TARGET ].declare( "change_target", &changed );
+    this->states[ Buttons::MAP ].declare(           "map",  &changed );
 }
 
 Controls::StandardInputSet::~StandardInputSet() {
