@@ -4,8 +4,10 @@
 #include "Text2DBuffer.h"
 #include "../Utilities/DataTypes.h"
 #include "../Utilities/Collision/GJKPolyhedron.h"
+
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
+
 #include <vector>
 
 namespace Graphics {
