@@ -1,11 +1,11 @@
 #ifndef GRAPHICS_2D_TEXT_BUFFER_H
 #define GRAPHICS_2D_TEXT_BUFFER_H
 
-#include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
-
 #include "../Data/Mission/FontResource.h"
 #include "../Data/Accessor.h"
+
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 namespace Graphics {
 

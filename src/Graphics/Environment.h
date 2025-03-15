@@ -1,20 +1,20 @@
 #ifndef GRAPHICS_ENVIRONMENT_H
 #define GRAPHICS_ENVIRONMENT_H
 
+#include "ANMFrame.h"
 #include "Camera.h"
-#include "Window.h"
+#include "ExternalImage.h"
+#include "Image.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
-#include "Image.h"
-#include "ExternalImage.h"
-#include "ANMFrame.h"
-#include <vector>
-#include "SDL.h"
-#include "../Data/Mission/BMPResource.h"
-#include "../Data/Mission/PTCResource.h"
-#include "../Data/Mission/TilResource.h"
-#include "../Data/Mission/ObjResource.h"
+#include "Window.h"
 #include "../Data/Accessor.h"
+
+#include "SDL.h"
+
+#include <filesystem>
+#include <string>
+#include <vector>
 
 namespace Graphics {
 
@@ -110,6 +110,23 @@ public:
      * @return nullptr or a valid pointer to an Image.
      */
     virtual Image* allocateImage() = 0;
+
+    /**
+     * This declares a Model instance. This instance holds a model resource instance.
+     * @param obj_resource_id this is the model resource id.
+     * @param position_param the 3D position of the model.
+     * @param rotation_param the rotation of the model. Warning, this is a quaterion, and it should be manually normalized.
+     * @param texture_offset This is the texture offset. It is used to change the "color" of the models.
+     * @return a valid pointer to model instance.
+     */
+    virtual ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param = glm::quat(), const glm::vec2 &texture_offset_param = glm::vec2(0, 0)) = 0;
+
+    /**
+     * This checks if a model with a obj_resource_id would.
+     * @param obj_resource_id this is the model resource id.
+     * @return true only if allocateModel would successfully allocate a model instance.
+     */
+    virtual bool doesModelExist(uint32_t obj_resource_id) const = 0;
 
     /**
      * This declares an ParticleInstance instance. This instance shows a "particle"

@@ -9,10 +9,15 @@
 #include <map>
 #include <vector>
 
-namespace Graphics::SDL2::GLES2 {
+namespace Graphics {
 
-class Image;
 class ExternalImage;
+class ImageBase;
+
+namespace SDL2::GLES2 {
+
+class ExternalImage;
+class Image;
 
 namespace Internal {
 
@@ -164,6 +169,8 @@ public:
 
     void clear();
 };
+
+}
 
 }
 

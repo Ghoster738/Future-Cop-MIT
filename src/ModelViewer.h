@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Data/Mission/ObjResource.h"
+#include "Graphics/Text2DBuffer.h"
 #include "Graphics/ModelInstance.h"
 
 class ModelViewer : public GameState {

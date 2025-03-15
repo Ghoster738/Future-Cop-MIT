@@ -3,6 +3,8 @@
 #include "Config.h"
 #include "InputMenu.h"
 #include "MediaPlayer.h"
+#include "Data/Mission/TilResource.h"
+#include "Data/Mission/PTCResource.h"
 
 #include <iostream>
 

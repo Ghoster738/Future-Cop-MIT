@@ -74,8 +74,8 @@ void ModelViewer::load( MainProgram &main_program ) {
     if( this->obj_vector.size() <= cobj_index )
         cobj_index = this->obj_vector.size() - 1;
 
-    if( Graphics::ModelInstance::exists( *main_program.environment_p, this->obj_vector.at( cobj_index )->getResourceID() ) ) {
-        this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+    if( main_program.environment_p->doesModelExist( this->obj_vector.at( cobj_index )->getResourceID() ) ) {
+        this->displayed_instance_p = main_program.environment_p->allocateModel( obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
         this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
         this->displayed_instance_p->setPosition( -this->position );
     }
@@ -200,8 +200,8 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
             if( this->displayed_instance_p != nullptr )
                 delete this->displayed_instance_p;
 
-            if( Graphics::ModelInstance::exists( *main_program.environment_p, obj_vector.at( cobj_index )->getResourceID() ) ) {
-                this->displayed_instance_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->obj_vector.at( this->cobj_index )->getResourceID(), glm::vec3( 0, 0, 0 ) );
+            if( main_program.environment_p->doesModelExist( obj_vector.at( cobj_index )->getResourceID() ) ) {
+                this->displayed_instance_p = main_program.environment_p->allocateModel( this->obj_vector.at( this->cobj_index )->getResourceID(), glm::vec3( 0, 0, 0 ) );
 
                 auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
 
