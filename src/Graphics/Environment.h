@@ -90,6 +90,10 @@ public:
      */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
+    /**
+     * This declares a Camera instance.
+     * @return nullptr or a valid pointer to a Camera instance.
+     */
     virtual Camera* allocateCamera() = 0;
 
     /**
@@ -120,6 +124,10 @@ public:
      */
     virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
 
+    /**
+     * This declares a Window instance.
+     * @return nullptr or a valid pointer to a Window instance.
+     */
     virtual Window* allocateWindow() = 0;
 
     /**
