@@ -2,7 +2,9 @@
 
 #include "Environment.h"
 
-Graphics::Window* Graphics::SDL2::GLES2::Environment::allocateWindow() {
+namespace Graphics::SDL2::GLES2 {
+
+Graphics::Window* Environment::allocateWindow() {
     auto window_p = new Graphics::SDL2::GLES2::Window( *this );
 
     window_p->prioritize_opengl_2_fallback = this->force_gl2;
@@ -10,11 +12,11 @@ Graphics::Window* Graphics::SDL2::GLES2::Environment::allocateWindow() {
     return window_p;
 }
 
-Graphics::SDL2::GLES2::Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 ) {}
+Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 ) {}
 
-Graphics::SDL2::GLES2::Window::~Window() {}
+Window::~Window() {}
 
-int Graphics::SDL2::GLES2::Window::attach() {
+int Window::attach() {
     auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );
     error_log.info << "GLES 2 Graphics Window::attach\n";
     auto info_log = Utilities::logger.getLog( Utilities::Logger::INFO );
@@ -126,4 +128,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
     }
     
     return success;
+}
+
 }
