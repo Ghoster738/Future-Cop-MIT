@@ -108,7 +108,7 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
         if(gles2_environment_p != nullptr) {
             ini_data[identifier];
             GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->force_gl2,                           "force_gl2",      0, 0)
-            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->semi_transparent_limit, "semi_transparent_limit", 0xffff, 0)
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->semi_transparent_limit, "semi_transparent_limit", 131070, 0) // Estimated size 15 MiB of storage.
         }
 
         graphics_environment_p = gles2_environment_p;
