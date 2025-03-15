@@ -67,30 +67,46 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
     if(!ini_file.read(ini_data))
         changed_data = true;
 
-    float render_distance = 256.0f;
-
-    if(!ini_data.has("general"))
+    {
         ini_data["general"];
 
-    {
-        auto& general = ini_data["general"];
-
-        if(!general.has("renderer") && !isIdentifier(general["renderer"])) {
-            general["renderer"] = prefered_identifier;
+        if(!ini_data["general"].has("version_major") && ini_data["general"]["version_major"].compare("0") != 0) {
+            ini_data["general"]["version_major"] = "0";
             changed_data = true;
         }
-        identifier = general["renderer"];
 
-        GRAPHICS_NUMBER_SETTING(general, render_distance, "render_distance", 256.0f, 16.0f)
+        if(!ini_data["general"].has("version_minor")) {
+            changed_data = true;
+        }
+
+        int version_minor = std::atoi(ini_data["general"]["version_minor"].c_str());
+
+        if(version_minor > 0) {
+            changed_data = true;
+        }
+
+        if(changed_data) {
+            ini_data.clear();
+
+            ini_data["general"];
+            ini_data["general"]["version_major"] = "0";
+            ini_data["general"]["version_minor"] = "0";
+        }
+
+        if(!ini_data["general"].has("renderer") && !isIdentifier(ini_data["general"]["renderer"])) {
+            ini_data["general"]["renderer"] = prefered_identifier;
+            changed_data = true;
+        }
+        identifier = ini_data["general"]["renderer"];
     }
-
-    if(changed_data)
-        ini_file.write(ini_data, true);
 
     Environment *graphics_environment_p = nullptr;
 
     if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
         graphics_environment_p = new SDL2::GLES2::Environment();
+
+    if(changed_data)
+        ini_file.write(ini_data, true);
 
     return graphics_environment_p;
 }
