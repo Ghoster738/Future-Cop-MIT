@@ -52,33 +52,6 @@ try { \
 }
 
 Environment* Environment::alloc( const std::filesystem::path& file_path, const std::string &prefered_identifier ) {
-    Environment *graphics_environment_p = nullptr;
-
-    if( prefered_identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
-        graphics_environment_p = new SDL2::GLES2::Environment();
-
-    auto conf_ret = graphics_environment_p->readConfig( file_path );
-
-    return graphics_environment_p;
-}
-
-int Environment::initSystem( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
-        return SDL2::GLES2::Environment::initSystem();
-    }
-    else
-        return -1;
-}
-
-int Environment::deinitEntireSystem( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
-        return SDL2::GLES2::Environment::deinitEntireSystem();
-    }
-    else
-        return -1;
-}
-
-int Environment::readConfig( const std::filesystem::path& file_path ) {
     std::filesystem::path full_file_path = file_path;
 
     full_file_path += ".ini";
@@ -102,8 +75,8 @@ int Environment::readConfig( const std::filesystem::path& file_path ) {
     {
         auto& general = ini_data["general"];
 
-        if(!general.has("renderer") && !this->isIdentifier(general["renderer"])) {
-            general["renderer"] = this->getEnvironmentIdentifier();
+        if(!general.has("renderer") && !isIdentifier(general["renderer"])) {
+            general["renderer"] = prefered_identifier;
             changed_data = true;
         }
         identifier = general["renderer"];
@@ -111,12 +84,31 @@ int Environment::readConfig( const std::filesystem::path& file_path ) {
         GRAPHICS_NUMBER_SETTING(general, render_distance, "render_distance", 256.0f, 16.0f)
     }
 
-    if(changed_data) {
-        if(!ini_file.write(ini_data, true)) // True for Pretty print
-            return -1;
-    }
+    if(changed_data)
+        ini_file.write(ini_data, true);
 
-    return 1;
+    Environment *graphics_environment_p = nullptr;
+
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
+        graphics_environment_p = new SDL2::GLES2::Environment();
+
+    return graphics_environment_p;
+}
+
+int Environment::initSystem( const std::string &identifier ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
+        return SDL2::GLES2::Environment::initSystem();
+    }
+    else
+        return -1;
+}
+
+int Environment::deinitEntireSystem( const std::string &identifier ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
+        return SDL2::GLES2::Environment::deinitEntireSystem();
+    }
+    else
+        return -1;
 }
 
 }
