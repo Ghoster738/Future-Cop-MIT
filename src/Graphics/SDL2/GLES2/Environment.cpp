@@ -20,6 +20,9 @@ Environment::Environment() {
     this->display_world = false;
     this->has_initialized_routines = false;
     this->draw_bounding_boxes = false;
+
+    this->force_gl2 = false;
+    this->semi_transparent_limit = 256;
 }
 
 Environment::~Environment() {
@@ -53,9 +56,14 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
-    auto tos_resource_r = accessor.getConstTOS( 1 );
+    int problem_level = 1; // -1 means total failure, 0 means partial success, but some errors, 1 means loaded with no problems.
+
+    auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+    error_log.info << "GLES 2 Graphics load resources\n";
 
     this->anm_resources.clear();
+
+    auto tos_resource_r = accessor.getConstTOS( 1 );
 
     if(tos_resource_r != nullptr) {
         for(const uint32_t tos_offset: tos_resource_r->getOffsets()) {
@@ -74,8 +82,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     }
 
     std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
-
-    int failed_texture_loads = 0; // A counter for how many textures failed to load at first.
 
     int shine_index = -1;
 
@@ -140,8 +146,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             if( CBMP_ID == 10 )
                 shine_index = i;
         }
-        else
-            failed_texture_loads--;
+        else {
+            problem_level = 0;
+
+            error_log.output << "NULL Texture at Slot "<< std::dec << i << "\n";
+        }
     }
     
     if( !textures.empty() ) {
@@ -196,7 +205,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
-        std::cout << "Call Before Graphics::Environment::setModelTypes is broken! " << err << std::endl;
+        error_log.output << "Call Before Graphics::Environment::setModelTypes is broken! " << err << "\n";
 
     if( !this->has_initialized_routines ) {
         // Setup the 2D vertex and fragment shaders
@@ -212,7 +221,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            std::cout << "Static Model shader is broken!: " << err << std::endl;
+            error_log.output << "Static Model shader is broken!: " << err << "\n";
 
         this->morph_model_draw_routine.setVertexShader();
         this->morph_model_draw_routine.setFragmentShader();
@@ -221,7 +230,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            std::cout << "Morph Model shader is broken!: " << err << std::endl;
+            error_log.output << "Morph Model shader is broken!: " << err << "\n";
 
         this->skeletal_model_draw_routine.setVertexShader();
         this->skeletal_model_draw_routine.setFragmentShader();
@@ -230,7 +239,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            std::cout << "Skeletal Model shader is broken!: " << err << std::endl;
+            error_log.output << "Skeletal Model shader is broken!: " << err << "\n";
 
         this->dynamic_triangle_draw_routine.setVertexShader();
         this->dynamic_triangle_draw_routine.setFragmentShader();
@@ -239,7 +248,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            std::cout << "Dynamic Triangle is broken!: " << err << std::endl;
+            error_log.output << "Dynamic Triangle is broken!: " << err << "\n";
 
         this->has_initialized_routines = true;
     }
@@ -254,7 +263,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     this->skeletal_model_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
     this->dynamic_triangle_draw_routine.setEnvironmentTexture( this->shiney_texture_p );
 
-    int number_of_failures = 0; // TODO make sure that this gets set.
     Utilities::ModelBuilder *model_r;
     std::vector<const Data::Mission::ObjResource*> model_types = accessor.getAllConstOBJ();
 
@@ -271,6 +279,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 else
                     this->static_model_draw_routine.inputModel( model_r, *model_types[ i ], this->textures );
             }
+            else {
+                problem_level = 0;
+
+                error_log.output << "Model " << std::dec << model_types[ i ]->getResourceID() << " createModel has failed!" << "\n";
+            }
 
             model_r = model_types[ i ]->createBoundingBoxes();
 
@@ -280,26 +293,25 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 else
                     this->static_model_draw_routine.inputBoundingBoxes( model_r, model_types[ i ]->getResourceID(), this->textures );
             }
+            else {
+                problem_level = 0;
+
+                error_log.output << "Model " << std::dec << model_types[ i ]->getResourceID() << " createBoundingBoxes has failed!" << "\n";
+            }
         }
     }
     
     err = glGetError();
 
     if( err != GL_NO_ERROR )
-        std::cout << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << std::endl;
+        error_log.output << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << "\n";
 
     std::vector<const Data::Mission::PYRResource*> particle_types = accessor.getAllConstPYR();
 
     if(!particle_types.empty())
         this->particle_draw_routine.inputParticles(*particle_types[0], this->textures);
 
-    // TODO Fix this function.
-    return number_of_failures;
-
-    if( failed_texture_loads == 0 )
-        return 1;
-    else
-        return -failed_texture_loads;
+    return problem_level;
 }
 
 bool Environment::displayMap( bool state ) {

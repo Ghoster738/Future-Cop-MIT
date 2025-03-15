@@ -19,14 +19,6 @@ Graphics::Camera::Camera() {
     PV2D         = glm::mat4( 1.0f );
 }
 
-Graphics::Camera* Graphics::Camera::alloc( Graphics::Environment &env_r ) {
-    if( env_r.getEnvironmentIdentifier().compare( Environment::SDL2_WITH_GLES_2 ) == 0 ) {
-        return new Graphics::SDL2::GLES2::Camera();
-    }
-    else
-        return nullptr;
-}
-
 Graphics::Camera::~Camera() {
 }
 

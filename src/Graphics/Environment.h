@@ -55,11 +55,14 @@ public:
     static bool isIdentifier( const std::string &identifier );
     
     /**
-     * Initialize the graphics library used by this graphics system.
-     * @param identifier This is used to identify which environment should be allocated.
+     * Initialize the graphics library used by this graphics system. This method reads an ini file containing configuration.
+     * @note If the configuration file is not found then this method will create a new ini file.
+     * @note If the configuration file has missing parameters then this method will update the ini file.
+     * @param file_path The location of the configuration file. Leave it empty if you want no config file.
+     * @param prefered_identifier This is used to identify which environment should be allocated if configuration ini is not available.
      * @return A valid pointer for success, a nullptr for failure.
      */
-    static Environment* alloc( const std::string &identifier );
+    static Environment* alloc( const std::filesystem::path& file_path, const std::string &prefered_identifier );
 
     /**
      * Initialize the graphics library used by this graphics system.
@@ -83,16 +86,15 @@ public:
     /**
      * Load the resources and place them into graphics.
      * @param accessor The accessor to the resources to the resources.
-     * @return TODO Fix this return function.
+     * @return -1 means a total failure; 0 means there is an error but some stuff is renderable; 1 means success.
      */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
     /**
-     * This declares an Image instance. This instance holds a 2D image of a CBMP resource.
-     * This is useful for drawing GUI of Future Cop or making backgrounds.
-     * @return nullptr or a valid pointer to an Image.
+     * This declares a Camera instance.
+     * @return nullptr or a valid pointer to a Camera instance.
      */
-    virtual Image* allocateImage() = 0;
+    virtual Camera* allocateCamera() = 0;
 
     /**
      * This declares an ExternalImage instance. This instance holds a small image that can be drawn in 2D.
@@ -103,6 +105,19 @@ public:
     virtual ExternalImage* allocateExternalImage(bool has_alpha = false) = 0;
 
     /**
+     * This declares an Image instance. This instance holds a 2D image of a CBMP resource.
+     * This is useful for drawing GUI of Future Cop or making backgrounds.
+     * @return nullptr or a valid pointer to an Image.
+     */
+    virtual Image* allocateImage() = 0;
+
+    /**
+     * This declares an ParticleInstance instance. This instance shows a "particle"
+     * @return nullptr or a valid pointer to the ParticleInstance.
+     */
+    virtual ParticleInstance* allocateParticleInstance() = 0;
+
+    /**
      * This declares an ANMFrame instance. This instance shows small animations.
      * @param track_offset The offset to the SWVR resource to play.
      * @return nullptr or a valid pointer to a ANMFrame.
@@ -110,10 +125,10 @@ public:
     virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
 
     /**
-     * This declares an ParticleInstance instance. This instance shows a "particle"
-     * @return nullptr or a valid pointer to the ParticleInstance.
+     * This declares a Window instance.
+     * @return nullptr or a valid pointer to a Window instance.
      */
-    virtual ParticleInstance* allocateParticleInstance() = 0;
+    virtual Window* allocateWindow() = 0;
 
     /**
      * This sets the draw mode for the map.

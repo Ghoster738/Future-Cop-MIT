@@ -35,6 +35,10 @@ public:
 
     bool draw_bounding_boxes;
 
+    // Configuration
+    bool force_gl2;
+    int semi_transparent_limit;
+
 public:
     Environment();
     virtual ~Environment();
@@ -45,10 +49,12 @@ public:
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
 
-    virtual Graphics::Image* allocateImage();
     virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
+    virtual Graphics::Camera* allocateCamera();
+    virtual Graphics::Image* allocateImage();
     virtual Graphics::ParticleInstance* allocateParticleInstance();
     virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
+    virtual Graphics::Window* allocateWindow();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
