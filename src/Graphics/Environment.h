@@ -121,6 +121,11 @@ public:
      */
     virtual ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param = glm::quat(), const glm::vec2 &texture_offset_param = glm::vec2(0, 0)) = 0;
 
+    /**
+     * This checks if a model with a obj_resource_id would.
+     * @param obj_resource_id this is the model resource id.
+     * @return true only if allocateModel would successfully allocate a model instance.
+     */
     virtual bool doesModelExist(uint32_t obj_resource_id) const = 0;
 
     /**
