@@ -2,7 +2,6 @@
 #include "Environment.h"
 
 #include "SDL2/Window.h"
-#include "SDL2/GLES2/Window.h"
 
 Graphics::Window::Window( Environment &env ) : env_r( &env ),
     window_title( "WINDOW TITLE NOT SET" ),
@@ -10,14 +9,6 @@ Graphics::Window::Window( Environment &env ) : env_r( &env ),
     dimensions( glm::u32vec2( 320, 200 ) )
 {
     status.window_status = Status::WINDOW;
-}
-
-Graphics::Window* Graphics::Window::alloc( Environment &env_r ) {
-    if( env_r.getEnvironmentIdentifier().compare( Environment::SDL2_WITH_GLES_2 ) == 0 ) {
-        return new Graphics::SDL2::GLES2::Window( env_r );
-    }
-    else
-        return nullptr;
 }
 
 Graphics::Window::~Window() {

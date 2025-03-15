@@ -27,9 +27,8 @@ protected:
     std::vector<Camera*> cameras;
     
     Window( Environment &env_r );
+
 public:
-    static Window* alloc( Environment &env_r );
-    
     virtual ~Window();
 
     virtual void setWindowTitle( const std::string &window_title );

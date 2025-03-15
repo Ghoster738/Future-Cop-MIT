@@ -2,13 +2,17 @@
 
 #include "Environment.h"
 
-Graphics::SDL2::GLES2::Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 )
-{
-    prioritize_opengl_2_fallback = dynamic_cast<GLES2::Environment*>(&env)->force_gl2;
+Graphics::Window* Graphics::SDL2::GLES2::Environment::allocateWindow() {
+    auto window_p = new Graphics::SDL2::GLES2::Window( *this );
+
+    window_p->prioritize_opengl_2_fallback = this->force_gl2;
+
+    return window_p;
 }
 
-Graphics::SDL2::GLES2::Window::~Window() {
-}
+Graphics::SDL2::GLES2::Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 ) {}
+
+Graphics::SDL2::GLES2::Window::~Window() {}
 
 int Graphics::SDL2::GLES2::Window::attach() {
     auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );

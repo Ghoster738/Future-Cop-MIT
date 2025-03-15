@@ -120,6 +120,8 @@ public:
      */
     virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
 
+    virtual Window* allocateWindow() = 0;
+
     /**
      * This sets the draw mode for the map.
      * @return True if the state is applied successfully.

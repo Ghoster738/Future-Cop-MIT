@@ -289,10 +289,10 @@ void MainProgram::setupGraphics() {
     this->environment_p = Graphics::Environment::alloc( graphics_config_path, this->graphics_identifier );
 
     if( this->environment_p == nullptr )
-        throwException( "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " + this->graphics_identifier );
+        throwException( "Sorry, but the graphics has failed to initialize. Favored Identifier: " + this->graphics_identifier );
 
     // Declare a pointer
-    Graphics::Window *window_r = Graphics::Window::alloc( *this->environment_p );
+    Graphics::Window *window_r = this->environment_p->allocateWindow();
 
     if( window_r == nullptr )
         throwException( "The graphics window has failed to allocate." );
