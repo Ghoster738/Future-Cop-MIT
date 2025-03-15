@@ -283,7 +283,10 @@ void MainProgram::initGraphics() {
 }
 
 void MainProgram::setupGraphics() {
-    this->environment_p = Graphics::Environment::alloc( this->graphics_identifier );
+    auto graphics_config_path = this->paths.getConfigDirPath();
+    graphics_config_path /= "graphics";
+
+    this->environment_p = Graphics::Environment::alloc( graphics_config_path, this->graphics_identifier );
 
     if( this->environment_p == nullptr )
         throwException( "Sorry, but OpenGL 2/OpenGL ES 2 are the minimum requirements for this engine. Identifier: " + this->graphics_identifier );

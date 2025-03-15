@@ -19,12 +19,12 @@ int main(int argc, char** argv)
 
     if(main_program.sound_system_p != nullptr) {
         auto sound_config_path = main_program.paths.getConfigDirPath();
-        sound_config_path += "sound";
+        sound_config_path /= "sound";
         main_program.sound_system_p->readConfig(sound_config_path);
     }
 
     InputMenu::input_menu.path  = main_program.paths.getConfigDirPath();
-    InputMenu::input_menu.path += "controls";
+    InputMenu::input_menu.path /= "controls";
 
     if( main_program.control_system_p->read( InputMenu::input_menu.path ) > 0 ) {
         InputMenu::input_menu.next_menu_r  = &MainMenu::main_menu;

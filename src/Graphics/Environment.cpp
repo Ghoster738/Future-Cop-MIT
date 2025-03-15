@@ -33,30 +33,6 @@ bool Environment::isIdentifier( const std::string &identifier ) {
         return false;
 }
 
-Environment* Environment::alloc( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
-        return new SDL2::GLES2::Environment();
-    }
-    else
-        return nullptr;
-}
-
-int Environment::initSystem( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
-        return SDL2::GLES2::Environment::initSystem();
-    }
-    else
-        return -1;
-}
-
-int Environment::deinitEntireSystem( const std::string &identifier ) {
-    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
-        return SDL2::GLES2::Environment::deinitEntireSystem();
-    }
-    else
-        return -1;
-}
-
 #define GRAPHICS_NUMBER_SETTING(source, variable, variable_string, default_value, min_value) \
 if(!source.has(variable_string)) { \
     source[variable_string] = std::to_string(default_value); \
@@ -75,8 +51,35 @@ try { \
     changed_data = true; \
 }
 
-int Environment::readConfig( std::filesystem::path file ) {
-    std::filesystem::path full_file_path = file;
+Environment* Environment::alloc( const std::filesystem::path& file_path, const std::string &prefered_identifier ) {
+    Environment *graphics_environment_p = nullptr;
+
+    if( prefered_identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
+        graphics_environment_p = new SDL2::GLES2::Environment();
+
+    auto conf_ret = graphics_environment_p->readConfig( file_path );
+
+    return graphics_environment_p;
+}
+
+int Environment::initSystem( const std::string &identifier ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
+        return SDL2::GLES2::Environment::initSystem();
+    }
+    else
+        return -1;
+}
+
+int Environment::deinitEntireSystem( const std::string &identifier ) {
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
+        return SDL2::GLES2::Environment::deinitEntireSystem();
+    }
+    else
+        return -1;
+}
+
+int Environment::readConfig( const std::filesystem::path& file_path ) {
+    std::filesystem::path full_file_path = file_path;
 
     full_file_path += ".ini";
 
@@ -84,12 +87,12 @@ int Environment::readConfig( std::filesystem::path file ) {
 
     mINI::INIStructure ini_data;
 
-    if(!ini_file.read(ini_data))
-        return -1;
-
     bool changed_data = false;
 
     std::string identifier;
+
+    if(!ini_file.read(ini_data))
+        changed_data = true;
 
     float render_distance = 256.0f;
 
@@ -100,7 +103,7 @@ int Environment::readConfig( std::filesystem::path file ) {
         auto& general = ini_data["general"];
 
         if(!general.has("renderer") && !this->isIdentifier(general["renderer"])) {
-            general["renderer"] = SDL2_WITH_GLES_2;
+            general["renderer"] = this->getEnvironmentIdentifier();
             changed_data = true;
         }
         identifier = general["renderer"];
@@ -108,8 +111,9 @@ int Environment::readConfig( std::filesystem::path file ) {
         GRAPHICS_NUMBER_SETTING(general, render_distance, "render_distance", 256.0f, 16.0f)
     }
 
-    if(changed_data || !std::filesystem::exists(full_file_path)) {
-        ini_file.write(ini_data, true); // Pretty print
+    if(changed_data) {
+        if(!ini_file.write(ini_data, true)) // True for Pretty print
+            return -1;
     }
 
     return 1;

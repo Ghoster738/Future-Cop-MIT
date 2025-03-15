@@ -55,11 +55,14 @@ public:
     static bool isIdentifier( const std::string &identifier );
     
     /**
-     * Initialize the graphics library used by this graphics system.
-     * @param identifier This is used to identify which environment should be allocated.
+     * Initialize the graphics library used by this graphics system. This method reads an ini file containing configuration.
+     * @note If the configuration file is not found then this method will create a new ini file.
+     * @note If the configuration file has missing parameters then this method will update the ini file.
+     * @param file_path The location of the configuration file. Leave it empty if you want no config file.
+     * @param prefered_identifier This is used to identify which environment should be allocated if configuration ini is not available.
      * @return A valid pointer for success, a nullptr for failure.
      */
-    static Environment* alloc( const std::string &identifier );
+    static Environment* alloc( const std::filesystem::path& file_path, const std::string &prefered_identifier );
 
     /**
      * Initialize the graphics library used by this graphics system.
@@ -91,10 +94,10 @@ public:
      * This method reads an ini file containing configuration.
      * @note If the configuration file is not found then this method will create a new ini file.
      * @note If the configuration file has missing parameters then this method will update the ini file.
-     * @param file The location of the configuration file.
+     * @param file_path The location of the configuration file.
      * @return -1 if the configuration file being read is not compatible, 0 if this operation is not supported, 1 file is successfully read.
      */
-    int readConfig( std::filesystem::path file );
+    int readConfig( const std::filesystem::path& file_path );
 
     /**
      * This declares an Image instance. This instance holds a 2D image of a CBMP resource.
