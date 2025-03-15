@@ -2,9 +2,11 @@
 #include <iostream> // std::cout TODO Remove this.
 
 #include "../../Environment.h"
+#include "Environment.h"
 
-Graphics::SDL2::GLES2::Window::Window( Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 )
+Graphics::SDL2::GLES2::Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 )
 {
+    prioritize_opengl_2_fallback = dynamic_cast<GLES2::Environment*>(&env)->force_gl2;
 }
 
 Graphics::SDL2::GLES2::Window::~Window() {
@@ -18,6 +20,13 @@ int Graphics::SDL2::GLES2::Window::attach() {
     const int SDL2_CONTEXTS[ 2 ] = { SDL_GL_CONTEXT_PROFILE_ES, 0 };
     
     for( int i = 0; i < 2 && major_version != 2; i++ ) {
+        int mirror_index;
+
+        if(!prioritize_opengl_2_fallback)
+            mirror_index = i;
+        else
+            mirror_index = 1 - i;
+
         // Deallocate the window if there
         if( window_p != nullptr )
             SDL_DestroyWindow( window_p );
@@ -32,7 +41,7 @@ int Graphics::SDL2::GLES2::Window::attach() {
         
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL2_CONTEXTS[ i ] );
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL2_CONTEXTS[ mirror_index ] );
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         
@@ -59,11 +68,11 @@ int Graphics::SDL2::GLES2::Window::attach() {
             else
                 std::cout << "GLAD INIT Success for ";
             
-            std::cout << CONTEXT_NAMES[ i ] << std::endl;
+            std::cout << CONTEXT_NAMES[ mirror_index ] << std::endl;
         }
         else
         {
-            std::cout << "SDL Window Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
+            std::cout << "SDL Window Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << std::endl;
         }
         
         if( GL_context != nullptr ) {
@@ -77,13 +86,13 @@ int Graphics::SDL2::GLES2::Window::attach() {
             }
             else
             {
-                std::cout << "SDL Context Status Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
+                std::cout << "SDL Context Status Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << std::endl;
             }
         }
         else
         {
             std::cout << "Context Allocation Failure!\n";
-            std::cout << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ i ] << std::endl;
+            std::cout << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << std::endl;
         }
     }
     

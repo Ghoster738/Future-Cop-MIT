@@ -11,6 +11,7 @@ namespace GLES2 {
 class Window : public Graphics::SDL2::Window {
 public:
     SDL_GLContext GL_context;
+    bool prioritize_opengl_2_fallback;
     
     Window( Environment &env_r );
     virtual ~Window();
