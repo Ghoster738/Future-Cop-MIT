@@ -56,6 +56,24 @@ try { \
     changed_data = true; \
 }
 
+#define GRAPHICS_BOOL_SETTING(source, variable, variable_string, default_value) {\
+if(!source.has(variable_string)) { \
+    source[variable_string] = #default_value; \
+    changed_data = true; \
+} \
+auto value = source[variable_string][0]; \
+if(value == '1' || value == 't' || value == 'T') { \
+    variable = true; \
+} else \
+if(value == '0' || value == 'f' || value == 'F') { \
+    variable = false; \
+} else {\
+    variable = default_value; \
+    source[variable_string] = #default_value; \
+    changed_data = true; \
+} \
+}
+
 Environment* Environment::alloc( const std::filesystem::path& file_path, const std::string &prefered_identifier ) {
     std::filesystem::path full_file_path = file_path;
 
@@ -112,7 +130,7 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
 
         if(gles2_environment_p != nullptr) {
             ini_data[identifier];
-            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->force_gl2,                           "force_gl2",      0,        1, 0)
+            GRAPHICS_BOOL_SETTING(  ini_data[identifier], gles2_environment_p->force_gl2,                           "force_gl2",  false)
             GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->semi_transparent_limit, "semi_transparent_limit", 131070, 0xFFFFFF, 0) // Estimated size 15 MiB of storage.
         }
 
