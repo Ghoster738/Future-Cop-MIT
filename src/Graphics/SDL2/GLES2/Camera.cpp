@@ -3,20 +3,21 @@
 
 #include "../../../Data/Mission/TilResource.h"
 
-#include <iostream>
-
 Graphics::Camera* Graphics::SDL2::GLES2::Environment::allocateCamera() {
-    return new Graphics::SDL2::GLES2::Camera();
+    auto camera_p = new Graphics::SDL2::GLES2::Camera();
+
+    if( camera_p->transparent_triangles.allocateBuffer(this->semi_transparent_limit) == 0 ) {
+        auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        error_log.info << "GLES 2 Camera\n";
+        error_log.output << "Cannot allocate "<< std::dec << this->semi_transparent_limit << " triangles";
+    }
+
+    return camera_p;
 }
 
-Graphics::SDL2::GLES2::Camera::Camera() : Graphics::Camera() {
-    if( this->transparent_triangles.allocateBuffer() == 0 )
-        std::cout << "Failed to allocate triangles"<< std::endl;
-}
+Graphics::SDL2::GLES2::Camera::Camera() : Graphics::Camera() {}
 
-Graphics::SDL2::GLES2::Camera::~Camera() {
-}
-
+Graphics::SDL2::GLES2::Camera::~Camera() {}
 
 bool Graphics::SDL2::GLES2::Camera::isVisible( const Graphics::ModelInstance &instance ) const {
     glm::vec3 position( 0, 0, 0 );
