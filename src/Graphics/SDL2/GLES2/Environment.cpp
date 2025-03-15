@@ -149,7 +149,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         else {
             problem_level = 0;
 
-            error_log.output << "NULL Texture at Slot "<< std::dec << i;
+            error_log.output << "NULL Texture at Slot "<< std::dec << i << "\n";
         }
     }
     
@@ -205,7 +205,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto err = glGetError();
 
     if( err != GL_NO_ERROR )
-        error_log.output << "Call Before Graphics::Environment::setModelTypes is broken! " << err;
+        error_log.output << "Call Before Graphics::Environment::setModelTypes is broken! " << err << "\n";
 
     if( !this->has_initialized_routines ) {
         // Setup the 2D vertex and fragment shaders
@@ -221,7 +221,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            error_log.output << "Static Model shader is broken!: " << err;
+            error_log.output << "Static Model shader is broken!: " << err << "\n";
 
         this->morph_model_draw_routine.setVertexShader();
         this->morph_model_draw_routine.setFragmentShader();
@@ -230,7 +230,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            error_log.output << "Morph Model shader is broken!: " << err;
+            error_log.output << "Morph Model shader is broken!: " << err << "\n";
 
         this->skeletal_model_draw_routine.setVertexShader();
         this->skeletal_model_draw_routine.setFragmentShader();
@@ -239,7 +239,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            error_log.output << "Skeletal Model shader is broken!: " << err;
+            error_log.output << "Skeletal Model shader is broken!: " << err << "\n";
 
         this->dynamic_triangle_draw_routine.setVertexShader();
         this->dynamic_triangle_draw_routine.setFragmentShader();
@@ -248,7 +248,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         err = glGetError();
 
         if( err != GL_NO_ERROR )
-            error_log.output << "Dynamic Triangle is broken!: " << err;
+            error_log.output << "Dynamic Triangle is broken!: " << err << "\n";
 
         this->has_initialized_routines = true;
     }
@@ -282,7 +282,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             else {
                 problem_level = 0;
 
-                error_log.output << "Model "<< std::dec << model_types[ i ]->getResourceID() << " createModel has failed!";
+                error_log.output << "Model " << std::dec << model_types[ i ]->getResourceID() << " createModel has failed!" << "\n";
             }
 
             model_r = model_types[ i ]->createBoundingBoxes();
@@ -296,7 +296,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             else {
                 problem_level = 0;
 
-                error_log.output << "Model "<< std::dec << model_types[ i ]->getResourceID() << " createBoundingBoxes has failed!";
+                error_log.output << "Model " << std::dec << model_types[ i ]->getResourceID() << " createBoundingBoxes has failed!" << "\n";
             }
         }
     }
@@ -304,7 +304,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     err = glGetError();
 
     if( err != GL_NO_ERROR )
-        error_log.output << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err;
+        error_log.output << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << "\n";
 
     std::vector<const Data::Mission::PYRResource*> particle_types = accessor.getAllConstPYR();
 
