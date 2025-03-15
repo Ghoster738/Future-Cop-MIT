@@ -34,6 +34,7 @@ protected:
     unsigned map_section_height;
 public:
     static const std::string SDL2_WITH_GLES_2;
+    static const std::string SDL2_WITH_SOFTWARE;
 
     Window *window_p;
     
