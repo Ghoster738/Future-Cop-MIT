@@ -12,6 +12,7 @@
 
 #include "SDL.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
