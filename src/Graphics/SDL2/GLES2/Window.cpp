@@ -1,7 +1,5 @@
 #include "Window.h" // Include the internal class
-#include <iostream> // std::cout TODO Remove this.
 
-#include "../../Environment.h"
 #include "Environment.h"
 
 Graphics::SDL2::GLES2::Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 )
@@ -13,6 +11,10 @@ Graphics::SDL2::GLES2::Window::~Window() {
 }
 
 int Graphics::SDL2::GLES2::Window::attach() {
+    auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+    error_log.info << "GLES 2 Graphics Window::attach\n";
+    auto info_log = Utilities::logger.getLog( Utilities::Logger::INFO );
+
     int major_version = 0;
     int success = -1;
     
@@ -62,17 +64,15 @@ int Graphics::SDL2::GLES2::Window::attach() {
             int version = gladLoadGLES2((GLADloadfunc) SDL_GL_GetProcAddress);
 
             if( version == 0 ) {
-                std::cout << "GLAD INIT Failure for ";
+                error_log.output << "GLAD INIT Failure for " << CONTEXT_NAMES[ mirror_index ] << "\n";
                 // TODO Print out the problem if failure is detected.
             }
             else
-                std::cout << "GLAD INIT Success for ";
-            
-            std::cout << CONTEXT_NAMES[ mirror_index ] << std::endl;
+                info_log.output << "GLAD INIT Success for " << CONTEXT_NAMES[ mirror_index ] << "\n";
         }
         else
         {
-            std::cout << "SDL Window Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << std::endl;
+            error_log.output << "SDL Window Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << "\n";
         }
         
         if( GL_context != nullptr ) {
@@ -86,13 +86,13 @@ int Graphics::SDL2::GLES2::Window::attach() {
             }
             else
             {
-                std::cout << "SDL Context Status Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << std::endl;
+                error_log.output << "SDL Context Status Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << "\n";
             }
         }
         else
         {
-            std::cout << "Context Allocation Failure!\n";
-            std::cout << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << std::endl;
+            error_log.output << "Context Allocation Failure!\n";
+            error_log.output << "SDL Error: " << SDL_GetError() << " for " << CONTEXT_NAMES[ mirror_index ] << "\n";
         }
     }
     
@@ -104,21 +104,21 @@ int Graphics::SDL2::GLES2::Window::attach() {
     if( success < 0 ) {
         major_version = 0;
         
-        std::cout << "Failed to initialize OpenGLES2\n";
+        error_log.output << "Failed to initialize OpenGLES2\n";
         SDL_GL_GetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, &major_version );
-        std::cout << "  SDL_GL_CONTEXT_MAJOR_VERSION = " << major_version << "\n";
+        error_log.output << "  SDL_GL_CONTEXT_MAJOR_VERSION = " << major_version << "\n";
         SDL_GL_GetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, &major_version );
-        std::cout << "  SDL_GL_CONTEXT_MINOR_VERSION = " << major_version << "\n";
+        error_log.output << "  SDL_GL_CONTEXT_MINOR_VERSION = " << major_version << "\n";
         SDL_GL_GetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, &major_version );
-        std::cout << "  SDL_GL_CONTEXT_PROFILE_MASK ID = " << major_version << "\n";
+        error_log.output << "  SDL_GL_CONTEXT_PROFILE_MASK ID = " << major_version << "\n";
 
         if( (major_version & SDL_GL_CONTEXT_PROFILE_ES) != 0 )
-            std::cout << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_ES\n";
+            error_log.output << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_ES\n";
         if( (major_version & SDL_GL_CONTEXT_PROFILE_CORE) != 0 )
-            std::cout << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_CORE\n";
+            error_log.output << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_CORE\n";
         if( (major_version & SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) != 0 )
-            std::cout << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY\n";
-        std::cout << std::endl;
+            error_log.output << "  SDL_GL_CONTEXT_PROFILE_MASK = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY\n";
+        error_log.output << "\n";
     }
     
     return success;
