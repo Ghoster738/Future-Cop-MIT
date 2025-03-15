@@ -20,6 +20,9 @@ Environment::Environment() {
     this->display_world = false;
     this->has_initialized_routines = false;
     this->draw_bounding_boxes = false;
+
+    this->force_gl2 = false;
+    this->semi_transparent_limit = 256;
 }
 
 Environment::~Environment() {

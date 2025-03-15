@@ -39,7 +39,7 @@ if(!source.has(variable_string)) { \
     changed_data = true; \
 } \
 try { \
-    variable = std::stof( source[variable_string] ); \
+    variable = std::stoi( source[variable_string] ); \
     if( variable < min_value ) { \
         variable = min_value; \
         source[variable_string] = std::to_string(variable); \
@@ -102,8 +102,17 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
 
     Environment *graphics_environment_p = nullptr;
 
-    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
-        graphics_environment_p = new SDL2::GLES2::Environment();
+    if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 ) {
+        auto gles2_environment_p = new SDL2::GLES2::Environment();
+
+        if(gles2_environment_p != nullptr) {
+            ini_data[identifier];
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->force_gl2,                           "force_gl2",      0, 0)
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->semi_transparent_limit, "semi_transparent_limit", 0xffff, 0)
+        }
+
+        graphics_environment_p = gles2_environment_p;
+    }
 
     if(changed_data)
         ini_file.write(ini_data, true);

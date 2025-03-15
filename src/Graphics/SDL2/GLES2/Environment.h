@@ -35,6 +35,10 @@ public:
 
     bool draw_bounding_boxes;
 
+    // Configuration
+    bool force_gl2;
+    int semi_transparent_limit;
+
 public:
     Environment();
     virtual ~Environment();
