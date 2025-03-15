@@ -33,7 +33,7 @@ bool Environment::isIdentifier( const std::string &identifier ) {
         return false;
 }
 
-#define GRAPHICS_NUMBER_SETTING(source, variable, variable_string, default_value, min_value) \
+#define GRAPHICS_NUMBER_SETTING(source, variable, variable_string, default_value, max_value, min_value) \
 if(!source.has(variable_string)) { \
     source[variable_string] = std::to_string(default_value); \
     changed_data = true; \
@@ -42,6 +42,11 @@ try { \
     variable = std::stoi( source[variable_string] ); \
     if( variable < min_value ) { \
         variable = min_value; \
+        source[variable_string] = std::to_string(variable); \
+        changed_data = true; \
+    } \
+    if( variable > max_value ) { \
+        variable = max_value; \
         source[variable_string] = std::to_string(variable); \
         changed_data = true; \
     } \
@@ -107,8 +112,8 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
 
         if(gles2_environment_p != nullptr) {
             ini_data[identifier];
-            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->force_gl2,                           "force_gl2",      0, 0)
-            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->semi_transparent_limit, "semi_transparent_limit", 131070, 0) // Estimated size 15 MiB of storage.
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->force_gl2,                           "force_gl2",      0,        1, 0)
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], gles2_environment_p->semi_transparent_limit, "semi_transparent_limit", 131070, 0xFFFFFF, 0) // Estimated size 15 MiB of storage.
         }
 
         graphics_environment_p = gles2_environment_p;
