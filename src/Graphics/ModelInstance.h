@@ -1,7 +1,5 @@
-#ifndef GRAPHICS_SDL2_GLES2_MODEL_INSTANCE_H
-#define GRAPHICS_SDL2_GLES2_MODEL_INSTANCE_H
-
-#include "Environment.h"
+#ifndef GRAPHICS_MODEL_INSTANCE_H
+#define GRAPHICS_MODEL_INSTANCE_H
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -29,28 +27,12 @@ protected:
             texture_offset( offset ),
             position_transform_timeline( 0.0f ),
             texture_transform_timeline( 0 ) {}
-public:
-    /**
-     * This method is to be called only in Environment, because this class is responsiable for handling the position and rotation of the model.
-     * @param env_r this is the environment that will be attached to this model instance.
-     * @param obj_identifier this is the index to the object.
-     * @param position the 3D position of the model.
-     * @param rotation the rotation of the model. Warning, this is a quaterion, and it should be manually normalized.
-     * @param texture_offset This is the texture offset. It is used to change the "color" of the models.
-     * @return a valid pointer to model instance.
-     */
-    static Graphics::ModelInstance* alloc( Environment &env_r,
-                                           uint32_t obj_identifier,
-                                           const glm::vec3 &position,
-                                           const glm::quat &rotation = glm::quat(),
-                                           const glm::vec2 &texture_offset = glm::vec2( 0, 0 ) );
 
+public:
     /**
      * @warning Be sure that this is attached to an environement before deletion.
      */
     virtual ~ModelInstance();
-    
-    static bool exists( Graphics::Environment &env_r, uint32_t obj_identifier );
 
     /**
      * This sets the position of the model.
@@ -117,4 +99,4 @@ public:
 
 }
 
-#endif // GRAPHICS_SDL2_GLES2_MODEL_INSTANCE_H
+#endif // GRAPHICS_MODEL_INSTANCE_H

@@ -112,6 +112,18 @@ public:
     virtual Image* allocateImage() = 0;
 
     /**
+     * This declares a Model instance. This instance holds a model resource instance.
+     * @param obj_resource_id this is the model resource id.
+     * @param position_param the 3D position of the model.
+     * @param rotation_param the rotation of the model. Warning, this is a quaterion, and it should be manually normalized.
+     * @param texture_offset This is the texture offset. It is used to change the "color" of the models.
+     * @return a valid pointer to model instance.
+     */
+    virtual ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param = glm::quat(), const glm::vec2 &texture_offset_param = glm::vec2(0, 0)) = 0;
+
+    virtual bool doesModelExist(uint32_t obj_resource_id) const = 0;
+
+    /**
      * This declares an ParticleInstance instance. This instance shows a "particle"
      * @return nullptr or a valid pointer to the ParticleInstance.
      */

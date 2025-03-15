@@ -39,7 +39,7 @@ void SkyCaptain::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->model )
-            this->model_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->model_id, this->position );
+            this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position );
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

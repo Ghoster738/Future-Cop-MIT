@@ -80,10 +80,10 @@ void BaseTurret::resetGraphics( MainProgram &main_program ) {
             gun_position = this->base_rotation * this->alive_base_cobj_r->getPosition( 0 );
 
         if( this->alive_base )
-            this->base_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->alive_base_id, this->position, this->base_rotation, this->texture_offset );
+            this->base_p = main_program.environment_p->allocateModel( this->alive_base_id, this->position, this->base_rotation, this->texture_offset );
 
         if( this->alive_gun )
-            this->gun_p = Graphics::ModelInstance::alloc( *main_program.environment_p, this->alive_gun_id, this->position + gun_position, this->gun_rotation, this->texture_offset );
+            this->gun_p = main_program.environment_p->allocateModel( this->alive_gun_id, this->position + gun_position, this->gun_rotation, this->texture_offset );
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

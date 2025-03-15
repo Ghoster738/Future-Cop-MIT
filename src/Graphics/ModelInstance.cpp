@@ -1,28 +1,7 @@
 #include "ModelInstance.h"
 #include "SDL2/GLES2/ModelInstance.h"
 
-Graphics::ModelInstance* Graphics::ModelInstance::alloc(Environment &env_r,
-                                                        uint32_t obj_identifier,
-                                                        const glm::vec3 &position,
-                                                        const glm::quat &rotation,
-                                                        const glm::vec2 &texture_offset )
-{
-    if( env_r.getEnvironmentIdentifier().compare( Environment::SDL2_WITH_GLES_2 ) == 0 ) {
-        return new Graphics::SDL2::GLES2::ModelInstance( env_r, obj_identifier, position, rotation, texture_offset );
-    }
-    else
-        return nullptr;
-}
-
 Graphics::ModelInstance::~ModelInstance() {
-}
-
-bool Graphics::ModelInstance::exists( Graphics::Environment &env_r, uint32_t obj_identifier ) {
-    if( env_r.getEnvironmentIdentifier().compare( Environment::SDL2_WITH_GLES_2 ) == 0 ) {
-        return SDL2::GLES2::ModelInstance::exists( env_r, obj_identifier );
-    }
-    else
-        return false;
 }
 
 void Graphics::ModelInstance::setPosition( const glm::vec3 &position ) {
