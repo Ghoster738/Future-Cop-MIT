@@ -8,13 +8,12 @@
 #include "Image.h"
 #include "ExternalImage.h"
 #include "ANMFrame.h"
-#include <vector>
-#include "SDL.h"
-#include "../Data/Mission/BMPResource.h"
-#include "../Data/Mission/PTCResource.h"
-#include "../Data/Mission/TilResource.h"
-#include "../Data/Mission/ObjResource.h"
 #include "../Data/Accessor.h"
+
+#include "SDL.h"
+
+#include <string>
+#include <vector>
 
 namespace Graphics {
 
