@@ -49,8 +49,9 @@ public:
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
 
-    virtual Graphics::Image* allocateImage();
     virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
+    virtual Graphics::Camera* allocateCamera();
+    virtual Graphics::Image* allocateImage();
     virtual Graphics::ParticleInstance* allocateParticleInstance();
     virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
     virtual bool displayMap( bool state );

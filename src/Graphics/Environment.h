@@ -90,12 +90,7 @@ public:
      */
     virtual int loadResources( const Data::Accessor &accessor ) = 0;
 
-    /**
-     * This declares an Image instance. This instance holds a 2D image of a CBMP resource.
-     * This is useful for drawing GUI of Future Cop or making backgrounds.
-     * @return nullptr or a valid pointer to an Image.
-     */
-    virtual Image* allocateImage() = 0;
+    virtual Camera* allocateCamera() = 0;
 
     /**
      * This declares an ExternalImage instance. This instance holds a small image that can be drawn in 2D.
@@ -106,17 +101,24 @@ public:
     virtual ExternalImage* allocateExternalImage(bool has_alpha = false) = 0;
 
     /**
-     * This declares an ANMFrame instance. This instance shows small animations.
-     * @param track_offset The offset to the SWVR resource to play.
-     * @return nullptr or a valid pointer to a ANMFrame.
+     * This declares an Image instance. This instance holds a 2D image of a CBMP resource.
+     * This is useful for drawing GUI of Future Cop or making backgrounds.
+     * @return nullptr or a valid pointer to an Image.
      */
-    virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
+    virtual Image* allocateImage() = 0;
 
     /**
      * This declares an ParticleInstance instance. This instance shows a "particle"
      * @return nullptr or a valid pointer to the ParticleInstance.
      */
     virtual ParticleInstance* allocateParticleInstance() = 0;
+
+    /**
+     * This declares an ANMFrame instance. This instance shows small animations.
+     * @param track_offset The offset to the SWVR resource to play.
+     * @return nullptr or a valid pointer to a ANMFrame.
+     */
+    virtual ANMFrame* allocateVideoANM(uint32_t track_offset) = 0;
 
     /**
      * This sets the draw mode for the map.

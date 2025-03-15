@@ -1,8 +1,13 @@
 #include "Camera.h"
+#include "Environment.h"
 
 #include "../../../Data/Mission/TilResource.h"
 
 #include <iostream>
+
+Graphics::Camera* Graphics::SDL2::GLES2::Environment::allocateCamera() {
+    return new Graphics::SDL2::GLES2::Camera();
+}
 
 Graphics::SDL2::GLES2::Camera::Camera() : Graphics::Camera() {
     if( this->transparent_triangles.allocateBuffer() == 0 )

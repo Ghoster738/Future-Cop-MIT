@@ -41,8 +41,6 @@ protected:
     Camera();
 
 public:
-    static Graphics::Camera* alloc( Graphics::Environment &env_r );
-
     virtual ~Camera();
 
     /**

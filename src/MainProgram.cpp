@@ -306,7 +306,7 @@ void MainProgram::setupGraphics() {
         throwException( "The graphics window has failed to attach." );
 
     // Initialize the camera
-    this->first_person_r = Graphics::Camera::alloc( *this->environment_p );
+    this->first_person_r = this->environment_p->allocateCamera();
     this->environment_p->window_p->attachCamera( *this->first_person_r );
 
     // Center the camera.
