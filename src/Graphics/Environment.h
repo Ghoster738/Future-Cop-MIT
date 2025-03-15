@@ -1,13 +1,13 @@
 #ifndef GRAPHICS_ENVIRONMENT_H
 #define GRAPHICS_ENVIRONMENT_H
 
+#include "ANMFrame.h"
 #include "Camera.h"
-#include "Window.h"
+#include "ExternalImage.h"
+#include "Image.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
-#include "Image.h"
-#include "ExternalImage.h"
-#include "ANMFrame.h"
+#include "Window.h"
 #include "../Data/Accessor.h"
 
 #include "SDL.h"
