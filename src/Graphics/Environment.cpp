@@ -11,13 +11,10 @@ namespace Graphics {
 const std::string Environment::SDL2_WITH_GLES_2   = "GLES2";
 const std::string Environment::SDL2_WITH_SOFTWARE = "Software";
 
-Environment::Environment() : map_section_width( 0 ), map_section_height( 0 ), window_p( nullptr ) {
+Environment::Environment() : map_section_width( 0 ), map_section_height( 0 ) {
 }
 
 Environment::~Environment() {
-    // Close and destroy the window
-    if( this->window_p != nullptr )
-        delete this->window_p;
 }
 
 std::vector<std::string> Environment::getAvailableIdentifiers() {

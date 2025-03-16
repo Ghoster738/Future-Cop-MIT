@@ -5,9 +5,14 @@
 namespace Graphics::SDL2::GLES2 {
 
 Graphics::Window* Environment::allocateWindow() {
+    if(this->window_p != nullptr)
+        return this->window_p;
+
     auto window_p = new Graphics::SDL2::GLES2::Window( *this );
 
     window_p->prioritize_opengl_2_fallback = this->force_gl2;
+
+    this->window_p = window_p;
 
     return window_p;
 }
@@ -104,8 +109,6 @@ int Window::attach() {
     
     if( window_p != nullptr )
         SDL_ShowWindow( window_p );
-    
-    env_r->window_p = this;
     
     if( success < 0 ) {
         major_version = 0;

@@ -1,14 +1,15 @@
 #include "Environment.h"
 
-#include "Window.h"
-
 namespace Graphics::SDL2::Software {
 
-Environment::Environment() {
+Environment::Environment() : window_p( nullptr ) {
     this->display_world = false;
 }
 
 Environment::~Environment() {
+    // Close and destroy the window
+    if( this->window_p != nullptr )
+        delete this->window_p;
 }
 
 int Environment::initSystem() {
@@ -33,6 +34,10 @@ std::string Environment::getEnvironmentIdentifier() const {
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
     return -1;
+}
+
+Graphics::Window* Environment::getWindow() {
+    return this->window_p;
 }
 
 bool Environment::displayMap( bool state ) {
@@ -63,13 +68,9 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
-    auto window_r = this->window_p;
-
-    auto window_SDL_r = dynamic_cast<Software::Window*>( window_r );
-
-    SDL_UpdateTexture(window_SDL_r->texture_p, nullptr, window_SDL_r->pixel_buffer_p, window_SDL_r->pixel_buffer_pitch);
-    SDL_RenderCopy(window_SDL_r->renderer_p, window_SDL_r->texture_p, nullptr, nullptr);
-    SDL_RenderPresent(window_SDL_r->renderer_p);
+    SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->pixel_buffer_p, this->window_p->pixel_buffer_pitch);
+    SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
+    SDL_RenderPresent(this->window_p->renderer_p);
 }
 
 bool Environment::screenshot( Utilities::Image2D &image ) const {

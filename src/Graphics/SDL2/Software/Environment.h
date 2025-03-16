@@ -3,10 +3,13 @@
 
 #include "../../Environment.h"
 
+#include "Window.h"
+
 namespace Graphics::SDL2::Software {
 
 class Environment : public Graphics::Environment {
 public:
+    Window *window_p;
     bool display_world;
 
     // Configuration
@@ -30,6 +33,7 @@ public:
     virtual Graphics::Text2DBuffer* allocateText2DBuffer();
     virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
     virtual Graphics::Window* allocateWindow();
+    virtual Graphics::Window* getWindow();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );

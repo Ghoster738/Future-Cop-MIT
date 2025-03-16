@@ -13,7 +13,7 @@
 
 namespace Graphics::SDL2::GLES2 {
 
-Environment::Environment() {
+Environment::Environment() : window_p( nullptr ) {
     this->world_p             = nullptr;
     this->shiney_texture_p    = nullptr;
 
@@ -26,6 +26,10 @@ Environment::Environment() {
 }
 
 Environment::~Environment() {
+    // Close and destroy the window
+    if( this->window_p != nullptr )
+        delete this->window_p;
+
     for( auto texture : this->textures ) {
         delete texture.second;
         texture.second = nullptr;
@@ -323,6 +327,10 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     return problem_level;
 }
 
+Graphics::Window* Environment::getWindow() {
+    return this->window_p;
+}
+
 bool Environment::displayMap( bool state ) {
     if( this->world_p != nullptr ) {
         display_world = state;
@@ -384,19 +392,16 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
-    auto window_r =  window_p;
-    
-    auto window_SDL_r = dynamic_cast<GLES2::Window*>( window_r );
     GLES2::Camera* current_camera_r; // Used to store the camera.
 
     // Clear the screen to black
     glClearColor(0.125f, 0.125f, 0.25f, 1.0f);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    for( unsigned int i = 0; i < window_r->getCameras()->size(); i++ )
+    for( unsigned int i = 0; i < this->window_p->getCameras()->size(); i++ )
     {
         // Setup the current camera.
-        current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(window_r->getCameras()->at( i ));
+        current_camera_r = dynamic_cast<Graphics::SDL2::GLES2::Camera*>(this->window_p->getCameras()->at( i ));
 
         if( current_camera_r != nullptr )
         {
@@ -446,7 +451,7 @@ void Environment::drawFrame() {
         }
 
         // Finally swap the window.
-        SDL_GL_SwapWindow( window_SDL_r->window_p );
+        SDL_GL_SwapWindow( this->window_p->window_p );
     }
 }
 

@@ -5,7 +5,12 @@
 namespace Graphics::SDL2::Software {
 
 Graphics::Window* Environment::allocateWindow() {
+    if(this->window_p != nullptr)
+        return this->window_p;
+
     auto window_p = new Graphics::SDL2::Software::Window( *this );
+
+    this->window_p = window_p;
 
     return window_p;
 }
@@ -93,8 +98,6 @@ int Window::attach() {
             error_log.output << "SDL Window Error: " << SDL_GetError() << "\n";
         }
     }
-    
-    env_r->window_p = this;
 
     if(this->pixel_buffer_p != nullptr) {
         this->pixel_buffer_pitch = 4 * getDimensions().x;

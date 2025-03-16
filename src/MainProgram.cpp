@@ -205,8 +205,8 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
 glm::u32vec2 MainProgram::getWindowScale() const {
     glm::u32vec2 scale( 0, 0 );
 
-    if( this->environment_p != nullptr && this->environment_p->window_p != nullptr)
-        scale = this->environment_p->window_p->getDimensions();
+    if( this->environment_p != nullptr && this->environment_p->getWindow() != nullptr)
+        scale = this->environment_p->getWindow()->getDimensions();
 
     return scale;
 }
@@ -313,10 +313,10 @@ void MainProgram::setupGraphics() {
     if(this->first_person_r == nullptr)
         throwException( "Camera failed to allocate." );
 
-    this->environment_p->window_p->attachCamera( *this->first_person_r );
+    this->environment_p->getWindow()->attachCamera( *this->first_person_r );
 
     // Center the camera.
-    if( this->environment_p->window_p->center() != 1 ) {
+    if( this->environment_p->getWindow()->center() != 1 ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The window had failed to center.";
     }

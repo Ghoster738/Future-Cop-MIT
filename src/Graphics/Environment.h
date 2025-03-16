@@ -35,8 +35,6 @@ protected:
 public:
     static const std::string SDL2_WITH_GLES_2;
     static const std::string SDL2_WITH_SOFTWARE;
-
-    Window *window_p;
     
     /**
      * When you are done with the program this should clean up the rest of the graphics.
@@ -149,6 +147,8 @@ public:
      * @return nullptr or a valid pointer to a Window instance.
      */
     virtual Window* allocateWindow() = 0;
+
+    virtual Window* getWindow() = 0;
 
     /**
      * This sets the draw mode for the map.

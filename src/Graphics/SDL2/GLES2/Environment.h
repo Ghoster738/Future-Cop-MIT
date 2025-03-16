@@ -14,11 +14,14 @@
 #include "Internal/World.h"
 #include "../../Camera.h"
 #include "../../Environment.h"
+#include "Window.h"
 
 namespace Graphics::SDL2::GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
+    Graphics::SDL2::GLES2::Window *window_p;
+
     std::map<uint32_t, const Data::Mission::ANMResource*> anm_resources;
     std::map<uint32_t, Internal::Texture2D*> textures;
     Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
@@ -58,6 +61,7 @@ public:
     virtual Graphics::Text2DBuffer* allocateText2DBuffer();
     virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
     virtual Graphics::Window* allocateWindow();
+    virtual Graphics::Window* getWindow();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
