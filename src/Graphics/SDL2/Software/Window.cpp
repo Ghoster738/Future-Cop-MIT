@@ -95,6 +95,8 @@ int Window::attach() {
         }
     }
     
+    error_log.output << "DifferredPixel: " << sizeof(DifferredPixel) << " bytes.\n";
+
     return success;
 }
 
