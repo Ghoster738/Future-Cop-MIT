@@ -15,11 +15,11 @@ public:
     };
 
 
-    SDL_Renderer   *renderer_p;
-    SDL_Texture    *texture_p;
-    DifferredPixel *differred_buffer_p;
-    uint32_t       *pixel_buffer_p;
-    int             pixel_buffer_pitch;
+    SDL_Renderer                          *renderer_p;
+    SDL_Texture                           *texture_p;
+    Utilities::GridBase2D<DifferredPixel>  differred_buffer;
+    uint32_t                              *pixel_buffer_p;
+    int                                    pixel_buffer_pitch;
     
     Window( Environment &env_r );
     virtual ~Window();

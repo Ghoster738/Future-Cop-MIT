@@ -15,7 +15,7 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ), differred_buffer_p( nullptr ), pixel_buffer_p( nullptr ) {}
+Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ), pixel_buffer_p( nullptr ) {}
 
 Window::~Window() {
     if( this->texture_p != nullptr )
@@ -29,10 +29,6 @@ Window::~Window() {
     if( this->pixel_buffer_p != nullptr )
         delete this->pixel_buffer_p;
     this->pixel_buffer_p = nullptr;
-
-    if( this->differred_buffer_p != nullptr )
-        delete this->differred_buffer_p;
-    this->differred_buffer_p = nullptr;
 }
 
 int Window::attach() {
@@ -50,10 +46,6 @@ int Window::attach() {
         if( this->pixel_buffer_p != nullptr )
             delete this->pixel_buffer_p;
         this->pixel_buffer_p = nullptr;
-
-        if( this->differred_buffer_p != nullptr )
-            delete this->differred_buffer_p;
-        this->differred_buffer_p = nullptr;
 
         if( this->renderer_p != nullptr )
             SDL_DestroyRenderer(this->renderer_p);
@@ -81,7 +73,7 @@ int Window::attach() {
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, getDimensions().x, getDimensions().y);
 
                 if( this->texture_p != nullptr ) {
-                    this->differred_buffer_p = new DifferredPixel [getDimensions().x * getDimensions().y];
+                    this->differred_buffer.setDimensions( getDimensions().x, getDimensions().y );
                     this->pixel_buffer_p = new uint32_t [getDimensions().x * getDimensions().y];
                     success = 1;
                 }
@@ -115,17 +107,17 @@ int Window::attach() {
         }
     }
 
-    if(this->differred_buffer_p != nullptr) {
+    {
         int texture_id = 0;
         int choices = 0;
 
-        uint8_t r_choices[] = {0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff};
-        uint8_t g_choices[] = {0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff};
-        uint8_t b_choices[] = {0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff};
+        uint8_t r_choices[] = {0xff, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
+        uint8_t g_choices[] = {0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff};
+        uint8_t b_choices[] = {0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
 
         for(auto y = getDimensions().y; y != 0; y--) {
             for(auto x = getDimensions().x; x != 0; x--) {
-                DifferredPixel &pixel = this->differred_buffer_p[(x - 1) + getDimensions().x * (y - 1)];
+                DifferredPixel pixel;
 
                 texture_id = x / 0x100;
                 choices    = y / 0x100;
@@ -137,6 +129,8 @@ int Window::attach() {
                 pixel.texture_coordinates[0] = x % 0xFF;
                 pixel.texture_coordinates[1] = y % 0xFF;
                 pixel.depth = 0xFFFF;
+
+                this->differred_buffer.setValue((x - 1), (y - 1), pixel);
             }
         }
     }
