@@ -96,7 +96,7 @@ int Window::attach() {
 
         for(auto y = getDimensions().y; y != 0; y--) {
             for(auto x = getDimensions().x; x != 0; x--) {
-                // Blue screen of nothingness.
+                // Blue strip screen of nothingness.
                 uint32_t pixel = 0xFF008FFF;
 
                 if( (y % 8) > 4)
