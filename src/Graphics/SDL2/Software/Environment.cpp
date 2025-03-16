@@ -89,7 +89,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        std::chrono::duration<double, std::deca> duration = this_time - last_time;
+        std::chrono::duration<double> duration = this_time - last_time;
         log.output << "Time taken is " << duration.count() << "s";
     }
 
