@@ -10,6 +10,8 @@ class Window : public Graphics::SDL2::Window {
 public:
     SDL_Renderer *renderer_p;
     SDL_Texture  *texture_p;
+    uint32_t     *pixel_buffer_p;
+    int           pixel_buffer_pitch;
     
     Window( Environment &env_r );
     virtual ~Window();

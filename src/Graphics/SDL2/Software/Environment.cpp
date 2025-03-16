@@ -1,5 +1,7 @@
 #include "Environment.h"
 
+#include "Window.h"
+
 namespace Graphics::SDL2::Software {
 
 Environment::Environment() {
@@ -61,6 +63,13 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
+    auto window_r = this->window_p;
+
+    auto window_SDL_r = dynamic_cast<Software::Window*>( window_r );
+
+    SDL_UpdateTexture(window_SDL_r->texture_p, nullptr, window_SDL_r->pixel_buffer_p, window_SDL_r->pixel_buffer_pitch);
+    SDL_RenderCopy(window_SDL_r->renderer_p, window_SDL_r->texture_p, nullptr, nullptr);
+    SDL_RenderPresent(window_SDL_r->renderer_p);
 }
 
 bool Environment::screenshot( Utilities::Image2D &image ) const {

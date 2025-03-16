@@ -10,7 +10,7 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ) {}
+Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ), pixel_buffer_p( nullptr ) {}
 
 Window::~Window() {
     if( this->texture_p != nullptr )
@@ -20,6 +20,10 @@ Window::~Window() {
     if( this->renderer_p != nullptr )
         SDL_DestroyRenderer(this->renderer_p);
     this->renderer_p = nullptr;
+
+    if( this->pixel_buffer_p != nullptr )
+        delete this->pixel_buffer_p;
+    this->pixel_buffer_p = nullptr;
 }
 
 int Window::attach() {
@@ -33,6 +37,10 @@ int Window::attach() {
         if( this->texture_p != nullptr )
             SDL_DestroyTexture(this->texture_p);
         this->texture_p = nullptr;
+
+        if( this->pixel_buffer_p != nullptr )
+            delete this->pixel_buffer_p;
+        this->pixel_buffer_p = nullptr;
 
         if( this->renderer_p != nullptr )
             SDL_DestroyRenderer(this->renderer_p);
@@ -60,6 +68,7 @@ int Window::attach() {
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, getDimensions().x, getDimensions().y);
 
                 if( this->texture_p != nullptr ) {
+                    this->pixel_buffer_p = new uint32_t [getDimensions().x * getDimensions().y];
                     success = 1;
                 }
                 else {
@@ -77,6 +86,14 @@ int Window::attach() {
     }
     
     env_r->window_p = this;
+    this->pixel_buffer_pitch = 4 * getDimensions().x;
+
+    for(auto y = getDimensions().y; y != 0; y--) {
+        for(auto x = getDimensions().x; x != 0; x--) {
+            // Blue screen of nothingness.
+            this->pixel_buffer_p[(x - 1) + getDimensions().x * (y - 1)] = 0xFF008FFF;
+        }
+    }
     
     return success;
 }
