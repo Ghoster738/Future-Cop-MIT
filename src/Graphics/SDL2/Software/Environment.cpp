@@ -77,7 +77,6 @@ Graphics::ExternalImage*    Environment::allocateExternalImage(bool has_alpha) {
 Graphics::Image*            Environment::allocateImage() { return nullptr; }
 Graphics::ModelInstance*    Environment::allocateModel( uint32_t obj_identifier, const glm::vec3 &position, const glm::quat &rotation, const glm::vec2 &texture_offset ) { return nullptr; }
 Graphics::ParticleInstance* Environment::allocateParticleInstance() { return nullptr; }
-Graphics::Text2DBuffer*     Environment::allocateText2DBuffer() { return nullptr; }
 
 bool Environment::doesModelExist(uint32_t obj_resource_id) const {return false;}
 
