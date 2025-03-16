@@ -51,7 +51,7 @@ int Window::attach() {
         this->window_p = SDL_CreateWindow( getWindowTitle().c_str(),
                                      getPosition().x, getPosition().y,
                                      getDimensions().x, getDimensions().y,
-                                     flags | SDL_WINDOW_HIDDEN );
+                                     flags | SDL_WINDOW_SHOWN );
         
         if( this->window_p != nullptr ) {
             this->renderer_p = SDL_CreateRenderer(this->window_p, -1, SDL_RENDERER_SOFTWARE);
