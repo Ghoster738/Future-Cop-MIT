@@ -12,7 +12,11 @@ public:
     Window *window_p;
     bool display_world;
 
-    std::vector<std::pair<uint32_t, Utilities::ImageMorbin2D*>> textures;
+    struct TexturePixel {
+        uint8_t data[4];
+    };
+
+    std::vector<std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>> textures;
 
     // Configuration
 
