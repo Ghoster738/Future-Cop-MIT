@@ -95,9 +95,9 @@ void Environment::drawFrame() {
                 auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
                 auto texture_pixel = slot.second->readPixel( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
-                source_pixel.colors[0] = texture_pixel.red * 256;
-                source_pixel.colors[1] = texture_pixel.green * 256;
-                source_pixel.colors[2] = texture_pixel.blue * 256;
+                source_pixel.colors[0] *= texture_pixel.red;
+                source_pixel.colors[1] *= texture_pixel.green;
+                source_pixel.colors[2] *= texture_pixel.blue;
             }
 
             uint32_t destination_pixel = 0xFF000000;
