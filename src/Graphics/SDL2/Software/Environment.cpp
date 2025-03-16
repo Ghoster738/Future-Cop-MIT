@@ -84,7 +84,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     for(auto i = 60; i != 0; i--) {
         for(auto y = dim.y; y != 0; y--) {
             for(auto x = dim.x; x != 0; x--) {
-                Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getValue((x - 1), (y - 1));
+                Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getValue(dim.x - x, dim.y - y);
 
                 if(source_pixel.colors[3] != 0) {
                     auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
@@ -101,7 +101,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
                 destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
 
-                this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
+                this->window_p->pixel_buffer_p[(dim.x - x) + this->window_p->getDimensions().x * (dim.y - y)] = destination_pixel;
             }
         }
     }
