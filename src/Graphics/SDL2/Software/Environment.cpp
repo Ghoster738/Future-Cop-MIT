@@ -102,9 +102,9 @@ void Environment::drawFrame() {
 
             uint32_t destination_pixel = 0xFF000000;
 
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) <<  0;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) << 16;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
 
             this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
         }
