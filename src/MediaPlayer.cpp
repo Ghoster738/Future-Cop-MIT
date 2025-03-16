@@ -68,6 +68,9 @@ bool MediaPlayer::readMedia( MainProgram &main_program, const std::filesystem::p
 }
 
 void MediaPlayer::updateMedia( MainProgram &main_program, const std::filesystem::path &path ) {
+    if(this->external_image_p == nullptr)
+        return; // There is nothing to render to.
+
     bool successful_read = readMedia( main_program, path );
 
     if(successful_read) {
@@ -133,19 +136,22 @@ void MediaPlayer::load( MainProgram &main_program ) {
     this->media_index = 0;
     this->next_picture_count_down = std::chrono::microseconds(0);
 
+    this->is_image = true;
+
+    this->button_timer = std::chrono::microseconds(0);
+
     if(this->external_image_p != nullptr)
         delete this->external_image_p;
     this->external_image_p = main_program.environment_p->allocateExternalImage();
+
+    if(this->external_image_p == nullptr)
+        return;
 
     this->external_image_p->positions[0] =               glm::vec2(0, 0); // Origin
     this->external_image_p->positions[1] = main_program.getWindowScale(); // End
     this->external_image_p->is_visable = true;
 
     this->external_image_p->update();
-
-    this->is_image = true;
-
-    this->button_timer = std::chrono::microseconds(0);
 }
 
 void MediaPlayer::unload( MainProgram &main_program ) {
