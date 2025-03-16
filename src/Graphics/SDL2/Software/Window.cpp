@@ -10,7 +10,7 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ), pixel_buffer_p( nullptr ) {}
+Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ), differred_buffer_p( nullptr ), pixel_buffer_p( nullptr ) {}
 
 Window::~Window() {
     if( this->texture_p != nullptr )
@@ -24,6 +24,10 @@ Window::~Window() {
     if( this->pixel_buffer_p != nullptr )
         delete this->pixel_buffer_p;
     this->pixel_buffer_p = nullptr;
+
+    if( this->differred_buffer_p != nullptr )
+        delete this->differred_buffer_p;
+    this->differred_buffer_p = nullptr;
 }
 
 int Window::attach() {
@@ -41,6 +45,10 @@ int Window::attach() {
         if( this->pixel_buffer_p != nullptr )
             delete this->pixel_buffer_p;
         this->pixel_buffer_p = nullptr;
+
+        if( this->differred_buffer_p != nullptr )
+            delete this->differred_buffer_p;
+        this->differred_buffer_p = nullptr;
 
         if( this->renderer_p != nullptr )
             SDL_DestroyRenderer(this->renderer_p);
@@ -68,6 +76,7 @@ int Window::attach() {
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, getDimensions().x, getDimensions().y);
 
                 if( this->texture_p != nullptr ) {
+                    this->differred_buffer_p = new DifferredPixel [getDimensions().x * getDimensions().y];
                     this->pixel_buffer_p = new uint32_t [getDimensions().x * getDimensions().y];
                     success = 1;
                 }

@@ -11,7 +11,7 @@ public:
     struct DifferredPixel {
         uint8_t  colors[4]; // Last one is texture id.
         uint8_t  texture_coordinates[2];
-        uint32_t depth; // Can be even 16 bit which reduces DifferredPixel to 8 bytes.
+        uint32_t depth; // Can be even 16 bit which reduces DifferredPixel to 8 bytes from 12 bytes.
     };
 
 
