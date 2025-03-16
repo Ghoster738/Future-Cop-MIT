@@ -68,8 +68,10 @@ bool MediaPlayer::readMedia( MainProgram &main_program, const std::filesystem::p
 }
 
 void MediaPlayer::updateMedia( MainProgram &main_program, const std::filesystem::path &path ) {
-    if(this->external_image_p == nullptr)
+    if(this->external_image_p == nullptr) {
+        this->next_picture_count_down = std::chrono::microseconds(0);
         return; // There is nothing to render to.
+    }
 
     bool successful_read = readMedia( main_program, path );
 
