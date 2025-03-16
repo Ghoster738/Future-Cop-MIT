@@ -61,6 +61,15 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );
     error_log.info << "GLES 2 Graphics load resources\n";
 
+    if( this->draw_2d_routine.text_draw_routine_p != nullptr )
+        delete this->draw_2d_routine.text_draw_routine_p;
+
+    {
+        std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
+
+        this->draw_2d_routine.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
+    }
+
     this->anm_resources.clear();
 
     auto tos_resource_r = accessor.getConstTOS( 1 );

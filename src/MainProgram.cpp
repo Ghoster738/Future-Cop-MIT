@@ -420,13 +420,7 @@ void MainProgram::loadGraphics( bool show_map ) {
     if(this->is_graphics_already_loaded)
         return;
 
-    // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, this->accessor ) == 0 ) {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "Fonts are missing.";
-    }
-
-    this->text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *this->environment_p );
+    this->text_2d_buffer_r = this->environment_p->allocateText2DBuffer();
 
     if( this->text_2d_buffer_r == nullptr )
         throwException( "The Graphics::Text2DBuffer has failed to allocate." );

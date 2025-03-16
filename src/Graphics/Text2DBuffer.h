@@ -32,12 +32,8 @@ public:
         Font() : Font( 1 ) {}
         Font( const Font &font ) : Font( font.resource_id, font.scale ) {}
     };
-
-    static Graphics::Text2DBuffer* alloc( Environment &env_r );
     
     virtual ~Text2DBuffer();
-    
-    static int loadFonts( Environment &env_r, const Data::Accessor &accessor );
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const = 0;
 

@@ -1,8 +1,11 @@
 #include "Text2DBuffer.h" // Include the interface class
-#include "../../Environment.h" // Include the interface Environment class
 #include "Environment.h" // Include the internal Environment class
 #include "cassert"
 #include <iostream>
+
+Graphics::Text2DBuffer* Graphics::SDL2::GLES2::Environment::allocateText2DBuffer() {
+    return new Graphics::SDL2::GLES2::Text2DBuffer( *this );
+}
 
 Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &environment ) :
     Graphics::Text2DBuffer()
@@ -33,22 +36,6 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
     for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
         delete (*i).second;
-}
-
-
-int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &environment, const Data::Accessor &accessor ) {
-    auto gl_environment_r = dynamic_cast<Graphics::SDL2::GLES2::Environment*>(&environment);
-
-    assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
-    
-    if( gl_environment_r->draw_2d_routine.text_draw_routine_p != nullptr )
-        delete gl_environment_r->draw_2d_routine.text_draw_routine_p;
-    
-    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
-
-    gl_environment_r->draw_2d_routine.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
-    
-    return fonts_r.size();
 }
 
 std::vector<std::string> Graphics::SDL2::GLES2::Text2DBuffer::splitText( const Font &font, const std::string &unsplit_text, float line_length ) const {

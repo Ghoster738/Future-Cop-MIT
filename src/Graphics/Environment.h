@@ -135,6 +135,8 @@ public:
      */
     virtual ParticleInstance* allocateParticleInstance() = 0;
 
+    virtual Graphics::Text2DBuffer* allocateText2DBuffer() = 0;
+
     /**
      * This declares an ANMFrame instance. This instance shows small animations.
      * @param track_offset The offset to the SWVR resource to play.
