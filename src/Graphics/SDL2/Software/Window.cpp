@@ -67,7 +67,7 @@ int Window::attach() {
                                      flags | SDL_WINDOW_SHOWN );
         
         if( this->window_p != nullptr ) {
-            this->renderer_p = SDL_CreateRenderer(this->window_p, -1, SDL_RENDERER_SOFTWARE);
+            this->renderer_p = SDL_CreateRenderer(this->window_p, -1, 0);
 
             if( this->renderer_p != nullptr ) {
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, getDimensions().x, getDimensions().y);
