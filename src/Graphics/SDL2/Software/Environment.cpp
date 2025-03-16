@@ -52,6 +52,47 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         this->textures.back().second = new Utilities::ImageMorbin2D(*resource_r->getImage());
     }
 
+    // TODO Find a more proper spot for this make shift benchmark.
+    {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "Running benchmark of DifferredPixel.";
+    }
+
+    auto last_time = std::chrono::high_resolution_clock::now();
+
+    for(auto i = 60; i != 0; i--) {
+        for(auto y = this->window_p->getDimensions().y; y != 0; y--) {
+            for(auto x = this->window_p->getDimensions().x; x != 0; x--) {
+                Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getValue((x - 1), (y - 1));
+
+                if(source_pixel.colors[3] != 0) {
+                    auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
+                    auto texture_pixel = slot.second->readPixel( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+
+                    source_pixel.colors[0] *= texture_pixel.red;
+                    source_pixel.colors[1] *= texture_pixel.green;
+                    source_pixel.colors[2] *= texture_pixel.blue;
+                }
+
+                uint32_t destination_pixel = 0xFF000000;
+
+                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
+                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
+                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
+
+                this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
+            }
+        }
+    }
+
+    auto this_time = std::chrono::high_resolution_clock::now();
+
+    {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        std::chrono::duration<double, std::deca> duration = this_time - last_time;
+        log.output << "Time taken is " << duration.count() << "s";
+    }
+
     return this->textures.size() != 0;
 }
 
