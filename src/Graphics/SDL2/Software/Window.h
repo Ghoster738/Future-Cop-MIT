@@ -9,12 +9,9 @@ namespace Graphics::SDL2::Software {
 class Window : public Graphics::SDL2::Window {
 public:
     struct DifferredPixel {
-        uint8_t colors[4];
-        struct {
-            uint32_t   depth: 28;
-            uint32_t texture:  4;
-        } depth_texture;
-        uint8_t texture_coordinates[2];
+        uint8_t  colors[4]; // Last one is texture id.
+        uint8_t  texture_coordinates[2];
+        uint32_t depth; // Can be even 32 bit, but it will take up 2 more bytes
     };
 
 
