@@ -119,15 +119,15 @@ int Window::attach() {
             for(auto x = getDimensions().x; x != 0; x--) {
                 DifferredPixel pixel;
 
-                texture_id = x / 0x100;
-                choices    = y / 0x100;
+                texture_id = (x - 1) / 0x100;
+                choices    = (y - 1) / 0x100;
 
                 pixel.colors[0] = r_choices[choices % (sizeof(r_choices) / sizeof(r_choices[0]))];
                 pixel.colors[1] = g_choices[choices % (sizeof(g_choices) / sizeof(g_choices[0]))];
                 pixel.colors[2] = b_choices[choices % (sizeof(b_choices) / sizeof(b_choices[0]))];
                 pixel.colors[3] = texture_id % 11;
-                pixel.texture_coordinates[0] = x % 0xFF;
-                pixel.texture_coordinates[1] = y % 0xFF;
+                pixel.texture_coordinates[0] = (x - 1) % 0x100;
+                pixel.texture_coordinates[1] = (y - 1) % 0x100;
                 pixel.depth = 0xFFFF;
 
                 this->differred_buffer.setValue((x - 1), (y - 1), pixel);
