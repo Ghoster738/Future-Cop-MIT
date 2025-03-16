@@ -1,5 +1,7 @@
 #include "Environment.h"
 
+#include "../../../Data/Mission/BMPResource.h"
+
 namespace Graphics::SDL2::Software {
 
 Environment::Environment() : window_p( nullptr ) {
@@ -7,6 +9,11 @@ Environment::Environment() : window_p( nullptr ) {
 }
 
 Environment::~Environment() {
+    for(auto i : this->textures) {
+        delete i.second;
+    }
+    this->textures.clear();
+
     // Close and destroy the window
     if( this->window_p != nullptr )
         delete this->window_p;
@@ -21,8 +28,6 @@ int Environment::initSystem() {
 }
 
 int Environment::deinitEntireSystem() {
-    SDL_GL_UnloadLibrary();
-
     SDL_Quit();
 
     return 1;
@@ -33,7 +38,21 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
-    return -1;
+    for(auto i : this->textures) {
+        delete i.second;
+    }
+    this->textures.clear();
+
+    std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
+
+    for(const Data::Mission::BMPResource* resource_r : textures ) {
+        this->textures.push_back(std::pair<uint32_t, Utilities::ImageMorbin2D*>());
+
+        this->textures.back().first  = resource_r->getResourceID();
+        this->textures.back().second = new Utilities::ImageMorbin2D(*resource_r->getImage());
+    }
+
+    return this->textures.size() != 0;
 }
 
 Graphics::Window* Environment::getWindow() {
