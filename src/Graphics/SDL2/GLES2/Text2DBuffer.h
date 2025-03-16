@@ -25,7 +25,7 @@ public:
     unsigned text_2D_expand_factor; // The amount of characters the text 2D expands
     char center_mode;
     
-    Text2DBuffer( Graphics::Environment &env_r );
+    Text2DBuffer( Graphics::SDL2::GLES2::Environment &gl_environment );
     virtual ~Text2DBuffer();
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const;

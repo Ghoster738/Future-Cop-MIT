@@ -7,12 +7,12 @@ Graphics::Text2DBuffer* Graphics::SDL2::GLES2::Environment::allocateText2DBuffer
     return new Graphics::SDL2::GLES2::Text2DBuffer( *this );
 }
 
-Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &environment ) :
+Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::SDL2::GLES2::Environment &gl_environment ) :
     Graphics::Text2DBuffer()
 {
-    gl_environment_r = dynamic_cast<Graphics::SDL2::GLES2::Environment*>(&environment);
+    this->gl_environment_r = &gl_environment;
 
-    assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
+    assert( this->gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
 
     const size_t KIBIBYTE_TO_BYTE = 1024;
     const size_t VERTICES_PER_CHARACTER = 6;
@@ -28,7 +28,7 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
     if( text_2D_expand_factor < 0x100 )
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
-    text_data_p = gl_environment_r->draw_2d_routine.text_draw_routine_p->getText2D();
+    text_data_p = this->gl_environment_r->draw_2d_routine.text_draw_routine_p->getText2D();
 
     this->scale_font = 1.0f;
 }
