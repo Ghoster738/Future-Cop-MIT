@@ -309,6 +309,10 @@ void MainProgram::setupGraphics() {
 
     // Initialize the camera
     this->first_person_r = this->environment_p->allocateCamera();
+
+    if(this->first_person_r == nullptr)
+        throwException( "Camera failed to allocate." );
+
     this->environment_p->window_p->attachCamera( *this->first_person_r );
 
     // Center the camera.
