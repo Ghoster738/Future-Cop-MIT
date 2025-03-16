@@ -91,7 +91,12 @@ int Window::attach() {
     for(auto y = getDimensions().y; y != 0; y--) {
         for(auto x = getDimensions().x; x != 0; x--) {
             // Blue screen of nothingness.
-            this->pixel_buffer_p[(x - 1) + getDimensions().x * (y - 1)] = 0xFF008FFF;
+            uint32_t pixel = 0xFF008FFF;
+
+            if( (y % 8) > 4)
+                pixel = 0xFF008F00;
+
+            this->pixel_buffer_p[(x - 1) + getDimensions().x * (y - 1)] = pixel;
         }
     }
     
