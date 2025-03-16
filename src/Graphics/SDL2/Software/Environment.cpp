@@ -91,10 +91,20 @@ void Environment::drawFrame() {
         for(auto x = this->window_p->getDimensions().x; x != 0; x--) {
             Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getValue((x - 1), (y - 1));
 
+            if(source_pixel.colors[3] != 0) {
+                auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
+                auto texture_pixel = slot.second->readPixel( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+
+                source_pixel.colors[0] = texture_pixel.red * 256;
+                source_pixel.colors[1] = texture_pixel.green * 256;
+                source_pixel.colors[2] = texture_pixel.blue * 256;
+            }
+
             uint32_t destination_pixel = 0xFF000000;
 
-            destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) << 0;
-            destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) << 8;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) <<  0;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) << 16;
 
             this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
         }
