@@ -79,30 +79,30 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     auto last_time = std::chrono::high_resolution_clock::now();
 
-    auto dim = this->window_p->getDimensions();
+    auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
+
+    auto differred_buffer_data = this->window_p->differred_buffer.getDirectGridData();
 
     for(auto i = 60; i != 0; i--) {
-        for(auto y = dim.y; y != 0; y--) {
-            for(auto x = dim.x; x != 0; x--) {
-                Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getValue(dim.x - x, dim.y - y);
+        for(auto y = dim; y != 0; y--) {
+            Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
 
-                if(source_pixel.colors[3] != 0) {
-                    auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
-                    auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+            if(source_pixel.colors[3] != 0) {
+                auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
+                auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
-                    source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-                    source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-                    source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
-                }
-
-                uint32_t destination_pixel = 0xFF000000;
-
-                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
-                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
-                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
-
-                this->window_p->pixel_buffer_p[(dim.x - x) + this->window_p->getDimensions().x * (dim.y - y)] = destination_pixel;
+                source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
+                source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
+                source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
             }
+
+            uint32_t destination_pixel = 0xFF000000;
+
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
+
+            this->window_p->pixel_buffer_p[dim - y] = destination_pixel;
         }
     }
 
