@@ -5,7 +5,7 @@
 
 #include "Window.h"
 
-#define CBMP_TEXTURE Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>
+#define CBMP_TEXTURE Utilities::GridBase2D<TexturePixel>
 
 namespace Graphics::SDL2::Software {
 
