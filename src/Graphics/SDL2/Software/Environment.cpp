@@ -73,6 +73,34 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         }
     }
 
+    { // Generate the test pattern.
+        int texture_id = 0;
+        int choices = 0;
+
+        uint8_t r_choices[] = {0xff, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
+        uint8_t g_choices[] = {0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff};
+        uint8_t b_choices[] = {0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
+
+        for(auto y = this->window_p->getDimensions().y; y != 0; y--) {
+            for(auto x = this->window_p->getDimensions().x; x != 0; x--) {
+                Window::DifferredPixel pixel;
+
+                texture_id = (x - 1) / 0x100;
+                choices    = (y - 1) / 0x100;
+
+                pixel.colors[0] = r_choices[choices % (sizeof(r_choices) / sizeof(r_choices[0]))];
+                pixel.colors[1] = g_choices[choices % (sizeof(g_choices) / sizeof(g_choices[0]))];
+                pixel.colors[2] = b_choices[choices % (sizeof(b_choices) / sizeof(b_choices[0]))];
+                pixel.colors[3] = texture_id % this->textures.size();
+                pixel.texture_coordinates[0] = (x - 1) % 0x100;
+                pixel.texture_coordinates[1] = (y - 1) % 0x100;
+                pixel.depth = 0xFFFF;
+
+                this->window_p->differred_buffer.setValue((x - 1), (y - 1), pixel);
+            }
+        }
+    }
+
     // TODO Find a more proper spot for this make shift benchmark.
     {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
