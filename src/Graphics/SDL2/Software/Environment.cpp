@@ -42,6 +42,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         delete i.second;
     }
     this->textures.clear();
+    this->textures.push_back(std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>(0, nullptr));
 
     std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
 
@@ -87,7 +88,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
 
             if(source_pixel.colors[3] != 0) {
-                auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
+                auto slot = this->textures[source_pixel.colors[3] % this->textures.size()];
                 auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
                 source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
@@ -155,7 +156,7 @@ void Environment::drawFrame() {
         Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
 
         if(source_pixel.colors[3] != 0) {
-            auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
+            auto slot = this->textures[source_pixel.colors[3] % this->textures.size()];
             auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
             source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
