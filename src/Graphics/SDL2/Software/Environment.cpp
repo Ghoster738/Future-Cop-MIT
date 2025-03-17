@@ -6,13 +6,13 @@ namespace Graphics::SDL2::Software {
 
 Environment::Environment() : window_p( nullptr ) {
     this->display_world = false;
+    this->atlas_texture_p = nullptr;
 }
 
 Environment::~Environment() {
-    for(auto i : this->textures) {
-        delete i.second;
-    }
-    this->textures.clear();
+    if(this->atlas_texture_p != nullptr)
+        delete atlas_texture_p;
+    this->atlas_texture_p = nullptr;
 
     // Close and destroy the window
     if( this->window_p != nullptr )
@@ -38,22 +38,23 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
-    for(auto i : this->textures) {
-        delete i.second;
-    }
-    this->textures.clear();
+    if(this->atlas_texture_p != nullptr)
+        delete atlas_texture_p;
+    this->atlas_texture_p = new Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>();
+    this->atlas_texture_p->setDimensions( 4 * 256, 4 * 256 );
 
     std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
 
+    int counter = 0;
+
     for(const Data::Mission::BMPResource* resource_r : textures ) {
-        this->textures.push_back(std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>());
+        this->textures.push_back(std::pair<uint32_t, glm::u32vec2>());
 
         auto image_r = resource_r->getImage();
 
         this->textures.back().first  = resource_r->getResourceID();
-        this->textures.back().second = new Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>();
-
-        this->textures.back().second->setDimensions( image_r->getWidth(), image_r->getHeight() );
+        this->textures.back().second.x = 256 * (counter % 4);
+        this->textures.back().second.y = 256 * (counter / 4);
 
         for(auto y = image_r->getHeight(); y != 0; y--) {
             for(auto x = image_r->getWidth(); x != 0; x--) {
@@ -66,9 +67,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 destination_pixel.data[2] = 255.0 * source_pixel.blue;
                 destination_pixel.data[3] = 255.0 * source_pixel.alpha;
 
-                this->textures.back().second->setValue( (x - 1), (y - 1), destination_pixel);
+                this->atlas_texture_p->setValue( this->textures.back().second.x + (x - 1), this->textures.back().second.y + (y - 1), destination_pixel);
             }
         }
+
+        counter++;
     }
 
     // TODO Find a more proper spot for this make shift benchmark.
@@ -88,7 +91,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
             if(source_pixel.colors[3] != 0) {
                 auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
-                auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+                auto texture_pixel = this->atlas_texture_p->getValue( slot.second.x + source_pixel.texture_coordinates[0], slot.second.y + source_pixel.texture_coordinates[1] );
 
                 source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
                 source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
@@ -105,11 +108,9 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         }
     }
 
-    auto this_time = std::chrono::high_resolution_clock::now();
-
     {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        std::chrono::duration<double> duration = this_time - last_time;
+        std::chrono::duration<double> duration = std::chrono::high_resolution_clock::now() - last_time;
         log.output << "Time taken is " << duration.count() << "s";
     }
 
@@ -156,7 +157,7 @@ void Environment::drawFrame() {
 
         if(source_pixel.colors[3] != 0) {
             auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
-            auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+            auto texture_pixel = this->atlas_texture_p->getValue( slot.second.x + source_pixel.texture_coordinates[0], slot.second.y + source_pixel.texture_coordinates[1] );
 
             source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
             source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
