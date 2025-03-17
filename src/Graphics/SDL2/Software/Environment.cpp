@@ -80,7 +80,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto last_time = std::chrono::high_resolution_clock::now();
 
     auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
-
     auto differred_buffer_data = this->window_p->differred_buffer.getDirectGridData();
 
     for(auto i = 60; i != 0; i--) {
@@ -149,31 +148,33 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
-    for(auto y = this->window_p->getDimensions().y; y != 0; y--) {
-        for(auto x = this->window_p->getDimensions().x; x != 0; x--) {
-            Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getValue((x - 1), (y - 1));
+    auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
+    auto differred_buffer_data = this->window_p->differred_buffer.getDirectGridData();
 
-            if(source_pixel.colors[3] != 0) {
-                auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
-                auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+    for(auto y = dim; y != 0; y--) {
+        Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
 
-                source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-                source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-                source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
-            }
+        if(source_pixel.colors[3] != 0) {
+            auto slot = this->textures[(source_pixel.colors[3] - 1) % this->textures.size()];
+            auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
-            uint32_t destination_pixel = 0xFF000000;
-
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
-
-            //destination_pixel |= static_cast<uint32_t>(source_pixel.colors[3] * 21)         << 16;
-            //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
-            //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
-
-            this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
+            source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
+            source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
+            source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
         }
+
+        uint32_t destination_pixel = 0xFF000000;
+
+        destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
+        destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
+        destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
+
+        //destination_pixel |= static_cast<uint32_t>(source_pixel.colors[3] * 21)         << 16;
+        //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
+        //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
+
+        this->window_p->pixel_buffer_p[dim - y] = destination_pixel;
+        //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
     }
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->pixel_buffer_p, this->window_p->pixel_buffer_pitch);
