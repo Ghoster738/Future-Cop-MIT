@@ -88,7 +88,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
 
             if(source_pixel.colors[3] != 0) {
-                auto slot = this->textures[source_pixel.colors[3] % this->textures.size()];
+                auto slot = this->textures[source_pixel.colors[3]];
                 auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
                 source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
@@ -156,7 +156,7 @@ void Environment::drawFrame() {
         Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
 
         if(source_pixel.colors[3] != 0) {
-            auto slot = this->textures[source_pixel.colors[3] % this->textures.size()];
+            auto slot = this->textures[source_pixel.colors[3]];
             auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
             source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;

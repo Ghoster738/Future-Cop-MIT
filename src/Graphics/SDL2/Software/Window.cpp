@@ -125,7 +125,7 @@ int Window::attach() {
                 pixel.colors[0] = r_choices[choices % (sizeof(r_choices) / sizeof(r_choices[0]))];
                 pixel.colors[1] = g_choices[choices % (sizeof(g_choices) / sizeof(g_choices[0]))];
                 pixel.colors[2] = b_choices[choices % (sizeof(b_choices) / sizeof(b_choices[0]))];
-                pixel.colors[3] = texture_id % 12;
+                pixel.colors[3] = texture_id % 11;
                 pixel.texture_coordinates[0] = (x - 1) % 0x100;
                 pixel.texture_coordinates[1] = (y - 1) % 0x100;
                 pixel.depth = 0xFFFF;
