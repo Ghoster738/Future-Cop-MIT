@@ -187,6 +187,10 @@ public:
      * @return the pointer of the member variable cells.
      */
     const grid_2d_value *const getDirectGridData() const { return cells.data(); }
+
+    std::vector<grid_2d_value>& getGridData() { return cells; }
+
+    const std::vector<grid_2d_value>& getGridData() const { return cells; }
     
     virtual bool inscribeSubGrid( grid_2d_unit x, grid_2d_unit y, const GridBase2D& ref ) {
         // Check to see if the image format is compatible with ref or else it would cause errors.
