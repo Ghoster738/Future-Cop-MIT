@@ -5,6 +5,8 @@
 
 #include "Window.h"
 
+#define CBMP_TEXTURE Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>
+
 namespace Graphics::SDL2::Software {
 
 class Environment : public Graphics::Environment {
@@ -16,7 +18,12 @@ public:
         uint8_t data[4];
     };
 
-    std::vector<std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>> textures;
+    struct CBMPTexture {
+        uint32_t resource_id;
+        CBMP_TEXTURE *texture_p;
+    };
+
+    std::vector<CBMPTexture> textures;
 
     // Configuration
 

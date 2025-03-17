@@ -10,7 +10,8 @@ Environment::Environment() : window_p( nullptr ) {
 
 Environment::~Environment() {
     for(auto i : this->textures) {
-        delete i.second;
+        if(i.texture_p != nullptr)
+            delete i.texture_p;
     }
     this->textures.clear();
 
@@ -39,22 +40,22 @@ std::string Environment::getEnvironmentIdentifier() const {
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
     for(auto i : this->textures) {
-        delete i.second;
+        delete i.texture_p;
     }
     this->textures.clear();
-    this->textures.push_back(std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>(0, nullptr));
+    this->textures.push_back({0, nullptr});
 
     std::vector<const Data::Mission::BMPResource*> textures = accessor.getAllConstBMP();
 
     for(const Data::Mission::BMPResource* resource_r : textures ) {
-        this->textures.push_back(std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>());
+        this->textures.push_back({});
 
         auto image_r = resource_r->getImage();
 
-        this->textures.back().first  = resource_r->getResourceID();
-        this->textures.back().second = new Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>();
+        this->textures.back().resource_id = resource_r->getResourceID();
+        this->textures.back().texture_p   = new CBMP_TEXTURE;
 
-        this->textures.back().second->setDimensions( image_r->getWidth(), image_r->getHeight() );
+        this->textures.back().texture_p->setDimensions( image_r->getWidth(), image_r->getHeight() );
 
         for(auto y = image_r->getHeight(); y != 0; y--) {
             for(auto x = image_r->getWidth(); x != 0; x--) {
@@ -67,7 +68,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 destination_pixel.data[2] = 255.0 * source_pixel.blue;
                 destination_pixel.data[3] = 255.0 * source_pixel.alpha;
 
-                this->textures.back().second->setValue( (x - 1), (y - 1), destination_pixel);
+                this->textures.back().texture_p->setValue( (x - 1), (y - 1), destination_pixel);
             }
         }
     }
@@ -89,7 +90,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
             if(source_pixel.colors[3] != 0) {
                 auto slot = this->textures[source_pixel.colors[3]];
-                auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+                auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
                 source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
                 source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
@@ -157,7 +158,7 @@ void Environment::drawFrame() {
 
         if(source_pixel.colors[3] != 0) {
             auto slot = this->textures[source_pixel.colors[3]];
-            auto texture_pixel = slot.second->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+            auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
             source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
             source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
