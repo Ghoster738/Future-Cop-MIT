@@ -110,7 +110,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto last_time = std::chrono::high_resolution_clock::now();
 
     auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
-    auto differred_buffer_data = this->window_p->differred_buffer.getDirectGridData();
+    std::vector<Window::DifferredPixel>& differred_buffer_data   = this->window_p->differred_buffer.getGridData();
+    std::vector<uint32_t>&               destination_buffer_data = this->window_p->destination_buffer.getGridData();
 
     for(auto i = 60; i != 0; i--) {
         for(auto y = dim; y != 0; y--) {
@@ -131,7 +132,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
 
-            this->window_p->destination_buffer.getDirectGridData()[dim - y] = destination_pixel;
+            destination_buffer_data[dim - y] = destination_pixel;
         }
     }
 
@@ -179,7 +180,8 @@ void Environment::setupFrame() {
 
 void Environment::drawFrame() {
     auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
-    auto differred_buffer_data = this->window_p->differred_buffer.getDirectGridData();
+    std::vector<Window::DifferredPixel>& differred_buffer_data   = this->window_p->differred_buffer.getGridData();
+    std::vector<uint32_t>&               destination_buffer_data = this->window_p->destination_buffer.getGridData();
 
     for(auto y = dim; y != 0; y--) {
         Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
@@ -203,7 +205,7 @@ void Environment::drawFrame() {
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
 
-        this->window_p->destination_buffer.getDirectGridData()[dim - y] = destination_pixel;
+        destination_buffer_data[dim - y] = destination_pixel;
         //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
     }
 
