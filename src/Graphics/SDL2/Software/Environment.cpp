@@ -131,7 +131,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
 
-            this->window_p->pixel_buffer_p[dim - y] = destination_pixel;
+            this->window_p->destination_buffer.getDirectGridData()[dim - y] = destination_pixel;
         }
     }
 
@@ -203,11 +203,11 @@ void Environment::drawFrame() {
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
 
-        this->window_p->pixel_buffer_p[dim - y] = destination_pixel;
+        this->window_p->destination_buffer.getDirectGridData()[dim - y] = destination_pixel;
         //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
     }
 
-    SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->pixel_buffer_p, this->window_p->pixel_buffer_pitch);
+    SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
     SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
     SDL_RenderPresent(this->window_p->renderer_p);
 }

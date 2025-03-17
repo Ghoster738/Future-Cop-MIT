@@ -15,7 +15,7 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ), pixel_buffer_p( nullptr ) {}
+Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ) {}
 
 Window::~Window() {
     if( this->texture_p != nullptr )
@@ -25,10 +25,6 @@ Window::~Window() {
     if( this->renderer_p != nullptr )
         SDL_DestroyRenderer(this->renderer_p);
     this->renderer_p = nullptr;
-
-    if( this->pixel_buffer_p != nullptr )
-        delete this->pixel_buffer_p;
-    this->pixel_buffer_p = nullptr;
 }
 
 int Window::attach() {
@@ -42,10 +38,6 @@ int Window::attach() {
         if( this->texture_p != nullptr )
             SDL_DestroyTexture(this->texture_p);
         this->texture_p = nullptr;
-
-        if( this->pixel_buffer_p != nullptr )
-            delete this->pixel_buffer_p;
-        this->pixel_buffer_p = nullptr;
 
         if( this->renderer_p != nullptr )
             SDL_DestroyRenderer(this->renderer_p);
@@ -74,7 +66,7 @@ int Window::attach() {
 
                 if( this->texture_p != nullptr ) {
                     this->differred_buffer.setDimensions( getDimensions().x, getDimensions().y );
-                    this->pixel_buffer_p = new uint32_t [getDimensions().x * getDimensions().y];
+                    this->destination_buffer.setDimensions( getDimensions().x, getDimensions().y );
                     success = 1;
                 }
                 else {
@@ -91,8 +83,8 @@ int Window::attach() {
         }
     }
 
-    if(this->pixel_buffer_p != nullptr) {
-        this->pixel_buffer_pitch = 4 * getDimensions().x;
+    {
+        this->destination_buffer_pitch = 4 * getDimensions().x;
 
         for(auto y = getDimensions().y; y != 0; y--) {
             for(auto x = getDimensions().x; x != 0; x--) {
@@ -102,12 +94,12 @@ int Window::attach() {
                 if( (y % 8) > 4)
                     pixel = 0xFF008F00;
 
-                this->pixel_buffer_p[(x - 1) + getDimensions().x * (y - 1)] = pixel;
+                this->destination_buffer.setValue((x - 1), (y - 1), pixel);
             }
         }
     }
     
-    error_log.output << "DifferredPixel: " << sizeof(DifferredPixel) << " bytes.\n";
+    // error_log.output << "DifferredPixel: " << sizeof(DifferredPixel) << " bytes.\n";
 
     return success;
 }
