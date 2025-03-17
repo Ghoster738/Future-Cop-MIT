@@ -16,8 +16,7 @@ public:
         uint8_t data[4];
     };
 
-    Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin> *atlas_texture_p;
-    std::vector<std::pair<uint32_t, glm::u32vec2>> textures;
+    std::vector<std::pair<uint32_t, Utilities::GridBase2D<TexturePixel, Utilities::Grid2DPlacementMorbin>*>> textures;
 
     // Configuration
 
