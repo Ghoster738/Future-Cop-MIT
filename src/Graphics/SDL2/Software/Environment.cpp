@@ -81,8 +81,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         uint8_t g_choices[] = {0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff};
         uint8_t b_choices[] = {0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
 
-        for(auto y = this->window_p->getDimensions().y; y != 0; y--) {
-            for(auto x = this->window_p->getDimensions().x; x != 0; x--) {
+        for(auto y = this->window_p->destination_buffer.getHeight(); y != 0; y--) {
+            for(auto x = this->window_p->destination_buffer.getWidth(); x != 0; x--) {
                 Window::DifferredPixel pixel;
 
                 texture_id = (x - 1) / 0x100;
