@@ -14,12 +14,13 @@ public:
         uint32_t depth; // Can be even 16 bit which reduces DifferredPixel to 8 bytes from 12 bytes.
     };
 
-
     SDL_Renderer                          *renderer_p;
     SDL_Texture                           *texture_p;
     Utilities::GridBase2D<DifferredPixel>  differred_buffer;
     Utilities::GridBase2D<uint32_t>        destination_buffer;
     int                                    destination_buffer_pitch;
+
+    unsigned pixel_size;
     
     Window( Environment &env_r );
     virtual ~Window();
