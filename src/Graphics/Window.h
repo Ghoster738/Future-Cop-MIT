@@ -7,8 +7,6 @@ namespace Graphics {
 
 class Window {
 protected:
-    Environment* env_r;
-
     std::string window_title;
     glm::u32vec2 position;
     glm::u32vec2 dimensions; // x = width, y = height
@@ -26,7 +24,7 @@ protected:
     // The cameras attached to the window.
     std::vector<Camera*> cameras;
     
-    Window( Environment &env_r );
+    Window();
 
 public:
     virtual ~Window();

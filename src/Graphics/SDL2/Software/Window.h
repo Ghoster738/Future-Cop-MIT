@@ -2,12 +2,15 @@
 #define GRAPHICS_SDL2_SOFTWARE_WINDOW_H
 
 #include "../Window.h"
-#include "Window.h"
 
 namespace Graphics::SDL2::Software {
 
+class Environment;
+
 class Window : public Graphics::SDL2::Window {
 public:
+    Graphics::SDL2::Software::Environment* env_r;
+
     struct DifferredPixel {
         uint8_t  colors[4]; // Last one is texture id.
         uint8_t  texture_coordinates[2];
@@ -22,7 +25,7 @@ public:
 
     unsigned pixel_size;
     
-    Window( Environment &env_r );
+    Window( Graphics::SDL2::Software::Environment &env_r );
     virtual ~Window();
     
     int attach();

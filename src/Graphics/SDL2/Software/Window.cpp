@@ -17,7 +17,7 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), renderer_p( nullptr ), texture_p( nullptr ) {}
+Window::Window( Graphics::SDL2::Software::Environment &env ) : Graphics::SDL2::Window(), env_r( &env ), renderer_p( nullptr ), texture_p( nullptr ) {}
 
 Window::~Window() {
     if( this->texture_p != nullptr )

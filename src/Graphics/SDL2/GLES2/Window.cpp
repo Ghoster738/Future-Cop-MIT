@@ -17,7 +17,7 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 ) {}
+Window::Window( Graphics::SDL2::GLES2::Environment &env ) : Graphics::SDL2::Window(), env_r(&env), GL_context( 0 ) {}
 
 Window::~Window() {}
 

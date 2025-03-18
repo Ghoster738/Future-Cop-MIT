@@ -3,7 +3,7 @@
 
 #include "SDL2/Window.h"
 
-Graphics::Window::Window( Environment &env ) : env_r( &env ),
+Graphics::Window::Window() :
     window_title( "WINDOW TITLE NOT SET" ),
     position( glm::u32vec2( 0, 0 ) ),
     dimensions( glm::u32vec2( 320, 200 ) )
