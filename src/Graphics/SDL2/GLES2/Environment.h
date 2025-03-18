@@ -71,7 +71,7 @@ public:
     virtual void setupFrame();
     virtual void drawFrame();
     virtual bool screenshot( Utilities::Image2D &image ) const;
-    virtual void advanceTime( float seconds_passed );
+    virtual void advanceTime( std::chrono::microseconds delta );
 };
 
 }

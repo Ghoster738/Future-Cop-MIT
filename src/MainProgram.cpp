@@ -85,7 +85,7 @@ void MainProgram::displayLoop() {
 
         // Render the frame.
         environment_p->setupFrame();
-        environment_p->advanceTime( delta_f );
+        environment_p->advanceTime( std::chrono::duration_cast<std::chrono::microseconds>(delta) );
         environment_p->drawFrame();
 
         sound_system_p->advanceTime( delta );

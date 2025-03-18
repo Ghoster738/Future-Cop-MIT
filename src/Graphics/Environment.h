@@ -210,9 +210,9 @@ public:
     /**
      * This advances time on the environment.
      * @warning This method is neccesary for every animation system to work.
-     * @param seconds_passed This does not need to be too percise.
+     * @param delta The amount of microseconds that passed.
      */
-    virtual void advanceTime( float seconds_passed ) = 0;
+    virtual void advanceTime( std::chrono::microseconds delta ) = 0;
 };
 
 }

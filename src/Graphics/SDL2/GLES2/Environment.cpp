@@ -481,7 +481,9 @@ bool Environment::screenshot( Utilities::Image2D &image ) const {
         return true;
 }
 
-void Environment::advanceTime( float seconds_passed ) {
+void Environment::advanceTime( std::chrono::microseconds delta ) {
+    float seconds_passed = std::chrono::duration<float, std::ratio<1>>( delta ).count();
+
     // For animatable meshes advance the time
     this->static_model_draw_routine.advanceTime( seconds_passed );
     this->morph_model_draw_routine.advanceTime( seconds_passed );

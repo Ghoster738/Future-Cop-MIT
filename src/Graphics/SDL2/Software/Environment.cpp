@@ -240,7 +240,7 @@ bool Environment::screenshot( Utilities::Image2D &image ) const {
     return false;
 }
 
-void Environment::advanceTime( float seconds_passed ) {
+void Environment::advanceTime( std::chrono::microseconds delta ) {
 }
 
 // Declares
