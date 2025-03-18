@@ -110,12 +110,10 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto last_time = std::chrono::high_resolution_clock::now();
 
     auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
-    std::vector<Window::DifferredPixel>& differred_buffer_data   = this->window_p->differred_buffer.getGridData();
-    std::vector<uint32_t>&               destination_buffer_data = this->window_p->destination_buffer.getGridData();
 
     for(auto i = 60; i != 0; i--) {
         for(auto y = dim; y != 0; y--) {
-            Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
+            Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[dim - y];
 
             if(source_pixel.colors[3] != 0) {
                 auto slot = this->textures[source_pixel.colors[3]];
@@ -132,9 +130,28 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
 
-            destination_buffer_data[dim - y] = destination_pixel;
+            this->window_p->destination_buffer.getGridData()[dim - y] = destination_pixel;
         }
     }
+
+    /*
+    This crashes for some reason
+    for(auto i = 60; i != 0; i--) {
+        std::transform(
+            this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
+            this->window_p->destination_buffer.getGridData().begin(), this->window_p->destination_buffer.getGridData().end(),
+            [](Window::DifferredPixel source_pixel, uint32_t destination_pixel) {
+                destination_pixel = 0xFF000000;
+
+                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
+                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
+                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
+
+                return destination_pixel;
+            }
+        );
+    }
+     */
 
     auto this_time = std::chrono::high_resolution_clock::now();
 
@@ -180,11 +197,9 @@ void Environment::setupFrame() {
 
 void Environment::drawFrame() {
     auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
-    std::vector<Window::DifferredPixel>& differred_buffer_data   = this->window_p->differred_buffer.getGridData();
-    std::vector<uint32_t>&               destination_buffer_data = this->window_p->destination_buffer.getGridData();
 
     for(auto y = dim; y != 0; y--) {
-        Window::DifferredPixel source_pixel = differred_buffer_data[dim - y];
+        Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[dim - y];
 
         if(source_pixel.colors[3] != 0) {
             auto slot = this->textures[source_pixel.colors[3]];
@@ -205,7 +220,7 @@ void Environment::drawFrame() {
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
 
-        destination_buffer_data[dim - y] = destination_pixel;
+        this->window_p->destination_buffer.getDirectGridData()[dim - y] = destination_pixel;
         //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
     }
 
