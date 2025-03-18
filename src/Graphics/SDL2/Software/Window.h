@@ -22,8 +22,6 @@ public:
     Utilities::GridBase2D<DifferredPixel>  differred_buffer;
     Utilities::GridBase2D<uint32_t>        destination_buffer;
     int                                    destination_buffer_pitch;
-
-    unsigned pixel_size;
     
     Window( Graphics::SDL2::Software::Environment &env_r );
     virtual ~Window();

@@ -26,6 +26,7 @@ public:
     std::vector<CBMPTexture> textures;
 
     // Configuration
+    unsigned pixel_size;
 
 public:
     Environment();

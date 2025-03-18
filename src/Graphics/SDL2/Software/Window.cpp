@@ -12,8 +12,6 @@ Graphics::Window* Environment::allocateWindow() {
 
     this->window_p = window_p;
 
-    this->window_p->pixel_size = 2;
-
     return window_p;
 }
 
@@ -66,8 +64,8 @@ int Window::attach() {
             if( this->renderer_p != nullptr ) {
                 glm::ivec2 resolution = this->getDimensions();
 
-                resolution.x /= this->pixel_size;
-                resolution.y /= this->pixel_size;
+                resolution.x /= this->env_r->pixel_size;
+                resolution.y /= this->env_r->pixel_size;
 
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 
@@ -90,7 +88,7 @@ int Window::attach() {
         }
     }
 
-    {
+    { // this makes color stripes
         this->destination_buffer_pitch = 4 * this->destination_buffer.getWidth();
 
         for(auto y = this->destination_buffer.getHeight(); y != 0; y--) {

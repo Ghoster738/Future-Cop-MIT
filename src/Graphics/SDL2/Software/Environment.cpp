@@ -6,6 +6,7 @@ namespace Graphics::SDL2::Software {
 
 Environment::Environment() : window_p( nullptr ) {
     this->display_world = false;
+    this->pixel_size = 1;
 }
 
 Environment::~Environment() {
