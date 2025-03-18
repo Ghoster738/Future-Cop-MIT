@@ -142,6 +142,11 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
     else if( identifier.compare( SDL2_WITH_SOFTWARE ) == 0 ) {
         auto software_environment_p = new SDL2::Software::Environment();
 
+        if(software_environment_p != nullptr) {
+            ini_data[identifier];
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], software_environment_p->pixel_size, "pixel_size", 1, 16, 1)
+        }
+
         graphics_environment_p = software_environment_p;
     }
 
