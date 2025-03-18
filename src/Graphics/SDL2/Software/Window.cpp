@@ -62,11 +62,13 @@ int Window::attach() {
             this->renderer_p = SDL_CreateRenderer(this->window_p, -1, 0);
 
             if( this->renderer_p != nullptr ) {
-                this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, getDimensions().x, getDimensions().y);
+                glm::ivec2 resolution = this->getDimensions();
+
+                this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 
                 if( this->texture_p != nullptr ) {
-                    this->differred_buffer.setDimensions( getDimensions().x, getDimensions().y );
-                    this->destination_buffer.setDimensions( getDimensions().x, getDimensions().y );
+                    this->differred_buffer.setDimensions( resolution.x, resolution.y );
+                    this->destination_buffer.setDimensions( resolution.x, resolution.y );
                     success = 1;
                 }
                 else {
@@ -84,10 +86,10 @@ int Window::attach() {
     }
 
     {
-        this->destination_buffer_pitch = 4 * getDimensions().x;
+        this->destination_buffer_pitch = 4 * this->destination_buffer.getWidth();
 
-        for(auto y = getDimensions().y; y != 0; y--) {
-            for(auto x = getDimensions().x; x != 0; x--) {
+        for(auto y = this->destination_buffer.getHeight(); y != 0; y--) {
+            for(auto x = this->destination_buffer.getWidth(); x != 0; x--) {
                 // Blue strip screen of nothingness.
                 uint32_t pixel = 0xFF008FFF;
 
