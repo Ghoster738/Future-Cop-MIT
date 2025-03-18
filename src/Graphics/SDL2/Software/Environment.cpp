@@ -81,9 +81,15 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         uint8_t g_choices[] = {0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff};
         uint8_t b_choices[] = {0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
 
-        for(auto y = this->window_p->destination_buffer.getHeight(); y != 0; y--) {
-            for(auto x = this->window_p->destination_buffer.getWidth(); x != 0; x--) {
+        auto x_factor = this->window_p->getDimensions().x / this->window_p->destination_buffer.getWidth();
+        auto y_factor = this->window_p->getDimensions().y / this->window_p->destination_buffer.getHeight();
+
+        for(auto sy = this->window_p->destination_buffer.getHeight(); sy != 0; sy--) {
+            for(auto sx = this->window_p->destination_buffer.getWidth(); sx != 0; sx--) {
                 Window::DifferredPixel pixel;
+
+                auto x = sx * x_factor;
+                auto y = sy * y_factor;
 
                 texture_id = (x - 1) / 0x100;
                 choices    = (y - 1) / 0x100;
@@ -96,7 +102,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 pixel.texture_coordinates[1] = (y - 1) % 0x100;
                 pixel.depth = 0xFFFF;
 
-                this->window_p->differred_buffer.setValue((x - 1), (y - 1), pixel);
+                this->window_p->differred_buffer.setValue((sx - 1), (sy - 1), pixel);
             }
         }
     }

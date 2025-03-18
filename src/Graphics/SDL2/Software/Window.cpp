@@ -64,6 +64,9 @@ int Window::attach() {
             if( this->renderer_p != nullptr ) {
                 glm::ivec2 resolution = this->getDimensions();
 
+                resolution.x /= 1;
+                resolution.y /= 1;
+
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 
                 if( this->texture_p != nullptr ) {
