@@ -109,11 +109,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     auto last_time = std::chrono::high_resolution_clock::now();
 
-    auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
+    auto num_of_pixels = this->window_p->destination_buffer.getWidth() * this->window_p->destination_buffer.getHeight();
 
     for(auto i = 60; i != 0; i--) {
-        for(auto y = dim; y != 0; y--) {
-            Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[dim - y];
+        for(auto p = num_of_pixels; p != 0; p--) {
+            Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[num_of_pixels - p];
 
             if(source_pixel.colors[3] != 0) {
                 auto slot = this->textures[source_pixel.colors[3]];
@@ -130,7 +130,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
 
-            this->window_p->destination_buffer.getGridData()[dim - y] = destination_pixel;
+            this->window_p->destination_buffer.getDirectGridData()[num_of_pixels - p] = destination_pixel;
         }
     }
 
@@ -196,10 +196,10 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
-    auto dim = this->window_p->getDimensions().x * this->window_p->getDimensions().y;
+    auto num_of_pixels = this->window_p->destination_buffer.getWidth() * this->window_p->destination_buffer.getHeight();
 
-    for(auto y = dim; y != 0; y--) {
-        Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[dim - y];
+    for(auto p = num_of_pixels; p != 0; p--) {
+        Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[num_of_pixels - p];
 
         if(source_pixel.colors[3] != 0) {
             auto slot = this->textures[source_pixel.colors[3]];
@@ -220,8 +220,8 @@ void Environment::drawFrame() {
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
         //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
 
-        this->window_p->destination_buffer.getDirectGridData()[dim - y] = destination_pixel;
-        //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->getDimensions().x * (y - 1)] = destination_pixel;
+        this->window_p->destination_buffer.getDirectGridData()[num_of_pixels - p] = destination_pixel;
+        //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->destination_buffer.getWidth() * (y - 1)] = destination_pixel;
     }
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
