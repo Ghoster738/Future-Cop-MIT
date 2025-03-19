@@ -32,6 +32,7 @@ public:
     std::vector<CBMPTexture> textures;
 
     Internal::ImageDraw2D image_draw_2d;
+    Internal::ExternalImageDraw2D external_image_draw_2d;
 
     // Configuration
     unsigned pixel_size;
