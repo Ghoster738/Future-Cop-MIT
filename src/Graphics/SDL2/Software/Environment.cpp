@@ -155,8 +155,9 @@ void Environment::drawFrame() {
         glm::vec2 pos_1 = i->internal.positions[1] * factor;
         glm::vec2 scale = pos_1 - pos_0;
 
-        glm::u32vec2 screen_pos_0 = pos_0;
-        glm::u32vec2 screen_pos_1 = pos_1;
+        glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(this->window_p->destination_buffer.getWidth(), this->window_p->destination_buffer.getHeight()) );
+
+        glm::i32vec2 screen_pos_1 = glm::clamp(glm::i32vec2( pos_1 ), glm::i32vec2(0, 0), glm::i32vec2(this->window_p->destination_buffer.getWidth(), this->window_p->destination_buffer.getHeight()) );
 
         Window::DifferredPixel default_pixel;
         default_pixel.colors[0] = 0xff * i->internal.color.r;
@@ -167,7 +168,7 @@ void Environment::drawFrame() {
         default_pixel.depth--;
 
         for(auto y = screen_pos_0.y; y != screen_pos_1.y; y++) {
-            float a = (screen_pos_1.y - y) / scale.y;
+            float a = (pos_1.y - y) / scale.y;
             float p =  i->internal.texture_coords[1].y * (1. - a) + i->internal.texture_coords[0].y * a;
             default_pixel.texture_coordinates[1] = 0xff * p;
 
@@ -184,7 +185,7 @@ void Environment::drawFrame() {
                     original_pixel.colors[3] = 0;
                 }
 
-                float a = (screen_pos_1.x - x) / scale.x;
+                float a = (pos_1.x - x) / scale.x;
                 float p =  i->internal.texture_coords[1].x * (1. - a) + i->internal.texture_coords[0].x * a;
                 default_pixel.texture_coordinates[0] = 0xff * p;
 
