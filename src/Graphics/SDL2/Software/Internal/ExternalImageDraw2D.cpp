@@ -30,12 +30,12 @@ void ExternalImageDraw2D::drawOpaque(Software::Environment *env_r) {
         default_pixel.depth--;
 
         for(auto y = screen_pos_0.y; y != screen_pos_1.y; y++) {
-            default_pixel.texture_coordinates[1] = i->image_2d.getHeight() * ((pos_1.y - y) / scale.y);
+            auto v = i->image_2d.getHeight() * ((y - pos_0.y) / scale.y);
 
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
-                default_pixel.texture_coordinates[0] = i->image_2d.getWidth() * ((pos_1.x - x) / scale.x);
+                auto u = i->image_2d.getWidth() * ((x - pos_0.x) / scale.x);
 
-                auto pixel = i->image_2d.readPixel(default_pixel.texture_coordinates[0], default_pixel.texture_coordinates[1]);
+                auto pixel = i->image_2d.readPixel(u, v);
 
                 Window::DifferredPixel source_pixel = default_pixel;
 
