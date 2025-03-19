@@ -2,6 +2,8 @@
 
 #include "../../../Data/Mission/BMPResource.h"
 
+#include <algorithm>
+
 namespace Graphics::SDL2::Software {
 
 Environment::Environment() : window_p( nullptr ) {
@@ -117,38 +119,23 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     auto last_time = std::chrono::high_resolution_clock::now();
 
     auto num_of_pixels = this->window_p->destination_buffer.getWidth() * this->window_p->destination_buffer.getHeight();
+    const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
-    for(auto i = 60; i != 0; i--) {
-        for(auto p = num_of_pixels; p != 0; p--) {
-            Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[num_of_pixels - p];
-
-            if(source_pixel.colors[3] != 0) {
-                auto slot = this->textures[source_pixel.colors[3]];
-                auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
-
-                source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-                source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-                source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
-            }
-
-            uint32_t destination_pixel = 0xFF000000;
-
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
-            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
-
-            this->window_p->destination_buffer.getDirectGridData()[num_of_pixels - p] = destination_pixel;
-        }
-    }
-
-    /*
-    This crashes for some reason
     for(auto i = 60; i != 0; i--) {
         std::transform(
-            this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
-            this->window_p->destination_buffer.getGridData().begin(), this->window_p->destination_buffer.getGridData().end(),
-            [](Window::DifferredPixel source_pixel, uint32_t destination_pixel) {
-                destination_pixel = 0xFF000000;
+            this->window_p->differred_buffer.getGridData().cbegin(), this->window_p->differred_buffer.getGridData().cend(),
+            this->window_p->destination_buffer.getGridData().begin(),
+            [lambda_textures](Window::DifferredPixel source_pixel) {
+                if(source_pixel.colors[3] != 0) {
+                    auto slot = lambda_textures[source_pixel.colors[3]];
+                    auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+
+                    source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
+                    source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
+                    source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
+                }
+
+                uint32_t destination_pixel = 0xFF000000;
 
                 destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
                 destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
@@ -158,7 +145,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             }
         );
     }
-     */
 
     auto this_time = std::chrono::high_resolution_clock::now();
 
@@ -204,32 +190,30 @@ void Environment::setupFrame() {
 
 void Environment::drawFrame() {
     auto num_of_pixels = this->window_p->destination_buffer.getWidth() * this->window_p->destination_buffer.getHeight();
+    const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
-    for(auto p = num_of_pixels; p != 0; p--) {
-        Window::DifferredPixel source_pixel = this->window_p->differred_buffer.getDirectGridData()[num_of_pixels - p];
+    std::transform(
+        this->window_p->differred_buffer.getGridData().cbegin(), this->window_p->differred_buffer.getGridData().cend(),
+        this->window_p->destination_buffer.getGridData().begin(),
+        [lambda_textures](Window::DifferredPixel source_pixel) {
+            if(source_pixel.colors[3] != 0) {
+                auto slot = lambda_textures[source_pixel.colors[3]];
+                auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
 
-        if(source_pixel.colors[3] != 0) {
-            auto slot = this->textures[source_pixel.colors[3]];
-            auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
+                source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
+                source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
+                source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
+            }
 
-            source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-            source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-            source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
+            uint32_t destination_pixel = 0xFF000000;
+
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
+            destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
+
+            return destination_pixel;
         }
-
-        uint32_t destination_pixel = 0xFF000000;
-
-        destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
-        destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
-        destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
-
-        //destination_pixel |= static_cast<uint32_t>(source_pixel.colors[3] * 21)         << 16;
-        //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[0]) <<  8;
-        //destination_pixel |= static_cast<uint32_t>(source_pixel.texture_coordinates[1]) <<  0;
-
-        this->window_p->destination_buffer.getDirectGridData()[num_of_pixels - p] = destination_pixel;
-        //this->window_p->pixel_buffer_p[(x - 1) + this->window_p->destination_buffer.getWidth() * (y - 1)] = destination_pixel;
-    }
+    );
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
     SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
