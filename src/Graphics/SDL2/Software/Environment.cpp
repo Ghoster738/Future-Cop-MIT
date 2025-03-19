@@ -3,6 +3,7 @@
 #include "../../../Data/Mission/BMPResource.h"
 
 #include <algorithm>
+#include <execution>
 
 namespace Graphics::SDL2::Software {
 
@@ -123,6 +124,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     for(auto i = 60; i != 0; i--) {
         std::transform(
+            std::execution::par_unseq,
             this->window_p->differred_buffer.getGridData().cbegin(), this->window_p->differred_buffer.getGridData().cend(),
             this->window_p->destination_buffer.getGridData().begin(),
             [lambda_textures](Window::DifferredPixel source_pixel) {
@@ -193,6 +195,7 @@ void Environment::drawFrame() {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
     std::transform(
+        std::execution::par_unseq,
         this->window_p->differred_buffer.getGridData().cbegin(), this->window_p->differred_buffer.getGridData().cend(),
         this->window_p->destination_buffer.getGridData().begin(),
         [lambda_textures](Window::DifferredPixel source_pixel) {
