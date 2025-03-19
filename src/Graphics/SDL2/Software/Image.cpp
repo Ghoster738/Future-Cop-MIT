@@ -1,5 +1,7 @@
 #include "Image.h"
 
+#include "Environment.h"
+
 namespace Graphics::SDL2::Software {
 
 Graphics::Image* Environment::allocateImage() {
@@ -31,7 +33,9 @@ Graphics::Image* Environment::allocateImage() {
     return image_p;
 }
 
-Image::~Image() {}
+Image::~Image() {
+    this->environment_r->images.erase( this );
+}
 
 void Image::update() {
     this->internal.color             = this->color;
@@ -52,6 +56,8 @@ void Image::update() {
             break;
         }
     }
+
+    this->environment_r->images.insert( this );
 }
 
 }

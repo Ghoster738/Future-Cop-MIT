@@ -78,13 +78,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     }
 
     { // Generate the test pattern.
-        int texture_id = 0;
-        int choices = 0;
-
-        uint8_t r_choices[] = {0xff, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
-        uint8_t g_choices[] = {0xff, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff};
-        uint8_t b_choices[] = {0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
-
         auto x_factor = this->window_p->getDimensions().x / this->window_p->destination_buffer.getWidth();
         auto y_factor = this->window_p->getDimensions().y / this->window_p->destination_buffer.getHeight();
 
@@ -95,15 +88,12 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 auto x = sx * x_factor;
                 auto y = sy * y_factor;
 
-                texture_id = (x - 1) / 0x100;
-                choices    = (y - 1) / 0x100;
-
-                pixel.colors[0] = r_choices[choices % (sizeof(r_choices) / sizeof(r_choices[0]))];
-                pixel.colors[1] = g_choices[choices % (sizeof(g_choices) / sizeof(g_choices[0]))];
-                pixel.colors[2] = b_choices[choices % (sizeof(b_choices) / sizeof(b_choices[0]))];
-                pixel.colors[3] = texture_id % this->textures.size();
-                pixel.texture_coordinates[0] = (x - 1) % 0x100;
-                pixel.texture_coordinates[1] = (y - 1) % 0x100;
+                pixel.colors[0] = 0x20;
+                pixel.colors[1] = 0x20;
+                pixel.colors[2] = 0x40;
+                pixel.colors[3] = 0;
+                pixel.texture_coordinates[0] = 0;
+                pixel.texture_coordinates[1] = 0;
                 pixel.depth = 0;
 
                 this->window_p->differred_buffer.setValue((sx - 1), (sy - 1), pixel);
@@ -148,6 +138,32 @@ void Environment::setupFrame() {
 void Environment::drawFrame() {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
+    for( auto i : this->images ) {
+        if(i->positions[1].x < i->positions[0].x)
+            std::swap(i->positions[0].x, i->positions[1].x);
+        if(i->positions[1].y < i->positions[0].y)
+            std::swap(i->positions[0].y, i->positions[1].y);
+
+        glm::u32vec2 pos_0 = i->positions[0];
+        glm::u32vec2 pos_1 = i->positions[1];
+
+        Window::DifferredPixel source_pixel;
+        source_pixel.colors[0] = 0x80;
+        source_pixel.colors[1] = 0x20;
+        source_pixel.colors[2] = 0x20;
+        source_pixel.colors[3] = 0;
+        source_pixel.texture_coordinates[0] = 0;
+        source_pixel.texture_coordinates[1] = 0;
+        source_pixel.depth = 0;
+        source_pixel.depth--;
+
+        for(auto y = pos_0.y; y != pos_1.y; y++) {
+            for(auto x = pos_0.x; x != pos_1.x; x++) {
+                this->window_p->differred_buffer.setValue(x, y, source_pixel);
+            }
+        }
+    }
+
     std::transform(
         std::execution::par_unseq,
         this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
@@ -162,16 +178,16 @@ void Environment::drawFrame() {
                 source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
             }
 
-            source_pixel.colors[0] = 0xff;
-            source_pixel.colors[1] = 0xff;
-            source_pixel.colors[2] = 0xff;
-            source_pixel.colors[3] = 0;
-
             uint32_t destination_pixel = 0xFF000000;
 
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
+
+            source_pixel.colors[0] = 0x20;
+            source_pixel.colors[1] = 0x20;
+            source_pixel.colors[2] = 0x40;
+            source_pixel.colors[3] = 0;
 
             return destination_pixel;
         }
