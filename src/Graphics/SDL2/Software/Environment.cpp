@@ -138,14 +138,17 @@ void Environment::setupFrame() {
 void Environment::drawFrame() {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
+    auto x_factor = this->window_p->getDimensions().x / this->window_p->destination_buffer.getWidth();
+    auto y_factor = this->window_p->getDimensions().y / this->window_p->destination_buffer.getHeight();
+
     for( auto i : this->images ) {
         if(i->positions[1].x < i->positions[0].x)
             std::swap(i->positions[0].x, i->positions[1].x);
         if(i->positions[1].y < i->positions[0].y)
             std::swap(i->positions[0].y, i->positions[1].y);
 
-        glm::u32vec2 pos_0 = i->positions[0];
-        glm::u32vec2 pos_1 = i->positions[1];
+        glm::u32vec2 pos_0 = i->positions[0] / glm::vec2(x_factor, y_factor);
+        glm::u32vec2 pos_1 = i->positions[1] / glm::vec2(x_factor, y_factor);
 
         Window::DifferredPixel source_pixel;
         source_pixel.colors[0] = 0x80;
