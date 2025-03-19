@@ -354,24 +354,16 @@ glm::vec2 Graphics::SDL2::GLES2::Text2DBuffer::getBoxEnd() const {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
-    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     int problematic_font = 0;
 
-    if( font_system_r != nullptr )
-    {
-        if( text_data_p.size() != 0 )
-        {
-            for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
-            {
-                if( (*i).second->clearText( (*i).second->getFont() ) != 1 )
-                    problematic_font++;
-            }
-
-            return problematic_font;
-        }
-        else
-            return -7; // There is no font to clear.
-    }
-    else
+    if( this->gl_environment_r->draw_2d_routine.text_draw_routine_p == nullptr )
         return -1;
+
+    for( auto i = this->text_data_p.begin(); i != this->text_data_p.end(); i++ )
+    {
+        if( (*i).second->clearText( (*i).second->getFont() ) != 1 )
+            problematic_font++;
+    }
+
+    return problematic_font;
 }
