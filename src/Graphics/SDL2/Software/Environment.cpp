@@ -104,7 +104,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 pixel.colors[3] = texture_id % this->textures.size();
                 pixel.texture_coordinates[0] = (x - 1) % 0x100;
                 pixel.texture_coordinates[1] = (y - 1) % 0x100;
-                pixel.depth = 0xFFFF;
+                pixel.depth = 0;
 
                 this->window_p->differred_buffer.setValue((sx - 1), (sy - 1), pixel);
             }
