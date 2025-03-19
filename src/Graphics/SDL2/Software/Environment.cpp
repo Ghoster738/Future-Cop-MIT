@@ -119,7 +119,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
 
     auto last_time = std::chrono::high_resolution_clock::now();
 
-    auto num_of_pixels = this->window_p->destination_buffer.getWidth() * this->window_p->destination_buffer.getHeight();
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
     for(auto i = 60; i != 0; i--) {
@@ -191,7 +190,6 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
-    auto num_of_pixels = this->window_p->destination_buffer.getWidth() * this->window_p->destination_buffer.getHeight();
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
     std::transform(
