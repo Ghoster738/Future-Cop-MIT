@@ -111,50 +111,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         }
     }
 
-    // TODO Find a more proper spot for this make shift benchmark.
-    {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "Running benchmark of DifferredPixel.";
-    }
-
-    auto last_time = std::chrono::high_resolution_clock::now();
-
-    const std::vector<CBMPTexture>& lambda_textures = this->textures;
-
-    for(auto i = 60; i != 0; i--) {
-        std::transform(
-            std::execution::par_unseq,
-            this->window_p->differred_buffer.getGridData().cbegin(), this->window_p->differred_buffer.getGridData().cend(),
-            this->window_p->destination_buffer.getGridData().begin(),
-            [lambda_textures](Window::DifferredPixel source_pixel) {
-                if(source_pixel.colors[3] != 0) {
-                    auto slot = lambda_textures[source_pixel.colors[3]];
-                    auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
-
-                    source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-                    source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-                    source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
-                }
-
-                uint32_t destination_pixel = 0xFF000000;
-
-                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
-                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[1]) <<  8;
-                destination_pixel |= static_cast<uint32_t>(source_pixel.colors[2]) <<  0;
-
-                return destination_pixel;
-            }
-        );
-    }
-
-    auto this_time = std::chrono::high_resolution_clock::now();
-
-    {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        std::chrono::duration<double> duration = this_time - last_time;
-        log.output << "Time taken is " << duration.count() << "s";
-    }
-
     return this->textures.size() != 0;
 }
 
