@@ -162,9 +162,9 @@ void Environment::drawFrame() {
                 source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
             }
 
-            source_pixel.colors[0] = 0;
-            source_pixel.colors[1] = 0;
-            source_pixel.colors[2] = 0;
+            source_pixel.colors[0] = 0xff;
+            source_pixel.colors[1] = 0xff;
+            source_pixel.colors[2] = 0xff;
             source_pixel.colors[3] = 0;
 
             uint32_t destination_pixel = 0xFF000000;
