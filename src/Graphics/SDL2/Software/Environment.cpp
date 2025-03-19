@@ -140,6 +140,7 @@ void Environment::drawFrame() {
 
     auto x_factor = this->window_p->getDimensions().x / this->window_p->destination_buffer.getWidth();
     auto y_factor = this->window_p->getDimensions().y / this->window_p->destination_buffer.getHeight();
+    auto factor = glm::vec2(1. / x_factor, 1. / y_factor);
 
     for( auto i : this->images ) {
         if(i->positions[1].x < i->positions[0].x)
@@ -147,21 +148,26 @@ void Environment::drawFrame() {
         if(i->positions[1].y < i->positions[0].y)
             std::swap(i->positions[0].y, i->positions[1].y);
 
-        glm::u32vec2 pos_0 = i->positions[0] / glm::vec2(x_factor, y_factor);
-        glm::u32vec2 pos_1 = i->positions[1] / glm::vec2(x_factor, y_factor);
+        glm::vec2 pos_0 = i->positions[0] * factor;
+        glm::vec2 pos_1 = i->positions[1] * factor;
+        glm::vec2 scale = pos_1 - pos_0;
+
+        glm::u32vec2 screen_pos_0 = pos_0;
+        glm::u32vec2 screen_pos_1 = pos_1;
 
         Window::DifferredPixel source_pixel;
-        source_pixel.colors[0] = 0x80;
-        source_pixel.colors[1] = 0x20;
-        source_pixel.colors[2] = 0x20;
         source_pixel.colors[3] = 0;
         source_pixel.texture_coordinates[0] = 0;
         source_pixel.texture_coordinates[1] = 0;
         source_pixel.depth = 0;
         source_pixel.depth--;
 
-        for(auto y = pos_0.y; y != pos_1.y; y++) {
-            for(auto x = pos_0.x; x != pos_1.x; x++) {
+        for(auto y = screen_pos_0.y; y != screen_pos_1.y; y++) {
+            for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
+                source_pixel.colors[0] = 0x00;
+                source_pixel.colors[1] = 0xff * ((screen_pos_1.y - y) / scale.y);
+                source_pixel.colors[2] = 0xff * ((screen_pos_1.x - x) / scale.x);
+
                 this->window_p->differred_buffer.setValue(x, y, source_pixel);
             }
         }
