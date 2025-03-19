@@ -159,17 +159,22 @@ void Environment::drawFrame() {
         glm::u32vec2 screen_pos_1 = pos_1;
 
         Window::DifferredPixel source_pixel;
-        source_pixel.colors[3] = 0;
-        source_pixel.texture_coordinates[0] = 0;
-        source_pixel.texture_coordinates[1] = 0;
+        source_pixel.colors[0] = 0xff * i->internal.color.r;
+        source_pixel.colors[1] = 0xff * i->internal.color.g;
+        source_pixel.colors[2] = 0xff * i->internal.color.b;
+        source_pixel.colors[3] = i->internal.cbmp_index;
         source_pixel.depth = 0;
         source_pixel.depth--;
 
         for(auto y = screen_pos_0.y; y != screen_pos_1.y; y++) {
+            float a = (screen_pos_1.y - y) / scale.y;
+            float p =  i->internal.texture_coords[1].y * (1. - a) + i->internal.texture_coords[0].y * a;
+            source_pixel.texture_coordinates[1] = 0xff * p;
+
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
-                source_pixel.colors[0] = 0x00;
-                source_pixel.colors[1] = 0xff * ((screen_pos_1.y - y) / scale.y);
-                source_pixel.colors[2] = 0xff * ((screen_pos_1.x - x) / scale.x);
+                float a = (screen_pos_1.x - x) / scale.x;
+                float p =  i->internal.texture_coords[1].x * (1. - a) + i->internal.texture_coords[0].x * a;
+                source_pixel.texture_coordinates[0] = 0xff * p;
 
                 this->window_p->differred_buffer.setValue(x, y, source_pixel);
             }
