@@ -161,6 +161,7 @@ void Environment::drawFrame() {
                 source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
                 source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
             }
+
             source_pixel.colors[0] = 0;
             source_pixel.colors[1] = 0;
             source_pixel.colors[2] = 0;
@@ -182,7 +183,26 @@ void Environment::drawFrame() {
 }
 
 bool Environment::screenshot( Utilities::Image2D &image ) const {
-    return false;
+    if( image.getWidth()  != this->window_p->differred_buffer.getWidth() ||
+        image.getHeight() != this->window_p->differred_buffer.getHeight() )
+        image.setDimensions(image.getWidth(), image.getHeight());
+
+    Utilities::PixelFormatColor::GenericColor destination_pixel;
+
+    for(auto y = image.getHeight(); y != 0; y--) {
+        for(auto x = image.getWidth(); x != 0; x--) {
+            auto source_pixel = this->window_p->destination_buffer.getValue( (x - 1), (y - 1) );
+
+            destination_pixel.red   = (1.0 / 255.0) * ((source_pixel & 0x00ff0000) >> 16);
+            destination_pixel.green = (1.0 / 255.0) * ((source_pixel & 0x0000ff00) >>  8);
+            destination_pixel.blue  = (1.0 / 255.0) * ((source_pixel & 0x000000ff) >>  0);
+            destination_pixel.alpha = (1.0 / 255.0) * ((source_pixel & 0xff000000) >> 24);
+
+            image.writePixel( (x - 1), (y - 1), destination_pixel );
+        }
+    }
+
+    return true;
 }
 
 void Environment::advanceTime( std::chrono::microseconds delta ) {
