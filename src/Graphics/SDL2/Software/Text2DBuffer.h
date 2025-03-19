@@ -9,7 +9,11 @@ namespace Graphics::SDL2::Software {
 
 class Text2DBuffer : public Graphics::Text2DBuffer {
 public:
-    Text2DBuffer( Graphics::SDL2::Software::Environment &gl_environment );
+    Software::Environment *environment_r;
+    float scale_font;
+    char center_mode;
+
+    Text2DBuffer( Software::Environment &environment );
     virtual ~Text2DBuffer();
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const;
