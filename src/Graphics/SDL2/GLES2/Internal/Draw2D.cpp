@@ -214,11 +214,10 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     }
 
     // Lastly, draw the font.
-    for( auto i = camera.getText2DBuffer()->begin(); i != camera.getText2DBuffer()->end(); i++ ) {
-        // TODO Eventually remove this kind of upcasts. They are dangerious.
-        auto text_2d_buffer_r = dynamic_cast<Text2DBuffer*>( *i );
+    for( auto i = this->text_2d_buffers.begin(); i != this->text_2d_buffers.end(); i++ ) {
+        auto text_2d_buffer_r = *i;
 
-        assert( text_2d_buffer_r != nullptr );
+        assert( text_2d_buffer_r != nullptr ); // No null allowed in set.
 
         assert( this->text_draw_routine_p != nullptr );
         assert( text_2d_buffer_r->text_data_p.size() != 0 );

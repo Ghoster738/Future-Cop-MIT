@@ -148,9 +148,6 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         return false;
     }
 
-    // Set up environment to switch to the new resource.
-    this->first_person_r->removeText2DBuffer( this->text_2d_buffer_r );
-
     // Unload the old resource.
     if( switch_resource_identifier != this->resource_identifier ) {
         auto old_entry = this->manager.getIFFEntry( this->resource_identifier );
@@ -428,8 +425,6 @@ void MainProgram::loadGraphics( bool show_map ) {
 
     if( this->text_2d_buffer_r == nullptr )
         throwException( "The Graphics::Text2DBuffer has failed to allocate." );
-
-    this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
 
     this->is_graphics_already_loaded = true;
 }

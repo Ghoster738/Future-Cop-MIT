@@ -30,12 +30,15 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::SDL2::GLES2::Enviro
     
     text_data_p = this->gl_environment_r->draw_2d_routine.text_draw_routine_p->getText2D();
 
+    this->gl_environment_r->draw_2d_routine.text_2d_buffers.insert(this);
+
     this->scale_font = 1.0f;
 }
 
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
     for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
         delete (*i).second;
+    this->gl_environment_r->draw_2d_routine.text_2d_buffers.erase(this);
 }
 
 std::vector<std::string> Graphics::SDL2::GLES2::Text2DBuffer::splitText( const Font &font, const std::string &unsplit_text, float line_length ) const {

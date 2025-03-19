@@ -3,6 +3,8 @@
 
 #include "../Window.h"
 
+#include "../../../Utilities/GridBase2D.h"
+
 namespace Graphics::SDL2::Software {
 
 class Environment;

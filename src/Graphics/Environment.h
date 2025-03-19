@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "ExternalImage.h"
 #include "Image.h"
+#include "Text2DBuffer.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
 #include "Window.h"

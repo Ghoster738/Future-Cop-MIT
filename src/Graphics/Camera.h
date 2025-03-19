@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_CAMERA_INSTANCE_H
 #define GRAPHICS_CAMERA_INSTANCE_H
 
-#include "Text2DBuffer.h"
 #include "../Utilities/DataTypes.h"
 #include "../Utilities/Collision/GJKPolyhedron.h"
 
@@ -137,11 +136,6 @@ public:
     void getProjectionView2D( glm::mat4 &PV2D ) const;
 
     /**
-     * Get the 2D Text buffers attached to the camera.
-     */
-    virtual const std::vector<Text2DBuffer*> *const getText2DBuffer() const = 0;
-
-    /**
      * @param origin the origin of the viewport.
      */
     glm::u32vec2 getViewportOrigin() const;
@@ -150,18 +144,6 @@ public:
      * @param dimensions the dimensions of the viewport.
      */
     glm::u32vec2 setViewportDimensions() const;
-
-    /**
-     * Attach the Text 2D Buffer.
-     * @return 1 if the buffer gets attached.
-     */
-    virtual int attachText2DBuffer( Text2DBuffer& buffer_p ) = 0;
-
-    /**
-     * Delete the Text 2D Buffer.
-     * @return true if the buffer is found and deleted.
-     */
-    virtual int removeText2DBuffer( Text2DBuffer* buffer_p ) = 0;
 
     /**
      * This gets the 3D camera shape from the projection matrix.
