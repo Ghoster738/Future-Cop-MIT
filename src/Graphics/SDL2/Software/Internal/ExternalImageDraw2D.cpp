@@ -35,13 +35,13 @@ void ExternalImageDraw2D::drawOpaque(Software::Environment *env_r) {
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
                 auto u = i->image_2d.getWidth() * ((x - pos_0.x) / scale.x);
 
-                auto pixel = i->image_2d.readPixel(u, v);
+                auto pixel = i->image_2d.getRef(u, v);
 
                 Window::DifferredPixel source_pixel = default_pixel;
 
-                source_pixel.colors[0] = 0xff * (i->internal.color.r * pixel.red);
-                source_pixel.colors[1] = 0xff * (i->internal.color.g * pixel.green);
-                source_pixel.colors[2] = 0xff * (i->internal.color.b * pixel.blue);
+                source_pixel.colors[0] = (i->internal.color.r * pixel[0]);
+                source_pixel.colors[1] = (i->internal.color.g * pixel[1]);
+                source_pixel.colors[2] = (i->internal.color.b * pixel[2]);
 
                 env_r->window_p->differred_buffer.setValue(x, y, source_pixel);
             }
