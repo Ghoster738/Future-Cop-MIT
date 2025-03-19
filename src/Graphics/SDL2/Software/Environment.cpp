@@ -194,9 +194,9 @@ void Environment::drawFrame() {
 
     std::transform(
         std::execution::par_unseq,
-        this->window_p->differred_buffer.getGridData().cbegin(), this->window_p->differred_buffer.getGridData().cend(),
+        this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
         this->window_p->destination_buffer.getGridData().begin(),
-        [lambda_textures](Window::DifferredPixel source_pixel) {
+        [lambda_textures](Window::DifferredPixel &source_pixel) {
             if(source_pixel.colors[3] != 0) {
                 auto slot = lambda_textures[source_pixel.colors[3]];
                 auto texture_pixel = slot.texture_p->getValue( source_pixel.texture_coordinates[0], source_pixel.texture_coordinates[1] );
@@ -205,6 +205,10 @@ void Environment::drawFrame() {
                 source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
                 source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
             }
+            source_pixel.colors[0] = 0;
+            source_pixel.colors[1] = 0;
+            source_pixel.colors[2] = 0;
+            source_pixel.colors[3] = 0;
 
             uint32_t destination_pixel = 0xFF000000;
 
