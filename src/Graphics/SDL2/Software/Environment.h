@@ -7,6 +7,7 @@
 #include "Window.h"
 
 #include "Internal/ImageDraw2D.h"
+#include "Internal/ExternalImageDraw2D.h"
 
 #include <set>
 
