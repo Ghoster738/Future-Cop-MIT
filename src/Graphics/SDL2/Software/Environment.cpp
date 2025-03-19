@@ -85,8 +85,8 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             for(auto sx = this->window_p->destination_buffer.getWidth(); sx != 0; sx--) {
                 Window::DifferredPixel pixel;
 
-                auto x = sx * x_factor;
-                auto y = sy * y_factor;
+                auto x = sx * this->window_p->factor.x;
+                auto y = sy * this->window_p->factor.y;
 
                 pixel.colors[0] = 0x20;
                 pixel.colors[1] = 0x20;
@@ -138,10 +138,6 @@ void Environment::setupFrame() {
 void Environment::drawFrame() {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
-    auto x_factor = this->window_p->getDimensions().x / this->window_p->destination_buffer.getWidth();
-    auto y_factor = this->window_p->getDimensions().y / this->window_p->destination_buffer.getHeight();
-    auto factor = glm::vec2(1. / x_factor, 1. / y_factor);
-
     for( auto i : this->images ) {
         if(!i->internal.is_visable)
             continue;
@@ -151,8 +147,8 @@ void Environment::drawFrame() {
         if(i->internal.positions[1].y < i->internal.positions[0].y)
             std::swap(i->internal.positions[0].y, i->internal.positions[1].y);
 
-        glm::vec2 pos_0 = i->internal.positions[0] * factor;
-        glm::vec2 pos_1 = i->internal.positions[1] * factor;
+        glm::vec2 pos_0 = i->internal.positions[0] * this->window_p->inv_factor;
+        glm::vec2 pos_1 = i->internal.positions[1] * this->window_p->inv_factor;
         glm::vec2 scale = pos_1 - pos_0;
 
         glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(this->window_p->destination_buffer.getWidth(), this->window_p->destination_buffer.getHeight()) );

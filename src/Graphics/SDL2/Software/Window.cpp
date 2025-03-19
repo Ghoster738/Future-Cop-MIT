@@ -72,6 +72,11 @@ int Window::attach() {
                 if( this->texture_p != nullptr ) {
                     this->differred_buffer.setDimensions( resolution.x, resolution.y );
                     this->destination_buffer.setDimensions( resolution.x, resolution.y );
+
+                    this->factor.x = this->getDimensions().x / this->destination_buffer.getWidth();
+                    this->factor.y = this->getDimensions().y / this->destination_buffer.getHeight();
+                    this->inv_factor = glm::vec2(1. / factor.x, 1. / factor.y);
+
                     success = 1;
                 }
                 else {
