@@ -143,13 +143,16 @@ void Environment::drawFrame() {
     auto factor = glm::vec2(1. / x_factor, 1. / y_factor);
 
     for( auto i : this->images ) {
-        if(i->positions[1].x < i->positions[0].x)
-            std::swap(i->positions[0].x, i->positions[1].x);
-        if(i->positions[1].y < i->positions[0].y)
-            std::swap(i->positions[0].y, i->positions[1].y);
+        if(!i->internal.is_visable)
+            continue;
 
-        glm::vec2 pos_0 = i->positions[0] * factor;
-        glm::vec2 pos_1 = i->positions[1] * factor;
+        if(i->internal.positions[1].x < i->internal.positions[0].x)
+            std::swap(i->internal.positions[0].x, i->internal.positions[1].x);
+        if(i->internal.positions[1].y < i->internal.positions[0].y)
+            std::swap(i->internal.positions[0].y, i->internal.positions[1].y);
+
+        glm::vec2 pos_0 = i->internal.positions[0] * factor;
+        glm::vec2 pos_1 = i->internal.positions[1] * factor;
         glm::vec2 scale = pos_1 - pos_0;
 
         glm::u32vec2 screen_pos_0 = pos_0;
