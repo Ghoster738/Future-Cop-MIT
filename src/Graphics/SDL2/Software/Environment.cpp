@@ -44,6 +44,8 @@ std::string Environment::getEnvironmentIdentifier() const {
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
     this->image_draw_2d.images.clear();
+    this->external_image_draw_2d.images.clear();
+    this->external_image_draw_2d.opaque_images.clear();
 
     for(auto i : this->textures) {
         delete i.texture_p;
@@ -138,6 +140,8 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
+    this->external_image_draw_2d.drawOpaque(this);
+
     this->image_draw_2d.draw(this);
 
     const std::vector<CBMPTexture>& lambda_textures = this->textures;

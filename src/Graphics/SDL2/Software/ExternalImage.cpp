@@ -37,7 +37,17 @@ Graphics::ExternalImage* Environment::allocateExternalImage(bool has_alpha) {
 
 ExternalImage::ExternalImage(const Utilities::PixelFormatColor &color) : Graphics::ExternalImage(color) {}
 
-ExternalImage::~ExternalImage() {}
+ExternalImage::~ExternalImage() {
+    if(this->has_alpha_channel) {
+        this->environment_r->external_image_draw_2d.images.erase( this );
+    }
+    else {
+        if(this->internal.color.a < 1.0f)
+            this->environment_r->external_image_draw_2d.images.erase( this );
+        else
+            this->environment_r->external_image_draw_2d.opaque_images.erase( this );
+    }
+}
 
 void ExternalImage::update() {
     this->internal.color        = this->color;
