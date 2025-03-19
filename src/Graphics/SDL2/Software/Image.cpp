@@ -34,7 +34,7 @@ Graphics::Image* Environment::allocateImage() {
 }
 
 Image::~Image() {
-    this->environment_r->images.erase( this );
+    this->environment_r->image_draw_2d.images.erase( this );
 }
 
 void Image::update() {
@@ -57,7 +57,7 @@ void Image::update() {
         }
     }
 
-    this->environment_r->images.insert( this );
+    this->environment_r->image_draw_2d.images.insert( this );
 }
 
 }

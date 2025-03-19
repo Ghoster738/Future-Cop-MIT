@@ -6,6 +6,8 @@
 #include "Image.h"
 #include "Window.h"
 
+#include "Internal/ImageDraw2D.h"
+
 #include <set>
 
 #define CBMP_TEXTURE Utilities::GridBase2D<TexturePixel>
@@ -28,7 +30,7 @@ public:
 
     std::vector<CBMPTexture> textures;
 
-    std::set<Software::Image*> images;
+    Internal::ImageDraw2D image_draw_2d;
 
     // Configuration
     unsigned pixel_size;
