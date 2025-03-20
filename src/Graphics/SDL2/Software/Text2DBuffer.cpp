@@ -24,7 +24,11 @@ float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) c
 int Text2DBuffer::setFont( const Font &font ) { return -1; }
 int Text2DBuffer::setPosition( const glm::vec2 &position ) { return -1; }
 int Text2DBuffer::setColor( const glm::vec4 &color ) { return -1; }
-int Text2DBuffer::setCenterMode( enum CenterMode ) { return -1; }
+int Text2DBuffer::setCenterMode( enum CenterMode center_mode ) {
+    this->center_mode = center_mode;
+
+    return 1;
+}
 int Text2DBuffer::print( const std::string &text ) { return -1; }
 
 void Text2DBuffer::beginBox() {

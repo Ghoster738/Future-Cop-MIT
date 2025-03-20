@@ -11,7 +11,7 @@ class Text2DBuffer : public Graphics::Text2DBuffer {
 public:
     Software::Environment *environment_r;
     float scale_font;
-    char center_mode;
+    CenterMode center_mode;
 
     Text2DBuffer( Software::Environment &environment );
     virtual ~Text2DBuffer();
