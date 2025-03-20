@@ -32,7 +32,7 @@ namespace Internal {
 class FontDraw2D {
 public:
     struct FontGraphics {
-        const Data::Mission::FontResource *const font_r;
+        const Data::Mission::FontResource* font_r;
         std::map<uint32_t, Utilities::GridBase2D<uint8_t>*> font_glyphs;
     };
 

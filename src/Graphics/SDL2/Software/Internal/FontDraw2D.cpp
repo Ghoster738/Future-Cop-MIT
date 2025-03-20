@@ -10,6 +10,7 @@ FontDraw2D::~FontDraw2D() {
         for( auto glyph : font.second->font_glyphs ) {
             delete glyph.second;
         }
+        delete font.second;
     }
 }
 
@@ -36,13 +37,34 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
         for( auto glyph : font.second->font_glyphs ) {
             delete glyph.second;
         }
+        delete font.second;
     }
     this->resource_id_to_font.clear();
 
     std::vector<const Data::Mission::FontResource*> fonts = accessor.getAllConstFNT();
     for(const Data::Mission::FontResource* font_r : fonts ) {
-        this->resource_id_to_font[font_r->getResourceID()];
-        //TODO Load Glyphs.
+        this->resource_id_to_font[font_r->getResourceID()] = new FontGraphics;
+        this->resource_id_to_font[font_r->getResourceID()]->font_r = font_r;
+
+        for(unsigned g = 0x100; g != 0; g--) {
+            auto glyph_r = font_r->getGlyph( g - 1 );
+
+            if( glyph_r == nullptr )
+                continue;
+
+            auto glyph_texture_p = new Utilities::GridBase2D<uint8_t>(glyph_r->width, glyph_r->height);
+
+            for(unsigned y = glyph_r->height; y != 0; y--) {
+                for(unsigned x = glyph_r->width; x != 0; x--) {
+                    auto pixel = font_r->getImage()->readPixel(glyph_r->left + x, glyph_r->top + y);
+
+                    glyph_texture_p->setValue(x, y, 0xff * pixel.red);
+                }
+            }
+
+            this->resource_id_to_font[font_r->getResourceID()]->font_glyphs[g - 1] = glyph_texture_p;
+        }
+
     }
 
     return fonts.size() != 0;
