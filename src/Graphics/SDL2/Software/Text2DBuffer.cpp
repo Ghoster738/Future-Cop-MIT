@@ -113,7 +113,7 @@ int Text2DBuffer::print( const std::string &text ) {
         glyph.color    = this->color;
         glyph.scale    = 1.0;
 
-        this->position += font_resource_r->getGlyph( c )->x_advance;
+        this->position.x += font_resource_r->getGlyph( c )->x_advance;
 
         if(!this->environment_r->font_draw_2d.addGlyph(glyph))
             return -4; // Out of space
