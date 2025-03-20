@@ -200,21 +200,17 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
 int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position ) {
     auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     
-    if( font_system_r != nullptr )
-    {
-        if( current_text_2D_r != nullptr )
-        {
-            // The pen position is to be set.
-            current_text_2D_r->setPenPosition( position );
-
-            // For the success of changing the color.
-            return 1;
-        }
-        else
-            return -2; // aborted current_text_2d_r is not selected.
-    }
-    else
+    if( font_system_r == nullptr )
         return -1;
+
+    if( this->current_text_2D_r == nullptr )
+        return -2; // aborted current_text_2d_r is not selected.
+
+    // The pen position is to be set.
+    this->current_text_2D_r->setPenPosition( position );
+
+    // For the success of changing the color.
+    return 1;
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
