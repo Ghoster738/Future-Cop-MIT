@@ -37,6 +37,9 @@ bool Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxi
 bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const { return false; }
 
 float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const {
+    if(this->environment_r == nullptr)
+        return 0.0f;
+
     auto accessor = this->environment_r->font_draw_2d.resource_id_to_font.find( font.resource_id );
     std::string filtered_text;
 
@@ -76,7 +79,44 @@ int Text2DBuffer::setCenterMode( enum CenterMode center_mode ) {
 
     return 1;
 }
-int Text2DBuffer::print( const std::string &text ) { return -1; }
+int Text2DBuffer::print( const std::string &text ) {
+    if(this->environment_r == nullptr)
+        return -1;
+
+    auto accessor = this->environment_r->font_draw_2d.resource_id_to_font.find( this->current_font.resource_id );
+    std::string filtered_text;
+
+    if( accessor == this->environment_r->font_draw_2d.resource_id_to_font.end() )
+        return -2;
+
+    auto font_resource_r = (*accessor).second->font_r;
+
+    if( font_resource_r == nullptr )
+        return -3;
+
+    font_resource_r->filterText( text, &filtered_text );
+
+    Internal::FontDraw2D::Glyph glyph;
+
+    for(auto c : filtered_text) {
+        auto glyph_accessor = (*accessor).second->font_glyphs.find( c );
+
+        if( glyph_accessor == (*accessor).second->font_glyphs.end() )
+            continue;
+
+        glyph.glyph_texture_r = glyph_accessor->second;
+
+        glyph.position = this->position;
+        glyph.color    = this->color;
+        glyph.scale    = 1.0;
+
+        this->position += font_resource_r->getGlyph( c )->x_advance;
+
+        if(!this->environment_r->font_draw_2d.addGlyph(glyph))
+            return -4; // Out of space
+    }
+    return 1;
+}
 
 void Text2DBuffer::beginBox() {
     this->start = glm::vec2( std::numeric_limits<float>::max());
