@@ -143,11 +143,11 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
-    this->font_draw_2d.drawOpaque(this);
-
     this->external_image_draw_2d.drawOpaque(this);
 
     this->image_draw_2d.draw(this);
+
+    this->font_draw_2d.drawOpaque(this);
 
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
