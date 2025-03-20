@@ -44,6 +44,7 @@ std::string Environment::getEnvironmentIdentifier() const {
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
     font_draw_2d.load(accessor);
+    font_draw_2d.allocateGlyph(0x10000);
 
     this->image_draw_2d.images.clear();
     this->external_image_draw_2d.images.clear();
@@ -142,6 +143,8 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
+    this->font_draw_2d.drawOpaque(this);
+
     this->external_image_draw_2d.drawOpaque(this);
 
     this->image_draw_2d.draw(this);

@@ -3,6 +3,8 @@
 #include "../../../../Data/Accessor.h"
 #include "../../../../Data/Mission/FontResource.h"
 
+#include "../Environment.h"
+
 namespace Graphics::SDL2::Software::Internal {
 
 FontDraw2D::~FontDraw2D() {
@@ -15,6 +17,7 @@ FontDraw2D::~FontDraw2D() {
 }
 
 void FontDraw2D::allocateGlyph(size_t num_glyphs) {
+    this->current_glyph_amount = 0;
     this->glyphs.resize(num_glyphs);
 }
 
@@ -54,8 +57,8 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
 
             auto glyph_texture_p = new Utilities::GridBase2D<uint8_t>(glyph_r->width, glyph_r->height);
 
-            for(unsigned y = glyph_r->height; y != 0; y--) {
-                for(unsigned x = glyph_r->width; x != 0; x--) {
+            for(auto y = glyph_r->height; y != 0; y--) {
+                for(auto x = glyph_r->width; x != 0; x--) {
                     auto pixel = font_r->getImage()->readPixel(glyph_r->left + x, glyph_r->top + y);
 
                     glyph_texture_p->setValue(x, y, 0xff * pixel.red);
@@ -70,7 +73,29 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
     return fonts.size() != 0;
 }
 
-void FontDraw2D::drawOpaque(Software::Environment *enviornment_r) {}
+void FontDraw2D::drawOpaque(Software::Environment *env_r) {
+    Window::DifferredPixel default_pixel;
+    default_pixel.colors[3] = 0;
+    default_pixel.depth = 0;
+    default_pixel.depth--;
+
+    for(size_t g = 0; g < this->current_glyph_amount; g++) {
+        const auto &glyph = this->glyphs[g];
+
+        default_pixel.colors[0] = glyph.color[0];
+        default_pixel.colors[1] = glyph.color[1];
+        default_pixel.colors[2] = glyph.color[2];
+
+        for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
+            for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
+                auto pixel = glyph.glyph_texture_r->getValue(x, y);
+
+                if(pixel != 0)
+                    env_r->window_p->differred_buffer.setValue(glyph.position.x + x, glyph.position.y + y, default_pixel);
+            }
+        }
+    }
+}
 
 void FontDraw2D::draw(Software::Environment *enviornment_r) {}
 

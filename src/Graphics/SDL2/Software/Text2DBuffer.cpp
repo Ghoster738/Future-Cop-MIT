@@ -106,6 +106,9 @@ int Text2DBuffer::print( const std::string &text ) {
 
         glyph.glyph_texture_r = glyph_accessor->second;
 
+        if( glyph.glyph_texture_r == nullptr )
+            continue;
+
         glyph.position = this->position;
         glyph.color    = this->color;
         glyph.scale    = 1.0;
