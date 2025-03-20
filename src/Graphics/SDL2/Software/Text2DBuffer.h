@@ -10,8 +10,8 @@ namespace Graphics::SDL2::Software {
 class Text2DBuffer : public Graphics::Text2DBuffer {
 public:
     Software::Environment *environment_r;
-    float scale_font;
     CenterMode center_mode;
+    Font current_font;
 
     Text2DBuffer( Software::Environment &environment );
     virtual ~Text2DBuffer();

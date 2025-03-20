@@ -8,8 +8,8 @@ Graphics::Text2DBuffer* Graphics::SDL2::Software::Environment::allocateText2DBuf
 
 namespace Graphics::SDL2::Software {
 
-Text2DBuffer::Text2DBuffer( Software::Environment &gl_environment ) :
-    Graphics::Text2DBuffer() {}
+Text2DBuffer::Text2DBuffer( Software::Environment &environment ) :
+    Graphics::Text2DBuffer(), environment_r(&environment), center_mode(CenterMode::LEFT) {}
 
 Text2DBuffer::~Text2DBuffer() {}
 
@@ -21,7 +21,11 @@ bool Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxi
 bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const { return false; }
 float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const { return 0.0f; }
 
-int Text2DBuffer::setFont( const Font &font ) { return -1; }
+int Text2DBuffer::setFont( const Font &font ) {
+    this->current_font = font;
+
+    return -1;
+}
 int Text2DBuffer::setPosition( const glm::vec2 &position ) { return -1; }
 int Text2DBuffer::setColor( const glm::vec4 &color ) { return -1; }
 int Text2DBuffer::setCenterMode( enum CenterMode center_mode ) {
