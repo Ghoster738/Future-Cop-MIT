@@ -43,6 +43,8 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
+    font_draw_2d.load(accessor);
+
     this->image_draw_2d.images.clear();
     this->external_image_draw_2d.images.clear();
     this->external_image_draw_2d.opaque_images.clear();

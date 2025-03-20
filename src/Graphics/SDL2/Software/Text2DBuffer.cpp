@@ -17,7 +17,17 @@ std::vector<std::string> Text2DBuffer::splitText( const Font &font, const std::s
     return std::vector<std::string>( {unsplit_text} );
 }
 
-bool Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const { return false; }
+bool Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const {
+    if(environment_r == nullptr)
+        return false;
+
+    if(environment_r->font_draw_2d.resource_id_to_font.size() == 0)
+        return false;
+
+    auto first_thing = environment_r->font_draw_2d.resource_id_to_font.begin();
+
+    return false;
+}
 bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const { return false; }
 float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const { return 0.0f; }
 
