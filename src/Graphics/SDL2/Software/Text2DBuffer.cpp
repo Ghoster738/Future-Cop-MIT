@@ -18,26 +18,59 @@ std::vector<std::string> Text2DBuffer::splitText( const Font &font, const std::s
 }
 
 bool Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const {
-    if(environment_r == nullptr)
+    if(this->environment_r == nullptr)
         return false;
 
-    if(environment_r->font_draw_2d.resource_id_to_font.size() == 0)
+    if(this->environment_r->font_draw_2d.resource_id_to_font.size() == 0)
         return false;
 
-    auto first_thing = environment_r->font_draw_2d.resource_id_to_font.begin();
+    auto first_thing = this->environment_r->font_draw_2d.resource_id_to_font.begin();
 
-    return false;
+    if(first_thing == this->environment_r->font_draw_2d.resource_id_to_font.end())
+        return false;
+
+    font.resource_id = first_thing->second->font_r->getResourceID();
+    font.scale       = 1.f;
+    return true;
+
 }
 bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const { return false; }
-float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const { return 0.0f; }
+
+float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const {
+    auto accessor = this->environment_r->font_draw_2d.resource_id_to_font.find( font.resource_id );
+    std::string filtered_text;
+
+    if( accessor == this->environment_r->font_draw_2d.resource_id_to_font.end() )
+        return 0.0f;
+
+    auto font_resource_r = (*accessor).second->font_r;
+
+    if( font_resource_r == nullptr )
+        return 0.0f;
+
+    font_resource_r->filterText( text, &filtered_text );
+
+    return font.scale * static_cast<float>(font_resource_r->getLineLength( filtered_text ));
+}
 
 int Text2DBuffer::setFont( const Font &font ) {
     this->current_font = font;
 
-    return -1;
+    return 1;
 }
-int Text2DBuffer::setPosition( const glm::vec2 &position ) { return -1; }
-int Text2DBuffer::setColor( const glm::vec4 &color ) { return -1; }
+
+int Text2DBuffer::setPosition( const glm::vec2 &position ) {
+    this->position = position;
+
+    return 1;
+}
+
+int Text2DBuffer::setColor( const glm::vec4 &color ) {
+    this->color = static_cast<float>(0xff) * color;
+
+    return 1;
+}
+
 int Text2DBuffer::setCenterMode( enum CenterMode center_mode ) {
     this->center_mode = center_mode;
 
@@ -58,6 +91,13 @@ glm::vec2 Text2DBuffer::getBoxEnd() const {
     return this->end;
 }
 
-int Text2DBuffer::reset() { return -1; }
+int Text2DBuffer::reset() {
+    if(this->environment_r == nullptr)
+        return -1;
+
+    this->environment_r->font_draw_2d.clear();
+
+    return 1;
+}
 
 }

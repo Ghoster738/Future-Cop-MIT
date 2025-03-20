@@ -10,8 +10,11 @@ namespace Graphics::SDL2::Software {
 class Text2DBuffer : public Graphics::Text2DBuffer {
 public:
     Software::Environment *environment_r;
+
     CenterMode center_mode;
     Font current_font;
+    glm::i32vec2 position;
+    glm::u8vec4  color;
 
     Text2DBuffer( Software::Environment &environment );
     virtual ~Text2DBuffer();
