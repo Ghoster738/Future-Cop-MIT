@@ -179,26 +179,22 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
     
     auto last_text_2D_r = current_text_2D_r;
 
-    if( font_system_r != nullptr )
-    {
-        if( text_data_p.find( font.resource_id ) != text_data_p.end() )
-        {
-            // Set the current text.
-            current_text_2D_r = text_data_p[ font.resource_id ];
-
-            // Steal the pen position and color from the last pen if available.
-            current_text_2D_r->stealPen( last_text_2D_r );
-
-            this->scale_font = font.scale;
-
-            // Successfully set the current font.
-            return 1;
-        }
-        else
-            return -3; // aborted because the index is out of bounds.
-    }
-    else
+    if( font_system_r == nullptr )
         return -1;
+
+    if( text_data_p.find( font.resource_id ) == text_data_p.end() )
+        return -2; // aborted because the index is out of bounds.
+
+    // Set the current text.
+    current_text_2D_r = text_data_p[ font.resource_id ];
+
+    // Steal the pen position and color from the last pen if available.
+    current_text_2D_r->stealPen( last_text_2D_r );
+
+    this->scale_font = font.scale;
+
+    // Successfully set the current font.
+    return 1;
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position ) {
