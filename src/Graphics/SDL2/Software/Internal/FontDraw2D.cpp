@@ -41,6 +41,39 @@ bool FontDraw2D::addGlyph(const Glyph &glyph) {
     return true;
 }
 
+bool FontDraw2D::getGlyphBox(size_t glyph_added_count, glm::vec2 &start, glm::vec2 &end) const {
+    if(this->current_glyph_amount < glyph_added_count)
+        return false;
+
+    glm::ivec2 positions[2];
+
+    for(size_t g = current_glyph_amount - glyph_added_count; g != current_glyph_amount; g++) {
+        positions[0] = this->glyphs[g].position;
+        positions[1] = this->glyphs[g].position + glm::ivec2(this->glyphs[g].glyph_texture_r->getWidth(), this->glyphs[g].glyph_texture_r->getHeight());
+
+
+        if(positions[0].x < start.x)
+            start.x = positions[0].x;
+        if(positions[0].y < start.y)
+            start.y = positions[0].y;
+        if(positions[1].x < start.x)
+            start.x = positions[1].x;
+        if(positions[1].y < start.y)
+            start.y = positions[1].y;
+
+        if(positions[0].x > end.x)
+            end.x = positions[0].x;
+        if(positions[0].y > end.y)
+            end.y = positions[0].y;
+        if(positions[1].x > end.x)
+            end.x = positions[1].x;
+        if(positions[1].y > end.y)
+            end.y = positions[1].y;
+    }
+
+    return true;
+}
+
 void FontDraw2D::clear() {
     this->current_glyph_amount = 0;
 }

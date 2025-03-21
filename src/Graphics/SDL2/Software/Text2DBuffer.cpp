@@ -164,6 +164,7 @@ int Text2DBuffer::print( const std::string &text ) {
     else if(this->center_mode == CenterMode::RIGHT)
         this->environment_r->font_draw_2d.adjustGlyphs(glyph_added_count, 1.0 * (last_position_x - this->position.x));
 
+    this->environment_r->font_draw_2d.getGlyphBox(glyph_added_count, this->start, this->end);
 
     return 1;
 }

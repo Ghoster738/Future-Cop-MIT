@@ -56,6 +56,7 @@ public:
     void allocateGlyph(size_t num_glyphs);
     bool addGlyph(const Glyph &glyph);
     bool adjustGlyphs(size_t glyph_added_count, int32_t move_by_x);
+    bool getGlyphBox(size_t glyph_added_count, glm::vec2 &start, glm::vec2 &end) const;
     void clear();
 
     bool load( const Data::Accessor &accessor );
