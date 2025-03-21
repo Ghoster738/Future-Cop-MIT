@@ -406,7 +406,7 @@ void Environment::drawFrame() {
         if( current_camera_r != nullptr )
         {
             // Set the viewport
-            glViewport( current_camera_r->getViewportOrigin().x, current_camera_r->getViewportOrigin().y, current_camera_r->setViewportDimensions().x, current_camera_r->setViewportDimensions().y );
+            glViewport( current_camera_r->getViewportOrigin().x, current_camera_r->getViewportOrigin().y, current_camera_r->getViewportDimensions().x, current_camera_r->getViewportDimensions().y );
 
             // When drawing the 3D objects the depth test must be turned on.
             glEnable(GL_DEPTH_TEST);

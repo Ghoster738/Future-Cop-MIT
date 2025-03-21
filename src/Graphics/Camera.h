@@ -18,11 +18,6 @@ protected:
     glm::mat4 view3D;
     glm::mat4 PV3D;
 
-    // These are for the 2D environment which would mostly be used for GUI.
-    glm::mat4 projection2D;
-    glm::mat4 view2D;
-    glm::mat4 PV2D;
-
     // Viewport locations
     glm::u32vec2 origin;
     glm::u32vec2 dimensions; // x = width, y = height
@@ -32,12 +27,6 @@ protected:
      * This multiplies projection3D and view3D, and stores the result in PV3D.
      */
     void updatePV3D();
-
-    /**
-     * When projection2D or view2D had been changed, the PV2D needs to reflect this.
-     * This multiplies projection2D and view3D, and stores the result in PV2D.
-     */
-    void updatePV2D();
 
     Camera();
 
@@ -66,20 +55,6 @@ public:
     void setProjectionView3D( const glm::mat4 &projection3D, const glm::mat4 &view3D );
 
     /**
-     * This sets the 2d projection, and multiplies it with the 2d view matrix.
-     * Use this command only when view 2d stays constant, or is not changed.
-     * @param projection2D sets the projection of this camera's 2D mode.
-     */
-    void setProjection2D( const glm::mat4 &projection2D );
-
-    /**
-     * This sets the 2d view, and multiplies it with the 2d projection matrix.
-     * Use this command only when Projection 2d stays constant, or is not changed.
-     * @param view2D sets the view of this camera's 2D mode.
-     */
-    void setView2D( const glm::mat4 &view2D );
-
-    /**
      * This is to set the viewport origin.
      * @param origin This sets the origin of the viewport.
      */
@@ -91,13 +66,6 @@ public:
      * @note The dimensions.x is width and dimensions.y is height.
      */
     void setViewportDimensions( const glm::u32vec2 &dimensions );
-
-    /**
-     * If both the projection and the view 2D matrices had been changed use this method.
-     * @param projection2D sets the projection of this camera's 2D mode.
-     * @param view2D sets the view of this camera's 2D mode.
-     */
-    void setProjectionView2D( const glm::mat4 &projection2D, const glm::mat4 &view2D );
 
     /**
      * Get the 3D matrix of the projection.
@@ -118,32 +86,14 @@ public:
     void getProjectionView3D( glm::mat4 &PV3D ) const;
 
     /**
-     * Get the 2D matrix of the projection.
-     * @param projection2D the parameter for the 2D projection.
-     */
-    void getProjection2D( glm::mat4 &projection2D ) const;
-
-    /**
-     * Get the 2D matrix of the view.
-     * @param view2D the parameter for the 2D view.
-     */
-    void getView2D( glm::mat4 &view2D ) const;
-
-    /**
-     * Get the 2D matrix multiplication of projection2D and view2D.
-     * @param PV2D the parameter for the 2D projection and view.
-     */
-    void getProjectionView2D( glm::mat4 &PV2D ) const;
-
-    /**
-     * @param origin the origin of the viewport.
+     * @return the origin of the viewport.
      */
     glm::u32vec2 getViewportOrigin() const;
 
     /**
-     * @param dimensions the dimensions of the viewport.
+     * @return the dimensions the dimensions of the viewport.
      */
-    glm::u32vec2 setViewportDimensions() const;
+    glm::u32vec2 getViewportDimensions() const;
 
     /**
      * This gets the 3D camera shape from the projection matrix.

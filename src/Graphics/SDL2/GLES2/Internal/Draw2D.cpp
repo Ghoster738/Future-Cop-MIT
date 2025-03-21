@@ -139,8 +139,7 @@ void Draw2D::draw(Graphics::SDL2::GLES2::Camera& camera) {
     Color color;
 
     // Get the 2D matrix
-    glm::mat4 camera_3D_projection_view_model;
-    camera.getProjectionView2D( camera_3D_projection_view_model );
+    glm::mat4 camera_3D_projection_view_model = glm::ortho( 0.0f, static_cast<float>( camera.getViewportDimensions().x ), -static_cast<float>( camera.getViewportDimensions().y ), 0.0f, -1.0f, 1.0f );
 
     // Use the text shader.
     this->program.use();

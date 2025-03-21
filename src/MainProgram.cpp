@@ -449,11 +449,7 @@ void MainProgram::setupCamera() {
     this->first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
     this->first_person_r->setViewportDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
 
-    glm::mat4 projection_matrix = glm::ortho( 0.0f, static_cast<float>( options.getVideoWidth() ), -static_cast<float>( options.getVideoHeight() ), 0.0f, -1.0f, 1.0f );
-
-    this->first_person_r->setProjection2D( projection_matrix );
-
-    projection_matrix = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
+    glm::mat4 projection_matrix = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
 
     this->first_person_r->setProjection3D( projection_matrix );
 
