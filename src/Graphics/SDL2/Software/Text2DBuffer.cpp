@@ -98,6 +98,10 @@ int Text2DBuffer::print( const std::string &text ) {
 
     Internal::FontDraw2D::Glyph glyph;
 
+    size_t glyph_added_count = 0;
+
+    auto last_position_x = this->position.x;
+
     for(auto c : filtered_text) {
         auto glyph_accessor = (*accessor).second->font_glyphs.find( c );
 
@@ -115,9 +119,16 @@ int Text2DBuffer::print( const std::string &text ) {
 
         this->position.x += font_resource_r->getGlyph( c )->x_advance;
 
-        if(!this->environment_r->font_draw_2d.addGlyph(glyph))
-            return -4; // Out of space
+        if(this->environment_r->font_draw_2d.addGlyph(glyph))
+            glyph_added_count++;
     }
+
+    if(this->center_mode == CenterMode::MIDDLE)
+        this->environment_r->font_draw_2d.adjustGlyphs(glyph_added_count, 0.5 * (last_position_x - this->position.x));
+    else if(this->center_mode == CenterMode::RIGHT)
+        this->environment_r->font_draw_2d.adjustGlyphs(glyph_added_count, 1.0 * (last_position_x - this->position.x));
+
+
     return 1;
 }
 

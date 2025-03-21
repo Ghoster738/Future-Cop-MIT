@@ -21,6 +21,16 @@ void FontDraw2D::allocateGlyph(size_t num_glyphs) {
     this->glyphs.resize(num_glyphs);
 }
 
+bool FontDraw2D::adjustGlyphs(size_t glyph_added_count, int32_t move_by_x) {
+    if(this->current_glyph_amount < glyph_added_count)
+        return false;
+
+    for(size_t g = current_glyph_amount - glyph_added_count; g != current_glyph_amount; g++) {
+        this->glyphs[g].position.x += move_by_x;
+    }
+    return true;
+}
+
 bool FontDraw2D::addGlyph(const Glyph &glyph) {
     if(this->glyphs.size() == current_glyph_amount)
         return false;
