@@ -28,10 +28,10 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
         default_pixel.colors[1] = 0xff * i->internal.color.g;
         default_pixel.colors[2] = 0xff * i->internal.color.b;
         default_pixel.colors[3] = 0;
-        default_pixel.depth = 0;
-        default_pixel.depth--;
+        default_pixel.depth  = 0;
+        default_pixel.depth -= 2;
 
-        float alpha = i->internal.color.a;
+        float alpha;
 
         for(auto y = screen_pos_0.y; y != screen_pos_1.y; y++) {
             float a = (pos_1.y - y) / scale.y;
@@ -39,11 +39,17 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
             default_pixel.texture_coordinates[1] = 0xff * p;
 
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
+                Window::DifferredPixel original_pixel = env_r->window_p->differred_buffer.getValue(x, y);
+
+                if(original_pixel.depth > default_pixel.depth)
+                    continue;
+
                 float a = (pos_1.x - x) / scale.x;
                 float p =  i->internal.texture_coords[1].x * (1. - a) + i->internal.texture_coords[0].x * a;
                 default_pixel.texture_coordinates[0] = 0xff * p;
 
                 Window::DifferredPixel source_pixel = default_pixel;
+                alpha = i->internal.color.a;
 
                 if(i->internal.cbmp_index != 0) {
                     auto slot = env_r->textures[i->internal.cbmp_index];
@@ -59,11 +65,9 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
                     alpha *= 1.f / 255.f * texture_pixel.data[3];
                 }
 
-                Window::DifferredPixel original_pixel = env_r->window_p->differred_buffer.getValue(x, y);
-
-                source_pixel.colors[0] = original_pixel.colors[0] * (1.f - alpha) + source_pixel.colors[0] * alpha;
-                source_pixel.colors[1] = original_pixel.colors[1] * (1.f - alpha) + source_pixel.colors[1] * alpha;
-                source_pixel.colors[2] = original_pixel.colors[2] * (1.f - alpha) + source_pixel.colors[2] * alpha;
+                source_pixel.colors[0] = source_pixel.colors[0] * (1.f - alpha) + original_pixel.colors[0] * alpha;
+                source_pixel.colors[1] = source_pixel.colors[1] * (1.f - alpha) + original_pixel.colors[1] * alpha;
+                source_pixel.colors[2] = source_pixel.colors[2] * (1.f - alpha) + original_pixel.colors[2] * alpha;
 
                 env_r->window_p->differred_buffer.setValue(x, y, source_pixel);
             }
