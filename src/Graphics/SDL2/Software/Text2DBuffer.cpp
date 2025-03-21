@@ -70,7 +70,20 @@ bool Text2DBuffer::selectFont( Font &font, unsigned minimum_height, unsigned max
     }
 
 }
-bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const { return false; }
+bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const {
+    auto accessor = this->environment_r->font_draw_2d.resource_id_to_font.find( font.resource_id );
+
+    if( accessor == this->environment_r->font_draw_2d.resource_id_to_font.end() )
+        return false;
+
+    auto font_resource_r = (*accessor).second->font_r;
+
+    if( font_resource_r == nullptr )
+        return false;
+
+    font.scale = static_cast<float>(height) / static_cast<float>(font_resource_r->getHeight());
+    return true;
+}
 
 float Text2DBuffer::getLineLength( const Font &font, const std::string &text ) const {
     if(this->environment_r == nullptr)
@@ -155,9 +168,9 @@ int Text2DBuffer::print( const std::string &text ) {
 
         glyph.position = this->position + glm::i32vec2(source_glyph_r->offset);
         glyph.color    = this->color;
-        glyph.scale    = 1.0;
+        glyph.scale    = this->current_font.scale;
 
-        this->position.x += source_glyph_r->x_advance;
+        this->position.x += source_glyph_r->x_advance * this->current_font.scale;
 
         if(this->environment_r->font_draw_2d.addGlyph(glyph))
             glyph_added_count++;
