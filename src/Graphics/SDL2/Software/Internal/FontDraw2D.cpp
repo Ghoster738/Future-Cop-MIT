@@ -124,6 +124,9 @@ void FontDraw2D::drawOpaque(Software::Environment *env_r) {
     for(size_t g = 0; g < this->current_glyph_amount; g++) {
         const auto &glyph = this->glyphs[g];
 
+        if(glyph.color[3] != 0xff)
+            continue;
+
         default_pixel.colors[0] = glyph.color[0];
         default_pixel.colors[1] = glyph.color[1];
         default_pixel.colors[2] = glyph.color[2];
@@ -151,6 +154,69 @@ void FontDraw2D::drawOpaque(Software::Environment *env_r) {
     }
 }
 
-void FontDraw2D::draw(Software::Environment *enviornment_r) {}
+void FontDraw2D::draw(Software::Environment *env_r) {
+    Window::DifferredPixel default_pixel;
+    Window::DifferredPixel original_pixel;
+    Window::DifferredPixel new_pixel;
+    float alpha_value, inv_alpha_value;
+    default_pixel.colors[3] = 0;
+    default_pixel.depth = 0;
+    default_pixel.depth--;
+
+    for(size_t g = 0; g < this->current_glyph_amount; g++) {
+        const auto &glyph = this->glyphs[g];
+
+        if(glyph.color[3] == 0xff)
+            continue;
+
+        alpha_value     = 1.f / 255.f * glyph.color[3];
+        inv_alpha_value = 1.f - alpha_value;
+
+        default_pixel.colors[0] = glyph.color[0];
+        default_pixel.colors[1] = glyph.color[1];
+        default_pixel.colors[2] = glyph.color[2];
+
+        if(glyph.scale == 1.f) {
+            for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
+                for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
+                    auto pixel = glyph.glyph_texture_r->getValue((x - 1), (y - 1));
+
+                    if(pixel == 0)
+                        continue;
+
+                    original_pixel = env_r->window_p->differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
+
+                    new_pixel = default_pixel;
+
+                    new_pixel.colors[0] = default_pixel.colors[0] * alpha_value + original_pixel.colors[0] * inv_alpha_value;
+                    new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
+                    new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
+
+                    env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
+                }
+            }
+        }
+        else {
+            for(unsigned y = glyph.scale * glyph.glyph_texture_r->getHeight() + 1; y != 0; y--) {
+                for(unsigned x = glyph.scale * glyph.glyph_texture_r->getWidth() + 1; x != 0; x--) {
+                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * (x - 1), 1 / glyph.scale * (y - 1));
+
+                    if(pixel == 0)
+                        continue;
+
+                    original_pixel = env_r->window_p->differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
+
+                    new_pixel = default_pixel;
+
+                    new_pixel.colors[0] = default_pixel.colors[0] * alpha_value + original_pixel.colors[0] * inv_alpha_value;
+                    new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
+                    new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
+
+                    env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
+                }
+            }
+        }
+    }
+}
 
 }

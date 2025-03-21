@@ -144,10 +144,13 @@ void Environment::setupFrame() {
 
 void Environment::drawFrame() {
     this->external_image_draw_2d.drawOpaque(this);
+    this->font_draw_2d.drawOpaque(this);
+
+    // TODO Convert differred textures to color.
 
     this->image_draw_2d.draw(this);
-
-    this->font_draw_2d.drawOpaque(this);
+    this->external_image_draw_2d.draw(this);
+    this->font_draw_2d.draw(this);
 
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 

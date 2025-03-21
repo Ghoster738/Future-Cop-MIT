@@ -16,7 +16,7 @@ public:
     std::set<Software::ExternalImage*> images;
 
     void drawOpaque(Software::Environment *enviornment_r);
-    void drawSemiTransparent(Software::Environment *enviornment_r);
+    void draw(Software::Environment *enviornment_r);
 };
 
 }

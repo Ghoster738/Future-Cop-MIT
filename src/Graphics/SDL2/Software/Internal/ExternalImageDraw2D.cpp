@@ -49,7 +49,7 @@ void ExternalImageDraw2D::drawOpaque(Software::Environment *env_r) {
     }
 }
 
-void ExternalImageDraw2D::drawSemiTransparent(Software::Environment *env_r) {
+void ExternalImageDraw2D::draw(Software::Environment *env_r) {
     // TODO Handle semi-transparancy.
 }
 
