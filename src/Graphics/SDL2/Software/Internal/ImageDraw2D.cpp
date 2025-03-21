@@ -31,17 +31,14 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
         default_pixel.depth = 0;
         default_pixel.depth--;
 
+        float alpha = i->internal.color.a;
+
         for(auto y = screen_pos_0.y; y != screen_pos_1.y; y++) {
             float a = (pos_1.y - y) / scale.y;
             float p =  i->internal.texture_coords[1].y * (1. - a) + i->internal.texture_coords[0].y * a;
             default_pixel.texture_coordinates[1] = 0xff * p;
 
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
-                Window::DifferredPixel original_pixel = env_r->window_p->differred_buffer.getValue(x, y);
-
-                if(original_pixel.depth >= default_pixel.depth)
-                    continue;
-
                 float a = (pos_1.x - x) / scale.x;
                 float p =  i->internal.texture_coords[1].x * (1. - a) + i->internal.texture_coords[0].x * a;
                 default_pixel.texture_coordinates[0] = 0xff * p;
@@ -52,21 +49,21 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
                     auto slot = env_r->textures[i->internal.cbmp_index];
                     auto texture_pixel = slot.texture_p->getValue( default_pixel.texture_coordinates[0], default_pixel.texture_coordinates[1] );
 
-                    if(static_cast<unsigned>(texture_pixel.data[3]) != 0) {
-                        source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-                        source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-                        source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
-                    }
-                    else {
-                        source_pixel.colors[0] = original_pixel.colors[0];
-                        source_pixel.colors[1] = original_pixel.colors[1];
-                        source_pixel.colors[2] = original_pixel.colors[2];
-                    }
+                    if(static_cast<unsigned>(texture_pixel.data[3]) == 0)
+                        continue;
 
-                    source_pixel.colors[3] = 0;
+                    source_pixel.colors[0] = (static_cast<unsigned>(default_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
+                    source_pixel.colors[1] = (static_cast<unsigned>(default_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
+                    source_pixel.colors[2] = (static_cast<unsigned>(default_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
+
+                    alpha *= 1.f / 255.f * texture_pixel.data[3];
                 }
 
-                // TODO Clean up and add semi-transparency!
+                Window::DifferredPixel original_pixel = env_r->window_p->differred_buffer.getValue(x, y);
+
+                source_pixel.colors[0] = original_pixel.colors[0] * (1.f - alpha) + source_pixel.colors[0] * alpha;
+                source_pixel.colors[1] = original_pixel.colors[1] * (1.f - alpha) + source_pixel.colors[1] * alpha;
+                source_pixel.colors[2] = original_pixel.colors[2] * (1.f - alpha) + source_pixel.colors[2] * alpha;
 
                 env_r->window_p->differred_buffer.setValue(x, y, source_pixel);
             }
