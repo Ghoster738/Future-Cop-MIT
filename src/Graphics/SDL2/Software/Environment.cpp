@@ -178,6 +178,7 @@ void Environment::drawFrame() {
             source_pixel.colors[1] = 0x20;
             source_pixel.colors[2] = 0x40;
             source_pixel.colors[3] = 0;
+            source_pixel.depth     = 0;
 
             return destination_pixel;
         }

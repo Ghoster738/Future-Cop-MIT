@@ -39,15 +39,8 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
                 Window::DifferredPixel original_pixel = env_r->window_p->differred_buffer.getValue(x, y);
 
-                if(original_pixel.colors[3] != 0) {
-                    auto slot = env_r->textures[original_pixel.colors[3]];
-                    auto texture_pixel = slot.texture_p->getValue( original_pixel.texture_coordinates[0], original_pixel.texture_coordinates[1] );
-
-                    original_pixel.colors[0] = (static_cast<unsigned>(original_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
-                    original_pixel.colors[1] = (static_cast<unsigned>(original_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
-                    original_pixel.colors[2] = (static_cast<unsigned>(original_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
-                    original_pixel.colors[3] = 0;
-                }
+                if(original_pixel.depth >= default_pixel.depth)
+                    continue;
 
                 float a = (pos_1.x - x) / scale.x;
                 float p =  i->internal.texture_coords[1].x * (1. - a) + i->internal.texture_coords[0].x * a;
