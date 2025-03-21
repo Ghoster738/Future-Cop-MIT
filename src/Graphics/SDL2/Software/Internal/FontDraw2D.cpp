@@ -97,13 +97,13 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
             if( glyph_r == nullptr )
                 continue;
 
-            auto glyph_texture_p = new Utilities::GridBase2D<uint8_t>(glyph_r->width + 1, glyph_r->height + 1);
+            auto glyph_texture_p = new Utilities::GridBase2D<uint8_t>(glyph_r->width, glyph_r->height);
 
             for(auto y = glyph_texture_p->getHeight(); y != 0; y--) {
                 for(auto x = glyph_texture_p->getWidth(); x != 0; x--) {
                     auto pixel = font_r->getImage()->readPixel(glyph_r->left + (x - 1), glyph_r->top + (y - 1));
 
-                    glyph_texture_p->setValue(x, y, 0xff * pixel.red);
+                    glyph_texture_p->setValue((x - 1), (y - 1), 0xff * pixel.red);
                 }
             }
 
@@ -131,20 +131,20 @@ void FontDraw2D::drawOpaque(Software::Environment *env_r) {
         if(glyph.scale == 1.f) {
             for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
                 for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
-                    auto pixel = glyph.glyph_texture_r->getValue(x, y);
+                    auto pixel = glyph.glyph_texture_r->getValue((x - 1), (y - 1));
 
                     if(pixel != 0)
-                        env_r->window_p->differred_buffer.setValue(glyph.position.x + x, glyph.position.y + y, default_pixel);
+                        env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
                 }
             }
         }
         else {
-            for(unsigned y = glyph.scale * glyph.glyph_texture_r->getHeight(); y != 0; y--) {
-                for(unsigned x = glyph.scale * glyph.glyph_texture_r->getWidth(); x != 0; x--) {
-                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * x, 1 /glyph.scale * y);
+            for(unsigned y = glyph.scale * glyph.glyph_texture_r->getHeight() + 1; y != 0; y--) {
+                for(unsigned x = glyph.scale * glyph.glyph_texture_r->getWidth() + 1; x != 0; x--) {
+                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * (x - 1), 1 / glyph.scale * (y - 1));
 
                     if(pixel != 0)
-                        env_r->window_p->differred_buffer.setValue(glyph.position.x + x, glyph.position.y + y, default_pixel);
+                        env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
                 }
             }
         }
