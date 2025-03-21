@@ -49,7 +49,7 @@ bool FontDraw2D::getGlyphBox(size_t glyph_added_count, glm::vec2 &start, glm::ve
 
     for(size_t g = current_glyph_amount - glyph_added_count; g != current_glyph_amount; g++) {
         positions[0] = this->glyphs[g].position;
-        positions[1] = this->glyphs[g].position + glm::ivec2(this->glyphs[g].glyph_texture_r->getWidth() * this->glyphs[g].scale, this->glyphs[g].glyph_texture_r->getHeight()* this->glyphs[g].scale);
+        positions[1] = this->glyphs[g].position + glm::ivec2(this->glyphs[g].glyph_texture_r->getWidth() * this->glyphs[g].scale, this->glyphs[g].glyph_texture_r->getHeight() * this->glyphs[g].scale);
 
         if(positions[0].x < start.x)
             start.x = positions[0].x;
@@ -97,11 +97,11 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
             if( glyph_r == nullptr )
                 continue;
 
-            auto glyph_texture_p = new Utilities::GridBase2D<uint8_t>(glyph_r->width, glyph_r->height);
+            auto glyph_texture_p = new Utilities::GridBase2D<uint8_t>(glyph_r->width + 1, glyph_r->height + 1);
 
-            for(auto y = glyph_r->height; y != 0; y--) {
-                for(auto x = glyph_r->width; x != 0; x--) {
-                    auto pixel = font_r->getImage()->readPixel(glyph_r->left + x, glyph_r->top + y);
+            for(auto y = glyph_texture_p->getHeight(); y != 0; y--) {
+                for(auto x = glyph_texture_p->getWidth(); x != 0; x--) {
+                    auto pixel = font_r->getImage()->readPixel(glyph_r->left + (x - 1), glyph_r->top + (y - 1));
 
                     glyph_texture_p->setValue(x, y, 0xff * pixel.red);
                 }
