@@ -49,8 +49,7 @@ bool FontDraw2D::getGlyphBox(size_t glyph_added_count, glm::vec2 &start, glm::ve
 
     for(size_t g = current_glyph_amount - glyph_added_count; g != current_glyph_amount; g++) {
         positions[0] = this->glyphs[g].position;
-        positions[1] = this->glyphs[g].position + glm::ivec2(this->glyphs[g].glyph_texture_r->getWidth(), this->glyphs[g].glyph_texture_r->getHeight());
-
+        positions[1] = this->glyphs[g].position + glm::ivec2(this->glyphs[g].glyph_texture_r->getWidth() * this->glyphs[g].scale, this->glyphs[g].glyph_texture_r->getHeight()* this->glyphs[g].scale);
 
         if(positions[0].x < start.x)
             start.x = positions[0].x;
@@ -129,12 +128,24 @@ void FontDraw2D::drawOpaque(Software::Environment *env_r) {
         default_pixel.colors[1] = glyph.color[1];
         default_pixel.colors[2] = glyph.color[2];
 
-        for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
-            for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
-                auto pixel = glyph.glyph_texture_r->getValue(x, y);
+        if(glyph.scale == 1.f) {
+            for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
+                for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
+                    auto pixel = glyph.glyph_texture_r->getValue(x, y);
 
-                if(pixel != 0)
-                    env_r->window_p->differred_buffer.setValue(glyph.position.x + x, glyph.position.y + y, default_pixel);
+                    if(pixel != 0)
+                        env_r->window_p->differred_buffer.setValue(glyph.position.x + x, glyph.position.y + y, default_pixel);
+                }
+            }
+        }
+        else {
+            for(unsigned y = glyph.scale * glyph.glyph_texture_r->getHeight(); y != 0; y--) {
+                for(unsigned x = glyph.scale * glyph.glyph_texture_r->getWidth(); x != 0; x--) {
+                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * x, 1 /glyph.scale * y);
+
+                    if(pixel != 0)
+                        env_r->window_p->differred_buffer.setValue(glyph.position.x + x, glyph.position.y + y, default_pixel);
+                }
             }
         }
     }

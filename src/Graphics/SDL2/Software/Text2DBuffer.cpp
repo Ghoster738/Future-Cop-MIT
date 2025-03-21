@@ -166,7 +166,7 @@ int Text2DBuffer::print( const std::string &text ) {
 
         assert(source_glyph_r != nullptr);
 
-        glyph.position = this->position + glm::i32vec2(source_glyph_r->offset);
+        glyph.position = this->position + glm::i32vec2(source_glyph_r->offset.x * this->current_font.scale, source_glyph_r->offset.y * this->current_font.scale);
         glyph.color    = this->color;
         glyph.scale    = this->current_font.scale;
 
