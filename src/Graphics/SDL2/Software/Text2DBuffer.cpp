@@ -149,11 +149,15 @@ int Text2DBuffer::print( const std::string &text ) {
         if( glyph.glyph_texture_r == nullptr )
             continue;
 
-        glyph.position = this->position;
+        auto source_glyph_r = font_resource_r->getGlyph( c );
+
+        assert(source_glyph_r != nullptr);
+
+        glyph.position = this->position + glm::i32vec2(source_glyph_r->offset);
         glyph.color    = this->color;
         glyph.scale    = 1.0;
 
-        this->position.x += font_resource_r->getGlyph( c )->x_advance;
+        this->position.x += source_glyph_r->x_advance;
 
         if(this->environment_r->font_draw_2d.addGlyph(glyph))
             glyph_added_count++;
