@@ -17,21 +17,57 @@ std::vector<std::string> Text2DBuffer::splitText( const Font &font, const std::s
     return std::vector<std::string>( {unsplit_text} );
 }
 
-bool Text2DBuffer::selectFont( Font &font, unsigned minium_height, unsigned maxiuim_height ) const {
-    if(this->environment_r == nullptr)
+bool Text2DBuffer::selectFont( Font &font, unsigned minimum_height, unsigned maxiuim_height ) const {
+    const Data::Mission::FontResource *selected_font_resource_r = nullptr;
+    float scale = 1.0f;
+    unsigned priority = std::numeric_limits<unsigned>::max();
+
+    assert( maxiuim_height >= minimum_height );
+
+    if( this->environment_r->font_draw_2d.resource_id_to_font.empty() )
         return false;
 
-    if(this->environment_r->font_draw_2d.resource_id_to_font.size() == 0)
+    for( auto i = this->environment_r->font_draw_2d.resource_id_to_font.begin(); i != this->environment_r->font_draw_2d.resource_id_to_font.end(); i++ ) {
+        auto font_resource_r = (*i).second->font_r;
+
+        if( font_resource_r->getHeight() >= minimum_height && font_resource_r->getHeight() <= maxiuim_height ) {
+            unsigned new_priority = maxiuim_height - font_resource_r->getHeight();
+
+            if( new_priority < priority ) {
+                priority = new_priority;
+                selected_font_resource_r = font_resource_r;
+            }
+        }
+    }
+
+    if( selected_font_resource_r == nullptr ) {
+        unsigned priority = std::numeric_limits<unsigned>::max();
+
+        for( auto i = this->environment_r->font_draw_2d.resource_id_to_font.begin(); i != this->environment_r->font_draw_2d.resource_id_to_font.end(); i++ ) {
+            auto font_resource_r = (*i).second->font_r;
+
+            if( font_resource_r->getHeight() <= maxiuim_height ) {
+                unsigned new_priority = maxiuim_height - font_resource_r->getHeight();
+
+                if( new_priority < priority ) {
+                    priority = new_priority;
+                    selected_font_resource_r = font_resource_r;
+                }
+            }
+        }
+
+        if( selected_font_resource_r != nullptr )
+            scale = static_cast<float>(maxiuim_height) / static_cast<float>(selected_font_resource_r->getHeight());
+    }
+
+    if( selected_font_resource_r == nullptr ) {
         return false;
-
-    auto first_thing = this->environment_r->font_draw_2d.resource_id_to_font.begin();
-
-    if(first_thing == this->environment_r->font_draw_2d.resource_id_to_font.end())
-        return false;
-
-    font.resource_id = first_thing->second->font_r->getResourceID();
-    font.scale       = 1.f;
-    return true;
+    }
+    else {
+        font.resource_id = selected_font_resource_r->getResourceID();
+        font.scale = scale;
+        return true;
+    }
 
 }
 bool Text2DBuffer::scaleFont( Font &font, unsigned height ) const { return false; }
