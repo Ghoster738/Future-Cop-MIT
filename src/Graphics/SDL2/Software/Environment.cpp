@@ -143,21 +143,15 @@ void Environment::setupFrame() {
 }
 
 void Environment::drawFrame() {
+    const std::vector<CBMPTexture>& lambda_textures = this->textures;
+
     this->external_image_draw_2d.drawOpaque(this);
     this->font_draw_2d.drawOpaque(this);
 
-    // TODO Convert differred textures to color.
-
-    this->image_draw_2d.draw(this);
-    this->external_image_draw_2d.draw(this);
-    this->font_draw_2d.draw(this);
-
-    const std::vector<CBMPTexture>& lambda_textures = this->textures;
-
-    std::transform(
+    // Convert remaining differred textures to color.
+    std::for_each(
         std::execution::par_unseq,
         this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
-        this->window_p->destination_buffer.getGridData().begin(),
         [lambda_textures](Window::DifferredPixel &source_pixel) {
             if(source_pixel.colors[3] != 0) {
                 auto slot = lambda_textures[source_pixel.colors[3]];
@@ -166,8 +160,20 @@ void Environment::drawFrame() {
                 source_pixel.colors[0] = (static_cast<unsigned>(source_pixel.colors[0]) * static_cast<unsigned>(texture_pixel.data[0])) >> 8;
                 source_pixel.colors[1] = (static_cast<unsigned>(source_pixel.colors[1]) * static_cast<unsigned>(texture_pixel.data[1])) >> 8;
                 source_pixel.colors[2] = (static_cast<unsigned>(source_pixel.colors[2]) * static_cast<unsigned>(texture_pixel.data[2])) >> 8;
+                source_pixel.colors[3] = 0;
             }
+        }
+    );
 
+    this->image_draw_2d.draw(this);
+    this->external_image_draw_2d.draw(this);
+    this->font_draw_2d.draw(this);
+
+    std::transform(
+        std::execution::par_unseq,
+        this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
+        this->window_p->destination_buffer.getGridData().begin(),
+        [](Window::DifferredPixel &source_pixel) {
             uint32_t destination_pixel = 0xFF000000;
 
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
