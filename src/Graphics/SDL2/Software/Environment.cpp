@@ -169,11 +169,14 @@ void Environment::drawFrame() {
     this->external_image_draw_2d.draw(this->window_p->rendering_rect);
     this->font_draw_2d.draw(this->window_p->rendering_rect);
 
-    std::transform(
-        std::execution::par_unseq,
-        this->window_p->rendering_rect.differred_buffer.getGridData().begin(), this->window_p->rendering_rect.differred_buffer.getGridData().end(),
-        this->window_p->destination_buffer.getGridData().begin(),
-        [](Window::DifferredPixel &source_pixel) {
+    for(auto rev_y = this->window_p->rendering_rect.differred_buffer.getHeight(); rev_y != 0; rev_y-- ) {
+        auto y = this->window_p->rendering_rect.differred_buffer.getHeight() - rev_y;
+
+        for(auto rev_x = this->window_p->rendering_rect.differred_buffer.getWidth(); rev_x != 0; rev_x-- ) {
+            auto x = this->window_p->rendering_rect.differred_buffer.getWidth() - rev_x;
+
+            Window::DifferredPixel &source_pixel = *this->window_p->rendering_rect.differred_buffer.getRef(x, y);
+
             uint32_t destination_pixel = 0xFF000000;
 
             destination_pixel |= static_cast<uint32_t>(source_pixel.colors[0]) << 16;
@@ -186,9 +189,9 @@ void Environment::drawFrame() {
             source_pixel.colors[3] = 0;
             source_pixel.depth     = 0;
 
-            return destination_pixel;
+            this->window_p->destination_buffer.setValue(x, y, destination_pixel);
         }
-    );
+    }
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
     SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
