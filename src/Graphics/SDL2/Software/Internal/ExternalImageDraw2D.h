@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_SDL2_SOFTWARE_INTERNAL_EXTERNAL_IMAGE_DRAW_2D_H
 #define GRAPHICS_SDL2_SOFTWARE_INTERNAL_EXTERNAL_IMAGE_DRAW_2D_H
 
+#include "../Window.h"
+
 #include <set>
 
 namespace Graphics::SDL2::Software {
@@ -15,8 +17,8 @@ public:
     std::set<Software::ExternalImage*> opaque_images;
     std::set<Software::ExternalImage*> images;
 
-    void drawOpaque(Software::Environment *enviornment_r);
-    void draw(Software::Environment *enviornment_r);
+    void drawOpaque(Window::RenderingRect &rendering_rect);
+    void draw(Window::RenderingRect &rendering_rect);
 };
 
 }

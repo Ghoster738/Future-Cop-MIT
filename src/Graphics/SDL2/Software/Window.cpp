@@ -15,7 +15,9 @@ Graphics::Window* Environment::allocateWindow() {
     return window_p;
 }
 
-Window::Window( Graphics::SDL2::Software::Environment &env ) : Graphics::SDL2::Window(), env_r( &env ), renderer_p( nullptr ), texture_p( nullptr ) {}
+Window::Window( Graphics::SDL2::Software::Environment &env ) : Graphics::SDL2::Window(), renderer_p( nullptr ), texture_p( nullptr ) {
+    this->rendering_rect.env_r = &env;
+}
 
 Window::~Window() {
     if( this->texture_p != nullptr )
@@ -64,13 +66,13 @@ int Window::attach() {
             if( this->renderer_p != nullptr ) {
                 glm::ivec2 resolution = this->getDimensions();
 
-                resolution.x /= this->env_r->pixel_size;
-                resolution.y /= this->env_r->pixel_size;
+                resolution.x /= this->rendering_rect.env_r->pixel_size;
+                resolution.y /= this->rendering_rect.env_r->pixel_size;
 
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 
                 if( this->texture_p != nullptr ) {
-                    this->differred_buffer.setDimensions( resolution.x, resolution.y );
+                    this->rendering_rect.differred_buffer.setDimensions( resolution.x, resolution.y );
                     this->destination_buffer.setDimensions( resolution.x, resolution.y );
 
                     this->factor.x = this->getDimensions().x / this->destination_buffer.getWidth();

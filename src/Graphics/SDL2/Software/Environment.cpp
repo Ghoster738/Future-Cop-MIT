@@ -103,7 +103,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
                 pixel.texture_coordinates[1] = 0;
                 pixel.depth = 0;
 
-                this->window_p->differred_buffer.setValue((sx - 1), (sy - 1), pixel);
+                this->window_p->rendering_rect.differred_buffer.setValue((sx - 1), (sy - 1), pixel);
             }
         }
     }
@@ -145,13 +145,13 @@ void Environment::setupFrame() {
 void Environment::drawFrame() {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
-    this->external_image_draw_2d.drawOpaque(this);
-    this->font_draw_2d.drawOpaque(this);
+    this->external_image_draw_2d.drawOpaque(this->window_p->rendering_rect);
+    this->font_draw_2d.drawOpaque(this->window_p->rendering_rect);
 
     // Convert remaining differred textures to color.
     std::for_each(
         std::execution::par_unseq,
-        this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
+        this->window_p->rendering_rect.differred_buffer.getGridData().begin(), this->window_p->rendering_rect.differred_buffer.getGridData().end(),
         [lambda_textures](Window::DifferredPixel &source_pixel) {
             if(source_pixel.colors[3] != 0) {
                 auto slot = lambda_textures[source_pixel.colors[3]];
@@ -165,13 +165,13 @@ void Environment::drawFrame() {
         }
     );
 
-    this->image_draw_2d.draw(this);
-    this->external_image_draw_2d.draw(this);
-    this->font_draw_2d.draw(this);
+    this->image_draw_2d.draw(this->window_p->rendering_rect);
+    this->external_image_draw_2d.draw(this->window_p->rendering_rect);
+    this->font_draw_2d.draw(this->window_p->rendering_rect);
 
     std::transform(
         std::execution::par_unseq,
-        this->window_p->differred_buffer.getGridData().begin(), this->window_p->differred_buffer.getGridData().end(),
+        this->window_p->rendering_rect.differred_buffer.getGridData().begin(), this->window_p->rendering_rect.differred_buffer.getGridData().end(),
         this->window_p->destination_buffer.getGridData().begin(),
         [](Window::DifferredPixel &source_pixel) {
             uint32_t destination_pixel = 0xFF000000;
@@ -196,8 +196,8 @@ void Environment::drawFrame() {
 }
 
 bool Environment::screenshot( Utilities::Image2D &image ) const {
-    if( image.getWidth()  != this->window_p->differred_buffer.getWidth() ||
-        image.getHeight() != this->window_p->differred_buffer.getHeight() )
+    if( image.getWidth()  != this->window_p->destination_buffer.getWidth() ||
+        image.getHeight() != this->window_p->destination_buffer.getHeight() )
         image.setDimensions(image.getWidth(), image.getHeight());
 
     Utilities::PixelFormatColor::GenericColor destination_pixel;

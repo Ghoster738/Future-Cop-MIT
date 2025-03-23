@@ -3,6 +3,8 @@
 
 #include "../../../../Utilities/GridBase2D.h"
 
+#include "../Window.h"
+
 #include <glm/vec4.hpp>
 #include <glm/vec2.hpp>
 
@@ -61,8 +63,8 @@ public:
 
     bool load( const Data::Accessor &accessor );
 
-    void drawOpaque(Software::Environment *enviornment_r);
-    void draw(Software::Environment *enviornment_r);
+    void drawOpaque(Window::RenderingRect &rendering_rect);
+    void draw(Window::RenderingRect &rendering_rect);
 };
 
 }

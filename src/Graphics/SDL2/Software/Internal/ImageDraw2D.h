@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_SDL2_SOFTWARE_INTERNAL_IMAGE_DRAW_2D_H
 #define GRAPHICS_SDL2_SOFTWARE_INTERNAL_IMAGE_DRAW_2D_H
 
+#include "../Window.h"
+
 #include <set>
 
 namespace Graphics::SDL2::Software {
@@ -14,7 +16,7 @@ class ImageDraw2D {
 public:
     std::set<Software::Image*> images;
 
-    void draw(Software::Environment *enviornment_r);
+    void draw(Window::RenderingRect &rendering_rect);
 };
 
 }

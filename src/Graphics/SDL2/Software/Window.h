@@ -17,14 +17,23 @@ public:
         uint32_t depth; // Can be even 16 bit which reduces DifferredPixel to 8 bytes from 12 bytes.
     };
 
+    struct RenderingRectArea {
+        unsigned start_x, end_x;
+        unsigned start_y, end_y;
+    };
+
+    struct RenderingRect {
+        Utilities::GridBase2D<Window::DifferredPixel> differred_buffer;
+        Environment *env_r;
+        RenderingRectArea area;
+    };
+
     glm::vec2 factor;
     glm::vec2 inv_factor;
 
-    Graphics::SDL2::Software::Environment* env_r;
-
     SDL_Renderer                          *renderer_p;
     SDL_Texture                           *texture_p;
-    Utilities::GridBase2D<DifferredPixel>  differred_buffer;
+    RenderingRect                          rendering_rect;
     Utilities::GridBase2D<uint32_t>        destination_buffer;
     int                                    destination_buffer_pitch;
     

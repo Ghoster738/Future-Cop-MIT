@@ -5,7 +5,7 @@
 
 namespace Graphics::SDL2::Software::Internal {
 
-void ImageDraw2D::draw(Software::Environment *env_r) {
+void ImageDraw2D::draw(Window::RenderingRect &rendering_rect) {
     for( auto i : this->images ) {
         if(!i->internal.is_visable)
             continue;
@@ -15,13 +15,13 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
         if(i->internal.positions[1].y < i->internal.positions[0].y)
             std::swap(i->internal.positions[0].y, i->internal.positions[1].y);
 
-        glm::vec2 pos_0 = i->internal.positions[0] * env_r->window_p->inv_factor;
-        glm::vec2 pos_1 = i->internal.positions[1] * env_r->window_p->inv_factor;
+        glm::vec2 pos_0 = i->internal.positions[0] * rendering_rect.env_r->window_p->inv_factor;
+        glm::vec2 pos_1 = i->internal.positions[1] * rendering_rect.env_r->window_p->inv_factor;
         glm::vec2 scale = pos_1 - pos_0;
 
-        glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(env_r->window_p->destination_buffer.getWidth(), env_r->window_p->destination_buffer.getHeight()) );
+        glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(rendering_rect.differred_buffer.getWidth(), rendering_rect.differred_buffer.getHeight()) );
 
-        glm::i32vec2 screen_pos_1 = glm::clamp(glm::i32vec2( pos_1 ), glm::i32vec2(0, 0), glm::i32vec2(env_r->window_p->destination_buffer.getWidth(), env_r->window_p->destination_buffer.getHeight()) );
+        glm::i32vec2 screen_pos_1 = glm::clamp(glm::i32vec2( pos_1 ), glm::i32vec2(0, 0), glm::i32vec2(rendering_rect.differred_buffer.getWidth(), rendering_rect.differred_buffer.getHeight()) );
 
         Window::DifferredPixel default_pixel;
         default_pixel.colors[0] = 0xff * i->internal.color.r;
@@ -39,7 +39,7 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
             default_pixel.texture_coordinates[1] = 0xff * p;
 
             for(auto x = screen_pos_0.x; x != screen_pos_1.x; x++) {
-                Window::DifferredPixel original_pixel = env_r->window_p->differred_buffer.getValue(x, y);
+                Window::DifferredPixel original_pixel = rendering_rect.differred_buffer.getValue(x, y);
 
                 if(original_pixel.depth > default_pixel.depth)
                     continue;
@@ -52,7 +52,7 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
                 alpha = i->internal.color.a;
 
                 if(i->internal.cbmp_index != 0) {
-                    auto slot = env_r->textures[i->internal.cbmp_index];
+                    auto slot = rendering_rect.env_r->textures[i->internal.cbmp_index];
                     auto texture_pixel = slot.texture_p->getValue( default_pixel.texture_coordinates[0], default_pixel.texture_coordinates[1] );
 
                     if(static_cast<unsigned>(texture_pixel.data[3]) == 0)
@@ -69,7 +69,7 @@ void ImageDraw2D::draw(Software::Environment *env_r) {
                 source_pixel.colors[1] = source_pixel.colors[1] * (1.f - alpha) + original_pixel.colors[1] * alpha;
                 source_pixel.colors[2] = source_pixel.colors[2] * (1.f - alpha) + original_pixel.colors[2] * alpha;
 
-                env_r->window_p->differred_buffer.setValue(x, y, source_pixel);
+                rendering_rect.differred_buffer.setValue(x, y, source_pixel);
             }
         }
     }

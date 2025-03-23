@@ -6,7 +6,7 @@
 
 namespace Graphics::SDL2::Software::Internal {
 
-void ExternalImageDraw2D::drawOpaque(Software::Environment *env_r) {
+void ExternalImageDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) {
     for( auto i : this->opaque_images ) {
         if(!i->internal.is_visable)
             continue;
@@ -16,13 +16,13 @@ void ExternalImageDraw2D::drawOpaque(Software::Environment *env_r) {
         if(i->internal.positions[1].y < i->internal.positions[0].y)
             std::swap(i->internal.positions[0].y, i->internal.positions[1].y);
 
-        glm::vec2 pos_0 = i->internal.positions[0] * env_r->window_p->inv_factor;
-        glm::vec2 pos_1 = i->internal.positions[1] * env_r->window_p->inv_factor;
+        glm::vec2 pos_0 = i->internal.positions[0] * rendering_rect.env_r->window_p->inv_factor;
+        glm::vec2 pos_1 = i->internal.positions[1] * rendering_rect.env_r->window_p->inv_factor;
         glm::vec2 scale = pos_1 - pos_0;
 
-        glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(env_r->window_p->destination_buffer.getWidth(), env_r->window_p->destination_buffer.getHeight()) );
+        glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(rendering_rect.env_r->window_p->destination_buffer.getWidth(), rendering_rect.env_r->window_p->destination_buffer.getHeight()) );
 
-        glm::i32vec2 screen_pos_1 = glm::clamp(glm::i32vec2( pos_1 ), glm::i32vec2(0, 0), glm::i32vec2(env_r->window_p->destination_buffer.getWidth(), env_r->window_p->destination_buffer.getHeight()) );
+        glm::i32vec2 screen_pos_1 = glm::clamp(glm::i32vec2( pos_1 ), glm::i32vec2(0, 0), glm::i32vec2(rendering_rect.env_r->window_p->destination_buffer.getWidth(), rendering_rect.env_r->window_p->destination_buffer.getHeight()) );
 
         Window::DifferredPixel default_pixel;
         default_pixel.colors[3] = 0;
@@ -43,13 +43,13 @@ void ExternalImageDraw2D::drawOpaque(Software::Environment *env_r) {
                 source_pixel.colors[1] = (i->internal.color.g * pixel[1]);
                 source_pixel.colors[2] = (i->internal.color.b * pixel[2]);
 
-                env_r->window_p->differred_buffer.setValue(x, y, source_pixel);
+                rendering_rect.differred_buffer.setValue(x, y, source_pixel);
             }
         }
     }
 }
 
-void ExternalImageDraw2D::draw(Software::Environment *env_r) {
+void ExternalImageDraw2D::draw(Window::RenderingRect &rendering_rect) {
     // TODO Handle semi-transparancy.
 }
 

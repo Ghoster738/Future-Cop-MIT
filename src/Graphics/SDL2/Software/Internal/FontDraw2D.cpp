@@ -115,7 +115,7 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
     return fonts.size() != 0;
 }
 
-void FontDraw2D::drawOpaque(Software::Environment *env_r) {
+void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) {
     Window::DifferredPixel default_pixel;
     default_pixel.colors[3] = 0;
     default_pixel.depth = 0;
@@ -137,7 +137,7 @@ void FontDraw2D::drawOpaque(Software::Environment *env_r) {
                     auto pixel = glyph.glyph_texture_r->getValue((x - 1), (y - 1));
 
                     if(pixel != 0)
-                        env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
+                        rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
                 }
             }
         }
@@ -147,14 +147,14 @@ void FontDraw2D::drawOpaque(Software::Environment *env_r) {
                     auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * (x - 1), 1 / glyph.scale * (y - 1));
 
                     if(pixel != 0)
-                        env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
+                        rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
                 }
             }
         }
     }
 }
 
-void FontDraw2D::draw(Software::Environment *env_r) {
+void FontDraw2D::draw(Window::RenderingRect &rendering_rect) {
     Window::DifferredPixel default_pixel;
     Window::DifferredPixel original_pixel;
     Window::DifferredPixel new_pixel;
@@ -184,7 +184,7 @@ void FontDraw2D::draw(Software::Environment *env_r) {
                     if(pixel == 0)
                         continue;
 
-                    original_pixel = env_r->window_p->differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
+                    original_pixel = rendering_rect.differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
 
                     new_pixel = default_pixel;
 
@@ -192,7 +192,7 @@ void FontDraw2D::draw(Software::Environment *env_r) {
                     new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
                     new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
 
-                    env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
+                    rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
                 }
             }
         }
@@ -204,7 +204,7 @@ void FontDraw2D::draw(Software::Environment *env_r) {
                     if(pixel == 0)
                         continue;
 
-                    original_pixel = env_r->window_p->differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
+                    original_pixel = rendering_rect.differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
 
                     new_pixel = default_pixel;
 
@@ -212,7 +212,7 @@ void FontDraw2D::draw(Software::Environment *env_r) {
                     new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
                     new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
 
-                    env_r->window_p->differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
+                    rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
                 }
             }
         }
