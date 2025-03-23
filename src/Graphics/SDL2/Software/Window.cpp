@@ -2,6 +2,8 @@
 
 #include "Environment.h"
 
+#include <thread>
+
 namespace Graphics::SDL2::Software {
 
 Graphics::Window* Environment::allocateWindow() {
@@ -12,11 +14,20 @@ Graphics::Window* Environment::allocateWindow() {
 
     this->window_p = window_p;
 
+    this->window_p->rendering_rects.push_back( {} );
+    this->window_p->rendering_rects.back().env_r        = this;
+    this->window_p->rendering_rects.back().area.start_x =    0;
+    this->window_p->rendering_rects.back().area.start_y =    0;
+    this->window_p->rendering_rects.back().area.end_x   =   32;
+    this->window_p->rendering_rects.back().area.end_y   =   32;
+
     return window_p;
 }
 
 Window::Window( Graphics::SDL2::Software::Environment &env ) : Graphics::SDL2::Window(), renderer_p( nullptr ), texture_p( nullptr ) {
-    this->rendering_rect.env_r = &env;
+    this->env_r = &env;
+
+    this->rendering_rect_area_index = 0;
 }
 
 Window::~Window() {
@@ -66,18 +77,25 @@ int Window::attach() {
             if( this->renderer_p != nullptr ) {
                 glm::ivec2 resolution = this->getDimensions();
 
-                resolution.x /= this->rendering_rect.env_r->pixel_size;
-                resolution.y /= this->rendering_rect.env_r->pixel_size;
+                resolution.x /= this->env_r->pixel_size;
+                resolution.y /= this->env_r->pixel_size;
 
                 this->texture_p = SDL_CreateTexture(this->renderer_p, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, resolution.x, resolution.y );
 
                 if( this->texture_p != nullptr ) {
-                    this->rendering_rect.differred_buffer.setDimensions( resolution.x, resolution.y );
                     this->destination_buffer.setDimensions( resolution.x, resolution.y );
 
                     this->factor.x = this->getDimensions().x / this->destination_buffer.getWidth();
                     this->factor.y = this->getDimensions().y / this->destination_buffer.getHeight();
                     this->inv_factor = glm::vec2(1. / factor.x, 1. / factor.y);
+
+                    const auto max_thread_count = std::thread::hardware_concurrency();
+
+                    this->rendering_rects.back().area.end_x = resolution.x;
+                    this->rendering_rects.back().area.end_y = resolution.y;
+                    this->rendering_rects.back().differred_buffer.setDimensions(
+                        this->rendering_rects.back().area.end_x - this->rendering_rects.back().area.start_x,
+                        this->rendering_rects.back().area.end_y - this->rendering_rects.back().area.start_y );
 
                     success = 1;
                 }
@@ -114,6 +132,20 @@ int Window::attach() {
     // error_log.output << "DifferredPixel: " << sizeof(DifferredPixel) << " bytes.\n";
 
     return success;
+}
+
+Window::RenderingRectArea Window::getRenderArea() {
+    std::lock_guard<std::mutex> lock_guard(this->rendering_rect_area_mutex);
+
+    assert(!this->rendering_rect_areas.empty());
+    assert(this->rendering_rect_area_index < this->rendering_rect_areas.size());
+
+    return this->rendering_rect_areas[this->rendering_rect_area_index++];
+}
+
+void Window::resetRenderAreas() {
+    std::lock_guard<std::mutex> lock_guard(this->rendering_rect_area_mutex);
+    this->rendering_rect_area_index = 0;
 }
 
 }

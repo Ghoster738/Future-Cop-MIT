@@ -5,6 +5,9 @@
 
 #include "../../../Utilities/GridBase2D.h"
 
+#include <mutex>
+#include <vector>
+
 namespace Graphics::SDL2::Software {
 
 class Environment;
@@ -31,16 +34,27 @@ public:
     glm::vec2 factor;
     glm::vec2 inv_factor;
 
+    Environment                     *env_r;
     SDL_Renderer                    *renderer_p;
     SDL_Texture                     *texture_p;
-    RenderingRect                    rendering_rect;
     Utilities::GridBase2D<uint32_t>  destination_buffer;
     int                              destination_buffer_pitch;
-    
+
+    std::vector<RenderingRect>       rendering_rects;
+
+private:
+    std::mutex rendering_rect_area_mutex;
+    size_t rendering_rect_area_index;
+    std::vector<RenderingRectArea> rendering_rect_areas;
+
+public:
     Window( Graphics::SDL2::Software::Environment &env_r );
     virtual ~Window();
     
     int attach();
+
+    RenderingRectArea getRenderArea();
+    void resetRenderAreas();
 };
 
 }

@@ -84,30 +84,6 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
         }
     }
 
-    { // Generate the test pattern.
-        auto x_factor = this->window_p->getDimensions().x / this->window_p->destination_buffer.getWidth();
-        auto y_factor = this->window_p->getDimensions().y / this->window_p->destination_buffer.getHeight();
-
-        for(auto sy = this->window_p->destination_buffer.getHeight(); sy != 0; sy--) {
-            for(auto sx = this->window_p->destination_buffer.getWidth(); sx != 0; sx--) {
-                Window::DifferredPixel pixel;
-
-                auto x = sx * this->window_p->factor.x;
-                auto y = sy * this->window_p->factor.y;
-
-                pixel.colors[0] = 0x20;
-                pixel.colors[1] = 0x20;
-                pixel.colors[2] = 0x40;
-                pixel.colors[3] = 0;
-                pixel.texture_coordinates[0] = 0;
-                pixel.texture_coordinates[1] = 0;
-                pixel.depth = 0;
-
-                this->window_p->rendering_rect.differred_buffer.setValue((sx - 1), (sy - 1), pixel);
-            }
-        }
-    }
-
     return this->textures.size() != 0;
 }
 
@@ -145,13 +121,15 @@ void Environment::setupFrame() {
 void Environment::drawFrame() {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
 
-    this->external_image_draw_2d.drawOpaque(this->window_p->rendering_rect);
-    this->font_draw_2d.drawOpaque(this->window_p->rendering_rect);
+    auto &rendering_rect = this->window_p->rendering_rects.back();
+
+    this->external_image_draw_2d.drawOpaque(rendering_rect);
+    this->font_draw_2d.drawOpaque(rendering_rect);
 
     // Convert remaining differred textures to color.
     std::for_each(
         std::execution::par_unseq,
-        this->window_p->rendering_rect.differred_buffer.getGridData().begin(), this->window_p->rendering_rect.differred_buffer.getGridData().end(),
+        rendering_rect.differred_buffer.getGridData().begin(), rendering_rect.differred_buffer.getGridData().end(),
         [lambda_textures](Window::DifferredPixel &source_pixel) {
             if(source_pixel.colors[3] != 0) {
                 auto slot = lambda_textures[source_pixel.colors[3]];
@@ -165,17 +143,17 @@ void Environment::drawFrame() {
         }
     );
 
-    this->image_draw_2d.draw(this->window_p->rendering_rect);
-    this->external_image_draw_2d.draw(this->window_p->rendering_rect);
-    this->font_draw_2d.draw(this->window_p->rendering_rect);
+    this->image_draw_2d.draw(rendering_rect);
+    this->external_image_draw_2d.draw(rendering_rect);
+    this->font_draw_2d.draw(rendering_rect);
 
-    for(auto rev_y = this->window_p->rendering_rect.differred_buffer.getHeight(); rev_y != 0; rev_y-- ) {
-        auto y = this->window_p->rendering_rect.differred_buffer.getHeight() - rev_y;
+    for(auto rev_y = rendering_rect.differred_buffer.getHeight(); rev_y != 0; rev_y-- ) {
+        auto y = rendering_rect.differred_buffer.getHeight() - rev_y;
 
-        for(auto rev_x = this->window_p->rendering_rect.differred_buffer.getWidth(); rev_x != 0; rev_x-- ) {
-            auto x = this->window_p->rendering_rect.differred_buffer.getWidth() - rev_x;
+        for(auto rev_x = rendering_rect.differred_buffer.getWidth(); rev_x != 0; rev_x-- ) {
+            auto x = rendering_rect.differred_buffer.getWidth() - rev_x;
 
-            Window::DifferredPixel &source_pixel = *this->window_p->rendering_rect.differred_buffer.getRef(x, y);
+            Window::DifferredPixel &source_pixel = *rendering_rect.differred_buffer.getRef(x, y);
 
             uint32_t destination_pixel = 0xFF000000;
 
