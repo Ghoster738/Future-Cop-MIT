@@ -23,19 +23,19 @@ public:
     };
 
     struct RenderingRect {
-        Utilities::GridBase2D<Window::DifferredPixel> differred_buffer;
-        Environment *env_r;
-        RenderingRectArea area;
+        Utilities::GridBase2D<Window::DifferredPixel> differred_buffer; // Only write and read pixels.
+        Environment *env_r; // Do not modify while drawing!
+        RenderingRectArea area; // Do not modify while drawing!
     };
 
     glm::vec2 factor;
     glm::vec2 inv_factor;
 
-    SDL_Renderer                          *renderer_p;
-    SDL_Texture                           *texture_p;
-    RenderingRect                          rendering_rect;
-    Utilities::GridBase2D<uint32_t>        destination_buffer;
-    int                                    destination_buffer_pitch;
+    SDL_Renderer                    *renderer_p;
+    SDL_Texture                     *texture_p;
+    RenderingRect                    rendering_rect;
+    Utilities::GridBase2D<uint32_t>  destination_buffer;
+    int                              destination_buffer_pitch;
     
     Window( Graphics::SDL2::Software::Environment &env_r );
     virtual ~Window();
