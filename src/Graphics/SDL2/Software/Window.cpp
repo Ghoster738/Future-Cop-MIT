@@ -15,7 +15,6 @@ Graphics::Window* Environment::allocateWindow() {
     this->window_p = window_p;
 
     this->window_p->rendering_rects.push_back( {} );
-    this->window_p->rendering_rects.back().env_r        = this;
     this->window_p->rendering_rects.back().area.start_x =    0;
     this->window_p->rendering_rects.back().area.start_y =    0;
     this->window_p->rendering_rects.back().area.end_x   =   32;
@@ -89,7 +88,7 @@ int Window::attach() {
                     this->factor.y = this->getDimensions().y / this->destination_buffer.getHeight();
                     this->inv_factor = glm::vec2(1. / factor.x, 1. / factor.y);
 
-                    const auto max_thread_count = std::thread::hardware_concurrency();
+                    const size_t max_thread_count = std::max((unsigned int)1, std::thread::hardware_concurrency());
 
                     std::lock_guard<std::mutex> lock_guard(this->rendering_rect_area_mutex);
 
@@ -112,13 +111,20 @@ int Window::attach() {
                             if(area.end_y > this->destination_buffer.getHeight())
                                 area.end_y = this->destination_buffer.getHeight();
 
-                            rendering_rect_areas.push_back( area );
+                            this->rendering_rect_areas.push_back( area );
                         }
                     }
 
-                    this->rendering_rects.back().differred_buffer.setDimensions(
-                        this->rendering_rects.back().area.end_x - this->rendering_rects.back().area.start_x,
-                        this->rendering_rects.back().area.end_y - this->rendering_rects.back().area.start_y );
+                    size_t rendering_rect_amount = std::min(max_thread_count, this->rendering_rect_areas.size());
+
+                    this->rendering_rects.resize(rendering_rect_amount);
+
+                    for(auto i = this->rendering_rects.size(); i != 0; i--) {
+                        this->rendering_rects[i - 1].env_r = this->env_r;
+                        this->rendering_rects[i - 1].differred_buffer.setDimensions(
+                            advance_x,
+                            advance_y );
+                    }
 
                     success = 1;
                 }
