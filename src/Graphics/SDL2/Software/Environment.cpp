@@ -178,9 +178,15 @@ void Environment::drawFrameThread(Window::RenderingRect &rendering_rect) {
 void Environment::drawFrame() {
     this->window_p->resetRenderAreas();
 
-    std::thread rendering_thread(&Environment::drawFrameThread, this, std::ref(this->window_p->rendering_rects[0]));
+    std::vector<std::thread> rendering_threads;
 
-    rendering_thread.join();
+    for(size_t i = 0; i < this->window_p->rendering_rects.size(); i++) {
+        rendering_threads.push_back( std::thread(&Environment::drawFrameThread, this, std::ref(this->window_p->rendering_rects[i])) );
+    }
+
+    for(size_t i = 0; i < this->window_p->rendering_rects.size(); i++) {
+        rendering_threads[i].join();
+    }
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
     SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
