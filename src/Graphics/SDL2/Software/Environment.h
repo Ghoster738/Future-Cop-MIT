@@ -40,6 +40,9 @@ public:
     // Configuration
     unsigned pixel_size;
 
+private:
+    void drawFrameThread(Window::RenderingRect &rendering_rect);
+
 public:
     Environment();
     virtual ~Environment();
@@ -49,6 +52,11 @@ public:
 
     virtual std::string getEnvironmentIdentifier() const;
     virtual int loadResources( const Data::Accessor &accessor );
+
+    virtual void setupFrame();
+    virtual void drawFrame();
+    virtual bool screenshot( Utilities::Image2D &image ) const;
+    virtual void advanceTime( std::chrono::microseconds delta );
 
     virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
     virtual Graphics::Camera* allocateCamera();
@@ -66,10 +74,6 @@ public:
     virtual int setTilPolygonBlink( unsigned polygon_type, float rate = 1.0f);
     virtual bool getBoundingBoxDraw() const;
     virtual void setBoundingBoxDraw(bool draw);
-    virtual void setupFrame();
-    virtual void drawFrame();
-    virtual bool screenshot( Utilities::Image2D &image ) const;
-    virtual void advanceTime( std::chrono::microseconds delta );
 };
 
 }

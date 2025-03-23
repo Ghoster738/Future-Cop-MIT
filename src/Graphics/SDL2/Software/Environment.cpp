@@ -118,12 +118,9 @@ void Environment::setBoundingBoxDraw(bool draw) {
 void Environment::setupFrame() {
 }
 
-void Environment::drawFrame() {
+
+void Environment::drawFrameThread(Window::RenderingRect &rendering_rect) {
     const std::vector<CBMPTexture>& lambda_textures = this->textures;
-
-    auto &rendering_rect = this->window_p->rendering_rects.back();
-
-    this->window_p->resetRenderAreas();
 
     for( auto rect_r = this->window_p->getRenderArea(); rect_r != nullptr; rect_r = this->window_p->getRenderArea()) {
         rendering_rect.area = *rect_r;
@@ -133,7 +130,6 @@ void Environment::drawFrame() {
 
         // Convert remaining differred textures to color.
         std::for_each(
-            std::execution::par_unseq,
             rendering_rect.differred_buffer.getGridData().begin(), rendering_rect.differred_buffer.getGridData().end(),
             [lambda_textures](Window::DifferredPixel &source_pixel) {
                 if(source_pixel.colors[3] != 0) {
@@ -176,6 +172,14 @@ void Environment::drawFrame() {
             }
         }
     }
+}
+
+void Environment::drawFrame() {
+    auto &rendering_rect = this->window_p->rendering_rects.back();
+
+    this->window_p->resetRenderAreas();
+
+    drawFrameThread(rendering_rect);
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
     SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
