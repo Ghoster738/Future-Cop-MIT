@@ -132,22 +132,39 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
         default_pixel.colors[2] = glyph.color[2];
 
         if(glyph.scale == 1.f) {
-            for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
-                for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
-                    auto pixel = glyph.glyph_texture_r->getValue((x - 1), (y - 1));
+            for(auto rev_y = glyph.glyph_texture_r->getHeight(); rev_y != 0; rev_y--) {
+                auto y = glyph.glyph_texture_r->getHeight() - rev_y;
+
+                for(auto rev_x = glyph.glyph_texture_r->getWidth(); rev_x != 0; rev_x--) {
+                    auto x = glyph.glyph_texture_r->getWidth() - rev_x;
+
+                    auto pixel = glyph.glyph_texture_r->getValue(x, y);
 
                     if(pixel != 0)
-                        rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
+                        rendering_rect.differred_buffer.setValue(
+                            (glyph.position.x + x) - rendering_rect.area.start_x,
+                            (glyph.position.y + y) - rendering_rect.area.start_y,
+                            default_pixel);
                 }
             }
         }
         else {
-            for(unsigned y = glyph.scale * glyph.glyph_texture_r->getHeight() + 1; y != 0; y--) {
-                for(unsigned x = glyph.scale * glyph.glyph_texture_r->getWidth() + 1; x != 0; x--) {
-                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * (x - 1), 1 / glyph.scale * (y - 1));
+            unsigned scale_x = glyph.scale * glyph.glyph_texture_r->getWidth();
+            unsigned scale_y = glyph.scale * glyph.glyph_texture_r->getHeight();
+
+            for(unsigned rev_y = scale_y; rev_y != 0; rev_y--) {
+                auto y = scale_y - rev_y;
+
+                for(unsigned rev_x = scale_x; rev_x != 0; rev_x--) {
+                    auto x = scale_x - rev_x;
+
+                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * x, 1 / glyph.scale * y);
 
                     if(pixel != 0)
-                        rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), default_pixel);
+                        rendering_rect.differred_buffer.setValue(
+                            (glyph.position.x + x) - rendering_rect.area.start_x,
+                            (glyph.position.y + y) - rendering_rect.area.start_y,
+                            default_pixel);
                 }
             }
         }
@@ -177,14 +194,20 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
         default_pixel.colors[2] = glyph.color[2];
 
         if(glyph.scale == 1.f) {
-            for(auto y = glyph.glyph_texture_r->getHeight(); y != 0; y--) {
-                for(auto x = glyph.glyph_texture_r->getWidth(); x != 0; x--) {
-                    auto pixel = glyph.glyph_texture_r->getValue((x - 1), (y - 1));
+            for(auto rev_y = glyph.glyph_texture_r->getHeight(); rev_y != 0; rev_y--) {
+                auto y = glyph.glyph_texture_r->getHeight() - rev_y;
+
+                for(auto rev_x = glyph.glyph_texture_r->getWidth(); rev_x != 0; rev_x--) {
+                    auto x = glyph.glyph_texture_r->getWidth() - rev_x;
+
+                    auto pixel = glyph.glyph_texture_r->getValue(x, y);
 
                     if(pixel == 0)
                         continue;
 
-                    original_pixel = rendering_rect.differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
+                    original_pixel = rendering_rect.differred_buffer.getValue(
+                        (glyph.position.x + x) - rendering_rect.area.start_x,
+                        (glyph.position.y + y) - rendering_rect.area.start_y);
 
                     new_pixel = default_pixel;
 
@@ -192,19 +215,31 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                     new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
                     new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
 
-                    rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
+                    rendering_rect.differred_buffer.setValue(
+                        (glyph.position.x + x) - rendering_rect.area.start_x,
+                        (glyph.position.y + y) - rendering_rect.area.start_y,
+                        new_pixel);
                 }
             }
         }
         else {
-            for(unsigned y = glyph.scale * glyph.glyph_texture_r->getHeight() + 1; y != 0; y--) {
-                for(unsigned x = glyph.scale * glyph.glyph_texture_r->getWidth() + 1; x != 0; x--) {
-                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * (x - 1), 1 / glyph.scale * (y - 1));
+            unsigned scale_x = glyph.scale * glyph.glyph_texture_r->getWidth();
+            unsigned scale_y = glyph.scale * glyph.glyph_texture_r->getHeight();
+
+            for(unsigned rev_y = scale_y; rev_y != 0; rev_y--) {
+                auto y = scale_y - rev_y;
+
+                for(unsigned rev_x = scale_x; rev_x != 0; rev_x--) {
+                    auto x = scale_x - rev_x;
+
+                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * x, 1 / glyph.scale * y);
 
                     if(pixel == 0)
                         continue;
 
-                    original_pixel = rendering_rect.differred_buffer.getValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1));
+                    original_pixel = rendering_rect.differred_buffer.getValue(
+                            (glyph.position.x + x) - rendering_rect.area.start_x,
+                            (glyph.position.y + y) - rendering_rect.area.start_y);
 
                     new_pixel = default_pixel;
 
@@ -212,7 +247,10 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                     new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
                     new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
 
-                    rendering_rect.differred_buffer.setValue(glyph.position.x + (x - 1), glyph.position.y + (y - 1), new_pixel);
+                    rendering_rect.differred_buffer.setValue(
+                            (glyph.position.x + x) - rendering_rect.area.start_x,
+                            (glyph.position.y + y) - rendering_rect.area.start_y,
+                            new_pixel);
                 }
             }
         }
