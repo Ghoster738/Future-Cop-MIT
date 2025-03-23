@@ -53,7 +53,7 @@ public:
     
     int attach();
 
-    RenderingRectArea getRenderArea();
+    const RenderingRectArea* getRenderArea();
     void resetRenderAreas();
 };
 

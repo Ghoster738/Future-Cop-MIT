@@ -16,10 +16,10 @@ Graphics::Window* Environment::allocateWindow() {
 
     this->window_p->rendering_rects.push_back( {} );
     this->window_p->rendering_rects.back().env_r        = this;
-    this->window_p->rendering_rects.back().area.start_x =  128;
-    this->window_p->rendering_rects.back().area.start_y =   64;
-    this->window_p->rendering_rects.back().area.end_x   =  256;
-    this->window_p->rendering_rects.back().area.end_y   =  128;
+    this->window_p->rendering_rects.back().area.start_x =    0;
+    this->window_p->rendering_rects.back().area.start_y =    0;
+    this->window_p->rendering_rects.back().area.end_x   =   32;
+    this->window_p->rendering_rects.back().area.end_y   =   32;
 
     return window_p;
 }
@@ -91,6 +91,31 @@ int Window::attach() {
 
                     const auto max_thread_count = std::thread::hardware_concurrency();
 
+                    std::lock_guard<std::mutex> lock_guard(this->rendering_rect_area_mutex);
+
+                    // Build grid of rendering_rect_areas
+                    const auto advance_x = this->rendering_rects.back().area.end_x - this->rendering_rects.back().area.start_x;
+                    const auto advance_y = this->rendering_rects.back().area.end_y - this->rendering_rects.back().area.start_y;
+
+                    for(unsigned y = 0; y < this->destination_buffer.getHeight(); y += advance_y) {
+                        for(unsigned x = 0; x < this->destination_buffer.getWidth(); x += advance_x) {
+                            RenderingRectArea area;
+
+                            area.start_x = x;
+                            area.start_y = y;
+                            area.end_x   = x + advance_x;
+                            area.end_y   = y + advance_y;
+
+                            if(area.end_x > this->destination_buffer.getWidth())
+                                area.end_x = this->destination_buffer.getWidth();
+
+                            if(area.end_y > this->destination_buffer.getHeight())
+                                area.end_y = this->destination_buffer.getHeight();
+
+                            rendering_rect_areas.push_back( area );
+                        }
+                    }
+
                     this->rendering_rects.back().differred_buffer.setDimensions(
                         this->rendering_rects.back().area.end_x - this->rendering_rects.back().area.start_x,
                         this->rendering_rects.back().area.end_y - this->rendering_rects.back().area.start_y );
@@ -132,13 +157,14 @@ int Window::attach() {
     return success;
 }
 
-Window::RenderingRectArea Window::getRenderArea() {
+const Window::RenderingRectArea* Window::getRenderArea() {
     std::lock_guard<std::mutex> lock_guard(this->rendering_rect_area_mutex);
 
     assert(!this->rendering_rect_areas.empty());
-    assert(this->rendering_rect_area_index < this->rendering_rect_areas.size());
-
-    return this->rendering_rect_areas[this->rendering_rect_area_index++];
+    if(this->rendering_rect_area_index < this->rendering_rect_areas.size())
+        return &this->rendering_rect_areas[this->rendering_rect_area_index++];
+    else
+        return nullptr;
 }
 
 void Window::resetRenderAreas() {
