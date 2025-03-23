@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <execution>
+#include <thread>
 
 namespace Graphics::SDL2::Software {
 
@@ -175,11 +176,11 @@ void Environment::drawFrameThread(Window::RenderingRect &rendering_rect) {
 }
 
 void Environment::drawFrame() {
-    auto &rendering_rect = this->window_p->rendering_rects.back();
-
     this->window_p->resetRenderAreas();
 
-    drawFrameThread(rendering_rect);
+    std::thread rendering_thread(&Environment::drawFrameThread, this, std::ref(this->window_p->rendering_rects[0]));
+
+    rendering_thread.join();
 
     SDL_UpdateTexture(this->window_p->texture_p, nullptr, this->window_p->destination_buffer.getDirectGridData(), this->window_p->destination_buffer_pitch);
     SDL_RenderCopy(this->window_p->renderer_p, this->window_p->texture_p, nullptr, nullptr);
