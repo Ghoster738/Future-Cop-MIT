@@ -20,9 +20,15 @@ void ExternalImageDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) cons
         glm::vec2 pos_1 = i->internal.positions[1] * rendering_rect.env_r->window_p->inv_factor;
         glm::vec2 scale = pos_1 - pos_0;
 
-        glm::i32vec2 screen_pos_0 = glm::clamp(glm::i32vec2( pos_0 ), glm::i32vec2(0, 0), glm::i32vec2(rendering_rect.env_r->window_p->destination_buffer.getWidth(), rendering_rect.env_r->window_p->destination_buffer.getHeight()) );
+        glm::i32vec2 screen_pos_0 = glm::clamp(
+            glm::i32vec2(pos_0),
+            glm::i32vec2(rendering_rect.area.start_x, rendering_rect.area.start_y),
+            glm::i32vec2(rendering_rect.area.end_x,   rendering_rect.area.end_y) );
 
-        glm::i32vec2 screen_pos_1 = glm::clamp(glm::i32vec2( pos_1 ), glm::i32vec2(0, 0), glm::i32vec2(rendering_rect.env_r->window_p->destination_buffer.getWidth(), rendering_rect.env_r->window_p->destination_buffer.getHeight()) );
+        glm::i32vec2 screen_pos_1 = glm::clamp(
+            glm::i32vec2(pos_1),
+            glm::i32vec2(rendering_rect.area.start_x, rendering_rect.area.start_y),
+            glm::i32vec2(rendering_rect.area.end_x,   rendering_rect.area.end_y) );
 
         Window::DifferredPixel default_pixel;
         default_pixel.colors[3] = 0;
@@ -43,7 +49,7 @@ void ExternalImageDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) cons
                 source_pixel.colors[1] = (i->internal.color.g * pixel[1]);
                 source_pixel.colors[2] = (i->internal.color.b * pixel[2]);
 
-                rendering_rect.differred_buffer.setValue(x, y, source_pixel);
+                rendering_rect.differred_buffer.setValue(x - rendering_rect.area.start_x, y - rendering_rect.area.start_y, source_pixel);
             }
         }
     }

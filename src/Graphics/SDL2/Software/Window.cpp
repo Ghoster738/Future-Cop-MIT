@@ -16,10 +16,10 @@ Graphics::Window* Environment::allocateWindow() {
 
     this->window_p->rendering_rects.push_back( {} );
     this->window_p->rendering_rects.back().env_r        = this;
-    this->window_p->rendering_rects.back().area.start_x =    0;
-    this->window_p->rendering_rects.back().area.start_y =    0;
-    this->window_p->rendering_rects.back().area.end_x   =   32;
-    this->window_p->rendering_rects.back().area.end_y   =   32;
+    this->window_p->rendering_rects.back().area.start_x =  128;
+    this->window_p->rendering_rects.back().area.start_y =   64;
+    this->window_p->rendering_rects.back().area.end_x   =  256;
+    this->window_p->rendering_rects.back().area.end_y   =  128;
 
     return window_p;
 }
@@ -91,8 +91,6 @@ int Window::attach() {
 
                     const auto max_thread_count = std::thread::hardware_concurrency();
 
-                    this->rendering_rects.back().area.end_x = resolution.x;
-                    this->rendering_rects.back().area.end_y = resolution.y;
                     this->rendering_rects.back().differred_buffer.setDimensions(
                         this->rendering_rects.back().area.end_x - this->rendering_rects.back().area.start_x,
                         this->rendering_rects.back().area.end_y - this->rendering_rects.back().area.start_y );

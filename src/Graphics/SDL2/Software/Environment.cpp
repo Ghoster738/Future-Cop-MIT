@@ -167,7 +167,7 @@ void Environment::drawFrame() {
             source_pixel.colors[3] = 0;
             source_pixel.depth     = 0;
 
-            this->window_p->destination_buffer.setValue(x, y, destination_pixel);
+            this->window_p->destination_buffer.setValue(rendering_rect.area.start_x + x, rendering_rect.area.start_y + y, destination_pixel);
         }
     }
 
