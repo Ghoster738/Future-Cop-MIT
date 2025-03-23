@@ -6,7 +6,7 @@
 
 namespace Graphics::SDL2::Software::Internal {
 
-void ExternalImageDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) {
+void ExternalImageDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
     for( auto i : this->opaque_images ) {
         if(!i->internal.is_visable)
             continue;
@@ -49,7 +49,7 @@ void ExternalImageDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) {
     }
 }
 
-void ExternalImageDraw2D::draw(Window::RenderingRect &rendering_rect) {
+void ExternalImageDraw2D::draw(Window::RenderingRect &rendering_rect) const {
     // TODO Handle semi-transparancy.
 }
 

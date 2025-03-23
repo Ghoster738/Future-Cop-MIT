@@ -17,8 +17,8 @@ public:
     std::set<Software::ExternalImage*> opaque_images;
     std::set<Software::ExternalImage*> images;
 
-    void drawOpaque(Window::RenderingRect &rendering_rect);
-    void draw(Window::RenderingRect &rendering_rect);
+    void drawOpaque(Window::RenderingRect &rendering_rect) const;
+    void draw(Window::RenderingRect &rendering_rect) const;
 };
 
 }

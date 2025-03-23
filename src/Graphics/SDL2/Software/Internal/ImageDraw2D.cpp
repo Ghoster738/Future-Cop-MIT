@@ -5,7 +5,7 @@
 
 namespace Graphics::SDL2::Software::Internal {
 
-void ImageDraw2D::draw(Window::RenderingRect &rendering_rect) {
+void ImageDraw2D::draw(Window::RenderingRect &rendering_rect) const {
     for( auto i : this->images ) {
         if(!i->internal.is_visable)
             continue;

@@ -16,7 +16,7 @@ class ImageDraw2D {
 public:
     std::set<Software::Image*> images;
 
-    void draw(Window::RenderingRect &rendering_rect);
+    void draw(Window::RenderingRect &rendering_rect) const;
 };
 
 }

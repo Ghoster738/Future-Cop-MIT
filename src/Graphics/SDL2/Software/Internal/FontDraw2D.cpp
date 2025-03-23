@@ -115,7 +115,7 @@ bool FontDraw2D::load( const Data::Accessor &accessor ) {
     return fonts.size() != 0;
 }
 
-void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) {
+void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
     Window::DifferredPixel default_pixel;
     default_pixel.colors[3] = 0;
     default_pixel.depth = 0;
@@ -154,7 +154,7 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) {
     }
 }
 
-void FontDraw2D::draw(Window::RenderingRect &rendering_rect) {
+void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
     Window::DifferredPixel default_pixel;
     Window::DifferredPixel original_pixel;
     Window::DifferredPixel new_pixel;
