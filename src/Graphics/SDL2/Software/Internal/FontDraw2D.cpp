@@ -149,12 +149,12 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
             glm::i32vec2 offset(0, 0);
 
             if(position_start.x < 0) {
-                offset.x = std::min(-position_start.x, (int32_t)glyph.glyph_texture_r->getWidth());
+                offset.x = -position_start.x;
                 position_start.x = 0;
             }
 
             if(position_start.y < 0) {
-                offset.y = std::min(-position_start.y, (int32_t)glyph.glyph_texture_r->getHeight());
+                offset.y = -position_start.y;
                 position_start.y = 0;
             }
 
@@ -201,12 +201,12 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
             glm::vec2 offset(0, 0);
 
             if(position_start.x < 0) {
-                offset.x = std::min(-position_start.x, (int32_t)glyph.glyph_texture_r->getWidth());
+                offset.x = inv_scale * -position_start.x;
                 position_start.x = 0;
             }
 
             if(position_start.y < 0) {
-                offset.y = std::min(-position_start.y, (int32_t)glyph.glyph_texture_r->getHeight());
+                offset.y = inv_scale * -position_start.y;
                 position_start.y = 0;
             }
 
@@ -227,7 +227,7 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
                     auto pixel = glyph.glyph_texture_r->getValue(offset.x, offset.y);
                     offset.x += inv_scale;
 
-                    //if(pixel != 0)
+                    if(pixel != 0)
                         rendering_rect.differred_buffer.setValue(x, y, default_pixel);
                 }
                 offset.y += inv_scale;
@@ -268,20 +268,45 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                 position_end.y   <= rendering_rect.area.start_y )
                 continue;
 
-            for(auto rev_y = glyph.glyph_texture_r->getHeight(); rev_y != 0; rev_y--) {
-                auto y = glyph.glyph_texture_r->getHeight() - rev_y;
+            glm::i32vec2 position_start = glyph.position;
+            position_start.x -= rendering_rect.area.start_x;
+            position_start.y -= rendering_rect.area.start_y;
+            position_end.x -= rendering_rect.area.start_x;
+            position_end.y -= rendering_rect.area.start_y;
 
-                for(auto rev_x = glyph.glyph_texture_r->getWidth(); rev_x != 0; rev_x--) {
-                    auto x = glyph.glyph_texture_r->getWidth() - rev_x;
+            glm::i32vec2 offset(0, 0);
 
-                    auto pixel = glyph.glyph_texture_r->getValue(x, y);
+            if(position_start.x < 0) {
+                offset.x = -position_start.x;
+                position_start.x = 0;
+            }
+
+            if(position_start.y < 0) {
+                offset.y = -position_start.y;
+                position_start.y = 0;
+            }
+
+            if(position_end.x > rendering_rect.area.end_x - rendering_rect.area.start_x) {
+                position_end.x = rendering_rect.area.end_x - rendering_rect.area.start_x;
+            }
+
+            if(position_end.y > rendering_rect.area.end_y - rendering_rect.area.start_y) {
+                position_end.y = rendering_rect.area.end_y - rendering_rect.area.start_y;
+            }
+
+            auto offset_back = offset.x;
+
+            for(auto y = position_start.y; y != position_end.y; y++) {
+
+                for(auto x = position_start.x; x != position_end.x; x++) {
+
+                    auto pixel = glyph.glyph_texture_r->getValue(offset.x, offset.y);
+                    offset.x++;
 
                     if(pixel == 0)
                         continue;
 
-                    original_pixel = rendering_rect.differred_buffer.getValue(
-                        (glyph.position.x + x) - rendering_rect.area.start_x,
-                        (glyph.position.y + y) - rendering_rect.area.start_y);
+                    original_pixel = rendering_rect.differred_buffer.getValue(x, y);
 
                     new_pixel = default_pixel;
 
@@ -289,11 +314,11 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                     new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
                     new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
 
-                    rendering_rect.differred_buffer.setValue(
-                        (glyph.position.x + x) - rendering_rect.area.start_x,
-                        (glyph.position.y + y) - rendering_rect.area.start_y,
-                        new_pixel);
+                    rendering_rect.differred_buffer.setValue(x, y, new_pixel);
                 }
+
+                offset.y++;
+                offset.x = offset_back;
             }
         }
         else {
@@ -315,12 +340,12 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
             glm::vec2 offset(0, 0);
 
             if(position_start.x < 0) {
-                offset.x = std::min(-position_start.x, (int32_t)glyph.glyph_texture_r->getWidth());
+                offset.x = inv_scale * -position_start.x;
                 position_start.x = 0;
             }
 
             if(position_start.y < 0) {
-                offset.y = std::min(-position_start.y, (int32_t)glyph.glyph_texture_r->getHeight());
+                offset.y = inv_scale * -position_start.y;
                 position_start.y = 0;
             }
 
@@ -331,6 +356,7 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
             if(position_end.y > rendering_rect.area.end_y - rendering_rect.area.start_y) {
                 position_end.y = rendering_rect.area.end_y - rendering_rect.area.start_y;
             }
+            auto offset_back = offset.x;
 
             for(auto y = position_start.y; y != position_end.y; y++) {
 
@@ -354,6 +380,7 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                 }
 
                 offset.y += inv_scale;
+                offset.x = offset_back;
             }
         }
     }
