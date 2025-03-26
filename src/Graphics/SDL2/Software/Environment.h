@@ -6,6 +6,7 @@
 #include "Image.h"
 #include "Window.h"
 
+#include "Internal/Draw3D.h"
 #include "Internal/ExternalImageDraw2D.h"
 #include "Internal/FontDraw2D.h"
 #include "Internal/ImageDraw2D.h"
@@ -32,10 +33,10 @@ public:
 
     std::vector<CBMPTexture> textures;
 
+    Internal::Draw3D draw_3d;
     Internal::ExternalImageDraw2D external_image_draw_2d;
-    Internal::ImageDraw2D image_draw_2d;
-
     Internal::FontDraw2D font_draw_2d;
+    Internal::ImageDraw2D image_draw_2d;
 
     // Configuration
     unsigned pixel_size;

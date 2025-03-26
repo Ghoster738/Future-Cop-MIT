@@ -44,9 +44,6 @@ std::string Environment::getEnvironmentIdentifier() const {
 }
 
 int Environment::loadResources( const Data::Accessor &accessor ) {
-    font_draw_2d.load(accessor);
-    font_draw_2d.allocateGlyph(0x10000);
-
     this->image_draw_2d.images.clear();
     this->external_image_draw_2d.images.clear();
     this->external_image_draw_2d.opaque_images.clear();
@@ -84,6 +81,11 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
             }
         }
     }
+
+    this->font_draw_2d.load(accessor);
+    this->font_draw_2d.allocateGlyph(0x10000);
+
+    this->draw_3d.load(accessor);
 
     return this->textures.size() != 0;
 }
