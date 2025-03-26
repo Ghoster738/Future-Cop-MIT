@@ -132,6 +132,14 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
         default_pixel.colors[2] = glyph.color[2];
 
         if(glyph.scale == 1.f) {
+            glm::i32vec2 position_end = glyph.position + glm::i32vec2(glyph.glyph_texture_r->getWidth(), glyph.glyph_texture_r->getHeight());
+
+            if( glyph.position.x >= rendering_rect.area.end_x   ||
+                position_end.x   <= rendering_rect.area.start_x ||
+                glyph.position.y >= rendering_rect.area.end_y   ||
+                position_end.y   <= rendering_rect.area.start_y )
+                continue;
+
             for(auto rev_y = glyph.glyph_texture_r->getHeight(); rev_y != 0; rev_y--) {
                 auto y = glyph.glyph_texture_r->getHeight() - rev_y;
 
@@ -149,16 +157,22 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
             }
         }
         else {
-            unsigned scale_x = glyph.scale * glyph.glyph_texture_r->getWidth();
-            unsigned scale_y = glyph.scale * glyph.glyph_texture_r->getHeight();
+            glm::i32vec2 position_end = glyph.position + glm::i32vec2(glyph.scale * glyph.glyph_texture_r->getWidth(), glyph.scale * glyph.glyph_texture_r->getHeight());
+            auto inv_scale = 1 / glyph.scale;
 
-            for(unsigned rev_y = scale_y; rev_y != 0; rev_y--) {
-                auto y = scale_y - rev_y;
+            if( glyph.position.x >= rendering_rect.area.end_x   ||
+                position_end.x   <= rendering_rect.area.start_x ||
+                glyph.position.y >= rendering_rect.area.end_y   ||
+                position_end.y   <= rendering_rect.area.start_y )
+                continue;
 
-                for(unsigned rev_x = scale_x; rev_x != 0; rev_x--) {
-                    auto x = scale_x - rev_x;
+            for(auto rev_y = position_end.y; rev_y != 0; rev_y--) {
+                auto y = position_end.y - rev_y;
 
-                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * x, 1 / glyph.scale * y);
+                for(auto rev_x = position_end.x; rev_x != 0; rev_x--) {
+                    auto x = position_end.x - rev_x;
+
+                    auto pixel = glyph.glyph_texture_r->getValue(inv_scale * x, inv_scale * y);
 
                     if(pixel != 0)
                         rendering_rect.differred_buffer.setValue(
@@ -194,6 +208,14 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
         default_pixel.colors[2] = glyph.color[2];
 
         if(glyph.scale == 1.f) {
+            glm::i32vec2 position_end = glyph.position + glm::i32vec2(glyph.glyph_texture_r->getWidth(), glyph.glyph_texture_r->getHeight());
+
+            if( glyph.position.x >= rendering_rect.area.end_x   ||
+                position_end.x   <= rendering_rect.area.start_x ||
+                glyph.position.y >= rendering_rect.area.end_y   ||
+                position_end.y   <= rendering_rect.area.start_y )
+                continue;
+
             for(auto rev_y = glyph.glyph_texture_r->getHeight(); rev_y != 0; rev_y--) {
                 auto y = glyph.glyph_texture_r->getHeight() - rev_y;
 
@@ -223,16 +245,22 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
             }
         }
         else {
-            unsigned scale_x = glyph.scale * glyph.glyph_texture_r->getWidth();
-            unsigned scale_y = glyph.scale * glyph.glyph_texture_r->getHeight();
+            glm::i32vec2 position_end = glyph.position + glm::i32vec2(glyph.scale * glyph.glyph_texture_r->getWidth(), glyph.scale * glyph.glyph_texture_r->getHeight());
+            auto inv_scale = 1 / glyph.scale;
 
-            for(unsigned rev_y = scale_y; rev_y != 0; rev_y--) {
-                auto y = scale_y - rev_y;
+            if( glyph.position.x >= rendering_rect.area.end_x   ||
+                position_end.x   <= rendering_rect.area.start_x ||
+                glyph.position.y >= rendering_rect.area.end_y   ||
+                position_end.y   <= rendering_rect.area.start_y )
+                continue;
 
-                for(unsigned rev_x = scale_x; rev_x != 0; rev_x--) {
-                    auto x = scale_x - rev_x;
+            for(auto rev_y = position_end.y; rev_y != 0; rev_y--) {
+                auto y = position_end.y - rev_y;
 
-                    auto pixel = glyph.glyph_texture_r->getValue(1 / glyph.scale * x, 1 / glyph.scale * y);
+                for(auto rev_x = position_end.x; rev_x != 0; rev_x--) {
+                    auto x = position_end.x - rev_x;
+
+                    auto pixel = glyph.glyph_texture_r->getValue(inv_scale * x, inv_scale * y);
 
                     if(pixel == 0)
                         continue;
