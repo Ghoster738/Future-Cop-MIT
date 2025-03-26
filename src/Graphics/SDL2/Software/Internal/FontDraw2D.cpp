@@ -184,7 +184,7 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
         }
         else {
             glm::i32vec2 position_end = glyph.position + glm::i32vec2(glyph.scale * glyph.glyph_texture_r->getWidth(), glyph.scale * glyph.glyph_texture_r->getHeight());
-            auto inv_scale = 1 / glyph.scale;
+            auto fixed_point_scale = static_cast<uint32_t>(1 / glyph.scale * 256);
 
             if( glyph.position.x >= rendering_rect.area.end_x   ||
                 position_end.x   <= rendering_rect.area.start_x ||
@@ -198,15 +198,15 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
             position_end.x -= rendering_rect.area.start_x;
             position_end.y -= rendering_rect.area.start_y;
 
-            glm::vec2 offset(0, 0);
+            glm::u32vec2 offset(0, 0);
 
             if(position_start.x < 0) {
-                offset.x = inv_scale * -position_start.x;
+                offset.x = fixed_point_scale * -position_start.x;
                 position_start.x = 0;
             }
 
             if(position_start.y < 0) {
-                offset.y = inv_scale * -position_start.y;
+                offset.y = fixed_point_scale * -position_start.y;
                 position_start.y = 0;
             }
 
@@ -224,13 +224,13 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
 
                 for(auto x = position_start.x; x != position_end.x; x++) {
 
-                    auto pixel = glyph.glyph_texture_r->getValue(offset.x, offset.y);
-                    offset.x += inv_scale;
+                    auto pixel = glyph.glyph_texture_r->getValue(offset.x >> 8, offset.y >> 8);
+                    offset.x += fixed_point_scale;
 
                     if(pixel != 0)
                         rendering_rect.differred_buffer.setValue(x, y, default_pixel);
                 }
-                offset.y += inv_scale;
+                offset.y += fixed_point_scale;
                 offset.x = offset_back;
             }
         }
@@ -323,7 +323,7 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
         }
         else {
             glm::i32vec2 position_end = glyph.position + glm::i32vec2(glyph.scale * glyph.glyph_texture_r->getWidth(), glyph.scale * glyph.glyph_texture_r->getHeight());
-            auto inv_scale = 1 / glyph.scale;
+            auto fixed_point_scale = static_cast<uint32_t>(1 / glyph.scale * 256);
 
             if( glyph.position.x >= rendering_rect.area.end_x   ||
                 position_end.x   <= rendering_rect.area.start_x ||
@@ -337,15 +337,15 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
             position_end.x -= rendering_rect.area.start_x;
             position_end.y -= rendering_rect.area.start_y;
 
-            glm::vec2 offset(0, 0);
+            glm::u32vec2 offset(0, 0);
 
             if(position_start.x < 0) {
-                offset.x = inv_scale * -position_start.x;
+                offset.x = fixed_point_scale * -position_start.x;
                 position_start.x = 0;
             }
 
             if(position_start.y < 0) {
-                offset.y = inv_scale * -position_start.y;
+                offset.y = fixed_point_scale * -position_start.y;
                 position_start.y = 0;
             }
 
@@ -362,8 +362,8 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
 
                 for(auto x = position_start.x; x != position_end.x; x++) {
 
-                    auto pixel = glyph.glyph_texture_r->getValue(offset.x, offset.y);
-                    offset.x += inv_scale;
+                    auto pixel = glyph.glyph_texture_r->getValue(offset.x >> 8, offset.y >> 8);
+                    offset.x += fixed_point_scale;
 
                     if(pixel == 0)
                         continue;
@@ -379,7 +379,7 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                     rendering_rect.differred_buffer.setValue(x, y, new_pixel);
                 }
 
-                offset.y += inv_scale;
+                offset.y += fixed_point_scale;
                 offset.x = offset_back;
             }
         }
