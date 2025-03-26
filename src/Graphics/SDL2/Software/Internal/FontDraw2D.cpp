@@ -36,7 +36,6 @@ bool FontDraw2D::addGlyph(const Glyph &glyph) {
         return false;
 
     this->glyphs[this->current_glyph_amount] = glyph;
-    this->glyphs[this->current_glyph_amount].color[3] = 0x80;
     this->current_glyph_amount++;
 
     return true;
