@@ -36,6 +36,7 @@ bool FontDraw2D::addGlyph(const Glyph &glyph) {
         return false;
 
     this->glyphs[this->current_glyph_amount] = glyph;
+    this->glyphs[this->current_glyph_amount].color[3] = 0x80;
     this->current_glyph_amount++;
 
     return true;
@@ -220,17 +221,26 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
 
             auto offset_back = offset.x;
 
-            for(auto y = position_start.y; y != position_end.y; y++) {
+            for(auto y = position_start.y; y < position_end.y; y) {
+                auto count = ((((offset.y >> 8) + 1) << 8) - offset.y) / fixed_point_scale;
+
+                if(count == 0)
+                    count = 1;
 
                 for(auto x = position_start.x; x != position_end.x; x++) {
 
                     auto pixel = glyph.glyph_texture_r->getValue(offset.x >> 8, offset.y >> 8);
                     offset.x += fixed_point_scale;
 
-                    if(pixel != 0)
-                        rendering_rect.differred_buffer.setValue(x, y, default_pixel);
+                    if(pixel != 0) {
+                        for( auto c = count; c != 0; c--)
+                            rendering_rect.differred_buffer.setValue(x, y + count - c, default_pixel);
+                    }
                 }
-                offset.y += fixed_point_scale;
+
+                y += count;
+
+                offset.y += count * fixed_point_scale;
                 offset.x = offset_back;
             }
         }
@@ -358,7 +368,11 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
             }
             auto offset_back = offset.x;
 
-            for(auto y = position_start.y; y != position_end.y; y++) {
+            for(auto y = position_start.y; y < position_end.y; y) {
+                auto count = ((((offset.y >> 8) + 1) << 8) - offset.y) / fixed_point_scale;
+
+                if(count == 0)
+                    count = 1;
 
                 for(auto x = position_start.x; x != position_end.x; x++) {
 
@@ -368,18 +382,22 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
                     if(pixel == 0)
                         continue;
 
-                    original_pixel = rendering_rect.differred_buffer.getValue(x, y);
+                    for( auto c = count; c != 0; c--) {
+                        original_pixel = rendering_rect.differred_buffer.getValue(x, y + count - c);
 
-                    new_pixel = default_pixel;
+                        new_pixel = default_pixel;
 
-                    new_pixel.colors[0] = default_pixel.colors[0] * alpha_value + original_pixel.colors[0] * inv_alpha_value;
-                    new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
-                    new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
+                        new_pixel.colors[0] = default_pixel.colors[0] * alpha_value + original_pixel.colors[0] * inv_alpha_value;
+                        new_pixel.colors[1] = default_pixel.colors[1] * alpha_value + original_pixel.colors[1] * inv_alpha_value;
+                        new_pixel.colors[2] = default_pixel.colors[2] * alpha_value + original_pixel.colors[2] * inv_alpha_value;
 
-                    rendering_rect.differred_buffer.setValue(x, y, new_pixel);
+                        rendering_rect.differred_buffer.setValue(x, y + count - c, new_pixel);
+                    }
                 }
 
-                offset.y += fixed_point_scale;
+                y += count;
+
+                offset.y += count * fixed_point_scale;
                 offset.x = offset_back;
             }
         }
