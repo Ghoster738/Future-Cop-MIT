@@ -15,18 +15,18 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t rotation;
-        uint16_t uint16_1;
-        uint16_t uint16_2;
-        uint16_t uint16_3; // Time or angle until loop back?
-        uint8_t uint8_0;
-        uint8_t uint8_1; // Layer?
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t uint8_5;
-        uint8_t uint8_6; // Spin?
-        uint8_t uint8_7;
+        uint16_t      rotation_y;
+        uint16_t      rotation_z;
+        uint16_t      rotation_x;
+        uint16_t   height_offset;
+        uint8_t ground_cast_type;
+        uint8_t          uint8_1; // Unknown.
+        uint8_t  animation_speed;
+        uint8_t          scale_y;
+        uint8_t          scale_z;
+        uint8_t          scale_x;
+        uint8_t       spin_speed;
+        uint8_t       spin_angle;
     } internal;
 
 protected:
