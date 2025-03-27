@@ -8,25 +8,24 @@ namespace Data {
 namespace Mission {
 
 /**
- * I do not know what this does yet.
- * This might have something to do with the Cptr, but I am not sure.
+ * This holds images that can be renderered
  */
 class DCSResource : public Resource {
 public:
     static const std::filesystem::path FILE_EXTENSION;
     static const uint32_t IDENTIFIER_TAG;
 
-    struct Element {
-        uint8_t unk_0;
-        uint8_t unk_1;
-        uint8_t unk_2;
-        uint8_t unk_3;
-        uint8_t unk_4;
+    struct Image {
+        uint8_t x;
+        uint8_t y;
+        uint8_t width;
+        uint8_t height;
+        uint8_t cbmp_id;
         // Two bytes of zeros.
-        uint8_t unk_5;// Seemed to be one byte for count starting with 1 at the beginning, but not always true.
+        uint8_t id;
     };
 private:
-    std::vector<Element> element;
+    std::vector<Image> images;
 
 public:
     DCSResource();

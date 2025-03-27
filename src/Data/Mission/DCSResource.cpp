@@ -6,7 +6,7 @@ const uint32_t              Data::Mission::DCSResource::IDENTIFIER_TAG = 0x43646
 Data::Mission::DCSResource::DCSResource() {
 }
 
-Data::Mission::DCSResource::DCSResource( const DCSResource &obj ) : element( obj.element ) {
+Data::Mission::DCSResource::DCSResource( const DCSResource &obj ) : images( obj.images ) {
 }
 
 std::filesystem::path Data::Mission::DCSResource::getFileExtension() const {
@@ -35,28 +35,26 @@ bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
             auto num_entry = reader.readU32( settings.endian );
 
             if( header == IDENTIFIER_TAG && reader.totalSize() >= TAG_HEADER_SIZE + NUM_ENTRIES_SIZE + num_entry * ENTRY_SIZE ) {
-                element.reserve( num_entry );
+                images.reserve( num_entry );
 
                 for( uint32_t i = 0; i < num_entry; i++ ) {
-                    element.push_back( Element() );
+                    images.push_back( Image() );
 
-                    element.back().unk_0 = reader.readU8(); // This is probably an opcode.
-                    element.back().unk_1 = reader.readU8(); // start x?
-                    element.back().unk_2 = reader.readU8(); // start y?
-                    element.back().unk_3 = reader.readU8(); // end x?
-                    element.back().unk_4 = reader.readU8(); // start y?
+                    images.back().x       = reader.readU8();
+                    images.back().y       = reader.readU8();
+                    images.back().width   = reader.readU8();
+                    images.back().height  = reader.readU8();
+                    images.back().cbmp_id = reader.readU8();
 
                     auto pad0 = reader.readU8();
                     auto pad1 = reader.readU8();
 
-                    element.back().unk_5 = reader.readU8();
+                    images.back().id = reader.readU8();
                     
                     if( pad0 != 0 )
                         warning_log.output << i << " pad0 is not zero, but " << std::dec << (unsigned)pad0 << ".\n";
                     if( pad1 != 0 )
                         warning_log.output << i << " pad1 is not zero, but " << std::dec << (unsigned)pad1 << ".\n";
-                    if( element.back().unk_5 != i + 1 )
-                        warning_log.output << i << " element.back().unk_5 is not " << std::dec << (i + 1) << ", but " << (unsigned)element.back().unk_5 << ".\n";
                 }
 
                 return true;
