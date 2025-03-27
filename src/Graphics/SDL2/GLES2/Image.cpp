@@ -13,7 +13,7 @@ Graphics::Image* Environment::allocateImage() {
     image_p->is_visable        = false;
 
     // Image
-    image_p->cbmp_id           = 1;
+    image_p->cbmp_id           = 0;
     image_p->texture_coords[0] = glm::vec2( 0.0,  0.0);
     image_p->texture_coords[1] = glm::vec2( 1.0,  1.0);
 

@@ -228,7 +228,7 @@ void PrimaryGame::update( MainProgram &main_program, std::chrono::microseconds d
                 log.output << "Creating screenshot " << NAME << "\n";
             }
 
-            const auto dimensions = main_program.environment_p->window_p->getDimensions();
+            const auto dimensions = main_program.environment_p->getWindow()->getDimensions();
 
             Utilities::Image2D *image_screenshot_p = new Utilities::Image2D( dimensions.x, dimensions.y, Utilities::PixelFormatColor_R8G8B8A8::linear );
 

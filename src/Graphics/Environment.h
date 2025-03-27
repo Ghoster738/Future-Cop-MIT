@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "ExternalImage.h"
 #include "Image.h"
+#include "Text2DBuffer.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
 #include "Window.h"
@@ -34,8 +35,7 @@ protected:
     unsigned map_section_height;
 public:
     static const std::string SDL2_WITH_GLES_2;
-
-    Window *window_p;
+    static const std::string SDL2_WITH_SOFTWARE;
     
     /**
      * When you are done with the program this should clean up the rest of the graphics.
@@ -134,6 +134,8 @@ public:
      */
     virtual ParticleInstance* allocateParticleInstance() = 0;
 
+    virtual Graphics::Text2DBuffer* allocateText2DBuffer() = 0;
+
     /**
      * This declares an ANMFrame instance. This instance shows small animations.
      * @param track_offset The offset to the SWVR resource to play.
@@ -146,6 +148,8 @@ public:
      * @return nullptr or a valid pointer to a Window instance.
      */
     virtual Window* allocateWindow() = 0;
+
+    virtual Window* getWindow() = 0;
 
     /**
      * This sets the draw mode for the map.
@@ -207,9 +211,9 @@ public:
     /**
      * This advances time on the environment.
      * @warning This method is neccesary for every animation system to work.
-     * @param seconds_passed This does not need to be too percise.
+     * @param delta The amount of microseconds that passed.
      */
-    virtual void advanceTime( float seconds_passed ) = 0;
+    virtual void advanceTime( std::chrono::microseconds delta ) = 0;
 };
 
 }

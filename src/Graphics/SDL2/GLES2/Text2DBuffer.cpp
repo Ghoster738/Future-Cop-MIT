@@ -1,15 +1,18 @@
 #include "Text2DBuffer.h" // Include the interface class
-#include "../../Environment.h" // Include the interface Environment class
 #include "Environment.h" // Include the internal Environment class
 #include "cassert"
 #include <iostream>
 
-Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &environment ) :
+Graphics::Text2DBuffer* Graphics::SDL2::GLES2::Environment::allocateText2DBuffer() {
+    return new Graphics::SDL2::GLES2::Text2DBuffer( *this );
+}
+
+Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::SDL2::GLES2::Environment &gl_environment ) :
     Graphics::Text2DBuffer()
 {
-    gl_environment_r = dynamic_cast<Graphics::SDL2::GLES2::Environment*>(&environment);
+    this->gl_environment_r = &gl_environment;
 
-    assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
+    assert( this->gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
 
     const size_t KIBIBYTE_TO_BYTE = 1024;
     const size_t VERTICES_PER_CHARACTER = 6;
@@ -25,7 +28,9 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
     if( text_2D_expand_factor < 0x100 )
         text_2D_expand_factor = 0x100; // Clamp to 256 because any lower than this could really affect the speed of execution.
     
-    text_data_p = gl_environment_r->draw_2d_routine.text_draw_routine_p->getText2D();
+    text_data_p = this->gl_environment_r->draw_2d_routine.text_draw_routine_p->getText2D();
+
+    this->gl_environment_r->draw_2d_routine.text_2d_buffers.insert(this);
 
     this->scale_font = 1.0f;
 }
@@ -33,22 +38,7 @@ Graphics::SDL2::GLES2::Text2DBuffer::Text2DBuffer( Graphics::Environment &enviro
 Graphics::SDL2::GLES2::Text2DBuffer::~Text2DBuffer() {
     for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
         delete (*i).second;
-}
-
-
-int Graphics::SDL2::GLES2::Text2DBuffer::loadFonts( Graphics::Environment &environment, const Data::Accessor &accessor ) {
-    auto gl_environment_r = dynamic_cast<Graphics::SDL2::GLES2::Environment*>(&environment);
-
-    assert( gl_environment_r != nullptr ); // Graphics::SDL2::GLES2::Environment is expected here!
-    
-    if( gl_environment_r->draw_2d_routine.text_draw_routine_p != nullptr )
-        delete gl_environment_r->draw_2d_routine.text_draw_routine_p;
-    
-    std::vector<const Data::Mission::FontResource*> fonts_r = accessor.getAllConstFNT();
-
-    gl_environment_r->draw_2d_routine.text_draw_routine_p = new Graphics::SDL2::GLES2::Internal::FontSystem( fonts_r );
-    
-    return fonts_r.size();
+    this->gl_environment_r->draw_2d_routine.text_2d_buffers.erase(this);
 }
 
 std::vector<std::string> Graphics::SDL2::GLES2::Text2DBuffer::splitText( const Font &font, const std::string &unsplit_text, float line_length ) const {
@@ -189,46 +179,38 @@ int Graphics::SDL2::GLES2::Text2DBuffer::setFont( const Font &font ) {
     
     auto last_text_2D_r = current_text_2D_r;
 
-    if( font_system_r != nullptr )
-    {
-        if( text_data_p.find( font.resource_id ) != text_data_p.end() )
-        {
-            // Set the current text.
-            current_text_2D_r = text_data_p[ font.resource_id ];
-
-            // Steal the pen position and color from the last pen if available.
-            current_text_2D_r->stealPen( last_text_2D_r );
-
-            this->scale_font = font.scale;
-
-            // Successfully set the current font.
-            return 1;
-        }
-        else
-            return -3; // aborted because the index is out of bounds.
-    }
-    else
+    if( font_system_r == nullptr )
         return -1;
+
+    if( text_data_p.find( font.resource_id ) == text_data_p.end() )
+        return -2; // aborted because the index is out of bounds.
+
+    // Set the current text.
+    current_text_2D_r = text_data_p[ font.resource_id ];
+
+    // Steal the pen position and color from the last pen if available.
+    current_text_2D_r->stealPen( last_text_2D_r );
+
+    this->scale_font = font.scale;
+
+    // Successfully set the current font.
+    return 1;
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setPosition( const glm::vec2 &position ) {
     auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     
-    if( font_system_r != nullptr )
-    {
-        if( current_text_2D_r != nullptr )
-        {
-            // The pen position is to be set.
-            current_text_2D_r->setPenPosition( position );
-
-            // For the success of changing the color.
-            return 1;
-        }
-        else
-            return -2; // aborted current_text_2d_r is not selected.
-    }
-    else
+    if( font_system_r == nullptr )
         return -1;
+
+    if( this->current_text_2D_r == nullptr )
+        return -2; // aborted current_text_2d_r is not selected.
+
+    // The pen position is to be set.
+    this->current_text_2D_r->setPenPosition( position );
+
+    // For the success of changing the color.
+    return 1;
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::setColor( const glm::vec4 &color ) {
@@ -364,24 +346,16 @@ glm::vec2 Graphics::SDL2::GLES2::Text2DBuffer::getBoxEnd() const {
 }
 
 int Graphics::SDL2::GLES2::Text2DBuffer::reset() {
-    auto font_system_r = gl_environment_r->draw_2d_routine.text_draw_routine_p;
     int problematic_font = 0;
 
-    if( font_system_r != nullptr )
-    {
-        if( text_data_p.size() != 0 )
-        {
-            for( auto i = text_data_p.begin(); i != text_data_p.end(); i++ )
-            {
-                if( (*i).second->clearText( (*i).second->getFont() ) != 1 )
-                    problematic_font++;
-            }
-
-            return problematic_font;
-        }
-        else
-            return -7; // There is no font to clear.
-    }
-    else
+    if( this->gl_environment_r->draw_2d_routine.text_draw_routine_p == nullptr )
         return -1;
+
+    for( auto i = this->text_data_p.begin(); i != this->text_data_p.end(); i++ )
+    {
+        if( (*i).second->clearText( (*i).second->getFont() ) != 1 )
+            problematic_font++;
+    }
+
+    return problematic_font;
 }

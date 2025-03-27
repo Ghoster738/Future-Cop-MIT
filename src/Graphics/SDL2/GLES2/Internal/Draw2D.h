@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <map>
+#include <set>
 #include <vector>
 
 namespace Graphics {
@@ -95,6 +96,8 @@ protected:
     std::map<const Graphics::ImageBase *const, DynamicImageData> dynamic_images;
 
 public:
+    std::set<GLES2::Text2DBuffer*> text_2d_buffers;
+
     Draw2D();
     virtual ~Draw2D();
 

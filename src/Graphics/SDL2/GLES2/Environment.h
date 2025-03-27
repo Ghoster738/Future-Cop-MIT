@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_ENVIRONMENT_DATA_H
-#define GRAPHICS_ENVIRONMENT_DATA_H
+#ifndef GRAPHICS_SDL2_GLES2_ENVIRONMENT_H
+#define GRAPHICS_SDL2_GLES2_ENVIRONMENT_H
 
 #include <vector>
 
@@ -14,11 +14,14 @@
 #include "Internal/World.h"
 #include "../../Camera.h"
 #include "../../Environment.h"
+#include "Window.h"
 
 namespace Graphics::SDL2::GLES2 {
 
 class Environment : public Graphics::Environment {
 public:
+    Graphics::SDL2::GLES2::Window *window_p;
+
     std::map<uint32_t, const Data::Mission::ANMResource*> anm_resources;
     std::map<uint32_t, Internal::Texture2D*> textures;
     Internal::Texture2D          *shiney_texture_p; // This holds the environment map.
@@ -55,8 +58,10 @@ public:
     virtual Graphics::ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param);
     virtual bool doesModelExist(uint32_t obj_resource_id) const;
     virtual Graphics::ParticleInstance* allocateParticleInstance();
+    virtual Graphics::Text2DBuffer* allocateText2DBuffer();
     virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
     virtual Graphics::Window* allocateWindow();
+    virtual Graphics::Window* getWindow();
     virtual bool displayMap( bool state );
     virtual size_t getTilAmount() const;
     virtual int setTilBlink( unsigned til_index, float seconds );
@@ -66,9 +71,9 @@ public:
     virtual void setupFrame();
     virtual void drawFrame();
     virtual bool screenshot( Utilities::Image2D &image ) const;
-    virtual void advanceTime( float seconds_passed );
+    virtual void advanceTime( std::chrono::microseconds delta );
 };
 
 }
 
-#endif // GRAPHICS_ENVIRONMENT_DATA_H
+#endif // GRAPHICS_SDL2_GLES2_ENVIRONMENT_H

@@ -141,32 +141,34 @@ void MainMenu::load( MainProgram &main_program ) {
 
     if(this->test_radar_p != nullptr)
         delete this->test_radar_p;
-
     this->test_radar_p = main_program.environment_p->allocateImage();
 
-    this->test_radar_p->positions[0] = glm::vec2(   0.0,   0.0); // Origin
-    this->test_radar_p->positions[1] = glm::vec2( 112.0, 112.0); // End
-    this->test_radar_p->is_visable = true;
-    this->test_radar_p->cbmp_id = 10;
-    this->test_radar_p->texture_coords[0] = static_cast<float>(1. / 256.) * glm::vec2(199, 148);
-    this->test_radar_p->texture_coords[1] = static_cast<float>(1. / 256.) * glm::vec2(255, 204);
+    if(this->test_radar_p != nullptr) {
+        this->test_radar_p->positions[0] = glm::vec2(   0.0,   0.0); // Origin
+        this->test_radar_p->positions[1] = glm::vec2( 112.0, 112.0); // End
+        this->test_radar_p->is_visable = true;
+        this->test_radar_p->cbmp_id = 10;
+        this->test_radar_p->texture_coords[0] = static_cast<float>(1. / 256.) * glm::vec2(199, 148);
+        this->test_radar_p->texture_coords[1] = static_cast<float>(1. / 256.) * glm::vec2(255, 204);
 
-    this->test_radar_p->update();
+        this->test_radar_p->update();
+    }
 
     if(this->background_p != nullptr)
         delete this->background_p;
 
-    this->background_p = main_program.environment_p->allocateImage();
+    if(this->test_radar_p != nullptr) {
+        this->background_p = main_program.environment_p->allocateImage();
+        this->background_p->positions[0] = glm::vec2( (1.0 * scale.x) / 8.0,    0.0); // Origin
+        this->background_p->positions[1] = glm::vec2( (7.0 * scale.x) / 8.0, scale.y); // End
+        this->background_p->is_visable = true;
+        this->background_p->cbmp_id = 0;
+        this->background_p->color = glm::vec4(0, 0, 0, 0.5);
+        this->background_p->texture_coords[0] = glm::vec2(0, 0);
+        this->background_p->texture_coords[1] = glm::vec2(0, 0);
 
-    this->background_p->positions[0] = glm::vec2( (1.0 * scale.x) / 8.0,    0.0); // Origin
-    this->background_p->positions[1] = glm::vec2( (7.0 * scale.x) / 8.0, scale.y); // End
-    this->background_p->is_visable = true;
-    this->background_p->cbmp_id = 0;
-    this->background_p->color = glm::vec4(0, 0, 0, 0.5);
-    this->background_p->texture_coords[0] = glm::vec2(0, 0);
-    this->background_p->texture_coords[1] = glm::vec2(0, 0);
-
-    this->background_p->update();
+        this->background_p->update();
+    }
 }
 
 void MainMenu::unload( MainProgram &main_program ) {

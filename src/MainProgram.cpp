@@ -85,7 +85,7 @@ void MainProgram::displayLoop() {
 
         // Render the frame.
         environment_p->setupFrame();
-        environment_p->advanceTime( delta_f );
+        environment_p->advanceTime( std::chrono::duration_cast<std::chrono::microseconds>(delta) );
         environment_p->drawFrame();
 
         sound_system_p->advanceTime( delta );
@@ -148,9 +148,6 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
         return false;
     }
 
-    // Set up environment to switch to the new resource.
-    this->first_person_r->removeText2DBuffer( this->text_2d_buffer_r );
-
     // Unload the old resource.
     if( switch_resource_identifier != this->resource_identifier ) {
         auto old_entry = this->manager.getIFFEntry( this->resource_identifier );
@@ -205,8 +202,8 @@ bool MainProgram::switchToResource( std::string switch_resource_identifier, Data
 glm::u32vec2 MainProgram::getWindowScale() const {
     glm::u32vec2 scale( 0, 0 );
 
-    if( this->environment_p != nullptr && this->environment_p->window_p != nullptr)
-        scale = this->environment_p->window_p->getDimensions();
+    if( this->environment_p != nullptr && this->environment_p->getWindow() != nullptr)
+        scale = this->environment_p->getWindow()->getDimensions();
 
     return scale;
 }
@@ -309,10 +306,14 @@ void MainProgram::setupGraphics() {
 
     // Initialize the camera
     this->first_person_r = this->environment_p->allocateCamera();
-    this->environment_p->window_p->attachCamera( *this->first_person_r );
+
+    if(this->first_person_r == nullptr)
+        throwException( "Camera failed to allocate." );
+
+    this->environment_p->getWindow()->attachCamera( *this->first_person_r );
 
     // Center the camera.
-    if( this->environment_p->window_p->center() != 1 ) {
+    if( this->environment_p->getWindow()->center() != 1 ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "The window had failed to center.";
     }
@@ -420,18 +421,10 @@ void MainProgram::loadGraphics( bool show_map ) {
     if(this->is_graphics_already_loaded)
         return;
 
-    // Get the font from the resource file.
-    if( Graphics::Text2DBuffer::loadFonts( *this->environment_p, this->accessor ) == 0 ) {
-        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "Fonts are missing.";
-    }
-
-    this->text_2d_buffer_r = Graphics::Text2DBuffer::alloc( *this->environment_p );
+    this->text_2d_buffer_r = this->environment_p->allocateText2DBuffer();
 
     if( this->text_2d_buffer_r == nullptr )
         throwException( "The Graphics::Text2DBuffer has failed to allocate." );
-
-    this->first_person_r->attachText2DBuffer( *this->text_2d_buffer_r );
 
     this->is_graphics_already_loaded = true;
 }
@@ -456,11 +449,7 @@ void MainProgram::setupCamera() {
     this->first_person_r->setViewportOrigin( glm::u32vec2( 0, 0 ) );
     this->first_person_r->setViewportDimensions( glm::u32vec2( options.getVideoWidth(), options.getVideoHeight() ) );
 
-    glm::mat4 projection_matrix = glm::ortho( 0.0f, static_cast<float>( options.getVideoWidth() ), -static_cast<float>( options.getVideoHeight() ), 0.0f, -1.0f, 1.0f );
-
-    this->first_person_r->setProjection2D( projection_matrix );
-
-    projection_matrix = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
+    glm::mat4 projection_matrix = glm::perspective( glm::pi<float>() / 4.0f, static_cast<float>( options.getVideoWidth() ) / static_cast<float>( options.getVideoHeight() ), 0.1f, 200.0f );
 
     this->first_person_r->setProjection3D( projection_matrix );
 

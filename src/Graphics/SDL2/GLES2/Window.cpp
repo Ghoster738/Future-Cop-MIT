@@ -2,19 +2,26 @@
 
 #include "Environment.h"
 
-Graphics::Window* Graphics::SDL2::GLES2::Environment::allocateWindow() {
+namespace Graphics::SDL2::GLES2 {
+
+Graphics::Window* Environment::allocateWindow() {
+    if(this->window_p != nullptr)
+        return this->window_p;
+
     auto window_p = new Graphics::SDL2::GLES2::Window( *this );
 
     window_p->prioritize_opengl_2_fallback = this->force_gl2;
 
+    this->window_p = window_p;
+
     return window_p;
 }
 
-Graphics::SDL2::GLES2::Window::Window( Graphics::Environment &env ) : Graphics::SDL2::Window( env ), GL_context( 0 ) {}
+Window::Window( Graphics::SDL2::GLES2::Environment &env ) : Graphics::SDL2::Window(), env_r(&env), GL_context( 0 ) {}
 
-Graphics::SDL2::GLES2::Window::~Window() {}
+Window::~Window() {}
 
-int Graphics::SDL2::GLES2::Window::attach() {
+int Window::attach() {
     auto error_log = Utilities::logger.getLog( Utilities::Logger::ERROR );
     error_log.info << "GLES 2 Graphics Window::attach\n";
     auto info_log = Utilities::logger.getLog( Utilities::Logger::INFO );
@@ -103,8 +110,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
     if( window_p != nullptr )
         SDL_ShowWindow( window_p );
     
-    env_r->window_p = this;
-    
     if( success < 0 ) {
         major_version = 0;
         
@@ -126,4 +131,6 @@ int Graphics::SDL2::GLES2::Window::attach() {
     }
     
     return success;
+}
+
 }

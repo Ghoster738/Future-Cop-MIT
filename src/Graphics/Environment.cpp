@@ -2,32 +2,35 @@
 
 #include "Environment.h"
 #include "SDL2/GLES2/Environment.h"
+#include "SDL2/Software/Environment.h"
 
 #include <mini/ini.h>
 
 namespace Graphics {
 
-const std::string Environment::SDL2_WITH_GLES_2 = "GLES2";
+const std::string Environment::SDL2_WITH_GLES_2   = "GLES2";
+const std::string Environment::SDL2_WITH_SOFTWARE = "Software";
 
-Environment::Environment() : map_section_width( 0 ), map_section_height( 0 ), window_p( nullptr ) {
+Environment::Environment() : map_section_width( 0 ), map_section_height( 0 ) {
 }
 
 Environment::~Environment() {
-    // Close and destroy the window
-    if( this->window_p != nullptr )
-        delete this->window_p;
 }
 
 std::vector<std::string> Environment::getAvailableIdentifiers() {
     std::vector<std::string> identifiers;
 
     identifiers.push_back( SDL2_WITH_GLES_2 );
+    identifiers.push_back( SDL2_WITH_SOFTWARE );
 
     return identifiers;
 }
 
 bool Environment::isIdentifier( const std::string &identifier ) {
     if( identifier.compare( SDL2_WITH_GLES_2 ) == 0 )
+        return true;
+    else
+    if( identifier.compare( SDL2_WITH_SOFTWARE ) == 0 )
         return true;
     else
         return false;
@@ -135,6 +138,16 @@ Environment* Environment::alloc( const std::filesystem::path& file_path, const s
         }
 
         graphics_environment_p = gles2_environment_p;
+    }
+    else if( identifier.compare( SDL2_WITH_SOFTWARE ) == 0 ) {
+        auto software_environment_p = new SDL2::Software::Environment();
+
+        if(software_environment_p != nullptr) {
+            ini_data[identifier];
+            GRAPHICS_NUMBER_SETTING(ini_data[identifier], software_environment_p->pixel_size, "pixel_size", 1, 16, 1)
+        }
+
+        graphics_environment_p = software_environment_p;
     }
 
     if(changed_data)

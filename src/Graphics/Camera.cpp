@@ -6,17 +6,10 @@ void Graphics::Camera::updatePV3D() {
     PV3D = projection3D * view3D;
 }
 
-void Graphics::Camera::updatePV2D() {
-    PV2D = projection2D * view2D;
-}
-
 Graphics::Camera::Camera() {
     projection3D = glm::mat4( 1.0f );
     view3D       = glm::mat4( 1.0f );
     PV3D         = glm::mat4( 1.0f );
-    projection2D = glm::mat4( 1.0f );
-    view2D       = glm::mat4( 1.0f );
-    PV2D         = glm::mat4( 1.0f );
 }
 
 Graphics::Camera::~Camera() {
@@ -36,22 +29,6 @@ void Graphics::Camera::setProjectionView3D( const glm::mat4 &projection3D, const
     this->projection3D = projection3D;
     this->view3D = view3D;
     updatePV3D();
-}
-
-void Graphics::Camera::setProjection2D( const glm::mat4 &projection2D ) {
-    this->projection2D = projection2D;
-    updatePV2D();
-}
-
-void Graphics::Camera::setView2D( const glm::mat4 &view2D ) {
-    this->view2D = view2D;
-    updatePV2D();
-}
-
-void Graphics::Camera::setProjectionView2D( const glm::mat4 &projection2D, const glm::mat4 &view2D ) {
-    this->projection2D = projection2D;
-    this->view2D = view2D;
-    updatePV2D();
 }
 
 void Graphics::Camera::setViewportOrigin( const glm::u32vec2 &origin ) {
@@ -74,24 +51,11 @@ void Graphics::Camera::getProjectionView3D( glm::mat4 &PV3D ) const {
     PV3D = this->PV3D;
 }
 
-void Graphics::Camera::getProjection2D( glm::mat4 &projection2D ) const {
-    projection2D = this->projection2D;
-}
-
-
-void Graphics::Camera::getView2D( glm::mat4 &view2D ) const {
-    view2D = this->view2D;
-}
-
-void Graphics::Camera::getProjectionView2D( glm::mat4 &PV2D ) const {
-    PV2D = this->PV2D;
-}
-
 glm::u32vec2 Graphics::Camera::getViewportOrigin() const {
     return this->origin;
 }
 
-glm::u32vec2 Graphics::Camera::setViewportDimensions() const {
+glm::u32vec2 Graphics::Camera::getViewportDimensions() const {
     return this->dimensions;
 }
 

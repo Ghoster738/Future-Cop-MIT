@@ -25,16 +25,8 @@ public:
     unsigned text_2D_expand_factor; // The amount of characters the text 2D expands
     char center_mode;
     
-    Text2DBuffer( Graphics::Environment &env_r );
+    Text2DBuffer( Graphics::SDL2::GLES2::Environment &gl_environment );
     virtual ~Text2DBuffer();
-    
-    /**
-     * This is used to setup the fonts. It does not account for the playstation layouts.
-     * @param env_r The environment that stores the data types.
-     * @param accessor This is used to get the font.
-     * @return It will return 1 for success or a negative number stating how many "fonts" failed to load.
-     */
-    static int loadFonts( Graphics::Environment &env_r, const Data::Accessor &accessor );
 
     virtual std::vector<std::string> splitText( const Font &font, const std::string &unsplit_text, float line_length ) const;
 
