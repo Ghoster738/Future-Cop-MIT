@@ -4,6 +4,20 @@
 
 #include <cassert>
 
+namespace {
+const uint32_t BITFIELD_RELOAD_GUN     = 0x00000001;
+const uint32_t BITFIELD_RELOAD_HEAVY   = 0x00000002;
+const uint32_t BITFIELD_RELOAD_SPECIAL = 0x00000004;
+const uint32_t BITFIELD_POWER_GUN      = 0x00000010;
+const uint32_t BITFIELD_POWER_HEAVY    = 0x00000020;
+const uint32_t BITFIELD_POWER_SPECIAL  = 0x00000040;
+const uint32_t BITFIELD_RESTORE_HEALTH = 0x00020000;
+const uint32_t BITFIELD_INVISIBILITY   = 0x00040000;
+const uint32_t BITFIELD_INVINCIBILITY  = 0x00080000;
+const uint32_t BITFIELD_IS_SET         = 0x01000000; // If not set then it is added.
+const uint32_t BITFIELD_PICKUP_CONSUME = 0x02000000;
+}
+
 uint_fast8_t Data::Mission::ACT::ItemPickup::TYPE_ID = 16;
 
 Json::Value Data::Mission::ACT::ItemPickup::makeJson() const {
@@ -22,9 +36,9 @@ Json::Value Data::Mission::ACT::ItemPickup::makeJson() const {
     root["ACT"][NAME]["uint32_3"] = internal.uint32_3;
     root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
     root["ACT"][NAME]["uint32_4"] = internal.uint32_4;
-    root["ACT"][NAME]["type"] = internal.type;
+    root["ACT"][NAME]["bitfield"] = internal.bitfield;
     root["ACT"][NAME]["uint16_5"] = internal.uint16_5;
-    root["ACT"][NAME]["unknown"] = internal.unknown;
+    root["ACT"][NAME]["rotation"] = internal.rotation;
 
     return root;
 }
@@ -35,7 +49,7 @@ bool Data::Mission::ACT::ItemPickup::readACTType( uint_fast8_t act_type, Utiliti
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    internal.uint32_0 = data_reader.readU32( endian ); // Always 524417
+    internal.uint32_0 = data_reader.readU32( endian ); // Always 0x00080081
     internal.uint32_1 = data_reader.readU32( endian ); // Always 0
     internal.uint16_0 = data_reader.readU16( endian ); // Always 0
     internal.uint8_0 = data_reader.readU8(); // Always 5
@@ -47,9 +61,9 @@ bool Data::Mission::ACT::ItemPickup::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint32_3 = data_reader.readU32( endian ); // Always 53674803
     internal.uint16_4 = data_reader.readU16( endian ); // Always 2048
     internal.uint32_4 = data_reader.readU32( endian ); // Always 6488064
-    internal.type = data_reader.readU32( endian ); // Values: 50331649, 50331650, 50331652, 50331664, 50331680, 50331712, 50462720, 50593792,
+    internal.bitfield = data_reader.readU32( endian ); // Values: 0x03000001, 0x03000002, 0x03000004, 0x03000010, 0x03000020, 0x03000040, 0x03020000, 0x03040000,
     internal.uint16_5 = data_reader.readU16( endian ); // Always 65535
-    internal.unknown = data_reader.readU16( endian ); // Values: 1228, 60620,
+    internal.rotation = data_reader.readU16( endian ); // Values: 1228, 60620,
 
     return true;
 }

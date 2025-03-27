@@ -27,9 +27,9 @@ public:
         uint32_t uint32_3;
         uint16_t uint16_4;
         uint32_t uint32_4;
-        uint32_t type;
+        uint32_t bitfield;
         uint16_t uint16_5;
-        uint16_t unknown;
+        uint16_t rotation;
     } internal;
 
 protected:
