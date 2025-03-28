@@ -22,7 +22,7 @@ public:
         uint8_t ambient_sound;
         uint8_t uv_offset_x;
         uint8_t uv_offset_y;
-    } base_internal;
+    } entity_internal;
 
 protected:
     virtual Json::Value makeJson() const;
