@@ -1,39 +1,23 @@
 #ifndef DATA_MISSION_ACTOR_ID_1_HEADER
 #define DATA_MISSION_ACTOR_ID_1_HEADER
 
-#include "../ACTResource.h"
-#include <json/json.h>
+#include "BaseEntity.h"
 
-namespace Data {
-
-namespace Mission {
-
-namespace ACT {
+namespace Data::Mission::ACT {
 
 /**
  * This holds an X1A unit.
  *
- * This is the vechilce that you pilot in the game.
+ * This is the vehicle that you pilot in the game.
  */
-class X1Alpha : public ACTResource {
+class X1Alpha : public BaseEntity {
 public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t uint32_0;
-        uint16_t uint16_0;
-        uint16_t uint16_1;
+        uint16_t rotation;
         uint8_t uint8_0;
         uint8_t uint8_1;
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t zero_0;
-        uint8_t uint8_6;
-        uint8_t zero_1;
-        uint16_t uint16_2;
-        uint8_t uint8_8;
-        uint8_t uint8_9;
     } internal;
 
 protected:
@@ -43,6 +27,7 @@ protected:
 public:
     X1Alpha();
     X1Alpha( const ACTResource& obj );
+    X1Alpha( const BaseEntity& obj );
     X1Alpha( const X1Alpha& obj );
 
     virtual uint_fast8_t getTypeID() const;
@@ -58,9 +43,6 @@ public:
 
     Internal getInternal() const;
 };
-}
-
-}
 
 }
 
