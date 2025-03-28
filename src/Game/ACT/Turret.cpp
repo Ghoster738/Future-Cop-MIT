@@ -1,10 +1,10 @@
-#include "BaseTurret.h"
+#include "Turret.h"
 
 namespace Game {
 
 namespace ACT {
 
-BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj ) : Actor( obj.getID() ) {
+Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc );
@@ -44,7 +44,7 @@ BaseTurret::BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT
     this->gun_p = nullptr;
 }
 
-BaseTurret::BaseTurret( const BaseTurret& obj ) :
+Turret::Turret( const Turret& obj ) :
     Actor( obj ),
     rest_gun_rotation( obj.rest_gun_rotation ), gun_rotation( obj.gun_rotation ), base_rotation( obj.base_rotation ), texture_offset( obj.texture_offset ),
     alive_gun_id( obj.alive_gun_id ), alive_gun( obj.alive_gun ), alive_base_id( obj.alive_base_id ), alive_base( obj.alive_base ),
@@ -52,7 +52,7 @@ BaseTurret::BaseTurret( const BaseTurret& obj ) :
     alive_gun_cobj_r( obj.alive_gun_cobj_r ), alive_base_cobj_r( obj.alive_base_cobj_r ), dead_gun_cobj_r( obj.dead_gun_cobj_r ), dead_base_cobj_r( obj.dead_base_cobj_r ),
     base_p( nullptr ), gun_p( nullptr ) {}
 
-BaseTurret::~BaseTurret() {
+Turret::~Turret() {
     if( this->base_p != nullptr )
         delete this->base_p;
 
@@ -60,11 +60,11 @@ BaseTurret::~BaseTurret() {
         delete this->gun_p;
 }
 
-Actor* BaseTurret::duplicate( const Actor &original ) const {
-    return new BaseTurret( *this );
+Actor* Turret::duplicate( const Actor &original ) const {
+    return new Turret( *this );
 }
 
-void BaseTurret::resetGraphics( MainProgram &main_program ) {
+void Turret::resetGraphics( MainProgram &main_program ) {
     if( this->base_p != nullptr )
         delete this->base_p;
     this->base_p = nullptr;
@@ -91,7 +91,7 @@ void BaseTurret::resetGraphics( MainProgram &main_program ) {
     }
 }
 
-void BaseTurret::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+void Turret::update( MainProgram &main_program, std::chrono::microseconds delta ) {
 }
 
 }

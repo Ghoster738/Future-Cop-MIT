@@ -15,7 +15,7 @@ namespace ACT {
  *
  * This is the turret that always has the same side.
  */
-class BaseTurret : public ACTResource {
+class Turret : public ACTResource {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -59,9 +59,9 @@ protected:
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 
 public:
-    BaseTurret();
-    BaseTurret( const ACTResource& obj );
-    BaseTurret( const BaseTurret& obj );
+    Turret();
+    Turret( const ACTResource& obj );
+    Turret( const Turret& obj );
 
     virtual uint_fast8_t getTypeID() const;
     virtual std::string getTypeIDName() const;

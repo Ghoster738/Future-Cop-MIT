@@ -7,11 +7,11 @@
 #include <chrono>
 #include <vector>
 
-#include "ACT/BaseTurret.h"
 #include "ACT/ItemPickup.h"
 #include "ACT/NeutralTurret.h"
 #include "ACT/Prop.h"
 #include "ACT/SkyCaptain.h"
+#include "ACT/Turret.h"
 
 namespace Game {
 
@@ -30,7 +30,7 @@ public:
     };
 
 private:
-    SpawnableActor<ACT::BaseTurret>    base_turrets;
+    SpawnableActor<ACT::Turret>        base_turrets;
     SpawnableActor<ACT::ItemPickup>    item_pickups;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
     SpawnableActor<ACT::Prop>          props;

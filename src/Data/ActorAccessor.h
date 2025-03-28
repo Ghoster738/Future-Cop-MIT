@@ -14,12 +14,12 @@ namespace Mission {
 
 namespace ACT {
     class Aircraft;
-    class BaseTurret;
     class ItemPickup;
     class NeutralTurret;
     class Prop;
     class SkyCaptain;
     class Trigger;
+    class Turret;
     class X1Alpha; // A.K.A the Player.
 }
 }
@@ -60,10 +60,10 @@ public:
     std::vector<Mission::ACT::Aircraft*> getAllAircraft();
     std::vector<const Mission::ACT::Aircraft*> getAllConstAircraft() const;
 
-    Mission::ACT::BaseTurret* getBaseTurret( uint32_t resource_id );
-    const Mission::ACT::BaseTurret* getConstBaseTurret( uint32_t resource_id ) const;
-    std::vector<Mission::ACT::BaseTurret*> getAllBaseTurret();
-    std::vector<const Mission::ACT::BaseTurret*> getAllConstBaseTurret() const;
+    Mission::ACT::Turret* getTurret( uint32_t resource_id );
+    const Mission::ACT::Turret* getConstTurret( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::Turret*> getAllTurret();
+    std::vector<const Mission::ACT::Turret*> getAllConstTurret() const;
 
     Mission::ACT::ItemPickup* getItemPickup( uint32_t resource_id );
     const Mission::ACT::ItemPickup* getConstItemPickup( uint32_t resource_id ) const;

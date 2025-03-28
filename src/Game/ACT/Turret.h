@@ -3,7 +3,7 @@
 
 #include "../../Graphics/ModelInstance.h"
 
-#include "../../Data/Mission/ACT/BaseTurret.h"
+#include "../../Data/Mission/ACT/Turret.h"
 #include "../../Data/Mission/ObjResource.h"
 #include "../../Data/Mission/IFF.h"
 
@@ -13,7 +13,7 @@ namespace Game {
 
 namespace ACT {
 
-class BaseTurret : public Actor {
+class Turret : public Actor {
 private:
     glm::quat rest_gun_rotation, gun_rotation, base_rotation;
     glm::vec2 texture_offset;
@@ -31,9 +31,9 @@ private:
     Graphics::ModelInstance *base_p, *gun_p;
 
 public:
-    BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj );
-    BaseTurret( const BaseTurret& obj );
-    virtual ~BaseTurret();
+    Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj );
+    Turret( const Turret& obj );
+    virtual ~Turret();
 
     virtual Actor* duplicate( const Actor &original ) const;
 

@@ -1,12 +1,12 @@
-#include "BaseTurret.h"
+#include "Turret.h"
 
 #include "../ObjResource.h"
 
 #include <cassert>
 
-uint_fast8_t Data::Mission::ACT::BaseTurret::TYPE_ID = 8;
+uint_fast8_t Data::Mission::ACT::Turret::TYPE_ID = 8;
 
-Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
+Json::Value Data::Mission::ACT::Turret::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
@@ -46,7 +46,7 @@ Json::Value Data::Mission::ACT::BaseTurret::makeJson() const {
     return root;
 }
 
-bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool Data::Mission::ACT::Turret::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
 
     if( data_reader.totalSize() != this->getSize() )
@@ -100,25 +100,25 @@ bool Data::Mission::ACT::BaseTurret::readACTType( uint_fast8_t act_type, Utiliti
     return true;
 }
 
-Data::Mission::ACT::BaseTurret::BaseTurret() {}
+Data::Mission::ACT::Turret::Turret() {}
 
-Data::Mission::ACT::BaseTurret::BaseTurret( const ACTResource& obj ) : ACTResource( obj ) {}
+Data::Mission::ACT::Turret::Turret( const ACTResource& obj ) : ACTResource( obj ) {}
 
-Data::Mission::ACT::BaseTurret::BaseTurret( const BaseTurret& obj ) : ACTResource( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::Turret::Turret( const Turret& obj ) : ACTResource( obj ), internal( obj.internal ) {}
 
-uint_fast8_t Data::Mission::ACT::BaseTurret::getTypeID() const {
+uint_fast8_t Data::Mission::ACT::Turret::getTypeID() const {
     return TYPE_ID;
 }
 
-std::string Data::Mission::ACT::BaseTurret::getTypeIDName() const {
-    return "BaseTurret";
+std::string Data::Mission::ACT::Turret::getTypeIDName() const {
+    return "Turret";
 }
 
-size_t Data::Mission::ACT::BaseTurret::getSize() const {
+size_t Data::Mission::ACT::Turret::getSize() const {
     return 52; // bytes
 }
 
-bool Data::Mission::ACT::BaseTurret::checkRSL() const {
+bool Data::Mission::ACT::Turret::checkRSL() const {
     // rsl_data[0] has alive gun.
     // rsl_data[1] has destroyed gun?
     // rsl_data[2] has alive base.
@@ -126,39 +126,39 @@ bool Data::Mission::ACT::BaseTurret::checkRSL() const {
     return rsl_data.size() == 4 && rsl_data[0].type == ObjResource::IDENTIFIER_TAG && rsl_data[1].type == RSL_NULL_TAG && rsl_data[2].type == ObjResource::IDENTIFIER_TAG && (rsl_data[3].type == RSL_NULL_TAG || rsl_data[3].type == ObjResource::IDENTIFIER_TAG);
 }
 
-Data::Mission::Resource* Data::Mission::ACT::BaseTurret::duplicate() const {
-    return new Data::Mission::ACT::BaseTurret( *this );
+Data::Mission::Resource* Data::Mission::ACT::Turret::duplicate() const {
+    return new Data::Mission::ACT::Turret( *this );
 }
 
-Data::Mission::ACTResource* Data::Mission::ACT::BaseTurret::duplicate( const ACTResource &original ) const {
-    auto copy_r = dynamic_cast<const BaseTurret*>( &original );
+Data::Mission::ACTResource* Data::Mission::ACT::Turret::duplicate( const ACTResource &original ) const {
+    auto copy_r = dynamic_cast<const Turret*>( &original );
 
     if( copy_r != nullptr )
-        return new Data::Mission::ACT::BaseTurret( *copy_r );
+        return new Data::Mission::ACT::Turret( *copy_r );
     else
-        return new Data::Mission::ACT::BaseTurret( original );
+        return new Data::Mission::ACT::Turret( original );
 }
 
-Data::Mission::ACT::BaseTurret::Internal Data::Mission::ACT::BaseTurret::getInternal() const {
+Data::Mission::ACT::Turret::Internal Data::Mission::ACT::Turret::getInternal() const {
     return internal;
 }
 
-glm::vec2 Data::Mission::ACT::BaseTurret::getTextureOffset() const {
+glm::vec2 Data::Mission::ACT::Turret::getTextureOffset() const {
     return (1.f / 256.f) * glm::vec2( internal.texture_x, internal.texture_y );
 }
 
-float Data::Mission::ACT::BaseTurret::getGunRotation() const {
+float Data::Mission::ACT::Turret::getGunRotation() const {
     return ACTResource::getRotation( internal.gun_rotation );
 }
 
-glm::quat Data::Mission::ACT::BaseTurret::getGunRotationQuaternion() const {
+glm::quat Data::Mission::ACT::Turret::getGunRotationQuaternion() const {
     return getRotationQuaternion( this->getGunRotation() );
 }
 
-float Data::Mission::ACT::BaseTurret::getBaseRotation() const {
+float Data::Mission::ACT::Turret::getBaseRotation() const {
     return ACTResource::getRotation( internal.base_rotation );
 }
 
-glm::quat Data::Mission::ACT::BaseTurret::getBaseRotationQuaternion() const {
+glm::quat Data::Mission::ACT::Turret::getBaseRotationQuaternion() const {
     return getRotationQuaternion( this->getBaseRotation() );
 }

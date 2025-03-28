@@ -1,7 +1,7 @@
 #include "Hash.h"
 
 #include "../Aircraft.h"
-#include "../BaseTurret.h"
+#include "../Turret.h"
 #include "../ItemPickup.h"
 #include "../NeutralTurret.h"
 #include "../Prop.h"
@@ -21,7 +21,7 @@ private:
 
     void setupTable() {
         table_p[ Data::Mission::ACT::Aircraft::TYPE_ID ] = new Data::Mission::ACT::Aircraft();
-        table_p[ Data::Mission::ACT::BaseTurret::TYPE_ID ] = new Data::Mission::ACT::BaseTurret();
+        table_p[ Data::Mission::ACT::Turret::TYPE_ID ] = new Data::Mission::ACT::Turret();
         table_p[ Data::Mission::ACT::ItemPickup::TYPE_ID ] = new Data::Mission::ACT::ItemPickup();
         table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
