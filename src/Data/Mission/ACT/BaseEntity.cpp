@@ -33,6 +33,7 @@ bool BaseEntity::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Bu
     base_internal.ambient_sound = data_reader.readU8();
     base_internal.uv_offset_x = data_reader.readU8();
     base_internal.uv_offset_y = data_reader.readU8();
+    // 16 bytes
 
     return true;
 }
