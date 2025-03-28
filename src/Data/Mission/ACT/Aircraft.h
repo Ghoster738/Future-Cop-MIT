@@ -1,8 +1,7 @@
 #ifndef DATA_MISSION_ACTOR_ID_9_HEADER
 #define DATA_MISSION_ACTOR_ID_9_HEADER
 
-#include "../ACTResource.h"
-#include <json/json.h>
+#include "BaseShooterEntity.h"
 
 namespace Data {
 
@@ -16,30 +15,11 @@ namespace ACT {
  * Jet Copters, and Flying Fortresses have this ACT type.
  * Also, crime war also uses this type. For example drones are found to use this type as well.
  */
-class Aircraft : public ACTResource {
+class Aircraft : public BaseShooterEntity {
 public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t uint32_0;
-        uint16_t uint16_0;
-        uint16_t uint16_1;
-        uint8_t uint8_0;
-        uint8_t uint8_1;
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t uint8_5;
-        uint8_t zero;
-        uint8_t uint8_7;
-        uint16_t uint16_2;
-        uint16_t uint16_3;
-        uint8_t uint8_8;
-        uint8_t uint8_9;
-        uint16_t uint16_4;
-        uint32_t uint32_1;
-        uint16_t uint16_5;
-        uint16_t uint16_6;
         uint8_t uint8_10;
         uint8_t uint8_11;
         uint16_t uint16_7;
@@ -67,6 +47,7 @@ protected:
 public:
     Aircraft();
     Aircraft( const ACTResource& obj );
+    Aircraft( const BaseShooterEntity& obj );
     Aircraft( const Aircraft& obj );
 
     virtual uint_fast8_t getTypeID() const;

@@ -10,25 +10,8 @@ Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
-    root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
-    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
-    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
-    root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
-    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
-    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
-    root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
-    root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
-    root["ACT"][NAME]["zero"] = internal.zero;
-    root["ACT"][NAME]["uint8_7"] = internal.uint8_7;
-    root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
-    root["ACT"][NAME]["uint8_8"] = internal.uint8_8;
-    root["ACT"][NAME]["uint8_9"] = internal.uint8_9;
-    root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
-    root["ACT"][NAME]["uint32_1"] = internal.uint32_1;
-    root["ACT"][NAME]["uint16_5"] = internal.uint16_5;
-    root["ACT"][NAME]["uint16_6"] = internal.uint16_6;
+    root["ACT"] = BaseEntity::makeJson();
+    root["ACT"] = BaseShooterEntity::makeJson();
     root["ACT"][NAME]["uint8_10"] = internal.uint8_10;
     root["ACT"][NAME]["uint8_11"] = internal.uint8_11;
     root["ACT"][NAME]["uint16_7"] = internal.uint16_7;
@@ -57,25 +40,8 @@ bool Data::Mission::ACT::Aircraft::readACTType( uint_fast8_t act_type, Utilities
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    internal.uint32_0 = data_reader.readU32( endian ); // Values: 524288, 524352, 524616, 589824, 589888, 590664, 598016, 598080, 2621440, 
-    internal.uint16_0 = data_reader.readU16( endian ); // Values: 24, 25, 30, 35, 50, 100, 150, 200, 2000, 
-    internal.uint16_1 = data_reader.readU16( endian ); // Values: 0, 1, 3, 4, 10, 
-    internal.uint8_0 = data_reader.readU8(); // Values: 0, 1, 2, 4, 6, 31, 
-    internal.uint8_1 = data_reader.readU8(); // Values: 0, 2, 3, 4, 8, 12, 13, 32, 64, 70, 
-    internal.uint8_2 = data_reader.readU8(); // Values: 1, 2, 4, 8, 9, 68, 72, 
-    internal.uint8_3 = data_reader.readU8(); // Values: 0, 5, 6, 10, 
-    internal.uint8_4 = data_reader.readU8(); // Values: 23, 26, 101, 222, 
-    internal.uint8_5 = data_reader.readU8(); // Values: 0, 70, 71, 75, 77, 87, 88, 98, 101, 107, 
-    internal.zero = data_reader.readU8(); // Always 0
-    internal.uint8_7 = data_reader.readU8(); // Values: 0, 50, 51, 76, 78, 
-    internal.uint16_2 = data_reader.readU16( endian ); // Values: 1, 3, 4, 5, 6, 9, 11, 12, 14, 
-    internal.uint16_3 = data_reader.readU16( endian ); // Values: 0, 2, 6, 38, 64, 70, 514, 544, 
-    internal.uint8_8 = data_reader.readU8(); // Values: 1, 2, 3, 
-    internal.uint8_9 = data_reader.readU8(); // Values: 1, 2, 3, 4, 
-    internal.uint16_4 = data_reader.readU16( endian ); // Values: 1, 2, 32, 441, 
-    internal.uint32_1 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
-    internal.uint16_5 = data_reader.readU16( endian ); // Values: 6144, 8192, 
-    internal.uint16_6 = data_reader.readU16( endian ); // Values: 8, 16, 32, 48, 80, 
+    BaseShooterEntity::readBase(data_reader, endian);
+
     internal.uint8_10 = data_reader.readU8(); // Values: 1, 3, 
     internal.uint8_11 = data_reader.readU8(); // Values: 1, 2, 3, 4, 
     internal.uint16_7 = data_reader.readU16( endian ); // Values: 1, 2, 32, 441, 
@@ -100,9 +66,11 @@ bool Data::Mission::ACT::Aircraft::readACTType( uint_fast8_t act_type, Utilities
 
 Data::Mission::ACT::Aircraft::Aircraft() {}
 
-Data::Mission::ACT::Aircraft::Aircraft( const ACTResource& obj ) : ACTResource( obj ) {}
+Data::Mission::ACT::Aircraft::Aircraft( const ACTResource& obj ) : BaseShooterEntity( obj ) {}
 
-Data::Mission::ACT::Aircraft::Aircraft( const Aircraft& obj ) : ACTResource( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::Aircraft::Aircraft( const BaseShooterEntity& obj ) : BaseShooterEntity( obj ) {}
+
+Data::Mission::ACT::Aircraft::Aircraft( const Aircraft& obj ) : BaseShooterEntity( obj ), internal( obj.internal ) {}
 
 uint_fast8_t Data::Mission::ACT::Aircraft::getTypeID() const {
     return TYPE_ID;
