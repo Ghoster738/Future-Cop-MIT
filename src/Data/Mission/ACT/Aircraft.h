@@ -24,20 +24,20 @@ public:
         uint8_t uint8_1;
         uint16_t uint16_0;
         uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint16_t uint16_1;
+        uint8_t spawn_type;
+        uint16_t target_detection_range;
         uint16_t uint16_2;
         uint16_t uint16_3;
-        uint16_t uint16_4;
-        uint16_t uint16_5;
-        uint16_t uint16_6;
-        uint16_t uint16_7;
-        uint16_t uint16_8;
-        uint16_t uint16_9;
+        uint16_t height_offset;
+        uint16_t time_to_descend;
+        uint16_t turn_rate;
+        uint16_t move_speed;
+        uint16_t orbit_area_x;
+        uint16_t orbit_area_y;
         uint16_t uint16_10;
         uint16_t uint16_11;
-        uint16_t uint16_12;
-        uint16_t uint16_13;
+        uint16_t spawn_pos_x;
+        uint16_t spawn_pos_y;
     } internal;
 
 protected:
