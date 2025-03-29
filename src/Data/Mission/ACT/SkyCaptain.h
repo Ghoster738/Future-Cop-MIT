@@ -39,7 +39,7 @@ public:
         uint8_t uint8_9;
         uint16_t uint16_8;
         uint8_t uint8_10;
-        uint8_t position_bitfield; // 0b01000 Means that Skycaptain would use an alturnative cordinate system.
+        uint8_t spawn_type; // 0b01000 Means that Skycaptain would use an alturnative cordinate system.
         uint16_t uint16_9;
         uint16_t uint16_10;
         uint16_t uint16_11;
@@ -50,8 +50,8 @@ public:
         uint32_t uint32_2;
         uint16_t uint16_16;
         uint16_t uint16_17;
-        uint16_t alt_position_x;
-        uint16_t alt_position_y;
+        uint16_t spawn_pos_x;
+        uint16_t spawn_pos_y;
 
         uint8_t uint8_12;
         uint16_t zero_3;
