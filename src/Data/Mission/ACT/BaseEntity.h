@@ -35,6 +35,8 @@ public:
     BaseEntity( const BaseEntity& obj );
 
     Internal getBaseInternal() const;
+
+    glm::vec2 getTextureOffset() const;
 };
 
 }

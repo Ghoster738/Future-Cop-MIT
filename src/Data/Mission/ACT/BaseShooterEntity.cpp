@@ -6,6 +6,8 @@ Json::Value BaseShooterEntity::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = "BaseShooterEntity";
 
+    root["ACT"] = BaseEntity::makeJson();
+
     root[NAME]["weapon_id"]        = shooter_entity_internal.weapon_id;
     root[NAME]["bitfield"]         = shooter_entity_internal.bitfield;
     root[NAME]["uint8_0"]          = shooter_entity_internal.uint8_0;

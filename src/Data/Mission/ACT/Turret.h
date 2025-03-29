@@ -1,56 +1,23 @@
 #ifndef DATA_MISSION_ACTOR_ID_8_HEADER
 #define DATA_MISSION_ACTOR_ID_8_HEADER
 
-#include "../ACTResource.h"
-#include <json/json.h>
+#include "BaseShooterTurret.h"
 
-namespace Data {
-
-namespace Mission {
-
-namespace ACT {
+namespace Data::Mission::ACT {
 
 /**
  * This holds the base turret.
  *
  * This is the turret that always has the same side.
  */
-class Turret : public ACTResource {
+class Turret : public BaseShooterTurret {
 public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t uint32_0;
-        uint16_t uint16_0;
-        uint16_t uint16_1;
-        uint8_t hostile_to_turret;
-        uint8_t uint8_1;
-        uint8_t mini_map_color_index;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t uint8_5;
-        uint8_t texture_x;
-        uint8_t texture_y;
-        uint16_t uint16_2;
-        uint16_t uint16_3;
-        uint8_t uint8_8;
-        uint8_t uint8_9;
-        uint16_t turret_hostile_to;
-        uint32_t uint32_1;
-        uint16_t uint16_5;
-        uint16_t uint16_6;
-        uint8_t uint8_10;
-        uint8_t uint8_11;
-        uint16_t uint16_7;
-        uint16_t gun_rotation;
-        uint16_t uint16_9;
-        uint16_t uint16_10;
-        uint16_t uint16_11;
-        uint8_t uint8_12;
-        uint16_t zero_0;
+        uint16_t zero_0; // Stationary Turret: Turret
+        uint8_t uint8_0;
         uint8_t zero_1;
-        uint8_t uint8_14;
-        uint8_t zero_2;
         uint16_t base_rotation;
     } internal;
 
@@ -76,8 +43,6 @@ public:
 
     Internal getInternal() const;
 
-    glm::vec2 getTextureOffset() const;
-
     bool getHasAliveGunID() const { return rsl_data[0].type != RSL_NULL_TAG; }
     uint32_t getAliveGunID() const { return rsl_data[0].resource_id; }
 
@@ -90,15 +55,9 @@ public:
     bool getHasDestroyedBaseID() const { return rsl_data[3].type != RSL_NULL_TAG; }
     uint32_t getDestroyedBaseID() const { return rsl_data[3].resource_id; }
 
-    float getGunRotation() const;
-    glm::quat getGunRotationQuaternion() const;
-
     float getBaseRotation() const;
     glm::quat getBaseRotationQuaternion() const;
 };
-}
-
-}
 
 }
 

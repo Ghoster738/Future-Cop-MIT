@@ -48,4 +48,8 @@ BaseEntity::Internal BaseEntity::getBaseInternal() const {
     return entity_internal;
 }
 
+glm::vec2 BaseEntity::getTextureOffset() const {
+    return (1.f / 256.f) * glm::vec2( entity_internal.uv_offset_x, entity_internal.uv_offset_y );
+}
+
 }
