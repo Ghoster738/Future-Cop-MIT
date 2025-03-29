@@ -15,7 +15,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t uint32_0;
+        uint32_t uint32_0; // BaseEntity
         uint16_t uint16_0;
         uint16_t zero_0;
         uint8_t uint8_0;
@@ -25,7 +25,8 @@ public:
         uint8_t uint8_4;
         uint8_t uint8_5;
         uint16_t zero_2;
-        uint16_t uint16_3;
+
+        uint16_t uint16_3; // BaseShooterEntity
         uint16_t uint16_4;
         uint8_t uint8_6;
         uint8_t uint8_7;
@@ -33,7 +34,8 @@ public:
         uint32_t uint32_1;
         uint16_t uint16_6;
         uint16_t uint16_7;
-        uint8_t uint8_8;
+
+        uint8_t uint8_8; // Aircraft
         uint8_t uint8_9;
         uint16_t uint16_8;
         uint8_t uint8_10;
@@ -50,6 +52,7 @@ public:
         uint16_t uint16_17;
         uint16_t alt_position_x;
         uint16_t alt_position_y;
+
         uint8_t uint8_12;
         uint16_t zero_3;
         uint8_t zero_4;
