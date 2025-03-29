@@ -7,10 +7,8 @@
 uint_fast8_t Data::Mission::ACT::Aircraft::TYPE_ID = 9;
 
 Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
-    Json::Value root = Data::Mission::ACTResource::makeJson();
+    Json::Value root = BaseShooterEntity::makeJson();
     const std::string NAME = getTypeIDName();
-
-    root["ACT"] = BaseShooterEntity::makeJson();
 
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;

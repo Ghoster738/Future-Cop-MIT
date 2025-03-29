@@ -3,20 +3,18 @@
 namespace Data::Mission::ACT {
 
 Json::Value BaseShooterEntity::makeJson() const {
-    Json::Value root = Data::Mission::ACTResource::makeJson();
+    Json::Value root = BaseEntity::makeJson();
     const std::string NAME = "BaseShooterEntity";
 
-    root["ACT"] = BaseEntity::makeJson();
-
-    root[NAME]["weapon_id"]        = shooter_entity_internal.weapon_id;
-    root[NAME]["bitfield"]         = shooter_entity_internal.bitfield;
-    root[NAME]["uint8_0"]          = shooter_entity_internal.uint8_0;
-    root[NAME]["target_type"]      = shooter_entity_internal.target_type;
-    root[NAME]["targetting"]       = shooter_entity_internal.targetting;
-    root[NAME]["fov"]              = shooter_entity_internal.fov;
-    root[NAME]["uint16_0"]         = shooter_entity_internal.uint16_0;
-    root[NAME]["engage_range"]     = shooter_entity_internal.engage_range;
-    root[NAME]["targetting_delay"] = shooter_entity_internal.targetting_delay;
+    root["ACT"][NAME]["weapon_id"]        = shooter_entity_internal.weapon_id;
+    root["ACT"][NAME]["bitfield"]         = shooter_entity_internal.bitfield;
+    root["ACT"][NAME]["uint8_0"]          = shooter_entity_internal.uint8_0;
+    root["ACT"][NAME]["target_type"]      = shooter_entity_internal.target_type;
+    root["ACT"][NAME]["targetting"]       = shooter_entity_internal.targetting;
+    root["ACT"][NAME]["fov"]              = shooter_entity_internal.fov;
+    root["ACT"][NAME]["uint16_0"]         = shooter_entity_internal.uint16_0;
+    root["ACT"][NAME]["engage_range"]     = shooter_entity_internal.engage_range;
+    root["ACT"][NAME]["targetting_delay"] = shooter_entity_internal.targetting_delay;
 
     return root;
 }

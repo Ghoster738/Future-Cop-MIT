@@ -10,11 +10,11 @@ public:
     struct Internal {
         uint8_t ground_cast;
         uint8_t uint8_0;
-        uint16_t uint16_1;
+        uint16_t uint16_0;
         uint16_t gun_rotation;
         uint16_t height_offset;
         uint16_t turn_speed;
-        uint16_t uint16_2;
+        uint16_t uint16_1;
         uint8_t unk_turn_type;
         uint8_t zero;
     } turret_shooter_internal;

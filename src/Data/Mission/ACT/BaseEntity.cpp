@@ -6,17 +6,17 @@ Json::Value BaseEntity::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = "BaseEntity";
 
-    root[NAME]["bitfield"]         = entity_internal.bitfield;
-    root[NAME]["health"]           = entity_internal.health;
-    root[NAME]["collision_damage"] = entity_internal.collision_damage;
-    root[NAME]["team"]             = entity_internal.team;
-    root[NAME]["group_id"]         = entity_internal.group_id;
-    root[NAME]["map_icon_color"]   = entity_internal.map_icon_color;
-    root[NAME]["target_priority"]  = entity_internal.target_priority;
-    root[NAME]["explosion"]        = entity_internal.explosion;
-    root[NAME]["ambient_sound"]    = entity_internal.ambient_sound;
-    root[NAME]["uv_offset_x"]      = entity_internal.uv_offset_x;
-    root[NAME]["uv_offset_y"]      = entity_internal.uv_offset_y;
+    root["ACT"][NAME]["bitfield"]         = entity_internal.bitfield;
+    root["ACT"][NAME]["health"]           = entity_internal.health;
+    root["ACT"][NAME]["collision_damage"] = entity_internal.collision_damage;
+    root["ACT"][NAME]["team"]             = entity_internal.team;
+    root["ACT"][NAME]["group_id"]         = entity_internal.group_id;
+    root["ACT"][NAME]["map_icon_color"]   = entity_internal.map_icon_color;
+    root["ACT"][NAME]["target_priority"]  = entity_internal.target_priority;
+    root["ACT"][NAME]["explosion"]        = entity_internal.explosion;
+    root["ACT"][NAME]["ambient_sound"]    = entity_internal.ambient_sound;
+    root["ACT"][NAME]["uv_offset_x"]      = entity_internal.uv_offset_x;
+    root["ACT"][NAME]["uv_offset_y"]      = entity_internal.uv_offset_y;
 
     return root;
 }

@@ -6,10 +6,9 @@
 uint_fast8_t Data::Mission::ACT::X1Alpha::TYPE_ID = 1;
 
 Json::Value Data::Mission::ACT::X1Alpha::makeJson() const {
-    Json::Value root = Data::Mission::ACTResource::makeJson();
+    Json::Value root = BaseEntity::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"] = BaseEntity::makeJson();
     root["ACT"][NAME]["rotation"] = internal.rotation;
     root["ACT"][NAME]["uint8_0"]  = internal.uint8_0;
     root["ACT"][NAME]["uint8_1"]  = internal.uint8_1;

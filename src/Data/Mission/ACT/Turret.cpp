@@ -7,10 +7,9 @@
 uint_fast8_t Data::Mission::ACT::Turret::TYPE_ID = 8;
 
 Json::Value Data::Mission::ACT::Turret::makeJson() const {
-    Json::Value root = Data::Mission::ACTResource::makeJson();
+    Json::Value root = BaseShooterTurret::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"] = BaseShooterTurret::makeJson();
     root["ACT"][NAME]["zero_0"] = internal.zero_0;
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
     root["ACT"][NAME]["zero_1"] = internal.zero_1;

@@ -21,10 +21,9 @@ const uint32_t BITFIELD_PICKUP_CONSUME = 0x02000000;
 uint_fast8_t Data::Mission::ACT::ItemPickup::TYPE_ID = 16;
 
 Json::Value Data::Mission::ACT::ItemPickup::makeJson() const {
-    Json::Value root = Data::Mission::ACTResource::makeJson();
+    Json::Value root = BaseEntity::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"] = BaseEntity::makeJson();
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
