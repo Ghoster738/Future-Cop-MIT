@@ -14,25 +14,25 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint8_t uint8_12;
-        uint16_t zero_3;
-        uint8_t zero_4;
-        uint16_t uint16_21;
-        uint16_t uint16_22;
-        uint8_t uint8_14;
-        uint8_t uint8_15;
-        uint16_t uint16_23;
-        uint32_t uint32_3;
-        uint16_t uint16_24;
-        uint16_t uint16_25;
-        uint16_t uint16_26;
-        uint16_t uint16_27;
-        uint8_t uint8_16;
-        uint8_t uint8_17;
-        uint16_t uint16_28;
-        uint32_t uint32_4;
-        uint16_t uint16_29;
-        uint16_t uint16_30;
+        uint8_t    uint8_0;
+        uint16_t    zero_0;
+        uint8_t     zero_1;
+        uint16_t  uint16_1;
+        uint16_t  uint16_2;
+        uint8_t    uint8_1;
+        uint8_t    uint8_2;
+        uint16_t  uint16_3;
+        uint32_t  uint32_0;
+        uint16_t  uint16_4;
+        uint16_t  uint16_5;
+        uint16_t  uint16_6;
+        uint16_t  uint16_7;
+        uint8_t    uint8_3;
+        uint8_t    uint8_4;
+        uint16_t  uint16_8;
+        uint32_t  uint32_1;
+        uint16_t  uint16_9;
+        uint16_t uint16_10;
     } sky_internal;
 
 protected:

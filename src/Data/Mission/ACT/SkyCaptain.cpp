@@ -10,25 +10,25 @@ Json::Value Data::Mission::ACT::SkyCaptain::makeJson() const {
     Json::Value root = Aircraft::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint8_12"] = sky_internal.uint8_12;
-    root["ACT"][NAME]["zero_3"] = sky_internal.zero_3;
-    root["ACT"][NAME]["zero_4"] = sky_internal.zero_4;
-    root["ACT"][NAME]["uint16_21"] = sky_internal.uint16_21;
-    root["ACT"][NAME]["uint16_22"] = sky_internal.uint16_22;
-    root["ACT"][NAME]["uint8_14"] = sky_internal.uint8_14;
-    root["ACT"][NAME]["uint8_15"] = sky_internal.uint8_15;
-    root["ACT"][NAME]["uint16_23"] = sky_internal.uint16_23;
-    root["ACT"][NAME]["uint32_3"] = sky_internal.uint32_3;
-    root["ACT"][NAME]["uint16_24"] = sky_internal.uint16_24;
-    root["ACT"][NAME]["uint16_25"] = sky_internal.uint16_25;
-    root["ACT"][NAME]["uint16_26"] = sky_internal.uint16_26;
-    root["ACT"][NAME]["uint16_27"] = sky_internal.uint16_27;
-    root["ACT"][NAME]["uint8_16"] = sky_internal.uint8_16;
-    root["ACT"][NAME]["uint8_17"] = sky_internal.uint8_17;
-    root["ACT"][NAME]["uint16_28"] = sky_internal.uint16_28;
-    root["ACT"][NAME]["uint32_4"] = sky_internal.uint32_4;
-    root["ACT"][NAME]["uint16_29"] = sky_internal.uint16_29;
-    root["ACT"][NAME]["uint16_30"] = sky_internal.uint16_30;
+    root["ACT"][NAME]["uint8_0"] = sky_internal.uint8_0;
+    root["ACT"][NAME]["zero_0"] = sky_internal.zero_0;
+    root["ACT"][NAME]["zero_1"] = sky_internal.zero_1;
+    root["ACT"][NAME]["uint16_1"] = sky_internal.uint16_1;
+    root["ACT"][NAME]["uint16_2"] = sky_internal.uint16_2;
+    root["ACT"][NAME]["uint8_1"] = sky_internal.uint8_1;
+    root["ACT"][NAME]["uint8_2"] = sky_internal.uint8_2;
+    root["ACT"][NAME]["uint16_3"] = sky_internal.uint16_3;
+    root["ACT"][NAME]["uint32_0"] = sky_internal.uint32_0;
+    root["ACT"][NAME]["uint16_4"] = sky_internal.uint16_4;
+    root["ACT"][NAME]["uint16_5"] = sky_internal.uint16_5;
+    root["ACT"][NAME]["uint16_6"] = sky_internal.uint16_6;
+    root["ACT"][NAME]["uint16_7"] = sky_internal.uint16_7;
+    root["ACT"][NAME]["uint8_3"] = sky_internal.uint8_3;
+    root["ACT"][NAME]["uint8_4"] = sky_internal.uint8_4;
+    root["ACT"][NAME]["uint16_8"] = sky_internal.uint16_8;
+    root["ACT"][NAME]["uint32_1"] = sky_internal.uint32_1;
+    root["ACT"][NAME]["uint16_9"] = sky_internal.uint16_9;
+    root["ACT"][NAME]["uint16_10"] = sky_internal.uint16_10;
 
     return root;
 }
@@ -41,25 +41,25 @@ bool Data::Mission::ACT::SkyCaptain::readACTType( uint_fast8_t act_type, Utiliti
 
     Aircraft::readBase(data_reader, endian);
 
-    sky_internal.uint8_12 = data_reader.readU8(); // Always 1
-    sky_internal.zero_3 = data_reader.readU16( endian ); // Always 0
-    sky_internal.zero_4 = data_reader.readU8(); // Always 0
-    sky_internal.uint16_21 = data_reader.readU16( endian ); // Always 8
-    sky_internal.uint16_22 = data_reader.readU16( endian ); // Always 578
-    sky_internal.uint8_14 = data_reader.readU8(); // Always 1
-    sky_internal.uint8_15 = data_reader.readU8(); // Always 4
-    sky_internal.uint16_23 = data_reader.readU16( endian ); // Always 1
-    sky_internal.uint32_3 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
-    sky_internal.uint16_24 = data_reader.readU16( endian ); // Always 6144
-    sky_internal.uint16_25 = data_reader.readU16( endian ); // Always 16
-    sky_internal.uint16_26 = data_reader.readU16( endian ); // Always 9
-    sky_internal.uint16_27 = data_reader.readU16( endian ); // Always 578
-    sky_internal.uint8_16 = data_reader.readU8(); // Always 1
-    sky_internal.uint8_17 = data_reader.readU8(); // Always 4
-    sky_internal.uint16_28 = data_reader.readU16( endian ); // Always 1
-    sky_internal.uint32_4 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
-    sky_internal.uint16_29 = data_reader.readU16( endian ); // Always 6144
-    sky_internal.uint16_30 = data_reader.readU16( endian ); // Always 16
+    sky_internal.uint8_0 = data_reader.readU8(); // Always 1
+    sky_internal.zero_0 = data_reader.readU16( endian ); // Always 0
+    sky_internal.zero_1 = data_reader.readU8(); // Always 0
+    sky_internal.uint16_1 = data_reader.readU16( endian ); // Always 8
+    sky_internal.uint16_2 = data_reader.readU16( endian ); // Always 578
+    sky_internal.uint8_1 = data_reader.readU8(); // Always 1
+    sky_internal.uint8_2 = data_reader.readU8(); // Always 4
+    sky_internal.uint16_3 = data_reader.readU16( endian ); // Always 1
+    sky_internal.uint32_0 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
+    sky_internal.uint16_4 = data_reader.readU16( endian ); // Always 6144
+    sky_internal.uint16_5 = data_reader.readU16( endian ); // Always 16
+    sky_internal.uint16_6 = data_reader.readU16( endian ); // Always 9
+    sky_internal.uint16_7 = data_reader.readU16( endian ); // Always 578
+    sky_internal.uint8_3 = data_reader.readU8(); // Always 1
+    sky_internal.uint8_4 = data_reader.readU8(); // Always 4
+    sky_internal.uint16_8 = data_reader.readU16( endian ); // Always 1
+    sky_internal.uint32_1 = data_reader.readU32( endian ); // Always 268439552 or 0x10001000
+    sky_internal.uint16_9 = data_reader.readU16( endian ); // Always 6144
+    sky_internal.uint16_10 = data_reader.readU16( endian ); // Always 16
 
     return true;
 }

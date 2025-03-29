@@ -16,16 +16,16 @@ Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
     root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
     root["ACT"][NAME]["spawn_type"] = internal.spawn_type;
     root["ACT"][NAME]["target_detection_range"] = internal.target_detection_range;
+    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
     root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
     root["ACT"][NAME]["height_offset"] = internal.height_offset;
     root["ACT"][NAME]["time_to_descend"] = internal.time_to_descend;
     root["ACT"][NAME]["turn_rate"] = internal.turn_rate;
     root["ACT"][NAME]["move_speed"] = internal.move_speed;
     root["ACT"][NAME]["orbit_area_x"] = internal.orbit_area_x;
     root["ACT"][NAME]["orbit_area_y"] = internal.orbit_area_y;
-    root["ACT"][NAME]["uint16_10"] = internal.uint16_10;
-    root["ACT"][NAME]["uint16_11"] = internal.uint16_11;
+    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
+    root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
     root["ACT"][NAME]["spawn_pos_x"] = internal.spawn_pos_x;
     root["ACT"][NAME]["spawn_pos_y"] = internal.spawn_pos_y;
 
@@ -50,16 +50,16 @@ bool Data::Mission::ACT::Aircraft::readBase( Utilities::Buffer::Reader &data_rea
     internal.uint8_2 = data_reader.readU8(); // Values: 0, 1, 2,
     internal.spawn_type = data_reader.readU8(); // Values: 0, 1, 2, 3, 8, 12,
     internal.target_detection_range = data_reader.readU16( endian ); // Values: 8192, 16384, 24576, 28672, 32358,
-    internal.uint16_2 = data_reader.readU16( endian ); // Values: 51, 512, 614, 819,
-    internal.uint16_3 = data_reader.readU16( endian ); // Values: 102, 409, 614, 737, 819, 1024, 1228,
+    internal.uint16_1 = data_reader.readU16( endian ); // Values: 51, 512, 614, 819,
+    internal.uint16_2 = data_reader.readU16( endian ); // Values: 102, 409, 614, 737, 819, 1024, 1228,
     internal.height_offset = data_reader.readU16( endian ); // Values: 512, 716, 737, 819, 901, 921, 1126, 1331, 1433,
     internal.time_to_descend = data_reader.readU16( endian ); // Values: 737, 901, 1024, 1228, 1433, 1556, 1638,
     internal.turn_rate = data_reader.readU16( endian ); // Values: 3072, 3276, 4915, 5120, 5324, 8192,
     internal.move_speed = data_reader.readU16( endian ); // Values: 1433, 1638, 1843, 2048, 2457,
     internal.orbit_area_x = data_reader.readU16( endian ); // Values: 4096, 5734, 8192, 12288, 15564, 16384, 20480, 24576, 30720, 31744, 32727, 32763,
     internal.orbit_area_y = data_reader.readU16( endian ); // Values: 3686, 4096, 4915, 8192, 10240, 12288, 16384, 20480, 24576, 28672, 31744, 32763,
-    internal.uint16_10 = data_reader.readU16( endian ); // Values: 5120, 25600,
-    internal.uint16_11 = data_reader.readU16( endian ); // Values: 256, 1280,
+    internal.uint16_3 = data_reader.readU16( endian ); // Values: 5120, 25600,
+    internal.uint16_4 = data_reader.readU16( endian ); // Values: 256, 1280,
     internal.spawn_pos_x = data_reader.readU16( endian ); // Values: 0, 1168, 1217, 1285, 1343, 1515, 1632, 1637, 1693, 1745, 1873, 1904, 1905, 1971, 1979, 1984, 2144, 2163, 2178,
     internal.spawn_pos_y = data_reader.readU16( endian ); // Values: 0, 1183, 1193, 1203, 1232, 1504, 1600, 1612, 1681, 1983, 1984, 2118, 2173, 2279, 2315, 2317, 2320, 2374, 2392, 2563, 2629,
 
