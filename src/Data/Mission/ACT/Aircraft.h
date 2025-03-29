@@ -67,6 +67,8 @@ public:
 
     glm::vec2 getSpawnPosition() const;
 
+    float getHeightOffset() const;
+
     bool hasModelID() const { return rsl_data[0].type != RSL_NULL_TAG; }
     uint32_t getModelID() const { return rsl_data[0].resource_id; }
 };

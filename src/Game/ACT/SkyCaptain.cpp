@@ -12,7 +12,7 @@ SkyCaptain::SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT
         this->position = glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
     }
 
-    this->position.y += 4.0;
+    this->position.y += obj.getHeightOffset();
 
     this->model = obj.hasModelID();
     this->model_id = obj.getModelID();
