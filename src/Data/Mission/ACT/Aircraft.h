@@ -44,6 +44,8 @@ protected:
     virtual Json::Value makeJson() const;
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 
+    bool readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
+
 public:
     Aircraft();
     Aircraft( const ACTResource& obj );
@@ -63,6 +65,10 @@ public:
 
     Internal getInternal() const;
 
+    glm::vec2 getSpawnPosition() const;
+
+    bool hasModelID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getModelID() const { return rsl_data[0].resource_id; }
 };
 }
 

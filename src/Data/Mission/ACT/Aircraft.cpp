@@ -8,7 +8,7 @@ uint_fast8_t Data::Mission::ACT::Aircraft::TYPE_ID = 9;
 
 Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
     Json::Value root = BaseShooterEntity::makeJson();
-    const std::string NAME = getTypeIDName();
+    const std::string NAME = Aircraft::getTypeIDName();
 
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
@@ -38,6 +38,10 @@ bool Data::Mission::ACT::Aircraft::readACTType( uint_fast8_t act_type, Utilities
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
+    return readBase(data_reader, endian);
+}
+
+bool Data::Mission::ACT::Aircraft::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     BaseShooterEntity::readBase(data_reader, endian);
 
     internal.uint8_0 = data_reader.readU8(); // Values: 1, 3,
@@ -103,4 +107,11 @@ Data::Mission::ACTResource* Data::Mission::ACT::Aircraft::duplicate( const ACTRe
 
 Data::Mission::ACT::Aircraft::Internal Data::Mission::ACT::Aircraft::getInternal() const {
     return internal;
+}
+
+glm::vec2 Data::Mission::ACT::Aircraft::getSpawnPosition() const {
+    if((internal.spawn_type & 0x08) == 0)
+        return Data::Mission::ACTResource::getPosition();
+
+    return (1.f / 16.f) * glm::vec2(internal.spawn_pos_x, internal.spawn_pos_y);
 }
