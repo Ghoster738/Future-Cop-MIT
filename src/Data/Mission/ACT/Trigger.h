@@ -16,11 +16,11 @@ public:
 
     struct Internal {
         uint16_t width;
+        uint16_t length;
         uint16_t height;
-        uint16_t uint16_2;
         uint8_t uint8_0;
-        uint8_t type;
-        uint16_t test_id;
+        uint8_t bitfield;
+        uint16_t triggering_actor_id;
         uint16_t zero;
     } internal;
 
