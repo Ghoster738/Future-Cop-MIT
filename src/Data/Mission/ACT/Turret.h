@@ -25,6 +25,8 @@ protected:
     virtual Json::Value makeJson() const;
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 
+    bool readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
+
 public:
     Turret();
     Turret( const ACTResource& obj );

@@ -8,7 +8,7 @@ uint_fast8_t Data::Mission::ACT::Turret::TYPE_ID = 8;
 
 Json::Value Data::Mission::ACT::Turret::makeJson() const {
     Json::Value root = BaseShooterTurret::makeJson();
-    const std::string NAME = getTypeIDName();
+    const std::string NAME = Turret::getTypeIDName();
 
     root["ACT"][NAME]["zero_0"] = internal.zero_0;
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
@@ -24,6 +24,12 @@ bool Data::Mission::ACT::Turret::readACTType( uint_fast8_t act_type, Utilities::
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
+    readBase(data_reader, endian);
+
+    return true;
+}
+
+bool Data::Mission::ACT::Turret::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     BaseShooterTurret::readBase(data_reader, endian);
 
     internal.zero_0        = data_reader.readU16( endian ); // Always 0
