@@ -7,6 +7,7 @@
 #include <chrono>
 #include <vector>
 
+#include "ACT/Aircraft.h"
 #include "ACT/ItemPickup.h"
 #include "ACT/NeutralTurret.h"
 #include "ACT/Prop.h"
@@ -30,6 +31,7 @@ public:
     };
 
 private:
+    SpawnableActor<ACT::Aircraft>      aircraft;
     SpawnableActor<ACT::Turret>        base_turrets;
     SpawnableActor<ACT::ItemPickup>    item_pickups;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;

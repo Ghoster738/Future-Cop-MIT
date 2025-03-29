@@ -52,6 +52,7 @@ namespace Game {
 ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor ) {
     auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
+    aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      accessor, accessor.getActorAccessor().getAllConstAircraft() );
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
     base_turrets    = initializeActors<Data::Mission::ACT::Turret,        ACT::Turret>(        accessor, accessor.getActorAccessor().getAllConstTurret() );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
@@ -63,6 +64,7 @@ ActManager::~ActManager() {
 }
 
 void ActManager::initialize( MainProgram &main_program ) {
+    updateGraphics<ACT::Aircraft>(      main_program,        aircraft );
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
     updateGraphics<ACT::Turret>(        main_program,    base_turrets );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
@@ -95,6 +97,7 @@ void ActManager::initialize( MainProgram &main_program ) {
 }
 
 void ActManager::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    updateSpawn<ACT::Aircraft>(      main_program,        aircraft, delta );
     updateSpawn<ACT::ItemPickup>(    main_program,    item_pickups, delta );
     updateSpawn<ACT::Turret>(        main_program,    base_turrets, delta );
     updateSpawn<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
