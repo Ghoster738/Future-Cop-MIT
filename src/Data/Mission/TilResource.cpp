@@ -951,8 +951,11 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
 
 float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray, unsigned level ) const {
     // TODO Develop a more complex, but more effient raycasting implementation like DDA.
+
+    const float MAX_DISTANCE = 131072.0f;
+
     bool found_triangle = false;
-    float final_distance = 1000000.0f;
+    float final_distances[3] = {MAX_DISTANCE, MAX_DISTANCE, MAX_DISTANCE};
     float temp_distance;
     glm::vec3 point;
     glm::vec3 barycentric;
@@ -963,7 +966,7 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
         
         // If temp_distance is positive and
         // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
-        if( temp_distance > 0.0f && temp_distance < final_distance ) {
+        if( temp_distance > 0.0f && temp_distance < final_distances[0] ) {
             
             // Get the point in 3D space.
             point = ray.getSpot( temp_distance );
@@ -976,18 +979,34 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
                 
                 // A triangle has been found.
                 found_triangle = true;
+
+                // If there is data in the queue then place it in the final distances.
+                if(final_distances[0] != MAX_DISTANCE) {
+                    final_distances[2] = final_distances[1];
+                    final_distances[1] = final_distances[0];
+                }
                 
                 // The final_distance is now at the triangle.
-                final_distance = temp_distance;
+                final_distances[0] = temp_distance;
             }
         }
     }
     
     // If the triangle has been found then return a positive number.
-    if( found_triangle )
-        return final_distance;
-    else
+    if( !found_triangle )
         return -1.0f;
+
+    if(level == 2) {
+        if(final_distances[2] != MAX_DISTANCE)
+            return final_distances[2];
+        else if(final_distances[1] != MAX_DISTANCE)
+            return final_distances[1];
+    }
+    else
+    if(level == 1 && final_distances[1] != MAX_DISTANCE)
+        return final_distances[1];
+
+    return final_distances[0];
 }
 
 float Data::Mission::TilResource::getRayCast2D( float x, float z, unsigned level ) const {
