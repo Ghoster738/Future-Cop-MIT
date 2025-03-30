@@ -9,6 +9,8 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 
     this->position = obj.getPosition( ptc );
 
+    this->position.y += obj.getHeightOffset();
+
     this->rotation = obj.getRotationQuaternion();
 
     this->model_id = obj.getObjResourceID();

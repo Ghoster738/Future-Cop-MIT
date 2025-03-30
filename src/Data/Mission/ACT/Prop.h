@@ -18,7 +18,7 @@ public:
         int16_t       rotation_y;
         int16_t       rotation_z;
         int16_t       rotation_x;
-        uint16_t   height_offset;
+        int16_t    height_offset;
         uint8_t ground_cast_type;
         uint8_t          uint8_1; // Unknown.
         uint8_t  animation_speed;
@@ -50,6 +50,8 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
+
+    float getHeightOffset() const;
 
     uint32_t getObjResourceID() const { return rsl_data[0].resource_id; }
 
