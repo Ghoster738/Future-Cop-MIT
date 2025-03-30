@@ -952,6 +952,8 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
 float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray, unsigned level ) const {
     // TODO Develop a more complex, but more effient raycasting implementation like DDA.
 
+    assert(level <= 2 && level >= 0);
+
     const float MAX_DISTANCE = 131072.0f;
 
     bool found_triangle = false;
@@ -964,9 +966,12 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
         // Get the intersection distance from the plane first.
         temp_distance = i.getIntersectionDistance( ray );
         
-        // If temp_distance is positive and
+        // If temp_distance is positive
+        if( temp_distance <= 0.0f )
+            continue;
+
         // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
-        if( temp_distance > 0.0f && temp_distance < final_distances[0] ) {
+        if( temp_distance < final_distances[0] ) {
             
             // Get the point in 3D space.
             point = ray.getSpot( temp_distance );
@@ -982,8 +987,9 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
 
                 // If there is data in the queue then place it in the final distances.
                 if(final_distances[0] != MAX_DISTANCE) {
-                    final_distances[2] = final_distances[1];
-                    final_distances[1] = final_distances[0];
+                    for(unsigned d = 2; d != 0; d--) {
+                        final_distances[d] = final_distances[d - 1];
+                    }
                 }
                 
                 // The final_distance is now at the triangle.
@@ -997,14 +1003,22 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
         return -1.0f;
 
     if(level == 2) {
-        if(final_distances[2] != MAX_DISTANCE)
+        if(final_distances[2] != MAX_DISTANCE) {
+            assert(final_distances[2] != final_distances[1]);
+            assert(final_distances[1] != final_distances[0]);
+
             return final_distances[2];
-        else if(final_distances[1] != MAX_DISTANCE)
+        }
+        else if(final_distances[1] != MAX_DISTANCE) {
+            assert(final_distances[1] != final_distances[0]);
             return final_distances[1];
+        }
     }
     else
-    if(level == 1 && final_distances[1] != MAX_DISTANCE)
+    if(level == 1 && final_distances[1] != MAX_DISTANCE) {
+        assert(final_distances[1] != final_distances[0]);
         return final_distances[1];
+    }
 
     return final_distances[0];
 }
