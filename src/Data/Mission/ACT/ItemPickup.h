@@ -10,16 +10,16 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint8_t uint8_0;
-        uint8_t uint8_1;
-        uint16_t uint16_0;
-        uint16_t uint16_1;
-        uint32_t uint32_0;
-        uint16_t uint16_2;
-        uint32_t uint32_1;
-        uint32_t bitfield;
-        uint16_t uint16_3;
-        uint16_t rotation;
+        uint8_t ground_cast_type;
+        uint8_t          uint8_1;
+        uint16_t        uint16_0;
+        uint16_t        uint16_1;
+        uint32_t        uint32_0;
+        uint16_t        uint16_2;
+        uint32_t        uint32_1;
+        uint32_t        bitfield;
+        uint16_t        uint16_3;
+        uint16_t        rotation;
     } internal;
 
 protected:

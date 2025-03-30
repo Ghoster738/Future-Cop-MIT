@@ -24,7 +24,7 @@ Json::Value Data::Mission::ACT::ItemPickup::makeJson() const {
     Json::Value root = BaseEntity::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
+    root["ACT"][NAME]["ground_cast_type"] = internal.ground_cast_type;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
     root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
@@ -46,7 +46,7 @@ bool Data::Mission::ACT::ItemPickup::readACTType( uint_fast8_t act_type, Utiliti
 
     BaseEntity::readBase(data_reader, endian);
 
-    internal.uint8_0 = data_reader.readU8();           // Always 0
+    internal.ground_cast_type = data_reader.readU8();  // Always 0
     internal.uint8_1 = data_reader.readU8();           // Always 1
     internal.uint16_0 = data_reader.readU16( endian ); // Always 1
     internal.uint16_1 = data_reader.readU16( endian ); // Always 81
