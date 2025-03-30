@@ -18,7 +18,7 @@ public:
         uint16_t zero_0; // Stationary Turret: Turret
         uint8_t uint8_0;
         uint8_t zero_1;
-        uint16_t base_rotation;
+        int16_t base_rotation;
     } internal;
 
 protected:

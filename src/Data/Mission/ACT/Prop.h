@@ -15,9 +15,9 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t      rotation_y;
-        uint16_t      rotation_z;
-        uint16_t      rotation_x;
+        int16_t       rotation_y;
+        int16_t       rotation_z;
+        int16_t       rotation_x;
         uint16_t   height_offset;
         uint8_t ground_cast_type;
         uint8_t          uint8_1; // Unknown.
@@ -52,8 +52,6 @@ public:
     Internal getInternal() const;
 
     uint32_t getObjResourceID() const { return rsl_data[0].resource_id; }
-
-    float getRotation() const;
 
     glm::quat getRotationQuaternion() const;
 

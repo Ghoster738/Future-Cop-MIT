@@ -35,7 +35,7 @@ bool Data::Mission::ACT::Turret::readBase( Utilities::Buffer::Reader &data_reade
     internal.zero_0        = data_reader.readU16( endian ); // Always 0
     internal.uint8_0       = data_reader.readU8();          // Values: 0, 1,
     internal.zero_1        = data_reader.readU8();          // Always 0
-    internal.base_rotation = data_reader.readU16( endian ); // Values: 0, 200, 256, 300, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3060, 3072, 3200, 3400, 3572, 3584, 3600, 3700,
+    internal.base_rotation = data_reader.readI16( endian ); // Values: 0, 200, 256, 300, 400, 512, 1024, 1100, 1400, 1536, 1800, 2048, 2560, 2900, 3060, 3072, 3200, 3400, 3572, 3584, 3600, 3700,
 
     return true;
 }
@@ -84,7 +84,7 @@ Data::Mission::ACT::Turret::Internal Data::Mission::ACT::Turret::getInternal() c
 }
 
 float Data::Mission::ACT::Turret::getBaseRotation() const {
-    return ACTResource::getRotation( internal.base_rotation );
+    return ACTResource::getRotation( internal.base_rotation - 1024 );
 }
 
 glm::quat Data::Mission::ACT::Turret::getBaseRotationQuaternion() const {

@@ -32,9 +32,9 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    internal.rotation_y = data_reader.readU16( endian ); // Values: 0, 512, 800, 900, 1000, 1024, 1111, 1200, 1256, 1536, 1650, 2000, 2048, 2100, 2222, 2300, 3000, 3072, 3076, 3333, 3584, 3600, 3700, 3900, 65535,
-    internal.rotation_z = data_reader.readU16( endian ); // Values: 0, 84, 85, 86, 87, 88, 89, 90, 100, 3072, 3700,
-    internal.rotation_x = data_reader.readU16( endian ); // Values: 0, 13, 15, 17, 18, 19, 23, 24, 27, 200, 300, 340, 700, 3396,
+    internal.rotation_y = data_reader.readI16( endian ); // Values: 0, 512, 800, 900, 1000, 1024, 1111, 1200, 1256, 1536, 1650, 2000, 2048, 2100, 2222, 2300, 3000, 3072, 3076, 3333, 3584, 3600, 3700, 3900, 65535,
+    internal.rotation_z = data_reader.readI16( endian ); // Values: 0, 84, 85, 86, 87, 88, 89, 90, 100, 3072, 3700,
+    internal.rotation_x = data_reader.readI16( endian ); // Values: 0, 13, 15, 17, 18, 19, 23, 24, 27, 200, 300, 340, 700, 3396,
     internal.height_offset = data_reader.readU16( endian ); // Values: 0, 40, 81, 122, 163, 204, 245, 250, 276, 286, 327, 450, 491, 512, 532, 573, 614, 696, 737, 819, 901, 983, 1024, 1044, 1126, 1187, 1228, 1310, 1351, 1433, 1536, 1638, 3276, 63692, 64512, 65208, 65249, 65290, 65331, 65372, 65413, 65433, 65454,
     internal.ground_cast_type = data_reader.readU8(); // Values: 0, 1, 255,
     internal.uint8_1 = data_reader.readU8(); // Values: 0, 1, 2, 4, 16, 48, 64, 66, 68, 
@@ -87,10 +87,6 @@ Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const
     return internal;
 }
 
-float Data::Mission::ACT::Prop::getRotation() const {
-    return ACTResource::getRotation( internal.rotation_y );
-}
-
 glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
-    return ACTResource::getRotationQuaternion( this->getRotation() );
+    return glm::quat( glm::vec3(getRotation(0), getRotation(internal.rotation_y - 1024), getRotation(0)) );
 }

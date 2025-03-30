@@ -235,9 +235,8 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
 }
 
 
-float Data::Mission::ACTResource::getRotation( uint16_t rotation_value ) {
-    int32_t rotation = rotation_value;
-    return -glm::pi<float>() / 2048.0f * (rotation - 1024);
+float Data::Mission::ACTResource::getRotation( int16_t rotation ) {
+    return -glm::pi<float>() / 2048.0f * rotation;
 }
 
 glm::quat Data::Mission::ACTResource::getRotationQuaternion( float rotation ) {

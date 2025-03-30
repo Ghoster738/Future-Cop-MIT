@@ -71,7 +71,7 @@ protected:
     uint32_t readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
     uint32_t readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
 
-    static float getRotation( uint16_t rotation_value );
+    static float getRotation( int16_t rotation_value );
     static glm::quat getRotationQuaternion( float rotation );
 
 public:
