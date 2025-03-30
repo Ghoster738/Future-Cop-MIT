@@ -8,6 +8,9 @@ Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc );
+
+    this->position.y += obj.getHeightOffset();
+
     this->rest_gun_rotation = obj.getGunRotationQuaternion();
     this->gun_rotation = this->rest_gun_rotation;
     this->base_rotation = obj.getBaseRotationQuaternion();

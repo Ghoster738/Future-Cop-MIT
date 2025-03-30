@@ -12,7 +12,7 @@ public:
         uint8_t uint8_0;
         uint16_t uint16_0;
         int16_t  gun_rotation;
-        uint16_t height_offset;
+        int16_t height_offset;
         uint16_t turn_speed;
         uint16_t uint16_1;
         uint8_t unk_turn_type;
@@ -32,6 +32,8 @@ public:
     BaseShooterTurret( const BaseShooterTurret& obj );
 
     Internal getShooterTurretInternal() const;
+
+    float getHeightOffset() const;
 
     float getGunRotation() const;
     glm::quat getGunRotationQuaternion() const;
