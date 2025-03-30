@@ -111,7 +111,7 @@ Data::Mission::ACT::Aircraft::Internal Data::Mission::ACT::Aircraft::getInternal
 
 float Data::Mission::ACT::Aircraft::getHeightOffset() const {
     //TODO Find out the fixed point format of height offset.
-    return (1.f / 256.f) * internal.height_offset;
+    return (1.f / 512.f) * internal.height_offset;
 }
 
 glm::vec2 Data::Mission::ACT::Aircraft::getSpawnPosition() const {
