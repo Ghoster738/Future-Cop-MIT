@@ -12,8 +12,7 @@ NeutralTurret::NeutralTurret( const Data::Accessor& accessor, const Data::Missio
     this->gun_rotation = this->rest_gun_rotation;
     this->base_rotation = obj.getBaseRotationQuaternion();
 
-    this->texture_offset = glm::vec2( 0, 0 );
-    // this->texture_offset = obj.getTextureOffset();
+    this->texture_offset = obj.getTextureOffset();
 
     this->alive_gun_id = obj.getAliveGunID();
     this->alive_gun = obj.getHasAliveGunID();
