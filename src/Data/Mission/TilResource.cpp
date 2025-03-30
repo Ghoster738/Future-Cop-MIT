@@ -949,7 +949,7 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
     }
 }
 
-float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray ) const {
+float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray, unsigned level ) const {
     // TODO Develop a more complex, but more effient raycasting implementation like DDA.
     bool found_triangle = false;
     float final_distance = 1000000.0f;
@@ -990,15 +990,15 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
         return -1.0f;
 }
 
-float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
-    return getRayCastDownward( x, z, MAX_HEIGHT );
+float Data::Mission::TilResource::getRayCast2D( float x, float z, unsigned level ) const {
+    return getRayCastDownward( x, z, MAX_HEIGHT, level );
 }
 
-float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point ) const {
+float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point, unsigned level ) const {
     // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
-    Utilities::Collision::Ray downRay( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
+    Utilities::Collision::Ray down_ray( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
     
-    return getRayCast3D( downRay );
+    return getRayCast3D( down_ray, level );
 }
 
 const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::getAllTriangles() const {
@@ -1021,7 +1021,7 @@ Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_p
             
             float z_pos = static_cast<float>(z) * STEPER - HALF_LENGTH;
             
-            float distance = getRayCast2D( z_pos, x_pos );
+            float distance = getRayCast2D( z_pos, x_pos, 0 );
             
             // This means that no triangles had been hit
             if( distance < 0.0f ) {

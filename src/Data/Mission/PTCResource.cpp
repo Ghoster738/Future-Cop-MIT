@@ -266,7 +266,7 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x, unsigned level
     const float x_til_offset = fmod( x, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
     const float y_til_offset = fmod( y, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
 
-    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
+    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), level );
 }
 
 
