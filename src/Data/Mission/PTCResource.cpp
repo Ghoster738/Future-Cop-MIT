@@ -250,7 +250,7 @@ int Data::Mission::PTCResource::writeEntireMap( const std::filesystem::path& fil
         return 0; // Combine model has failed to write.
 }
 
-float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
+float Data::Mission::PTCResource::getRayCast2D( float y, float x, unsigned level ) const {
     if( x < 0.0 || y < 0.0 )
         return 10.0f;
 

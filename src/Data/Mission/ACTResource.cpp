@@ -353,9 +353,9 @@ glm::vec2 Data::Mission::ACTResource::getPosition() const {
     return (1.f / 8192.f) * glm::vec2( position_x, position_y );
 }
 
-glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) const {
+glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc, GroundCast ground_cast ) const {
     const auto v = this->getPosition();
-    return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
+    return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) ), v.y );
 }
 
 bool Data::Mission::IFFOptions::ACTOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

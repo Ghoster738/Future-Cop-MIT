@@ -83,9 +83,9 @@ public:
     
     int writeEntireMap( const std::filesystem::path& file_path, bool make_culled = false ) const;
     
-    float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
-    float getRayCast2D( float x, float y ) const;
-    float getRayCastDownward( float x, float y, float from_highest_point ) const;
+    float getRayCast3D( const Utilities::Collision::Ray &ray, unsigned level ) const; // TODO Implement this one.
+    float getRayCast2D( float x, float y, unsigned level = 0) const;
+    float getRayCastDownward( float x, float y, float from_highest_point, unsigned level ) const; // TODO Implement this one.
 
     static PTCResource* getTest( uint32_t resource_id, Utilities::Buffer::Endian endianess = Utilities::Buffer::Endian::LITTLE, Utilities::Logger *logger_r = nullptr );
 };
