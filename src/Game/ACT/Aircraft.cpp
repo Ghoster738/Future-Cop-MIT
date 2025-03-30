@@ -9,7 +9,7 @@ Aircraft::Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Ai
 
     {
         auto v = obj.getSpawnPosition();
-        this->position = glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
+        this->position = glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y, Data::Mission::ACTResource::GroundCast::HIGH ), v.y );
     }
 
     this->position.y += obj.getHeightOffset();

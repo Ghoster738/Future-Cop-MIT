@@ -7,7 +7,7 @@ namespace ACT {
 NeutralTurret::NeutralTurret( const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc );
+    this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.turret_shooter_internal.ground_cast_type) );
     this->rest_gun_rotation = obj.getGunRotationQuaternion();
     this->gun_rotation = this->rest_gun_rotation;
     this->base_rotation = obj.getBaseRotationQuaternion();

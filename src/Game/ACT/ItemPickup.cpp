@@ -7,7 +7,8 @@ namespace ACT {
 ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc );
+    // TODO I am guessing that uint8_0 means ground cast.
+    this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.uint8_0) );
     this->speed_per_second_radians = 0.128;
     this->rotation_radians = 0;
 
