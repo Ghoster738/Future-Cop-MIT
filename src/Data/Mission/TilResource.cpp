@@ -970,30 +970,39 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
         if( temp_distance <= 0.0f )
             continue;
 
-        // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
-        if( temp_distance < final_distances[0] ) {
-            
-            // Get the point in 3D space.
-            point = ray.getSpot( temp_distance );
-            
-            // Get the barycentric cordinates.
-            barycentric = i.getBarycentricCordinates( point );
-            
-            // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
-            if( i.isInTriangle( barycentric ) ) {
-                
-                // A triangle has been found.
-                found_triangle = true;
+        for(unsigned t = 0; t < 3; t++) {
+            if(t != 0 && final_distances[t - 1] == temp_distance) {
+                t = 3;
+                continue;
+            }
 
-                // If there is data in the queue then place it in the final distances.
-                if(final_distances[0] != MAX_DISTANCE) {
-                    for(unsigned d = 2; d != 0; d--) {
-                        final_distances[d] = final_distances[d - 1];
+            // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
+            if( temp_distance < final_distances[t] ) {
+
+                // Get the point in 3D space.
+                point = ray.getSpot( temp_distance );
+
+                // Get the barycentric cordinates.
+                barycentric = i.getBarycentricCordinates( point );
+
+                // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
+                if( i.isInTriangle( barycentric ) ) {
+
+                    // A triangle has been found.
+                    found_triangle = true;
+
+                    // If there is data in the queue then place it in the final distances.
+                    if(final_distances[t] != MAX_DISTANCE) {
+                        for(unsigned d = 2; d != t; d--) {
+                            final_distances[d] = final_distances[d - 1];
+                        }
                     }
+
+                    // The final_distance is now at the triangle.
+                    final_distances[t] = temp_distance;
+
+                    t = 3;
                 }
-                
-                // The final_distance is now at the triangle.
-                final_distances[0] = temp_distance;
             }
         }
     }
