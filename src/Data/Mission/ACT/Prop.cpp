@@ -88,5 +88,12 @@ Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const
 }
 
 glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
-    return glm::quat( glm::vec3(getRotation(0), getRotation(internal.rotation_y - 1024), getRotation(0)) );
+    glm::quat axis = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
+
+    // TODO Check to see where Future Cop would "gimble lock."
+    axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+    axis = glm::rotate(axis, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
+    axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+    return axis;
 }
