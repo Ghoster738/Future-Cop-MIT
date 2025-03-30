@@ -142,7 +142,7 @@ public:
     virtual Json::Value makeJson() const;
 
     glm::vec2 getPosition() const;
-    glm::vec3 getPosition( const PTCResource &ptc, GroundCast ground_cast = GroundCast::DEFAULT) const;
+    glm::vec3 getPosition( const PTCResource &ptc, GroundCast ground_cast = GroundCast::LOW) const;
 };
 
 }
