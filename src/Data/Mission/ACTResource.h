@@ -42,6 +42,26 @@ public:
         std::string getString() const;
     };
 
+    enum GroundCast {
+        HIGH    = 0x00,
+        LOW     = 0x01,
+        MIDDLE  = 0x03,
+        DEFAULT = 0xff
+    };
+
+    static unsigned getGroundCastLevels(GroundCast ground_cast) {
+        switch(ground_cast) {
+            case HIGH:
+            case DEFAULT:
+            default:
+                return 0;
+            case MIDDLE:
+                return 1;
+            case LOW:
+                return 2;
+        }
+    }
+
 protected:
     static const uint32_t ACT_CHUNK_ID;
     static const uint32_t RSL_CHUNK_ID;
