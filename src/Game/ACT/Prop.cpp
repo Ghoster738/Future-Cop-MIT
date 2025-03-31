@@ -63,9 +63,12 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     this->a += std::chrono::duration<float>( delta ).count();
 
     if(this->a > 1.0f)
-        this->a -= 1.0f;
+        this->a -= 2.0f;
 
-    this->rotation = glm::mix(this->rotation_point_0, this->rotation_point_1, this->a);
+    if(this->a < 0.0f)
+        this->rotation = glm::mix(this->rotation_point_1, this->rotation_point_0, 1.0f + this->a);
+    else
+        this->rotation = glm::mix(this->rotation_point_0, this->rotation_point_1, this->a);
 
     this->model_p->setRotation( this->rotation );
 }
