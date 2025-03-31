@@ -78,11 +78,11 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
 
     if( this->rotation_time_line_length == 3 ) {
         if(this->rotation_time_line > 2.0f)
-            this->rotation = this->rotation_points[2];
+            this->rotation = glm::mix(this->rotation_points[2], -this->rotation_points[0], this->rotation_time_line - 2); // TODO Figure out why this->rotation_points[0] being negative fixed the problems.
         else if(this->rotation_time_line > 1.0f)
-            this->rotation = this->rotation_points[1];
+            this->rotation = glm::mix(this->rotation_points[1],  this->rotation_points[2], this->rotation_time_line - 1);
         else
-            this->rotation = this->rotation_points[0];
+            this->rotation = glm::mix(this->rotation_points[0],  this->rotation_points[1], this->rotation_time_line);
     }
     else {
         if(this->rotation_time_line > 1.0f)
