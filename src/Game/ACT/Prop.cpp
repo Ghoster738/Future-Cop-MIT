@@ -20,13 +20,11 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
         this->has_animated_rotation = true;
         this->rotation_time_line_length = 2;
 
-        this->rotation_points[0] = obj.getRotationQuaternion( 0 );
-        this->rotation_points[1] = obj.getRotationQuaternion( 1 );
-
-        if( obj.hasFullRotation() ) {
+        if(obj.hasFullRotation())
             this->rotation_time_line_length = 3;
-            this->rotation_points[2] = obj.getRotationQuaternion( 2 );
-        }
+
+        for(unsigned i = this->rotation_time_line_length; i != 0; i--)
+            this->rotation_points[i - 1] = obj.getRotationQuaternion(i - 1);
 
         this->rotation_time_line = 0.0f;
     }
