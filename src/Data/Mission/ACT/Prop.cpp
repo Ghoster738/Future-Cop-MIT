@@ -101,3 +101,19 @@ glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
 
     return axis;
 }
+
+glm::quat Data::Mission::ACT::Prop::getRotationQuaternion( float a ) const {
+    glm::quat axis_0 = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
+
+    axis_0 = glm::rotate(axis_0, getRotation(internal.rotation_y) + (glm::pi<float>() * 45.0f) / 180.f, glm::vec3( 0, 1, 0));
+    axis_0 = glm::rotate(axis_0, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
+    axis_0 = glm::rotate(axis_0, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+    glm::quat axis_1 = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
+
+    axis_1 = glm::rotate(axis_1, getRotation(internal.rotation_y) - (glm::pi<float>() * 45.0f) / 180.f, glm::vec3( 0, 1, 0));
+    axis_1 = glm::rotate(axis_1, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
+    axis_1 = glm::rotate(axis_1, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+    return glm::mix(axis_0, axis_1, a);
+}

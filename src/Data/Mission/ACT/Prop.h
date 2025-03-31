@@ -57,6 +57,13 @@ public:
 
     glm::quat getRotationQuaternion() const;
 
+    bool hasSpin() const {
+        if(internal.spin_speed == 0)
+            return false;
+        return true;
+    }
+
+    glm::quat getRotationQuaternion( float a ) const;
 };
 }
 

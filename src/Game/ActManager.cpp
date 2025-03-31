@@ -103,6 +103,10 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateSpawn<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
     updateSpawn<ACT::Prop>(          main_program,           props, delta );
     updateSpawn<ACT::SkyCaptain>(    main_program,    sky_captains, delta );
+
+    for( auto &actor : props.actors ) {
+        actor.update(main_program, delta);
+    }
 }
 
 }
