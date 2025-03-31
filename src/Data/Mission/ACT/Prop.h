@@ -61,6 +61,10 @@ public:
         return true;
     }
 
+    float getSpeedFactor() const {
+        return 1.f / 13.42f * internal.spin_speed;
+    }
+
     bool hasFullRotation() const {
         if(internal.spin_angle != 0)
             return false;

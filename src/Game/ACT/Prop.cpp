@@ -28,7 +28,8 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 
         this->rotation_time_line = 0.0f;
 
-        this->rotation_speed_factor = this->rotation_time_line_length;
+        this->rotation_speed_factor  = this->rotation_time_line_length;
+        this->rotation_speed_factor *= obj.getSpeedFactor();
     }
 
     this->model_id = obj.getObjResourceID();
