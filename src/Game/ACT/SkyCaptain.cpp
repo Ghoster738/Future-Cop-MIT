@@ -14,13 +14,15 @@ SkyCaptain::SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT
 
     this->position.y += obj.getHeightOffset();
 
+    this->texture_offset = obj.getTextureOffset();
+
     this->model = obj.hasModelID();
     this->model_id = obj.getModelID();
     this->model_p = nullptr;
 }
 
 SkyCaptain::SkyCaptain( const SkyCaptain& obj ) :
-    Actor( obj ),
+    Actor( obj ), texture_offset( obj.texture_offset ),
     model_id( obj.model_id ), model( obj.model ), model_p( nullptr ) {}
 
 SkyCaptain::~SkyCaptain() {
@@ -39,7 +41,7 @@ void SkyCaptain::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->model )
-            this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position );
+            this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position, glm::quat(), this->texture_offset );
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

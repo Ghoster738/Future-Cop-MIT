@@ -15,6 +15,8 @@ namespace ACT {
 
 class ItemPickup : public Actor {
 private:
+    glm::vec2 texture_offset;
+
     float speed_per_second_radians;
     float rotation_radians;
     uint32_t model_id; bool model;

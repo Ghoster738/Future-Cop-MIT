@@ -8,6 +8,8 @@ ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
+
+    this->texture_offset = obj.getTextureOffset();
     this->speed_per_second_radians = 0.128;
     this->rotation_radians = 0;
 
@@ -17,7 +19,7 @@ ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT
 }
 
 ItemPickup::ItemPickup( const ItemPickup& obj ) :
-    Actor( obj ),
+    Actor( obj ), texture_offset( obj.texture_offset ),
     speed_per_second_radians( obj.speed_per_second_radians ), model_id( obj.model_id ), model( obj.model ), model_p( nullptr ) {}
 
 ItemPickup::~ItemPickup() {
@@ -36,7 +38,7 @@ void ItemPickup::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->model )
-            this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position );
+            this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position, glm::quat(), this->texture_offset );
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

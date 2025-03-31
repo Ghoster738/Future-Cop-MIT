@@ -14,6 +14,8 @@ namespace ACT {
 
 class Aircraft : public Actor {
 private:
+    glm::vec2 texture_offset;
+
     uint32_t model_id; bool model;
     Graphics::ModelInstance *model_p;
 
