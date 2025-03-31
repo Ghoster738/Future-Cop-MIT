@@ -102,7 +102,7 @@ glm::quat Data::Mission::ACT::Prop::getRotationQuaternion( unsigned level ) cons
         return axis;
     }
 
-    if(internal.spin_angle != 0) {
+    if(!this->hasFullRotation()) {
         if(level == 0)
             axis = glm::rotate(axis, getRotation(internal.rotation_y) + glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
         else
@@ -114,11 +114,11 @@ glm::quat Data::Mission::ACT::Prop::getRotationQuaternion( unsigned level ) cons
     }
 
     if(level == 0)
-        axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+        axis = glm::rotate(axis, getRotation(internal.rotation_y) + 2.f * glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
     else if(level == 1)
-        axis = glm::rotate(axis, getRotation(internal.rotation_y) + glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
+        axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
     else
-        axis = glm::rotate(axis, getRotation(internal.rotation_y) - glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
+        axis = glm::rotate(axis, getRotation(internal.rotation_y) - 2.f * glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
     axis = glm::rotate(axis, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
     axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
 

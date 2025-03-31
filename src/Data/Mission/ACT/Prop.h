@@ -61,6 +61,12 @@ public:
         return true;
     }
 
+    bool hasFullRotation() const {
+        if(internal.spin_angle != 0)
+            return false;
+        return true;
+    }
+
     glm::quat getRotationQuaternion( unsigned level ) const;
 };
 }
