@@ -11,14 +11,14 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 
     this->position.y += obj.getHeightOffset();
 
-    this->rotation = obj.getRotationQuaternion();
+    this->rotation = obj.getRotationQuaternion( 0 );
 
     this->has_animated_rotation = false;
 
     if( obj.hasSpin() ) {
         this->has_animated_rotation = true;
-        this->rotation_point_0 = obj.getRotationQuaternion( 0.0f );
-        this->rotation_point_1 = obj.getRotationQuaternion( 1.0f );
+        this->rotation_point_0 = obj.getRotationQuaternion( 0 );
+        this->rotation_point_1 = obj.getRotationQuaternion( 1 );
         this->a = 0.0f;
     }
 

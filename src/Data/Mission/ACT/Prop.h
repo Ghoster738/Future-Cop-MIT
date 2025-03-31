@@ -55,15 +55,13 @@ public:
 
     uint32_t getObjResourceID() const { return rsl_data[0].resource_id; }
 
-    glm::quat getRotationQuaternion() const;
-
     bool hasSpin() const {
         if(internal.spin_speed == 0)
             return false;
         return true;
     }
 
-    glm::quat getRotationQuaternion( float a ) const;
+    glm::quat getRotationQuaternion( unsigned level ) const;
 };
 }
 

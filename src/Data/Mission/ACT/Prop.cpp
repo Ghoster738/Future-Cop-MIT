@@ -91,29 +91,36 @@ float Data::Mission::ACT::Prop::getHeightOffset() const {
     return (1.f / 512.f) * internal.height_offset;
 }
 
-glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
+glm::quat Data::Mission::ACT::Prop::getRotationQuaternion( unsigned level ) const {
     glm::quat axis = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
 
-    // TODO Check to see where Future Cop would "gimble lock."
-    axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+    if(!this->hasSpin()) {
+        axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+        axis = glm::rotate(axis, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
+        axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+        return axis;
+    }
+
+    if(internal.spin_angle != 0) {
+        if(level == 0)
+            axis = glm::rotate(axis, getRotation(internal.rotation_y) + glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
+        else
+            axis = glm::rotate(axis, getRotation(internal.rotation_y) - glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
+        axis = glm::rotate(axis, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
+        axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+        return axis;
+    }
+
+    if(level == 0)
+        axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+    else if(level == 1)
+        axis = glm::rotate(axis, getRotation(internal.rotation_y) + glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
+    else
+        axis = glm::rotate(axis, getRotation(internal.rotation_y) - glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
     axis = glm::rotate(axis, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
     axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
 
     return axis;
-}
-
-glm::quat Data::Mission::ACT::Prop::getRotationQuaternion( float a ) const {
-    glm::quat axis_0 = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
-
-    axis_0 = glm::rotate(axis_0, getRotation(internal.rotation_y) + glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
-    axis_0 = glm::rotate(axis_0, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
-    axis_0 = glm::rotate(axis_0, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
-
-    glm::quat axis_1 = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
-
-    axis_1 = glm::rotate(axis_1, getRotation(internal.rotation_y) - glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
-    axis_1 = glm::rotate(axis_1, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
-    axis_1 = glm::rotate(axis_1, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
-
-    return glm::mix(axis_0, axis_1, a);
 }
