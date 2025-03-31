@@ -319,21 +319,23 @@ int main() {
                 is_not_success = true;
             }
         }
+
+        const unsigned level = 0;
         
         // There always should be a center to the til resource.
-        if( til_resource->getRayCast2D( 0, 0 ) < 0 ) {
+        if( til_resource->getRayCast2D( 0, 0, level ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "It is not raycastable." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource->getRayCast2D( 7.5, 7.5 ) < 0 ) {
+        if( til_resource->getRayCast2D( 7.5, 7.5, level ) < 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 8." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource->getRayCast2D( 8.5, 8.5 ) > 0 ) {
+        if( til_resource->getRayCast2D( 8.5, 8.5, level ) > 0 ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
             std::cout << "Til is not spanning 9." << std::endl;
             is_not_success = true;
