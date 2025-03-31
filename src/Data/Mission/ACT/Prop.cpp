@@ -42,7 +42,7 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     internal.scale_y = data_reader.readU8(); // Values: 19, 20, 21, 22, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 70, 76, 83, 89, 112, 121,
     internal.scale_z = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 76, 83, 96, 105, 108, 112, 115, 121,
     internal.scale_x = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 57, 60, 64, 67, 70, 76, 83, 89, 112, 121,
-    internal.spin_speed = data_reader.readU8(); // Values: 0, 1, 3, 4, 5, 7, 8, 16, 254,
+    internal.spin_speed = data_reader.readI8(); // Values: -2, 0, 1, 3, 4, 5, 7, 8, 16,
     internal.spin_angle = data_reader.readU8(); // Values: 0, 30, 40, 45, 60,
 
     return true;

@@ -25,7 +25,7 @@ public:
         uint8_t          scale_y;
         uint8_t          scale_z;
         uint8_t          scale_x;
-        uint8_t       spin_speed;
+        int8_t        spin_speed;
         uint8_t       spin_angle;
     } internal;
 

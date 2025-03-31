@@ -69,6 +69,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     root["FutureCopAsset"]["type"] = "ACT Resource";
     root["FutureCopAsset"]["major"] = 2;
     root["FutureCopAsset"]["minor"] = 0;
+    root["ACT"]["position_x"]  = position_x / 8192.;
+    root["ACT"]["position_y"]  = position_y / 8192.;
 
     for( unsigned i = 0; i < rsl_data.size(); i++ )
     {
