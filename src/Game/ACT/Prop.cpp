@@ -17,9 +17,9 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 
     if( obj.hasSpin() ) {
         this->has_animated_rotation = true;
-        this->rotation_point_0 = obj.getRotationQuaternion( 0 );
-        this->rotation_point_1 = obj.getRotationQuaternion( 1 );
-        this->a = 0.0f;
+        this->rotation_points[0] = obj.getRotationQuaternion( 0 );
+        this->rotation_points[1] = obj.getRotationQuaternion( 1 );
+        this->rotation_time_line = 0.0f;
     }
 
     this->model_id = obj.getObjResourceID();
@@ -29,9 +29,9 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 Prop::Prop( const Prop& obj ) :
     Actor( obj ),
     rotation( obj.rotation ), model_id( obj.model_id ), model_p( nullptr ),
+    rotation_points{obj.rotation_points[0], obj.rotation_points[1], obj.rotation_points[2]},
     has_animated_rotation( obj.has_animated_rotation ),
-    rotation_point_0( obj.rotation_point_0 ), rotation_point_1( obj.rotation_point_1 ),
-    a( obj.a ){}
+    rotation_time_line( obj.rotation_time_line ){}
 
 Prop::~Prop() {
     if( this->model_p != nullptr )
@@ -60,15 +60,15 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     if(!this->has_animated_rotation)
         return;
 
-    this->a += std::chrono::duration<float>( delta ).count();
+    this->rotation_time_line += std::chrono::duration<float>( delta ).count();
 
-    if(this->a > 1.0f)
-        this->a -= 2.0f;
+    if(this->rotation_time_line > 1.0f)
+        this->rotation_time_line -= 2.0f;
 
-    if(this->a < 0.0f)
-        this->rotation = glm::mix(this->rotation_point_1, this->rotation_point_0, 1.0f + this->a);
+    if(this->rotation_time_line < 0.0f)
+        this->rotation = glm::mix(this->rotation_points[1], this->rotation_points[0], 1.0f + this->rotation_time_line);
     else
-        this->rotation = glm::mix(this->rotation_point_0, this->rotation_point_1, this->a);
+        this->rotation = glm::mix(this->rotation_points[0], this->rotation_points[1], this->rotation_time_line);
 
     this->model_p->setRotation( this->rotation );
 }

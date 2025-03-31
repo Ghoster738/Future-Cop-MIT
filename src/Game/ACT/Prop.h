@@ -20,10 +20,9 @@ private:
     uint32_t model_id;
     Graphics::ModelInstance *model_p;
 
+    glm::quat rotation_points[3];
+    float rotation_time_line;
     bool has_animated_rotation;
-    glm::quat rotation_point_0;
-    glm::quat rotation_point_1;
-    float a;
 
 public:
     Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj );
