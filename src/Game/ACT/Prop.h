@@ -21,6 +21,7 @@ private:
     Graphics::ModelInstance *model_p;
 
     glm::quat rotation_points[3];
+    float rotation_speed_factor;
     float rotation_time_line;
     unsigned rotation_time_line_length;
     bool has_animated_rotation;

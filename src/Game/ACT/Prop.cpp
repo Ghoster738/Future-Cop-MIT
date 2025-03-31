@@ -27,6 +27,8 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
             this->rotation_points[i - 1] = obj.getRotationQuaternion(i - 1);
 
         this->rotation_time_line = 0.0f;
+
+        this->rotation_speed_factor = this->rotation_time_line_length;
     }
 
     this->model_id = obj.getObjResourceID();
@@ -37,9 +39,10 @@ Prop::Prop( const Prop& obj ) :
     Actor( obj ),
     rotation( obj.rotation ), model_id( obj.model_id ), model_p( nullptr ),
     rotation_points{obj.rotation_points[0], obj.rotation_points[1], obj.rotation_points[2]},
-    has_animated_rotation( obj.has_animated_rotation ),
+    rotation_time_line( obj.rotation_time_line ),
+    rotation_speed_factor( obj.rotation_speed_factor ),
     rotation_time_line_length( obj.rotation_time_line_length ),
-    rotation_time_line( obj.rotation_time_line ){}
+    has_animated_rotation( obj.has_animated_rotation ){}
 
 Prop::~Prop() {
     if( this->model_p != nullptr )
@@ -68,7 +71,7 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     if(!this->has_animated_rotation)
         return;
 
-    this->rotation_time_line += std::chrono::duration<float>( delta ).count();
+    this->rotation_time_line += std::chrono::duration<float>( delta ).count() * this->rotation_speed_factor;
 
     if(this->rotation_time_line > this->rotation_time_line_length) {
         this->rotation_time_line = this->rotation_time_line - this->rotation_time_line_length * static_cast<unsigned>(this->rotation_time_line) / this->rotation_time_line_length;
