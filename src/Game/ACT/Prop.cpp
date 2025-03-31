@@ -78,7 +78,7 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
 
     if( this->rotation_time_line_length == 3 ) {
         if(this->rotation_time_line > 2.0f)
-            this->rotation = glm::mix(this->rotation_points[2], -this->rotation_points[0], this->rotation_time_line - 2); // TODO Figure out why this->rotation_points[0] being negative fixed the problems.
+            this->rotation = glm::mix(this->rotation_points[2], -this->rotation_points[0], this->rotation_time_line - 2); // Turns out that negating a quaterion actually modifies the angle of rotation. This is required for circular animations.
         else if(this->rotation_time_line > 1.0f)
             this->rotation = glm::mix(this->rotation_points[1],  this->rotation_points[2], this->rotation_time_line - 1);
         else
