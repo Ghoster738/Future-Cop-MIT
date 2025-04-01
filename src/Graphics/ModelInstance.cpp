@@ -20,6 +20,10 @@ void Graphics::ModelInstance::setTextureOffset( const glm::vec2 &texture_offset 
     this->texture_offset = texture_offset;
 }
 
+void Graphics::ModelInstance::setColor( const glm::vec3 &color ) {
+    this->color = color;
+}
+
 void Graphics::ModelInstance::addTextureTransformTimelineSeconds( float texture_transform_timeline_seconds ) {
     float combination = texture_transform_remainder + texture_transform_timeline_seconds;
 

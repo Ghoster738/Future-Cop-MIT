@@ -28,7 +28,7 @@ protected:
             scale( glm::vec3(1, 1, 1) ),
             rotation( rot ),
             texture_offset( offset ),
-            color( glm::vec3(1, 0.25, 0.25) ),
+            color( glm::vec3(1, 1, 1) ),
             position_transform_timeline( 0.0f ),
             texture_transform_timeline( 0 ) {}
 
@@ -61,6 +61,8 @@ public:
      * @param texture_offset the rotation of the model.
      */
     virtual void setTextureOffset( const glm::vec2 &texture_offset );
+
+    virtual void setColor( const glm::vec3 &color );
 
     /**
      * This sets the time of the instance.

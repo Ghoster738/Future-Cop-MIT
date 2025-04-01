@@ -70,9 +70,9 @@ void ItemPickup::update( MainProgram &main_program, std::chrono::microseconds de
             this->blink_time_line -= std::abs(static_cast<int>(this->blink_time_line));
 
         if(0.5 > this->blink_time_line)
-            this->model_p->setScale( glm::vec3(0.5f, 0.5f, 0.5f) );
+            this->model_p->setColor( glm::vec3(1.0f, 0.5f, 0.5f) );
         else
-            this->model_p->setScale( glm::vec3(1.0f, 1.0f, 1.0f) );
+            this->model_p->setColor( glm::vec3(1.0f, 1.0f, 1.0f) );
     }
 }
 
