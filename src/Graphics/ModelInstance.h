@@ -14,6 +14,7 @@ protected:
     glm::vec3 scale;
     glm::quat rotation; // This value is a quaterion.
     glm::vec2 texture_offset;
+    glm::vec3 color;
     
     float position_transform_timeline;
     unsigned int texture_transform_timeline;
@@ -27,6 +28,7 @@ protected:
             scale( glm::vec3(1, 1, 1) ),
             rotation( rot ),
             texture_offset( offset ),
+            color( glm::vec3(1, 0.25, 0.25) ),
             position_transform_timeline( 0.0f ),
             texture_transform_timeline( 0 ) {}
 
@@ -101,6 +103,8 @@ public:
      * @return texture_offset the offset to the texture.
      */
     glm::vec2 getTextureOffset() const;
+
+    glm::vec3 getColor() const;
 
     float getPositionTransformTimeline() const { return position_transform_timeline; }
     unsigned int getTextureTransformTimeline() const { return texture_transform_timeline; }

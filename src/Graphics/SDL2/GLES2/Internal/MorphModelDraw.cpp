@@ -41,6 +41,10 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
             }
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+
+            draw_triangles_r[ i ].vertices[ t ].color.r *= this->color.r;
+            draw_triangles_r[ i ].vertices[ t ].color.g *= this->color.g;
+            draw_triangles_r[ i ].vertices[ t ].color.b *= this->color.b;
         }
         
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
@@ -59,7 +63,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::PrimitiveType::STAR:
-                color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
+                color = glm::mix(facer_polygon.color * this->color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
@@ -89,7 +93,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
                 index += DynamicTriangleDraw::Triangle::addBillboard(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    facer_polygon.point.position, facer_polygon.color, facer_polygon.width,
+                    facer_polygon.point.position, facer_polygon.color * this->color, facer_polygon.width,
                     polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
                 );
                 break;
@@ -166,6 +170,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
+    "uniform vec3 ModelColor;\n"
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for modifiying the morph attributes
     "uniform float SampleLast;\n"
@@ -187,7 +192,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "   texture_coord_1 = TEXCOORD_0 * float( _METADATA[1] == 0. );\n"
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
-    "   in_color = COLOR_0;\n"
+    "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
     "   MAKE_FULL_POSITION(current_position);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
@@ -320,6 +325,10 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
 
                 (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
 
+                auto color = (*instance)->getColor();
+
+                glUniform3fv( this->model_color_uniform_id, 1, reinterpret_cast<const GLfloat*>( &color ));
+
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
@@ -369,6 +378,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
                 dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
                 dynamic.facer_polygons_stride  =  (*d).second->facer_polygons_stride;
                 dynamic.texture_offset = texture_offset;
+                dynamic.color = color;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
         }

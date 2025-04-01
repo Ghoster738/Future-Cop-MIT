@@ -43,3 +43,7 @@ glm::quat Graphics::ModelInstance::getRotation() const {
 glm::vec2 Graphics::ModelInstance::getTextureOffset() const {
     return this->texture_offset;
 }
+
+glm::vec3 Graphics::ModelInstance::getColor() const {
+    return this->color;
+}

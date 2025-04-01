@@ -26,6 +26,7 @@ public:
             unsigned int frame_index;
             std::vector<glm::vec2> *uv_frame_buffer_r;
             glm::vec2 texture_offset;
+            glm::vec3 color;
             std::vector<float> *star_timings_r;
             std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
             unsigned facer_triangles_amount;
