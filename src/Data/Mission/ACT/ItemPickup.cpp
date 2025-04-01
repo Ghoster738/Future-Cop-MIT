@@ -33,7 +33,7 @@ Json::Value Data::Mission::ACT::ItemPickup::makeJson() const {
     root["ACT"][NAME]["uint32_1"] = internal.uint32_1;
     root["ACT"][NAME]["bitfield"] = internal.bitfield;
     root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
-    root["ACT"][NAME]["rotation"] = internal.rotation;
+    root["ACT"][NAME]["rotational_speed"] = internal.rotational_speed;
 
     return root;
 }
@@ -55,7 +55,7 @@ bool Data::Mission::ACT::ItemPickup::readACTType( uint_fast8_t act_type, Utiliti
     internal.uint32_1 = data_reader.readU32( endian ); // Always 6488064
     internal.bitfield = data_reader.readU32( endian ); // Values: 0x03000001, 0x03000002, 0x03000004, 0x03000010, 0x03000020, 0x03000040, 0x03020000, 0x03040000,
     internal.uint16_3 = data_reader.readU16( endian ); // Always 65535
-    internal.rotation = data_reader.readU16( endian ); // Values: 1228, 60620,
+    internal.rotational_speed = data_reader.readI16( endian ); // Values: 1228, 60620,
 
     return true;
 }

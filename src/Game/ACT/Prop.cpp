@@ -79,7 +79,7 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     this->rotation_time_line += std::chrono::duration<float>( delta ).count() * this->rotation_speed_factor;
 
     if(this->rotation_time_line > this->rotation_time_line_length) {
-        this->rotation_time_line = this->rotation_time_line - this->rotation_time_line_length * static_cast<unsigned>(this->rotation_time_line) / this->rotation_time_line_length;
+        this->rotation_time_line -= this->rotation_time_line_length * std::abs(static_cast<int>(this->rotation_time_line / this->rotation_time_line_length));
     }
 
     if( this->rotation_time_line_length == 3 ) {

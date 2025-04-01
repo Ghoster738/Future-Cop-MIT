@@ -19,7 +19,7 @@ public:
         uint32_t        uint32_1;
         uint32_t        bitfield;
         uint16_t        uint16_3;
-        uint16_t        rotation;
+        int16_t rotational_speed;
     } internal;
 
 protected:
@@ -47,6 +47,8 @@ public:
 
     bool getHasItemID() const { return rsl_data[0].type != RSL_NULL_TAG; }
     uint32_t getItemID() const { return rsl_data[0].resource_id; }
+
+    float getRotationSpeed() const { return internal.rotational_speed * 0.0021f; }
 };
 
 }

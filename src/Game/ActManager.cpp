@@ -107,6 +107,11 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     for( auto &actor : props.actors ) {
         actor.update(main_program, delta);
     }
+    for( auto &spawner : item_pickups.spawners ) {
+        for( auto &actor : spawner.current_actors ) {
+            actor.update(main_program, delta);
+        }
+    }
 }
 
 }
