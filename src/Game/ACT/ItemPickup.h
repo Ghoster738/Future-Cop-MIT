@@ -19,6 +19,10 @@ private:
 
     float speed_per_second_radians;
     float rotation_radians;
+
+    float blink_time_line;
+    bool has_blink;
+
     uint32_t model_id; bool model;
     Graphics::ModelInstance *model_p;
 

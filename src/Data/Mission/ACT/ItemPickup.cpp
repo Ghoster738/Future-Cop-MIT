@@ -109,3 +109,8 @@ Data::Mission::ACTResource* Data::Mission::ACT::ItemPickup::duplicate( const ACT
 Data::Mission::ACT::ItemPickup::Internal Data::Mission::ACT::ItemPickup::getInternal() const {
     return internal;
 }
+
+
+bool Data::Mission::ACT::ItemPickup::hasBlink() const {
+    return ((BITFIELD_POWER_GUN | BITFIELD_POWER_HEAVY | BITFIELD_POWER_SPECIAL) & internal.bitfield) != 0;
+}

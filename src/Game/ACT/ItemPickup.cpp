@@ -10,8 +10,12 @@ ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
 
     this->texture_offset = obj.getTextureOffset();
+
     this->speed_per_second_radians = obj.getRotationSpeed();
     this->rotation_radians = 0;
+
+    this->blink_time_line = 0;
+    this->has_blink = obj.hasBlink();
 
     this->model = obj.getHasItemID();
     this->model_id = obj.getItemID();
@@ -20,7 +24,9 @@ ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT
 
 ItemPickup::ItemPickup( const ItemPickup& obj ) :
     Actor( obj ), texture_offset( obj.texture_offset ),
-    speed_per_second_radians( obj.speed_per_second_radians ), rotation_radians( obj.rotation_radians ), model_id( obj.model_id ), model( obj.model ), model_p( nullptr ) {}
+    speed_per_second_radians( obj.speed_per_second_radians ), rotation_radians( obj.rotation_radians ),
+    blink_time_line( obj.blink_time_line ), has_blink( obj.has_blink ),
+    model_id( obj.model_id ), model( obj.model ), model_p( nullptr ) {}
 
 ItemPickup::~ItemPickup() {
     if( this->model_p != nullptr )
@@ -56,6 +62,17 @@ void ItemPickup::update( MainProgram &main_program, std::chrono::microseconds de
     glm::quat rotation( glm::vec3( 0, this->rotation_radians, 0) );
 
     this->model_p->setRotation( rotation );
+
+    if(this->has_blink) {
+        this->blink_time_line += std::chrono::duration<float>( delta ).count() * this->speed_per_second_radians;
+
+        this->blink_time_line -= std::abs(static_cast<int>(this->blink_time_line));
+
+        /*if(0.5 > this->blink_time_line)
+            this->model_p->setColor( glm::vec3(0.5f, 1.f, 0.5f) );
+        else
+            this->model_p->setColor( glm::vec3(1.0f, 1.f, 1.0f) );*/
+    }
 }
 
 }

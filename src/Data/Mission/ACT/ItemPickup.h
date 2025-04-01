@@ -49,6 +49,8 @@ public:
     uint32_t getItemID() const { return rsl_data[0].resource_id; }
 
     float getRotationSpeed() const { return internal.rotational_speed * 0.0021f; }
+
+    bool hasBlink() const;
 };
 
 }
