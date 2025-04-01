@@ -4,12 +4,10 @@ namespace Game {
 
 namespace ACT {
 
-ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : Actor( obj.getID() ) {
+ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
-
-    this->texture_offset = obj.getTextureOffset();
 
     this->speed_per_second_radians = obj.getRotationSpeed();
     this->rotation_radians = 0;
@@ -23,7 +21,7 @@ ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT
 }
 
 ItemPickup::ItemPickup( const ItemPickup& obj ) :
-    Actor( obj ), texture_offset( obj.texture_offset ),
+    BaseEntity( obj ),
     speed_per_second_radians( obj.speed_per_second_radians ), rotation_radians( obj.rotation_radians ),
     blink_time_line( obj.blink_time_line ), has_blink( obj.has_blink ),
     model_id( obj.model_id ), model( obj.model ), model_p( nullptr ) {}

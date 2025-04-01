@@ -7,16 +7,14 @@
 #include "../../Data/Mission/ObjResource.h"
 #include "../../Data/Mission/IFF.h"
 
-#include "Actor.h"
+#include "BaseEntity.h"
 
 namespace Game {
 
 namespace ACT {
 
-class ItemPickup : public Actor {
+class ItemPickup : public BaseEntity {
 private:
-    glm::vec2 texture_offset;
-
     float speed_per_second_radians;
     float rotation_radians;
 
