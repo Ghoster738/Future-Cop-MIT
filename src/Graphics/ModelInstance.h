@@ -11,6 +11,7 @@ class ModelInstance {
 protected:
     // These units are for the 3D environment.
     glm::vec3 position;
+    glm::vec3 scale;
     glm::quat rotation; // This value is a quaterion.
     glm::vec2 texture_offset;
     
@@ -23,6 +24,7 @@ protected:
         const glm::quat &rot,
         const glm::vec2 &offset) :
             position( pos ),
+            scale( glm::vec3(1, 1, 1) ),
             rotation( rot ),
             texture_offset( offset ),
             position_transform_timeline( 0.0f ),
@@ -45,6 +47,12 @@ public:
      * @param rotation the rotation of the model. Warning this is a quaterion, and it should be manually normalized.
      */
     virtual void setRotation( const glm::quat &rotation );
+
+    /**
+     * This sets the scale of the model.
+     * @param scale the scale of the model.
+     */
+    virtual void setScale( const glm::vec3 &scale );
 
     /**
      * This sets the offset of the texture.
@@ -75,6 +83,12 @@ public:
      * @return the 3D position of the model to be overwritten.
      */
     glm::vec3 getPosition() const;
+
+    /**
+     * This gets the scale of the model.
+     * @return scale the scale of the model.
+     */
+    glm::vec3 getScale() const;
 
     /**
      * This gets the the rotation of the model.

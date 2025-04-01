@@ -72,6 +72,10 @@ public:
     }
 
     glm::quat getRotationQuaternion( unsigned level ) const;
+
+    glm::vec3 getScale() const {
+        return (1.f / 64.f) * glm::vec3(internal.scale_y, internal.scale_z, internal.scale_x);
+    }
 };
 }
 

@@ -340,7 +340,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
                     // Get the position and rotation of the model.
                     // Multiply them into one matrix which will hold the entire model transformation.
-                    camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() );
+                    camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
                     
                     // Then multiply it to the projection, and view to get projection, view, and model matrix.
                     camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;

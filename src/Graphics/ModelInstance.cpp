@@ -8,6 +8,10 @@ void Graphics::ModelInstance::setPosition( const glm::vec3 &position ) {
     this->position = position;
 }
 
+void Graphics::ModelInstance::setScale( const glm::vec3 &scale )  {
+    this->scale = scale;
+}
+
 void Graphics::ModelInstance::setRotation( const glm::quat &rotation ) {
     this->rotation = rotation;
 }
@@ -26,6 +30,10 @@ void Graphics::ModelInstance::addTextureTransformTimelineSeconds( float texture_
 
 glm::vec3 Graphics::ModelInstance::getPosition() const {
     return this->position;
+}
+
+glm::vec3 Graphics::ModelInstance::getScale() const {
+    return this->scale;
 }
 
 glm::quat Graphics::ModelInstance::getRotation() const {

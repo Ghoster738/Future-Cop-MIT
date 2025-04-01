@@ -11,6 +11,8 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 
     this->position.y += obj.getHeightOffset();
 
+    this->scale = obj.getScale();
+
     this->rotation = obj.getRotationQuaternion( 0 );
 
     this->has_animated_rotation = false;
@@ -38,7 +40,7 @@ Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj 
 
 Prop::Prop( const Prop& obj ) :
     Actor( obj ),
-    rotation( obj.rotation ), model_id( obj.model_id ), model_p( nullptr ),
+    scale( obj.scale ), rotation( obj.rotation ), model_id( obj.model_id ), model_p( nullptr ),
     rotation_points{obj.rotation_points[0], obj.rotation_points[1], obj.rotation_points[2]},
     rotation_time_line( obj.rotation_time_line ),
     rotation_speed_factor( obj.rotation_speed_factor ),
@@ -61,6 +63,8 @@ void Prop::resetGraphics( MainProgram &main_program ) {
 
     try {
         this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position, this->rotation );
+
+        this->model_p->setScale( this->scale );
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

@@ -15,6 +15,7 @@ namespace ACT {
 
 class Prop : public Actor {
 private:
+    glm::vec3 scale;
     glm::quat rotation;
 
     uint32_t model_id;
