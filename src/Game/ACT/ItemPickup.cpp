@@ -64,14 +64,15 @@ void ItemPickup::update( MainProgram &main_program, std::chrono::microseconds de
     this->model_p->setRotation( rotation );
 
     if(this->has_blink) {
-        this->blink_time_line += std::chrono::duration<float>( delta ).count() * this->speed_per_second_radians;
+        this->blink_time_line += std::chrono::duration<float>( delta ).count();
 
-        this->blink_time_line -= std::abs(static_cast<int>(this->blink_time_line));
+        if(this->blink_time_line > 1)
+            this->blink_time_line -= std::abs(static_cast<int>(this->blink_time_line));
 
-        /*if(0.5 > this->blink_time_line)
-            this->model_p->setColor( glm::vec3(0.5f, 1.f, 0.5f) );
+        if(0.5 > this->blink_time_line)
+            this->model_p->setScale( glm::vec3(0.5f, 0.5f, 0.5f) );
         else
-            this->model_p->setColor( glm::vec3(1.0f, 1.f, 1.0f) );*/
+            this->model_p->setScale( glm::vec3(1.0f, 1.0f, 1.0f) );
     }
 }
 
