@@ -14,11 +14,11 @@ public:
         uint16_t bitfield;
         uint8_t  uint8_0;
         uint8_t  target_type;
-        uint16_t targetting; // target team or actor depending on target_type
+        uint16_t targeting; // target team or actor depending on target_type
         uint16_t fov; // normalized
         uint16_t uint16_0;
         uint16_t engage_range;
-        uint16_t targetting_delay;
+        uint16_t targeting_delay;
     } shooter_entity_internal;
 
 protected:
