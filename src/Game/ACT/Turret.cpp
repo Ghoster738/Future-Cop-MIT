@@ -11,37 +11,42 @@ Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret
 
     this->position.y += obj.getHeightOffset();
 
-    this->rest_gun_rotation = obj.getGunRotationQuaternion();
-    this->gun_rotation = this->rest_gun_rotation;
     this->base_rotation = obj.getBaseRotationQuaternion();
 
-    this->alive_gun_id = obj.getAliveGunID();
-    this->alive_gun = obj.getHasAliveGunID();
     this->alive_base_id = obj.getAliveBaseID();
     this->alive_base = obj.getHasAliveBaseID();
-    this->dead_gun_id = obj.getDestroyedGunID();
-    this->dead_gun = obj.getHasDestroyedGunID();
+
     this->dead_base_id = obj.getDestroyedBaseID();
     this->dead_base = obj.getHasDestroyedBaseID();
 
-    this->alive_gun_cobj_r  = nullptr;
     this->alive_base_cobj_r = nullptr;
-    this->dead_gun_cobj_r   = nullptr;
     this->dead_base_cobj_r  = nullptr;
-
-    if( this->alive_gun )
-        this->alive_gun_cobj_r = accessor.getConstOBJ( this->alive_gun_id );
 
     if( this->alive_base )
         this->alive_base_cobj_r = accessor.getConstOBJ( this->alive_base_id );
-
-    if( this->dead_gun )
-        this->dead_gun_cobj_r = accessor.getConstOBJ( this->dead_gun_id );
 
     if( this->dead_base )
         this->dead_base_cobj_r = accessor.getConstOBJ( this->dead_base_id );
 
     this->base_p = nullptr;
+
+    this->rest_gun_rotation = obj.getGunRotationQuaternion();
+    this->gun_rotation = this->rest_gun_rotation;
+
+    this->alive_gun_id = obj.getAliveGunID();
+    this->alive_gun = obj.getHasAliveGunID();
+    this->dead_gun_id = obj.getDestroyedGunID();
+    this->dead_gun = obj.getHasDestroyedGunID();
+
+    this->alive_gun_cobj_r  = nullptr;
+    this->dead_gun_cobj_r   = nullptr;
+
+    if( this->alive_gun )
+        this->alive_gun_cobj_r = accessor.getConstOBJ( this->alive_gun_id );
+
+    if( this->dead_gun )
+        this->dead_gun_cobj_r = accessor.getConstOBJ( this->dead_gun_id );
+
     this->gun_p = nullptr;
 }
 
