@@ -1,8 +1,6 @@
 #include "Aircraft.h"
 
-namespace Game {
-
-namespace ACT {
+namespace Game::ACT {
 
 Aircraft::Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
@@ -50,8 +48,6 @@ void Aircraft::resetGraphics( MainProgram &main_program ) {
 }
 
 void Aircraft::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-}
-
 }
 
 }

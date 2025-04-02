@@ -1,11 +1,7 @@
 #ifndef FC_GAME_ACT_NEUTRAL_TURRET_HEADER
 #define FC_GAME_ACT_NEUTRAL_TURRET_HEADER
 
-#include "../../Graphics/ModelInstance.h"
-
 #include "../../Data/Mission/ACT/NeutralTurret.h"
-#include "../../Data/Mission/ObjResource.h"
-#include "../../Data/Mission/IFF.h"
 
 #include "Turret.h"
 

@@ -1,8 +1,8 @@
 #include "Turret.h"
 
-namespace Game {
+#include "../../Data/Mission/ObjResource.h"
 
-namespace ACT {
+namespace Game::ACT {
 
 Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
@@ -95,8 +95,6 @@ void Turret::resetGraphics( MainProgram &main_program ) {
 }
 
 void Turret::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-}
-
 }
 
 }

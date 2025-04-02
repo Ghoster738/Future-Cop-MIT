@@ -1,8 +1,6 @@
 #include "Prop.h"
 
-namespace Game {
-
-namespace ACT {
+namespace Game::ACT {
 
 Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
@@ -98,8 +96,6 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     }
 
     this->model_p->setRotation( this->rotation );
-}
-
 }
 
 }

@@ -1,10 +1,7 @@
 #ifndef FC_GAME_ACT_SKY_CAPTAIN
 #define FC_GAME_ACT_SKY_CAPTAIN
-#include "../../Graphics/ModelInstance.h"
 
 #include "../../Data/Mission/ACT/SkyCaptain.h"
-#include "../../Data/Mission/ObjResource.h"
-#include "../../Data/Mission/IFF.h"
 
 #include "Aircraft.h"
 

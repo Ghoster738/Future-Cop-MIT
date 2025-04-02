@@ -4,14 +4,10 @@
 #include "../../Graphics/ModelInstance.h"
 
 #include "../../Data/Mission/ACT/Prop.h"
-#include "../../Data/Mission/ObjResource.h"
-#include "../../Data/Mission/IFF.h"
 
 #include "Actor.h"
 
-namespace Game {
-
-namespace ACT {
+namespace Game::ACT {
 
 class Prop : public Actor {
 private:
@@ -38,8 +34,6 @@ public:
 
     virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
-
-}
 
 }
 

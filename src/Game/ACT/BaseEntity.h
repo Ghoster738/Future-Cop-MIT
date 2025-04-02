@@ -2,7 +2,6 @@
 #define FC_GAME_ACT_BASE_ENTITY
 
 #include "../../Data/Mission/ACT/BaseEntity.h"
-#include "../../Data/Mission/IFF.h"
 
 #include "Actor.h"
 

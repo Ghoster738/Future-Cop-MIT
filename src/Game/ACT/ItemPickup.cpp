@@ -1,8 +1,6 @@
 #include "ItemPickup.h"
 
-namespace Game {
-
-namespace ACT {
+namespace Game::ACT {
 
 ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
@@ -72,8 +70,6 @@ void ItemPickup::update( MainProgram &main_program, std::chrono::microseconds de
         else
             this->model_p->setColor( glm::vec3(1.0f, 1.0f, 1.0f) );
     }
-}
-
 }
 
 }

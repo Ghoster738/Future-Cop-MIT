@@ -4,8 +4,6 @@
 #include "../../Graphics/ModelInstance.h"
 
 #include "../../Data/Mission/ACT/ItemPickup.h"
-#include "../../Data/Mission/ObjResource.h"
-#include "../../Data/Mission/IFF.h"
 
 #include "BaseEntity.h"
 
