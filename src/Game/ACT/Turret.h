@@ -5,13 +5,11 @@
 
 #include "../../Data/Mission/ACT/Turret.h"
 
-#include "Actor.h"
+#include "BaseTurret.h"
 
-namespace Game {
+namespace Game::ACT {
 
-namespace ACT {
-
-class Turret : public Actor {
+class Turret : public BaseTurret {
 private:
     glm::quat rest_gun_rotation, gun_rotation, base_rotation;
     glm::vec2 texture_offset;
@@ -39,8 +37,6 @@ public:
 
     virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
-
-}
 
 }
 

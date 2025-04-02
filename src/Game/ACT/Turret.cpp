@@ -4,7 +4,7 @@
 
 namespace Game::ACT {
 
-Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : Actor( obj.getID() ) {
+Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : BaseTurret( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.turret_shooter_internal.ground_cast_type) );
@@ -48,7 +48,7 @@ Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret
 }
 
 Turret::Turret( const Turret& obj ) :
-    Actor( obj ),
+    BaseTurret( obj ),
     rest_gun_rotation( obj.rest_gun_rotation ), gun_rotation( obj.gun_rotation ), base_rotation( obj.base_rotation ), texture_offset( obj.texture_offset ),
     alive_gun_id( obj.alive_gun_id ), alive_gun( obj.alive_gun ), alive_base_id( obj.alive_base_id ), alive_base( obj.alive_base ),
     dead_gun_id( obj.dead_gun_id ), dead_gun( obj.dead_gun ), dead_base_id( obj.dead_base_id ), dead_base( obj.dead_base ),
