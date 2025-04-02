@@ -6,19 +6,11 @@
 #include "../../Data/Mission/ObjResource.h"
 #include "../../Data/Mission/IFF.h"
 
-#include "Actor.h"
+#include "Aircraft.h"
 
-namespace Game {
+namespace Game::ACT {
 
-namespace ACT {
-
-class SkyCaptain : public Actor {
-private:
-    glm::vec2 texture_offset;
-
-    uint32_t model_id; bool model;
-    Graphics::ModelInstance *model_p;
-
+class SkyCaptain : public Aircraft {
 public:
     SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj );
     SkyCaptain( const SkyCaptain& obj );
@@ -26,12 +18,8 @@ public:
 
     virtual Actor* duplicate( const Actor &original ) const;
 
-    virtual void resetGraphics( MainProgram &main_program );
-
     virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
-
-}
 
 }
 
