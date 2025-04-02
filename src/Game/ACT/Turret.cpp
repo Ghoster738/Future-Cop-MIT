@@ -15,8 +15,6 @@ Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret
     this->gun_rotation = this->rest_gun_rotation;
     this->base_rotation = obj.getBaseRotationQuaternion();
 
-    this->texture_offset = obj.getTextureOffset();
-
     this->alive_gun_id = obj.getAliveGunID();
     this->alive_gun = obj.getHasAliveGunID();
     this->alive_base_id = obj.getAliveBaseID();
@@ -49,7 +47,7 @@ Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret
 
 Turret::Turret( const Turret& obj ) :
     BaseTurret( obj ),
-    rest_gun_rotation( obj.rest_gun_rotation ), gun_rotation( obj.gun_rotation ), base_rotation( obj.base_rotation ), texture_offset( obj.texture_offset ),
+    rest_gun_rotation( obj.rest_gun_rotation ), gun_rotation( obj.gun_rotation ), base_rotation( obj.base_rotation ),
     alive_gun_id( obj.alive_gun_id ), alive_gun( obj.alive_gun ), alive_base_id( obj.alive_base_id ), alive_base( obj.alive_base ),
     dead_gun_id( obj.dead_gun_id ), dead_gun( obj.dead_gun ), dead_base_id( obj.dead_base_id ), dead_base( obj.dead_base ),
     alive_gun_cobj_r( obj.alive_gun_cobj_r ), alive_base_cobj_r( obj.alive_base_cobj_r ), dead_gun_cobj_r( obj.dead_gun_cobj_r ), dead_base_cobj_r( obj.dead_base_cobj_r ),

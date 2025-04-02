@@ -10,9 +10,8 @@
 namespace Game::ACT {
 
 class Turret : public BaseTurret {
-private:
+protected:
     glm::quat rest_gun_rotation, gun_rotation, base_rotation;
-    glm::vec2 texture_offset;
 
     uint32_t alive_gun_id;  bool alive_gun;
     uint32_t alive_base_id; bool alive_base;
