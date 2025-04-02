@@ -4,13 +4,7 @@
 
 namespace Game::ACT {
 
-Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : BaseTurret( obj ) {
-    const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
-
-    this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.turret_shooter_internal.ground_cast_type) );
-
-    this->position.y += obj.getHeightOffset();
-
+Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : BaseTurret( accessor, obj ) {
     this->base_rotation = obj.getBaseRotationQuaternion();
 
     this->alive_base_id = obj.getAliveBaseID();

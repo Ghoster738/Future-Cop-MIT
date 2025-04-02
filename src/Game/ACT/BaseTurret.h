@@ -1,6 +1,8 @@
 #ifndef FC_GAME_ACT_BASE_TURRET
 #define FC_GAME_ACT_BASE_TURRET
 
+#include "../../Graphics/ModelInstance.h"
+
 #include "../../Data/Mission/ACT/BaseShooterTurret.h"
 
 #include "BaseShooter.h"
@@ -11,8 +13,9 @@ class BaseTurret : public BaseShooter {
 protected:
 
 public:
-    BaseTurret( const Data::Mission::ACT::BaseShooterTurret& obj ) : BaseShooter( obj ) {}
-    BaseTurret( const BaseTurret& obj ) : BaseShooter( obj ) {}
+    BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseShooterTurret& obj );
+    BaseTurret( const BaseTurret& obj ) :
+        BaseShooter( obj ) {}
     virtual ~BaseTurret() {}
 };
 
