@@ -13,6 +13,7 @@
 #include "ACT/Prop.h"
 #include "ACT/SkyCaptain.h"
 #include "ACT/Turret.h"
+#include "ACT/X1Alpha.h"
 
 namespace Game {
 
@@ -32,11 +33,12 @@ public:
 
 private:
     SpawnableActor<ACT::Aircraft>      aircraft;
-    SpawnableActor<ACT::Turret>        base_turrets;
     SpawnableActor<ACT::ItemPickup>    item_pickups;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
     SpawnableActor<ACT::Prop>          props;
     SpawnableActor<ACT::SkyCaptain>    sky_captains;
+    SpawnableActor<ACT::Turret>        turrets;
+    SpawnableActor<ACT::X1Alpha>       x1_alphas;
 
 public:
     ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor );

@@ -5,6 +5,7 @@ namespace Game::ACT {
 X1Alpha::X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Alpha& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
+    // TODO This is a wild guess.
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.uint8_0) );
 
     this->legs    = obj.getHasLegID();

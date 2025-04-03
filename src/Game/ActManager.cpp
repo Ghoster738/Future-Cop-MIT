@@ -54,10 +54,11 @@ ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor
 
     aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      accessor, accessor.getActorAccessor().getAllConstAircraft() );
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
-    base_turrets    = initializeActors<Data::Mission::ACT::Turret,        ACT::Turret>(        accessor, accessor.getActorAccessor().getAllConstTurret() );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
     props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, accessor.getActorAccessor().getAllConstProp() );
     sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
+    turrets         = initializeActors<Data::Mission::ACT::Turret,        ACT::Turret>(        accessor, accessor.getActorAccessor().getAllConstTurret() );
+    x1_alphas       = initializeActors<Data::Mission::ACT::X1Alpha,      ACT::X1Alpha>(        accessor, accessor.getActorAccessor().getAllConstX1Alpha() );
 }
 
 ActManager::~ActManager() {
@@ -66,10 +67,11 @@ ActManager::~ActManager() {
 void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::Aircraft>(      main_program,        aircraft );
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
-    updateGraphics<ACT::Turret>(        main_program,    base_turrets );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
     updateGraphics<ACT::Prop>(          main_program,           props );
     updateGraphics<ACT::SkyCaptain>(    main_program,    sky_captains );
+    updateGraphics<ACT::Turret>(        main_program,         turrets );
+    updateGraphics<ACT::X1Alpha>(       main_program,       x1_alphas );
 
     auto Cfun = main_program.accessor.getAllConstFUN();
 
@@ -84,7 +86,7 @@ void ActManager::initialize( MainProgram &main_program ) {
 
         auto spawn_ids = Cfun[0]->getSpawnActorsNow();
         for( auto &identifer : spawn_ids ) {
-            for( auto &spawner : base_turrets.spawners ) {
+            for( auto &spawner : turrets.spawners ) {
                 if(spawner.actor.getID() == identifer)
                     spawner.time = std::chrono::microseconds(0);
             }
@@ -99,10 +101,11 @@ void ActManager::initialize( MainProgram &main_program ) {
 void ActManager::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     updateSpawn<ACT::Aircraft>(      main_program,        aircraft, delta );
     updateSpawn<ACT::ItemPickup>(    main_program,    item_pickups, delta );
-    updateSpawn<ACT::Turret>(        main_program,    base_turrets, delta );
     updateSpawn<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
     updateSpawn<ACT::Prop>(          main_program,           props, delta );
     updateSpawn<ACT::SkyCaptain>(    main_program,    sky_captains, delta );
+    updateSpawn<ACT::Turret>(        main_program,         turrets, delta );
+    updateSpawn<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
 
     for( auto &actor : props.actors ) {
         actor.update(main_program, delta);
