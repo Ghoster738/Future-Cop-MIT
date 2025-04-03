@@ -30,7 +30,8 @@ protected:
             texture_offset( offset ),
             color( glm::vec3(1, 1, 1) ),
             position_transform_timeline( 0.0f ),
-            texture_transform_timeline( 0 ) {}
+            texture_transform_timeline( 0 ),
+            texture_transform_remainder( 0 ) {}
 
 public:
     /**
@@ -69,7 +70,7 @@ public:
      * @warning This function sets the parameter position_transform_timeline.
      * @param position_transform_timeline set the timeline of the instance.
      */
-    virtual void setPositionTransformTimeline( float &position_transform_timeline ) = 0;
+    virtual void setPositionTransformTimeline( float position_transform_timeline ) = 0;
 
     /**
      * This sets the time of the instance.

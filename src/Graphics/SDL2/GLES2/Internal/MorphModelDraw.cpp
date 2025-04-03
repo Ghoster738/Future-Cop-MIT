@@ -371,7 +371,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
                 else
                     dynamic.morph_info_r = nullptr;
 
-                dynamic.frame_index = static_cast<unsigned int>( floor( (*instance)->getPositionTransformTimeline() ) );
+                dynamic.frame_index = static_cast<unsigned>( std::floor( (*instance)->getPositionTransformTimeline() ) );
                 dynamic.star_timings_r = &(*instance)->star_timings;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                 dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;

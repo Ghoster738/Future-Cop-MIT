@@ -222,8 +222,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
         }
     }
 
-    if( this->displayed_instance_p != nullptr )
+    if( this->displayed_instance_p != nullptr ) {
+        this->displayed_instance_p->setPositionTransformTimeline( this->displayed_instance_p->getPositionTransformTimeline() + delta_f * 10.f);
         this->displayed_instance_p->setRotation( glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
+    }
 
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 

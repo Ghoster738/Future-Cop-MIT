@@ -71,10 +71,14 @@ void Prop::resetGraphics( MainProgram &main_program ) {
 }
 
 void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    const float float_delta = std::chrono::duration<float>( delta ).count();
+
+    this->model_p->setPositionTransformTimeline( this->model_p->getPositionTransformTimeline() + float_delta * 10.f);
+
     if(!this->has_animated_rotation)
         return;
 
-    this->rotation_time_line += std::chrono::duration<float>( delta ).count() * this->rotation_speed_factor;
+    this->rotation_time_line += float_delta * this->rotation_speed_factor;
 
     if(this->rotation_time_line > this->rotation_time_line_length) {
         this->rotation_time_line -= this->rotation_time_line_length * std::abs(static_cast<int>(this->rotation_time_line / this->rotation_time_line_length));
