@@ -37,6 +37,12 @@ public:
 
     float getGunRotation() const;
     glm::quat getGunRotationQuaternion() const;
+
+    bool getHasAliveGunID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getAliveGunID() const { return rsl_data[0].resource_id; }
+
+    bool getHasDestroyedGunID() const { return rsl_data[1].type != RSL_NULL_TAG; }
+    uint32_t getDestroyedGunID() const { return rsl_data[1].resource_id; }
 };
 
 }

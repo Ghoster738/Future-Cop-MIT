@@ -11,19 +11,15 @@ namespace Game::ACT {
 
 class Turret : public BaseTurret {
 protected:
-    glm::quat rest_gun_rotation, gun_rotation, base_rotation;
+    glm::quat rest_gun_rotation, base_rotation;
 
-    uint32_t alive_gun_id;  bool alive_gun;
     uint32_t alive_base_id; bool alive_base;
-    uint32_t dead_gun_id;   bool dead_gun;
-    uint32_t dead_base_id;  bool dead_base;
+    uint32_t  dead_base_id; bool  dead_base;
 
-    const Data::Mission::ObjResource  *alive_gun_cobj_r;
     const Data::Mission::ObjResource *alive_base_cobj_r;
-    const Data::Mission::ObjResource   *dead_gun_cobj_r;
     const Data::Mission::ObjResource  *dead_base_cobj_r;
 
-    Graphics::ModelInstance *base_p, *gun_p;
+    Graphics::ModelInstance *base_p;
 
 public:
     Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj );

@@ -15,7 +15,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t zero_0; // Stationary Turret: Turret
+        uint16_t zero_0;
         uint8_t uint8_0;
         uint8_t zero_1;
         int16_t base_rotation;
@@ -44,12 +44,6 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
-
-    bool getHasAliveGunID() const { return rsl_data[0].type != RSL_NULL_TAG; }
-    uint32_t getAliveGunID() const { return rsl_data[0].resource_id; }
-
-    bool getHasDestroyedGunID() const { return rsl_data[1].type != RSL_NULL_TAG; }
-    uint32_t getDestroyedGunID() const { return rsl_data[1].resource_id; }
 
     bool getHasAliveBaseID() const { return rsl_data[2].type != RSL_NULL_TAG; }
     uint32_t getAliveBaseID() const { return rsl_data[2].resource_id; }

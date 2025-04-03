@@ -24,40 +24,20 @@ Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret
 
     this->base_p = nullptr;
 
-    this->rest_gun_rotation = obj.getGunRotationQuaternion();
-    this->gun_rotation = this->rest_gun_rotation;
-
-    this->alive_gun_id = obj.getAliveGunID();
-    this->alive_gun = obj.getHasAliveGunID();
-    this->dead_gun_id = obj.getDestroyedGunID();
-    this->dead_gun = obj.getHasDestroyedGunID();
-
-    this->alive_gun_cobj_r  = nullptr;
-    this->dead_gun_cobj_r   = nullptr;
-
-    if( this->alive_gun )
-        this->alive_gun_cobj_r = accessor.getConstOBJ( this->alive_gun_id );
-
-    if( this->dead_gun )
-        this->dead_gun_cobj_r = accessor.getConstOBJ( this->dead_gun_id );
-
-    this->gun_p = nullptr;
+    this->rest_gun_rotation = this->gun_rotation;
 }
 
 Turret::Turret( const Turret& obj ) :
     BaseTurret( obj ),
-    rest_gun_rotation( obj.rest_gun_rotation ), gun_rotation( obj.gun_rotation ), base_rotation( obj.base_rotation ),
-    alive_gun_id( obj.alive_gun_id ), alive_gun( obj.alive_gun ), alive_base_id( obj.alive_base_id ), alive_base( obj.alive_base ),
-    dead_gun_id( obj.dead_gun_id ), dead_gun( obj.dead_gun ), dead_base_id( obj.dead_base_id ), dead_base( obj.dead_base ),
-    alive_gun_cobj_r( obj.alive_gun_cobj_r ), alive_base_cobj_r( obj.alive_base_cobj_r ), dead_gun_cobj_r( obj.dead_gun_cobj_r ), dead_base_cobj_r( obj.dead_base_cobj_r ),
-    base_p( nullptr ), gun_p( nullptr ) {}
+    rest_gun_rotation( obj.rest_gun_rotation ), base_rotation( obj.base_rotation ),
+    alive_base_id( obj.alive_base_id ), alive_base( obj.alive_base ),
+    dead_base_id( obj.dead_base_id ), dead_base( obj.dead_base ),
+    alive_base_cobj_r( obj.alive_base_cobj_r ), dead_base_cobj_r( obj.dead_base_cobj_r ),
+    base_p( nullptr ) {}
 
 Turret::~Turret() {
     if( this->base_p != nullptr )
         delete this->base_p;
-
-    if( this->gun_p != nullptr )
-        delete this->gun_p;
 }
 
 Actor* Turret::duplicate( const Actor &original ) const {
