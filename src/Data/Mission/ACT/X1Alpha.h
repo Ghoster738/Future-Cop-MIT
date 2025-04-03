@@ -46,7 +46,7 @@ public:
     glm::quat getRotationQuaternion() const;
 
     bool spawnInHoverMode() const {
-        return rotation < 0;
+        return internal.rotation < 0;
     }
 };
 
