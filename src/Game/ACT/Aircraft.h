@@ -5,14 +5,12 @@
 
 #include "../../Data/Mission/ACT/Aircraft.h"
 
-#include "Actor.h"
+#include "BaseShooter.h"
 
 namespace Game::ACT {
 
-class Aircraft : public Actor {
+class Aircraft : public BaseShooter {
 private:
-    glm::vec2 texture_offset;
-
     uint32_t model_id; bool model;
     Graphics::ModelInstance *model_p;
 

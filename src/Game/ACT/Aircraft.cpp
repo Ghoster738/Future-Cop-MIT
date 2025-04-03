@@ -2,7 +2,7 @@
 
 namespace Game::ACT {
 
-Aircraft::Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj ) : Actor( obj.getID() ) {
+Aircraft::Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj ) : BaseShooter( obj) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     {
@@ -12,15 +12,13 @@ Aircraft::Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Ai
 
     this->position.y += obj.getHeightOffset();
 
-    this->texture_offset = obj.getTextureOffset();
-
     this->model = obj.hasModelID();
     this->model_id = obj.getModelID();
     this->model_p = nullptr;
 }
 
 Aircraft::Aircraft( const Aircraft& obj ) :
-    Actor( obj ), texture_offset( obj.texture_offset ),
+    BaseShooter( obj ),
     model_id( obj.model_id ), model( obj.model ), model_p( nullptr ) {}
 
 Aircraft::~Aircraft() {
