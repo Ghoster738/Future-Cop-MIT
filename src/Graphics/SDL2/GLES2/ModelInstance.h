@@ -21,6 +21,8 @@ public:
     
     ModelInstance( Graphics::SDL2::GLES2::Environment &env_r, uint32_t obj_identifier, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param );
     virtual ~ModelInstance();
+
+    virtual void setPositionTransformTimeline( float &position_transform_timeline );
     
     virtual bool getBoundingSphere( glm::vec3 &position, float &radius ) const;
 };

@@ -66,9 +66,10 @@ public:
 
     /**
      * This sets the time of the instance.
+     * @warning This function sets the parameter position_transform_timeline.
      * @param position_transform_timeline set the timeline of the instance.
      */
-    virtual void setPositionTransformTimeline( float position_transform_timeline ) { this->position_transform_timeline = position_transform_timeline; }
+    virtual void setPositionTransformTimeline( float &position_transform_timeline ) = 0;
 
     /**
      * This sets the time of the instance.

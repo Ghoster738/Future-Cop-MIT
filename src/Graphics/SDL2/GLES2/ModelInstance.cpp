@@ -80,6 +80,18 @@ Graphics::SDL2::GLES2::ModelInstance::~ModelInstance() {
     this->bb_array_r->instances_r.erase( this );
 }
 
+void Graphics::SDL2::GLES2::ModelInstance::setPositionTransformTimeline( float &position_transform_timeline ) {
+    if(this->array_r == nullptr || (this->array_r->mesh.getFrameAmount() == 0 && this->array_r->mesh.getMorphFrameAmount() == 0))
+        return;
+
+    if(this->array_r->mesh.getFrameAmount() != 0)
+        position_transform_timeline = std::fmod( position_transform_timeline, this->array_r->mesh.getFrameAmount() );
+    else
+        position_transform_timeline = std::fmod( position_transform_timeline, this->array_r->mesh.getMorphFrameAmount() + 1 );
+
+    this->position_transform_timeline = position_transform_timeline;
+}
+
 bool Graphics::SDL2::GLES2::ModelInstance::getBoundingSphere( glm::vec3 &position, float &radius ) const {
     position = culling_sphere_position;
     radius   = culling_sphere_radius;
