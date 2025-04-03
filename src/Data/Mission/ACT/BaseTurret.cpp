@@ -1,10 +1,10 @@
-#include "BaseShooterTurret.h"
+#include "BaseTurret.h"
 
 namespace Data::Mission::ACT {
 
-Json::Value BaseShooterTurret::makeJson() const {
+Json::Value BaseTurret::makeJson() const {
     Json::Value root = BaseShooter::makeJson();
-    const std::string NAME = "BaseShooterTurret";
+    const std::string NAME = "BaseTurret";
 
     root["ACT"][NAME]["ground_cast_type"] = turret_shooter_internal.ground_cast_type;
     root["ACT"][NAME]["uint8_0"]          = turret_shooter_internal.uint8_0;
@@ -19,7 +19,7 @@ Json::Value BaseShooterTurret::makeJson() const {
     return root;
 }
 
-bool BaseShooterTurret::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool BaseTurret::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
 
     BaseShooter::readBase(data_reader, endian);
 
@@ -36,29 +36,29 @@ bool BaseShooterTurret::readBase( Utilities::Buffer::Reader &data_reader, Utilit
     return true;
 }
 
-BaseShooterTurret::BaseShooterTurret() {}
+BaseTurret::BaseTurret() {}
 
-BaseShooterTurret::BaseShooterTurret( const ACTResource& obj ) : BaseShooter( obj ) {}
+BaseTurret::BaseTurret( const ACTResource& obj ) : BaseShooter( obj ) {}
 
-BaseShooterTurret::BaseShooterTurret( const BaseEntity& obj ) : BaseShooter( obj ) {}
+BaseTurret::BaseTurret( const BaseEntity& obj ) : BaseShooter( obj ) {}
 
-BaseShooterTurret::BaseShooterTurret( const BaseShooter& obj ) : BaseShooter( obj ) {}
+BaseTurret::BaseTurret( const BaseShooter& obj ) : BaseShooter( obj ) {}
 
-BaseShooterTurret::BaseShooterTurret( const BaseShooterTurret& obj ) : BaseShooter( obj ), turret_shooter_internal( obj.turret_shooter_internal ) {}
+BaseTurret::BaseTurret( const BaseTurret& obj ) : BaseShooter( obj ), turret_shooter_internal( obj.turret_shooter_internal ) {}
 
-BaseShooterTurret::Internal BaseShooterTurret::getShooterTurretInternal() const {
+BaseTurret::Internal BaseTurret::getShooterTurretInternal() const {
     return turret_shooter_internal;
 }
 
-float Data::Mission::ACT::BaseShooterTurret::getHeightOffset() const {
+float Data::Mission::ACT::BaseTurret::getHeightOffset() const {
     return (1.f / 512.f) * turret_shooter_internal.height_offset;
 }
 
-float BaseShooterTurret::getGunRotation() const {
+float BaseTurret::getGunRotation() const {
     return ACTResource::getRotation( turret_shooter_internal.gun_rotation - 1024 );
 }
 
-glm::quat BaseShooterTurret::getGunRotationQuaternion() const {
+glm::quat BaseTurret::getGunRotationQuaternion() const {
     return getRotationQuaternion( this->getGunRotation() );
 }
 

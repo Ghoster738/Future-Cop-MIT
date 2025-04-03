@@ -3,7 +3,7 @@
 
 #include "../../Graphics/ModelInstance.h"
 
-#include "../../Data/Mission/ACT/BaseShooterTurret.h"
+#include "../../Data/Mission/ACT/BaseTurret.h"
 
 #include "BaseShooter.h"
 
@@ -22,7 +22,7 @@ protected:
     Graphics::ModelInstance *gun_p;
 
 public:
-    BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseShooterTurret& obj );
+    BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj );
     BaseTurret( const BaseTurret& obj ) :
         BaseShooter( obj ),
         gun_rotation( obj.gun_rotation ),

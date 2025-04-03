@@ -7,7 +7,7 @@
 uint_fast8_t Data::Mission::ACT::Turret::TYPE_ID = 8;
 
 Json::Value Data::Mission::ACT::Turret::makeJson() const {
-    Json::Value root = BaseShooterTurret::makeJson();
+    Json::Value root = BaseTurret::makeJson();
     const std::string NAME = Turret::getTypeIDName();
 
     root["ACT"][NAME]["zero_0"] = internal.zero_0;
@@ -30,7 +30,7 @@ bool Data::Mission::ACT::Turret::readACTType( uint_fast8_t act_type, Utilities::
 }
 
 bool Data::Mission::ACT::Turret::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
-    BaseShooterTurret::readBase(data_reader, endian);
+    BaseTurret::readBase(data_reader, endian);
 
     internal.zero_0        = data_reader.readU16( endian ); // Always 0
     internal.uint8_0       = data_reader.readU8();          // Values: 0, 1,
@@ -42,9 +42,9 @@ bool Data::Mission::ACT::Turret::readBase( Utilities::Buffer::Reader &data_reade
 
 Data::Mission::ACT::Turret::Turret() {}
 
-Data::Mission::ACT::Turret::Turret( const ACTResource& obj ) : BaseShooterTurret( obj ) {}
+Data::Mission::ACT::Turret::Turret( const ACTResource& obj ) : BaseTurret( obj ) {}
 
-Data::Mission::ACT::Turret::Turret( const Turret& obj ) : BaseShooterTurret( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::Turret::Turret( const Turret& obj ) : BaseTurret( obj ), internal( obj.internal ) {}
 
 uint_fast8_t Data::Mission::ACT::Turret::getTypeID() const {
     return TYPE_ID;

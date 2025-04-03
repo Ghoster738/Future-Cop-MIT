@@ -1,11 +1,11 @@
-#ifndef DATA_MISSION_ACTOR_BASE_SHOOTER_TURRET_HEADER
-#define DATA_MISSION_ACTOR_BASE_SHOOTER_TURRET_HEADER
+#ifndef DATA_MISSION_ACTOR_BASE_TURRET_HEADER
+#define DATA_MISSION_ACTOR_BASE_TURRET_HEADER
 
 #include "BaseShooter.h"
 
 namespace Data::Mission::ACT {
 
-class BaseShooterTurret : public BaseShooter {
+class BaseTurret : public BaseShooter {
 public:
     struct Internal {
         uint8_t ground_cast_type;
@@ -25,11 +25,11 @@ protected:
     bool readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 
 public:
-    BaseShooterTurret();
-    BaseShooterTurret( const ACTResource& obj );
-    BaseShooterTurret( const BaseEntity& obj );
-    BaseShooterTurret( const BaseShooter& obj );
-    BaseShooterTurret( const BaseShooterTurret& obj );
+    BaseTurret();
+    BaseTurret( const ACTResource& obj );
+    BaseTurret( const BaseEntity& obj );
+    BaseTurret( const BaseShooter& obj );
+    BaseTurret( const BaseTurret& obj );
 
     Internal getShooterTurretInternal() const;
 
@@ -47,4 +47,4 @@ public:
 
 }
 
-#endif // DATA_MISSION_ACTOR_BASE_SHOOTER_TURRET_HEADER
+#endif // DATA_MISSION_ACTOR_BASE_TURRET_HEADER

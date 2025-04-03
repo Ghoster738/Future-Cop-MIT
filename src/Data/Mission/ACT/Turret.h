@@ -1,7 +1,7 @@
 #ifndef DATA_MISSION_ACTOR_ID_8_HEADER
 #define DATA_MISSION_ACTOR_ID_8_HEADER
 
-#include "BaseShooterTurret.h"
+#include "BaseTurret.h"
 
 namespace Data::Mission::ACT {
 
@@ -10,7 +10,7 @@ namespace Data::Mission::ACT {
  *
  * This is the turret that always has the same side.
  */
-class Turret : public BaseShooterTurret {
+class Turret : public BaseTurret {
 public:
     static uint_fast8_t TYPE_ID;
 
