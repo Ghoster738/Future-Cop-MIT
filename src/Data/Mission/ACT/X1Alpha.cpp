@@ -24,7 +24,7 @@ bool Data::Mission::ACT::X1Alpha::readACTType( uint_fast8_t act_type, Utilities:
 
     BaseEntity::readBase(data_reader, endian);
 
-    internal.rotation = data_reader.readU16( endian ); // Values: 0, 1024, 1536, 2048, 3072, 61440, 62464, 63488, 64512, 65535,
+    internal.rotation = data_reader.readI16( endian ); // Values: -4096, -3072, -2048, -1024, -1, 0, 1024, 1536, 2048, 3072
     internal.uint8_0  = data_reader.readU8();          // Values: 0, 1,
     internal.uint8_1  = data_reader.readU8();          // Values: 0, 1, 255,
 
@@ -76,4 +76,8 @@ Data::Mission::ACTResource* Data::Mission::ACT::X1Alpha::duplicate( const ACTRes
 
 Data::Mission::ACT::X1Alpha::Internal Data::Mission::ACT::X1Alpha::getInternal() const {
     return internal;
+}
+
+glm::quat Data::Mission::ACT::X1Alpha::getRotationQuaternion() const {
+    return glm::quat( glm::vec3(0, glm::tau<float>() / 1024.f * std::abs(internal.rotation), 0) );
 }

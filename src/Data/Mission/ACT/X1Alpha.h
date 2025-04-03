@@ -15,7 +15,7 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t rotation;
+        int16_t rotation;
         uint8_t uint8_0;
         uint8_t uint8_1;
     } internal;
@@ -42,6 +42,12 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
+
+    glm::quat getRotationQuaternion() const;
+
+    bool spawnInHoverMode() const {
+        return rotation < 0;
+    }
 };
 
 }
