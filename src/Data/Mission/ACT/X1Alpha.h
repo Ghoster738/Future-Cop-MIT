@@ -48,6 +48,21 @@ public:
     bool spawnInHoverMode() const {
         return internal.rotation < 0;
     }
+
+    bool getHasLegID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getAliveLegID() const { return rsl_data[0].resource_id; }
+
+    bool getHasCockpitID() const { return rsl_data[2].type != RSL_NULL_TAG; }
+    uint32_t getAliveCockpitID() const { return rsl_data[2].resource_id; }
+
+    bool getHasWeaponID() const { return rsl_data[3].type != RSL_NULL_TAG; }
+    uint32_t getAliveWeaponID() const { return rsl_data[3].resource_id; }
+
+    bool getHasBeaconLightsID() const { return rsl_data[4].type != RSL_NULL_TAG; }
+    uint32_t getBeaconLightsID() const { return rsl_data[4].resource_id; }
+
+    bool getHasPilotID() const { return rsl_data[5].type != RSL_NULL_TAG; }
+    uint32_t getPilotID() const { return rsl_data[5].resource_id; }
 };
 
 }
