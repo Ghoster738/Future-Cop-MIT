@@ -8,34 +8,39 @@ X1Alpha::X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Al
     // TODO This is a wild guess.
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.uint8_0) );
 
-    this->legs    = obj.getHasLegID();
-    this->legs_id = obj.getLegID();
-    this->legs_p  = nullptr;
+    this->legs        = obj.getHasLegID();
+    this->legs_id     = obj.getLegID();
+    this->legs_p      = nullptr;
+    this->legs_cobj_r = nullptr;
 
-    this->cockpit    = obj.getHasCockpitID();
-    this->cockpit_id = obj.getCockpitID();
-    this->cockpit_p  = nullptr;
+    this->cockpit        = obj.getHasCockpitID();
+    this->cockpit_id     = obj.getCockpitID();
+    this->cockpit_p      = nullptr;
+    this->cockpit_cobj_r = nullptr;
 
-    this->weapon    = obj.getHasWeaponID();
-    this->weapon_id = obj.getWeaponID();
-    this->weapon_p  = nullptr;
+    this->weapon        = obj.getHasWeaponID();
+    this->weapon_id     = obj.getWeaponID();
+    this->weapon_p      = nullptr;
+    this->weapon_cobj_r = nullptr;
 
-    this->beacon_light    = obj.getHasBeaconLightsID();
-    this->beacon_light_id = obj.getBeaconLightsID();
-    this->beacon_light_p  = nullptr;
+    this->beacon_lights        = obj.getHasBeaconLightsID();
+    this->beacon_lights_id     = obj.getBeaconLightsID();
+    this->beacon_lights_p      = nullptr;
+    this->beacon_lights_cobj_r = nullptr;
 
-    this->pilot    = obj.getHasPilotID();
-    this->pilot_id = obj.getPilotID();
-    this->pilot_p  = nullptr;
+    this->pilot        = obj.getHasPilotID();
+    this->pilot_id     = obj.getPilotID();
+    this->pilot_p      = nullptr;
+    this->pilot_cobj_r = nullptr;
 }
 
 X1Alpha::X1Alpha( const X1Alpha& obj ) :
     BaseEntity( obj ),
-    legs_id( obj.legs_id ), legs( obj.legs ), legs_p( nullptr ),
-    cockpit_id( obj.cockpit_id ), cockpit( obj.cockpit ), cockpit_p( nullptr ),
-    weapon_id( obj.weapon_id ), weapon( obj.weapon ), weapon_p( nullptr ),
-    beacon_light_id( obj.beacon_light_id ), beacon_light( obj.beacon_light ), beacon_light_p( nullptr ),
-    pilot_id( obj.pilot_id ), pilot( obj.pilot ), pilot_p( nullptr ) {}
+    legs_id( obj.legs_id ), legs( obj.legs ), legs_p( nullptr ), legs_cobj_r( obj.legs_cobj_r ),
+    cockpit_id( obj.cockpit_id ), cockpit( obj.cockpit ), cockpit_p( nullptr ), cockpit_cobj_r( obj.cockpit_cobj_r ),
+    weapon_id( obj.weapon_id ), weapon( obj.weapon ), weapon_p( nullptr ), weapon_cobj_r( obj.weapon_cobj_r ),
+    beacon_lights_id( obj.beacon_lights_id ), beacon_lights( obj.beacon_lights ), beacon_lights_p( nullptr ), beacon_lights_cobj_r( obj.beacon_lights_cobj_r ),
+    pilot_id( obj.pilot_id ), pilot( obj.pilot ), pilot_p( nullptr ), pilot_cobj_r( obj.pilot_cobj_r ) {}
 
 X1Alpha::~X1Alpha() {
     if( this->legs_p != nullptr )
@@ -47,8 +52,8 @@ X1Alpha::~X1Alpha() {
     if( this->weapon_p != nullptr )
         delete this->weapon_p;
 
-    if( this->beacon_light_p != nullptr )
-        delete this->beacon_light_p;
+    if( this->beacon_lights_p != nullptr )
+        delete this->beacon_lights_p;
 
     if( this->pilot_p != nullptr )
         delete this->pilot_p;
@@ -71,9 +76,9 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
         delete this->weapon_p;
     this->weapon_p = nullptr;
 
-    if( this->beacon_light_p != nullptr )
-        delete this->beacon_light_p;
-    this->beacon_light_p = nullptr;
+    if( this->beacon_lights_p != nullptr )
+        delete this->beacon_lights_p;
+    this->beacon_lights_p = nullptr;
 
     if( this->pilot_p != nullptr )
         delete this->pilot_p;

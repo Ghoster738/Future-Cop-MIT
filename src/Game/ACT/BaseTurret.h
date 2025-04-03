@@ -4,6 +4,7 @@
 #include "../../Graphics/ModelInstance.h"
 
 #include "../../Data/Mission/ACT/BaseTurret.h"
+#include "../../Data/Mission/ObjResource.h"
 
 #include "BaseShooter.h"
 
