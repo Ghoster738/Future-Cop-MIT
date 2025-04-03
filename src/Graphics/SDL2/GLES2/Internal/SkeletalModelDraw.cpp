@@ -391,23 +391,13 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
 void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seconds_passed )
 {
-    const float FRAME_SPEED = 10.0;
-
     // Go through every model array.
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
         // Get the mesh.
         Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
         
-        if( mesh_r->getFrameAmount() > 0 ) {
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
-        }
-        else {
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
+        for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+            (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
         }
     }
 }

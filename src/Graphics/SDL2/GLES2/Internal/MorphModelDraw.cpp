@@ -387,28 +387,14 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
 
 void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds_passed )
 {
-    const float FRAME_SPEED = 10.0;
-
     // Go through every model array.
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
         // Get the mesh.
         Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
-        
-        if( mesh_r->getMorphFrameAmount() > 0 )
-        {
-            auto morph_frame_amount = mesh_r->getMorphFrameAmount();
-            auto total_frame_amount = morph_frame_amount + 1;
 
-            // Go through every instance of the model.
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, total_frame_amount ) );
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
-        }
-        else {
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
+        // Go through every instance of the model.
+        for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+            (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
         }
     }
 }
