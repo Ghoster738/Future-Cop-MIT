@@ -7,7 +7,7 @@
 uint_fast8_t Data::Mission::ACT::Aircraft::TYPE_ID = 9;
 
 Json::Value Data::Mission::ACT::Aircraft::makeJson() const {
-    Json::Value root = BaseShooterEntity::makeJson();
+    Json::Value root = BaseShooter::makeJson();
     const std::string NAME = Aircraft::getTypeIDName();
 
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
@@ -42,7 +42,7 @@ bool Data::Mission::ACT::Aircraft::readACTType( uint_fast8_t act_type, Utilities
 }
 
 bool Data::Mission::ACT::Aircraft::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
-    BaseShooterEntity::readBase(data_reader, endian);
+    BaseShooter::readBase(data_reader, endian);
 
     internal.uint8_0 = data_reader.readU8(); // Values: 1, 3,
     internal.uint8_1 = data_reader.readU8(); // Values: 1, 2, 3, 4,
@@ -68,11 +68,11 @@ bool Data::Mission::ACT::Aircraft::readBase( Utilities::Buffer::Reader &data_rea
 
 Data::Mission::ACT::Aircraft::Aircraft() {}
 
-Data::Mission::ACT::Aircraft::Aircraft( const ACTResource& obj ) : BaseShooterEntity( obj ) {}
+Data::Mission::ACT::Aircraft::Aircraft( const ACTResource& obj ) : BaseShooter( obj ) {}
 
-Data::Mission::ACT::Aircraft::Aircraft( const BaseShooterEntity& obj ) : BaseShooterEntity( obj ) {}
+Data::Mission::ACT::Aircraft::Aircraft( const BaseShooter& obj ) : BaseShooter( obj ) {}
 
-Data::Mission::ACT::Aircraft::Aircraft( const Aircraft& obj ) : BaseShooterEntity( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::Aircraft::Aircraft( const Aircraft& obj ) : BaseShooter( obj ), internal( obj.internal ) {}
 
 uint_fast8_t Data::Mission::ACT::Aircraft::getTypeID() const {
     return TYPE_ID;

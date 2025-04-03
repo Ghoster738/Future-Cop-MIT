@@ -1,7 +1,7 @@
 #ifndef DATA_MISSION_ACTOR_ID_9_HEADER
 #define DATA_MISSION_ACTOR_ID_9_HEADER
 
-#include "BaseShooterEntity.h"
+#include "BaseShooter.h"
 
 namespace Data {
 
@@ -15,7 +15,7 @@ namespace ACT {
  * Jet Copters, and Flying Fortresses have this ACT type.
  * Also, crime war also uses this type. For example drones are found to use this type as well.
  */
-class Aircraft : public BaseShooterEntity {
+class Aircraft : public BaseShooter {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -49,7 +49,7 @@ protected:
 public:
     Aircraft();
     Aircraft( const ACTResource& obj );
-    Aircraft( const BaseShooterEntity& obj );
+    Aircraft( const BaseShooter& obj );
     Aircraft( const Aircraft& obj );
 
     virtual uint_fast8_t getTypeID() const;

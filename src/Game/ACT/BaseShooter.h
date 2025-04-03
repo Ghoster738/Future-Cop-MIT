@@ -1,7 +1,7 @@
 #ifndef FC_GAME_ACT_BASE_SHOOTER
 #define FC_GAME_ACT_BASE_SHOOTER
 
-#include "../../Data/Mission/ACT/BaseShooterEntity.h"
+#include "../../Data/Mission/ACT/BaseShooter.h"
 
 #include "BaseEntity.h"
 
@@ -11,7 +11,7 @@ class BaseShooter : public BaseEntity {
 protected:
 
 public:
-    BaseShooter( const Data::Mission::ACT::BaseShooterEntity& obj ) : BaseEntity( obj ) {}
+    BaseShooter( const Data::Mission::ACT::BaseShooter& obj ) : BaseEntity( obj ) {}
     BaseShooter( const BaseShooter& obj ) : BaseEntity( obj ) {}
     virtual ~BaseShooter() {}
 };

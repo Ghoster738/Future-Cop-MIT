@@ -1,11 +1,11 @@
-#ifndef DATA_MISSION_ACTOR_BASE_SHOOTER_ENTITY_HEADER
-#define DATA_MISSION_ACTOR_BASE_SHOOTER_ENTITY_HEADER
+#ifndef DATA_MISSION_ACTOR_BASE_SHOOTER_HEADER
+#define DATA_MISSION_ACTOR_BASE_SHOOTER_HEADER
 
 #include "BaseEntity.h"
 
 namespace Data::Mission::ACT {
 
-class BaseShooterEntity : public BaseEntity {
+class BaseShooter : public BaseEntity {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -27,14 +27,14 @@ protected:
     bool readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 
 public:
-    BaseShooterEntity();
-    BaseShooterEntity( const ACTResource& obj );
-    BaseShooterEntity( const BaseEntity& obj );
-    BaseShooterEntity( const BaseShooterEntity& obj );
+    BaseShooter();
+    BaseShooter( const ACTResource& obj );
+    BaseShooter( const BaseEntity& obj );
+    BaseShooter( const BaseShooter& obj );
 
     Internal getShooterInternal() const;
 };
 
 }
 
-#endif // DATA_MISSION_ACTOR_BASE_SHOOTER_ENTITY_HEADER
+#endif // DATA_MISSION_ACTOR_BASE_SHOOTER_HEADER

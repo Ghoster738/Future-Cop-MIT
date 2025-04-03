@@ -1,10 +1,10 @@
-#include "BaseShooterEntity.h"
+#include "BaseShooter.h"
 
 namespace Data::Mission::ACT {
 
-Json::Value BaseShooterEntity::makeJson() const {
+Json::Value BaseShooter::makeJson() const {
     Json::Value root = BaseEntity::makeJson();
-    const std::string NAME = "BaseShooterEntity";
+    const std::string NAME = "BaseShooter";
 
     root["ACT"][NAME]["weapon_id"]        = shooter_entity_internal.weapon_id;
     root["ACT"][NAME]["bitfield"]         = shooter_entity_internal.bitfield;
@@ -19,7 +19,7 @@ Json::Value BaseShooterEntity::makeJson() const {
     return root;
 }
 
-bool BaseShooterEntity::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool BaseShooter::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
 
     BaseEntity::readBase(data_reader, endian);
 
@@ -36,15 +36,15 @@ bool BaseShooterEntity::readBase( Utilities::Buffer::Reader &data_reader, Utilit
     return true;
 }
 
-BaseShooterEntity::BaseShooterEntity() {}
+BaseShooter::BaseShooter() {}
 
-BaseShooterEntity::BaseShooterEntity( const ACTResource& obj ) : BaseEntity( obj ) {}
+BaseShooter::BaseShooter( const ACTResource& obj ) : BaseEntity( obj ) {}
 
-BaseShooterEntity::BaseShooterEntity( const BaseEntity& obj ) : BaseEntity( obj ) {}
+BaseShooter::BaseShooter( const BaseEntity& obj ) : BaseEntity( obj ) {}
 
-BaseShooterEntity::BaseShooterEntity( const BaseShooterEntity& obj ) : BaseEntity( obj ), shooter_entity_internal( obj.shooter_entity_internal ) {}
+BaseShooter::BaseShooter( const BaseShooter& obj ) : BaseEntity( obj ), shooter_entity_internal( obj.shooter_entity_internal ) {}
 
-BaseShooterEntity::Internal BaseShooterEntity::getShooterInternal() const {
+BaseShooter::Internal BaseShooter::getShooterInternal() const {
     return shooter_entity_internal;
 }
 

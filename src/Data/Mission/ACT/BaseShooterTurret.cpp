@@ -3,7 +3,7 @@
 namespace Data::Mission::ACT {
 
 Json::Value BaseShooterTurret::makeJson() const {
-    Json::Value root = BaseShooterEntity::makeJson();
+    Json::Value root = BaseShooter::makeJson();
     const std::string NAME = "BaseShooterTurret";
 
     root["ACT"][NAME]["ground_cast_type"] = turret_shooter_internal.ground_cast_type;
@@ -21,7 +21,7 @@ Json::Value BaseShooterTurret::makeJson() const {
 
 bool BaseShooterTurret::readBase( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
 
-    BaseShooterEntity::readBase(data_reader, endian);
+    BaseShooter::readBase(data_reader, endian);
 
     turret_shooter_internal.ground_cast_type = data_reader.readU8(); // Values: 0, 1,
     turret_shooter_internal.uint8_0          = data_reader.readU8(); // Values: 0, 1, 4,
@@ -38,13 +38,13 @@ bool BaseShooterTurret::readBase( Utilities::Buffer::Reader &data_reader, Utilit
 
 BaseShooterTurret::BaseShooterTurret() {}
 
-BaseShooterTurret::BaseShooterTurret( const ACTResource& obj ) : BaseShooterEntity( obj ) {}
+BaseShooterTurret::BaseShooterTurret( const ACTResource& obj ) : BaseShooter( obj ) {}
 
-BaseShooterTurret::BaseShooterTurret( const BaseEntity& obj ) : BaseShooterEntity( obj ) {}
+BaseShooterTurret::BaseShooterTurret( const BaseEntity& obj ) : BaseShooter( obj ) {}
 
-BaseShooterTurret::BaseShooterTurret( const BaseShooterEntity& obj ) : BaseShooterEntity( obj ) {}
+BaseShooterTurret::BaseShooterTurret( const BaseShooter& obj ) : BaseShooter( obj ) {}
 
-BaseShooterTurret::BaseShooterTurret( const BaseShooterTurret& obj ) : BaseShooterEntity( obj ), turret_shooter_internal( obj.turret_shooter_internal ) {}
+BaseShooterTurret::BaseShooterTurret( const BaseShooterTurret& obj ) : BaseShooter( obj ), turret_shooter_internal( obj.turret_shooter_internal ) {}
 
 BaseShooterTurret::Internal BaseShooterTurret::getShooterTurretInternal() const {
     return turret_shooter_internal;

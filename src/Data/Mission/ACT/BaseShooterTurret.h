@@ -1,11 +1,11 @@
 #ifndef DATA_MISSION_ACTOR_BASE_SHOOTER_TURRET_HEADER
 #define DATA_MISSION_ACTOR_BASE_SHOOTER_TURRET_HEADER
 
-#include "BaseShooterEntity.h"
+#include "BaseShooter.h"
 
 namespace Data::Mission::ACT {
 
-class BaseShooterTurret : public BaseShooterEntity {
+class BaseShooterTurret : public BaseShooter {
 public:
     struct Internal {
         uint8_t ground_cast_type;
@@ -28,7 +28,7 @@ public:
     BaseShooterTurret();
     BaseShooterTurret( const ACTResource& obj );
     BaseShooterTurret( const BaseEntity& obj );
-    BaseShooterTurret( const BaseShooterEntity& obj );
+    BaseShooterTurret( const BaseShooter& obj );
     BaseShooterTurret( const BaseShooterTurret& obj );
 
     Internal getShooterTurretInternal() const;
