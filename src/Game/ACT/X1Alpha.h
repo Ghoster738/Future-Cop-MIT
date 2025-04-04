@@ -20,7 +20,7 @@ private:
     const Data::Mission::ObjResource *cockpit_cobj_r;
 
     uint32_t weapon_id; bool weapon;
-    Graphics::ModelInstance *weapon_p;
+    Graphics::ModelInstance *weapons_p[2];
     const Data::Mission::ObjResource *weapon_cobj_r;
 
     uint32_t beacon_lights_id; bool beacon_lights;
