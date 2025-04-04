@@ -62,7 +62,9 @@ void Prop::resetGraphics( MainProgram &main_program ) {
     try {
         this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position, this->rotation );
 
-        this->model_p->setScale( this->scale );
+        if(this->model_p) {
+            this->model_p->setScale( this->scale );
+        }
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
@@ -73,33 +75,33 @@ void Prop::resetGraphics( MainProgram &main_program ) {
 void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     const float float_delta = std::chrono::duration<float>( delta ).count();
 
-    this->model_p->setPositionTransformTimeline( this->model_p->getPositionTransformTimeline() + float_delta * 10.f);
+    if(this->has_animated_rotation) {
+        this->rotation_time_line += float_delta * this->rotation_speed_factor;
 
-    if(!this->has_animated_rotation)
-        return;
+        if(this->rotation_time_line > this->rotation_time_line_length) {
+            this->rotation_time_line -= this->rotation_time_line_length * std::abs(static_cast<int>(this->rotation_time_line / this->rotation_time_line_length));
+        }
 
-    this->rotation_time_line += float_delta * this->rotation_speed_factor;
-
-    if(this->rotation_time_line > this->rotation_time_line_length) {
-        this->rotation_time_line -= this->rotation_time_line_length * std::abs(static_cast<int>(this->rotation_time_line / this->rotation_time_line_length));
+        if( this->rotation_time_line_length == 3 ) {
+            if(this->rotation_time_line > 2.0f)
+                this->rotation = glm::mix(this->rotation_points[2], -this->rotation_points[0], this->rotation_time_line - 2); // Turns out that negating a quaterion actually modifies the angle of rotation. This is required for circular animations.
+            else if(this->rotation_time_line > 1.0f)
+                this->rotation = glm::mix(this->rotation_points[1],  this->rotation_points[2], this->rotation_time_line - 1);
+            else
+                this->rotation = glm::mix(this->rotation_points[0],  this->rotation_points[1], this->rotation_time_line);
+        }
+        else {
+            if(this->rotation_time_line > 1.0f)
+                this->rotation = glm::mix(this->rotation_points[1], this->rotation_points[0], this->rotation_time_line - 1);
+            else
+                this->rotation = glm::mix(this->rotation_points[0], this->rotation_points[1], this->rotation_time_line);
+        }
     }
 
-    if( this->rotation_time_line_length == 3 ) {
-        if(this->rotation_time_line > 2.0f)
-            this->rotation = glm::mix(this->rotation_points[2], -this->rotation_points[0], this->rotation_time_line - 2); // Turns out that negating a quaterion actually modifies the angle of rotation. This is required for circular animations.
-        else if(this->rotation_time_line > 1.0f)
-            this->rotation = glm::mix(this->rotation_points[1],  this->rotation_points[2], this->rotation_time_line - 1);
-        else
-            this->rotation = glm::mix(this->rotation_points[0],  this->rotation_points[1], this->rotation_time_line);
+    if(this->model_p) {
+        this->model_p->setPositionTransformTimeline( this->model_p->getPositionTransformTimeline() + float_delta * 10.f);
+        this->model_p->setRotation( this->rotation );
     }
-    else {
-        if(this->rotation_time_line > 1.0f)
-            this->rotation = glm::mix(this->rotation_points[1], this->rotation_points[0], this->rotation_time_line - 1);
-        else
-            this->rotation = glm::mix(this->rotation_points[0], this->rotation_points[1], this->rotation_time_line);
-    }
-
-    this->model_p->setRotation( this->rotation );
 }
 
 }
