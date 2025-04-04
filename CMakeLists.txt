@@ -38,9 +38,9 @@ else()
   # Warn the user of the potential compilation error.
   if( GLM_VERSION VERSION_LESS 0.9.9.8 )
     if( GLM_VERSION VERSION_LESS 0.9.9 )
-      message( ERROR "GLM version is ${GLM_VERSION} which is below 0.9.9. It will cause GLM to crash. To fix this error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
-    else() #Failed to release that GLM often lacks full version numbers leading to this complexity
-      message( WARNING "GLM version is ${GLM_VERSION} which is might be bellow 0.9.9.8. It might cause a compilation issue. To fix this potential compilation error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
+      message( ERROR " GLM version is ${GLM_VERSION} which is not supported by this project. It will cause GLM to have a compilation issue. You might want update GLM to version 1.0.1 or set FCOption_GLM_VENDORED to true if you included the glm submodule in this project." )
+    else()
+      message( WARNING " GLM version is ${GLM_VERSION} which is not supported by this project. It might cause GLM to have a compilation issue. You might want update GLM to version 1.0.1 or set FCOption_GLM_VENDORED to true if you included the glm submodule in this project." )
     endif()
   endif()
 
