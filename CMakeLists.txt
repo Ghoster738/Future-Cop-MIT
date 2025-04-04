@@ -31,21 +31,12 @@ include_directories("${CMAKE_SOURCE_DIR}/src/Utilities/HeaderOnlyLibraries/")
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
-  target_link_libraries( FC_IFF_IO glm::glm )
 else()
-  find_package( glm REQUIRED )
-  
-  # Warn the user of the potential compilation error.
-  if( GLM_VERSION VERSION_LESS 0.9.9.8 )
-    if( GLM_VERSION VERSION_LESS 0.9.9 )
-      message( ERROR " GLM version is ${GLM_VERSION} which is not supported by this project. It will cause GLM to have a compilation issue. You might want update GLM to version 1.0.1 or set FCOption_GLM_VENDORED to true if you included the glm submodule in this project." )
-    else()
-      message( WARNING " GLM version is ${GLM_VERSION} which is not supported by this project. It might cause GLM to have a compilation issue. You might want update GLM to version 1.0.1 or set FCOption_GLM_VENDORED to true if you included the glm submodule in this project." )
-    endif()
-  endif()
-
-  include_directories(${GLM_INCLUDE_DIRS})
+  # It could be that 1.0.0 works with this project, but I did not bother to test this.
+  find_package( glm 1.0.1 REQUIRED )
 endif()
+
+target_link_libraries( FC_IFF_IO glm::glm )
 
 # Use the vendor version if the SDL2 find files could not be found.
 if( FCOption_SDL2_VENDORED )
