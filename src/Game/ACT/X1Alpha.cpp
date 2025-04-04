@@ -93,7 +93,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->legs ) {
-            //this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
+            this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -112,7 +112,13 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->cockpit ) {
-            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position, glm::quat(), this->texture_offset );
+            glm::vec3 cockpit_pos(0, 0, 0);
+
+            if(cockpit_cobj_r) {
+                cockpit_pos = legs_cobj_r->getPosition(0);
+            }
+
+            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -136,8 +142,6 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
                 if(cockpit_cobj_r) {
                     weapon_pos = cockpit_cobj_r->getPosition(i);
-
-                    weapon_pos = glm::vec3(weapon_pos.z, weapon_pos.y, weapon_pos.x);
                 }
 
                 this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + weapon_pos, glm::quat(), this->texture_offset );
@@ -160,13 +164,13 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->beacon_lights ) {
-            glm::vec3 weapon_pos(0, 0, 0);
+            glm::vec3 beacon_pos(0, 0, 0);
 
             if(cockpit_cobj_r) {
-                weapon_pos = legs_cobj_r->getPosition(2);
+                beacon_pos = legs_cobj_r->getPosition(2);
             }
 
-            this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + weapon_pos, glm::quat() );
+            this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + beacon_pos, glm::quat() );
         }
     }
     catch( const std::invalid_argument& argument ) {
