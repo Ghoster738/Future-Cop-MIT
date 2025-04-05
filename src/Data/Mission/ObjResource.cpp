@@ -1123,6 +1123,37 @@ const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uin
     return nullptr;
 }
 
+Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::Bone::decode(int16_t *bone_animation_data_r, unsigned frame) const {
+    Data::Mission::ObjResource::DecodedBone decoded_bone;
+
+    glm::mat4 bone_matrix;
+
+    auto frame_position = this->position;
+    auto frame_rotation = this->rotation;
+
+    if( !this->opcode.position.x_const )
+        frame_position.x = bone_animation_data_r[ this->position.x + frame ];
+    if( !this->opcode.position.y_const )
+        frame_position.y = bone_animation_data_r[ this->position.y + frame ];
+    if( !this->opcode.position.z_const )
+        frame_position.z = bone_animation_data_r[ this->position.z + frame ];
+    if( !this->opcode.rotation.x_const )
+        frame_rotation.x = bone_animation_data_r[ this->rotation.x + frame ];
+    if( !this->opcode.rotation.y_const )
+        frame_rotation.y = bone_animation_data_r[ this->rotation.y + frame ];
+    if( !this->opcode.rotation.z_const )
+        frame_rotation.z = bone_animation_data_r[ this->rotation.z + frame ];
+
+    bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
+    bone_matrix = glm::rotate(     bone_matrix,  static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
+    bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
+
+    decoded_bone.position = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
+    decoded_bone.rotation = glm::quat_cast( bone_matrix );
+
+    return decoded_bone;
+}
+
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
     return (getOpcodeBytesPerFrame( this->opcode ) / 2);
 }
@@ -2581,8 +2612,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
         model_output_p->allocateJoints( bones.size(), bone_frames );
         
-        glm::mat4 bone_matrix;
-        
         // Make joint relations.
         unsigned int childern[ max_bone_childern ];
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
@@ -2599,30 +2628,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
             
             for( unsigned int frame = 0; frame < bone_frames; frame++ )
             {
-                auto frame_position = (*current_bone).position;
-                auto frame_rotation = (*current_bone).rotation;
+                DecodedBone decoded_bone = (*current_bone).decode(bone_animation_data, frame);
                 
-                if( !(*current_bone).opcode.position.x_const )
-                    frame_position.x = bone_animation_data[ (*current_bone).position.x + frame ];
-                if( !(*current_bone).opcode.position.y_const )
-                    frame_position.y = bone_animation_data[ (*current_bone).position.y + frame ];
-                if( !(*current_bone).opcode.position.z_const )
-                    frame_position.z = bone_animation_data[ (*current_bone).position.z + frame ];
-                if( !(*current_bone).opcode.rotation.x_const )
-                    frame_rotation.x = bone_animation_data[ (*current_bone).rotation.x + frame ];
-                if( !(*current_bone).opcode.rotation.y_const )
-                    frame_rotation.y = bone_animation_data[ (*current_bone).rotation.y + frame ];
-                if( !(*current_bone).opcode.rotation.z_const )
-                    frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
-                
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
-                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
-                
-                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
-                auto quaterion = glm::quat_cast( bone_matrix );
-                
-                model_output_p->setJointFrame( frame, bone_index, position, quaterion );
+                model_output_p->setJointFrame( frame, bone_index, decoded_bone.position, decoded_bone.rotation );
             }
         }
     }

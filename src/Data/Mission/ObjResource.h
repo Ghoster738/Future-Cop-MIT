@@ -119,6 +119,10 @@ public:
 
         void generateNormals();
     };
+    struct DecodedBone {
+        glm::vec3 position;
+        glm::quat rotation;
+    };
     class Bone {
     public:
         unsigned int parent_amount; // Minus one is the parent amount.
@@ -133,6 +137,8 @@ public:
             } position, rotation;
             unsigned int unknown: 2; // bone_index?
         } opcode;
+
+        DecodedBone decode(int16_t *bone_animation_data_r, unsigned frame) const;
 
         /**
          * @return The number of attributes in the bone.
