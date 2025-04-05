@@ -1084,7 +1084,7 @@ bool Utilities::ModelBuilder::write( const std::filesystem::path& file_path, std
         }
 
         // Write the primary buffer info to this file as well
-        root["buffers"][0]["uri"] = binary_location.stem().string();
+        root["buffers"][0]["uri"] = binary_location.filename().string();
 
         unsigned index = 0;
 
