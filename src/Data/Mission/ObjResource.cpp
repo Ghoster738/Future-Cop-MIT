@@ -2230,6 +2230,13 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
     return position;
 }
 
+Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::getBone( unsigned bone_index, unsigned frame_index ) const {
+    if(bone_index >= bones.size())
+        return DecodedBone();
+
+    return this->bones[ bone_index ].decode(this->bone_animation_data, frame_index);
+}
+
 int Data::Mission::ObjResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
     int glTF_return = 0;
 
