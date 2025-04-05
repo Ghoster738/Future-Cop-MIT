@@ -122,6 +122,9 @@ public:
     struct DecodedBone {
         glm::vec3 position;
         glm::quat rotation;
+
+        glm::mat4 toMatrix() const;
+        DecodedBone transform(const glm::mat4 &matrix) const;
     };
     struct Bone {
         Bone *parent_r;

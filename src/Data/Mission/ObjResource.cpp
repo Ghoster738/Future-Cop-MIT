@@ -1123,6 +1123,23 @@ const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uin
     return nullptr;
 }
 
+glm::mat4 Data::Mission::ObjResource::DecodedBone::toMatrix() const {
+    return glm::translate( glm::mat4( 1.0f ), this->position ) * glm::mat4_cast( this->rotation );
+}
+
+Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::DecodedBone::transform(const glm::mat4 &matrix) const {
+    DecodedBone ret;
+
+    glm::vec4 pos = glm::vec4(this->position.x, this->position.y, this->position.z, 1.0f) * matrix;
+
+    ret.position.x = pos.x / pos.w;
+    ret.position.y = pos.y / pos.w;
+    ret.position.z = pos.z / pos.w;
+    ret.rotation = glm::quat_cast(matrix * glm::mat4_cast( this->rotation ));
+
+    return ret;
+}
+
 Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::Bone::decode(int16_t *bone_animation_data_r, unsigned frame) const {
     Data::Mission::ObjResource::DecodedBone decoded_bone;
 
@@ -2234,7 +2251,13 @@ Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::getBone( uns
     if(bone_index >= bones.size())
         return DecodedBone();
 
-    return this->bones[ bone_index ].decode(this->bone_animation_data, frame_index);
+    DecodedBone decoded_bone = this->bones[ bone_index ].decode(this->bone_animation_data, frame_index);
+
+    if(this->bones[ bone_index ].parent_r != nullptr) {
+        //decoded_bone = decoded_bone.transform( getBone( this->bones[ bone_index ].parent_r - &this->bones[ 0 ], frame_index ).toMatrix() );
+    }
+
+    return decoded_bone;
 }
 
 int Data::Mission::ObjResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
