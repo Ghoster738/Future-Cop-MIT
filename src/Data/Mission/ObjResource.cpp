@@ -2636,12 +2636,9 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         model_output_p->allocateJoints( bones.size(), bone_frames );
         
         // Make joint relations.
-        unsigned int childern[ max_bone_childern ];
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
-            childern[ bones.at( bone_index ).parent_amount - 1 ] = bone_index;
-            
-            if( bones.at( bone_index ).parent_amount > 1 )
-                model_output_p->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
+            if( bones.at( bone_index ).parent_r != nullptr )
+                model_output_p->setJointParent( this->bones.at( bone_index ).parent_r - &this->bones.at(0), bone_index );
         }
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
