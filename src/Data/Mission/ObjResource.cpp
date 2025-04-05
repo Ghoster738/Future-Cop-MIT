@@ -2166,11 +2166,11 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
     glm::vec3 position(0, 0, 0);
 
     if( isPositionValid( index ) ) {
-        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_4DVL, 0);
-        const glm::i16vec3* const vertex_positions_r = vertex_data.get4DVLPointer(id_length);
+        const uint32_t position_id = vertex_data.get3DRFItem(VertexData::C_4DVL, 0);
+        const glm::i16vec3* const vertex_positions_r = vertex_data.get4DVLPointer(position_id);
 
         position  = vertex_positions_r[ position_indexes[index] ];
-        position *= glm::vec3(FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+        position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
     }
 
     return position;
