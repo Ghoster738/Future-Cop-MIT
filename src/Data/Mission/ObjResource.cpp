@@ -2624,8 +2624,6 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             auto current_bone = bones.begin() + bone_index;
             
-            childern[ (*current_bone).parent_amount - 1 ] = bone_index;
-            
             for( unsigned int frame = 0; frame < bone_frames; frame++ )
             {
                 DecodedBone decoded_bone = (*current_bone).decode(bone_animation_data, frame);
