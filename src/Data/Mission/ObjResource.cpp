@@ -1143,8 +1143,6 @@ Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::DecodedBone:
 Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::Bone::decode(int16_t *bone_animation_data_r, unsigned frame) const {
     Data::Mission::ObjResource::DecodedBone decoded_bone;
 
-    glm::quat bone_rotation;
-
     auto frame_position = this->position;
     auto frame_rotation = this->rotation;
 
@@ -1161,12 +1159,11 @@ Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::Bone::decode
     if( !this->opcode.rotation.z_const )
         frame_rotation.z = bone_animation_data_r[ this->rotation.z + frame ];
 
-    bone_rotation = glm::rotate( glm::quat(1, 0, 0, 0), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
-    bone_rotation = glm::rotate(         bone_rotation,  static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
-    bone_rotation = glm::rotate( glm::quat(1, 0, 0, 0), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * bone_rotation;
+    decoded_bone.rotation = glm::rotate( glm::quat(1, 0, 0, 0), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
+    decoded_bone.rotation = glm::rotate( decoded_bone.rotation,  static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
+    decoded_bone.rotation = glm::rotate( glm::quat(1, 0, 0, 0), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * decoded_bone.rotation;
 
     decoded_bone.position = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
-    decoded_bone.rotation = bone_rotation;
 
     return decoded_bone;
 }
