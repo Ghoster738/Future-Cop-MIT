@@ -1665,6 +1665,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 for( size_t i = 0; i < amount_of_bones; i++ ) {
                     // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
                     bones.push_back( Bone() );
+
+                    bones.at(i).parent_r = nullptr;
                     
                     bones.at(i).parent_amount = reader3DHY.readU8();
                     bones.at(i).normal_start  = reader3DHY.readU8();
@@ -1697,6 +1699,27 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     this->max_bone_childern = std::max( bones.at(i).parent_amount, this->max_bone_childern );
 
                     // error_log.output << i << " = {" << bones.at(i).getString() << "}\n";
+                }
+
+                // Setup parent relations.
+                for( size_t rev_index = amount_of_bones; rev_index != 0; rev_index-- ) {
+                    size_t bone_index = rev_index - 1;
+
+                    // Cancel if there is no parent relationships.
+                    if(bone_index == 0 || bones.at(bone_index).parent_amount == 0)
+                        continue;
+
+                    // Search for a lower bone in reverse order.
+                    for( size_t r = bone_index; r != 0; r-- ) {
+                        size_t potential_parent_index = r - 1;
+
+                        if(bones.at(potential_parent_index).parent_amount == bones.at(bone_index).parent_amount - 1) {
+                            // Found the parent bone.
+                            bones.at(bone_index).parent_r = &bones.at(potential_parent_index);
+
+                            r = 1; // End the search! Set to one because r gets decremented.
+                        }
+                    }
                 }
                 
                 // The bytes_per_frame_3DMI might not actually hold true.

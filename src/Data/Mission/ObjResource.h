@@ -123,12 +123,13 @@ public:
         glm::vec3 position;
         glm::quat rotation;
     };
-    class Bone {
-    public:
+    struct Bone {
+        Bone *parent_r;
         unsigned int parent_amount; // Minus one is the parent amount.
         unsigned int normal_start, normal_stride;
         unsigned int vertex_start, vertex_stride;
         glm::i16vec3 position, rotation; // They are all of a 3D system.
+
         struct Opcode {
             struct Axis {
                 unsigned int x_const : 1;
