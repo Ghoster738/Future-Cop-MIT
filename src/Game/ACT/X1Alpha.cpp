@@ -93,7 +93,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->legs ) {
-            this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
+            //this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -118,7 +118,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                 cockpit_pos = legs_cobj_r->getPosition(0);
             }
 
-            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
+            //this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -138,13 +138,13 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
         try {
             if( this->weapon ) {
-                glm::vec3 weapon_pos(0, 0, 0);
+                Data::Mission::ObjResource::DecodedBone weapon_bone;
 
                 if(cockpit_cobj_r) {
-                    weapon_pos = cockpit_cobj_r->getPosition(i);
+                    weapon_bone = cockpit_cobj_r->getBone( 2 * i, 0 );
                 }
 
-                this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + weapon_pos, glm::quat(), this->texture_offset );
+                this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + weapon_bone.position, weapon_bone.rotation, this->texture_offset );
             }
         }
         catch( const std::invalid_argument& argument ) {

@@ -315,6 +315,13 @@ public:
 
     glm::vec3 getPosition( unsigned index ) const;
 
+    DecodedBone getBone( unsigned bone_index, unsigned frame_index ) const {
+        if(bone_index >= bones.size())
+            return DecodedBone();
+
+        return this->bones[ bone_index ].decode(this->bone_animation_data, frame_index);
+    }
+
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
     const std::vector<VertexColorOverride>& getVertexColorOverrides() const { return face_color_overrides; }
