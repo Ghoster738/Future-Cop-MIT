@@ -1135,6 +1135,7 @@ Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::DecodedBone:
     ret.position.x = pos.x / pos.w;
     ret.position.y = pos.y / pos.w;
     ret.position.z = pos.z / pos.w;
+
     ret.rotation = glm::quat_cast(matrix * glm::mat4_cast( this->rotation ));
 
     return ret;
