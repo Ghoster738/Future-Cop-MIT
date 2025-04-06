@@ -115,7 +115,8 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
             glm::vec3 cockpit_pos(0, 0, 0);
 
             if(cockpit_cobj_r) {
-                cockpit_pos = legs_cobj_r->getPosition(0, 0);
+                // TODO Add that back!
+                //cockpit_pos = legs_cobj_r->getPosition(0, 0);
             }
 
             this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
@@ -167,7 +168,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
             glm::vec3 beacon_pos(0, 0, 0);
 
             if(cockpit_cobj_r) {
-                beacon_pos = legs_cobj_r->getPosition(2, 0);
+                beacon_pos = cockpit_cobj_r->getPosition(2, 0);
             }
 
             this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + beacon_pos, glm::quat() );
