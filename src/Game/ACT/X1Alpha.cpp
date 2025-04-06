@@ -93,7 +93,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->legs ) {
-            //this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
+            this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -116,7 +116,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
         if( this->cockpit ) {
 
             if(cockpit_cobj_r) {
-                //cockpit_pos = legs_cobj_r->getPosition(0, 0);
+                cockpit_pos = legs_cobj_r->getPosition(0, 0);
             }
 
             this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
