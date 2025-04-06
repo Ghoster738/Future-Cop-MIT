@@ -79,5 +79,5 @@ Data::Mission::ACT::X1Alpha::Internal Data::Mission::ACT::X1Alpha::getInternal()
 }
 
 glm::quat Data::Mission::ACT::X1Alpha::getRotationQuaternion() const {
-    return glm::quat( glm::vec3(0, glm::tau<float>() / 4096.f * ((std::abs(internal.rotation) + 1024) % 4096), 0) );
+    return glm::quat( glm::vec3(0, -glm::tau<float>() / 4096.f * ((std::abs(internal.rotation) + 3072) % 4096), 0) );
 }
