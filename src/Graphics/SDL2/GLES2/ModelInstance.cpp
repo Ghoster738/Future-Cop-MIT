@@ -9,13 +9,9 @@
 #include <cassert>
 #include <stdexcept>
 
-Graphics::ModelInstance* Graphics::SDL2::GLES2::Environment::allocateModel(
-                                                        uint32_t obj_identifier,
-                                                        const glm::vec3 &position,
-                                                        const glm::quat &rotation,
-                                                        const glm::vec2 &texture_offset )
+Graphics::ModelInstance* Graphics::SDL2::GLES2::Environment::allocateModel( uint32_t obj_identifier )
 {
-    return new Graphics::SDL2::GLES2::ModelInstance( *this, obj_identifier, position, rotation, texture_offset );
+    return new Graphics::SDL2::GLES2::ModelInstance( *this, obj_identifier );
 }
 
 bool Graphics::SDL2::GLES2::Environment::doesModelExist(uint32_t obj_resource_id) const {
@@ -30,9 +26,9 @@ bool Graphics::SDL2::GLES2::Environment::doesModelExist(uint32_t obj_resource_id
     return false;
 }
 
-Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::SDL2::GLES2::Environment &environment, uint32_t obj_identifier, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param ) :
+Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::SDL2::GLES2::Environment &environment, uint32_t obj_identifier ) :
     environment_r(&environment),
-    Graphics::ModelInstance( position_param, rotation_param, texture_offset_param ),
+    Graphics::ModelInstance(),
     array_r( nullptr ),
     bb_array_r( nullptr ),
     culling_sphere_position(),

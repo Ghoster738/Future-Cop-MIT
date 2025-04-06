@@ -59,11 +59,27 @@ void Turret::resetGraphics( MainProgram &main_program ) {
         if( this->alive_base_cobj_r != nullptr )
             gun_position = this->base_rotation * this->alive_base_cobj_r->getPosition( 0, 0 );
 
-        if( this->alive_base )
-            this->base_p = main_program.environment_p->allocateModel( this->alive_base_id, this->position, this->base_rotation, this->texture_offset );
+        if( this->alive_base ) {
+            this->base_p = main_program.environment_p->allocateModel( this->alive_base_id );
 
-        if( this->alive_gun )
-            this->gun_p = main_program.environment_p->allocateModel( this->alive_gun_id, this->position + gun_position, this->gun_rotation, this->texture_offset );
+            if(this->base_p) {
+                this->base_p->setPosition( this->position );
+                this->base_p->setRotation( this->base_rotation );
+                this->base_p->setTextureOffset( this->texture_offset );
+                this->base_p->setVisable( true );
+            }
+        }
+
+        if( this->alive_gun ) {
+            this->gun_p = main_program.environment_p->allocateModel( this->alive_gun_id );
+
+            if(this->gun_p) {
+                this->gun_p->setPosition( this->position + gun_position );
+                this->gun_p->setRotation( this->gun_rotation );
+                this->gun_p->setTextureOffset( this->texture_offset );
+                this->gun_p->setVisable( true );
+            }
+        }
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

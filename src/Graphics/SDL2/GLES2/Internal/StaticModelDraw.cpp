@@ -516,7 +516,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
         // Go through every instance that refers to this mesh.
         for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
-            if( camera.isVisible( *(*instance) ) ) {
+            if( camera.isVisible( *(*instance) ) && (*instance)->getVisable() ) {
                 const auto texture_offset = (*instance)->getTextureOffset();
                 
                 if(&models_p == &model_array_p) {

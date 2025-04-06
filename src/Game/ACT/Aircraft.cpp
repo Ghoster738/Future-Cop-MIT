@@ -36,8 +36,15 @@ void Aircraft::resetGraphics( MainProgram &main_program ) {
     this->model_p = nullptr;
 
     try {
-        if( this->model )
-            this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position, glm::quat(), this->texture_offset );
+        if( this->model ) {
+            this->model_p = main_program.environment_p->allocateModel( this->model_id );
+
+            if(this->model_p) {
+                this->model_p->setPosition( this->position );
+                this->model_p->setTextureOffset( this->texture_offset );
+                this->model_p->setVisable(true);
+            }
+        }
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );

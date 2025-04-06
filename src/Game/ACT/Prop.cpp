@@ -60,9 +60,11 @@ void Prop::resetGraphics( MainProgram &main_program ) {
     this->model_p = nullptr;
 
     try {
-        this->model_p = main_program.environment_p->allocateModel( this->model_id, this->position, this->rotation );
+        this->model_p = main_program.environment_p->allocateModel( this->model_id );
 
         if(this->model_p) {
+            this->model_p->setPosition( this->position );
+            this->model_p->setRotation( this->rotation );
             this->model_p->setScale( this->scale );
         }
     }
@@ -101,6 +103,7 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     if(this->model_p) {
         this->model_p->setPositionTransformTimeline( this->model_p->getPositionTransformTimeline() + float_delta * 10.f);
         this->model_p->setRotation( this->rotation );
+        this->model_p->setVisable( true );
     }
 }
 

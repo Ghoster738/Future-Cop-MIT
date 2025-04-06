@@ -338,7 +338,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
             // Go through every instance that refers to this mesh.
             for( auto instance = ( *d ).second->instances_r.begin(); instance != ( *d ).second->instances_r.end(); instance++ )
             {
-                if( camera.isVisible( *(*instance) ) ) {
+                if( camera.isVisible( *(*instance) ) && (*instance)->getVisable() ) {
                     const auto texture_offset = (*instance)->getTextureOffset();
                     glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
 

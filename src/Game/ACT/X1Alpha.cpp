@@ -105,10 +105,14 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->legs ) {
-            this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, this->rotation, this->texture_offset );
+            this->legs_p = main_program.environment_p->allocateModel( this->legs_id );
 
             if(this->legs_p) {
+                this->legs_p->setPosition( this->position );
+                this->legs_p->setRotation( this->rotation );
+                this->legs_p->setTextureOffset( this->texture_offset );
                 this->legs_p->setPositionTransformTimeline(this->legs_frame_index);
+                this->legs_p->setVisable(true);
             }
         }
     }
@@ -129,10 +133,14 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                 cockpit_pos = this->rotation * glm::vec4( legs_cobj_r->getPosition(0, this->legs_frame_index), 1 );
             }
 
-            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, this->rotation, this->texture_offset );
+            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id );
 
             if(this->cockpit_p) {
+                this->cockpit_p->setPosition( this->position + cockpit_pos );
+                this->cockpit_p->setRotation( this->rotation );
+                this->cockpit_p->setTextureOffset( this->texture_offset );
                 this->cockpit_p->setPositionTransformTimeline(cockpit_frame_index);
+                this->cockpit_p->setVisable(true);
             }
         }
     }
@@ -153,7 +161,14 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                     weapon_bone = cockpit_cobj_r->getBone( 2 * i + 2, cockpit_frame_index );
                 }
 
-                this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + this->rotation * weapon_bone.position + cockpit_pos, this->rotation * weapon_bone.rotation, this->texture_offset );
+                this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id );
+
+                if(this->weapons_p[i]) {
+                    this->weapons_p[i]->setPosition( this->position + this->rotation * weapon_bone.position + cockpit_pos );
+                    this->weapons_p[i]->setRotation( this->rotation * weapon_bone.rotation );
+                    this->weapons_p[i]->setTextureOffset( this->texture_offset );
+                    this->weapons_p[i]->setVisable(true);
+                }
             }
         }
         catch( const std::invalid_argument& argument ) {
@@ -173,7 +188,13 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                 beacon_pos = this->rotation * cockpit_cobj_r->getPosition(2, cockpit_frame_index);
             }
 
-            this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + beacon_pos + cockpit_pos, this->rotation );
+            this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id );
+
+            if(this->beacon_lights_p) {
+                this->beacon_lights_p->setPosition( this->position + beacon_pos + cockpit_pos );
+                this->beacon_lights_p->setRotation( this->rotation );
+                this->beacon_lights_p->setVisable(true);
+            }
         }
     }
     catch( const std::invalid_argument& argument ) {

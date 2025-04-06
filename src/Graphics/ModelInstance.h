@@ -12,26 +12,26 @@ protected:
     // These units are for the 3D environment.
     glm::vec3 position;
     glm::vec3 scale;
-    glm::quat rotation; // This value is a quaterion.
+    glm::quat rotation; // This value is a quaternion.
     glm::vec2 texture_offset;
     glm::vec3 color;
     
     float position_transform_timeline;
     unsigned int texture_transform_timeline;
     float texture_transform_remainder;
+
+    bool visable;
     
-    ModelInstance(
-        const glm::vec3 &pos,
-        const glm::quat &rot,
-        const glm::vec2 &offset) :
-            position( pos ),
+    ModelInstance() :
+            position( glm::vec3(0, 0, 0) ),
             scale( glm::vec3(1, 1, 1) ),
-            rotation( rot ),
-            texture_offset( offset ),
+            rotation( glm::quat( glm::vec3(0, 0, 0) ) ),
+            texture_offset( glm::vec2(0 ,0 ) ),
             color( glm::vec3(1, 1, 1) ),
             position_transform_timeline( 0.0f ),
             texture_transform_timeline( 0 ),
-            texture_transform_remainder( 0 ) {}
+            texture_transform_remainder( 0 ),
+            visable( false ) {}
 
 public:
     /**
@@ -84,6 +84,8 @@ public:
      */
     virtual void addTextureTransformTimelineSeconds( float texture_transform_timeline );
 
+    void setVisable(bool visable) { this->visable = visable; }
+
     /**
      * This gets the position of the model.
      * @return the 3D position of the model to be overwritten.
@@ -109,6 +111,8 @@ public:
     glm::vec2 getTextureOffset() const;
 
     glm::vec3 getColor() const;
+
+    bool getVisable() const { return this->visable; }
 
     float getPositionTransformTimeline() const { return position_transform_timeline; }
     unsigned int getTextureTransformTimeline() const { return texture_transform_timeline; }

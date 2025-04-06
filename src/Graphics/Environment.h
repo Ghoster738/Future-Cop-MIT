@@ -119,7 +119,7 @@ public:
      * @param texture_offset This is the texture offset. It is used to change the "color" of the models.
      * @return a valid pointer to model instance.
      */
-    virtual ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param = glm::quat(), const glm::vec2 &texture_offset_param = glm::vec2(0, 0)) = 0;
+    virtual ModelInstance* allocateModel( uint32_t obj_resource_id ) = 0;
 
     /**
      * This checks if a model with a obj_resource_id would.
