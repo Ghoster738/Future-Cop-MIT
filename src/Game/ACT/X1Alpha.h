@@ -12,6 +12,8 @@ namespace Game::ACT {
 class X1Alpha : public BaseEntity {
 private:
     glm::quat rotation;
+    float cockpit_frame_index;
+    float legs_frame_index;
 
     uint32_t legs_id; bool legs;
     Graphics::ModelInstance *legs_p;
