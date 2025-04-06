@@ -258,10 +258,12 @@ glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned frame_index, unsigned
     if( joint_index >= getNumJoints() || frame_index >= getNumJointFrames() )
         return glm::mat4( 1.0f );
 
-    auto matrix = glm::translate( glm::mat4( 1.0f ), joints.at(joint_index).position.at(frame_index) ) * glm::mat4_cast( joints.at(joint_index).rotation.at(frame_index) );
+    const auto &joint = joints.at( joint_index );
 
-    if( joints.at( joint_index ).joint_r != nullptr )
-        matrix = getJointFrame( frame_index, joints.at( joint_index ).joint_index ) * matrix;
+    auto matrix = glm::translate( glm::mat4( 1.0f ), joint.position.at(frame_index) ) * glm::mat4_cast( joint.rotation.at(frame_index) );
+
+    if( joint.joint_r != nullptr )
+        matrix = getJointFrame( frame_index, joint.joint_index ) * matrix;
 
     return matrix;
 }
