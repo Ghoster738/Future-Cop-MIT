@@ -1740,18 +1740,17 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DHS ) {
                 auto reader3DHS = reader.getReader( data_tag_size );
                 
-                auto child_amount = reader3DHS.readU32( settings.endian );
+                this->num_vertex_position_channel = reader3DHS.readU32( settings.endian );
                 auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
                 const auto VECTOR_SIZE = 4 * sizeof( uint16_t );
 
                 auto read_3D_positions = data_size / VECTOR_SIZE; // vec3 with an empty space.
                 
-                frames_gen_3DHS = data_size / ( VECTOR_SIZE * child_amount );
+                frames_gen_3DHS = data_size / ( VECTOR_SIZE * this->num_vertex_position_channel );
 
                 debug_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
 
-                this->vertex_position_bones.resize(child_amount, nullptr);
-                this->vertex_position_data.reserve(   data_size );
+                this->vertex_position_data.reserve( data_size );
                 
                 for( int d = 0; d < read_3D_positions; d++ )
                 {
@@ -2108,24 +2107,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
         }
 
-        // Now further parse the data.
-        for( size_t position_index = 0; position_index < this->vertex_position_bones.size(); position_index++ ) {
-            this->vertex_position_bones[position_index] = nullptr;
-
-            for( size_t bone_index = 0; bone_index < this->bones.size(); bone_index ) {
-                auto &bone = this->bones[bone_index];
-                auto position_index_stride = this->position_indexes[position_index] - bone.vertex_start;
-
-                if( bone.vertex_stride    != 0 &&
-                    bone.vertex_start      < this->position_indexes[position_index] &&
-                    position_index_stride <= bone.vertex_stride )
-                    this->vertex_position_bones[position_index] = &this->bones[bone_index];
-
-                bone_index++;
-            }
-
-            error_log.output << position_index << " = {" << this->vertex_position_bones[position_index]->getString() << "}\n";
-        }
+        // At this stage data that requires other chunks will run here.
 
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
             FaceOverrideType &face_override = face_type_overrides[ i - 1 ];
@@ -2253,7 +2235,7 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned position_index, unsi
     if( !isPositionValid( position_index ) )
         return position;
 
-    if(vertex_position_bones.empty()) {
+    if(this->vertex_position_data.empty()) {
         // Morph Target Animation Code
 
         if( this->vertex_data.get3DRFSize() <= frame_index )
@@ -2271,21 +2253,16 @@ glm::vec3 Data::Mission::ObjResource::getPosition( unsigned position_index, unsi
     else {
         // Bone/Skin Animation Code
 
-        if( position_index >= this->vertex_position_bones.size() )
+        if( position_index >= this->num_vertex_position_channel )
             return position;
 
-        if( nullptr == this->vertex_position_bones[position_index] )
-            return position;
-
-        size_t index = this->vertex_position_bones.size() * frame_index + position_index;
+        size_t index = num_vertex_position_channel * frame_index + position_index;
 
         if( index >= this->vertex_position_data.size() )
             return position;
 
         position  = this->vertex_position_data[ index ];
-        position *= glm::vec3( FIXED_POINT_UNIT,-FIXED_POINT_UNIT, FIXED_POINT_UNIT);
-
-        position = glm::vec4(position, 1) * this->vertex_position_bones[ index ]->decode(this->bone_animation_data, frame_index).toMatrix();
+        position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
     }
 
     return position;

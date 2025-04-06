@@ -280,10 +280,9 @@ private:
     std::vector<glm::u8vec2>          override_uvs;
     std::vector<VertexColorOverride>  face_color_overrides;
 
-    // 3DHS Data
     unsigned position_indexes[4];
-    std::vector<Bone*> vertex_position_bones;
-    std::vector<glm::i16vec3> vertex_position_data;
+    unsigned num_vertex_position_channel;
+    std::vector<glm::i16vec3> vertex_position_data; // Overides position_indexes when present.
 
     std::vector<Primitive> primitives;
 
