@@ -11,6 +11,8 @@ namespace Game::ACT {
 
 class X1Alpha : public BaseEntity {
 private:
+    glm::quat rotation;
+
     uint32_t legs_id; bool legs;
     Graphics::ModelInstance *legs_p;
     const Data::Mission::ObjResource *legs_cobj_r;
@@ -30,7 +32,6 @@ private:
     uint32_t pilot_id; bool pilot;
     Graphics::ModelInstance *pilot_p;
     const Data::Mission::ObjResource *pilot_cobj_r;
-
 
 
 public:

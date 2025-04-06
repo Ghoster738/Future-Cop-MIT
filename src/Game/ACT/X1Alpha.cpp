@@ -10,6 +10,8 @@ X1Alpha::X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Al
     // TODO This is a wild guess.
     this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.uint8_0) );
 
+    this->rotation = obj.getRotationQuaternion();
+
     this->legs        = obj.getHasLegID();
     this->legs_id     = obj.getLegID();
     this->legs_p      = nullptr;
@@ -54,7 +56,7 @@ X1Alpha::X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Al
 
 X1Alpha::X1Alpha( const X1Alpha& obj ) :
     BaseEntity( obj ),
-    legs_id( obj.legs_id ), legs( obj.legs ), legs_p( nullptr ), legs_cobj_r( obj.legs_cobj_r ),
+    rotation( obj.rotation), legs_id( obj.legs_id ), legs( obj.legs ), legs_p( nullptr ), legs_cobj_r( obj.legs_cobj_r ),
     cockpit_id( obj.cockpit_id ), cockpit( obj.cockpit ), cockpit_p( nullptr ), cockpit_cobj_r( obj.cockpit_cobj_r ),
     weapon_id( obj.weapon_id ), weapon( obj.weapon ), weapons_p{ nullptr, nullptr }, weapon_cobj_r( obj.weapon_cobj_r ),
     beacon_lights_id( obj.beacon_lights_id ), beacon_lights( obj.beacon_lights ), beacon_lights_p( nullptr ), beacon_lights_cobj_r( obj.beacon_lights_cobj_r ),
@@ -93,7 +95,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     try {
         if( this->legs ) {
-            this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, glm::quat(), this->texture_offset );
+            this->legs_p = main_program.environment_p->allocateModel( this->legs_id, this->position, this->rotation, this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
