@@ -1130,12 +1130,7 @@ glm::mat4 Data::Mission::ObjResource::DecodedBone::toMatrix() const {
 Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::DecodedBone::transform(const glm::mat4 &matrix) const {
     DecodedBone ret;
 
-    glm::vec4 pos = matrix * glm::vec4(this->position.x, this->position.y, this->position.z, 1.0f);
-
-    ret.position.x = pos.x / pos.w;
-    ret.position.y = pos.y / pos.w;
-    ret.position.z = pos.z / pos.w;
-
+    ret.position = matrix * glm::vec4(this->position, 1.0f);
     ret.rotation = glm::quat_cast(matrix * glm::mat4_cast( this->rotation ));
 
     return ret;
@@ -2252,28 +2247,46 @@ bool Data::Mission::ObjResource::isPositionValid( unsigned index ) const {
         return false;
 }
 
-glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index, unsigned frame_index ) const {
+glm::vec3 Data::Mission::ObjResource::getPosition( unsigned position_index, unsigned frame_index ) const {
     glm::vec3 position(0, 0, 0);
 
-    if( !isPositionValid( index ) )
+    if( !isPositionValid( position_index ) )
         return position;
 
-    // Morph Target Code.
+    if(vertex_position_bones.empty()) {
+        // Morph Target Animation Code
 
-    if( this->vertex_data.get3DRFSize() <= frame_index )
-        return position;
+        if( this->vertex_data.get3DRFSize() <= frame_index )
+            return position;
 
-    const uint32_t position_id = this->vertex_data.get3DRFItem(VertexData::C_4DVL, frame_index);
-    const glm::i16vec3* const vertex_positions_r = this->vertex_data.get4DVLPointer(position_id);
+        const uint32_t position_id = this->vertex_data.get3DRFItem(VertexData::C_4DVL, frame_index);
+        const glm::i16vec3* const vertex_positions_r = this->vertex_data.get4DVLPointer(position_id);
 
-    if( vertex_positions_r == nullptr )
-        return position;
+        if( vertex_positions_r == nullptr )
+            return position;
 
-    position = vertex_positions_r[ position_indexes[index] ];
+        position  = vertex_positions_r[ position_indexes[position_index] ];
+        position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+    }
+    else {
+        // Bone/Skin Animation Code
 
-    // All paths
+        if( position_index >= this->vertex_position_bones.size() )
+            return position;
 
-    position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+        if( nullptr == this->vertex_position_bones[position_index] )
+            return position;
+
+        size_t index = this->vertex_position_bones.size() * frame_index + position_index;
+
+        if( index >= this->vertex_position_data.size() )
+            return position;
+
+        position  = this->vertex_position_data[ index ];
+        position *= glm::vec3( FIXED_POINT_UNIT,-FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+
+        position = glm::vec4(position, 1) * this->vertex_position_bones[ index ]->decode(this->bone_animation_data, frame_index).toMatrix();
+    }
 
     return position;
 }
