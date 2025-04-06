@@ -1130,7 +1130,7 @@ glm::mat4 Data::Mission::ObjResource::DecodedBone::toMatrix() const {
 Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::DecodedBone::transform(const glm::mat4 &matrix) const {
     DecodedBone ret;
 
-    glm::vec4 pos = glm::vec4(this->position.x, this->position.y, this->position.z, 1.0f) * matrix;
+    glm::vec4 pos = matrix * glm::vec4(this->position.x, this->position.y, this->position.z, 1.0f);
 
     ret.position.x = pos.x / pos.w;
     ret.position.y = pos.y / pos.w;
@@ -2251,7 +2251,19 @@ Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::getBone( uns
     DecodedBone decoded_bone = this->bones[ bone_index ].decode(this->bone_animation_data, frame_index);
 
     if(this->bones[ bone_index ].parent_r != nullptr) {
-        //decoded_bone = decoded_bone.transform( getBone( this->bones[ bone_index ].parent_r - &this->bones[ 0 ], frame_index ).toMatrix() );
+        auto matrix = glm::mat4( 1.0f );
+
+        auto parent_r = this->bones[ bone_index ].parent_r;
+
+        while( parent_r != nullptr ) {
+            DecodedBone parent_bone = parent_r->decode(this->bone_animation_data, frame_index);
+
+            matrix = parent_bone.toMatrix() * matrix;
+
+            parent_r = parent_r->parent_r;
+        }
+
+        decoded_bone = decoded_bone.transform( matrix );
     }
 
     return decoded_bone;

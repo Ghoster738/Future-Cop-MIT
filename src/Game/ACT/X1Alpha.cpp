@@ -118,7 +118,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                 cockpit_pos = legs_cobj_r->getPosition(0);
             }
 
-            //this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
+            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -141,7 +141,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                 Data::Mission::ObjResource::DecodedBone weapon_bone;
 
                 if(cockpit_cobj_r) {
-                    weapon_bone = cockpit_cobj_r->getBone( 2 * i, 0 );
+                    weapon_bone = cockpit_cobj_r->getBone( 2 * i + 2, 0 );
                 }
 
                 this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + weapon_bone.position, weapon_bone.rotation, this->texture_offset );
