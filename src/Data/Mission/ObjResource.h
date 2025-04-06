@@ -272,7 +272,6 @@ private:
         unsigned environment_map:  1;
         unsigned animation:        1;
     } info;
-    unsigned position_indexes[4];
 
     VertexData vertex_data;
 
@@ -280,6 +279,11 @@ private:
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
     std::vector<VertexColorOverride>  face_color_overrides;
+
+    // 3DHS Data
+    unsigned position_indexes[4];
+    std::vector<Bone*> vertex_position_bones;
+    std::vector<glm::i16vec3> vertex_position_data;
 
     std::vector<Primitive> primitives;
 

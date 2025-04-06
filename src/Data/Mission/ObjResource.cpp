@@ -1745,26 +1745,28 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DHS ) {
                 auto reader3DHS = reader.getReader( data_tag_size );
                 
-                auto bone_depth_number = reader3DHS.readU32( settings.endian );
+                auto child_amount = reader3DHS.readU32( settings.endian );
                 auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
-                const auto BONE_SIZE = 4 * sizeof( uint16_t );
+                const auto VECTOR_SIZE = 4 * sizeof( uint16_t );
 
-                auto read_3D_positions = data_size / BONE_SIZE; // vec3 with an empty space.
+                auto read_3D_positions = data_size / VECTOR_SIZE; // vec3 with an empty space.
                 
-                frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
+                frames_gen_3DHS = data_size / ( VECTOR_SIZE * child_amount );
 
                 debug_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
+
+                this->vertex_position_bones.resize(child_amount, nullptr);
+                this->vertex_position_data.reserve(   data_size );
                 
-                for( int d = 0; d < frames_gen_3DHS; d++ )
+                for( int d = 0; d < read_3D_positions; d++ )
                 {
-                    for( size_t i = 0; i < bone_depth_number; i++ )
-                    {
-                        auto u_x = reader3DHS.readU16( settings.endian );
-                        auto u_y = reader3DHS.readU16( settings.endian );
-                        auto u_z = reader3DHS.readU16( settings.endian );
-                        // I determined that this value stays zero, so no reading needs to be done.
-                        auto u_w = reader3DHS.readU16( settings.endian );
-                    }
+                    auto u_x = reader3DHS.readU16( settings.endian );
+                    auto u_y = reader3DHS.readU16( settings.endian );
+                    auto u_z = reader3DHS.readU16( settings.endian );
+                    // I determined that this value stays zero, so no reading needs to be done.
+                    auto u_w = reader3DHS.readU16( settings.endian );
+
+                    this->vertex_position_data.push_back( {u_x, u_y, u_z} );
                 }
             }
             else
@@ -2109,6 +2111,25 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 error_log.output << "This is not a valid Obj file!\n";
                 reader.setPosition( 0, Utilities::Buffer::END );
             }
+        }
+
+        // Now further parse the data.
+        for( size_t position_index = 0; position_index < this->vertex_position_bones.size(); position_index++ ) {
+            this->vertex_position_bones[position_index] = nullptr;
+
+            for( size_t bone_index = 0; bone_index < this->bones.size(); bone_index ) {
+                auto &bone = this->bones[bone_index];
+                auto position_index_stride = this->position_indexes[position_index] - bone.vertex_start;
+
+                if( bone.vertex_stride    != 0 &&
+                    bone.vertex_start      < this->position_indexes[position_index] &&
+                    position_index_stride <= bone.vertex_stride )
+                    this->vertex_position_bones[position_index] = &this->bones[bone_index];
+
+                bone_index++;
+            }
+
+            error_log.output << position_index << " = {" << this->vertex_position_bones[position_index]->getString() << "}\n";
         }
 
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
