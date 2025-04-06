@@ -317,7 +317,7 @@ public:
 
     bool isPositionValid( unsigned index ) const;
 
-    glm::vec3 getPosition( unsigned index ) const;
+    glm::vec3 getPosition( unsigned index, unsigned frame_index ) const;
 
     DecodedBone getBone( unsigned bone_index, unsigned frame_index ) const;
 

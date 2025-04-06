@@ -2231,16 +2231,28 @@ bool Data::Mission::ObjResource::isPositionValid( unsigned index ) const {
         return false;
 }
 
-glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
+glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index, unsigned frame_index ) const {
     glm::vec3 position(0, 0, 0);
 
-    if( isPositionValid( index ) ) {
-        const uint32_t position_id = vertex_data.get3DRFItem(VertexData::C_4DVL, 0);
-        const glm::i16vec3* const vertex_positions_r = vertex_data.get4DVLPointer(position_id);
+    if( !isPositionValid( index ) )
+        return position;
 
-        position  = vertex_positions_r[ position_indexes[index] ];
-        position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
-    }
+    // Morph Target Code.
+
+    if( this->vertex_data.get3DRFSize() <= frame_index )
+        return position;
+
+    const uint32_t position_id = this->vertex_data.get3DRFItem(VertexData::C_4DVL, frame_index);
+    const glm::i16vec3* const vertex_positions_r = this->vertex_data.get4DVLPointer(position_id);
+
+    if( vertex_positions_r == nullptr )
+        return position;
+
+    position = vertex_positions_r[ position_indexes[index] ];
+
+    // All paths
+
+    position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
 
     return position;
 }

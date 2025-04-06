@@ -102,7 +102,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     log.output << "\nLeg positions";
     for(unsigned i = 0; i < 4; i++) {
-        glm::vec3 weapon_pos = legs_cobj_r->getPosition(i);
+        glm::vec3 weapon_pos = legs_cobj_r->getPosition(i, 0);
         log.output << "\ni: " << i << "(" << weapon_pos.x << ", " << weapon_pos.y << ", " << weapon_pos.z << ")";
     }
 
@@ -115,7 +115,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
             glm::vec3 cockpit_pos(0, 0, 0);
 
             if(cockpit_cobj_r) {
-                cockpit_pos = legs_cobj_r->getPosition(0);
+                cockpit_pos = legs_cobj_r->getPosition(0, 0);
             }
 
             this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
@@ -127,7 +127,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     log.output << "\nCockpit positions";
     for(unsigned i = 0; i < 4; i++) {
-        glm::vec3 weapon_pos = cockpit_cobj_r->getPosition(i);
+        glm::vec3 weapon_pos = cockpit_cobj_r->getPosition(i, 0);
         log.output << "\ni: " << i << "(" << weapon_pos.x << ", " << weapon_pos.y << ", " << weapon_pos.z << ")";
     }
 
@@ -154,7 +154,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     log.output << "\nWeapon positions";
     for(unsigned i = 0; i < 4; i++) {
-        glm::vec3 weapon_pos = weapon_cobj_r->getPosition(i);
+        glm::vec3 weapon_pos = weapon_cobj_r->getPosition(i, 0);
         log.output << "\ni: " << i << "(" << weapon_pos.x << ", " << weapon_pos.y << ", " << weapon_pos.z << ")";
     }
 
@@ -167,7 +167,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
             glm::vec3 beacon_pos(0, 0, 0);
 
             if(cockpit_cobj_r) {
-                beacon_pos = legs_cobj_r->getPosition(2);
+                beacon_pos = legs_cobj_r->getPosition(2, 0);
             }
 
             this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + beacon_pos, glm::quat() );
@@ -179,7 +179,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
 
     log.output << "\nBeacon positions";
     for(unsigned i = 0; i < 4; i++) {
-        glm::vec3 weapon_pos = beacon_lights_cobj_r->getPosition(i);
+        glm::vec3 weapon_pos = beacon_lights_cobj_r->getPosition(i, 0);
         log.output << "\ni: " << i << "(" << weapon_pos.x << ", " << weapon_pos.y << ", " << weapon_pos.z << ")";
     }
 
