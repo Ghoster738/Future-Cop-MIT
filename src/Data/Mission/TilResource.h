@@ -303,6 +303,7 @@ private:
     TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture resource IDs.
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
+    uint32_t collision_triangle_index_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 public:
     static constexpr size_t TEXTURE_INFO_AMOUNT = sizeof( texture_info ) / sizeof( texture_info[0] );
     

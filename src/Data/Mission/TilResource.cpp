@@ -310,18 +310,19 @@ Data::Mission::TilResource::TilResource() {
 Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data( obj.culling_data ), uv_animation( obj.uv_animation ), mesh_library_size( obj.mesh_library_size ), mesh_reference_grid(), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
-            mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
+            this->mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
+            this->collision_triangle_index_grid[x][y] = obj.collision_triangle_index_grid[x][y];
         }
     }
 
-    texture_info[0] = obj.texture_info[0];
-    texture_info[1] = obj.texture_info[1];
-    texture_info[2] = obj.texture_info[2];
-    texture_info[3] = obj.texture_info[3];
-    texture_info[4] = obj.texture_info[4];
-    texture_info[5] = obj.texture_info[5];
-    texture_info[6] = obj.texture_info[6];
-    texture_info[7] = obj.texture_info[7];
+    this->texture_info[0] = obj.texture_info[0];
+    this->texture_info[1] = obj.texture_info[1];
+    this->texture_info[2] = obj.texture_info[2];
+    this->texture_info[3] = obj.texture_info[3];
+    this->texture_info[4] = obj.texture_info[4];
+    this->texture_info[5] = obj.texture_info[5];
+    this->texture_info[6] = obj.texture_info[6];
+    this->texture_info[7] = obj.texture_info[7];
 }
 
 std::filesystem::path Data::Mission::TilResource::getFileExtension() const {
