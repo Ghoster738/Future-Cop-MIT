@@ -262,8 +262,12 @@ glm::mat4 Utilities::ModelBuilder::getJointFrame( unsigned frame_index, unsigned
 
     auto matrix = glm::translate( glm::mat4( 1.0f ), joint.position.at(frame_index) ) * glm::mat4_cast( joint.rotation.at(frame_index) );
 
-    if( joint.joint_r != nullptr )
-        matrix = getJointFrame( frame_index, joint.joint_index ) * matrix;
+    auto parent_r = joint.joint_r;
+
+    while( parent_r != nullptr ) {
+        matrix = glm::translate( glm::mat4( 1.0f ), parent_r->position.at(frame_index) ) * glm::mat4_cast( parent_r->rotation.at(frame_index) ) * matrix;
+        parent_r = parent_r->joint_r;
+    }
 
     return matrix;
 }
