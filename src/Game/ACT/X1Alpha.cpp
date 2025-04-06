@@ -56,7 +56,7 @@ X1Alpha::X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Al
 
 X1Alpha::X1Alpha( const X1Alpha& obj ) :
     BaseEntity( obj ),
-    rotation( obj.rotation), legs_id( obj.legs_id ), legs( obj.legs ), legs_p( nullptr ), legs_cobj_r( obj.legs_cobj_r ),
+    rotation( obj.rotation ), legs_id( obj.legs_id ), legs( obj.legs ), legs_p( nullptr ), legs_cobj_r( obj.legs_cobj_r ),
     cockpit_id( obj.cockpit_id ), cockpit( obj.cockpit ), cockpit_p( nullptr ), cockpit_cobj_r( obj.cockpit_cobj_r ),
     weapon_id( obj.weapon_id ), weapon( obj.weapon ), weapons_p{ nullptr, nullptr }, weapon_cobj_r( obj.weapon_cobj_r ),
     beacon_lights_id( obj.beacon_lights_id ), beacon_lights( obj.beacon_lights ), beacon_lights_p( nullptr ), beacon_lights_cobj_r( obj.beacon_lights_cobj_r ),
@@ -118,10 +118,10 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
         if( this->cockpit ) {
 
             if(cockpit_cobj_r) {
-                cockpit_pos = legs_cobj_r->getPosition(0, 0);
+                cockpit_pos = this->rotation * glm::vec4( legs_cobj_r->getPosition(0, 0), 1 );
             }
 
-            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, glm::quat(), this->texture_offset );
+            this->cockpit_p = main_program.environment_p->allocateModel( this->cockpit_id, this->position + cockpit_pos, this->rotation, this->texture_offset );
         }
     }
     catch( const std::invalid_argument& argument ) {
@@ -147,7 +147,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                     weapon_bone = cockpit_cobj_r->getBone( 2 * i + 2, 0 );
                 }
 
-                this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + weapon_bone.position + cockpit_pos, weapon_bone.rotation, this->texture_offset );
+                this->weapons_p[i] = main_program.environment_p->allocateModel( this->weapon_id, this->position + this->rotation * weapon_bone.position + cockpit_pos, this->rotation * weapon_bone.rotation, this->texture_offset );
             }
         }
         catch( const std::invalid_argument& argument ) {
@@ -170,10 +170,10 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
             glm::vec3 beacon_pos(0, 0, 0);
 
             if(cockpit_cobj_r) {
-                beacon_pos = cockpit_cobj_r->getPosition(2, 0);
+                beacon_pos = this->rotation * cockpit_cobj_r->getPosition(2, 0);
             }
 
-            this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + beacon_pos + cockpit_pos, glm::quat() );
+            this->beacon_lights_p = main_program.environment_p->allocateModel( this->beacon_lights_id, this->position + beacon_pos + cockpit_pos, this->rotation );
         }
     }
     catch( const std::invalid_argument& argument ) {
