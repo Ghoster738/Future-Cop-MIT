@@ -365,16 +365,6 @@ glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc, float
 
     if( ground_cast != GroundCast::DEFAULT )
         height_value += ptc.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) );
-    else {
-        float lowest_point = std::numeric_limits<float>::max();
-
-        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x + MARGIN, v.y + MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
-        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x - MARGIN, v.y + MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
-        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x - MARGIN, v.y - MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
-        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x + MARGIN, v.y - MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
-
-        height_value += lowest_point - 4.f;
-    }
 
     return glm::vec3( v.x, height_value, v.y );
 }
