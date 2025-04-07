@@ -53,6 +53,7 @@ ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor
     auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
     aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      accessor, accessor.getActorAccessor().getAllConstAircraft() );
+    dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
     props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, accessor.getActorAccessor().getAllConstProp() );
@@ -66,6 +67,7 @@ ActManager::~ActManager() {
 
 void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::Aircraft>(      main_program,        aircraft );
+    updateGraphics<ACT::DynamicProp>(   main_program,   dynamic_props );
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
     updateGraphics<ACT::Prop>(          main_program,           props );
