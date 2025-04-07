@@ -363,7 +363,7 @@ glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc, float
 
     float height_value = offset;
 
-    if( ground_cast != GroundCast::DEFAULT )
+    if( ground_cast != GroundCast::NONE )
         height_value += ptc.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) );
 
     return glm::vec3( v.x, height_value, v.y );

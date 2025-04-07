@@ -46,13 +46,13 @@ public:
         HIGH    = 0x00,
         LOW     = 0x01,
         MIDDLE  = 0x03,
-        DEFAULT = 0xff
+        NONE    = 0xff
     };
 
     static unsigned getGroundCastLevels(GroundCast ground_cast) {
         switch(ground_cast) {
             case HIGH:
-            case DEFAULT:
+            case NONE:
             default:
                 return 0;
             case MIDDLE:
