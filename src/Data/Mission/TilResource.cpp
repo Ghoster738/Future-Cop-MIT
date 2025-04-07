@@ -922,6 +922,10 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         input.coord_data = this->texture_cords.data();
         input.SCTA_info_r = &this->SCTA_info;
         
+        auto &element = this->collision_triangle_index_grid[ x ][ z ];
+
+        element.index = this->all_triangles.size();
+
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
             
             current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
@@ -942,17 +946,13 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
                 position[ i ].x = -position[ i ].x;
                 position[ i ].z = -position[ i ].z;
             }
-
-            auto &element = this->collision_triangle_index_grid[ x ][ z ];
-
-            element.index = this->all_triangles.size();
             
             for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
                 this->all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
             }
-
-            element.size = this->all_triangles.size() - element.index;
         }
+
+        element.size = this->all_triangles.size() - element.index;
     }
 }
 
