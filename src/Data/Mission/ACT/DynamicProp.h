@@ -15,10 +15,10 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint8_t  ground_cast_type;
-        uint8_t  zero;
-        uint16_t uint16_0;
-        uint32_t uint32_0;
+        uint8_t ground_cast_type;
+        uint8_t zero;
+        int16_t rotation;
+        int32_t height_offset;
     } internal;
 
 protected:
@@ -43,7 +43,15 @@ public:
 
     Internal getInternal() const;
 
-    uint32_t getObjResourceID() const { return rsl_data[0].resource_id; }
+    float getHeightOffset() const { return (1.f / 8192.f) * internal.height_offset; }
+
+    glm::quat getRotationQuaternion() const;
+
+    bool getHasAliveID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getAliveObjResourceID() const { return rsl_data[0].resource_id; }
+
+    bool getHasDeathID() const { return rsl_data[1].type != RSL_NULL_TAG; }
+    uint32_t getDeathObjResourceID() const { return rsl_data[1].resource_id; }
 };
 }
 
