@@ -357,8 +357,6 @@ glm::vec2 Data::Mission::ACTResource::getPosition() const {
 }
 
 glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc, float offset, GroundCast ground_cast ) const {
-    const float MARGIN = 0.125f;
-
     const auto v = this->getPosition();
 
     float height_value = offset;
