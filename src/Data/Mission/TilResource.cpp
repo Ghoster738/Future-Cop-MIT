@@ -946,11 +946,12 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
             auto &element = this->collision_triangle_index_grid[ x ][ z ];
 
             element.index = this->all_triangles.size();
-            element.size  = amount_of_vertices / 3;
             
             for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
                 this->all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
             }
+
+            element.size = this->all_triangles.size() - element.index;
         }
     }
 }
@@ -968,9 +969,11 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
     glm::vec3 point;
     glm::vec3 barycentric;
     
-    for( auto i : all_triangles ) {
+    for( unsigned int i = 0; i < collision_triangle_index_grid[10][00].size; i++ ) {
+        const auto &tri = all_triangles[collision_triangle_index_grid[10][00].index + i];
+
         // Get the intersection distance from the plane first.
-        temp_distance = i.getIntersectionDistance( ray );
+        temp_distance = tri.getIntersectionDistance( ray );
         
         // If temp_distance is positive
         if( temp_distance <= 0.0f )
@@ -989,10 +992,10 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
                 point = ray.getSpot( temp_distance );
 
                 // Get the barycentric cordinates.
-                barycentric = i.getBarycentricCordinates( point );
+                barycentric = tri.getBarycentricCordinates( point );
 
                 // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
-                if( i.isInTriangle( barycentric ) ) {
+                if( tri.isInTriangle( barycentric ) ) {
 
                     // A triangle has been found.
                     found_triangle = true;
@@ -1044,9 +1047,90 @@ float Data::Mission::TilResource::getRayCast2D( float x, float z, unsigned level
 
 float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point, unsigned level ) const {
     // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
-    Utilities::Collision::Ray down_ray( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
-    
-    return getRayCast3D( down_ray, level );
+    Utilities::Collision::Ray ray( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
+
+    assert(level <= 2 && level >= 0);
+
+    const float MAX_DISTANCE = 131072.0f;
+
+    bool found_triangle = false;
+    float final_distances[3] = {MAX_DISTANCE, MAX_DISTANCE, MAX_DISTANCE};
+    float temp_distance;
+    glm::vec3 point;
+    glm::vec3 barycentric;
+
+    const auto &cell = collision_triangle_index_grid[static_cast<unsigned int>(x + SPAN_OF_TIL)][static_cast<unsigned int>(z + SPAN_OF_TIL)];
+
+    for( unsigned int i = 0; i < cell.size; i++ ) {
+        const auto &tri = all_triangles[cell.index + i];
+
+        // Get the intersection distance from the plane first.
+        temp_distance = tri.getIntersectionDistance( ray );
+
+        // If temp_distance is positive
+        if( temp_distance <= 0.0f )
+            continue;
+
+        for(unsigned t = 0; t < 3; t++) {
+            if(t != 0 && final_distances[t - 1] == temp_distance) {
+                t = 3;
+                continue;
+            }
+
+            // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
+            if( temp_distance < final_distances[t] ) {
+
+                // Get the point in 3D space.
+                point = ray.getSpot( temp_distance );
+
+                // Get the barycentric cordinates.
+                barycentric = tri.getBarycentricCordinates( point );
+
+                // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
+                if( tri.isInTriangle( barycentric ) ) {
+
+                    // A triangle has been found.
+                    found_triangle = true;
+
+                    // If there is data in the queue then place it in the final distances.
+                    if(final_distances[t] != MAX_DISTANCE) {
+                        for(unsigned d = 2; d != t; d--) {
+                            final_distances[d] = final_distances[d - 1];
+                        }
+                    }
+
+                    // The final_distance is now at the triangle.
+                    final_distances[t] = temp_distance;
+
+                    t = 3;
+                }
+            }
+        }
+    }
+
+    // If the triangle has been found then return a positive number.
+    if( !found_triangle )
+        return -1.0f;
+
+    if(level == 2) {
+        if(final_distances[2] != MAX_DISTANCE) {
+            assert(final_distances[2] != final_distances[1]);
+            assert(final_distances[1] != final_distances[0]);
+
+            return final_distances[2];
+        }
+        else if(final_distances[1] != MAX_DISTANCE) {
+            assert(final_distances[1] != final_distances[0]);
+            return final_distances[1];
+        }
+    }
+    else
+    if(level == 1 && final_distances[1] != MAX_DISTANCE) {
+        assert(final_distances[1] != final_distances[0]);
+        return final_distances[1];
+    }
+
+    return final_distances[0];
 }
 
 const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::getAllTriangles() const {
