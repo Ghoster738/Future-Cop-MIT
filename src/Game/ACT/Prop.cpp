@@ -5,9 +5,7 @@ namespace Game::ACT {
 Prop::Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
-
-    this->position.y += obj.getHeightOffset();
+    this->position = obj.getPosition( ptc, obj.getHeightOffset(), static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
 
     this->scale = obj.getScale();
 
