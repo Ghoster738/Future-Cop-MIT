@@ -4,6 +4,7 @@
 #include "ACT/Unknown.h"
 
 #include <fstream>
+#include <iostream>
 
 #include <json/json.h>
 
@@ -356,8 +357,26 @@ glm::vec2 Data::Mission::ACTResource::getPosition() const {
 }
 
 glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc, float offset, GroundCast ground_cast ) const {
+    const float MARGIN = 0.125f;
+
     const auto v = this->getPosition();
-    return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) ) + offset, v.y );
+
+    float height_value = offset;
+
+    if( ground_cast != GroundCast::DEFAULT )
+        height_value += ptc.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) );
+    else {
+        float lowest_point = std::numeric_limits<float>::max();
+
+        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x + MARGIN, v.y + MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
+        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x - MARGIN, v.y + MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
+        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x - MARGIN, v.y - MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
+        lowest_point = std::min(lowest_point, ptc.getRayCast2D( v.x + MARGIN, v.y - MARGIN, getGroundCastLevels( GroundCast::HIGH ) ) + 4.f);
+
+        height_value += lowest_point - 4.f;
+    }
+
+    return glm::vec3( v.x, height_value, v.y );
 }
 
 bool Data::Mission::IFFOptions::ACTOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {
