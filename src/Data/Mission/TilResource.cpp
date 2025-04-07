@@ -969,9 +969,7 @@ float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray 
     glm::vec3 point;
     glm::vec3 barycentric;
     
-    for( unsigned int i = 0; i < collision_triangle_index_grid[10][00].size; i++ ) {
-        const auto &tri = all_triangles[collision_triangle_index_grid[10][00].index + i];
-
+    for( const auto &tri : all_triangles ) {
         // Get the intersection distance from the plane first.
         temp_distance = tri.getIntersectionDistance( ray );
         
