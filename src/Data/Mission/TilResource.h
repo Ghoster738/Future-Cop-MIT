@@ -305,7 +305,8 @@ private:
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
     struct {
         unsigned int index;
-        unsigned int size;
+        unsigned int floor_size;
+        unsigned int total_size;
     } collision_triangle_index_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 public:
     static constexpr size_t TEXTURE_INFO_AMOUNT = sizeof( texture_info ) / sizeof( texture_info[0] );

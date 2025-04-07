@@ -926,36 +926,42 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
 
         element.index = this->all_triangles.size();
 
-        for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
-            
-            current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
+        unsigned int counts[2] = {0, 0};
 
-            if(Til::Mesh::isWall( current_tile.mesh_type ))
-                continue;
-            
-            input.coord_index = current_tile.texture_cord_index;
-            
-            vertex_data.element_amount = 6;
-            vertex_data.element_start = 0;
-            vertex_data.stca_animation_index = stca_animation_index;
-            
-            auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
-            
-            for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                position[ i ].x += (SPAN_OF_TIL - x) - 0.5;
-                position[ i ].z += (SPAN_OF_TIL - z) - 0.5;
+        for( unsigned a = 0; a < 2; a++ ) {
+            for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
 
-                // Flip Both Axis's
-                position[ i ].x = -position[ i ].x;
-                position[ i ].z = -position[ i ].z;
-            }
-            
-            for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
-                this->all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
+                current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
+
+                if(a != Til::Mesh::isWall( current_tile.mesh_type ))
+                    continue;
+
+                input.coord_index = current_tile.texture_cord_index;
+
+                vertex_data.element_amount = 6;
+                vertex_data.element_start = 0;
+                vertex_data.stca_animation_index = stca_animation_index;
+
+                auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
+
+                for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
+                    position[ i ].x += (SPAN_OF_TIL - x) - 0.5;
+                    position[ i ].z += (SPAN_OF_TIL - z) - 0.5;
+
+                    // Flip Both Axis's
+                    position[ i ].x = -position[ i ].x;
+                    position[ i ].z = -position[ i ].z;
+                }
+
+                for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
+                    this->all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
+                    counts[ a ]++;
+                }
             }
         }
 
-        element.size = this->all_triangles.size() - element.index;
+        element.floor_size = counts[ 0 ];
+        element.total_size = counts[ 1 ] + element.floor_size;
     }
 }
 
@@ -1062,7 +1068,7 @@ float Data::Mission::TilResource::getRayCastDownward( float x, float z, float fr
 
     const auto &cell = collision_triangle_index_grid[static_cast<unsigned int>(x + SPAN_OF_TIL)][static_cast<unsigned int>(z + SPAN_OF_TIL)];
 
-    for( unsigned int i = 0; i < cell.size; i++ ) {
+    for( unsigned int i = 0; i < cell.floor_size; i++ ) {
         const auto &tri = all_triangles[cell.index + i];
 
         // Get the intersection distance from the plane first.
