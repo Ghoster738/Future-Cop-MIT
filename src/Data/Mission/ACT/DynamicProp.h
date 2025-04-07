@@ -15,10 +15,10 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint8_t uint8_8;
-        uint8_t uint8_9;
-        uint16_t uint16_2;
-        uint32_t uint32_1;
+        uint8_t  ground_cast_type;
+        uint8_t  zero;
+        uint16_t uint16_0;
+        uint32_t uint32_0;
     } internal;
 
 protected:
