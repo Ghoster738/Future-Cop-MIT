@@ -929,6 +929,9 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
             
             current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
+
+            if(Til::Mesh::isWall( current_tile.mesh_type ))
+                continue;
             
             input.coord_index = current_tile.texture_cord_index;
             
