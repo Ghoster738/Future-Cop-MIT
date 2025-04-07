@@ -1,6 +1,7 @@
 #include "Hash.h"
 
 #include "../Aircraft.h"
+#include "../DynamicProp.h"
 #include "../Turret.h"
 #include "../ItemPickup.h"
 #include "../NeutralTurret.h"
@@ -21,6 +22,7 @@ private:
 
     void setupTable() {
         table_p[ Data::Mission::ACT::Aircraft::TYPE_ID ] = new Data::Mission::ACT::Aircraft();
+        table_p[ Data::Mission::ACT::DynamicProp::TYPE_ID ] = new Data::Mission::ACT::DynamicProp();
         table_p[ Data::Mission::ACT::Turret::TYPE_ID ] = new Data::Mission::ACT::Turret();
         table_p[ Data::Mission::ACT::ItemPickup::TYPE_ID ] = new Data::Mission::ACT::ItemPickup();
         table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
