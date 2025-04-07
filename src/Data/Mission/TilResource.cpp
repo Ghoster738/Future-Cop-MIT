@@ -942,9 +942,14 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
                 position[ i ].x = -position[ i ].x;
                 position[ i ].z = -position[ i ].z;
             }
+
+            auto &element = this->collision_triangle_index_grid[ x ][ z ];
+
+            element.index = this->all_triangles.size();
+            element.size  = amount_of_vertices / 3;
             
             for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
-                all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
+                this->all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
             }
         }
     }
