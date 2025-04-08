@@ -64,6 +64,7 @@ void Prop::resetGraphics( MainProgram &main_program ) {
             this->model_p->setPosition( this->position );
             this->model_p->setRotation( this->rotation );
             this->model_p->setScale( this->scale );
+            this->model_p->setVisable( true );
         }
     }
     catch( const std::invalid_argument& argument ) {
