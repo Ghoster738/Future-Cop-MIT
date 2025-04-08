@@ -8,6 +8,7 @@
 #include "../Prop.h"
 #include "../SkyCaptain.h"
 #include "../Trigger.h"
+#include "../WalkableProp.h"
 #include "../X1Alpha.h"
 
 namespace {
@@ -29,6 +30,7 @@ private:
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
         table_p[ Data::Mission::ACT::SkyCaptain::TYPE_ID ] = new Data::Mission::ACT::SkyCaptain();
         table_p[ Data::Mission::ACT::Trigger::TYPE_ID ] = new Data::Mission::ACT::Trigger();
+        table_p[ Data::Mission::ACT::WalkableProp::TYPE_ID ] = new Data::Mission::ACT::WalkableProp();
         table_p[ Data::Mission::ACT::X1Alpha::TYPE_ID ] = new Data::Mission::ACT::X1Alpha();
     }
 public:
