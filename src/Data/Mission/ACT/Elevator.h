@@ -52,6 +52,8 @@ public:
     bool getHasElevatorID() const { return rsl_data[0].type != RSL_NULL_TAG; }
     uint32_t getElevatorID() const { return rsl_data[0].resource_id; }
 
+    float getHeightOffset( unsigned index ) const;
+
     glm::quat getRotationQuaternion() const;
 };
 }

@@ -104,6 +104,12 @@ Data::Mission::ACT::Elevator::Internal Data::Mission::ACT::Elevator::getInternal
     return internal;
 }
 
+float Data::Mission::ACT::Elevator::getHeightOffset( unsigned index ) const {
+    assert(index >= 3);
+
+    return (1.f / 1024.f) * internal.height_offset[index];
+}
+
 glm::quat Data::Mission::ACT::Elevator::getRotationQuaternion() const {
     return glm::rotate(glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) ), getRotation(internal.rotation), glm::vec3( 0, 1, 0));
 }
