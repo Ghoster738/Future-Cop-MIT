@@ -14,6 +14,7 @@ namespace Mission {
 
 namespace ACT {
     class Aircraft;
+    class Elevator;
     class DynamicProp;
     class ItemPickup;
     class NeutralTurret;
@@ -61,6 +62,11 @@ public:
     const Mission::ACT::Aircraft* getConstAircraft( uint32_t resource_id ) const;
     std::vector<Mission::ACT::Aircraft*> getAllAircraft();
     std::vector<const Mission::ACT::Aircraft*> getAllConstAircraft() const;
+
+    Mission::ACT::Elevator* getElevator( uint32_t resource_id );
+    const Mission::ACT::Elevator* getConstElevator( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::Elevator*> getAllElevator();
+    std::vector<const Mission::ACT::Elevator*> getAllConstElevator() const;
 
     Mission::ACT::DynamicProp* getDynamicProp( uint32_t resource_id );
     const Mission::ACT::DynamicProp* getConstDynamicProp( uint32_t resource_id ) const;
