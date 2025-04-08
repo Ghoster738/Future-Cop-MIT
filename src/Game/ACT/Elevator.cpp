@@ -7,7 +7,7 @@ namespace Game::ACT {
 Elevator::Elevator( const Data::Accessor& accessor, const Data::Mission::ACT::Elevator& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, obj.getHeightOffset( 0 ), Data::Mission::ACTResource::GroundCast::HIGH );
+    this->position = obj.getPosition( ptc, obj.getHeightOffset( (obj.internal.starting_position - 1) % 3 ), Data::Mission::ACTResource::GroundCast::HIGH );
 
     this->rotation = obj.getRotationQuaternion();
 

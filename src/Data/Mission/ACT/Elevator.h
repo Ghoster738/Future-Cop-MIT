@@ -15,7 +15,7 @@ public:
 
     struct Internal {
         uint8_t num_of_stops;
-        uint8_t starting_position;
+        uint8_t starting_position; // Starts at one not zero.
         int16_t height_offset[3];
         uint16_t stop_time[3];
         uint16_t up_speed;
