@@ -8,6 +8,7 @@
 #include "Mission/ACT/SkyCaptain.h"
 #include "Mission/ACT/Trigger.h"
 #include "Mission/ACT/Turret.h"
+#include "Mission/ACT/WalkableProp.h"
 #include "Mission/ACT/X1Alpha.h"
 
 #define SEARCH( CLASS_NAME, GET_METHOD_NAME, ALL_METHOD_NAME, GET_CONST_METHOD_NAME, ALL_CONST_METHOD_NAME ) \
@@ -149,6 +150,7 @@ SEARCH(NeutralTurret, getNeutralTurret, getAllNeutralTurret, getConstNeutralTurr
 SEARCH(Prop, getProp, getAllProp, getConstProp, getAllConstProp)
 SEARCH(SkyCaptain, getSkyCaptain, getAllSkyCaptain, getConstSkyCaptain, getAllConstSkyCaptain)
 SEARCH(Trigger, getTrigger, getAllTrigger, getConstTrigger, getAllConstTrigger)
+SEARCH(WalkableProp, getWalkableProp, getAllWalkableProp, getConstWalkableProp, getAllConstWalkableProp)
 SEARCH(X1Alpha, getX1Alpha, getAllX1Alpha, getConstX1Alpha, getAllConstX1Alpha)
 
 }

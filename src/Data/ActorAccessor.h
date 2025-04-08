@@ -21,6 +21,7 @@ namespace ACT {
     class SkyCaptain;
     class Trigger;
     class Turret;
+    class WalkableProp;
     class X1Alpha; // A.K.A the Player.
 }
 }
@@ -95,6 +96,11 @@ public:
     const Mission::ACT::Trigger* getConstTrigger( uint32_t resource_id ) const;
     std::vector<Mission::ACT::Trigger*> getAllTrigger();
     std::vector<const Mission::ACT::Trigger*> getAllConstTrigger() const;
+
+    Mission::ACT::WalkableProp* getWalkableProp( uint32_t resource_id );
+    const Mission::ACT::WalkableProp* getConstWalkableProp( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::WalkableProp*> getAllWalkableProp();
+    std::vector<const Mission::ACT::WalkableProp*> getAllConstWalkableProp() const;
 
     Mission::ACT::X1Alpha* getX1Alpha( uint32_t resource_id );
     const Mission::ACT::X1Alpha* getConstX1Alpha( uint32_t resource_id ) const;
