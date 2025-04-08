@@ -45,6 +45,18 @@ void updateSpawn( MainProgram &main_program, Game::ActManager::SpawnableActor<ga
     }
 }
 
+template<class game_act>
+void updateActors( MainProgram &main_program, Game::ActManager::SpawnableActor<game_act> &game_actors, std::chrono::microseconds delta ) {
+    for( auto &actor : game_actors.actors ) {
+        actor.update(main_program, delta);
+    }
+    for( auto &spawner : game_actors.spawners ) {
+        for( auto &actor : spawner.current_actors ) {
+            actor.update(main_program, delta);
+        }
+    }
+}
+
 }
 
 namespace Game {
@@ -109,14 +121,9 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateSpawn<ACT::Turret>(        main_program,         turrets, delta );
     updateSpawn<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
 
-    for( auto &actor : props.actors ) {
-        actor.update(main_program, delta);
-    }
-    for( auto &spawner : item_pickups.spawners ) {
-        for( auto &actor : spawner.current_actors ) {
-            actor.update(main_program, delta);
-        }
-    }
+    updateActors<ACT::DynamicProp>(  main_program,   dynamic_props, delta );
+    updateActors<ACT::ItemPickup>(   main_program,    item_pickups, delta );
+    updateActors<ACT::Prop>(         main_program,           props, delta );
 }
 
 }

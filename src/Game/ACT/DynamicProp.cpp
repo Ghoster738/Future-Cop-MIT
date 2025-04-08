@@ -53,6 +53,10 @@ void DynamicProp::resetGraphics( MainProgram &main_program ) {
     }
 }
 
-void DynamicProp::update( MainProgram &main_program, std::chrono::microseconds delta ) {}
+void DynamicProp::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if(this->alive_p) {
+        this->alive_p->setPositionTransformTimeline( this->alive_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
+    }
+}
 
 }
