@@ -7,7 +7,7 @@ namespace Game::ACT {
 DynamicProp::DynamicProp( const Data::Accessor& accessor, const Data::Mission::ACT::DynamicProp& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, 0.f, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
+    this->position = obj.getPosition( ptc, obj.getHeightOffset(), static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );
 
     this->rotation = obj.getRotationQuaternion();
 
