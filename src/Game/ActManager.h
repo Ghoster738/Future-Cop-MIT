@@ -14,6 +14,7 @@
 #include "ACT/Prop.h"
 #include "ACT/SkyCaptain.h"
 #include "ACT/Turret.h"
+#include "ACT/WalkableProp.h"
 #include "ACT/X1Alpha.h"
 
 namespace Game {
@@ -40,6 +41,7 @@ private:
     SpawnableActor<ACT::Prop>          props;
     SpawnableActor<ACT::SkyCaptain>    sky_captains;
     SpawnableActor<ACT::Turret>        turrets;
+    SpawnableActor<ACT::WalkableProp>  walkable_props;
     SpawnableActor<ACT::X1Alpha>       x1_alphas;
 
 public:
