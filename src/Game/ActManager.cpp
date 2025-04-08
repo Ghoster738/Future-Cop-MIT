@@ -65,6 +65,7 @@ ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor
     auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
     aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      accessor, accessor.getActorAccessor().getAllConstAircraft() );
+    elevator        = initializeActors<Data::Mission::ACT::Elevator,      ACT::Elevator>(      accessor, accessor.getActorAccessor().getAllConstElevator() );
     dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
@@ -80,6 +81,7 @@ ActManager::~ActManager() {
 
 void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::Aircraft>(      main_program,        aircraft );
+    updateGraphics<ACT::Elevator>(      main_program,        elevator );
     updateGraphics<ACT::DynamicProp>(   main_program,   dynamic_props );
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
@@ -122,6 +124,7 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateSpawn<ACT::Turret>(        main_program,         turrets, delta );
     updateSpawn<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
 
+    updateActors<ACT::Elevator>(     main_program,        elevator, delta );
     updateActors<ACT::DynamicProp>(  main_program,   dynamic_props, delta );
     updateActors<ACT::ItemPickup>(   main_program,    item_pickups, delta );
     updateActors<ACT::Prop>(         main_program,           props, delta );

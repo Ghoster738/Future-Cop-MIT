@@ -105,7 +105,7 @@ Data::Mission::ACT::Elevator::Internal Data::Mission::ACT::Elevator::getInternal
 }
 
 float Data::Mission::ACT::Elevator::getHeightOffset( unsigned index ) const {
-    assert(index >= 3);
+    assert(index < 3);
 
     return (1.f / 1024.f) * internal.height_offset[index];
 }

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ACT/Aircraft.h"
+#include "ACT/Elevator.h"
 #include "ACT/DynamicProp.h"
 #include "ACT/ItemPickup.h"
 #include "ACT/NeutralTurret.h"
@@ -35,6 +36,7 @@ public:
 
 private:
     SpawnableActor<ACT::Aircraft>      aircraft;
+    SpawnableActor<ACT::Elevator>      elevator;
     SpawnableActor<ACT::DynamicProp>   dynamic_props;
     SpawnableActor<ACT::ItemPickup>    item_pickups;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
