@@ -1,5 +1,7 @@
 #include "Elevator.h"
 
+#include "../ObjResource.h"
+
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::Elevator::TYPE_ID = 10;
@@ -72,7 +74,18 @@ size_t Data::Mission::ACT::Elevator::getSize() const {
     return 40; // bytes
 }
 
-bool Data::Mission::ACT::Elevator::checkRSL() const { return false; }
+bool Data::Mission::ACT::Elevator::checkRSL() const {
+    if( rsl_data.size() != 2 )
+        return false;
+    else
+    if( rsl_data[0].type != ObjResource::IDENTIFIER_TAG )
+        return false;
+    else
+    if( rsl_data[1].type != RSL_NULL_TAG )
+        return false;
+    else
+        return true;
+}
 
 Data::Mission::Resource* Data::Mission::ACT::Elevator::duplicate() const {
     return new Data::Mission::ACT::Elevator( *this );
@@ -89,4 +102,8 @@ Data::Mission::ACTResource* Data::Mission::ACT::Elevator::duplicate( const ACTRe
 
 Data::Mission::ACT::Elevator::Internal Data::Mission::ACT::Elevator::getInternal() const {
     return internal;
+}
+
+glm::quat Data::Mission::ACT::Elevator::getRotationQuaternion() const {
+    return glm::rotate(glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) ), getRotation(internal.rotation), glm::vec3( 0, 1, 0));
 }

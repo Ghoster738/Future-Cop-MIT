@@ -49,6 +49,10 @@ public:
 
     Internal getInternal() const;
 
+    bool getHasElevatorID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getElevatorID() const { return rsl_data[0].resource_id; }
+
+    glm::quat getRotationQuaternion() const;
 };
 }
 
