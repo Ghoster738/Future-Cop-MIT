@@ -8,10 +8,11 @@ Json::Value Data::Mission::ACT::WalkableProp::makeJson() const {
     Json::Value root = BaseEntity::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
-    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
-    root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
+    root["ACT"][NAME]["rotation_y"]    = internal.rotation_y;
+    root["ACT"][NAME]["rotation_x"]    = internal.rotation_x;
+    root["ACT"][NAME]["height_offset"] = internal.height_offset;
+    root["ACT"][NAME]["tile_effect"]   = internal.tile_effect;
+    root["ACT"][NAME]["uint8_0"]       = internal.uint8_0;
 
     return root;
 }
@@ -24,10 +25,11 @@ bool Data::Mission::ACT::WalkableProp::readACTType( uint_fast8_t act_type, Utili
 
     BaseEntity::readBase(data_reader, endian);
 
-    internal.uint16_0 = data_reader.readU16( endian ); // Values: 0, 1024, 1536, 3072,
-    internal.uint16_1 = data_reader.readU16( endian ); // Always 0
-    internal.uint16_2 = data_reader.readU16( endian ); // Values: 0, 81, 122, 512, 942, 1003, 1024, 1925,
-    internal.uint16_3 = data_reader.readU16( endian ); // Always 0
+    internal.rotation_y    = data_reader.readU16( endian ); // Values: 0, 1024, 1536, 3072,
+    internal.rotation_x    = data_reader.readU16( endian ); // Always 0
+    internal.height_offset = data_reader.readU16( endian ); // Values: 0, 81, 122, 512, 942, 1003, 1024, 1925,
+    internal.tile_effect   = data_reader.readU8(); // Always 0
+    internal.uint8_0       = data_reader.readU8(); // Always 0
 
     return true;
 }

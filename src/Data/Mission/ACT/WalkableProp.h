@@ -14,10 +14,11 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t uint16_0;
-        uint16_t uint16_1;
-        uint16_t uint16_2;
-        uint16_t uint16_3;
+        int16_t rotation_y;
+        int16_t rotation_x;
+        int16_t height_offset;
+        uint8_t tile_effect; // From See TilResource for details on tile_effect
+        uint8_t uint8_0;
     } internal;
 
 protected:
