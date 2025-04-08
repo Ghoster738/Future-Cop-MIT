@@ -70,3 +70,12 @@ Data::Mission::ACTResource* Data::Mission::ACT::WalkableProp::duplicate( const A
 Data::Mission::ACT::WalkableProp::Internal Data::Mission::ACT::WalkableProp::getInternal() const {
     return internal;
 }
+
+glm::quat Data::Mission::ACT::WalkableProp::getRotationQuaternion() const {
+    glm::quat axis = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
+
+    axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+    axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+    return axis;
+}

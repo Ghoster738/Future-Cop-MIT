@@ -43,6 +43,15 @@ public:
 
     Internal getInternal() const;
 
+    float getHeightOffset() const { return (1.f / 512.f) * internal.height_offset; }
+
+    glm::quat getRotationQuaternion() const;
+
+    bool getHasAliveID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getAliveObjResourceID() const { return rsl_data[0].resource_id; }
+
+    bool getHasDeathID() const { return rsl_data[1].type != RSL_NULL_TAG; }
+    uint32_t getDeathObjResourceID() const { return rsl_data[1].resource_id; }
 };
 }
 
