@@ -54,9 +54,6 @@ void WalkableProp::resetGraphics( MainProgram &main_program ) {
 }
 
 void WalkableProp::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-    if(this->alive_p) {
-        this->alive_p->setPositionTransformTimeline( this->alive_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
-    }
 }
 
 }
