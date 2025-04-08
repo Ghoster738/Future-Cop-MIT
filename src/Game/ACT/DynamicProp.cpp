@@ -44,6 +44,7 @@ void DynamicProp::resetGraphics( MainProgram &main_program ) {
             if(this->alive_p) {
                 this->alive_p->setPosition( this->position );
                 this->alive_p->setRotation( this->rotation );
+                this->alive_p->setTextureOffset( this->texture_offset );
                 this->alive_p->setVisable(true);
             }
         }
