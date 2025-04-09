@@ -102,7 +102,6 @@ void Prop::update( MainProgram &main_program, std::chrono::microseconds delta ) 
     if(this->model_p) {
         this->model_p->setPositionTransformTimeline( this->model_p->getPositionTransformTimeline() + float_delta * 10.f);
         this->model_p->setRotation( this->rotation );
-        this->model_p->setVisable( true );
     }
 }
 

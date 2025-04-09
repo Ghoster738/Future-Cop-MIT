@@ -10,7 +10,7 @@
 namespace Game::ACT {
 
 class Aircraft : public BaseShooter {
-private:
+protected:
     uint32_t model_id; bool model;
     Graphics::ModelInstance *model_p;
 

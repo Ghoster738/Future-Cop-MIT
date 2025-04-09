@@ -88,6 +88,12 @@ void Turret::resetGraphics( MainProgram &main_program ) {
 }
 
 void Turret::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if(this->base_p) {
+        this->base_p->setPositionTransformTimeline( this->base_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
+    }
+    if(this->gun_p) {
+        this->gun_p->setPositionTransformTimeline( this->gun_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
+    }
 }
 
 }

@@ -12,6 +12,10 @@ Actor* SkyCaptain::duplicate( const Actor &original ) const {
     return new SkyCaptain( *this );
 }
 
-void SkyCaptain::update( MainProgram &main_program, std::chrono::microseconds delta ) {}
+void SkyCaptain::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    if(this->model_p) {
+        this->model_p->setPositionTransformTimeline( this->model_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
+    }
+}
 
 }

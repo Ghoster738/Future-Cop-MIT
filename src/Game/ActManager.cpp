@@ -128,13 +128,18 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateSpawn<ACT::Turret>(        main_program,         turrets, delta );
     updateSpawn<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
 
-    updateActors<ACT::Elevator>(     main_program,        elevator, delta );
-    updateActors<ACT::DynamicProp>(  main_program,   dynamic_props, delta );
-    updateActors<ACT::ItemPickup>(   main_program,    item_pickups, delta );
-    updateActors<ACT::MoveableProp>( main_program,  moveable_props, delta );
-    updateActors<ACT::PathedActor>(  main_program,    pathed_actor, delta );
-    updateActors<ACT::Prop>(         main_program,           props, delta );
-    updateActors<ACT::WalkableProp>( main_program,  walkable_props, delta );
+    updateActors<ACT::Aircraft>(      main_program,        aircraft, delta );
+    updateActors<ACT::Elevator>(      main_program,        elevator, delta );
+    updateActors<ACT::DynamicProp>(   main_program,   dynamic_props, delta );
+    updateActors<ACT::ItemPickup>(    main_program,    item_pickups, delta );
+    updateActors<ACT::MoveableProp>(  main_program,  moveable_props, delta );
+    updateActors<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
+    updateActors<ACT::PathedActor>(   main_program,    pathed_actor, delta );
+    updateActors<ACT::Prop>(          main_program,           props, delta );
+    updateActors<ACT::SkyCaptain>(    main_program,    sky_captains, delta );
+    updateActors<ACT::Turret>(        main_program,         turrets, delta );
+    updateActors<ACT::WalkableProp>(  main_program,  walkable_props, delta );
+    updateActors<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
 }
 
 }

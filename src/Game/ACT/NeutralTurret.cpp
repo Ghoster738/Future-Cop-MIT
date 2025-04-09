@@ -12,6 +12,8 @@ Actor* NeutralTurret::duplicate( const Actor &original ) const {
     return new NeutralTurret( *this );
 }
 
-void NeutralTurret::update( MainProgram &main_program, std::chrono::microseconds delta ) {}
+void NeutralTurret::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    Turret::update(main_program, delta);
+}
 
 }
