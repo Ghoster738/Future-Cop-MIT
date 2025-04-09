@@ -17,8 +17,6 @@ Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utili
     this->position.x             = reader.readU16( endian );
     this->position.y             = reader.readU16( endian );
     this->height_offset_bitfield = reader.readI16( endian );
-
-    assert((bitfield_1 & 0x003f) == 0);
 }
 
 uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
@@ -43,8 +41,8 @@ float Data::Mission::NetResource::Node::getHeightOffset() const {
     return (1.f / 512.f) * height_offset;
 }
 
-unsigned int Data::Mission::NetResource::Node::getReadOffsetValue() const {
-    return (this->height_offset_bitfield & 0x000c) >> 2;
+bool Data::Mission::NetResource::Node::hasReadOffset() const {
+    return (this->height_offset_bitfield & 0x000c) != 0;
 }
 
 Data::Mission::ACTResource::GroundCast Data::Mission::NetResource::Node::getGroundCast() const {
@@ -225,7 +223,7 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
 
                 // root["Nodes"][ i - this->nodes.begin() ]["index"] = i - this->nodes.begin(); // This is for hand traversal only!
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["ground_cast"] = ACTResource::groundCastToString( (*i).getGroundCast() );
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["read_offset_value"] = (*i).getReadOffsetValue();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["read_offseting"] = (*i).hasReadOffset();
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["state"] = (*i).getState();
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getPosition().x;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getPosition().y;
