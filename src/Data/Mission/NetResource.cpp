@@ -224,7 +224,9 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
                 amount = (*i).getIndexes( indexes );
 
                 // root["Nodes"][ i - this->nodes.begin() ]["index"] = i - this->nodes.begin(); // This is for hand traversal only!
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["bitfield_1"] = (*i).getSubBitfield();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["ground_cast"] = ACTResource::groundCastToString( (*i).getGroundCast() );
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["read_offset_value"] = (*i).getReadOffsetValue();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["state"] = (*i).getState();
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getPosition().x;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getPosition().y;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["height_offset"] = (*i).getHeightOffset();
