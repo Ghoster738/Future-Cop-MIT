@@ -11,6 +11,7 @@
 #include "ACT/Elevator.h"
 #include "ACT/DynamicProp.h"
 #include "ACT/ItemPickup.h"
+#include "ACT/MoveableProp.h"
 #include "ACT/NeutralTurret.h"
 #include "ACT/Prop.h"
 #include "ACT/SkyCaptain.h"
@@ -39,6 +40,7 @@ private:
     SpawnableActor<ACT::Elevator>      elevator;
     SpawnableActor<ACT::DynamicProp>   dynamic_props;
     SpawnableActor<ACT::ItemPickup>    item_pickups;
+    SpawnableActor<ACT::MoveableProp>  moveable_props;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
     SpawnableActor<ACT::Prop>          props;
     SpawnableActor<ACT::SkyCaptain>    sky_captains;

@@ -68,6 +68,7 @@ ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor
     elevator        = initializeActors<Data::Mission::ACT::Elevator,      ACT::Elevator>(      accessor, accessor.getActorAccessor().getAllConstElevator() );
     dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
+    moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,  ACT::MoveableProp>(  accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
     props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, accessor.getActorAccessor().getAllConstProp() );
     sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
@@ -84,6 +85,7 @@ void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::Elevator>(      main_program,        elevator );
     updateGraphics<ACT::DynamicProp>(   main_program,   dynamic_props );
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
+    updateGraphics<ACT::MoveableProp>(  main_program,  moveable_props );
     updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
     updateGraphics<ACT::Prop>(          main_program,           props );
     updateGraphics<ACT::SkyCaptain>(    main_program,    sky_captains );
@@ -127,6 +129,7 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateActors<ACT::Elevator>(     main_program,        elevator, delta );
     updateActors<ACT::DynamicProp>(  main_program,   dynamic_props, delta );
     updateActors<ACT::ItemPickup>(   main_program,    item_pickups, delta );
+    updateActors<ACT::MoveableProp>( main_program,  moveable_props, delta );
     updateActors<ACT::Prop>(         main_program,           props, delta );
     updateActors<ACT::WalkableProp>( main_program,  walkable_props, delta );
 }

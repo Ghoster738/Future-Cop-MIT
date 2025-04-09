@@ -16,10 +16,10 @@ public:
     struct Internal {
         uint8_t uint8_0;
         uint8_t uint8_1;
-        uint8_t uint8_2;
+        uint8_t ground_cast_type;
         uint8_t uint8_3;
-        uint16_t uint16_0;
-        uint16_t uint16_1;
+        uint16_t height_offset;
+        uint16_t rotation;
         uint32_t uint32_0;
         uint32_t uint32_1;
     } internal;
@@ -45,6 +45,16 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
+
+    float getHeightOffset() const { return (1.f / 512.f) * internal.height_offset; }
+
+    glm::quat getRotationQuaternion() const;
+
+    bool getHasAliveID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getAliveObjResourceID() const { return rsl_data[0].resource_id; }
+
+    bool getHasDeathID() const { return rsl_data[1].type != RSL_NULL_TAG; }
+    uint32_t getDeathObjResourceID() const { return rsl_data[1].resource_id; }
 };
 }
 
