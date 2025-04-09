@@ -7,6 +7,7 @@
 #include "../ItemPickup.h"
 #include "../MoveableProp.h"
 #include "../NeutralTurret.h"
+#include "../PathedActor.h"
 #include "../Prop.h"
 #include "../SkyCaptain.h"
 #include "../Trigger.h"
@@ -31,6 +32,7 @@ private:
         table_p[ Data::Mission::ACT::ItemPickup::TYPE_ID ] = new Data::Mission::ACT::ItemPickup();
         table_p[ Data::Mission::ACT::MoveableProp::TYPE_ID ] = new Data::Mission::ACT::MoveableProp();
         table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
+        table_p[ Data::Mission::ACT::PathedActor::TYPE_ID ] = new Data::Mission::ACT::PathedActor();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
         table_p[ Data::Mission::ACT::SkyCaptain::TYPE_ID ] = new Data::Mission::ACT::SkyCaptain();
         table_p[ Data::Mission::ACT::Trigger::TYPE_ID ] = new Data::Mission::ACT::Trigger();
