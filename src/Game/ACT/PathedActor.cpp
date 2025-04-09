@@ -5,7 +5,7 @@ namespace Game::ACT {
 PathedActor::PathedActor( const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, obj.getHeightOffset(), static_cast<Data::Mission::ACTResource::GroundCast>(0) );
+    this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::HIGH );
 
     this->alive_id = obj.getAliveID();
     this->alive_base = obj.getHasAliveID();
