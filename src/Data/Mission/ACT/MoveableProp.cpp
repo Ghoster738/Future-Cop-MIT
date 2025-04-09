@@ -1,5 +1,7 @@
 #include "MoveableProp.h"
 
+#include "../ObjResource.h"
+
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::MoveableProp::TYPE_ID = 25;
@@ -70,7 +72,18 @@ size_t Data::Mission::ACT::MoveableProp::getSize() const {
     return 32; // bytes
 }
 
-bool Data::Mission::ACT::MoveableProp::checkRSL() const { return false; }
+bool Data::Mission::ACT::MoveableProp::checkRSL() const {
+    if( rsl_data.size() != 2 )
+        return false;
+    else
+    if( rsl_data[0].type != ObjResource::IDENTIFIER_TAG )
+        return false;
+    else
+    if( rsl_data[1].type != RSL_NULL_TAG )
+        return false;
+    else
+        return true;
+}
 
 Data::Mission::Resource* Data::Mission::ACT::MoveableProp::duplicate() const {
     return new Data::Mission::ACT::MoveableProp( *this );
