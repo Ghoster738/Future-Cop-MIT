@@ -17,6 +17,7 @@ namespace ACT {
     class Elevator;
     class DynamicProp;
     class ItemPickup;
+    class MoveableProp;
     class NeutralTurret;
     class Prop;
     class SkyCaptain;
@@ -82,6 +83,11 @@ public:
     const Mission::ACT::ItemPickup* getConstItemPickup( uint32_t resource_id ) const;
     std::vector<Mission::ACT::ItemPickup*> getAllItemPickup();
     std::vector<const Mission::ACT::ItemPickup*> getAllConstItemPickup() const;
+
+    Mission::ACT::MoveableProp* getMoveableProp( uint32_t resource_id );
+    const Mission::ACT::MoveableProp* getConstMoveableProp( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::MoveableProp*> getAllMoveableProp();
+    std::vector<const Mission::ACT::MoveableProp*> getAllConstMoveableProp() const;
 
     Mission::ACT::NeutralTurret* getNeutralTurret( uint32_t resource_id );
     const Mission::ACT::NeutralTurret* getConstNeutralTurret( uint32_t resource_id ) const;

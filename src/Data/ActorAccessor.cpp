@@ -4,6 +4,7 @@
 #include "Mission/ACT/Elevator.h"
 #include "Mission/ACT/DynamicProp.h"
 #include "Mission/ACT/ItemPickup.h"
+#include "Mission/ACT/MoveableProp.h"
 #include "Mission/ACT/NeutralTurret.h"
 #include "Mission/ACT/Prop.h"
 #include "Mission/ACT/SkyCaptain.h"
@@ -148,6 +149,7 @@ SEARCH(Elevator, getElevator, getAllElevator, getConstElevator, getAllConstEleva
 SEARCH(DynamicProp, getDynamicProp, getAllDynamicProp, getConstDynamicProp, getAllConstDynamicProp)
 SEARCH(Turret, getTurret, getAllTurret, getConstTurret, getAllConstTurret)
 SEARCH(ItemPickup, getItemPickup, getAllItemPickup, getConstItemPickup, getAllConstItemPickup)
+SEARCH(MoveableProp, getMoveableProp, getAllMoveableProp, getConstMoveableProp, getAllConstMoveableProp)
 SEARCH(NeutralTurret, getNeutralTurret, getAllNeutralTurret, getConstNeutralTurret, getAllConstNeutralTurret)
 SEARCH(Prop, getProp, getAllProp, getConstProp, getAllConstProp)
 SEARCH(SkyCaptain, getSkyCaptain, getAllSkyCaptain, getConstSkyCaptain, getAllConstSkyCaptain)
