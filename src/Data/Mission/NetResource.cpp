@@ -16,7 +16,7 @@ Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utili
     this->bitfield_1             = reader.readU16( endian );
     this->position.x             = reader.readU16( endian );
     this->position.y             = reader.readU16( endian );
-    this->height_offset_bitfield = reader.readI16( endian ); // I do not fully understand this value.
+    this->height_offset_bitfield = reader.readI16( endian );
 }
 
 uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
@@ -41,7 +41,7 @@ float Data::Mission::NetResource::Node::getHeightOffset() const {
     return (1.f / 512.f) * height_offset;
 }
 
-unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[3], unsigned int max_size ) const {
+unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[4] ) const {
     unsigned int filled_indices = 0;
     
     // Get rid of the last two bits on the index_data.
@@ -150,10 +150,10 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
             }
 
             {
-                unsigned int indexes[3];
+                unsigned int indexes[4];
                 unsigned int amount;
                 for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
-                    amount = (*i).getIndexes( indexes, this->nodes.size() );
+                    amount = (*i).getIndexes( indexes );
 
                     for( unsigned int c = 0; c < amount; c++ ) {
                             resource << "l "
@@ -183,7 +183,7 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
             unsigned int indexes[4];
             unsigned int amount;
             for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
-                amount = (*i).getIndexes( indexes, this->nodes.size() );
+                amount = (*i).getIndexes( indexes );
 
                 // root["Nodes"][ i - this->nodes.begin() ]["index"] = i - this->nodes.begin(); // This is for hand traversal only!
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["bitfield_1"] = (*i).getSubBitfield();
