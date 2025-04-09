@@ -2,6 +2,7 @@
 #define MISSION_RESOURCE_NET_HEADER
 
 #include "Resource.h"
+#include "ACTResource.h"
 #include <glm/vec2.hpp>
 
 namespace Data {
@@ -31,9 +32,10 @@ public:
 
         uint32_t getPrimaryBitfield() const;
         uint16_t getSubBitfield() const;
+
         glm::i16vec2 getPosition() const;
         float getHeightOffset() const;
-
+        ACTResource::GroundCast getGroundCast() const;
         unsigned int getIndexes( unsigned int indexes[4] ) const;
     };
 

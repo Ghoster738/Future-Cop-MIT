@@ -41,6 +41,19 @@ float Data::Mission::NetResource::Node::getHeightOffset() const {
     return (1.f / 512.f) * height_offset;
 }
 
+
+Data::Mission::ACTResource::GroundCast Data::Mission::NetResource::Node::getGroundCast() const {
+    uint16_t ground_cast = this->height_offset_bitfield & 0x0003;
+
+    switch(ground_cast) {
+        default:
+        case 0: return ACTResource::GroundCast::HIGH;
+        case 1: return ACTResource::GroundCast::LOW;
+        case 2: return ACTResource::GroundCast::NONE; // TODO Find out if this is the case.
+        case 3: return ACTResource::GroundCast::MIDDLE;
+    }
+}
+
 unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[4] ) const {
     unsigned int filled_indices = 0;
     
