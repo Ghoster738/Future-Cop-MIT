@@ -20,8 +20,10 @@ public:
         uint8_t start_sound;
         uint16_t height_offset;
         uint16_t rotation;
-        uint32_t uint32_0;
-        uint32_t uint32_1;
+        uint16_t ending_position_offset;
+        uint16_t ending_rotation;
+        uint16_t position_speed;
+        uint16_t rotation_speed;
     } internal;
 
 protected:

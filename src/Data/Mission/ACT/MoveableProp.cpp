@@ -14,8 +14,10 @@ Json::Value Data::Mission::ACT::MoveableProp::makeJson() const {
     root["ACT"][NAME]["start_sound"] = internal.start_sound;
     root["ACT"][NAME]["height_offset"] = internal.height_offset;
     root["ACT"][NAME]["rotation"] = internal.rotation;
-    root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
-    root["ACT"][NAME]["uint32_1"] = internal.uint32_1;
+    root["ACT"][NAME]["ending_position_offset"] = internal.ending_position_offset;
+    root["ACT"][NAME]["ending_rotation"] = internal.ending_rotation;
+    root["ACT"][NAME]["position_speed"] = internal.position_speed;
+    root["ACT"][NAME]["rotation_speed"] = internal.rotation_speed;
 
     return root;
 }
@@ -34,8 +36,18 @@ bool Data::Mission::ACT::MoveableProp::readACTType( uint_fast8_t act_type, Utili
     internal.start_sound = data_reader.readU8(); // Values: 0, 31, 71, 72, 75, 79, 81, 91, 93, 95, 107,
     internal.height_offset = data_reader.readU16( endian ); // Values: 0, 40, 122, 245, 286, 327, 409, 450, 491, 512, 532, 540, 593, 696, 757, 962, 1228, 3153, 65495,
     internal.rotation = data_reader.readU16( endian ); // Values: 0, 1024, 2048, 3072,
-    internal.uint32_0 = data_reader.readU32( endian ); // Values: 0, 5243, 6554, 8192, 8258, 9175, 9830, 10486, 11141, 11469, 11796, 12452, 13107, 13763, 14811, 15008, 15073, 16384, 19661, 33554432, 52428800, 58982400, 66846720, 67108864, 134217728, 134283264, 201326592, 203161600, 4194304000, 4227858432, 4235984896, 4242538496, 4261412864, 4275306496, 4294947635, 4294956155, 4294957466, 4294960742, 4294963364, 4294964019,
-    internal.uint32_1 = data_reader.readU32( endian ); // Values: 0, 655, 1311, 1966, 3277, 3932, 5243, 6554, 7864, 8520, 9830, 13107, 16384, 19661, 4259840, 6553600, 8519680, 9830400, 13107200, 19660800, 26214400, 32768000, 39321600, 43253760,
+
+    // TODO Findout why these are interpreted as 32 bit ints.
+
+    auto uint32_0 = data_reader.readU32( endian ); // Values: 0, 5243, 6554, 8192, 8258, 9175, 9830, 10486, 11141, 11469, 11796, 12452, 13107, 13763, 14811, 15008, 15073, 16384, 19661, 33554432, 52428800, 58982400, 66846720, 67108864, 134217728, 134283264, 201326592, 203161600, 4194304000, 4227858432, 4235984896, 4242538496, 4261412864, 4275306496, 4294947635, 4294956155, 4294957466, 4294960742, 4294963364, 4294964019
+
+    internal.ending_position_offset = (uint32_0 >> 0) & 0xFFFF;
+    internal.ending_rotation        = (uint32_0 >> 8) & 0xFFFF;
+
+    auto uint32_1 = data_reader.readU32( endian ); // Values: 0, 655, 1311, 1966, 3277, 3932, 5243, 6554, 7864, 8520, 9830, 13107, 16384, 19661, 4259840, 6553600, 8519680, 9830400, 13107200, 19660800, 26214400, 32768000, 39321600, 43253760,
+
+    internal.position_speed = (uint32_1 >> 0) & 0xFFFF;
+    internal.rotation_speed = (uint32_1 >> 8) & 0xFFFF;
 
     return true;
 }
