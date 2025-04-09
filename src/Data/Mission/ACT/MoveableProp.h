@@ -14,10 +14,10 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint8_t uint8_0;
-        uint8_t uint8_1;
+        uint8_t move_axis;
+        uint8_t bitfield;
         uint8_t ground_cast_type;
-        uint8_t uint8_3;
+        uint8_t start_sound;
         uint16_t height_offset;
         uint16_t rotation;
         uint32_t uint32_0;

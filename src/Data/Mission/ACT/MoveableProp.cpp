@@ -8,10 +8,10 @@ Json::Value Data::Mission::ACT::MoveableProp::makeJson() const {
     Json::Value root = BaseEntity::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
-    root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
+    root["ACT"][NAME]["move_axis"] = internal.move_axis;
+    root["ACT"][NAME]["bitfield"] = internal.bitfield;
     root["ACT"][NAME]["ground_cast_type"] = internal.ground_cast_type;
-    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
+    root["ACT"][NAME]["start_sound"] = internal.start_sound;
     root["ACT"][NAME]["height_offset"] = internal.height_offset;
     root["ACT"][NAME]["rotation"] = internal.rotation;
     root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
@@ -28,10 +28,10 @@ bool Data::Mission::ACT::MoveableProp::readACTType( uint_fast8_t act_type, Utili
 
     BaseEntity::readBase(data_reader, endian);
 
-    internal.uint8_0 = data_reader.readU8(); // Values: 0, 1, 2, 3, 4, 5,
-    internal.uint8_1 = data_reader.readU8(); // Values: 0, 1, 2, 4, 5, 10,
+    internal.move_axis = data_reader.readU8(); // Values: 0, 1, 2, 3, 4, 5,
+    internal.bitfield = data_reader.readU8(); // Values: 0, 1, 2, 4, 5, 10,
     internal.ground_cast_type = data_reader.readU8(); // Values: 0, 1,
-    internal.uint8_3 = data_reader.readU8(); // Values: 0, 31, 71, 72, 75, 79, 81, 91, 93, 95, 107,
+    internal.start_sound = data_reader.readU8(); // Values: 0, 31, 71, 72, 75, 79, 81, 91, 93, 95, 107,
     internal.height_offset = data_reader.readU16( endian ); // Values: 0, 40, 122, 245, 286, 327, 409, 450, 491, 512, 532, 540, 593, 696, 757, 962, 1228, 3153, 65495,
     internal.rotation = data_reader.readU16( endian ); // Values: 0, 1024, 2048, 3072,
     internal.uint32_0 = data_reader.readU32( endian ); // Values: 0, 5243, 6554, 8192, 8258, 9175, 9830, 10486, 11141, 11469, 11796, 12452, 13107, 13763, 14811, 15008, 15073, 16384, 19661, 33554432, 52428800, 58982400, 66846720, 67108864, 134217728, 134283264, 201326592, 203161600, 4194304000, 4227858432, 4235984896, 4242538496, 4261412864, 4275306496, 4294947635, 4294956155, 4294957466, 4294960742, 4294963364, 4294964019,
