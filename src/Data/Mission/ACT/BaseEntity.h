@@ -57,7 +57,7 @@ public:
         uint16_t collision_damage;
         uint8_t team;
         uint8_t group_id;
-        uint8_t map_icon_color;
+        uint8_t map_icon_bitfield;
         uint8_t target_priority;
         uint8_t explosion;
         uint8_t ambient_sound;
@@ -77,7 +77,7 @@ public:
 
     Internal getBaseInternal() const;
 
-    bool isMapIconPresent() const { return entity_internal.map_icon_color != 0; }
+    bool isMapIconPresent() const { return entity_internal.map_icon_bitfield != 0; }
 
     MapIconColor getMapIconColor() const;
 
