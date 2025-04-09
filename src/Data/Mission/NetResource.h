@@ -36,6 +36,7 @@ public:
         glm::i16vec2 getPosition() const;
         float getHeightOffset() const;
         ACTResource::GroundCast getGroundCast() const;
+        unsigned int getReadOffsetValue() const;
         unsigned int getIndexes( unsigned int indexes[4] ) const;
     };
 

@@ -41,6 +41,9 @@ float Data::Mission::NetResource::Node::getHeightOffset() const {
     return (1.f / 512.f) * height_offset;
 }
 
+unsigned int Data::Mission::NetResource::Node::getReadOffsetValue() const {
+    return (this->height_offset_bitfield & 0x000c) >> 2;
+}
 
 Data::Mission::ACTResource::GroundCast Data::Mission::NetResource::Node::getGroundCast() const {
     uint16_t ground_cast = this->height_offset_bitfield & 0x0003;
