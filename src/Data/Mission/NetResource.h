@@ -22,6 +22,13 @@ public:
     static const uint32_t IDENTIFIER_TAG;
 
     class Node {
+    public:
+        enum State {
+            ENABLED  = 0,
+            UNKNOWN  = 1,
+            DISABLED = 2
+        };
+
     private:
         uint32_t bitfield_0; // This contains which node it goes to.
         uint16_t bitfield_1;
@@ -38,6 +45,7 @@ public:
         ACTResource::GroundCast getGroundCast() const;
         unsigned int getReadOffsetValue() const;
         unsigned int getIndexes( unsigned int indexes[4] ) const;
+        State getState() const;
     };
 
 private:

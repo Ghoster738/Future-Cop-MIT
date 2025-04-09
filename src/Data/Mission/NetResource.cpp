@@ -94,6 +94,17 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     return filled_indices;
 }
 
+Data::Mission::NetResource::Node::State Data::Mission::NetResource::Node::getState() const {
+    uint32_t state = this->bitfield_0 & 0x3;
+
+    switch(state) {
+        case 0: return State::ENABLED;
+    default:
+        case 1: return State::UNKNOWN;
+        case 2: return State::DISABLED;
+    }
+}
+
 const std::filesystem::path Data::Mission::NetResource::FILE_EXTENSION = "net";
 const uint32_t Data::Mission::NetResource::IDENTIFIER_TAG = 0x436E6574; // which is { 0x43, 0x6E, 0x65, 0x74 } or { 'C', 'n', 'e', 't' } or "Cnet"
 
