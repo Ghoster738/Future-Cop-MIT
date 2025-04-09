@@ -75,14 +75,14 @@ size_t Data::Mission::ACT::MoveableProp::getSize() const {
 bool Data::Mission::ACT::MoveableProp::checkRSL() const {
     if( rsl_data.size() != 2 )
         return false;
-    else
+
     if( rsl_data[0].type != ObjResource::IDENTIFIER_TAG )
         return false;
-    else
-    if( rsl_data[1].type != RSL_NULL_TAG )
+
+    if( rsl_data[1].type != ObjResource::IDENTIFIER_TAG && rsl_data[1].type != RSL_NULL_TAG )
         return false;
-    else
-        return true;
+
+    return true;
 }
 
 Data::Mission::Resource* Data::Mission::ACT::MoveableProp::duplicate() const {
