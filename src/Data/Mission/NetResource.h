@@ -25,14 +25,14 @@ public:
         uint32_t data; // This contains which node it goes to.
         int16_t pad;
         glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for the unit for the ACT resource if BahKooJ is correct.
-        int16_t spawn; // Could be a special node sepecifier.
+        uint16_t height_offset_bitfield;
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
 
         uint32_t getData() const;
         int16_t getPad() const;
         glm::i16vec2 getPosition() const;
-        int16_t getSpawn() const;
+        float getHeightOffset() const;
 
         unsigned int getIndexes( unsigned int indexes[3], unsigned int max_size ) const;
     };

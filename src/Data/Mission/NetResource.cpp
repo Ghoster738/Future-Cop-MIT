@@ -12,37 +12,43 @@ namespace {
 }
 
 Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
-    this->data       = reader.readU32( endian );
-    this->pad        = reader.readU16( endian ); // My guess is that this does nothing.
-    this->position.x = reader.readU16( endian );
-    this->position.y = reader.readU16( endian );
-    this->spawn      = reader.readU16( endian ); // I do not fully understand this value.
+    this->data                   = reader.readU32( endian );
+    this->pad                    = reader.readU16( endian ); // My guess is that this does nothing.
+    this->position.x             = reader.readU16( endian );
+    this->position.y             = reader.readU16( endian );
+    this->height_offset_bitfield = reader.readI16( endian ); // I do not fully understand this value.
 }
 
 uint32_t Data::Mission::NetResource::Node::getData() const {
-	return this->data;
+    return this->data;
 }
 
 int16_t Data::Mission::NetResource::Node::getPad() const {
-	return this->pad;
+    return this->pad;
 }
 
 glm::i16vec2 Data::Mission::NetResource::Node::getPosition() const {
-	return this->position;
+    return this->position;
 }
 
-int16_t Data::Mission::NetResource::Node::getSpawn() const {
-	return this->spawn;
+float Data::Mission::NetResource::Node::getHeightOffset() const {
+    int16_t height_offset = (this->height_offset_bitfield & 0xFFF0) >> 4;
+
+    if(this->height_offset_bitfield & 0x8000 != 0) {
+        height_offset |= 0xF000; // This effectively converts this number to negative.
+    }
+
+    return (1.f / 512.f) * height_offset;
 }
 
 unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[3], unsigned int max_size ) const {
     unsigned int filled_indices = 0;
     
     // Get rid of the last two bits on the index_data.
-    unsigned int index_data = (this->data & 0xFFFFFFFC) >> 2;
+    uint32_t index_data = (this->data & 0xfffffffc) >> 2;
     
     // A maxiumun 10-bit number.
-    const unsigned int MASK = 0x3FF;
+    const uint32_t MASK = 0x3ff;
     
     // Loop three times to unpack from the index_data.
     for( int i = 0; i < 3; i++ ) {
@@ -183,7 +189,7 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["padding?"] = (*i).getPad();
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getPosition().x;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getPosition().y;
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["spawn?"] = (*i).getSpawn();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["height_offset"] = (*i).getHeightOffset();
 
                 for( unsigned int c = 0; c < amount; c++ ) {
                     root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["path"][c] = indexes[c];
