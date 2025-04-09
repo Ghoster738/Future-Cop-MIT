@@ -6,11 +6,11 @@ Json::Value BasePathedEntity::makeJson() const {
     Json::Value root = BaseShooter::makeJson();
     const std::string NAME = "BasePathedEntity";
 
-    root["ACT"][NAME]["uint16_9"] = pathed_entity_internal.uint16_9;
-    root["ACT"][NAME]["uint16_10"] = pathed_entity_internal.uint16_10;
-    root["ACT"][NAME]["uint16_11"] = pathed_entity_internal.uint16_11;
-    root["ACT"][NAME]["uint16_12"] = pathed_entity_internal.uint16_12;
-    root["ACT"][NAME]["uint16_13"] = pathed_entity_internal.uint16_13;
+    root["ACT"][NAME]["bitfield"] = pathed_entity_internal.bitfield;
+    root["ACT"][NAME]["move_speed"] = pathed_entity_internal.move_speed;
+    root["ACT"][NAME]["height_offset"] = pathed_entity_internal.height_offset;
+    root["ACT"][NAME]["move_speed_multipiler"] = pathed_entity_internal.move_speed_multipiler;
+    root["ACT"][NAME]["acceleration"] = pathed_entity_internal.acceleration;
     root["ACT"][NAME]["uint16_14"] = pathed_entity_internal.uint16_14;
     root["ACT"][NAME]["uint16_15"] = pathed_entity_internal.uint16_15;
     root["ACT"][NAME]["uint16_16"] = pathed_entity_internal.uint16_16;
@@ -25,11 +25,11 @@ bool BasePathedEntity::readBase( Utilities::Buffer::Reader &data_reader, Utiliti
 
     BaseShooter::readBase(data_reader, endian);
 
-    pathed_entity_internal.uint16_9 = data_reader.readU16( endian ); // Values: 0, 1, 4, 8, 9, 32, 40, 64, 65, 112, 128, 129, 264, 265, 513, 576, 1033, 2048, 2209, 3073, 3081, 4105, 7177, 8224, 8225, 8240, 8481, 21505, 32768, 32771, 32776, 33032, 33536, 40968,
-    pathed_entity_internal.uint16_10 = data_reader.readU16( endian ); // Values: 81, 122, 204, 327, 368, 409, 450, 491, 614, 696, 737, 819, 860, 1024, 1105, 1228, 1433, 1576, 1638, 1843, 2048, 2252, 2457, 2662, 3481, 3686, 4096, 5324, 5734, 6144,
-    pathed_entity_internal.uint16_11 = data_reader.readU16( endian ); // Values: 0, 20, 40, 102, 122, 143, 204, 245, 286, 307, 409, 450, 819, 1024, 1228, 1638, 2252, 6144,
-    pathed_entity_internal.uint16_12 = data_reader.readU16( endian ); // Values: 1187, 1638, 2048, 2252, 2457, 2662, 3072, 3686, 4096,
-    pathed_entity_internal.uint16_13 = data_reader.readU16( endian ); // Values: 81, 204, 409, 614, 819, 1024, 1228, 2048, 2457, 3276, 3686, 4915,
+    pathed_entity_internal.bitfield = data_reader.readU16( endian ); // Values: 0, 1, 4, 8, 9, 32, 40, 64, 65, 112, 128, 129, 264, 265, 513, 576, 1033, 2048, 2209, 3073, 3081, 4105, 7177, 8224, 8225, 8240, 8481, 21505, 32768, 32771, 32776, 33032, 33536, 40968,
+    pathed_entity_internal.move_speed = data_reader.readU16( endian ); // Values: 81, 122, 204, 327, 368, 409, 450, 491, 614, 696, 737, 819, 860, 1024, 1105, 1228, 1433, 1576, 1638, 1843, 2048, 2252, 2457, 2662, 3481, 3686, 4096, 5324, 5734, 6144,
+    pathed_entity_internal.height_offset = data_reader.readU16( endian ); // Values: 0, 20, 40, 102, 122, 143, 204, 245, 286, 307, 409, 450, 819, 1024, 1228, 1638, 2252, 6144,
+    pathed_entity_internal.move_speed_multipiler = data_reader.readU16( endian ); // Values: 1187, 1638, 2048, 2252, 2457, 2662, 3072, 3686, 4096,
+    pathed_entity_internal.acceleration = data_reader.readU16( endian ); // Values: 81, 204, 409, 614, 819, 1024, 1228, 2048, 2457, 3276, 3686, 4915,
     pathed_entity_internal.uint16_14 = data_reader.readU16( endian ); // Values: 0, 409, 614, 1228, 2048, 4096, 8192,
     pathed_entity_internal.uint16_15 = data_reader.readU16( endian ); // Values: 0, 819, 1228, 1638, 2048, 3276, 3686,
     pathed_entity_internal.uint16_16 = data_reader.readU16( endian ); // Values: 2048, 4096, 6144, 8192, 12288, 16384,

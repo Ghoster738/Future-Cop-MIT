@@ -8,11 +8,11 @@ namespace Data::Mission::ACT {
 class BasePathedEntity : public BaseShooter {
 public:
     struct Internal {
-        uint16_t uint16_9;
-        uint16_t uint16_10;
-        uint16_t uint16_11;
-        uint16_t uint16_12;
-        uint16_t uint16_13;
+        uint16_t bitfield;
+        uint16_t move_speed;
+        uint16_t height_offset;
+        uint16_t move_speed_multipiler; // ?
+        uint16_t acceleration;
         uint16_t uint16_14;
         uint16_t uint16_15;
         uint16_t uint16_16;
@@ -35,7 +35,7 @@ public:
 
     Internal getPathedEntityInternal() const;
 
-    float getHeightOffset() const { return (1.f / 512.f) * pathed_entity_internal.uint16_11; }
+    float getHeightOffset() const { return (1.f / 512.f) * pathed_entity_internal.height_offset; }
 
 };
 
