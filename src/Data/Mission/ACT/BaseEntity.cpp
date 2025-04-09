@@ -50,7 +50,10 @@ BaseEntity::Internal BaseEntity::getBaseInternal() const {
     return entity_internal;
 }
 
-MapIconType BaseEntity::getMapIconType() const {
+BaseEntity::MapIconColor BaseEntity::getMapIconColor() const {
+}
+
+BaseEntity::MapIconShape BaseEntity::getMapIconShape() const {
 }
 
 glm::vec2 BaseEntity::getTextureOffset() const {
