@@ -73,11 +73,6 @@ public:
     Program *getProgram() const { return program_r; }
 
     /**
-     * This gets where the morph frames of the mesh.
-     */
-    unsigned int getMorphFrameAmount() const { return morph_frame_amount; }
-
-    /**
      * This gets where the frames of the mesh.
      */
     unsigned int getFrameAmount() const { return frame_amount; }
@@ -90,6 +85,8 @@ public:
      * @return offset of the morph buffer.
      */
     size_t getMorphOffset( unsigned int morph_frame_index ) const;
+
+    bool hasMorphFrames() const { return morph_frame_amount != 0; }
     
     /**
      * This method makes a bounding sphere for the entire mesh.
