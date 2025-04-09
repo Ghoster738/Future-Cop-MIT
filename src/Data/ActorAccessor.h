@@ -19,6 +19,7 @@ namespace ACT {
     class ItemPickup;
     class MoveableProp;
     class NeutralTurret;
+    class PathedActor;
     class Prop;
     class SkyCaptain;
     class Trigger;
@@ -93,6 +94,11 @@ public:
     const Mission::ACT::NeutralTurret* getConstNeutralTurret( uint32_t resource_id ) const;
     std::vector<Mission::ACT::NeutralTurret*> getAllNeutralTurret();
     std::vector<const Mission::ACT::NeutralTurret*> getAllConstNeutralTurret() const;
+
+    Mission::ACT::PathedActor* getPathedActor( uint32_t resource_id );
+    const Mission::ACT::PathedActor* getConstPathedActor( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::PathedActor*> getAllPathedActor();
+    std::vector<const Mission::ACT::PathedActor*> getAllConstPathedActor() const;
 
     Mission::ACT::Prop* getProp( uint32_t resource_id );
     const Mission::ACT::Prop* getConstProp( uint32_t resource_id ) const;

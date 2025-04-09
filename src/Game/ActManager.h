@@ -13,6 +13,7 @@
 #include "ACT/ItemPickup.h"
 #include "ACT/MoveableProp.h"
 #include "ACT/NeutralTurret.h"
+#include "ACT/PathedActor.h"
 #include "ACT/Prop.h"
 #include "ACT/SkyCaptain.h"
 #include "ACT/Turret.h"
@@ -42,6 +43,7 @@ private:
     SpawnableActor<ACT::ItemPickup>    item_pickups;
     SpawnableActor<ACT::MoveableProp>  moveable_props;
     SpawnableActor<ACT::NeutralTurret> neutral_turrets;
+    SpawnableActor<ACT::PathedActor>   pathed_actor;
     SpawnableActor<ACT::Prop>          props;
     SpawnableActor<ACT::SkyCaptain>    sky_captains;
     SpawnableActor<ACT::Turret>        turrets;
