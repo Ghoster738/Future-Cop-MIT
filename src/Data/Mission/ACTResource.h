@@ -62,6 +62,8 @@ public:
         }
     }
 
+    static std::string groundCastToString(GroundCast ground_cast);
+
 protected:
     static const uint32_t ACT_CHUNK_ID;
     static const uint32_t RSL_CHUNK_ID;

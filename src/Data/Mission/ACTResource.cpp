@@ -8,6 +8,14 @@
 
 #include <json/json.h>
 
+namespace {
+    const std::string GROUND_CAST_HIGH    = "High";
+    const std::string GROUND_CAST_LOW     = "Low";
+    const std::string GROUND_CAST_MIDDLE  = "Middle";
+    const std::string GROUND_CAST_NONE    = "None";
+    const std::string GROUND_CAST_INVALID = "INVALID";
+}
+
 const std::filesystem::path Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
 const uint32_t Data::Mission::ACTResource::SAC_IDENTI_TAG = 0x43736163; // which is { 0x43, 0x73, 0x61, 0x63 } or { 'C', s, 'a', 'c' } or "Csac"
@@ -237,6 +245,20 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
+std::string Data::Mission::ACTResource::groundCastToString(GroundCast ground_cast) {
+    switch(ground_cast) {
+        case HIGH:
+            return GROUND_CAST_HIGH;
+        case MIDDLE:
+            return GROUND_CAST_MIDDLE;
+        case LOW:
+            return GROUND_CAST_LOW;
+        case NONE:
+            return GROUND_CAST_NONE;
+        default:
+            return GROUND_CAST_INVALID;
+    }
+}
 
 float Data::Mission::ACTResource::getRotation( int16_t rotation ) {
     return -glm::pi<float>() / 2048.0f * rotation;

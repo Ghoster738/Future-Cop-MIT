@@ -1,5 +1,8 @@
 #include "PathedActor.h"
 
+#include "../NetResource.h"
+#include "../ObjResource.h"
+
 #include <cassert>
 
 uint_fast8_t Data::Mission::ACT::PathedActor::TYPE_ID = 5;
@@ -50,7 +53,21 @@ size_t Data::Mission::ACT::PathedActor::getSize() const {
     return 56; // bytes
 }
 
-bool Data::Mission::ACT::PathedActor::checkRSL() const { return false; }
+bool Data::Mission::ACT::PathedActor::checkRSL() const {
+    if(rsl_data.size() != 3)
+        return false;
+
+    if( rsl_data[0].type != Data::Mission::ObjResource::IDENTIFIER_TAG )
+        return false;
+
+    if( rsl_data[1].type != Data::Mission::ObjResource::IDENTIFIER_TAG && rsl_data[1].type != RSL_NULL_TAG )
+        return false;
+
+    if( rsl_data[2].type != Data::Mission::NetResource::IDENTIFIER_TAG )
+        return false;
+
+    return true;
+}
 
 Data::Mission::Resource* Data::Mission::ACT::PathedActor::duplicate() const {
     return new Data::Mission::ACT::PathedActor( *this );
