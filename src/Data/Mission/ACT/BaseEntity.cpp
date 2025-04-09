@@ -1,5 +1,7 @@
 #include "BaseEntity.h"
 
+#include <iostream>
+
 namespace Data::Mission::ACT {
 
 Json::Value BaseEntity::makeJson() const {
@@ -46,6 +48,9 @@ BaseEntity::BaseEntity( const BaseEntity& obj ) : ACTResource( obj ), entity_int
 
 BaseEntity::Internal BaseEntity::getBaseInternal() const {
     return entity_internal;
+}
+
+MapIconType BaseEntity::getMapIconType() const {
 }
 
 glm::vec2 BaseEntity::getTextureOffset() const {
