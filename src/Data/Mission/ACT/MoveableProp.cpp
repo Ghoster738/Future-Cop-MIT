@@ -1,10 +1,10 @@
-#include "MovableProp.h"
+#include "MoveableProp.h"
 
 #include <cassert>
 
-uint_fast8_t Data::Mission::ACT::MovableProp::TYPE_ID = 25;
+uint_fast8_t Data::Mission::ACT::MoveableProp::TYPE_ID = 25;
 
-Json::Value Data::Mission::ACT::MovableProp::makeJson() const {
+Json::Value Data::Mission::ACT::MoveableProp::makeJson() const {
     Json::Value root = BaseEntity::makeJson();
     const std::string NAME = getTypeIDName();
 
@@ -20,7 +20,7 @@ Json::Value Data::Mission::ACT::MovableProp::makeJson() const {
     return root;
 }
 
-bool Data::Mission::ACT::MovableProp::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
+bool Data::Mission::ACT::MoveableProp::readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian ) {
     assert(act_type == this->getTypeID());
 
     if( data_reader.totalSize() != this->getSize() )
@@ -40,39 +40,39 @@ bool Data::Mission::ACT::MovableProp::readACTType( uint_fast8_t act_type, Utilit
     return true;
 }
 
-Data::Mission::ACT::MovableProp::MovableProp() {}
+Data::Mission::ACT::MoveableProp::MoveableProp() {}
 
-Data::Mission::ACT::MovableProp::MovableProp( const ACTResource& obj ) : BaseEntity( obj ) {}
+Data::Mission::ACT::MoveableProp::MoveableProp( const ACTResource& obj ) : BaseEntity( obj ) {}
 
-Data::Mission::ACT::MovableProp::MovableProp( const MovableProp& obj ) : BaseEntity( obj ), internal( obj.internal ) {}
+Data::Mission::ACT::MoveableProp::MoveableProp( const MoveableProp& obj ) : BaseEntity( obj ), internal( obj.internal ) {}
 
-uint_fast8_t Data::Mission::ACT::MovableProp::getTypeID() const {
+uint_fast8_t Data::Mission::ACT::MoveableProp::getTypeID() const {
     return TYPE_ID;
 }
 
-std::string Data::Mission::ACT::MovableProp::getTypeIDName() const {
-    return "MovableProp";
+std::string Data::Mission::ACT::MoveableProp::getTypeIDName() const {
+    return "MoveableProp";
 }
 
-size_t Data::Mission::ACT::MovableProp::getSize() const {
+size_t Data::Mission::ACT::MoveableProp::getSize() const {
     return 32; // bytes
 }
 
-bool Data::Mission::ACT::MovableProp::checkRSL() const { return false; }
+bool Data::Mission::ACT::MoveableProp::checkRSL() const { return false; }
 
-Data::Mission::Resource* Data::Mission::ACT::MovableProp::duplicate() const {
-    return new Data::Mission::ACT::MovableProp( *this );
+Data::Mission::Resource* Data::Mission::ACT::MoveableProp::duplicate() const {
+    return new Data::Mission::ACT::MoveableProp( *this );
 }
 
-Data::Mission::ACTResource* Data::Mission::ACT::MovableProp::duplicate( const ACTResource &original ) const {
-    auto copy_r = dynamic_cast<const MovableProp*>( &original );
+Data::Mission::ACTResource* Data::Mission::ACT::MoveableProp::duplicate( const ACTResource &original ) const {
+    auto copy_r = dynamic_cast<const MoveableProp*>( &original );
 
     if( copy_r != nullptr )
-        return new Data::Mission::ACT::MovableProp( *copy_r );
+        return new Data::Mission::ACT::MoveableProp( *copy_r );
     else
-        return new Data::Mission::ACT::MovableProp( original );
+        return new Data::Mission::ACT::MoveableProp( original );
 }
 
-Data::Mission::ACT::MovableProp::Internal Data::Mission::ACT::MovableProp::getInternal() const {
+Data::Mission::ACT::MoveableProp::Internal Data::Mission::ACT::MoveableProp::getInternal() const {
     return internal;
 }

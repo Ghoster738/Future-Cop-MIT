@@ -9,7 +9,7 @@ namespace Mission {
 
 namespace ACT {
 
-class MovableProp : public BaseEntity {
+class MoveableProp : public BaseEntity {
 public:
     static uint_fast8_t TYPE_ID;
 
@@ -29,9 +29,9 @@ protected:
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
 
 public:
-    MovableProp();
-    MovableProp( const ACTResource& obj );
-    MovableProp( const MovableProp& obj );
+    MoveableProp();
+    MoveableProp( const ACTResource& obj );
+    MoveableProp( const MoveableProp& obj );
 
     virtual uint_fast8_t getTypeID() const;
     virtual std::string getTypeIDName() const;

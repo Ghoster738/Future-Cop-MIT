@@ -5,6 +5,7 @@
 #include "../DynamicProp.h"
 #include "../Turret.h"
 #include "../ItemPickup.h"
+#include "../MoveableProp.h"
 #include "../NeutralTurret.h"
 #include "../Prop.h"
 #include "../SkyCaptain.h"
@@ -28,6 +29,7 @@ private:
         table_p[ Data::Mission::ACT::DynamicProp::TYPE_ID ] = new Data::Mission::ACT::DynamicProp();
         table_p[ Data::Mission::ACT::Turret::TYPE_ID ] = new Data::Mission::ACT::Turret();
         table_p[ Data::Mission::ACT::ItemPickup::TYPE_ID ] = new Data::Mission::ACT::ItemPickup();
+        table_p[ Data::Mission::ACT::MoveableProp::TYPE_ID ] = new Data::Mission::ACT::MoveableProp();
         table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
         table_p[ Data::Mission::ACT::SkyCaptain::TYPE_ID ] = new Data::Mission::ACT::SkyCaptain();
