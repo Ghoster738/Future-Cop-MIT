@@ -17,6 +17,8 @@ Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utili
     this->position.x             = reader.readU16( endian );
     this->position.y             = reader.readU16( endian );
     this->height_offset_bitfield = reader.readI16( endian );
+
+    assert((bitfield_1 & 0x003f) == 0);
 }
 
 uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
@@ -58,6 +60,7 @@ Data::Mission::ACTResource::GroundCast Data::Mission::NetResource::Node::getGrou
 }
 
 unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[4] ) const {
+    unsigned int index_canadate = 0;
     unsigned int filled_indices = 0;
     
     // Get rid of the last two bits on the index_data.
@@ -69,17 +72,25 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     // Loop three times to unpack from the index_data.
     for( int i = 0; i < 3; i++ ) {
         // First extract the index from the net resource.
-        indexes[ 2 - i ] = (MASK & (index_data >> (10 * i)));
+        index_canadate = (MASK & (index_data >> (10 * i)));
         
         // If the index index is less than the mask then it is another path.
-        if( indexes[ 2 - i ] < MASK )
+        if( index_canadate < MASK ) {
+            indexes[filled_indices] = index_canadate;
             filled_indices++;
+        }
+    }
+
+    index_canadate = ((bitfield_1 & 0xffc0) >> 6);
+
+    if(index_canadate < MASK) {
+        indexes[filled_indices] = index_canadate;
+        filled_indices++;
     }
     
     // These two bits are always zero.
     //assert( (this->bitfield_0 & 0x3) == 0 );
     
-    // This has a range of 0 to 3. I do not know if there is a zero though.
     return filled_indices;
 }
 
