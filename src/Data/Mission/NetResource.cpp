@@ -13,7 +13,7 @@ namespace {
 
 Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
     this->bitfield_0             = reader.readU32( endian );
-    this->pad                    = reader.readU16( endian );
+    this->bitfield_1             = reader.readU16( endian );
     this->position.x             = reader.readU16( endian );
     this->position.y             = reader.readU16( endian );
     this->height_offset_bitfield = reader.readI16( endian ); // I do not fully understand this value.
@@ -23,8 +23,8 @@ uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
     return this->bitfield_0;
 }
 
-int16_t Data::Mission::NetResource::Node::getPad() const {
-    return this->pad;
+uint16_t Data::Mission::NetResource::Node::getSubBitfield() const {
+    return this->bitfield_1;
 }
 
 glm::i16vec2 Data::Mission::NetResource::Node::getPosition() const {
@@ -186,7 +186,7 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
                 amount = (*i).getIndexes( indexes, this->nodes.size() );
 
                 // root["Nodes"][ i - this->nodes.begin() ]["index"] = i - this->nodes.begin(); // This is for hand traversal only!
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["padding?"] = (*i).getPad();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["bitfield_1"] = (*i).getSubBitfield();
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getPosition().x;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getPosition().y;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["height_offset"] = (*i).getHeightOffset();
