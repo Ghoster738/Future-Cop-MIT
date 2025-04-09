@@ -12,15 +12,15 @@ namespace {
 }
 
 Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
-    this->data                   = reader.readU32( endian );
-    this->pad                    = reader.readU16( endian ); // My guess is that this does nothing.
+    this->bitfield_0             = reader.readU32( endian );
+    this->pad                    = reader.readU16( endian );
     this->position.x             = reader.readU16( endian );
     this->position.y             = reader.readU16( endian );
     this->height_offset_bitfield = reader.readI16( endian ); // I do not fully understand this value.
 }
 
-uint32_t Data::Mission::NetResource::Node::getData() const {
-    return this->data;
+uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
+    return this->bitfield_0;
 }
 
 int16_t Data::Mission::NetResource::Node::getPad() const {
@@ -45,7 +45,7 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     unsigned int filled_indices = 0;
     
     // Get rid of the last two bits on the index_data.
-    uint32_t index_data = (this->data & 0xfffffffc) >> 2;
+    uint32_t index_data = (this->bitfield_0 & 0xfffffffc) >> 2;
     
     // A maxiumun 10-bit number.
     const uint32_t MASK = 0x3ff;
@@ -61,7 +61,7 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
     }
     
     // These two bits are always zero.
-    //assert( (this->data & 0x3) == 0 );
+    //assert( (this->bitfield_0 & 0x3) == 0 );
     
     // This has a range of 0 to 3. I do not know if there is a zero though.
     return filled_indices;
@@ -180,7 +180,7 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
         root["FutureCopAsset"]["minor"] = 0;
 
         {
-            unsigned int indexes[3];
+            unsigned int indexes[4];
             unsigned int amount;
             for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
                 amount = (*i).getIndexes( indexes, this->nodes.size() );

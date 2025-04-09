@@ -17,19 +17,19 @@ namespace Mission {
  */
 class NetResource : public Resource {
 public:
-	static const std::filesystem::path FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::filesystem::path FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
 
     class Node {
     private:
-        uint32_t data; // This contains which node it goes to.
-        int16_t pad;
+        uint32_t bitfield_0; // This contains which node it goes to.
+        uint16_t pad;
         glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for the unit for the ACT resource if BahKooJ is correct.
         uint16_t height_offset_bitfield;
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
 
-        uint32_t getData() const;
+        uint32_t getPrimaryBitfield() const;
         int16_t getPad() const;
         glm::i16vec2 getPosition() const;
         float getHeightOffset() const;
