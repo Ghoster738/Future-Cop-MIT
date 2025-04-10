@@ -37,6 +37,8 @@ public:
     };
 
 private:
+    Utilities::Random random;
+
     SpawnableActor<ACT::Aircraft>      aircraft;
     SpawnableActor<ACT::Elevator>      elevator;
     SpawnableActor<ACT::DynamicProp>   dynamic_props;
