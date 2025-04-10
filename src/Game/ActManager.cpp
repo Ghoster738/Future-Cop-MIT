@@ -5,7 +5,7 @@
 namespace {
 
 template<class data_act, class game_act>
-Game::ActManager::SpawnableActor<game_act> initializeActors( const Data::Accessor& accessor, std::vector<const data_act*> actor_array_r ) {
+Game::ActManager::SpawnableActor<game_act> initializeActors( const Utilities::Random& random, const Data::Accessor& accessor, std::vector<const data_act*> actor_array_r ) {
     Game::ActManager::SpawnableActor<game_act> game_actors;
 
     for( const data_act *const actor_r : actor_array_r ) {
@@ -61,21 +61,21 @@ void updateActors( MainProgram &main_program, Game::ActManager::SpawnableActor<g
 
 namespace Game {
 
-ActManager::ActManager( const Data::Accessor& accessor, Utilities::Random random_param ) : random( random_param ) {
+ActManager::ActManager( const Data::Accessor& accessor, Utilities::Random rand ) : random( rand ) {
     auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
-    aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      accessor, accessor.getActorAccessor().getAllConstAircraft() );
-    elevator        = initializeActors<Data::Mission::ACT::Elevator,      ACT::Elevator>(      accessor, accessor.getActorAccessor().getAllConstElevator() );
-    dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
-    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    accessor, accessor.getActorAccessor().getAllConstItemPickup() );
-    moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,  ACT::MoveableProp>(  accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
-    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
-    pathed_actor    = initializeActors<Data::Mission::ACT::PathedActor,   ACT::PathedActor>(   accessor, accessor.getActorAccessor().getAllConstPathedActor() );
-    props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          accessor, accessor.getActorAccessor().getAllConstProp() );
-    sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
-    turrets         = initializeActors<Data::Mission::ACT::Turret,        ACT::Turret>(        accessor, accessor.getActorAccessor().getAllConstTurret() );
-    walkable_props  = initializeActors<Data::Mission::ACT::WalkableProp,  ACT::WalkableProp>(  accessor, accessor.getActorAccessor().getAllConstWalkableProp() );
-    x1_alphas       = initializeActors<Data::Mission::ACT::X1Alpha,       ACT::X1Alpha>(       accessor, accessor.getActorAccessor().getAllConstX1Alpha() );
+    aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      rand, accessor, accessor.getActorAccessor().getAllConstAircraft() );
+    elevator        = initializeActors<Data::Mission::ACT::Elevator,      ACT::Elevator>(      rand, accessor, accessor.getActorAccessor().getAllConstElevator() );
+    dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   rand, accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
+    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    rand, accessor, accessor.getActorAccessor().getAllConstItemPickup() );
+    moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,  ACT::MoveableProp>(  rand, accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
+    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( rand, accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
+    pathed_actor    = initializeActors<Data::Mission::ACT::PathedActor,   ACT::PathedActor>(   rand, accessor, accessor.getActorAccessor().getAllConstPathedActor() );
+    props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          rand, accessor, accessor.getActorAccessor().getAllConstProp() );
+    sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    rand, accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
+    turrets         = initializeActors<Data::Mission::ACT::Turret,        ACT::Turret>(        rand, accessor, accessor.getActorAccessor().getAllConstTurret() );
+    walkable_props  = initializeActors<Data::Mission::ACT::WalkableProp,  ACT::WalkableProp>(  rand, accessor, accessor.getActorAccessor().getAllConstWalkableProp() );
+    x1_alphas       = initializeActors<Data::Mission::ACT::X1Alpha,       ACT::X1Alpha>(       rand, accessor, accessor.getActorAccessor().getAllConstX1Alpha() );
 }
 
 ActManager::~ActManager() {
