@@ -17,6 +17,8 @@ Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utili
     this->position.x             = reader.readU16( endian );
     this->position.y             = reader.readU16( endian );
     this->height_offset_bitfield = reader.readI16( endian );
+
+    this->calculated_y_axis = 0;
 }
 
 uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
@@ -101,6 +103,14 @@ Data::Mission::NetResource::Node::State Data::Mission::NetResource::Node::getSta
         case 1: return State::UNKNOWN;
         case 2: return State::DISABLED;
     }
+}
+
+void Data::Mission::NetResource::Node::setYAxis( float value ) {
+    this->calculated_y_axis = value;
+}
+
+float Data::Mission::NetResource::Node::getYAxis() const {
+    return this->calculated_y_axis;
 }
 
 const std::filesystem::path Data::Mission::NetResource::FILE_EXTENSION = "net";

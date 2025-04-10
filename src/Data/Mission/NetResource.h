@@ -34,6 +34,8 @@ public:
         uint16_t bitfield_1;
         glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for the unit for the ACT resource if BahKooJ is correct.
         uint16_t height_offset_bitfield;
+
+        float calculated_y_axis;
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
 
@@ -46,6 +48,9 @@ public:
         bool hasReadOffset() const;
         unsigned int getIndexes( unsigned int indexes[4] ) const;
         State getState() const;
+
+        void setYAxis( float value );
+        float getYAxis() const;
     };
 
 private:
