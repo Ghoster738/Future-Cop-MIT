@@ -25,7 +25,7 @@ void PathedActor::setNextDestination() {
 
             float angle = glm::atan(destination.y, destination.x);
 
-            this->next_node_rot = glm::quat( glm::vec3(0, angle + glm::pi<float>() / 2.f, 0) );
+            this->next_node_rot = glm::quat( glm::vec3(0, -angle + glm::pi<float>() / 2.f, 0) );
         }
     }
 }
