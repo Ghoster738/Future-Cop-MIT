@@ -135,7 +135,7 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
         }
 
         if(this->alive_p) {
-            glm::vec3 new_position = glm::mix(this->position, this->next_node_pos, static_cast<float>(this->time_to_next_node.count()) / static_cast<float>(this->total_time_next_node.count()));
+            glm::vec3 new_position = glm::mix(this->next_node_pos, this->position, static_cast<float>(this->time_to_next_node.count()) / static_cast<float>(this->total_time_next_node.count()));
 
             this->alive_p->setPosition( new_position );
         }
