@@ -20,6 +20,15 @@ void PathedActor::setNextDestination() {
 
         glm::vec2 destination = glm::vec2(this->next_node_pos.x, this->next_node_pos.z) - glm::vec2(this->position.x, this->position.z);
 
+        double distance = glm::distance(this->position, this->next_node_pos);
+
+        if(distance >= 0.) {
+            auto num = static_cast<std::chrono::microseconds::rep>(distance * 1000000);
+
+            this->total_time_next_node = std::chrono::microseconds(num);
+        }
+        this->time_to_next_node = total_time_next_node;
+
         if(destination.x != 0.f || destination.y != 0.f) {
             destination = glm::normalize(destination);
 
@@ -63,8 +72,6 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
     if( this->net_r ) {
         auto index = this->net_r->getNodeIndexFromPosition(obj.getRawPosition());
         this->node_r = this->net_r->getNodePointer(index);
-
-        this->time_to_next_node = total_time_next_node;
 
         this->next_node_pos = this->position;
         this->next_node_rot = glm::quat(1.f, 0.f, 0.f, 0.f);
@@ -126,8 +133,6 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
 
     if(this->node_r) {
         if(this->time_to_next_node.count() <= 0) {
-            this->time_to_next_node = this->total_time_next_node;
-
             this->position.x = this->next_node_pos.x;
             this->position.z = this->next_node_pos.z;
 
