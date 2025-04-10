@@ -4,7 +4,7 @@
 
 namespace Game::ACT {
 
-PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ) {
+PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ), random_generator( random.getGenerator() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::HIGH );
@@ -63,7 +63,7 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
     net_r( obj.net_r ), node_r( obj.node_r ),
     alive_p( nullptr ),
-    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), next_node_pos( obj.next_node_pos ) {}
+    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), next_node_pos( obj.next_node_pos ), random_generator( obj.random_generator ) {}
 
 PathedActor::~PathedActor() {
     if( this->alive_p != nullptr )

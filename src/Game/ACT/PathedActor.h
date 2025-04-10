@@ -27,6 +27,7 @@ protected:
     std::chrono::microseconds    time_to_next_node;
     std::chrono::microseconds total_time_next_node;
     glm::vec3 next_node_pos;
+    Utilities::Random::Generator random_generator;
 
 public:
     PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );
