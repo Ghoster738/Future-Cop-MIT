@@ -21,6 +21,7 @@ PathedActor::PathedActor( const Data::Accessor& accessor, const Data::Mission::A
     this->alive_cobj_r = nullptr;
     this->dead_cobj_r  = nullptr;
     this->net_r        = nullptr;
+    this->node_r       = nullptr;
 
     if( this->alive_base )
         this->alive_cobj_r = accessor.getConstOBJ( this->alive_id );
@@ -31,12 +32,25 @@ PathedActor::PathedActor( const Data::Accessor& accessor, const Data::Mission::A
     if( net )
         this->net_r  = accessor.getConstNET( net_id );
 
+    this->total_time_next_node  = std::chrono::microseconds(1000000);
+
     if( this->net_r ) {
         auto index = this->net_r->getNodeIndexFromPosition(obj.getRawPosition());
 
         this->node_r = this->net_r->getNodePointer(index);
 
-        this->temp = std::chrono::microseconds(100000);
+        this->time_to_next_node = total_time_next_node;
+
+        this->next_node_pos = this->position;
+
+        unsigned int index_array[4];
+
+        if( this->node_r->getIndexes( index_array ) != 0 ) {
+            this->node_r = this->net_r->getNodePointer( index_array[0] );
+
+            this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
+            this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
+        }
     }
 
     this->alive_p = nullptr;
@@ -48,7 +62,8 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     dead_id( obj.dead_id ), dead_base( obj.dead_base ),
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
     net_r( obj.net_r ), node_r( obj.node_r ),
-    alive_p( nullptr ), temp( obj.temp ) {}
+    alive_p( nullptr ),
+    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), next_node_pos( obj.next_node_pos ) {}
 
 PathedActor::~PathedActor() {
     if( this->alive_p != nullptr )
@@ -86,23 +101,29 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
         this->alive_p->setPositionTransformTimeline( this->alive_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
     }
 
-    this->temp -= delta;
+    this->time_to_next_node -= delta;
 
-    if(this->node_r && this->temp < std::chrono::microseconds(0)) {
-        this->temp = std::chrono::microseconds(100000);
+    if(this->node_r) {
+        if(this->time_to_next_node.count() <= 0) {
+            this->time_to_next_node = this->total_time_next_node;
 
-        unsigned int index_array[4];
+            unsigned int index_array[4];
 
-        if( this->node_r->getIndexes( index_array ) != 0 ) {
+            if( this->node_r->getIndexes( index_array ) != 0 ) {
+                this->node_r = this->net_r->getNodePointer( index_array[0] );
 
-            this->node_r = this->net_r->getNodePointer( index_array[0] );
+                this->position.x = this->next_node_pos.x;
+                this->position.z = this->next_node_pos.z;
 
-            if(this->alive_p) {
-                this->position.x = (1.f / 32.f) * this->node_r->getPosition().x;
-                this->position.z = (1.f / 32.f) * this->node_r->getPosition().y;
-
-                this->alive_p->setPosition( this->position );
+                this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
+                this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
             }
+        }
+
+        if(this->alive_p) {
+            glm::vec3 new_position = glm::mix(this->position, this->next_node_pos, static_cast<float>(this->time_to_next_node.count()) / static_cast<float>(this->total_time_next_node.count()));
+
+            this->alive_p->setPosition( new_position );
         }
     }
 }

@@ -24,7 +24,9 @@ protected:
 
     Graphics::ModelInstance *alive_p;
 
-    std::chrono::microseconds temp;
+    std::chrono::microseconds    time_to_next_node;
+    std::chrono::microseconds total_time_next_node;
+    glm::vec3 next_node_pos;
 
 public:
     PathedActor( const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );
