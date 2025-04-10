@@ -23,7 +23,7 @@ private:
     Graphics::ModelInstance *model_p;
 
 public:
-    ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj );
+    ItemPickup( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj );
     ItemPickup( const ItemPickup& obj );
     virtual ~ItemPickup();
 

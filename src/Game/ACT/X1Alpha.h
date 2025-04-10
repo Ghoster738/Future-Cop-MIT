@@ -37,7 +37,7 @@ private:
 
 
 public:
-    X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Alpha& obj );
+    X1Alpha( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::X1Alpha& obj );
     X1Alpha( const X1Alpha& obj );
     virtual ~X1Alpha();
 

@@ -2,7 +2,7 @@
 
 namespace Game::ACT {
 
-Aircraft::Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj ) : BaseShooter( obj) {
+Aircraft::Aircraft( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj ) : BaseShooter( obj) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     {

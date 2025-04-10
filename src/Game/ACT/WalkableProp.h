@@ -17,7 +17,7 @@ private:
     Graphics::ModelInstance *alive_p;
 
 public:
-    WalkableProp( const Data::Accessor& accessor, const Data::Mission::ACT::WalkableProp& obj );
+    WalkableProp( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::WalkableProp& obj );
     WalkableProp( const WalkableProp& obj );
     virtual ~WalkableProp();
 

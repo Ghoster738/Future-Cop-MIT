@@ -9,7 +9,7 @@ namespace Game::ACT {
 
 class SkyCaptain : public Aircraft {
 public:
-    SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj );
+    SkyCaptain( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj );
     SkyCaptain( const SkyCaptain& obj );
     virtual ~SkyCaptain();
 

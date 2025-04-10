@@ -2,7 +2,7 @@
 
 namespace Game::ACT {
 
-NeutralTurret::NeutralTurret( const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj ) : Turret( accessor, obj ) {}
+NeutralTurret::NeutralTurret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj ) : Turret( random, accessor, obj ) {}
 
 NeutralTurret::NeutralTurret( const NeutralTurret& obj ) : Turret( obj ) {}
 

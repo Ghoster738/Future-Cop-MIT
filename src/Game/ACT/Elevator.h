@@ -17,7 +17,7 @@ private:
     Graphics::ModelInstance *model_p;
 
 public:
-    Elevator( const Data::Accessor& accessor, const Data::Mission::ACT::Elevator& obj );
+    Elevator( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Elevator& obj );
     Elevator( const Elevator& obj );
     virtual ~Elevator();
 

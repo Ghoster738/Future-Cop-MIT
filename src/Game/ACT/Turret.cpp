@@ -4,7 +4,7 @@
 
 namespace Game::ACT {
 
-Turret::Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : BaseTurret( accessor, obj ) {
+Turret::Turret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj ) : BaseTurret( accessor, obj ) {
     this->base_rotation = obj.getBaseRotationQuaternion();
 
     this->alive_base_id = obj.getAliveBaseID();

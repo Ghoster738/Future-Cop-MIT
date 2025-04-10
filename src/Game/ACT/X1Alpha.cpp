@@ -4,7 +4,7 @@
 
 namespace Game::ACT {
 
-X1Alpha::X1Alpha( const Data::Accessor& accessor, const Data::Mission::ACT::X1Alpha& obj ) : BaseEntity( obj ) {
+X1Alpha::X1Alpha( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::X1Alpha& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     // TODO This is a wild guess.

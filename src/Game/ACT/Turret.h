@@ -22,7 +22,7 @@ protected:
     Graphics::ModelInstance *base_p;
 
 public:
-    Turret( const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj );
+    Turret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Turret& obj );
     Turret( const Turret& obj );
     virtual ~Turret();
 

@@ -15,7 +15,7 @@ protected:
     Graphics::ModelInstance *model_p;
 
 public:
-    Aircraft( const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj );
+    Aircraft( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Aircraft& obj );
     Aircraft( const Aircraft& obj );
     virtual ~Aircraft();
 

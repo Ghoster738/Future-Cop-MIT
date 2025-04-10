@@ -2,7 +2,7 @@
 
 namespace Game::ACT {
 
-ItemPickup::ItemPickup( const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : BaseEntity( obj ) {
+ItemPickup::ItemPickup( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::ItemPickup& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, 0.f, static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );

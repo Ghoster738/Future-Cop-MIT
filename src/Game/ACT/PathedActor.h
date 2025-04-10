@@ -29,7 +29,7 @@ protected:
     glm::vec3 next_node_pos;
 
 public:
-    PathedActor( const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );
+    PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );
     PathedActor( const PathedActor& obj );
     virtual ~PathedActor();
 

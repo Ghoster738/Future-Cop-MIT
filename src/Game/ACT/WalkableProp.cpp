@@ -4,7 +4,7 @@
 
 namespace Game::ACT {
 
-WalkableProp::WalkableProp( const Data::Accessor& accessor, const Data::Mission::ACT::WalkableProp& obj ) : BaseEntity( obj ) {
+WalkableProp::WalkableProp( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::WalkableProp& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::HIGH );

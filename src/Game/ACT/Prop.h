@@ -24,7 +24,7 @@ private:
     bool has_animated_rotation;
 
 public:
-    Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj );
+    Prop( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj );
     Prop( const Prop& obj );
     virtual ~Prop();
 

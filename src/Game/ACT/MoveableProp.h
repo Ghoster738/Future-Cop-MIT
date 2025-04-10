@@ -17,7 +17,7 @@ private:
     Graphics::ModelInstance *alive_p;
 
 public:
-    MoveableProp( const Data::Accessor& accessor, const Data::Mission::ACT::MoveableProp& obj );
+    MoveableProp( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::MoveableProp& obj );
     MoveableProp( const MoveableProp& obj );
     virtual ~MoveableProp();
 

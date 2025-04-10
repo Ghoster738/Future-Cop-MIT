@@ -5,14 +5,14 @@
 namespace {
 
 template<class data_act, class game_act>
-Game::ActManager::SpawnableActor<game_act> initializeActors( const Utilities::Random& random, const Data::Accessor& accessor, std::vector<const data_act*> actor_array_r ) {
+Game::ActManager::SpawnableActor<game_act> initializeActors( Utilities::Random& random, const Data::Accessor& accessor, std::vector<const data_act*> actor_array_r ) {
     Game::ActManager::SpawnableActor<game_act> game_actors;
 
     for( const data_act *const actor_r : actor_array_r ) {
         if( !actor_r->getSpawnChunk().exists )
-            game_actors.actors.push_back( game_act( accessor, *actor_r ) );
+            game_actors.actors.push_back( game_act( random, accessor, *actor_r ) );
         else {
-            game_actors.spawners.push_back( {actor_r->getSpawnChunk(), game_act( accessor, *actor_r )} );
+            game_actors.spawners.push_back( {actor_r->getSpawnChunk(), game_act( random, accessor, *actor_r )} );
             game_actors.spawners.back().time = std::chrono::microseconds( (unsigned)(game_actors.spawners.back().timings.getSpawnTime() * 1000000.0) );
         }
     }

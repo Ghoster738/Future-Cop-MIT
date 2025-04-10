@@ -17,7 +17,7 @@ private:
     Graphics::ModelInstance *alive_p;
 
 public:
-    DynamicProp( const Data::Accessor& accessor, const Data::Mission::ACT::DynamicProp& obj );
+    DynamicProp( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::DynamicProp& obj );
     DynamicProp( const DynamicProp& obj );
     virtual ~DynamicProp();
 

@@ -2,7 +2,7 @@
 
 namespace Game::ACT {
 
-SkyCaptain::SkyCaptain( const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj ) : Aircraft( accessor, obj ) {}
+SkyCaptain::SkyCaptain( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::SkyCaptain& obj ) : Aircraft( random, accessor, obj ) {}
 
 SkyCaptain::SkyCaptain( const SkyCaptain& obj ) : Aircraft( obj ) {}
 

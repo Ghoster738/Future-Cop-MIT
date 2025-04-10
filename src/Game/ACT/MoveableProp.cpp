@@ -4,7 +4,7 @@
 
 namespace Game::ACT {
 
-MoveableProp::MoveableProp( const Data::Accessor& accessor, const Data::Mission::ACT::MoveableProp& obj ) : BaseEntity( obj ) {
+MoveableProp::MoveableProp( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::MoveableProp& obj ) : BaseEntity( obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->position = obj.getPosition( ptc, obj.getHeightOffset(), static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.ground_cast_type) );

@@ -9,7 +9,7 @@ namespace Game::ACT {
 
 class NeutralTurret : public Turret {
 public:
-    NeutralTurret( const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj );
+    NeutralTurret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::NeutralTurret& obj );
     NeutralTurret( const NeutralTurret& obj );
     virtual ~NeutralTurret();
 
