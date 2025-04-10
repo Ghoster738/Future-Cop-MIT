@@ -27,7 +27,9 @@ public:
     class Generator {
     private:
         uint64_t current_seed;
+
     public:
+        Generator( const Generator& obj ) : current_seed( obj.current_seed ) {}
         Generator( uint64_t current_seed );
 
         /**
