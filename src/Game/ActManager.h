@@ -53,7 +53,7 @@ private:
     SpawnableActor<ACT::X1Alpha>       x1_alphas;
 
 public:
-    ActManager( const Data::Accessor& accessor );
+    ActManager( const Data::Accessor& accessor, Utilities::Random random );
     virtual ~ActManager();
 
     void initialize( MainProgram &main_program );
