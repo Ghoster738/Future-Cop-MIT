@@ -87,7 +87,7 @@ void PrimaryGame::load( MainProgram &main_program ) {
         if( this->act_manager_p != nullptr )
             delete this->act_manager_p;
 
-        this->act_manager_p = new Game::ActManager( *main_program.resource_r, main_program.accessor );
+        this->act_manager_p = new Game::ActManager( main_program.accessor );
 
         this->act_manager_p->initialize( main_program );
     }

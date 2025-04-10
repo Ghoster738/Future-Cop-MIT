@@ -61,7 +61,7 @@ void updateActors( MainProgram &main_program, Game::ActManager::SpawnableActor<g
 
 namespace Game {
 
-ActManager::ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor ) {
+ActManager::ActManager( const Data::Accessor& accessor ) {
     auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
     aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      accessor, accessor.getActorAccessor().getAllConstAircraft() );
