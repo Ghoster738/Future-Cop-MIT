@@ -34,7 +34,7 @@ glm::i16vec2 Data::Mission::NetResource::Node::getPosition() const {
 float Data::Mission::NetResource::Node::getHeightOffset() const {
     int16_t height_offset = (this->height_offset_bitfield >> 4) & 0x0FFF;
 
-    if(this->height_offset_bitfield & 0x8000 != 0) {
+    if((this->height_offset_bitfield & 0x8000) != 0) {
         height_offset |= 0xF000; // This effectively converts this number to negative.
     }
 
