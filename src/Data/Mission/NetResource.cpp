@@ -8,7 +8,7 @@ namespace {
     const uint16_t TAG_tN = 0x744E; // which is { 0x74, 0x43 } or { 't', 'N' } or "tN"
     const uint16_t TAG_OD = 0x4F44; // which is { 0x4F, 0x44 } or { 'O', 'D' } or "OD"
 
-    const auto INTEGER_FACTOR = 1.0 / 256.0;
+    const auto INTEGER_FACTOR = 1.f / 256.f;
 }
 
 Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
@@ -155,6 +155,27 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
     }
     else
         return false;
+}
+
+unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i16vec2 raw_actor_position) const {
+    glm::i16vec2 node_position;
+
+    node_position.x = raw_actor_position.x >> 8;
+    node_position.y = raw_actor_position.y >> 8;
+
+    for(auto i = this->nodes.cbegin(); i != this->nodes.cend(); i++) {
+        if( (*i).getPosition() == node_position )
+            return i - this->nodes.cbegin();
+    }
+
+    return this->nodes.size();
+}
+
+const Data::Mission::NetResource::Node* Data::Mission::NetResource::getNodePointer(unsigned index) const {
+    if( this->nodes.size() >= index )
+        return nullptr;
+
+    return &this->nodes[index];
 }
 
 Data::Mission::Resource * Data::Mission::NetResource::duplicate() const {
