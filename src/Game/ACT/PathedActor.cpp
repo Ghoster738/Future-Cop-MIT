@@ -45,8 +45,15 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
 
         unsigned int index_array[4];
 
-        if( this->node_r->getIndexes( index_array ) != 0 ) {
-            this->node_r = this->net_r->getNodePointer( index_array[0] );
+        auto amount = this->node_r->getIndexes( index_array );
+
+        if( amount != 0 ) {
+            unsigned index = 0;
+
+            if(amount != 1)
+                index = this->random_generator.nextUnsignedInt() % amount;
+
+            this->node_r = this->net_r->getNodePointer( index_array[index] );
 
             this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
             this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
@@ -109,8 +116,15 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
 
             unsigned int index_array[4];
 
-            if( this->node_r->getIndexes( index_array ) != 0 ) {
-                this->node_r = this->net_r->getNodePointer( index_array[0] );
+            auto amount = this->node_r->getIndexes( index_array );
+
+            if( amount != 0 ) {
+                unsigned index = 0;
+
+                if(amount != 1)
+                    index = this->random_generator.nextUnsignedInt() % amount;
+
+                this->node_r = this->net_r->getNodePointer( index_array[index] );
 
                 this->position.x = this->next_node_pos.x;
                 this->position.z = this->next_node_pos.z;
