@@ -36,7 +36,6 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
 
     if( this->net_r ) {
         auto index = this->net_r->getNodeIndexFromPosition(obj.getRawPosition());
-
         this->node_r = this->net_r->getNodePointer(index);
 
         this->time_to_next_node = total_time_next_node;
@@ -118,6 +117,9 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
 
             auto amount = this->node_r->getIndexes( index_array );
 
+            this->position.x = this->next_node_pos.x;
+            this->position.z = this->next_node_pos.z;
+
             if( amount != 0 ) {
                 unsigned index = 0;
 
@@ -125,9 +127,6 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
                     index = this->random_generator.nextUnsignedInt() % amount;
 
                 this->node_r = this->net_r->getNodePointer( index_array[index] );
-
-                this->position.x = this->next_node_pos.x;
-                this->position.z = this->next_node_pos.z;
 
                 this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
                 this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
