@@ -160,8 +160,8 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
 unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const {
     glm::i16vec2 node_position;
 
-    node_position.x = raw_actor_position.x >> 8;
-    node_position.y = raw_actor_position.y >> 8;
+    node_position.x = raw_actor_position.y >> 8;
+    node_position.y = raw_actor_position.x >> 8;
 
     for(auto i = this->nodes.cbegin(); i != this->nodes.cend(); i++) {
         if( (*i).getPosition() == node_position )
@@ -172,7 +172,7 @@ unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i32vec2 raw_a
 }
 
 const Data::Mission::NetResource::Node* Data::Mission::NetResource::getNodePointer(unsigned index) const {
-    if( this->nodes.size() >= index )
+    if( this->nodes.size() <= index )
         return nullptr;
 
     return &this->nodes[index];
