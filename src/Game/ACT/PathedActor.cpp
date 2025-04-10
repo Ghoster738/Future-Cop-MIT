@@ -94,7 +94,9 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
         unsigned int index_array[4];
 
         if( this->node_r->getIndexes( index_array ) != 0 ) {
+
             this->node_r = this->net_r->getNodePointer( index_array[0] );
+
             if(this->alive_p) {
                 this->position.x = (1.f / 32.f) * this->node_r->getPosition().x;
                 this->position.z = (1.f / 32.f) * this->node_r->getPosition().y;

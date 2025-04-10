@@ -16,9 +16,9 @@ protected:
     uint32_t alive_id; bool alive_base;
     uint32_t  dead_id; bool  dead_base;
 
-    const Data::Mission::ObjResource *alive_cobj_r;
-    const Data::Mission::ObjResource  *dead_cobj_r;
-    const Data::Mission::NetResource *net_r;
+    const Data::Mission::ObjResource* alive_cobj_r;
+    const Data::Mission::ObjResource*  dead_cobj_r;
+    const Data::Mission::NetResource*        net_r;
 
     const Data::Mission::NetResource::Node *node_r;
 
