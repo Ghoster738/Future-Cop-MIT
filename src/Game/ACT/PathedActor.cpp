@@ -1,7 +1,5 @@
 #include "PathedActor.h"
 
-#include <iostream>
-
 namespace Game::ACT {
 
 void PathedActor::setNextDestination() {
@@ -19,6 +17,16 @@ void PathedActor::setNextDestination() {
 
         this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
         this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
+
+        glm::vec2 destination = glm::vec2(this->next_node_pos.x, this->next_node_pos.z) - glm::vec2(this->position.x, this->position.z);
+
+        if(destination.x != 0.f || destination.y != 0.f) {
+            destination = glm::normalize(destination);
+
+            float angle = glm::atan(destination.y, destination.x);
+
+            this->next_node_rot = glm::quat( glm::vec3(0, angle + glm::pi<float>() / 2.f, 0) );
+        }
     }
 }
 
@@ -59,6 +67,7 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
         this->time_to_next_node = total_time_next_node;
 
         this->next_node_pos = this->position;
+        this->next_node_rot = glm::quat(1.f, 0.f, 0.f, 0.f);
 
         setNextDestination();
     }
@@ -73,7 +82,8 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
     net_r( obj.net_r ), node_r( obj.node_r ),
     alive_p( nullptr ),
-    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), next_node_pos( obj.next_node_pos ), random_generator( obj.random_generator ) {}
+    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), next_node_pos( obj.next_node_pos ), next_node_rot( obj.next_node_rot ),
+    random_generator( obj.random_generator ) {}
 
 PathedActor::~PathedActor() {
     if( this->alive_p != nullptr )
@@ -95,6 +105,7 @@ void PathedActor::resetGraphics( MainProgram &main_program ) {
 
             if(this->alive_p) {
                 this->alive_p->setPosition( this->position );
+                this->alive_p->setRotation( this->next_node_rot );
                 this->alive_p->setTextureOffset( this->texture_offset );
                 this->alive_p->setVisable( true );
             }
@@ -127,6 +138,7 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
             glm::vec3 new_position = glm::mix(this->next_node_pos, this->position, static_cast<float>(this->time_to_next_node.count()) / static_cast<float>(this->total_time_next_node.count()));
 
             this->alive_p->setPosition( new_position );
+            this->alive_p->setRotation( this->next_node_rot );
         }
     }
 }
