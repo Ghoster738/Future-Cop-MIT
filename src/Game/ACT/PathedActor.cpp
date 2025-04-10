@@ -4,6 +4,24 @@
 
 namespace Game::ACT {
 
+void PathedActor::setNextDestination() {
+    unsigned int index_array[4];
+
+    auto amount = this->node_r->getIndexes( index_array );
+
+    if( amount != 0 ) {
+        unsigned index = 0;
+
+        if(amount != 1)
+            index = this->random_generator.nextUnsignedInt() % amount;
+
+        this->node_r = this->net_r->getNodePointer( index_array[index] );
+
+        this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
+        this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
+    }
+}
+
 PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ), random_generator( random.getGenerator() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
@@ -42,21 +60,7 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
 
         this->next_node_pos = this->position;
 
-        unsigned int index_array[4];
-
-        auto amount = this->node_r->getIndexes( index_array );
-
-        if( amount != 0 ) {
-            unsigned index = 0;
-
-            if(amount != 1)
-                index = this->random_generator.nextUnsignedInt() % amount;
-
-            this->node_r = this->net_r->getNodePointer( index_array[index] );
-
-            this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
-            this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
-        }
+        setNextDestination();
     }
 
     this->alive_p = nullptr;
@@ -113,24 +117,10 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
         if(this->time_to_next_node.count() <= 0) {
             this->time_to_next_node = this->total_time_next_node;
 
-            unsigned int index_array[4];
-
-            auto amount = this->node_r->getIndexes( index_array );
-
             this->position.x = this->next_node_pos.x;
             this->position.z = this->next_node_pos.z;
 
-            if( amount != 0 ) {
-                unsigned index = 0;
-
-                if(amount != 1)
-                    index = this->random_generator.nextUnsignedInt() % amount;
-
-                this->node_r = this->net_r->getNodePointer( index_array[index] );
-
-                this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
-                this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
-            }
+            setNextDestination();
         }
 
         if(this->alive_p) {

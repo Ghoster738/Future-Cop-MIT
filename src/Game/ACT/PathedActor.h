@@ -29,6 +29,8 @@ protected:
     glm::vec3 next_node_pos;
     Utilities::Random::Generator random_generator;
 
+    void setNextDestination();
+
 public:
     PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );
     PathedActor( const PathedActor& obj );
