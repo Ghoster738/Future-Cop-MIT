@@ -16,6 +16,7 @@ void PathedActor::setNextDestination() {
         this->node_r = this->net_r->getNodePointer( index_array[index] );
 
         this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
+        this->next_node_pos.y = this->node_r->getYAxis();
         this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
 
         glm::vec2 destination = glm::vec2(this->next_node_pos.x, this->next_node_pos.z) - glm::vec2(this->position.x, this->position.z);
@@ -42,7 +43,7 @@ void PathedActor::setNextDestination() {
 PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ), random_generator( random.getGenerator() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::HIGH );
+    this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::NONE );
 
     this->alive_id = obj.getAliveID();
     this->alive_base = obj.getHasAliveID();
@@ -72,6 +73,9 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
     if( this->net_r ) {
         auto index = this->net_r->getNodeIndexFromPosition(obj.getRawPosition());
         this->node_r = this->net_r->getNodePointer(index);
+
+        if(this->node_r)
+            this->position.y = this->node_r->getYAxis();
 
         this->next_node_pos = this->position;
         this->next_node_rot = glm::quat(1.f, 0.f, 0.f, 0.f);
