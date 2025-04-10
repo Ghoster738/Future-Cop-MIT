@@ -866,6 +866,12 @@ int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
             {
                 error_log.output << "PTC resource is found, but there are no Til resources.\n";
             }
+
+            auto objects = accessor.getAllNET();
+
+            for( auto it = objects.begin(); it != objects.end(); it++ ) {
+                (*it)->calculateNodeHeight( *ptc_pointers_r[0] );
+            }
         }
         else
         if( getResource( Data::Mission::TilResource::IDENTIFIER_TAG ) != nullptr )

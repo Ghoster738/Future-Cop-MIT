@@ -15,9 +15,7 @@ void PathedActor::setNextDestination() {
 
         this->node_r = this->net_r->getNodePointer( index_array[index] );
 
-        this->next_node_pos.x = (1.f / 32.f) * this->node_r->getPosition().x;
-        this->next_node_pos.y = this->node_r->getYAxis();
-        this->next_node_pos.z = (1.f / 32.f) * this->node_r->getPosition().y;
+        this->next_node_pos = this->node_r->getPosition();
 
         glm::vec2 destination = glm::vec2(this->next_node_pos.x, this->next_node_pos.z) - glm::vec2(this->position.x, this->position.z);
 

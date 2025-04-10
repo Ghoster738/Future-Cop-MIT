@@ -42,7 +42,8 @@ public:
         uint32_t getPrimaryBitfield() const;
         uint16_t getSubBitfield() const;
 
-        glm::i16vec2 getPosition() const;
+        glm::vec3 getPosition() const;
+        glm::i16vec2 getRawPosition() const;
         float getHeightOffset() const;
         ACTResource::GroundCast getGroundCast() const;
         bool hasReadOffset() const;
@@ -69,6 +70,8 @@ public:
      * @return If there was an error in the reading it will return false.
      */
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
+
+    void calculateNodeHeight( const PTCResource& world );
 
     unsigned getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const;
 

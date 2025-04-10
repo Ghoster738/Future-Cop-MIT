@@ -8,7 +8,7 @@ namespace {
     const uint16_t TAG_tN = 0x744E; // which is { 0x74, 0x43 } or { 't', 'N' } or "tN"
     const uint16_t TAG_OD = 0x4F44; // which is { 0x4F, 0x44 } or { 'O', 'D' } or "OD"
 
-    const auto INTEGER_FACTOR = 1.f / 256.f;
+    const auto INTEGER_FACTOR = 1.f / 32.f;
 }
 
 Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
@@ -29,7 +29,11 @@ uint16_t Data::Mission::NetResource::Node::getSubBitfield() const {
     return this->bitfield_1;
 }
 
-glm::i16vec2 Data::Mission::NetResource::Node::getPosition() const {
+glm::vec3 Data::Mission::NetResource::Node::getPosition() const {
+    return glm::vec3(INTEGER_FACTOR * this->position.x, this->calculated_y_axis, INTEGER_FACTOR * this->position.y);
+}
+
+glm::i16vec2 Data::Mission::NetResource::Node::getRawPosition() const {
     return this->position;
 }
 
@@ -167,6 +171,15 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
+
+void Data::Mission::NetResource::calculateNodeHeight( const PTCResource& world ) {
+    for(auto i = this->nodes.begin(); i != this->nodes.end(); i++) {
+
+        //if( ground_cast != GroundCast::NONE )
+        //    height_value += world.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) );
+    }
+}
+
 unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const {
     glm::i16vec2 node_position;
 
@@ -174,7 +187,7 @@ unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i32vec2 raw_a
     node_position.y = raw_actor_position.y >> 8;
 
     for(auto i = this->nodes.cbegin(); i != this->nodes.cend(); i++) {
-        if( (*i).getPosition() == node_position )
+        if( (*i).getRawPosition() == node_position )
             return i - this->nodes.cbegin();
     }
 
@@ -212,8 +225,8 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
             for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
                 resource << "v "
                     << 0 << " "
-                    << (static_cast<float>((*i).getPosition().x) * INTEGER_FACTOR) << " "
-                    << (static_cast<float>((*i).getPosition().y) * INTEGER_FACTOR) << std::endl;
+                    << (static_cast<float>((*i).getRawPosition().x) * INTEGER_FACTOR) << " "
+                    << (static_cast<float>((*i).getRawPosition().y) * INTEGER_FACTOR) << std::endl;
             }
 
             {
@@ -256,8 +269,8 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["ground_cast"] = ACTResource::groundCastToString( (*i).getGroundCast() );
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["read_offseting"] = (*i).hasReadOffset();
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["state"] = (*i).getState();
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getPosition().x;
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getPosition().y;
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getRawPosition().x;
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getRawPosition().y;
                 root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["height_offset"] = (*i).getHeightOffset();
 
                 for( unsigned int c = 0; c < amount; c++ ) {
