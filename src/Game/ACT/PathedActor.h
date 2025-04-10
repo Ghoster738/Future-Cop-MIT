@@ -5,6 +5,8 @@
 
 #include "../../Data/Mission/ACT/PathedActor.h"
 
+#include "../../Data/Mission/NetResource.h"
+
 #include "BasePathedEntity.h"
 
 namespace Game::ACT {
@@ -16,6 +18,9 @@ protected:
 
     const Data::Mission::ObjResource *alive_cobj_r;
     const Data::Mission::ObjResource  *dead_cobj_r;
+    const Data::Mission::NetResource *net_r;
+
+    const Data::Mission::NetResource::Node *node_r;
 
     Graphics::ModelInstance *alive_p;
 

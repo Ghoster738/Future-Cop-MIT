@@ -65,7 +65,7 @@ public:
      */
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
 
-    unsigned getNodeIndexFromPosition(glm::i16vec2 raw_actor_position) const;
+    unsigned getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const;
 
     const Node* getNodePointer(unsigned index) const;
 

@@ -157,7 +157,7 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
-unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i16vec2 raw_actor_position) const {
+unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const {
     glm::i16vec2 node_position;
 
     node_position.x = raw_actor_position.x >> 8;

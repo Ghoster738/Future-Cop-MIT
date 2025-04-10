@@ -143,6 +143,7 @@ public:
 
     virtual Json::Value makeJson() const;
 
+    glm::i32vec2 getRawPosition() const { return {this->position_y, this->position_x}; }
     glm::vec2 getPosition() const;
     glm::vec3 getPosition( const PTCResource &ptc, float offset, GroundCast ground_cast) const;
 };

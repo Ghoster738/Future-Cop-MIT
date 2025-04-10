@@ -1,5 +1,7 @@
 #include "PathedActor.h"
 
+#include <iostream>
+
 namespace Game::ACT {
 
 PathedActor::PathedActor( const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ) {
@@ -13,14 +15,31 @@ PathedActor::PathedActor( const Data::Accessor& accessor, const Data::Mission::A
     this->dead_id = obj.getDestroyedID();
     this->dead_base = obj.getHasDestroyedID();
 
+    auto net_id = obj.getNetID();
+    bool net    = obj.getHasNetID();
+
     this->alive_cobj_r = nullptr;
     this->dead_cobj_r  = nullptr;
+    this->net_r        = nullptr;
 
     if( this->alive_base )
         this->alive_cobj_r = accessor.getConstOBJ( this->alive_id );
 
     if( this->dead_base )
         this->dead_cobj_r = accessor.getConstOBJ( this->dead_id );
+
+    if( net )
+        this->net_r  = accessor.getConstNET( net_id );
+
+    if( this->net_r ) {
+        auto index = this->net_r->getNodeIndexFromPosition(obj.getRawPosition());
+
+        this->node_r = this->net_r->getNodePointer(index);
+
+        std::cout << "Node At Index = " << index << " Node Address " << this->node_r << std::endl;
+    }
+    else
+        std::cout << "Node nullptr" << std::endl;
 
     this->alive_p = nullptr;
 }
