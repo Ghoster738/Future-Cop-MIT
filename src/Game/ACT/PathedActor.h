@@ -24,6 +24,8 @@ protected:
 
     Graphics::ModelInstance *alive_p;
 
+    std::chrono::microseconds temp;
+
 public:
     PathedActor( const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );
     PathedActor( const PathedActor& obj );

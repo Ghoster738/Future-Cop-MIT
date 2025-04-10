@@ -36,10 +36,8 @@ PathedActor::PathedActor( const Data::Accessor& accessor, const Data::Mission::A
 
         this->node_r = this->net_r->getNodePointer(index);
 
-        std::cout << "Node At Index = " << index << " Node Address " << this->node_r << std::endl;
+        this->temp = std::chrono::microseconds(100000);
     }
-    else
-        std::cout << "Node nullptr" << std::endl;
 
     this->alive_p = nullptr;
 }
@@ -49,7 +47,8 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     alive_id( obj.alive_id ), alive_base( obj.alive_base ),
     dead_id( obj.dead_id ), dead_base( obj.dead_base ),
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
-    alive_p( nullptr ) {}
+    net_r( obj.net_r ), node_r( obj.node_r ),
+    alive_p( nullptr ), temp( obj.temp ) {}
 
 PathedActor::~PathedActor() {
     if( this->alive_p != nullptr )
@@ -85,6 +84,21 @@ void PathedActor::resetGraphics( MainProgram &main_program ) {
 void PathedActor::update( MainProgram &main_program, std::chrono::microseconds delta ) {
     if(this->alive_p) {
         this->alive_p->setPositionTransformTimeline( this->alive_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
+    }
+
+    this->temp -= delta;
+
+    if(this->node_r && this->temp < std::chrono::microseconds(0)) {
+        this->temp = std::chrono::microseconds(100000);
+
+        unsigned int index_array[4];
+
+        if( this->node_r->getIndexes( index_array ) != 0 ) {
+            this->node_r = this->net_r->getNodePointer( index_array[0] );
+            if(this->alive_p) {
+                this->alive_p->setPosition( (1.f / 32.f) * glm::vec3(this->node_r->getPosition().x, 8, this->node_r->getPosition().y ) );
+            }
+        }
     }
 }
 
