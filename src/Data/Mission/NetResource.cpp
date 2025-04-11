@@ -44,7 +44,7 @@ float Data::Mission::NetResource::Node::getHeightOffset() const {
         height_offset |= 0xF000; // This effectively converts this number to negative.
     }
 
-    return (1.f / 64.f) * height_offset;
+    return (1.f / 32.f) * height_offset;
 }
 
 bool Data::Mission::NetResource::Node::hasReadOffset() const {
@@ -182,9 +182,9 @@ void Data::Mission::NetResource::calculateNodeHeight( const PTCResource& world )
         read_offset = (*i).hasReadOffset();
         ground_cast = (*i).getGroundCast();
 
-        if( read_offset )
+        if( read_offset && ground_cast == ACTResource::GroundCast::LOW)
             height += (*i).getHeightOffset();
-
+        else
         if( ground_cast != ACTResource::GroundCast::NONE )
             height += world.getRayCast2D( v.x, v.z, ACTResource::getGroundCastLevels(ground_cast) );
 
