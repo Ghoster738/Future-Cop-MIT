@@ -95,7 +95,7 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
     net_r( obj.net_r ), node_r( obj.node_r ),
     alive_p( nullptr ),
-    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), next_node_pos( obj.next_node_pos ), next_node_rot( obj.next_node_rot ),
+    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), height_offset( obj.height_offset ), next_node_pos( obj.next_node_pos ), next_node_rot( obj.next_node_rot ),
     random_generator( obj.random_generator ) {}
 
 PathedActor::~PathedActor() {
@@ -139,9 +139,7 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
 
     if(this->node_r) {
         if(this->time_to_next_node.count() <= 0) {
-            this->position.x = this->next_node_pos.x;
-            this->position.y = this->next_node_pos.y + this->height_offset;
-            this->position.z = this->next_node_pos.z;
+            this->position = this->next_node_pos;
 
             setNextDestination();
         }
