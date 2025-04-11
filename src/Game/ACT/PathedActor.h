@@ -26,6 +26,7 @@ protected:
 
     std::chrono::microseconds    time_to_next_node;
     std::chrono::microseconds total_time_next_node;
+    float height_offset;
     glm::vec3 next_node_pos;
     glm::quat next_node_rot;
     Utilities::Random::Generator random_generator;

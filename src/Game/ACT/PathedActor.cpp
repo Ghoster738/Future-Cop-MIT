@@ -15,7 +15,9 @@ void PathedActor::setNextDestination() {
 
         this->node_r = this->net_r->getNodePointer( index_array[index] );
 
-        this->next_node_pos = this->node_r->getPosition();
+        this->next_node_pos.x = this->node_r->getPosition().x;
+        this->next_node_pos.y = this->node_r->getPosition().y + this->height_offset;
+        this->next_node_pos.z = this->node_r->getPosition().z;
 
         glm::vec2 destination = glm::vec2(this->next_node_pos.x, this->next_node_pos.z) - glm::vec2(this->position.x, this->position.z);
 
@@ -41,7 +43,9 @@ void PathedActor::setNextDestination() {
 PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ), random_generator( random.getGenerator() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::NONE );
+    this->height_offset = obj.getHeightOffset();
+
+    this->position = obj.getPosition( ptc, this->height_offset, Data::Mission::ACTResource::GroundCast::NONE );
 
     this->alive_id = obj.getAliveID();
     this->alive_base = obj.getHasAliveID();
@@ -73,7 +77,7 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
         this->node_r = this->net_r->getNodePointer(index);
 
         if(this->node_r)
-            this->position.y = this->node_r->getYAxis();
+            this->position.y += this->node_r->getYAxis();
 
         this->next_node_pos = this->position;
         this->next_node_rot = glm::quat(1.f, 0.f, 0.f, 0.f);
@@ -136,6 +140,7 @@ void PathedActor::update( MainProgram &main_program, std::chrono::microseconds d
     if(this->node_r) {
         if(this->time_to_next_node.count() <= 0) {
             this->position.x = this->next_node_pos.x;
+            this->position.y = this->next_node_pos.y + this->height_offset;
             this->position.z = this->next_node_pos.z;
 
             setNextDestination();
