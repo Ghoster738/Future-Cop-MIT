@@ -92,9 +92,6 @@ unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[
         filled_indices++;
     }
     
-    // These two bits are always zero.
-    //assert( (this->bitfield_0 & 0x3) == 0 );
-    
     return filled_indices;
 }
 
