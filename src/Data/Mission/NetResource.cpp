@@ -44,7 +44,7 @@ float Data::Mission::NetResource::Node::getHeightOffset() const {
         height_offset |= 0xF000; // This effectively converts this number to negative.
     }
 
-    return (1.f / 32.f) * height_offset;
+    return INTEGER_FACTOR * height_offset;
 }
 
 bool Data::Mission::NetResource::Node::hasReadOffset() const {
