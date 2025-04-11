@@ -172,16 +172,21 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
 void Data::Mission::NetResource::calculateNodeHeight( const PTCResource& world ) {
     glm::vec3 v;
     float height;
+    bool read_offset;
+    ACTResource::GroundCast ground_cast;
 
     for(auto i = this->nodes.begin(); i != this->nodes.end(); i++) {
         height = 0.0f;
         v = (*i).getPosition();
 
-        if( (*i).hasReadOffset() )
+        read_offset = (*i).hasReadOffset();
+        ground_cast = (*i).getGroundCast();
+
+        if( read_offset )
             height += (*i).getHeightOffset();
 
-        if( (*i).getGroundCast() != ACTResource::GroundCast::NONE )
-            height += world.getRayCast2D( v.x, v.z, ACTResource::getGroundCastLevels((*i).getGroundCast()) );
+        if( ground_cast != ACTResource::GroundCast::NONE )
+            height += world.getRayCast2D( v.x, v.z, ACTResource::getGroundCastLevels(ground_cast) );
 
         (*i).setYAxis( height );
     }
