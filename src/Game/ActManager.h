@@ -9,6 +9,7 @@
 
 #include "ACT/Aircraft.h"
 #include "ACT/Elevator.h"
+#include "ACT/DCSQuad.h"
 #include "ACT/DynamicProp.h"
 #include "ACT/ItemPickup.h"
 #include "ACT/MoveableProp.h"
@@ -41,6 +42,7 @@ private:
 
     SpawnableActor<ACT::Aircraft>      aircraft;
     SpawnableActor<ACT::Elevator>      elevator;
+    SpawnableActor<ACT::DCSQuad>       dcs_quad;
     SpawnableActor<ACT::DynamicProp>   dynamic_props;
     SpawnableActor<ACT::ItemPickup>    item_pickups;
     SpawnableActor<ACT::MoveableProp>  moveable_props;

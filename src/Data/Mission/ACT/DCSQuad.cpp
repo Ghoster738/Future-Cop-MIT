@@ -101,3 +101,7 @@ Data::Mission::ACTResource* Data::Mission::ACT::DCSQuad::duplicate( const ACTRes
 Data::Mission::ACT::DCSQuad::Internal Data::Mission::ACT::DCSQuad::getInternal() const {
     return internal;
 }
+
+glm::quat Data::Mission::ACT::DCSQuad::getRotationQuaternion() const {
+    return glm::quat( glm::vec3(0, 0, 0) );
+}

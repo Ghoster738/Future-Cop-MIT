@@ -66,6 +66,7 @@ ActManager::ActManager( const Data::Accessor& accessor, Utilities::Random rand )
 
     aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      rand, accessor, accessor.getActorAccessor().getAllConstAircraft() );
     elevator        = initializeActors<Data::Mission::ACT::Elevator,      ACT::Elevator>(      rand, accessor, accessor.getActorAccessor().getAllConstElevator() );
+    dcs_quad        = initializeActors<Data::Mission::ACT::DCSQuad,       ACT::DCSQuad>(       rand, accessor, accessor.getActorAccessor().getAllConstDCSQuad() );
     dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   rand, accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
     item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    rand, accessor, accessor.getActorAccessor().getAllConstItemPickup() );
     moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,  ACT::MoveableProp>(  rand, accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
@@ -84,6 +85,7 @@ ActManager::~ActManager() {
 void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::Aircraft>(      main_program,        aircraft );
     updateGraphics<ACT::Elevator>(      main_program,        elevator );
+    updateGraphics<ACT::DCSQuad>(       main_program,        dcs_quad );
     updateGraphics<ACT::DynamicProp>(   main_program,   dynamic_props );
     updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
     updateGraphics<ACT::MoveableProp>(  main_program,  moveable_props );
@@ -130,6 +132,7 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
 
     updateActors<ACT::Aircraft>(      main_program,        aircraft, delta );
     updateActors<ACT::Elevator>(      main_program,        elevator, delta );
+    updateActors<ACT::DCSQuad>(       main_program,        dcs_quad, delta );
     updateActors<ACT::DynamicProp>(   main_program,   dynamic_props, delta );
     updateActors<ACT::ItemPickup>(    main_program,    item_pickups, delta );
     updateActors<ACT::MoveableProp>(  main_program,  moveable_props, delta );

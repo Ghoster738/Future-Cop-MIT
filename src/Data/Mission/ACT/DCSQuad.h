@@ -52,6 +52,17 @@ public:
 
     Internal getInternal() const;
 
+    float getHeightOffset() const { return (1.f / 512.f) * internal.height_offset; }
+
+    glm::vec3 getScale() const {
+        return (1.f / 64.f) * glm::vec3(internal.width, 64, internal.height);
+    }
+
+    glm::vec4 getColor() const {
+        return (1.f / 128.f) * glm::vec4(internal.red, internal.green, internal.blue, 128);
+    }
+
+    glm::quat getRotationQuaternion() const;
 };
 }
 
