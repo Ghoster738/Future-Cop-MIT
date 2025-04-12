@@ -24,7 +24,7 @@ void PathedActor::setNextDestination() {
         double distance = glm::distance(this->position, this->next_node_pos);
 
         if(distance >= 0.) {
-            auto num = static_cast<std::chrono::microseconds::rep>(distance * 1000000);
+            auto num = static_cast<std::chrono::microseconds::rep>(distance / this->movement_speed * 1000000);
 
             this->total_time_next_node = std::chrono::microseconds(num);
         }

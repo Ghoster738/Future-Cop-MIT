@@ -10,9 +10,12 @@
 namespace Game::ACT {
 
 class BasePathedEntity : public BaseShooter {
+protected:
+    float movement_speed;
+
 public:
-    BasePathedEntity( const Data::Mission::ACT::BasePathedEntity& obj ) : BaseShooter( obj ) {}
-    BasePathedEntity( const BasePathedEntity& obj ) : BaseShooter( obj )  {}
+    BasePathedEntity( const Data::Mission::ACT::BasePathedEntity& obj ) : BaseShooter( obj ), movement_speed( obj.getMovementSpeed() ) {}
+    BasePathedEntity( const BasePathedEntity& obj ) : BaseShooter( obj ), movement_speed( obj.movement_speed ) {}
     virtual ~BasePathedEntity() {}
 };
 

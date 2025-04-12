@@ -37,6 +37,16 @@ public:
 
     float getHeightOffset() const { return (1.f / 512.f) * pathed_entity_internal.height_offset; }
 
+    /**
+     * This looks wierd but it works.
+     */
+    float getMovementSpeed() const {
+        if(pathed_entity_internal.move_speed == 0)
+            return 1.f / 512.f);
+
+        return (1.f / 512.f) * pathed_entity_internal.move_speed;
+    }
+
 };
 
 }
