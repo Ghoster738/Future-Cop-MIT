@@ -15,8 +15,8 @@ private:
     glm::quat rotation;
     glm::vec3 scale;
 
-    uint32_t model_id;
-    Graphics::ModelInstance *model_p;
+    uint32_t dcs_id;
+    Graphics::ModelInstance *dcs_p;
 
 public:
     DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::DCSQuad& obj );

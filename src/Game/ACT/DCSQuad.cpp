@@ -13,17 +13,17 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
-    this->model_id = 13;
-    this->model_p = nullptr;
+    this->dcs_id = 13;
+    this->dcs_p = nullptr;
 }
 
 DCSQuad::DCSQuad( const DCSQuad& obj ) :
     Actor( obj ),
-    color( obj.color ), rotation( obj.rotation ), scale( obj.scale ), model_id( obj.model_id ), model_p( nullptr ) {}
+    color( obj.color ), rotation( obj.rotation ), scale( obj.scale ), dcs_id( obj.dcs_id ), dcs_p( nullptr ) {}
 
 DCSQuad::~DCSQuad() {
-    if( this->model_p != nullptr )
-        delete this->model_p;
+    if( this->dcs_p != nullptr )
+        delete this->dcs_p;
 }
 
 Actor* DCSQuad::duplicate( const Actor &original ) const {
@@ -31,24 +31,24 @@ Actor* DCSQuad::duplicate( const Actor &original ) const {
 }
 
 void DCSQuad::resetGraphics( MainProgram &main_program ) {
-    if( this->model_p != nullptr )
-        delete this->model_p;
-    this->model_p = nullptr;
+    if( this->dcs_p != nullptr )
+        delete this->dcs_p;
+    this->dcs_p = nullptr;
 
     try {
-        this->model_p = main_program.environment_p->allocateModel( this->model_id );
+        this->dcs_p = main_program.environment_p->allocateModel( this->dcs_id );
 
-        if(this->model_p) {
-            this->model_p->setPosition( this->position );
-            this->model_p->setRotation( this->rotation );
-            this->model_p->setColor( this->color );
-            this->model_p->setScale( this->scale );
-            this->model_p->setVisable( true );
+        if(this->dcs_p) {
+            this->dcs_p->setPosition( this->position );
+            this->dcs_p->setRotation( this->rotation );
+            this->dcs_p->setColor( this->color );
+            this->dcs_p->setScale( this->scale );
+            this->dcs_p->setVisable( true );
         }
     }
     catch( const std::invalid_argument& argument ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
-        log.output << "Cobj with resource id " << model_id << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
+        log.output << "Cobj with resource id " << dcs_id << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
     }
 }
 
