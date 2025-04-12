@@ -2,6 +2,7 @@
 #define FC_GAME_ACT_DCS_QUAD_HEADER
 
 #include "../../Graphics/ModelInstance.h"
+#include "../../Graphics/QuadInstance.h"
 
 #include "../../Data/Mission/ACT/DCSQuad.h"
 
