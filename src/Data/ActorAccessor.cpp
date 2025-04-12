@@ -2,6 +2,7 @@
 
 #include "Mission/ACT/Aircraft.h"
 #include "Mission/ACT/Elevator.h"
+#include "Mission/ACT/DCSQuad.h"
 #include "Mission/ACT/DynamicProp.h"
 #include "Mission/ACT/ItemPickup.h"
 #include "Mission/ACT/MoveableProp.h"
@@ -147,6 +148,7 @@ std::vector<const Mission::ACTResource*> ActorAccessor::getAllConstTypeID( uint_
 
 SEARCH(Aircraft, getAircraft, getAllAircraft, getConstAircraft, getAllConstAircraft)
 SEARCH(Elevator, getElevator, getAllElevator, getConstElevator, getAllConstElevator)
+SEARCH(DCSQuad, getDCSQuad, getAllDCSQuad, getConstDCSQuad, getAllConstDCSQuad)
 SEARCH(DynamicProp, getDynamicProp, getAllDynamicProp, getConstDynamicProp, getAllConstDynamicProp)
 SEARCH(Turret, getTurret, getAllTurret, getConstTurret, getAllConstTurret)
 SEARCH(ItemPickup, getItemPickup, getAllItemPickup, getConstItemPickup, getAllConstItemPickup)
