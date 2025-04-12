@@ -41,6 +41,7 @@ void DCSQuad::resetGraphics( MainProgram &main_program ) {
         if(this->model_p) {
             this->model_p->setPosition( this->position );
             this->model_p->setRotation( this->rotation );
+            this->model_p->setColor( this->color );
             this->model_p->setScale( this->scale );
             this->model_p->setVisable( true );
         }
