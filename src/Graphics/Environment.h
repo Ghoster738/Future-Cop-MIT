@@ -8,6 +8,7 @@
 #include "Text2DBuffer.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
+#include "QuadInstance.h"
 #include "Window.h"
 #include "../Data/Accessor.h"
 
@@ -133,6 +134,8 @@ public:
      * @return nullptr or a valid pointer to the ParticleInstance.
      */
     virtual ParticleInstance* allocateParticleInstance() = 0;
+
+    virtual QuadInstance* allocateQuadInstance() = 0;
 
     virtual Graphics::Text2DBuffer* allocateText2DBuffer() = 0;
 

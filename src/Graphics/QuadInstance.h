@@ -3,6 +3,7 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <cstdint>
 
@@ -15,19 +16,19 @@ public:
     glm::vec3 color;
     glm::vec2 span;
 
-    virtual ~QuadInstance() = 0;
+    virtual ~QuadInstance() {};
 
     /**
      * This sets the dcs quad id of the graphic that this quad uses.
      * @param dcs_id the new id for the quad.
      */
-    virtual void setQuadID( uint16_t dcs_id ) = 0;
+    virtual void setQuadID( uint8_t dcs_id ) = 0;
 
     /**
      * This gets the dcs id of the graphic that this quad uses.
      * @return the id for the quad.
      */
-    virtual uint16_t getQuadID() const = 0;
+    virtual uint8_t getQuadID() const = 0;
 
     /**
      * This updates the quad to the renderer.
