@@ -42,7 +42,7 @@ public:
      */
     float getMovementSpeed() const {
         if(pathed_entity_internal.move_speed == 0)
-            return 1.f / 512.f);
+            return (1.f / 512.f);
 
         return (1.f / 512.f) * pathed_entity_internal.move_speed;
     }
