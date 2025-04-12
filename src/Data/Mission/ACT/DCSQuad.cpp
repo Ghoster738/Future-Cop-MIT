@@ -66,7 +66,24 @@ size_t Data::Mission::ACT::DCSQuad::getSize() const {
     return 20; // bytes
 }
 
-bool Data::Mission::ACT::DCSQuad::checkRSL() const { return false; }
+bool Data::Mission::ACT::DCSQuad::checkRSL() const {
+    if( rsl_data.size() != 4 )
+        return false;
+
+    if(rsl_data[0].type != RSL_NULL_TAG)
+        return false;
+
+    if(rsl_data[1].type != RSL_NULL_TAG)
+        return false;
+
+    if(rsl_data[2].type != RSL_NULL_TAG)
+        return false;
+
+    if(rsl_data[3].type != RSL_NULL_TAG)
+        return false;
+
+    return true;
+}
 
 Data::Mission::Resource* Data::Mission::ACT::DCSQuad::duplicate() const {
     return new Data::Mission::ACT::DCSQuad( *this );
