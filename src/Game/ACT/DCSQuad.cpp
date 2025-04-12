@@ -5,7 +5,8 @@ namespace Game::ACT {
 DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::DCSQuad& obj ) : Actor( obj.getID() ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
-    this->position = obj.getPosition( ptc, obj.getHeightOffset(), Data::Mission::ACTResource::GroundCast::HIGH );
+    // TODO GroundCast is a wild guess it is to be confirmed!
+    this->position = obj.getPosition( ptc, obj.getHeightOffset(), static_cast<Data::Mission::ACTResource::GroundCast>(obj.internal.uint8_2) );
 
     this->color = obj.getColor();
     this->scale = obj.getScale();
