@@ -13,7 +13,7 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
-    this->dcs_id = 1;
+    this->dcs_id = obj.internal.dcs_id;
     this->dcs_p = nullptr;
 }
 
@@ -36,7 +36,7 @@ void DCSQuad::resetGraphics( MainProgram &main_program ) {
     this->dcs_p = nullptr;
 
     try {
-        this->dcs_p = main_program.environment_p->allocateQuadInstance(); //  this->dcs_id
+        this->dcs_p = main_program.environment_p->allocateQuadInstance();
 
         if(this->dcs_p) {
             this->dcs_p->position = this->position;
