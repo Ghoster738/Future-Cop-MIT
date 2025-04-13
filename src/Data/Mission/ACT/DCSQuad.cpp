@@ -103,5 +103,11 @@ Data::Mission::ACT::DCSQuad::Internal Data::Mission::ACT::DCSQuad::getInternal()
 }
 
 glm::quat Data::Mission::ACT::DCSQuad::getRotationQuaternion() const {
-    return glm::quat( glm::vec3(0, 0, 0) );
+    glm::quat axis = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
+
+    axis = glm::rotate(axis, getRotation(internal.y_rotation), glm::vec3( 0, 1, 0));
+    axis = glm::rotate(axis, getRotation(internal.z_rotation), glm::vec3( 0, 0, 1));
+    axis = glm::rotate(axis, getRotation(internal.x_rotation), glm::vec3(-1, 0, 0));
+
+    return axis;
 }
