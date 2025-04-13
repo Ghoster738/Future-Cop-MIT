@@ -13,7 +13,7 @@ class DCSQuad : public Actor {
 private:
     glm::vec4 color;
     glm::quat rotation;
-    glm::vec3 scale;
+    glm::vec2 scale;
 
     uint32_t dcs_id;
     Graphics::QuadInstance *dcs_p;

@@ -42,7 +42,7 @@ void DCSQuad::resetGraphics( MainProgram &main_program ) {
             this->dcs_p->position = this->position;
             this->dcs_p->rotation = this->rotation;
             this->dcs_p->color    = this->color;
-            this->dcs_p->span     = glm::vec2(this->scale.x, this->scale.z);
+            this->dcs_p->span     = this->scale;
             this->dcs_p->setQuadID( this->dcs_id );
 
             this->dcs_p->update();

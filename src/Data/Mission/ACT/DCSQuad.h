@@ -54,8 +54,8 @@ public:
 
     float getHeightOffset() const { return (1.f / 512.f) * internal.height_offset; }
 
-    glm::vec3 getScale() const {
-        return (1.f / 1024.f) * glm::vec3(internal.width, 1024, internal.height);
+    glm::vec2 getScale() const {
+        return (1.f / 1024.f) * glm::vec2(internal.width, internal.height);
     }
 
     glm::vec4 getColor() const {
