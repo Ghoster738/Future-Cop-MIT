@@ -64,7 +64,6 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     const auto camera_right = glm::vec3(view[0][0], view[1][0], view[2][0]);
     const auto camera_up    = glm::vec3(view[0][1], view[1][1], view[2][1]);
 
-
     for(const auto &particle : particle_instances) {
         const ParticleInstanceData &instance_data = particle.second;
 
@@ -136,6 +135,17 @@ void ParticleDraw::removeInstanceData(const ParticleInstance *const particle_ins
 
     if(search != particle_instances.end())
         particle_instances.erase(search);
+}
+
+void ParticleDraw::updateQuadData(const QuadInstance *const quad_instance_r, const QuadInstanceData& quad_instance_data) {
+    quad_instances[quad_instance_r] = quad_instance_data;
+}
+
+void ParticleDraw::removeQuadData(const QuadInstance *const quad_instance_r) {
+    auto search = quad_instances.find( quad_instance_r );
+
+    if(search != quad_instances.end())
+        quad_instances.erase(search);
 }
 
 }

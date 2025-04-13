@@ -12,7 +12,7 @@ Graphics::QuadInstance* Environment::allocateQuadInstance() {
 }
 
 QuadInstance::~QuadInstance() {
-    //this->environment_r->particle_draw_routine.removeQuadData(this);
+    this->environment_r->particle_draw_routine.removeQuadData(this);
 }
 
 void QuadInstance::setQuadID( uint8_t dcs_id ) {
@@ -33,6 +33,18 @@ uint8_t QuadInstance::getQuadID() const {
 }
 
 void QuadInstance::update() {
+    Internal::ParticleDraw::QuadInstanceData instance_data;
+
+    float span = glm::max(this->span.x, this->span.y);
+
+    instance_data.rotation    = this->rotation;
+    instance_data.position    = this->position;
+    instance_data.color       = this->color;
+    instance_data.min         = { this->position.x - span, this->position.z - span };
+    instance_data.max         = { this->position.x + span, this->position.z + span };
+    instance_data.span        = this->span;
+
+    this->environment_r->particle_draw_routine.updateQuadData(this, instance_data);
 }
 
 }

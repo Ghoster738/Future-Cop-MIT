@@ -13,6 +13,7 @@ namespace SDL2 {
 namespace GLES2 {
 
 class ParticleInstance;
+class QuadInstance;
 
 namespace Internal {
 
@@ -29,12 +30,22 @@ public:
         bool is_addition;
     };
 
+    struct QuadInstanceData {
+        glm::quat rotation;
+        glm::vec3 position;
+        glm::vec3 color;
+        glm::vec2 span;
+
+        glm::vec2 min, max; // used for culling!
+    };
+
 private:
     uint32_t particle_atlas_id;
     glm::vec2 scale;
     std::vector<Data::Mission::PYRResource::AtlasParticle> altas_particles;
 
     std::map<const ParticleInstance *const, ParticleInstanceData> particle_instances;
+    std::map<const     QuadInstance *const,     QuadInstanceData>     quad_instances;
 
 public:
     ParticleDraw();
@@ -64,6 +75,10 @@ public:
     void updateInstanceData(const ParticleInstance *const particle_instance_r, const ParticleInstanceData& particle_instance_data);
 
     void removeInstanceData(const ParticleInstance *const particle_instance_r);
+
+    void updateQuadData(const QuadInstance *const quad_instance_r, const QuadInstanceData& quad_instance_data);
+
+    void removeQuadData(const QuadInstance *const quad_instance_r);
 };
 
 }
