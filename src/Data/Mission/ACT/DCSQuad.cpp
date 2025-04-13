@@ -8,19 +8,19 @@ Json::Value Data::Mission::ACT::DCSQuad::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["bitfield"]      = internal.bitfield;
-    root["ACT"][NAME]["dcs_id"]        = internal.dcs_id;
-    root["ACT"][NAME]["height_offset"] = internal.height_offset;
-    root["ACT"][NAME]["width"]         = internal.width;
-    root["ACT"][NAME]["height"]        = internal.height;
-    root["ACT"][NAME]["rotation_y"]    = internal.rotation_y;
-    root["ACT"][NAME]["rotation_z"]    = internal.rotation_z;
-    root["ACT"][NAME]["rotation_x"]    = internal.rotation_x;
-    root["ACT"][NAME]["uint8_2"]       = internal.uint8_2;
-    root["ACT"][NAME]["red"]           = internal.red;
-    root["ACT"][NAME]["green"]         = internal.green;
-    root["ACT"][NAME]["blue"]          = internal.blue;
-    root["ACT"][NAME]["zero"]          = internal.zero;
+    root["ACT"][NAME]["bitfield"]         = internal.bitfield;
+    root["ACT"][NAME]["dcs_id"]           = internal.dcs_id;
+    root["ACT"][NAME]["height_offset"]    = internal.height_offset;
+    root["ACT"][NAME]["width"]            = internal.width;
+    root["ACT"][NAME]["height"]           = internal.height;
+    root["ACT"][NAME]["rotation_y"]       = internal.rotation_y;
+    root["ACT"][NAME]["rotation_z"]       = internal.rotation_z;
+    root["ACT"][NAME]["rotation_x"]       = internal.rotation_x;
+    root["ACT"][NAME]["ground_cast_type"] = internal.ground_cast_type;
+    root["ACT"][NAME]["red"]              = internal.red;
+    root["ACT"][NAME]["green"]            = internal.green;
+    root["ACT"][NAME]["blue"]             = internal.blue;
+    root["ACT"][NAME]["zero"]             = internal.zero;
 
     return root;
 }
@@ -39,7 +39,7 @@ bool Data::Mission::ACT::DCSQuad::readACTType( uint_fast8_t act_type, Utilities:
     internal.rotation_y = data_reader.readU16( endian ); // Values: 0, 30, 110, 512, 545, 800, 1024, 1200, 1235, 1280, 1333, 1536, 1793, 2000, 2048, 2200, 2222, 2560, 2750, 2900, 3072, 3333,
     internal.rotation_z = data_reader.readU16( endian ); // Values: 0, 200, 512, 1024, 2900, 3072, 3100, 3400, 3500, 3600, 3900,
     internal.rotation_x = data_reader.readU16( endian ); // Values: 0, 1024, 3072,
-    internal.uint8_2 = data_reader.readU8(); // Values: 0, 1, 3, 
+    internal.ground_cast_type = data_reader.readU8(); // Values: 0, 1, 3,
     internal.red = data_reader.readU8(); // Values: 0, 16, 20, 30, 32, 33, 34, 35, 40, 44, 50, 54, 64, 80, 84, 100, 128,
     internal.green = data_reader.readU8(); // Values: 16, 20, 28, 30, 32, 34, 40, 50, 62, 64, 75, 80, 82, 92, 96, 100, 120, 128,
     internal.blue = data_reader.readU8(); // Values: 0, 8, 16, 20, 21, 22, 24, 25, 30, 32, 34, 40, 50, 64, 80, 100, 128,

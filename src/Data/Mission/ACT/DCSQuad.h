@@ -23,7 +23,7 @@ public:
         uint16_t rotation_y;
         uint16_t rotation_z;
         uint16_t rotation_x;
-        uint8_t uint8_2; // Ground Cast?
+        uint8_t ground_cast_type;
         uint8_t red;
         uint8_t green;
         uint8_t blue;
