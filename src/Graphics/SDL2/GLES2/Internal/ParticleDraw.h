@@ -36,10 +36,12 @@ public:
         glm::vec3 position;
         glm::vec3 color;
         glm::vec2 span;
+        glm::vec2 min, max; // used for culling!
 
         const Data::Mission::DCSResource::Image *image_r;
 
-        glm::vec2 min, max; // used for culling!
+        bool is_opaque;
+        bool is_addition;
     };
 
 private:

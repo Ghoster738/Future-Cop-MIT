@@ -43,6 +43,8 @@ void QuadInstance::update() {
     instance_data.min         = { this->position.x - span, this->position.z - span };
     instance_data.max         = { this->position.x + span, this->position.z + span };
     instance_data.span        = this->span;
+    instance_data.is_opaque   = this->is_opaque;
+    instance_data.is_addition = this->is_addition;
 
     this->environment_r->particle_draw_routine.updateQuadData(this, instance_data);
 }

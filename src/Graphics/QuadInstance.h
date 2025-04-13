@@ -15,6 +15,8 @@ public:
     glm::vec3 position;
     glm::vec3 color;
     glm::vec2 span;
+    bool is_opaque;
+    bool is_addition;
 
     virtual ~QuadInstance() {};
 
