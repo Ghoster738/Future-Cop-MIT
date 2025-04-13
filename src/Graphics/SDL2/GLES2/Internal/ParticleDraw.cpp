@@ -157,10 +157,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             l.x = (1.f / 256.f) * instance_data.image_r->x;
             l.y = (1.f / 256.f) * instance_data.image_r->y;
 
-            u.x = (1.f / 256.f) * instance_data.image_r->width;
-            u.y = (1.f / 256.f) * instance_data.image_r->height;
-
-            u += l;
+            u = l + (1.f / 256.f) * glm::vec2(instance_data.image_r->width, instance_data.image_r->height);
         }
 
         glm::vec2 coords[4] = { {u.x, l.y}, {u.x, u.y}, {l.x, u.y}, {l.x, l.y} };
@@ -180,7 +177,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        draw_triangles_r[ index ].setup( cbmp_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+        draw_triangles_r[ index ].setup( cbmp_id, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
 
         draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
