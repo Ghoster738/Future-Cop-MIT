@@ -18,35 +18,41 @@ const Data::Mission::PYRResource::AtlasParticle * ParticleDraw::containsParticle
     return nullptr;
 }
 
-int ParticleDraw::inputParticles(const Data::Mission::PYRResource& particle_data, std::map<uint32_t, Internal::Texture2D*>& textures) {
-    Utilities::Image2D *image_p = particle_data.generatePalettlessAtlas(this->altas_particles);
+int ParticleDraw::load(const Data::Accessor& accessor, std::map<uint32_t, Internal::Texture2D*>& textures) {
+    std::vector<const Data::Mission::PYRResource*> particle_types = accessor.getAllConstPYR();
 
-    if(image_p == nullptr)
-        return 0;
+    if(!particle_types.empty()) {
+        const Data::Mission::PYRResource& particle_data = *particle_types[0];
 
-    this->particle_atlas_id = 0;
+        Utilities::Image2D *image_p = particle_data.generatePalettlessAtlas(this->altas_particles);
 
-    for(uint32_t i = 1; i < 0x1000; i++) {
-        if(textures.find(i) == textures.end()) {
-            this->particle_atlas_id = i;
-            break;
+        if(image_p == nullptr)
+            return 0;
+
+        this->particle_atlas_id = 0;
+
+        for(uint32_t i = 1; i < 0x1000; i++) {
+            if(textures.find(i) == textures.end()) {
+                this->particle_atlas_id = i;
+                break;
+            }
         }
+
+        if(this->particle_atlas_id == 0) {
+            this->altas_particles.clear();
+            return -1;
+        }
+
+        this->scale = glm::vec2(1. / image_p->getWidth(), 1. / image_p->getHeight());
+
+        textures[ this->particle_atlas_id ] = new SDL2::GLES2::Internal::Texture2D;
+        textures[ this->particle_atlas_id ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
+        textures[ this->particle_atlas_id ]->setImage( 0, 0, GL_RGBA, image_p->getWidth(), image_p->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_p->getDirectGridData() );
+
+        delete image_p;
+
+        particle_instances.clear();
     }
-
-    if(this->particle_atlas_id == 0) {
-        this->altas_particles.clear();
-        return -1;
-    }
-
-    this->scale = glm::vec2(1. / image_p->getWidth(), 1. / image_p->getHeight());
-
-    textures[ this->particle_atlas_id ] = new SDL2::GLES2::Internal::Texture2D;
-    textures[ this->particle_atlas_id ]->setFilters( 0, GL_NEAREST, GL_LINEAR );
-    textures[ this->particle_atlas_id ]->setImage( 0, 0, GL_RGBA, image_p->getWidth(), image_p->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image_p->getDirectGridData() );
-
-    delete image_p;
-
-    particle_instances.clear();
 
     return 1;
 }

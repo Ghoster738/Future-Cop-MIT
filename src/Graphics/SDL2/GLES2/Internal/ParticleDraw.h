@@ -72,11 +72,11 @@ public:
 
     /**
      * This loads up the particle data.
-     * @param particle_data The "particle" data from either the global resource from the PC versions or the mission file from the PS1 version.
+     * @param accessor_data The "particle" data from either the global resource from the PC versions or the mission file from the PS1 version.
      * @param textures This is the texture storage, the same one used for dynamic triangle renderer. @warning If this method successful this parameter will gain another texture used by this resource.
      * @return 1 for success less than zero for error.
      */
-    int inputParticles(const Data::Mission::PYRResource& particle_data, std::map<uint32_t, Internal::Texture2D*>& textures);
+    int load(const Data::Accessor& accessor_data, std::map<uint32_t, Internal::Texture2D*>& textures);
 
     /**
      * Draw all the particles that are being rendered.
