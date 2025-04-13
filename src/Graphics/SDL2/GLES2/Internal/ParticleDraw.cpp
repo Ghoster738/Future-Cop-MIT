@@ -139,10 +139,10 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         glm::vec2 coords[4] = { {0.f, 0.f}, {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f} };
 
         const glm::vec2 QUAD[4] = {
-            {-instance_data.span.x,  instance_data.span.y},
             { instance_data.span.x,  instance_data.span.y},
-            { instance_data.span.x, -instance_data.span.y},
-            {-instance_data.span.x, -instance_data.span.y} };
+            {-instance_data.span.x,  instance_data.span.y},
+            {-instance_data.span.x, -instance_data.span.y},
+            { instance_data.span.x, -instance_data.span.y} };
 
         size_t index = 0;
 
@@ -153,7 +153,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+        draw_triangles_r[ index ].setup( 0, camera_position, DynamicTriangleDraw::PolygonType::MIX );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
 
         draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
