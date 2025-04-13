@@ -15,14 +15,14 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint8_t tags;
+        uint8_t bitfield;
         uint8_t dcs_id;
         uint16_t height_offset;
         uint16_t width;
         uint16_t height;
-        uint16_t y_rotation;
-        uint16_t z_rotation;
-        uint16_t x_rotation;
+        uint16_t rotation_y;
+        uint16_t rotation_z;
+        uint16_t rotation_x;
         uint8_t uint8_2; // Ground Cast?
         uint8_t red;
         uint8_t green;
