@@ -147,7 +147,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         if(number_of_triangles != 2)
             break;
 
-        glm::vec2 coords[4] = { {0.f, 0.f}, {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f} };
+        glm::vec2 coords[4] = { {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f}, {0.f, 0.f} };
 
         const glm::vec2 QUAD[4] = {
             { instance_data.span.x,  instance_data.span.y},
