@@ -160,7 +160,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
         for(int t = 0; t < 2; t++) {
             for(int x = 0; x < 3; x++) {
-                draw_triangles_r[ index ].vertices[x].position += glm::vec3(QUAD[QUAD_TABLE[t][x]].x, 0, QUAD[QUAD_TABLE[t][x]].y);
+                draw_triangles_r[ index ].vertices[x].position += glm::vec3(QUAD[QUAD_TABLE[t][x]].x, 0, QUAD[QUAD_TABLE[t][x]].y) * instance_data.rotation;
 
                 draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
             }
