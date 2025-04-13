@@ -167,7 +167,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         uint32_t cbmp_id = 0;
 
         if(instance_data.image_r)
-            cbmp_id = instance_data.image_r->cbmp_id;
+            cbmp_id = instance_data.image_r->cbmp_id + 1;
 
         draw_triangles_r[ index ].setup( cbmp_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );

@@ -19,7 +19,8 @@ uint32_t Data::Mission::DCSResource::getResourceTagID() const {
 
 const Data::Mission::DCSResource::Image* Data::Mission::DCSResource::getImage(uint8_t id) const {
     for(auto i = this->images.size() ; i != 0; i--) {
-        return &this->images[i - 1];
+        if( this->images[i - 1].id == id)
+            return &this->images[i - 1];
     }
 
     return nullptr;
