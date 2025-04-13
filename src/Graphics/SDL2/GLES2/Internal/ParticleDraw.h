@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_GLES2_INTERNAL_PARTICLE_DRAW_H
 #define GRAPHICS_GLES2_INTERNAL_PARTICLE_DRAW_H
 
+#include "../../../../Data/Mission/DCSResource.h"
 #include "../../../../Data/Mission/PYRResource.h"
 #include "../Camera.h"
 
@@ -36,6 +37,8 @@ public:
         glm::vec3 color;
         glm::vec2 span;
 
+        const Data::Mission::DCSResource::Image *image_r;
+
         glm::vec2 min, max; // used for culling!
     };
 
@@ -45,7 +48,9 @@ private:
     std::vector<Data::Mission::PYRResource::AtlasParticle> altas_particles;
 
     std::map<const ParticleInstance *const, ParticleInstanceData> particle_instances;
-    std::map<const     QuadInstance *const,     QuadInstanceData>     quad_instances;
+
+    const Data::Mission::DCSResource *dcs_resource_r;
+    std::map<const QuadInstance *const, QuadInstanceData> quad_instances;
 
 public:
     ParticleDraw();
@@ -56,7 +61,14 @@ public:
      * @param pyr_identifier The id of the pyr to find.
      * @return If null then this method id not find the AtlasParticle.
      */
-    const Data::Mission::PYRResource::AtlasParticle * containsParticle( uint32_t pyr_identifier ) const;
+    const Data::Mission::PYRResource::AtlasParticle* containsParticle( uint32_t pyr_identifier ) const;
+
+    const Data::Mission::DCSResource::Image* containsDCSImage( uint8_t dcs_identifier ) const {
+        if( dcs_resource_r == nullptr )
+            return nullptr;
+
+        return dcs_resource_r->getImage(dcs_identifier);
+    }
 
     /**
      * This loads up the particle data.

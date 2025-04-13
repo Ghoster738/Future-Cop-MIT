@@ -16,10 +16,9 @@ QuadInstance::~QuadInstance() {
 }
 
 void QuadInstance::setQuadID( uint8_t dcs_id ) {
-    auto new_texture_info_r = nullptr;
-    //auto new_texture_info_r = this->environment_r->particle_draw_routine.containsDCSImage( dcs_id );
+    auto new_texture_info_r = this->environment_r->particle_draw_routine.containsDCSImage( dcs_id );
 
-    if(new_texture_info_r == nullptr && dcs_id != 0)
+    if(new_texture_info_r == nullptr)
         return;
 
     this->texture_info_r = new_texture_info_r;
@@ -40,6 +39,7 @@ void QuadInstance::update() {
     instance_data.rotation    = this->rotation;
     instance_data.position    = this->position;
     instance_data.color       = this->color;
+    instance_data.image_r     = this->texture_info_r;
     instance_data.min         = { this->position.x - span, this->position.z - span };
     instance_data.max         = { this->position.x + span, this->position.z + span };
     instance_data.span        = this->span;

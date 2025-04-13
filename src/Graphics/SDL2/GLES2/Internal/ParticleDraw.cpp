@@ -5,7 +5,7 @@ namespace SDL2 {
 namespace GLES2 {
 namespace Internal {
 
-ParticleDraw::ParticleDraw() : particle_atlas_id(0), scale() {}
+ParticleDraw::ParticleDraw() : particle_atlas_id(0), scale(), dcs_resource_r(nullptr) {}
 
 ParticleDraw::~ParticleDraw() {}
 
