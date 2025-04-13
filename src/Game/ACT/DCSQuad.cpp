@@ -13,7 +13,7 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
-    this->dcs_id = 13;
+    this->dcs_id = 1;
     this->dcs_p = nullptr;
 }
 
@@ -36,14 +36,16 @@ void DCSQuad::resetGraphics( MainProgram &main_program ) {
     this->dcs_p = nullptr;
 
     try {
-        this->dcs_p = main_program.environment_p->allocateModel( this->dcs_id );
+        this->dcs_p = main_program.environment_p->allocateQuadInstance(); //  this->dcs_id
 
         if(this->dcs_p) {
-            this->dcs_p->setPosition( this->position );
-            this->dcs_p->setRotation( this->rotation );
-            this->dcs_p->setColor( this->color );
-            this->dcs_p->setScale( this->scale );
-            this->dcs_p->setVisable( true );
+            this->dcs_p->position = this->position;
+            this->dcs_p->rotation = this->rotation;
+            this->dcs_p->color    = this->color;
+            this->dcs_p->span     = glm::vec2(this->scale.x, this->scale.z);
+            this->dcs_p->setQuadID( this->dcs_id );
+
+            this->dcs_p->update();
         }
     }
     catch( const std::invalid_argument& argument ) {
