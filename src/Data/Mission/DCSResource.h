@@ -35,7 +35,7 @@ public:
 
     virtual uint32_t getResourceTagID() const;
 
-    // TODO Add acessor methods.
+    virtual const Image* getImage(uint8_t id) const;
 
     // virtual bool parse(); See Resource for documentation.
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );

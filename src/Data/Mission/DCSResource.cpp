@@ -17,6 +17,14 @@ uint32_t Data::Mission::DCSResource::getResourceTagID() const {
     return Data::Mission::DCSResource::IDENTIFIER_TAG;
 }
 
+const Data::Mission::DCSResource::Image* Data::Mission::DCSResource::getImage(uint8_t id) const {
+    for(auto i = this->images.size() ; i != 0; i--) {
+        return &this->images[i - 1];
+    }
+
+    return nullptr;
+}
+
 bool Data::Mission::DCSResource::parse( const ParseSettings &settings ) {
     auto warning_log = settings.logger_r->getLog( Utilities::Logger::WARNING );
     warning_log.info << FILE_EXTENSION << ": " << getResourceID() << "\n";
