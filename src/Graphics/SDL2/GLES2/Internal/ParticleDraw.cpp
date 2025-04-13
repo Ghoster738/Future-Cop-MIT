@@ -147,7 +147,23 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         if(number_of_triangles != 2)
             break;
 
-        glm::vec2 coords[4] = { {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f}, {0.f, 0.f} };
+        uint32_t cbmp_id = 0;
+        glm::vec2 l(0.f, 0.f);
+        glm::vec2 u(1.f, 1.f);
+
+        if(instance_data.image_r) {
+            cbmp_id = instance_data.image_r->cbmp_id + 1;
+
+            l.x = (1.f / 256.f) * instance_data.image_r->x;
+            l.y = (1.f / 256.f) * instance_data.image_r->y;
+
+            u.x = (1.f / 256.f) * instance_data.image_r->width;
+            u.y = (1.f / 256.f) * instance_data.image_r->height;
+
+            u += l;
+        }
+
+        glm::vec2 coords[4] = { {u.x, l.y}, {u.x, u.y}, {l.x, u.y}, {l.x, l.y} };
 
         const glm::vec2 QUAD[4] = {
             { instance_data.span.x,  instance_data.span.y},
@@ -163,11 +179,6 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].color           = glm::vec4(instance_data.color, 1);;
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
-
-        uint32_t cbmp_id = 0;
-
-        if(instance_data.image_r)
-            cbmp_id = instance_data.image_r->cbmp_id + 1;
 
         draw_triangles_r[ index ].setup( cbmp_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
