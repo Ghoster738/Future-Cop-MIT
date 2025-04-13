@@ -12,6 +12,15 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
+    /*
+    if( (tags & 0x10) != 0 )
+        render_mode = ADDITION;
+    else
+    if( (tags & 0x02) != 0 )
+        render_mode = MIX;
+    else
+        render_mode = OPAQUE_WITH_CUTOFF;*/
+
     this->dcs_id = obj.internal.dcs_id;
     this->dcs_p = nullptr;
 }
