@@ -75,7 +75,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
         const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
 
-        if(number_of_triangles == 0)
+        if(number_of_triangles != 2)
             break;
 
         const Data::Mission::PYRResource::AtlasParticle &altas_particle = *instance_data.particle_r;
@@ -97,9 +97,9 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         size_t index = 0;
 
         for(int x = 0; x < 3; x++) {
-            draw_triangles_r[ index ].vertices[x].position   = instance_data.position;
-            draw_triangles_r[ index ].vertices[x].normal     = glm::vec3(0, 1, 0);
-            draw_triangles_r[ index ].vertices[x].color      = instance_data.color;
+            draw_triangles_r[ index ].vertices[x].position        = instance_data.position;
+            draw_triangles_r[ index ].vertices[x].normal          = glm::vec3(0, 1, 0);
+            draw_triangles_r[ index ].vertices[x].color           = instance_data.color;
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
@@ -121,7 +121,50 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
                 draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
             }
-            index++; index = std::min(number_of_triangles - 1, index);
+            index++;
+        }
+    }
+
+    for(const auto &quad : quad_instances) {
+        const QuadInstanceData &instance_data = quad.second;
+
+        if(!camera.isVisible(instance_data.min, instance_data.max))
+            continue;
+
+        const auto number_of_triangles = camera.transparent_triangles.getTriangles( 2, &draw_triangles_r );
+
+        if(number_of_triangles != 2)
+            break;
+
+        glm::vec2 coords[4] = { {0.f, 0.f}, {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f} };
+
+        const glm::vec2 QUAD[4] = {
+            {-instance_data.span.x,  instance_data.span.y},
+            { instance_data.span.x,  instance_data.span.y},
+            { instance_data.span.x, -instance_data.span.y},
+            {-instance_data.span.x, -instance_data.span.y} };
+
+        size_t index = 0;
+
+        for(int x = 0; x < 3; x++) {
+            draw_triangles_r[ index ].vertices[x].position        = instance_data.position;
+            draw_triangles_r[ index ].vertices[x].normal          = glm::vec3(0, 1, 0);
+            draw_triangles_r[ index ].vertices[x].color           = glm::vec4(instance_data.color, 1);;
+            draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
+        }
+
+        draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, DynamicTriangleDraw::PolygonType::MIX );
+        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
+
+        draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
+
+        for(int t = 0; t < 2; t++) {
+            for(int x = 0; x < 3; x++) {
+                draw_triangles_r[ index ].vertices[x].position += glm::vec3(QUAD[QUAD_TABLE[t][x]].x, 0, QUAD[QUAD_TABLE[t][x]].y);
+
+                draw_triangles_r[ index ].vertices[x].coordinate = coords[QUAD_TABLE[t][x]];
+            }
+            index++;
         }
     }
 }
