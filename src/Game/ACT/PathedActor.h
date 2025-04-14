@@ -21,17 +21,6 @@ protected:
 
     Graphics::ModelInstance *alive_p;
 
-    const Data::Mission::NetResource* net_r;
-    const Data::Mission::NetResource::Node* node_r;
-
-    std::chrono::microseconds    time_to_next_node;
-    std::chrono::microseconds total_time_next_node;
-
-    Utilities::Random::Generator random_generator;
-    glm::quat next_node_rot;
-    glm::vec3 next_node_pos;
-    float height_offset;
-
     void setNextDestination();
 
 public:

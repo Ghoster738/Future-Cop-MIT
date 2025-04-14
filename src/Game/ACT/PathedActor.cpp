@@ -40,7 +40,7 @@ void PathedActor::setNextDestination() {
     }
 }
 
-PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( obj ), random_generator( random.getGenerator() ) {
+PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( random, obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
 
     this->height_offset = obj.getHeightOffset();
@@ -93,10 +93,7 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     alive_id( obj.alive_id ), alive_base( obj.alive_base ),
     dead_id( obj.dead_id ), dead_base( obj.dead_base ),
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
-    alive_p( nullptr ),
-    net_r( obj.net_r ), node_r( obj.node_r ),
-    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ),
-    random_generator( obj.random_generator ), next_node_rot( obj.next_node_rot ), next_node_pos( obj.next_node_pos ), height_offset( obj.height_offset ) {}
+    alive_p( nullptr ) {}
 
 PathedActor::~PathedActor() {
     if( this->alive_p != nullptr )
