@@ -2,48 +2,8 @@
 
 namespace Game::ACT {
 
-void PathedActor::setNextDestination() {
-    unsigned int index_array[4];
-
-    auto amount = this->node_r->getIndexes( index_array );
-
-    if( amount != 0 ) {
-        unsigned index = 0;
-
-        if(amount != 1)
-            index = this->random_generator.nextUnsignedInt() % amount;
-
-        this->node_r = this->net_r->getNodePointer( index_array[index] );
-
-        this->next_node_pos.x = this->node_r->getPosition().x;
-        this->next_node_pos.y = this->node_r->getPosition().y + this->height_offset;
-        this->next_node_pos.z = this->node_r->getPosition().z;
-
-        glm::vec2 destination = glm::vec2(this->next_node_pos.x, this->next_node_pos.z) - glm::vec2(this->position.x, this->position.z);
-
-        double distance = glm::distance(this->position, this->next_node_pos);
-
-        if(distance >= 0.) {
-            auto num = static_cast<std::chrono::microseconds::rep>(distance / this->movement_speed * 1000000);
-
-            this->total_time_next_node = std::chrono::microseconds(num);
-        }
-        this->time_to_next_node = total_time_next_node;
-
-        if(destination.x != 0.f || destination.y != 0.f) {
-            destination = glm::normalize(destination);
-
-            float angle = glm::atan(destination.y, destination.x);
-
-            this->next_node_rot = glm::quat( glm::vec3(0, -angle + glm::pi<float>() / 2.f, 0) );
-        }
-    }
-}
-
-PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( random, obj ) {
+PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj ) : BasePathedEntity( random, accessor, obj ) {
     const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
-
-    this->height_offset = obj.getHeightOffset();
 
     this->position = obj.getPosition( ptc, this->height_offset, Data::Mission::ACTResource::GroundCast::NONE );
 
@@ -53,37 +13,14 @@ PathedActor::PathedActor( Utilities::Random &random, const Data::Accessor& acces
     this->dead_id = obj.getDestroyedID();
     this->dead_base = obj.getHasDestroyedID();
 
-    auto net_id = obj.getNetID();
-    bool net    = obj.getHasNetID();
-
     this->alive_cobj_r = nullptr;
     this->dead_cobj_r  = nullptr;
-    this->net_r        = nullptr;
-    this->node_r       = nullptr;
 
     if( this->alive_base )
         this->alive_cobj_r = accessor.getConstOBJ( this->alive_id );
 
     if( this->dead_base )
         this->dead_cobj_r = accessor.getConstOBJ( this->dead_id );
-
-    if( net )
-        this->net_r  = accessor.getConstNET( net_id );
-
-    this->total_time_next_node  = std::chrono::microseconds(1000000);
-
-    if( this->net_r ) {
-        auto index = this->net_r->getNodeIndexFromPosition(obj.getRawPosition());
-        this->node_r = this->net_r->getNodePointer(index);
-
-        if(this->node_r)
-            this->position.y += this->node_r->getYAxis();
-
-        this->next_node_pos = this->position;
-        this->next_node_rot = glm::quat(1.f, 0.f, 0.f, 0.f);
-
-        setNextDestination();
-    }
 
     this->alive_p = nullptr;
 }

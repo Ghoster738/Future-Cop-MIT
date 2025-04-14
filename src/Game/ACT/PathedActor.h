@@ -5,8 +5,6 @@
 
 #include "../../Data/Mission/ACT/PathedActor.h"
 
-#include "../../Data/Mission/NetResource.h"
-
 #include "BasePathedEntity.h"
 
 namespace Game::ACT {
@@ -20,8 +18,6 @@ protected:
     const Data::Mission::ObjResource*  dead_cobj_r;
 
     Graphics::ModelInstance *alive_p;
-
-    void setNextDestination();
 
 public:
     PathedActor( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedActor& obj );

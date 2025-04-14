@@ -47,6 +47,9 @@ public:
         return (1.f / 512.f) * pathed_entity_internal.move_speed;
     }
 
+    virtual bool  getHasNetID() const = 0;
+    virtual uint32_t getNetID() const = 0;
+
 };
 
 }
