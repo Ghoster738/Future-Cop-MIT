@@ -93,9 +93,10 @@ PathedActor::PathedActor( const PathedActor& obj ) :
     alive_id( obj.alive_id ), alive_base( obj.alive_base ),
     dead_id( obj.dead_id ), dead_base( obj.dead_base ),
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
-    net_r( obj.net_r ), node_r( obj.node_r ),
     alive_p( nullptr ),
-    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ), random_generator( obj.random_generator ), next_node_rot( obj.next_node_rot ), next_node_pos( obj.next_node_pos ), height_offset( obj.height_offset ) {}
+    net_r( obj.net_r ), node_r( obj.node_r ),
+    time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ),
+    random_generator( obj.random_generator ), next_node_rot( obj.next_node_rot ), next_node_pos( obj.next_node_pos ), height_offset( obj.height_offset ) {}
 
 PathedActor::~PathedActor() {
     if( this->alive_p != nullptr )
