@@ -183,9 +183,8 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             polygon_type = DynamicTriangleDraw::PolygonType::MIX;
         }
         else {
-            if(instance_data.is_addition) {
+            if(instance_data.is_addition)
                 polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
-            }
             else
                 polygon_type = DynamicTriangleDraw::PolygonType::MIX;
         }
