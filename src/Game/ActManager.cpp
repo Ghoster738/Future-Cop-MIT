@@ -64,38 +64,40 @@ namespace Game {
 ActManager::ActManager( const Data::Accessor& accessor, Utilities::Random rand ) : random( rand ) {
     auto actor_array_r = accessor.getActorAccessor().getAllConst();
 
-    aircraft        = initializeActors<Data::Mission::ACT::Aircraft,      ACT::Aircraft>(      rand, accessor, accessor.getActorAccessor().getAllConstAircraft() );
-    elevator        = initializeActors<Data::Mission::ACT::Elevator,      ACT::Elevator>(      rand, accessor, accessor.getActorAccessor().getAllConstElevator() );
-    dcs_quad        = initializeActors<Data::Mission::ACT::DCSQuad,       ACT::DCSQuad>(       rand, accessor, accessor.getActorAccessor().getAllConstDCSQuad() );
-    dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,   ACT::DynamicProp>(   rand, accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
-    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,    ACT::ItemPickup>(    rand, accessor, accessor.getActorAccessor().getAllConstItemPickup() );
-    moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,  ACT::MoveableProp>(  rand, accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
-    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret, ACT::NeutralTurret>( rand, accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
-    pathed_actor    = initializeActors<Data::Mission::ACT::PathedActor,   ACT::PathedActor>(   rand, accessor, accessor.getActorAccessor().getAllConstPathedActor() );
-    props           = initializeActors<Data::Mission::ACT::Prop,          ACT::Prop>(          rand, accessor, accessor.getActorAccessor().getAllConstProp() );
-    sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,    ACT::SkyCaptain>(    rand, accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
-    turrets         = initializeActors<Data::Mission::ACT::Turret,        ACT::Turret>(        rand, accessor, accessor.getActorAccessor().getAllConstTurret() );
-    walkable_props  = initializeActors<Data::Mission::ACT::WalkableProp,  ACT::WalkableProp>(  rand, accessor, accessor.getActorAccessor().getAllConstWalkableProp() );
-    x1_alphas       = initializeActors<Data::Mission::ACT::X1Alpha,       ACT::X1Alpha>(       rand, accessor, accessor.getActorAccessor().getAllConstX1Alpha() );
+    aircraft        = initializeActors<Data::Mission::ACT::Aircraft,        ACT::Aircraft>(        rand, accessor, accessor.getActorAccessor().getAllConstAircraft() );
+    elevator        = initializeActors<Data::Mission::ACT::Elevator,        ACT::Elevator>(        rand, accessor, accessor.getActorAccessor().getAllConstElevator() );
+    dcs_quad        = initializeActors<Data::Mission::ACT::DCSQuad,         ACT::DCSQuad>(         rand, accessor, accessor.getActorAccessor().getAllConstDCSQuad() );
+    dynamic_props   = initializeActors<Data::Mission::ACT::DynamicProp,     ACT::DynamicProp>(     rand, accessor, accessor.getActorAccessor().getAllConstDynamicProp() );
+    item_pickups    = initializeActors<Data::Mission::ACT::ItemPickup,      ACT::ItemPickup>(      rand, accessor, accessor.getActorAccessor().getAllConstItemPickup() );
+    moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,    ACT::MoveableProp>(    rand, accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
+    neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret,   ACT::NeutralTurret>(   rand, accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
+    pathed_actor    = initializeActors<Data::Mission::ACT::PathedActor,     ACT::PathedActor>(     rand, accessor, accessor.getActorAccessor().getAllConstPathedActor() );
+    props           = initializeActors<Data::Mission::ACT::Prop,            ACT::Prop>(            rand, accessor, accessor.getActorAccessor().getAllConstProp() );
+    stationaries    = initializeActors<Data::Mission::ACT::StationaryActor, ACT::StationaryActor>( rand, accessor, accessor.getActorAccessor().getAllConstStationaryActor() );
+    sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,      ACT::SkyCaptain>(      rand, accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
+    turrets         = initializeActors<Data::Mission::ACT::Turret,          ACT::Turret>(          rand, accessor, accessor.getActorAccessor().getAllConstTurret() );
+    walkable_props  = initializeActors<Data::Mission::ACT::WalkableProp,    ACT::WalkableProp>(    rand, accessor, accessor.getActorAccessor().getAllConstWalkableProp() );
+    x1_alphas       = initializeActors<Data::Mission::ACT::X1Alpha,         ACT::X1Alpha>(         rand, accessor, accessor.getActorAccessor().getAllConstX1Alpha() );
 }
 
 ActManager::~ActManager() {
 }
 
 void ActManager::initialize( MainProgram &main_program ) {
-    updateGraphics<ACT::Aircraft>(      main_program,        aircraft );
-    updateGraphics<ACT::Elevator>(      main_program,        elevator );
-    updateGraphics<ACT::DCSQuad>(       main_program,        dcs_quad );
-    updateGraphics<ACT::DynamicProp>(   main_program,   dynamic_props );
-    updateGraphics<ACT::ItemPickup>(    main_program,    item_pickups );
-    updateGraphics<ACT::MoveableProp>(  main_program,  moveable_props );
-    updateGraphics<ACT::NeutralTurret>( main_program, neutral_turrets );
-    updateGraphics<ACT::PathedActor>(   main_program,    pathed_actor );
-    updateGraphics<ACT::Prop>(          main_program,           props );
-    updateGraphics<ACT::SkyCaptain>(    main_program,    sky_captains );
-    updateGraphics<ACT::Turret>(        main_program,         turrets );
-    updateGraphics<ACT::WalkableProp>(  main_program,  walkable_props );
-    updateGraphics<ACT::X1Alpha>(       main_program,       x1_alphas );
+    updateGraphics<ACT::Aircraft>(        main_program,        aircraft );
+    updateGraphics<ACT::Elevator>(        main_program,        elevator );
+    updateGraphics<ACT::DCSQuad>(         main_program,        dcs_quad );
+    updateGraphics<ACT::DynamicProp>(     main_program,   dynamic_props );
+    updateGraphics<ACT::ItemPickup>(      main_program,    item_pickups );
+    updateGraphics<ACT::MoveableProp>(    main_program,  moveable_props );
+    updateGraphics<ACT::NeutralTurret>(   main_program, neutral_turrets );
+    updateGraphics<ACT::PathedActor>(     main_program,    pathed_actor );
+    updateGraphics<ACT::Prop>(            main_program,           props );
+    updateGraphics<ACT::StationaryActor>( main_program,    stationaries );
+    updateGraphics<ACT::SkyCaptain>(      main_program,    sky_captains );
+    updateGraphics<ACT::Turret>(          main_program,         turrets );
+    updateGraphics<ACT::WalkableProp>(    main_program,  walkable_props );
+    updateGraphics<ACT::X1Alpha>(         main_program,       x1_alphas );
 
     auto Cfun = main_program.accessor.getAllConstFUN();
 
@@ -123,26 +125,28 @@ void ActManager::initialize( MainProgram &main_program ) {
 }
 
 void ActManager::update( MainProgram &main_program, std::chrono::microseconds delta ) {
-    updateSpawn<ACT::Aircraft>(      main_program,        aircraft, delta );
-    updateSpawn<ACT::ItemPickup>(    main_program,    item_pickups, delta );
-    updateSpawn<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
-    updateSpawn<ACT::SkyCaptain>(    main_program,    sky_captains, delta );
-    updateSpawn<ACT::Turret>(        main_program,         turrets, delta );
-    updateSpawn<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
+    updateSpawn<ACT::Aircraft>(        main_program,        aircraft, delta );
+    updateSpawn<ACT::ItemPickup>(      main_program,    item_pickups, delta );
+    updateSpawn<ACT::NeutralTurret>(   main_program, neutral_turrets, delta );
+    updateSpawn<ACT::StationaryActor>( main_program,    stationaries, delta );
+    updateSpawn<ACT::SkyCaptain>(      main_program,    sky_captains, delta );
+    updateSpawn<ACT::Turret>(          main_program,         turrets, delta );
+    updateSpawn<ACT::X1Alpha>(         main_program,       x1_alphas, delta );
 
-    updateActors<ACT::Aircraft>(      main_program,        aircraft, delta );
-    updateActors<ACT::Elevator>(      main_program,        elevator, delta );
-    updateActors<ACT::DCSQuad>(       main_program,        dcs_quad, delta );
-    updateActors<ACT::DynamicProp>(   main_program,   dynamic_props, delta );
-    updateActors<ACT::ItemPickup>(    main_program,    item_pickups, delta );
-    updateActors<ACT::MoveableProp>(  main_program,  moveable_props, delta );
-    updateActors<ACT::NeutralTurret>( main_program, neutral_turrets, delta );
-    updateActors<ACT::PathedActor>(   main_program,    pathed_actor, delta );
-    updateActors<ACT::Prop>(          main_program,           props, delta );
-    updateActors<ACT::SkyCaptain>(    main_program,    sky_captains, delta );
-    updateActors<ACT::Turret>(        main_program,         turrets, delta );
-    updateActors<ACT::WalkableProp>(  main_program,  walkable_props, delta );
-    updateActors<ACT::X1Alpha>(       main_program,       x1_alphas, delta );
+    updateActors<ACT::Aircraft>(        main_program,        aircraft, delta );
+    updateActors<ACT::Elevator>(        main_program,        elevator, delta );
+    updateActors<ACT::DCSQuad>(         main_program,        dcs_quad, delta );
+    updateActors<ACT::DynamicProp>(     main_program,   dynamic_props, delta );
+    updateActors<ACT::ItemPickup>(      main_program,    item_pickups, delta );
+    updateActors<ACT::MoveableProp>(    main_program,  moveable_props, delta );
+    updateActors<ACT::NeutralTurret>(   main_program, neutral_turrets, delta );
+    updateActors<ACT::PathedActor>(     main_program,    pathed_actor, delta );
+    updateActors<ACT::StationaryActor>( main_program,    stationaries, delta );
+    updateActors<ACT::Prop>(            main_program,           props, delta );
+    updateActors<ACT::SkyCaptain>(      main_program,    sky_captains, delta );
+    updateActors<ACT::Turret>(          main_program,         turrets, delta );
+    updateActors<ACT::WalkableProp>(    main_program,  walkable_props, delta );
+    updateActors<ACT::X1Alpha>(         main_program,       x1_alphas, delta );
 }
 
 }

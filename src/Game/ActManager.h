@@ -16,6 +16,7 @@
 #include "ACT/NeutralTurret.h"
 #include "ACT/PathedActor.h"
 #include "ACT/Prop.h"
+#include "ACT/StationaryActor.h"
 #include "ACT/SkyCaptain.h"
 #include "ACT/Turret.h"
 #include "ACT/WalkableProp.h"
@@ -40,19 +41,20 @@ public:
 private:
     Utilities::Random random;
 
-    SpawnableActor<ACT::Aircraft>      aircraft;
-    SpawnableActor<ACT::Elevator>      elevator;
-    SpawnableActor<ACT::DCSQuad>       dcs_quad;
-    SpawnableActor<ACT::DynamicProp>   dynamic_props;
-    SpawnableActor<ACT::ItemPickup>    item_pickups;
-    SpawnableActor<ACT::MoveableProp>  moveable_props;
-    SpawnableActor<ACT::NeutralTurret> neutral_turrets;
-    SpawnableActor<ACT::PathedActor>   pathed_actor;
-    SpawnableActor<ACT::Prop>          props;
-    SpawnableActor<ACT::SkyCaptain>    sky_captains;
-    SpawnableActor<ACT::Turret>        turrets;
-    SpawnableActor<ACT::WalkableProp>  walkable_props;
-    SpawnableActor<ACT::X1Alpha>       x1_alphas;
+    SpawnableActor<ACT::Aircraft>        aircraft;
+    SpawnableActor<ACT::Elevator>        elevator;
+    SpawnableActor<ACT::DCSQuad>         dcs_quad;
+    SpawnableActor<ACT::DynamicProp>     dynamic_props;
+    SpawnableActor<ACT::ItemPickup>      item_pickups;
+    SpawnableActor<ACT::MoveableProp>    moveable_props;
+    SpawnableActor<ACT::NeutralTurret>   neutral_turrets;
+    SpawnableActor<ACT::PathedActor>     pathed_actor;
+    SpawnableActor<ACT::Prop>            props;
+    SpawnableActor<ACT::StationaryActor> stationaries;
+    SpawnableActor<ACT::SkyCaptain>      sky_captains;
+    SpawnableActor<ACT::Turret>          turrets;
+    SpawnableActor<ACT::WalkableProp>    walkable_props;
+    SpawnableActor<ACT::X1Alpha>         x1_alphas;
 
 public:
     ActManager( const Data::Accessor& accessor, Utilities::Random random );
