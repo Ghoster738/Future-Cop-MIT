@@ -66,7 +66,6 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
     const uint8_t QUAD_TABLE[2][3] = { {3, 2, 1}, {1, 0, 3}};
 
     DynamicTriangleDraw::Triangle *draw_triangles_r;
-    glm::mat4 camera_3D_model_transform = glm::mat4(1.0f);
     glm::mat4 view;
 
     camera.getView3D( view );
@@ -122,7 +121,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             polygon_type = DynamicTriangleDraw::PolygonType::MIX;
 
         draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, polygon_type );
-        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
+        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position );
 
         draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
 
@@ -190,7 +189,7 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
         }
 
         draw_triangles_r[ index ].setup( cbmp_id, camera_position, polygon_type );
-        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, camera_3D_model_transform );
+        draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position );
 
         draw_triangles_r[ index + 1 ] = draw_triangles_r[ index ];
 
