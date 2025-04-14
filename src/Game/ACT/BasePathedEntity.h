@@ -31,6 +31,8 @@ public:
     BasePathedEntity( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::BasePathedEntity& obj );
     BasePathedEntity( const BasePathedEntity& obj );
     virtual ~BasePathedEntity();
+
+    glm::vec3 getCurrentPosition( std::chrono::microseconds delta );
 };
 
 }

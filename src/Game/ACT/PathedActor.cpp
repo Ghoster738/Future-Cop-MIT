@@ -61,25 +61,13 @@ void PathedActor::resetGraphics( MainProgram &main_program ) {
 }
 
 void PathedActor::update( MainProgram &main_program, std::chrono::microseconds delta ) {
+    glm::vec3 new_position = getCurrentPosition( delta );
+
     if(this->alive_p) {
         this->alive_p->setPositionTransformTimeline( this->alive_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
-    }
 
-    this->time_to_next_node -= delta;
-
-    if(this->node_r) {
-        if(this->time_to_next_node.count() <= 0) {
-            this->position = this->next_node_pos;
-
-            setNextDestination();
-        }
-
-        if(this->alive_p) {
-            glm::vec3 new_position = glm::mix(this->next_node_pos, this->position, static_cast<float>(this->time_to_next_node.count()) / static_cast<float>(this->total_time_next_node.count()));
-
-            this->alive_p->setPosition( new_position );
-            this->alive_p->setRotation( this->next_node_rot );
-        }
+        this->alive_p->setPosition( new_position );
+        this->alive_p->setRotation( this->next_node_rot );
     }
 }
 

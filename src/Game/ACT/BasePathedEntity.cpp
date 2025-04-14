@@ -76,7 +76,21 @@ BasePathedEntity::BasePathedEntity( const BasePathedEntity& obj ) :
     time_to_next_node( obj.time_to_next_node ), total_time_next_node( obj.total_time_next_node ),
     random_generator( obj.random_generator ), next_node_rot( obj.next_node_rot ), next_node_pos( obj.next_node_pos ) {}
 
-BasePathedEntity::~BasePathedEntity() {
+BasePathedEntity::~BasePathedEntity() {}
+
+glm::vec3 BasePathedEntity::getCurrentPosition( std::chrono::microseconds delta ) {
+    if(this->node_r == nullptr)
+        return this->position;
+
+    this->time_to_next_node -= delta;
+
+    if(this->time_to_next_node.count() <= 0) {
+        this->position = this->next_node_pos;
+
+        setNextDestination();
+    }
+
+    return glm::mix(this->next_node_pos, this->position, static_cast<float>(this->time_to_next_node.count()) / static_cast<float>(this->total_time_next_node.count()));
 }
 
 }
