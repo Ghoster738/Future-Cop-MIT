@@ -21,6 +21,7 @@ namespace ACT {
     class MoveableProp;
     class NeutralTurret;
     class PathedActor;
+    class PathedTurret;
     class Prop;
     class StationaryActor;
     class SkyCaptain;
@@ -106,6 +107,11 @@ public:
     const Mission::ACT::PathedActor* getConstPathedActor( uint32_t resource_id ) const;
     std::vector<Mission::ACT::PathedActor*> getAllPathedActor();
     std::vector<const Mission::ACT::PathedActor*> getAllConstPathedActor() const;
+
+    Mission::ACT::PathedTurret* getPathedTurret( uint32_t resource_id );
+    const Mission::ACT::PathedTurret* getConstPathedTurret( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::PathedTurret*> getAllPathedTurret();
+    std::vector<const Mission::ACT::PathedTurret*> getAllConstPathedTurret() const;
 
     Mission::ACT::Prop* getProp( uint32_t resource_id );
     const Mission::ACT::Prop* getConstProp( uint32_t resource_id ) const;

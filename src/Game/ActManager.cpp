@@ -72,6 +72,7 @@ ActManager::ActManager( const Data::Accessor& accessor, Utilities::Random rand )
     moveable_props  = initializeActors<Data::Mission::ACT::MoveableProp,    ACT::MoveableProp>(    rand, accessor, accessor.getActorAccessor().getAllConstMoveableProp() );
     neutral_turrets = initializeActors<Data::Mission::ACT::NeutralTurret,   ACT::NeutralTurret>(   rand, accessor, accessor.getActorAccessor().getAllConstNeutralTurret() );
     pathed_actor    = initializeActors<Data::Mission::ACT::PathedActor,     ACT::PathedActor>(     rand, accessor, accessor.getActorAccessor().getAllConstPathedActor() );
+    pathed_turrets  = initializeActors<Data::Mission::ACT::PathedTurret,    ACT::PathedTurret>(    rand, accessor, accessor.getActorAccessor().getAllConstPathedTurret() );
     props           = initializeActors<Data::Mission::ACT::Prop,            ACT::Prop>(            rand, accessor, accessor.getActorAccessor().getAllConstProp() );
     stationaries    = initializeActors<Data::Mission::ACT::StationaryActor, ACT::StationaryActor>( rand, accessor, accessor.getActorAccessor().getAllConstStationaryActor() );
     sky_captains    = initializeActors<Data::Mission::ACT::SkyCaptain,      ACT::SkyCaptain>(      rand, accessor, accessor.getActorAccessor().getAllConstSkyCaptain() );
@@ -92,6 +93,7 @@ void ActManager::initialize( MainProgram &main_program ) {
     updateGraphics<ACT::MoveableProp>(    main_program,  moveable_props );
     updateGraphics<ACT::NeutralTurret>(   main_program, neutral_turrets );
     updateGraphics<ACT::PathedActor>(     main_program,    pathed_actor );
+    updateGraphics<ACT::PathedTurret>(    main_program,  pathed_turrets );
     updateGraphics<ACT::Prop>(            main_program,           props );
     updateGraphics<ACT::StationaryActor>( main_program,    stationaries );
     updateGraphics<ACT::SkyCaptain>(      main_program,    sky_captains );
@@ -141,6 +143,7 @@ void ActManager::update( MainProgram &main_program, std::chrono::microseconds de
     updateActors<ACT::MoveableProp>(    main_program,  moveable_props, delta );
     updateActors<ACT::NeutralTurret>(   main_program, neutral_turrets, delta );
     updateActors<ACT::PathedActor>(     main_program,    pathed_actor, delta );
+    updateActors<ACT::PathedTurret>(    main_program,  pathed_turrets, delta );
     updateActors<ACT::StationaryActor>( main_program,    stationaries, delta );
     updateActors<ACT::Prop>(            main_program,           props, delta );
     updateActors<ACT::SkyCaptain>(      main_program,    sky_captains, delta );

@@ -8,6 +8,7 @@
 #include "Mission/ACT/MoveableProp.h"
 #include "Mission/ACT/NeutralTurret.h"
 #include "Mission/ACT/PathedActor.h"
+#include "Mission/ACT/PathedTurret.h"
 #include "Mission/ACT/Prop.h"
 #include "Mission/ACT/StationaryActor.h"
 #include "Mission/ACT/SkyCaptain.h"
@@ -156,6 +157,7 @@ SEARCH(ItemPickup, getItemPickup, getAllItemPickup, getConstItemPickup, getAllCo
 SEARCH(MoveableProp, getMoveableProp, getAllMoveableProp, getConstMoveableProp, getAllConstMoveableProp)
 SEARCH(NeutralTurret, getNeutralTurret, getAllNeutralTurret, getConstNeutralTurret, getAllConstNeutralTurret)
 SEARCH(PathedActor, getPathedActor, getAllPathedActor, getConstPathedActor, getAllConstPathedActor)
+SEARCH(PathedTurret, getPathedTurret, getAllPathedTurret, getConstPathedTurret, getAllConstPathedTurret)
 SEARCH(Prop, getProp, getAllProp, getConstProp, getAllConstProp)
 SEARCH(StationaryActor, getStationaryActor, getAllStationaryActor, getConstStationaryActor, getAllConstStationaryActor)
 SEARCH(SkyCaptain, getSkyCaptain, getAllSkyCaptain, getConstSkyCaptain, getAllConstSkyCaptain)

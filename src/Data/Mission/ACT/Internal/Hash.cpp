@@ -9,6 +9,7 @@
 #include "../MoveableProp.h"
 #include "../NeutralTurret.h"
 #include "../PathedActor.h"
+#include "../PathedTurret.h"
 #include "../Prop.h"
 #include "../StationaryActor.h"
 #include "../SkyCaptain.h"
@@ -36,6 +37,7 @@ private:
         table_p[ Data::Mission::ACT::MoveableProp::TYPE_ID ] = new Data::Mission::ACT::MoveableProp();
         table_p[ Data::Mission::ACT::NeutralTurret::TYPE_ID ] = new Data::Mission::ACT::NeutralTurret();
         table_p[ Data::Mission::ACT::PathedActor::TYPE_ID ] = new Data::Mission::ACT::PathedActor();
+        table_p[ Data::Mission::ACT::PathedTurret::TYPE_ID ] = new Data::Mission::ACT::PathedTurret();
         table_p[ Data::Mission::ACT::Prop::TYPE_ID ] = new Data::Mission::ACT::Prop();
         table_p[ Data::Mission::ACT::StationaryActor::TYPE_ID ] = new Data::Mission::ACT::StationaryActor();
         table_p[ Data::Mission::ACT::SkyCaptain::TYPE_ID ] = new Data::Mission::ACT::SkyCaptain();

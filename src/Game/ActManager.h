@@ -15,6 +15,7 @@
 #include "ACT/MoveableProp.h"
 #include "ACT/NeutralTurret.h"
 #include "ACT/PathedActor.h"
+#include "ACT/PathedTurret.h"
 #include "ACT/Prop.h"
 #include "ACT/StationaryActor.h"
 #include "ACT/SkyCaptain.h"
@@ -49,6 +50,7 @@ private:
     SpawnableActor<ACT::MoveableProp>    moveable_props;
     SpawnableActor<ACT::NeutralTurret>   neutral_turrets;
     SpawnableActor<ACT::PathedActor>     pathed_actor;
+    SpawnableActor<ACT::PathedTurret>    pathed_turrets;
     SpawnableActor<ACT::Prop>            props;
     SpawnableActor<ACT::StationaryActor> stationaries;
     SpawnableActor<ACT::SkyCaptain>      sky_captains;
