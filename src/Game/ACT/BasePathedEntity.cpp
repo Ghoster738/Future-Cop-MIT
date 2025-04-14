@@ -41,6 +41,10 @@ void BasePathedEntity::setNextDestination() {
 }
 
 BasePathedEntity::BasePathedEntity( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::BasePathedEntity& obj ) : BaseShooter( obj ), movement_speed( obj.getMovementSpeed() ), height_offset( obj.getHeightOffset() ), random_generator( random.getGenerator() ) {
+    const Data::Mission::PTCResource &ptc = *accessor.getConstPTC( 1 );
+
+    this->position = obj.getPosition( ptc, this->height_offset, Data::Mission::ACTResource::GroundCast::NONE );
+
     auto net_id = obj.getNetID();
     bool net    = obj.getHasNetID();
 
