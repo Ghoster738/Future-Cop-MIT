@@ -22,6 +22,8 @@ protected:
     Graphics::ModelInstance* alive_p;
     Graphics::ModelInstance*   gun_p;
 
+    unsigned gun_parent_index;
+
 public:
     PathedTurret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedTurret& obj );
     PathedTurret( const PathedTurret& obj );

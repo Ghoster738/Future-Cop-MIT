@@ -1,5 +1,7 @@
 #include "PathedTurret.h"
 
+#include "../../Data/Mission/ObjResource.h"
+
 namespace Game::ACT {
 
 PathedTurret::PathedTurret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedTurret& obj ) : BasePathedEntity( random, accessor, obj ) {
@@ -27,6 +29,8 @@ PathedTurret::PathedTurret( Utilities::Random &random, const Data::Accessor& acc
 
     this->alive_p = nullptr;
     this->gun_p   = nullptr;
+
+    this->gun_parent_index = obj.internal.uint16_19;
 }
 
 PathedTurret::PathedTurret( const PathedTurret& obj ) :
@@ -35,7 +39,7 @@ PathedTurret::PathedTurret( const PathedTurret& obj ) :
     dead_id( obj.dead_id ), dead_base( obj.dead_base ),
     gun_id( obj.gun_id ), gun_base( obj.gun_base ),
     alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ), gun_cobj_r( obj.gun_cobj_r ),
-    alive_p( nullptr ), gun_p( nullptr ) {}
+    alive_p( nullptr ), gun_p( nullptr ), gun_parent_index( obj.gun_parent_index ) {}
 
 PathedTurret::~PathedTurret() {
     if( this->alive_p != nullptr )
@@ -106,7 +110,12 @@ void PathedTurret::update( MainProgram &main_program, std::chrono::microseconds 
     if(this->gun_p) {
         this->gun_p->setPositionTransformTimeline( this->gun_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
 
-        this->gun_p->setPosition( new_position );
+        glm::vec3 gun_position = glm::vec3( 0, 0, 0 );
+
+        if( this->alive_cobj_r != nullptr )
+            gun_position = this->next_node_rot * this->alive_cobj_r->getPosition( this->gun_parent_index, 0 );
+
+        this->gun_p->setPosition( new_position + gun_position );
         this->gun_p->setRotation( this->next_node_rot );
     }
 }
