@@ -48,4 +48,29 @@ BaseShooter::Internal BaseShooter::getShooterInternal() const {
     return shooter_entity_internal;
 }
 
+BaseShooter::Bitfield BaseShooter::getShooterBitfield() const {
+    Bitfield bitfield;
+
+    // Skipped!
+    bitfield.prevent_back_shooting  = (0x00000002 & entity_internal.bitfield) != 0;
+    bitfield.shoot_when_facing      = (0x00000004 & entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    bitfield.fire_alternations      = (0x00000020 & entity_internal.bitfield) != 0;
+    bitfield.target_priority        = (0x00000040 & entity_internal.bitfield) != 0;
+    // Skipped!
+
+
+    // Skipped!
+    bitfield.weapon_actor_collision = (0x00000200 & entity_internal.bitfield) != 0;
+    bitfield.attackable_weapon      = (0x00000400 & entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    // Skipped!
+    bitfield.allow_switch_target    = (0x00004000 & entity_internal.bitfield) != 0;
+    // Skipped!
+
+    return bitfield;
+}
+
 }

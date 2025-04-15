@@ -21,6 +21,26 @@ public:
         uint16_t targeting_delay;
     } shooter_entity_internal;
 
+    struct Bitfield {
+        // unknown but always false
+        uint16_t     prevent_back_shooting : 1;
+        uint16_t         shoot_when_facing : 1;
+        // unknown
+        // unknown
+        uint16_t         fire_alternations : 1;
+        uint16_t           target_priority : 1;
+        // unknown
+
+        // unknown but always false
+        uint16_t    weapon_actor_collision : 1;
+        uint16_t         attackable_weapon : 1;
+        // unknown
+        // unknown
+        // unknown
+        uint16_t       allow_switch_target : 1;
+        // unknown
+    };
+
 protected:
     virtual Json::Value makeJson() const;
 
@@ -33,6 +53,8 @@ public:
     BaseShooter( const BaseShooter& obj );
 
     Internal getShooterInternal() const;
+
+    Bitfield getShooterBitfield() const;
 };
 
 }
