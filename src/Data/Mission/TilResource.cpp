@@ -925,6 +925,8 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         auto &element = this->collision_triangle_index_grid[ x ][ z ];
 
         element.index = this->all_triangles.size();
+        element.floor_size = 0;
+        element.total_size = 0;
 
         unsigned int counts[2] = {0, 0};
 
@@ -1066,7 +1068,16 @@ float Data::Mission::TilResource::getRayCastDownward( float x, float z, float fr
     glm::vec3 point;
     glm::vec3 barycentric;
 
-    const auto &cell = collision_triangle_index_grid[static_cast<unsigned int>(x + SPAN_OF_TIL)][static_cast<unsigned int>(z + SPAN_OF_TIL)];
+    const auto cell_x = static_cast<int>(x + SPAN_OF_TIL);
+    const auto cell_y = static_cast<int>(z + SPAN_OF_TIL);
+
+    if( cell_x < 0 || cell_y < 0 )
+        return MAX_DISTANCE;
+
+    if( cell_x > 15 || cell_y > 15 )
+        return MAX_DISTANCE;
+
+    const auto &cell = collision_triangle_index_grid[cell_x][cell_y];
 
     for( unsigned int i = 0; i < cell.floor_size; i++ ) {
         const auto &tri = all_triangles[cell.index + i];
