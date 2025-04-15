@@ -21,6 +21,26 @@ public:
         uint8_t uint8_11;
     } pathed_entity_internal;
 
+    struct Bitfield {
+        uint16_t enable_backtrack : 1;
+        // unknown
+        // unknown
+        uint16_t disable_path_obstruction : 1;
+        // unknown
+        // unknown
+        // unknown
+        // unknown
+
+        // unknown
+        // unknown
+        uint16_t disable_ease : 1;
+        // unknown
+        // unknown
+        // unknown
+        // unknown
+        // unknown
+    };
+
 protected:
     virtual Json::Value makeJson() const;
 
@@ -50,6 +70,7 @@ public:
     bool  getHasNetID() const { return rsl_data[2].type != RSL_NULL_TAG; }
     uint32_t getNetID() const { return rsl_data[2].resource_id; }
 
+    Bitfield getPathedEntityBitfield() const;
 };
 
 }

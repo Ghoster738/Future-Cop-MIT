@@ -54,4 +54,29 @@ BasePathedEntity::Internal BasePathedEntity::getPathedEntityInternal() const {
     return pathed_entity_internal;
 }
 
+BasePathedEntity::Bitfield BasePathedEntity::getPathedEntityBitfield() const {
+    Bitfield bitfield;
+
+    bitfield.enable_backtrack         = (0x00000001 & pathed_entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    bitfield.disable_path_obstruction = (0x00000008 & pathed_entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    // Skipped!
+    // Skipped!
+
+
+    // Skipped!
+    // Skipped!
+    bitfield.disable_ease             = (0x00000400 & pathed_entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    // Skipped!
+    // Skipped!
+    // Skipped!
+
+    return bitfield;
+}
+
 }
