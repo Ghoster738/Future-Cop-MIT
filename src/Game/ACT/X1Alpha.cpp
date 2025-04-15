@@ -167,7 +167,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
                     this->weapons_p[i]->setPosition( this->position + this->rotation * weapon_bone.position + cockpit_pos );
                     this->weapons_p[i]->setRotation( this->rotation * weapon_bone.rotation );
                     this->weapons_p[i]->setTextureOffset( this->texture_offset );
-                    this->weapons_p[i]->setVisable(true);
+                    this->weapons_p[i]->setVisable( !this->entity_bitfield.disable_rendering );
                 }
             }
         }
@@ -193,7 +193,7 @@ void X1Alpha::resetGraphics( MainProgram &main_program ) {
             if(this->beacon_lights_p) {
                 this->beacon_lights_p->setPosition( this->position + beacon_pos + cockpit_pos );
                 this->beacon_lights_p->setRotation( this->rotation );
-                this->beacon_lights_p->setVisable(true);
+                this->beacon_lights_p->setVisable( !this->entity_bitfield.disable_rendering );
             }
         }
     }

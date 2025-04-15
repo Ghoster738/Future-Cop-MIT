@@ -42,7 +42,7 @@ void Aircraft::resetGraphics( MainProgram &main_program ) {
             if(this->model_p) {
                 this->model_p->setPosition( this->position );
                 this->model_p->setTextureOffset( this->texture_offset );
-                this->model_p->setVisable(true);
+                this->model_p->setVisable(!this->entity_bitfield.disable_rendering);
             }
         }
     }

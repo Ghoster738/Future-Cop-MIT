@@ -45,7 +45,7 @@ void WalkableProp::resetGraphics( MainProgram &main_program ) {
                 this->alive_p->setPosition( this->position );
                 this->alive_p->setRotation( this->rotation );
                 this->alive_p->setTextureOffset( this->texture_offset );
-                this->alive_p->setVisable(true);
+                this->alive_p->setVisable( !this->entity_bitfield.disable_rendering );
             }
         }
     }

@@ -66,7 +66,7 @@ void Turret::resetGraphics( MainProgram &main_program ) {
                 this->base_p->setPosition( this->position );
                 this->base_p->setRotation( this->base_rotation );
                 this->base_p->setTextureOffset( this->texture_offset );
-                this->base_p->setVisable( true );
+                this->base_p->setVisable( !this->entity_bitfield.disable_rendering );
             }
         }
 
@@ -77,7 +77,7 @@ void Turret::resetGraphics( MainProgram &main_program ) {
                 this->gun_p->setPosition( this->position + gun_position );
                 this->gun_p->setRotation( this->gun_rotation );
                 this->gun_p->setTextureOffset( this->texture_offset );
-                this->gun_p->setVisable( true );
+                this->gun_p->setVisable( !this->entity_bitfield.disable_rendering );
             }
         }
     }

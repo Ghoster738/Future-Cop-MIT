@@ -45,7 +45,7 @@ void Elevator::resetGraphics( MainProgram &main_program ) {
                 this->model_p->setPosition( this->position );
                 this->model_p->setRotation( this->rotation );
                 this->model_p->setTextureOffset( this->texture_offset );
-                this->model_p->setVisable(true);
+                this->model_p->setVisable(!this->entity_bitfield.disable_rendering);
             }
         }
     }
