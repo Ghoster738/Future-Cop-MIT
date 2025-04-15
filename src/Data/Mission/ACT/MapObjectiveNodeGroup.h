@@ -33,22 +33,7 @@ public:
         uint8_t uint8_5;
         uint16_t uint16_4;
 
-        uint16_t uint16_5;
-        uint16_t uint16_6;
-        uint16_t uint16_7;
-        uint16_t uint16_8;
-        uint16_t uint16_9;
-        uint16_t uint16_10;
-        uint16_t uint16_11;
-        uint16_t uint16_12;
-        uint16_t uint16_13;
-        uint16_t uint16_14;
-        uint16_t uint16_15;
-        uint16_t uint16_16;
-        uint16_t uint16_17;
-        uint16_t uint16_18;
-        uint16_t uint16_19;
-        uint16_t uint16_20;
+        glm::u16vec2 nodes[8];
     } internal;
 
 protected:
