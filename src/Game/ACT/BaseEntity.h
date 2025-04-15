@@ -13,9 +13,11 @@ class BaseEntity : public Actor {
 protected:
     glm::vec2 texture_offset;
 
+    bool disable_rendering;
+
 public:
-    BaseEntity( const Data::Mission::ACT::BaseEntity& obj ) : Actor( obj.getID() ), texture_offset( obj.getTextureOffset() ) {}
-    BaseEntity( const BaseEntity& obj ) : Actor( obj ), texture_offset( obj.texture_offset ) {}
+    BaseEntity( const Data::Mission::ACT::BaseEntity& obj ) : Actor( obj.getID() ), texture_offset( obj.getTextureOffset() ), disable_rendering( obj.disableRendering() ) {}
+    BaseEntity( const BaseEntity& obj ) : Actor( obj ), texture_offset( obj.texture_offset ), disable_rendering( obj.disable_rendering ) {}
     virtual ~BaseEntity() {}
 };
 

@@ -1,7 +1,7 @@
 #include "BaseEntity.h"
 
 namespace {
-    uint32_t BITFIELD_DISABLE_RENDERING = 0x00002000;
+    uint32_t BITFIELD_DISABLE_RENDERING = 0x00000020;
 }
 
 namespace Data::Mission::ACT {

@@ -27,7 +27,7 @@ void StationaryActor::resetGraphics( MainProgram &main_program ) {
                 this->gun_p->setPosition( this->position );
                 this->gun_p->setRotation( this->gun_rotation );
                 this->gun_p->setTextureOffset( this->texture_offset );
-                this->gun_p->setVisable( true );
+                this->gun_p->setVisable( !this->disable_rendering );
             }
         }
     }
