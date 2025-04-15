@@ -13,11 +13,14 @@ class PathedTurret : public BasePathedEntity {
 protected:
     uint32_t alive_id; bool alive_base;
     uint32_t  dead_id; bool  dead_base;
+    uint32_t   gun_id; bool   gun_base;
 
     const Data::Mission::ObjResource* alive_cobj_r;
     const Data::Mission::ObjResource*  dead_cobj_r;
+    const Data::Mission::ObjResource*   gun_cobj_r;
 
-    Graphics::ModelInstance *alive_p;
+    Graphics::ModelInstance* alive_p;
+    Graphics::ModelInstance*   gun_p;
 
 public:
     PathedTurret( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::PathedTurret& obj );

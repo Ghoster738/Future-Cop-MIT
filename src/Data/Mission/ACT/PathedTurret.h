@@ -52,6 +52,9 @@ public:
     virtual bool getHasNetID() const { return rsl_data[2].type != RSL_NULL_TAG; }
     virtual uint32_t getNetID() const { return rsl_data[2].resource_id; }
 
+    bool getHasGunID() const { return rsl_data[3].type != RSL_NULL_TAG; }
+    uint32_t getGunID() const { return rsl_data[3].resource_id; }
+
 };
 }
 

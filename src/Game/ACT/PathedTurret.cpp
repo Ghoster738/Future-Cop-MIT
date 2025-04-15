@@ -9,8 +9,12 @@ PathedTurret::PathedTurret( Utilities::Random &random, const Data::Accessor& acc
     this->dead_id = obj.getDestroyedID();
     this->dead_base = obj.getHasDestroyedID();
 
+    this->gun_id = obj.getGunID();
+    this->gun_base = obj.getHasGunID();
+
     this->alive_cobj_r = nullptr;
     this->dead_cobj_r  = nullptr;
+    this->gun_cobj_r   = nullptr;
 
     if( this->alive_base )
         this->alive_cobj_r = accessor.getConstOBJ( this->alive_id );
@@ -18,19 +22,27 @@ PathedTurret::PathedTurret( Utilities::Random &random, const Data::Accessor& acc
     if( this->dead_base )
         this->dead_cobj_r = accessor.getConstOBJ( this->dead_id );
 
+    if( this->gun_base )
+        this->gun_cobj_r = accessor.getConstOBJ( this->gun_id );
+
     this->alive_p = nullptr;
+    this->gun_p   = nullptr;
 }
 
 PathedTurret::PathedTurret( const PathedTurret& obj ) :
     BasePathedEntity( obj ),
     alive_id( obj.alive_id ), alive_base( obj.alive_base ),
     dead_id( obj.dead_id ), dead_base( obj.dead_base ),
-    alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ),
-    alive_p( nullptr ) {}
+    gun_id( obj.gun_id ), gun_base( obj.gun_base ),
+    alive_cobj_r( obj.alive_cobj_r ), dead_cobj_r( obj.dead_cobj_r ), gun_cobj_r( obj.gun_cobj_r ),
+    alive_p( nullptr ), gun_p( nullptr ) {}
 
 PathedTurret::~PathedTurret() {
     if( this->alive_p != nullptr )
         delete this->alive_p;
+
+    if( this->gun_p != nullptr )
+        delete this->gun_p;
 }
 
 Actor* PathedTurret::duplicate( const Actor &original ) const {
@@ -58,6 +70,27 @@ void PathedTurret::resetGraphics( MainProgram &main_program ) {
         auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
         log.output << "Cobj with resource id " << alive_id << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
     }
+
+    if( this->gun_p != nullptr )
+        delete this->gun_p;
+    this->gun_p = nullptr;
+
+    try {
+        if( this->gun_base ) {
+            this->gun_p = main_program.environment_p->allocateModel( this->gun_id );
+
+            if(this->gun_p) {
+                this->gun_p->setPosition( this->position );
+                this->gun_p->setRotation( this->next_node_rot );
+                this->gun_p->setTextureOffset( this->texture_offset );
+                this->gun_p->setVisable( true );
+            }
+        }
+    }
+    catch( const std::invalid_argument& argument ) {
+        auto log = Utilities::logger.getLog( Utilities::Logger::ERROR );
+        log.output << "Cobj with resource id " << gun_id << " does not exist. This could be an error from the map " << main_program.resource_identifier << "\n";
+    }
 }
 
 void PathedTurret::update( MainProgram &main_program, std::chrono::microseconds delta ) {
@@ -68,6 +101,13 @@ void PathedTurret::update( MainProgram &main_program, std::chrono::microseconds 
 
         this->alive_p->setPosition( new_position );
         this->alive_p->setRotation( this->next_node_rot );
+    }
+
+    if(this->gun_p) {
+        this->gun_p->setPositionTransformTimeline( this->gun_p->getPositionTransformTimeline() + std::chrono::duration<float>( delta ).count() * 10.f);
+
+        this->gun_p->setPosition( new_position );
+        this->gun_p->setRotation( this->next_node_rot );
     }
 }
 
