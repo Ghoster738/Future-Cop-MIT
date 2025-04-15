@@ -88,6 +88,8 @@ public:
     MapIconShape getMapIconShape() const { return getMapIconShape(entity_internal.map_icon_bitfield); }
 
     glm::vec2 getTextureOffset() const;
+
+    bool disableRendering() const;
 };
 
 }

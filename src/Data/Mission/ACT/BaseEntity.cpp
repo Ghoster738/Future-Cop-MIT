@@ -1,6 +1,8 @@
 #include "BaseEntity.h"
 
-#include <iostream>
+namespace {
+    uint32_t BITFIELD_DISABLE_RENDERING = 0x00002000;
+}
 
 namespace Data::Mission::ACT {
 
@@ -103,6 +105,10 @@ BaseEntity::Internal BaseEntity::getBaseInternal() const {
 
 glm::vec2 BaseEntity::getTextureOffset() const {
     return (1.f / 256.f) * glm::vec2( entity_internal.uv_offset_x, entity_internal.uv_offset_y );
+}
+
+bool BaseEntity::disableRendering() const {
+    return (BITFIELD_DISABLE_RENDERING & entity_internal.bitfield) != 0;
 }
 
 }
