@@ -22,6 +22,39 @@ public:
         int16_t rotational_speed;
     } internal;
 
+    struct Bitfield {
+        uint32_t       reload_gun : 1;
+        uint32_t     reload_heavy : 1;
+        uint32_t   reload_special : 1;
+        // unknown but always false
+        uint32_t     power_up_gun : 1;
+        uint32_t   power_up_heavy : 1;
+        uint32_t power_up_special : 1;
+        // unknown but always false
+
+        // 8 bits of unknown
+
+        // unknown but always false
+        uint32_t   restore_health : 1;
+        uint32_t     invisibility : 1;
+        uint32_t    invincibility : 1;
+        // unknown but always false
+        // unknown but always false
+        // unknown but always false
+        // unknown but always false
+
+        uint32_t           is_set : 1;
+        uint32_t   pickup_consume : 1;
+        // unknown but always false
+        // unknown but always false
+        // unknown but always false
+        // unknown but always false
+        // unknown but always false
+        // unknown but always false
+
+        // constant 8 bit false
+    };
+
 protected:
     virtual Json::Value makeJson() const;
     virtual bool readACTType( uint_fast8_t act_type, Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian );
@@ -51,6 +84,8 @@ public:
     float getRotationSpeed() const { return internal.rotational_speed * 0.0021f; }
 
     bool hasBlink() const;
+
+    Bitfield getItemPickupBitfield() const;
 };
 
 }

@@ -4,20 +4,6 @@
 
 #include <cassert>
 
-namespace {
-const uint32_t BITFIELD_RELOAD_GUN     = 0x00000001;
-const uint32_t BITFIELD_RELOAD_HEAVY   = 0x00000002;
-const uint32_t BITFIELD_RELOAD_SPECIAL = 0x00000004;
-const uint32_t BITFIELD_POWER_GUN      = 0x00000010;
-const uint32_t BITFIELD_POWER_HEAVY    = 0x00000020;
-const uint32_t BITFIELD_POWER_SPECIAL  = 0x00000040;
-const uint32_t BITFIELD_RESTORE_HEALTH = 0x00020000;
-const uint32_t BITFIELD_INVISIBILITY   = 0x00040000;
-const uint32_t BITFIELD_INVINCIBILITY  = 0x00080000;
-const uint32_t BITFIELD_IS_SET         = 0x01000000; // If not set then it is added.
-const uint32_t BITFIELD_PICKUP_CONSUME = 0x02000000;
-}
-
 uint_fast8_t Data::Mission::ACT::ItemPickup::TYPE_ID = 16;
 
 Json::Value Data::Mission::ACT::ItemPickup::makeJson() const {
@@ -112,5 +98,41 @@ Data::Mission::ACT::ItemPickup::Internal Data::Mission::ACT::ItemPickup::getInte
 
 
 bool Data::Mission::ACT::ItemPickup::hasBlink() const {
-    return ((BITFIELD_POWER_GUN | BITFIELD_POWER_HEAVY | BITFIELD_POWER_SPECIAL) & internal.bitfield) != 0;
+    Bitfield bitfield = getItemPickupBitfield();
+
+    return (bitfield.power_up_gun | bitfield.power_up_heavy | bitfield.power_up_special) != 0;
+}
+
+Data::Mission::ACT::ItemPickup::Bitfield Data::Mission::ACT::ItemPickup::getItemPickupBitfield() const {
+    Bitfield bitfield;
+
+    bitfield.reload_gun       = (0x00000001 & internal.bitfield) != 0;
+    bitfield.reload_heavy     = (0x00000002 & internal.bitfield) != 0;
+    bitfield.reload_special   = (0x00000004 & internal.bitfield) != 0;
+    // Skipped!
+    bitfield.power_up_gun     = (0x00000010 & internal.bitfield) != 0;
+    bitfield.power_up_heavy   = (0x00000020 & internal.bitfield) != 0;
+    bitfield.power_up_special = (0x00000040 & internal.bitfield) != 0;
+    // Skipped!
+
+
+    // 8 bits Skipped
+
+
+    // Skipped!
+    bitfield.restore_health  = (0x00020000 & internal.bitfield) != 0;
+    bitfield.invisibility    = (0x00040000 & internal.bitfield) != 0;
+    bitfield.invincibility   = (0x00080000 & internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    // Skipped!
+    // Skipped!
+
+
+    bitfield.is_set          = (0x01000000 & internal.bitfield) != 0;
+    bitfield.pickup_consume  = (0x02000000 & internal.bitfield) != 0;
+
+    // The remaining bits are skipped
+
+    return bitfield;
 }
