@@ -17,14 +17,9 @@ Json::Value Data::Mission::ACT::MapObjectiveNodeGroup::makeJson() const {
     root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
     root["ACT"][NAME]["uint32_3"] = internal.uint32_3;
-    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
-    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
-    root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
-    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
-    root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
-    root["ACT"][NAME]["uint16_4"] = internal.uint16_4;
 
     for(unsigned i = 0; i < 8; i++) {
+        root["ACT"][NAME]["nodes"][i]["bitfield"] = internal.map_icons[i];
         root["ACT"][NAME]["nodes"][i]["x"] = internal.nodes[i].x;
         root["ACT"][NAME]["nodes"][i]["y"] = internal.nodes[i].y;
     }
@@ -48,12 +43,15 @@ bool Data::Mission::ACT::MapObjectiveNodeGroup::readACTType( uint_fast8_t act_ty
     internal.uint8_1 = data_reader.readU8(); // Always 0
 
     internal.uint32_3 = data_reader.readU32( endian ); // Values: 7, 74889, 
-    internal.uint8_2 = data_reader.readU8(); // Values: 1, 2, 89, 
-    internal.uint8_3 = data_reader.readU8(); // Values: 1, 2, 89, 
-    internal.uint8_4 = data_reader.readU8(); // Values: 3, 87, 89, 
-    internal.uint16_3 = data_reader.readU16( endian ); // Values: 0, 771, 22873, 
-    internal.uint8_5 = data_reader.readU8(); // Values: 0, 3, 89, 
-    internal.uint16_4 = data_reader.readU16( endian ); // Values: 0, 22873, 
+
+    internal.map_icons[0] = data_reader.readU8(); // Values: 1, 2, 89,
+    internal.map_icons[1] = data_reader.readU8(); // Values: 1, 2, 89,
+    internal.map_icons[2] = data_reader.readU8(); // Values: 3, 87, 89,
+    internal.map_icons[3] = data_reader.readU8(); // Values: 0, 3, 89,
+    internal.map_icons[4] = data_reader.readU8(); // Values: 0, 3, 89,
+    internal.map_icons[5] = data_reader.readU8(); // Values: 0, 3, 89,
+    internal.map_icons[6] = data_reader.readU8(); // Values: 0, 89,
+    internal.map_icons[7] = data_reader.readU8(); // Values: 0, 89,
 
     internal.nodes[0].x = data_reader.readU16( endian ); // Values: 1136, 1215, 1249, 1406, 1535, 1667, 1772, 1857, 1922, 2047, 2048, 2080, 2158, 2796, 2953,
     internal.nodes[0].y = data_reader.readU16( endian ); // Values: 1141, 1280, 1528, 1821, 1975, 2001, 2047, 2048, 2176, 2224, 2387, 2431, 2503, 2671,

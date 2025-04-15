@@ -26,12 +26,7 @@ public:
 
         uint32_t uint32_3;
 
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint16_t uint16_3;
-        uint8_t uint8_5;
-        uint16_t uint16_4;
+        uint8_t map_icons[8];
 
         glm::u16vec2 nodes[8];
     } internal;
