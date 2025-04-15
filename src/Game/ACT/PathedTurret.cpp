@@ -30,7 +30,8 @@ PathedTurret::PathedTurret( Utilities::Random &random, const Data::Accessor& acc
     this->alive_p = nullptr;
     this->gun_p   = nullptr;
 
-    this->gun_parent_index = obj.internal.uint16_19;
+    // TODO: Find actual value to determine this.
+    this->gun_parent_index = obj.internal.uint16_19 % 4;
 }
 
 PathedTurret::PathedTurret( const PathedTurret& obj ) :
