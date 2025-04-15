@@ -1,9 +1,5 @@
 #include "BaseEntity.h"
 
-namespace {
-    uint32_t BITFIELD_DISABLE_RENDERING = 0x00000020;
-}
-
 namespace Data::Mission::ACT {
 
 BaseEntity::MapIconColor BaseEntity::getMapIconColor( uint8_t map_icon_bitfield ) {
@@ -108,7 +104,42 @@ glm::vec2 BaseEntity::getTextureOffset() const {
 }
 
 bool BaseEntity::disableRendering() const {
-    return (BITFIELD_DISABLE_RENDERING & entity_internal.bitfield) != 0;
+    return getEntityBitfield().disable_rendering;
+}
+
+BaseEntity::Bitfield BaseEntity::getEntityBitfield() const {
+    Bitfield bitfield;
+
+    bitfield.disable_actor_targeting     = (0x00000001 & entity_internal.bitfield) != 0;
+    // Skipped!
+    bitfield.disable_collision           = (0x00000004 & entity_internal.bitfield) != 0;
+    bitfield.always_active               = (0x00000008 & entity_internal.bitfield) != 0;
+    bitfield.disable_map_icon            = (0x00000010 & entity_internal.bitfield) != 0;
+    bitfield.disable_rendering           = (0x00000020 & entity_internal.bitfield) != 0;
+    bitfield.player_physics              = (0x00000040 & entity_internal.bitfield) != 0;
+    bitfield.is_invincible               = (0x00000080 & entity_internal.bitfield) != 0;
+
+
+    bitfield.always_interactable         = (0x00000100 & entity_internal.bitfield) != 0;
+    bitfield.actor_collision             = (0x00000200 & entity_internal.bitfield) != 0;
+    bitfield.string_push_back            = (0x00000400 & entity_internal.bitfield) != 0;
+    // Skipped!
+    bitfield.disable_destroyed_collsion  = (0x00001000 & entity_internal.bitfield) != 0;
+    bitfield.obstruct_actor_path         = (0x00002000 & entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+
+
+    // Skipped
+    bitfield.disable_player_targeting    = (0x00020000 & entity_internal.bitfield) != 0;
+    bitfield.disable_explosion_targeting = (0x00040000 & entity_internal.bitfield) != 0;
+    bitfield.has_shadow                  = (0x00080000 & entity_internal.bitfield) != 0;
+    // Skipped!
+    // Skipped!
+    // Skipped!
+    // Skipped!
+
+    return bitfield;
 }
 
 }

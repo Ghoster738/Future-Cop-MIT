@@ -69,6 +69,37 @@ public:
         uint8_t uv_offset_y;
     } entity_internal;
 
+    struct Bitfield {
+        uint32_t     disable_actor_targeting : 1;
+        // unknown
+        uint32_t           disable_collision : 1;
+        uint32_t               always_active : 1;
+        uint32_t            disable_map_icon : 1;
+        uint32_t           disable_rendering : 1;
+        uint32_t              player_physics : 1;
+        uint32_t               is_invincible : 1;
+
+        uint32_t         always_interactable : 1;
+        uint32_t             actor_collision : 1;
+        uint32_t            string_push_back : 1;
+        // unknown
+        uint32_t  disable_destroyed_collsion : 1;
+        uint32_t         obstruct_actor_path : 1;
+        // unknown but always false
+        // unknown
+
+        // unknown
+        uint32_t    disable_player_targeting : 1;
+        uint32_t disable_explosion_targeting : 1;
+        uint32_t                  has_shadow : 1;
+        // unknown
+        // unknown
+        // unknown but always false
+        // unknown but always false
+
+        // constant 8 bit false
+    };
+
 protected:
     virtual Json::Value makeJson() const;
 
@@ -90,6 +121,8 @@ public:
     glm::vec2 getTextureOffset() const;
 
     bool disableRendering() const;
+
+    Bitfield getEntityBitfield() const;
 };
 
 }
