@@ -120,8 +120,6 @@ public:
 
     glm::vec2 getTextureOffset() const;
 
-    bool disableRendering() const;
-
     Bitfield getEntityBitfield() const;
 };
 

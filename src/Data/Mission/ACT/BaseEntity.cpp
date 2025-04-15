@@ -103,10 +103,6 @@ glm::vec2 BaseEntity::getTextureOffset() const {
     return (1.f / 256.f) * glm::vec2( entity_internal.uv_offset_x, entity_internal.uv_offset_y );
 }
 
-bool BaseEntity::disableRendering() const {
-    return getEntityBitfield().disable_rendering;
-}
-
 BaseEntity::Bitfield BaseEntity::getEntityBitfield() const {
     Bitfield bitfield;
 

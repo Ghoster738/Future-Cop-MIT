@@ -13,11 +13,11 @@ class BaseEntity : public Actor {
 protected:
     glm::vec2 texture_offset;
 
-    bool disable_rendering;
+    Data::Mission::ACT::BaseEntity::Bitfield entity_bitfield;
 
 public:
-    BaseEntity( const Data::Mission::ACT::BaseEntity& obj ) : Actor( obj.getID() ), texture_offset( obj.getTextureOffset() ), disable_rendering( obj.disableRendering() ) {}
-    BaseEntity( const BaseEntity& obj ) : Actor( obj ), texture_offset( obj.texture_offset ), disable_rendering( obj.disable_rendering ) {}
+    BaseEntity( const Data::Mission::ACT::BaseEntity& obj ) : Actor( obj.getID() ), texture_offset( obj.getTextureOffset() ), entity_bitfield( obj.getEntityBitfield() ) {}
+    BaseEntity( const BaseEntity& obj ) : Actor( obj ), texture_offset( obj.texture_offset ), entity_bitfield( obj.entity_bitfield ) {}
     virtual ~BaseEntity() {}
 };
 
