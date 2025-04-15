@@ -47,8 +47,8 @@ public:
         return (1.f / 512.f) * pathed_entity_internal.move_speed;
     }
 
-    virtual bool  getHasNetID() const = 0;
-    virtual uint32_t getNetID() const = 0;
+    bool  getHasNetID() const { return rsl_data[2].type != RSL_NULL_TAG; }
+    uint32_t getNetID() const { return rsl_data[2].resource_id; }
 
 };
 
