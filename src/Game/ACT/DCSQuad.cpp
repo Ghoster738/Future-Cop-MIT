@@ -12,8 +12,8 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
+    // Translate the quad in the direction it is face slightly enough to avoid z fighting.
     glm::vec3 normal = glm::vec3(0, 1, 0) * this->rotation;
-
     this->position += 0.00390625f * normal;
 
     this->is_opaque   = false;
