@@ -1068,16 +1068,16 @@ float Data::Mission::TilResource::getRayCastDownward( float x, float z, float fr
     glm::vec3 point;
     glm::vec3 barycentric;
 
+    if( x < -8.0f || z < -8.0f )
+        return MAX_DISTANCE;
+
     const auto cell_x = static_cast<int>(x + SPAN_OF_TIL);
-    const auto cell_y = static_cast<int>(z + SPAN_OF_TIL);
+    const auto cell_z = static_cast<int>(z + SPAN_OF_TIL);
 
-    if( cell_x < 0 || cell_y < 0 )
+    if( cell_x > 15 || cell_z > 15 )
         return MAX_DISTANCE;
 
-    if( cell_x > 15 || cell_y > 15 )
-        return MAX_DISTANCE;
-
-    const auto &cell = collision_triangle_index_grid[cell_x][cell_y];
+    const auto &cell = collision_triangle_index_grid[cell_x][cell_z];
 
     for( unsigned int i = 0; i < cell.floor_size; i++ ) {
         const auto &tri = all_triangles[cell.index + i];

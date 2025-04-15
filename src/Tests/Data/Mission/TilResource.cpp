@@ -328,16 +328,83 @@ int main() {
             std::cout << "It is not raycastable." << std::endl;
             is_not_success = true;
         }
+
+        float out_of_bounds = til_resource->getRayCast2D( 4 * Data::Mission::TilResource::SPAN_OF_TIL, 4 * Data::Mission::TilResource::SPAN_OF_TIL, level );
+
+        float ending_span = -Data::Mission::TilResource::SPAN_OF_TIL;
+        float  start_span =  Data::Mission::TilResource::SPAN_OF_TIL - 0.015625;
+        float  ending_out = -Data::Mission::TilResource::SPAN_OF_TIL - 0.015625;
+        float   start_out =  Data::Mission::TilResource::SPAN_OF_TIL + 0.015625;
         
-        if( til_resource->getRayCast2D( 7.5, 7.5, level ) < 0 ) {
+        if( til_resource->getRayCast2D( ending_span, ending_span, level ) == out_of_bounds ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
-            std::cout << "Til is not spanning 8." << std::endl;
+            std::cout << "Til is not on edge -SPAN, -SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D(  start_span, ending_span, level ) == out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge +SPAN, -SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D( ending_span,  start_span, level ) == out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge -SPAN, +SPAN." << std::endl;
             is_not_success = true;
         }
         
-        if( til_resource->getRayCast2D( 8.5, 8.5, level ) > 0 ) {
+        if( til_resource->getRayCast2D(  start_span,  start_span, level ) == out_of_bounds ) {
             std::cout << "TilResource error it is invalid!" << std::endl;
-            std::cout << "Til is not spanning 9." << std::endl;
+            std::cout << "Til is not on edge +SPAN, +SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D( ending_out, ending_span, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge -OUT, -SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D(  start_out, ending_span, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge +OUT, -SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D( ending_out,  start_span, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge -OUT, +SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D(  start_out,  start_span, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge +OUT, +SPAN." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D( ending_span, ending_out, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge -SPAN, -OUT." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D(  start_span, ending_out, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge +SPAN, -OUT." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D( ending_span,  start_out, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge -SPAN, +OUT." << std::endl;
+            is_not_success = true;
+        }
+
+        if( til_resource->getRayCast2D(  start_span,  start_out, level ) != out_of_bounds ) {
+            std::cout << "TilResource error it is invalid!" << std::endl;
+            std::cout << "Til is not on edge +SPAN, +OUT." << std::endl;
             is_not_success = true;
         }
         
