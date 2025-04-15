@@ -45,11 +45,15 @@ public:
         FLASHING_GRAY = 31
     };
 
+    static MapIconColor getMapIconColor( uint8_t map_icon_bitfield );
+
     enum MapIconShape {
         CIRCLE = 0,
         TRIANGLE = 1,
         DIAMOND = 2
     };
+
+    static MapIconShape getMapIconShape( uint8_t map_icon_bitfield );
 
     struct Internal {
         uint32_t bitfield;
@@ -79,9 +83,9 @@ public:
 
     bool isMapIconPresent() const { return entity_internal.map_icon_bitfield != 0; }
 
-    MapIconColor getMapIconColor() const;
+    MapIconColor getMapIconColor() const { return getMapIconColor(entity_internal.map_icon_bitfield); }
 
-    MapIconShape getMapIconShape() const;
+    MapIconShape getMapIconShape() const { return getMapIconShape(entity_internal.map_icon_bitfield); }
 
     glm::vec2 getTextureOffset() const;
 };
