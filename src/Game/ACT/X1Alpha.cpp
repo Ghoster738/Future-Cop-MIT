@@ -12,6 +12,7 @@ X1Alpha::X1Alpha( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
+    // TODO Add an actual animation system!
     if( obj.spawnInHoverMode() ) {
         this->cockpit_frame_index =  29;
         this->legs_frame_index    = 359;
