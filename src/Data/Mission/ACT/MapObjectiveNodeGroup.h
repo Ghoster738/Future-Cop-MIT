@@ -24,7 +24,7 @@ public:
         uint16_t uint16_2;
         uint8_t uint8_1;
 
-        uint32_t uint32_3;
+        uint32_t bitfield;
 
         uint8_t map_icons[8];
 
