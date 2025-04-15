@@ -12,9 +12,12 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 
     this->rotation = obj.getRotationQuaternion();
 
+    glm::vec3 normal = glm::vec3(0, 1, 0) * this->rotation;
+
+    this->position += 0.00390625f * normal;
+
     this->is_opaque   = false;
     this->is_addition = false;
-
 
     if( (obj.internal.bitfield & 0x10) != 0 )
         this->is_addition = true;
