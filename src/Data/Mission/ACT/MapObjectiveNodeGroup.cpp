@@ -8,7 +8,7 @@ Json::Value Data::Mission::ACT::MapObjectiveNodeGroup::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["bitfield"] = internal.bitfield; // 0bxyz; x = Show Minimap Node; y = Show Satellite Node; z =  Show Arrow Node
+    root["ACT"][NAME]["uint32_0"] = internal.uint32_0;
     root["ACT"][NAME]["uint16_0"] = internal.uint16_0;
     root["ACT"][NAME]["uint32_1"] = internal.uint32_1;
     root["ACT"][NAME]["uint32_2"] = internal.uint32_2;
@@ -16,7 +16,7 @@ Json::Value Data::Mission::ACT::MapObjectiveNodeGroup::makeJson() const {
     root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
     root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
     root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
-    root["ACT"][NAME]["uint32_3"] = internal.uint32_3;
+    root["ACT"][NAME]["bitfield"] = internal.bitfield; // 0bxyz; x = Show Minimap Node; y = Show Satellite Node; z =  Show Arrow Node
 
     for(unsigned i = 0; i < 8; i++) {
         root["ACT"][NAME]["nodes"][i]["bitfield"] = internal.map_icons[i];
@@ -33,7 +33,7 @@ bool Data::Mission::ACT::MapObjectiveNodeGroup::readACTType( uint_fast8_t act_ty
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    internal.bitfield = data_reader.readU32( endian ); // Values: 0, 143,
+    internal.uint32_0 = data_reader.readU32( endian ); // Values: 0, 143,
     internal.uint16_0 = data_reader.readU16( endian ); // Always 1
     internal.uint32_1 = data_reader.readU32( endian ); // Always 0
     internal.uint32_2 = data_reader.readU32( endian ); // Always 0
@@ -42,7 +42,7 @@ bool Data::Mission::ACT::MapObjectiveNodeGroup::readACTType( uint_fast8_t act_ty
     internal.uint16_2 = data_reader.readU16( endian ); // Always 0
     internal.uint8_1 = data_reader.readU8(); // Always 0
 
-    internal.uint32_3 = data_reader.readU32( endian ); // Values: 7, 74889, 
+    internal.bitfield = data_reader.readU32( endian ); // Values: 7, 74889,
 
     internal.map_icons[0] = data_reader.readU8(); // Values: 1, 2, 89,
     internal.map_icons[1] = data_reader.readU8(); // Values: 1, 2, 89,
