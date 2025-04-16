@@ -113,12 +113,12 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        DynamicTriangleDraw::PolygonType polygon_type;
+        Graphics::RenderMode polygon_type;
 
         if(instance_data.is_addition)
-            polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+            polygon_type = Graphics::RenderMode::ADDITION;
         else
-            polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+            polygon_type = Graphics::RenderMode::MIX;
 
         draw_triangles_r[ index ].setup( this->particle_atlas_id, camera_position, polygon_type );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position );
@@ -176,20 +176,12 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
             draw_triangles_r[ index ].vertices[x].vertex_metadata = glm::i16vec2(0, 0);
         }
 
-        DynamicTriangleDraw::PolygonType polygon_type;
+        Graphics::RenderMode polygon_type;
 
-        switch(instance_data.render_mode) {
-            default:
-            case Graphics::OPAQUE_WITH_CUTOFF:
-                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
-                break;
-            case Graphics::ADDITION:
-                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
-                break;
-            case Graphics::MIX:
-                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
-                break;
-        }
+        if(instance_data.render_mode == Graphics::OPAQUE_WITH_CUTOFF)
+            polygon_type = Graphics::RenderMode::MIX;
+        else
+            polygon_type = instance_data.render_mode;
 
         draw_triangles_r[ index ].setup( cbmp_id, camera_position, polygon_type );
         draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position );

@@ -130,11 +130,11 @@ bool getDrawCommand(const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::
 
     const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Vertex &vertex = triangles_r[draw_command.triangle_index].vertices[0];
 
-    auto current_polygon_type = static_cast<Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType>( vertex.metadata.bitfield.polygon_type );
+    auto current_polygon_type = static_cast<Graphics::RenderMode>( vertex.metadata.bitfield.polygon_type );
 
     // This affects the blending code. Redundent, but I would like my code to be expandable.
     switch( current_polygon_type ) {
-        case Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType::ADDITION:
+        case Graphics::RenderMode::ADDITION:
             draw_command.blend_mode.es_modeRGB = GL_FUNC_ADD;
             draw_command.blend_mode.es_modeAlpha = GL_FUNC_ADD;
             draw_command.blend_mode.fs_srcRGB = GL_SRC_ALPHA;
@@ -143,7 +143,7 @@ bool getDrawCommand(const Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::
             draw_command.blend_mode.fs_dstAlpha = GL_ZERO;
             break;
         default:
-        case Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::PolygonType::MIX:
+        case Graphics::RenderMode::MIX:
             draw_command.blend_mode.es_modeRGB = GL_FUNC_ADD;
             draw_command.blend_mode.es_modeAlpha = GL_FUNC_ADD;
             draw_command.blend_mode.fs_srcRGB = GL_SRC_ALPHA;
@@ -265,7 +265,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::default_frag
     "  }\n"
     "}\n";
 
-void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type ) {
+void Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::setup( uint32_t texture_id, const glm::vec3 &camera_position, Graphics::RenderMode poly_type ) {
     vertices[0].metadata.bitfield.texture_id = texture_id;
     vertices[0].metadata.bitfield.polygon_type = poly_type;
     vertices[1].metadata.distance_from_camera = genDistanceSq( camera_position );
@@ -333,7 +333,7 @@ unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addStar
     draw_triangles_r[ index ].vertices[1].color = glm::vec4(color.x, color.y, color.z, 0.0) * 2.0f;
     draw_triangles_r[ index ].vertices[2].color = draw_triangles_r[ index ].vertices[1].color;
 
-    draw_triangles_r[ index ].setup( 0, camera_position, DynamicTriangleDraw::PolygonType::ADDITION );
+    draw_triangles_r[ index ].setup( 0, camera_position, Graphics::RenderMode::ADDITION );
 
     draw_triangles_r[ index ] = draw_triangles_r[ index ].addTriangle( camera_position, transform );
 
@@ -383,7 +383,7 @@ unsigned Graphics::SDL2::GLES2::Internal::DynamicTriangleDraw::Triangle::addBill
     DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
     const glm::vec3 &camera_position, const glm::mat4 &transform, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
     const glm::vec3 &position, const glm::vec3 &param_color, float width,
-    PolygonType visability_mode, uint32_t bmp_id, const glm::vec2 (&coords)[4])
+    Graphics::RenderMode visability_mode, uint32_t bmp_id, const glm::vec2 (&coords)[4])
 {
     const uint8_t QUAD_TABLE[2][3] = { {3, 2, 1}, {1, 0, 3}};
     const glm::vec2 QUAD[4] = {{-1.0f, 1.0f}, { 1.0f, 1.0f}, { 1.0f,-1.0f}, {-1.0f,-1.0f}};

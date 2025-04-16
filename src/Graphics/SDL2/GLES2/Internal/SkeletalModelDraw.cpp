@@ -81,7 +81,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
     glm::vec3 color;
     glm::vec2 texture_uv[4];
-    DynamicTriangleDraw::PolygonType polygon_type;
+    Graphics::RenderMode polygon_type;
 
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
         const auto &facer_polygon = this->facer_polygons_info_r->at(i);
@@ -106,9 +106,9 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
             case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
-                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                    polygon_type = Graphics::RenderMode::ADDITION;
                 else
-                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                    polygon_type = Graphics::RenderMode::MIX;
 
                 if(facer_polygon.time_index == 0) {
                     for(int x = 0; x < 4; x++) {

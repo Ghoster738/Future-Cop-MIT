@@ -68,7 +68,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
     glm::vec3 color;
     glm::vec2 texture_uv[4];
-    DynamicTriangleDraw::PolygonType polygon_type;
+    Graphics::RenderMode polygon_type;
 
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
         const auto &facer_polygon = this->facer_polygons_info_r->at(i);
@@ -86,9 +86,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
             case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
-                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                    polygon_type = Graphics::RenderMode::ADDITION;
                 else
-                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                    polygon_type = Graphics::RenderMode::MIX;
 
                 if(facer_polygon.time_index == 0) {
                     for(int x = 0; x < 4; x++) {
@@ -392,7 +392,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         unsigned mix_index = std::min( material.count, material.mix_index );
         unsigned transparent_index = std::min( mix_index, addition_index );
 
-        DynamicTriangleDraw::PolygonType polygon_type;
+        Graphics::RenderMode polygon_type;
 
         glm::vec4   position = glm::vec4(0, 0, 0, 1);
         glm::vec4     normal = glm::vec4(0, 0, 0, 1);
@@ -427,9 +427,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             }
 
             if( m < mix_index )
-                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                polygon_type = Graphics::RenderMode::ADDITION;
             else
-                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                polygon_type = Graphics::RenderMode::MIX;
 
             triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
 
