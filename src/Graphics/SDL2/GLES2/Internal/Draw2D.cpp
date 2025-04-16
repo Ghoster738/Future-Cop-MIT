@@ -274,7 +274,10 @@ void Draw2D::uploadDynamicImageData(const Graphics::ImageBase *const image_base_
 
     DynamicImageData *image_data_r = &search->second;
 
-    if(image_data_r->texture_2d == nullptr || (image_2d.getWidth() != image_data_r->width || image_2d.getHeight() != image_data_r->height)) {
+    assert( image_data_r->width  > 0 );
+    assert( image_data_r->height > 0 );
+
+    if(image_data_r->texture_2d == nullptr || (image_2d.getWidth() != static_cast<uint32_t>(image_data_r->width) || image_2d.getHeight() != static_cast<uint32_t>(image_data_r->height))) {
         if(image_data_r->texture_2d != nullptr)
             delete image_data_r->texture_2d;
 

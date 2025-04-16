@@ -389,9 +389,6 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::advanceTime( float seconds
 {
     // Go through every model array.
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
-        // Get the mesh.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
-
         // Go through every instance of the model.
         for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
             (*instance)->addTextureTransformTimelineSeconds( seconds_passed );

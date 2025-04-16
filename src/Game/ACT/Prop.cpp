@@ -38,8 +38,8 @@ Prop::Prop( const Prop& obj ) :
     Actor( obj ),
     scale( obj.scale ), rotation( obj.rotation ), model_id( obj.model_id ), model_p( nullptr ),
     rotation_points{obj.rotation_points[0], obj.rotation_points[1], obj.rotation_points[2]},
-    rotation_time_line( obj.rotation_time_line ),
     rotation_speed_factor( obj.rotation_speed_factor ),
+    rotation_time_line( obj.rotation_time_line ),
     rotation_time_line_length( obj.rotation_time_line_length ),
     has_animated_rotation( obj.has_animated_rotation ){}
 

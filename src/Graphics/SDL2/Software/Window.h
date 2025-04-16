@@ -21,8 +21,8 @@ public:
     };
 
     struct RenderingRectArea {
-        unsigned start_x, end_x;
-        unsigned start_y, end_y;
+        int start_x, end_x;
+        int start_y, end_y;
     };
 
     struct RenderingRect {

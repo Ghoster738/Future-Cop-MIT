@@ -27,8 +27,8 @@ bool Graphics::SDL2::GLES2::Environment::doesModelExist(uint32_t obj_resource_id
 }
 
 Graphics::SDL2::GLES2::ModelInstance::ModelInstance( Graphics::SDL2::GLES2::Environment &environment, uint32_t obj_identifier ) :
-    environment_r(&environment),
     Graphics::ModelInstance(),
+    environment_r(&environment),
     array_r( nullptr ),
     bb_array_r( nullptr ),
     culling_sphere_position(),

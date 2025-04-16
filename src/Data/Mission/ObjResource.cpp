@@ -212,7 +212,6 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
 int Data::Mission::ObjResource::Primitive::setStar(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
-    int16_t     tex_animation_index[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center, morph_center;
     float morph_length_90d;
@@ -1741,10 +1740,10 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 auto reader3DHS = reader.getReader( data_tag_size );
                 
                 this->num_vertex_position_channel = reader3DHS.readU32( settings.endian );
-                auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
-                const auto VECTOR_SIZE = 4 * sizeof( uint16_t );
+                size_t data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
+                const size_t VECTOR_SIZE = 4 * sizeof( uint16_t );
 
-                auto read_3D_positions = data_size / VECTOR_SIZE; // vec3 with an empty space.
+                size_t read_3D_positions = data_size / VECTOR_SIZE; // vec3 with an empty space.
                 
                 frames_gen_3DHS = data_size / ( VECTOR_SIZE * this->num_vertex_position_channel );
 
@@ -1752,7 +1751,7 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                 this->vertex_position_data.reserve( data_size );
                 
-                for( int d = 0; d < read_3D_positions; d++ )
+                for( size_t d = 0; d < read_3D_positions; d++ )
                 {
                     auto u_x = reader3DHS.readU16( settings.endian );
                     auto u_y = reader3DHS.readU16( settings.endian );
