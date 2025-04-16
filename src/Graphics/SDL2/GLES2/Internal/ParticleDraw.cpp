@@ -178,14 +178,17 @@ void ParticleDraw::draw(Graphics::SDL2::GLES2::Camera& camera) {
 
         DynamicTriangleDraw::PolygonType polygon_type;
 
-        if(instance_data.is_opaque) {
-            polygon_type = DynamicTriangleDraw::PolygonType::MIX;
-        }
-        else {
-            if(instance_data.is_addition)
-                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
-            else
+        switch(instance_data.render_mode) {
+            default:
+            case Graphics::OPAQUE_WITH_CUTOFF:
                 polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                break;
+            case Graphics::ADDITION:
+                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                break;
+            case Graphics::MIX:
+                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                break;
         }
 
         draw_triangles_r[ index ].setup( cbmp_id, camera_position, polygon_type );

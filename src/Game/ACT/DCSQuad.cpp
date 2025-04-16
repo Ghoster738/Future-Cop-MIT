@@ -16,16 +16,13 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
     glm::vec3 normal = glm::vec3(0, 1, 0) * this->rotation;
     this->position += 0.00390625f * normal;
 
-    this->is_opaque   = false;
-    this->is_addition = false;
-
     if( (obj.internal.bitfield & 0x10) != 0 )
-        this->is_addition = true;
+        this->render_mode = Graphics::RenderMode::ADDITION;
     else
     if( (obj.internal.bitfield & 0x02) != 0 )
-        this->is_addition = false;
+        this->render_mode = Graphics::RenderMode::MIX;
     else
-        this->is_opaque = true;
+        this->render_mode = Graphics::RenderMode::OPAQUE_WITH_CUTOFF;
 
     this->dcs_id = obj.internal.dcs_id;
     this->dcs_p = nullptr;
@@ -34,7 +31,7 @@ DCSQuad::DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, con
 DCSQuad::DCSQuad( const DCSQuad& obj ) :
     Actor( obj ),
     color( obj.color ), rotation( obj.rotation ), scale( obj.scale ), dcs_id( obj.dcs_id ), dcs_p( nullptr ),
-    is_opaque( obj.is_opaque ), is_addition( obj.is_addition ) {}
+    render_mode( obj.render_mode ) {}
 
 DCSQuad::~DCSQuad() {
     if( this->dcs_p != nullptr )
@@ -58,8 +55,7 @@ void DCSQuad::resetGraphics( MainProgram &main_program ) {
             this->dcs_p->rotation       = this->rotation;
             this->dcs_p->color          = this->color;
             this->dcs_p->span           = this->scale;
-            this->dcs_p->is_opaque      = this->is_opaque;
-            this->dcs_p->is_addition    = this->is_addition;
+            this->dcs_p->render_mode    = this->render_mode;
             this->dcs_p->setQuadID( this->dcs_id );
 
             this->dcs_p->update();

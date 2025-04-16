@@ -4,6 +4,7 @@
 #include "../../../../Data/Mission/DCSResource.h"
 #include "../../../../Data/Mission/PYRResource.h"
 #include "../Camera.h"
+#include "../../../Defines.h"
 
 #include <cstdint>
 #include <map>
@@ -40,8 +41,7 @@ public:
 
         const Data::Mission::DCSResource::Image *image_r;
 
-        bool is_opaque;
-        bool is_addition;
+        RenderMode render_mode;
     };
 
 private:

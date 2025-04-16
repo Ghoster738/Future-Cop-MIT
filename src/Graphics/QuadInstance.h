@@ -5,6 +5,8 @@
 #include <glm/vec4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Defines.h"
+
 #include <cstdint>
 
 namespace Graphics {
@@ -15,8 +17,7 @@ public:
     glm::vec3 position;
     glm::vec3 color;
     glm::vec2 span;
-    bool is_opaque;
-    bool is_addition;
+    RenderMode render_mode;
 
     virtual ~QuadInstance() {};
 

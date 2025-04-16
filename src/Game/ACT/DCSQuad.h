@@ -18,8 +18,7 @@ private:
     uint32_t dcs_id;
     Graphics::QuadInstance *dcs_p;
 
-    bool is_opaque;
-    bool is_addition;
+    Graphics::RenderMode render_mode;
 
 public:
     DCSQuad( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::DCSQuad& obj );
