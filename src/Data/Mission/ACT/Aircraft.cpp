@@ -110,7 +110,7 @@ Data::Mission::ACT::Aircraft::Internal Data::Mission::ACT::Aircraft::getInternal
 }
 
 float Data::Mission::ACT::Aircraft::getHeightOffset() const {
-    //TODO Find out the fixed point format of height offset.
+    //TODO Find out if this is the correct fixed point to float factor.
     return (1.f / 512.f) * internal.height_offset;
 }
 
