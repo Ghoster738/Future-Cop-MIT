@@ -220,7 +220,7 @@ void FontDraw2D::drawOpaque(Window::RenderingRect &rendering_rect) const {
 
             auto offset_back = offset.x;
 
-            for(auto y = position_start.y; y < position_end.y; y) {
+            for(auto y = position_start.y; y < position_end.y;) {
                 auto count = ((((offset.y >> 8) + 1) << 8) - offset.y) / fixed_point_scale;
 
                 if(count == 0)
@@ -367,7 +367,7 @@ void FontDraw2D::draw(Window::RenderingRect &rendering_rect) const {
             }
             auto offset_back = offset.x;
 
-            for(auto y = position_start.y; y < position_end.y; y) {
+            for(auto y = position_start.y; y < position_end.y;) {
                 auto count = ((((offset.y >> 8) + 1) << 8) - offset.y) / fixed_point_scale;
 
                 if(count == 0)

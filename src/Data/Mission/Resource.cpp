@@ -22,7 +22,8 @@ Resource::Resource() : mis_index_number( -1 ), index_number( -1 ), offset( 0 ), 
 
 Resource::Resource( const Resource &obj ) :
     mis_index_number( obj.mis_index_number ), index_number( obj.index_number ), offset( obj.offset ), resource_id( obj.resource_id ), rpns_offsets{obj.rpns_offsets[0],
-    obj.rpns_offsets[1], obj.rpns_offsets[2]}, swvr_entry( obj.swvr_entry ), code_sizes{obj.code_sizes[0], obj.code_sizes[1]},
+    obj.rpns_offsets[1], obj.rpns_offsets[2]}, code_sizes{obj.code_sizes[0], obj.code_sizes[1]},
+    swvr_entry( obj.swvr_entry ),
     header_size(obj.header_size), data(nullptr) {
 
     if(obj.data != nullptr) {
