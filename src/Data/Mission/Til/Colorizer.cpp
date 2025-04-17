@@ -40,12 +40,19 @@ void Data::Mission::Til::Colorizer::setColors( std::vector<Utilities::PixelForma
         auto blue  = ((word & 0x001F) >>  0);
         auto green = ((word & 0x03E0) >>  5);
         auto red   = ((word & 0x7C00) >> 10);
+        auto state = ((word & 0x8000) !=  0);
         
         Utilities::PixelFormatColor::GenericColor value = { 0.0, 0.0, 0.0, 1.0 };
         
         value.blue  = static_cast<double>(blue)  * COLOR_SCALE;
         value.green = static_cast<double>(green) * COLOR_SCALE;
         value.red   = static_cast<double>(red)   * COLOR_SCALE;
+
+        if( state ) {
+            value.blue  *= 2.0;
+            value.green *= 2.0;
+            value.red   *= 2.0;
+        }
         
         colors.push_back( value );
     }
