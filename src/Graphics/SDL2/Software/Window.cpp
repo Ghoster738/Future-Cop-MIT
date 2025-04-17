@@ -105,10 +105,10 @@ int Window::attach() {
                             area.end_x   = x + advance_x;
                             area.end_y   = y + advance_y;
 
-                            if(area.end_x > this->destination_buffer.getWidth())
+                            if(area.end_x > (int)this->destination_buffer.getWidth())
                                 area.end_x = this->destination_buffer.getWidth();
 
-                            if(area.end_y > this->destination_buffer.getHeight())
+                            if(area.end_y > (int)this->destination_buffer.getHeight())
                                 area.end_y = this->destination_buffer.getHeight();
 
                             this->rendering_rect_areas.push_back( area );

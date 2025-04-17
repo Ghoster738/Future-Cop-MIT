@@ -75,9 +75,10 @@ void ModelViewer::load( MainProgram &main_program ) {
         cobj_index = this->obj_vector.size() - 1;
 
     if( main_program.environment_p->doesModelExist( this->obj_vector.at( cobj_index )->getResourceID() ) ) {
-        this->displayed_instance_p = main_program.environment_p->allocateModel( obj_vector.at( cobj_index )->getResourceID(), glm::vec3(0,0,0) );
+        this->displayed_instance_p = main_program.environment_p->allocateModel( obj_vector.at( cobj_index )->getResourceID() );
         this->displayed_instance_p->getBoundingSphere( this->position, this->radius );
         this->displayed_instance_p->setPosition( -this->position );
+        this->displayed_instance_p->setVisable(true);
     }
 }
 
@@ -199,9 +200,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
             if( this->displayed_instance_p != nullptr )
                 delete this->displayed_instance_p;
+            this->displayed_instance_p = nullptr;
 
             if( main_program.environment_p->doesModelExist( obj_vector.at( cobj_index )->getResourceID() ) ) {
-                this->displayed_instance_p = main_program.environment_p->allocateModel( this->obj_vector.at( this->cobj_index )->getResourceID(), glm::vec3( 0, 0, 0 ) );
+                this->displayed_instance_p = main_program.environment_p->allocateModel( this->obj_vector.at( this->cobj_index )->getResourceID() );
 
                 auto log = Utilities::logger.getLog( Utilities::Logger::DEBUG );
 
@@ -211,19 +213,19 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
                 // first_person->setView3D( placeView( glm::pi<float>() / 4.0f, this->radius + 4.0f, this->position ) );
                 this->displayed_instance_p->setPosition( -this->position );
+                this->displayed_instance_p->setVisable( true );
                 main_program.camera_distance = -(this->radius + 4.0f);
             }
-            else
-                this->displayed_instance_p = nullptr;
-
 
             this->count_down = 0.5f;
             this->rotation = 0;
         }
     }
 
-    if( this->displayed_instance_p != nullptr )
+    if( this->displayed_instance_p != nullptr ) {
+        this->displayed_instance_p->setPositionTransformTimeline( this->displayed_instance_p->getPositionTransformTimeline() + delta_f * 10.f);
         this->displayed_instance_p->setRotation( glm::angleAxis( rotation, glm::vec3( 0.0f, 1.0f, 0.0f ) ) );
+    }
 
     const auto text_2d_buffer_r = main_program.text_2d_buffer_r;
 

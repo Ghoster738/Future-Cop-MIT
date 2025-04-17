@@ -4,9 +4,7 @@
 #include "../../MainProgram.h"
 #include <chrono>
 
-namespace Game {
-
-namespace ACT {
+namespace Game::ACT {
 
 class Actor {
 protected:
@@ -26,8 +24,6 @@ public:
 
     uint32_t getID() const { return actor_id; }
 };
-
-}
 
 }
 

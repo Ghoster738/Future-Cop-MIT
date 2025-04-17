@@ -119,12 +119,20 @@ public:
 
         void generateNormals();
     };
-    class Bone {
-    public:
+    struct DecodedBone {
+        glm::vec3 position;
+        glm::quat rotation;
+
+        glm::mat4 toMatrix() const;
+        DecodedBone transform(const glm::mat4 &matrix) const;
+    };
+    struct Bone {
+        Bone *parent_r;
         unsigned int parent_amount; // Minus one is the parent amount.
         unsigned int normal_start, normal_stride;
         unsigned int vertex_start, vertex_stride;
         glm::i16vec3 position, rotation; // They are all of a 3D system.
+
         struct Opcode {
             struct Axis {
                 unsigned int x_const : 1;
@@ -133,6 +141,8 @@ public:
             } position, rotation;
             unsigned int unknown: 2; // bone_index?
         } opcode;
+
+        DecodedBone decode(int16_t *bone_animation_data_r, unsigned frame) const;
 
         /**
          * @return The number of attributes in the bone.
@@ -262,7 +272,6 @@ private:
         unsigned environment_map:  1;
         unsigned animation:        1;
     } info;
-    unsigned position_indexes[4];
 
     VertexData vertex_data;
 
@@ -270,6 +279,10 @@ private:
     std::vector<FaceOverrideType>     face_type_overrides;
     std::vector<glm::u8vec2>          override_uvs;
     std::vector<VertexColorOverride>  face_color_overrides;
+
+    unsigned position_indexes[4];
+    unsigned num_vertex_position_channel;
+    std::vector<glm::i16vec3> vertex_position_data; // Overides position_indexes when present.
 
     std::vector<Primitive> primitives;
 
@@ -307,7 +320,9 @@ public:
 
     bool isPositionValid( unsigned index ) const;
 
-    glm::vec3 getPosition( unsigned index ) const;
+    glm::vec3 getPosition( unsigned index, unsigned frame_index ) const;
+
+    DecodedBone getBone( unsigned bone_index, unsigned frame_index ) const;
 
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }

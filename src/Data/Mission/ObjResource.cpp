@@ -212,7 +212,6 @@ bool Data::Mission::ObjResource::Primitive::operator() ( const Primitive & l_ope
 int Data::Mission::ObjResource::Primitive::setStar(const VertexData& vertex_data, std::vector<Triangle> &triangles, std::vector<MorphTriangle> &morph_triangles, const std::vector<Bone> &bones) const {
     Triangle triangle;
     MorphTriangle morph_triangle;
-    int16_t     tex_animation_index[2][3];
     glm::u8vec4 weights, joints;
     glm::vec3 center, morph_center;
     float morph_length_90d;
@@ -1123,6 +1122,47 @@ const uint16_t* const Data::Mission::ObjResource::VertexData::get3DRLPointer(uin
     return nullptr;
 }
 
+glm::mat4 Data::Mission::ObjResource::DecodedBone::toMatrix() const {
+    return glm::translate( glm::mat4( 1.0f ), this->position ) * glm::mat4_cast( this->rotation );
+}
+
+Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::DecodedBone::transform(const glm::mat4 &matrix) const {
+    DecodedBone ret;
+
+    ret.position = matrix * glm::vec4(this->position, 1.0f);
+    ret.rotation = glm::quat_cast(matrix * glm::mat4_cast( this->rotation ));
+
+    return ret;
+}
+
+Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::Bone::decode(int16_t *bone_animation_data_r, unsigned frame) const {
+    Data::Mission::ObjResource::DecodedBone decoded_bone;
+
+    auto frame_position = this->position;
+    auto frame_rotation = this->rotation;
+
+    if( !this->opcode.position.x_const )
+        frame_position.x = bone_animation_data_r[ this->position.x + frame ];
+    if( !this->opcode.position.y_const )
+        frame_position.y = bone_animation_data_r[ this->position.y + frame ];
+    if( !this->opcode.position.z_const )
+        frame_position.z = bone_animation_data_r[ this->position.z + frame ];
+    if( !this->opcode.rotation.x_const )
+        frame_rotation.x = bone_animation_data_r[ this->rotation.x + frame ];
+    if( !this->opcode.rotation.y_const )
+        frame_rotation.y = bone_animation_data_r[ this->rotation.y + frame ];
+    if( !this->opcode.rotation.z_const )
+        frame_rotation.z = bone_animation_data_r[ this->rotation.z + frame ];
+
+    decoded_bone.rotation = glm::rotate( glm::quat(1, 0, 0, 0), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
+    decoded_bone.rotation = glm::rotate( decoded_bone.rotation,  static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
+    decoded_bone.rotation = glm::rotate( glm::quat(1, 0, 0, 0), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * decoded_bone.rotation;
+
+    decoded_bone.position = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
+
+    return decoded_bone;
+}
+
 unsigned int Data::Mission::ObjResource::Bone::getNumAttributes() const {
     return (getOpcodeBytesPerFrame( this->opcode ) / 2);
 }
@@ -1634,6 +1674,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 for( size_t i = 0; i < amount_of_bones; i++ ) {
                     // This statement allocates a bone, but it reads the opcode of the bone first since I want the opcode to only be written once.
                     bones.push_back( Bone() );
+
+                    bones.at(i).parent_r = nullptr;
                     
                     bones.at(i).parent_amount = reader3DHY.readU8();
                     bones.at(i).normal_start  = reader3DHY.readU8();
@@ -1667,6 +1709,27 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
 
                     // error_log.output << i << " = {" << bones.at(i).getString() << "}\n";
                 }
+
+                // Setup parent relations.
+                for( size_t rev_index = amount_of_bones; rev_index != 0; rev_index-- ) {
+                    size_t bone_index = rev_index - 1;
+
+                    // Cancel if there is no parent relationships.
+                    if(bone_index == 0 || bones.at(bone_index).parent_amount == 0)
+                        continue;
+
+                    // Search for a lower bone in reverse order.
+                    for( size_t r = bone_index; r != 0; r-- ) {
+                        size_t potential_parent_index = r - 1;
+
+                        if(bones.at(potential_parent_index).parent_amount == bones.at(bone_index).parent_amount - 1) {
+                            // Found the parent bone.
+                            bones.at(bone_index).parent_r = &bones.at(potential_parent_index);
+
+                            r = 1; // End the search! Set to one because r gets decremented.
+                        }
+                    }
+                }
                 
                 // The bytes_per_frame_3DMI might not actually hold true.
                 // I found out that the position and the rotation contains the index to 3DMI.
@@ -1676,26 +1739,27 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             if( identifier == TAG_3DHS ) {
                 auto reader3DHS = reader.getReader( data_tag_size );
                 
-                auto bone_depth_number = reader3DHS.readU32( settings.endian );
-                auto data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
-                const auto BONE_SIZE = 4 * sizeof( uint16_t );
+                this->num_vertex_position_channel = reader3DHS.readU32( settings.endian );
+                size_t data_size = reader3DHS.totalSize() - reader3DHS.getPosition();
+                const size_t VECTOR_SIZE = 4 * sizeof( uint16_t );
 
-                auto read_3D_positions = data_size / BONE_SIZE; // vec3 with an empty space.
+                size_t read_3D_positions = data_size / VECTOR_SIZE; // vec3 with an empty space.
                 
-                frames_gen_3DHS = data_size / ( BONE_SIZE * bone_depth_number );
+                frames_gen_3DHS = data_size / ( VECTOR_SIZE * this->num_vertex_position_channel );
 
                 debug_log.output << std::dec << "3DHS has " << read_3D_positions << " 3D vectors, and contains about " << frames_gen_3DHS << " frames.\n";
+
+                this->vertex_position_data.reserve( data_size );
                 
-                for( int d = 0; d < frames_gen_3DHS; d++ )
+                for( size_t d = 0; d < read_3D_positions; d++ )
                 {
-                    for( size_t i = 0; i < bone_depth_number; i++ )
-                    {
-                        auto u_x = reader3DHS.readU16( settings.endian );
-                        auto u_y = reader3DHS.readU16( settings.endian );
-                        auto u_z = reader3DHS.readU16( settings.endian );
-                        // I determined that this value stays zero, so no reading needs to be done.
-                        auto u_w = reader3DHS.readU16( settings.endian );
-                    }
+                    auto u_x = reader3DHS.readU16( settings.endian );
+                    auto u_y = reader3DHS.readU16( settings.endian );
+                    auto u_z = reader3DHS.readU16( settings.endian );
+                    // I determined that this value stays zero, so no reading needs to be done.
+                    auto u_w = reader3DHS.readU16( settings.endian );
+
+                    this->vertex_position_data.push_back( {u_x, u_y, u_z} );
                 }
             }
             else
@@ -2042,6 +2106,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
             }
         }
 
+        // At this stage data that requires other chunks will run here.
+
         for( auto i = face_type_overrides.size(); i != 0; i-- ) {
             FaceOverrideType &face_override = face_type_overrides[ i - 1 ];
 
@@ -2162,18 +2228,68 @@ bool Data::Mission::ObjResource::isPositionValid( unsigned index ) const {
         return false;
 }
 
-glm::vec3 Data::Mission::ObjResource::getPosition( unsigned index ) const {
+glm::vec3 Data::Mission::ObjResource::getPosition( unsigned position_index, unsigned frame_index ) const {
     glm::vec3 position(0, 0, 0);
 
-    if( isPositionValid( index ) ) {
-        const uint32_t id_length = vertex_data.get3DRFItem(VertexData::C_4DVL, 0);
-        const glm::i16vec3* const vertex_positions_r = vertex_data.get4DVLPointer(id_length);
+    if( !isPositionValid( position_index ) )
+        return position;
 
-        position  = vertex_positions_r[ position_indexes[index] ];
-        position *= glm::vec3(FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+    if(this->vertex_position_data.empty()) {
+        // Morph Target Animation Code
+
+        if( this->vertex_data.get3DRFSize() <= frame_index )
+            return position;
+
+        const uint32_t position_id = this->vertex_data.get3DRFItem(VertexData::C_4DVL, frame_index);
+        const glm::i16vec3* const vertex_positions_r = this->vertex_data.get4DVLPointer(position_id);
+
+        if( vertex_positions_r == nullptr )
+            return position;
+
+        position  = vertex_positions_r[ position_indexes[position_index] ];
+        position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
+    }
+    else {
+        // Bone/Skin Animation Code
+
+        if( position_index >= this->num_vertex_position_channel )
+            return position;
+
+        size_t index = num_vertex_position_channel * frame_index + position_index;
+
+        if( index >= this->vertex_position_data.size() )
+            return position;
+
+        position  = this->vertex_position_data[ index ];
+        position *= glm::vec3(-FIXED_POINT_UNIT, FIXED_POINT_UNIT, FIXED_POINT_UNIT);
     }
 
     return position;
+}
+
+Data::Mission::ObjResource::DecodedBone Data::Mission::ObjResource::getBone( unsigned bone_index, unsigned frame_index ) const {
+    if(bone_index >= bones.size())
+        return DecodedBone();
+
+    DecodedBone decoded_bone = this->bones[ bone_index ].decode(this->bone_animation_data, frame_index);
+
+    if(this->bones[ bone_index ].parent_r != nullptr) {
+        auto matrix = glm::mat4( 1.0f );
+
+        auto parent_r = this->bones[ bone_index ].parent_r;
+
+        while( parent_r != nullptr ) {
+            DecodedBone parent_bone = parent_r->decode(this->bone_animation_data, frame_index);
+
+            matrix = parent_bone.toMatrix() * matrix;
+
+            parent_r = parent_r->parent_r;
+        }
+
+        decoded_bone = decoded_bone.transform( matrix );
+    }
+
+    return decoded_bone;
 }
 
 int Data::Mission::ObjResource::write( const std::filesystem::path& file_path, const Data::Mission::IFFOptions &iff_options ) const {
@@ -2581,48 +2697,20 @@ Utilities::ModelBuilder * Data::Mission::ObjResource::createMesh( bool exclude_m
 
         model_output_p->allocateJoints( bones.size(), bone_frames );
         
-        glm::mat4 bone_matrix;
-        
         // Make joint relations.
-        unsigned int childern[ max_bone_childern ];
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
-            childern[ bones.at( bone_index ).parent_amount - 1 ] = bone_index;
-            
-            if( bones.at( bone_index ).parent_amount > 1 )
-                model_output_p->setJointParent( childern[ bones.at( bone_index ).parent_amount - 2 ], bone_index );
+            if( bones.at( bone_index ).parent_r != nullptr )
+                model_output_p->setJointParent( this->bones.at( bone_index ).parent_r - &this->bones.at(0), bone_index );
         }
 
         for( unsigned int bone_index = 0; bone_index < bones.size(); bone_index++ ) {
             auto current_bone = bones.begin() + bone_index;
             
-            childern[ (*current_bone).parent_amount - 1 ] = bone_index;
-            
             for( unsigned int frame = 0; frame < bone_frames; frame++ )
             {
-                auto frame_position = (*current_bone).position;
-                auto frame_rotation = (*current_bone).rotation;
+                DecodedBone decoded_bone = (*current_bone).decode(bone_animation_data, frame);
                 
-                if( !(*current_bone).opcode.position.x_const )
-                    frame_position.x = bone_animation_data[ (*current_bone).position.x + frame ];
-                if( !(*current_bone).opcode.position.y_const )
-                    frame_position.y = bone_animation_data[ (*current_bone).position.y + frame ];
-                if( !(*current_bone).opcode.position.z_const )
-                    frame_position.z = bone_animation_data[ (*current_bone).position.z + frame ];
-                if( !(*current_bone).opcode.rotation.x_const )
-                    frame_rotation.x = bone_animation_data[ (*current_bone).rotation.x + frame ];
-                if( !(*current_bone).opcode.rotation.y_const )
-                    frame_rotation.y = bone_animation_data[ (*current_bone).rotation.y + frame ];
-                if( !(*current_bone).opcode.rotation.z_const )
-                    frame_rotation.z = bone_animation_data[ (*current_bone).rotation.z + frame ];
-                
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.x ) * ANGLE_UNIT, glm::vec3( 0, 1, 0 ) );
-                bone_matrix = glm::rotate( bone_matrix, static_cast<float>( frame_rotation.y ) * ANGLE_UNIT, glm::vec3( 1, 0, 0 ) );
-                bone_matrix = glm::rotate( glm::mat4(1.0f), -static_cast<float>( frame_rotation.z ) * ANGLE_UNIT, glm::vec3( 0, 0, 1 ) ) * bone_matrix;
-                
-                auto position  = glm::vec3( -frame_position.x, frame_position.y, frame_position.z ) * static_cast<float>( FIXED_POINT_UNIT );
-                auto quaterion = glm::quat_cast( bone_matrix );
-                
-                model_output_p->setJointFrame( frame, bone_index, position, quaterion );
+                model_output_p->setJointFrame( frame, bone_index, decoded_bone.position, decoded_bone.rotation );
             }
         }
     }

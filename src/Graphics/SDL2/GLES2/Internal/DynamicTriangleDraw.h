@@ -5,9 +5,9 @@
 #include "Texture2D.h"
 #include "VertexAttributeArray.h"
 
-namespace Graphics {
-namespace SDL2 {
-namespace GLES2 {
+#include "../../../../Defines.h"
+
+namespace Graphics::SDL2::GLES2 {
 
 class Camera;
 
@@ -17,11 +17,6 @@ class DynamicTriangleDraw {
 public:
     static const GLchar* default_vertex_shader;
     static const GLchar* default_fragment_shader;
-
-    enum PolygonType {
-        MIX      = 0,
-        ADDITION = 1
-    };
 
     struct Vertex {
         glm::vec3    position;
@@ -34,7 +29,7 @@ public:
         union {
             struct {
                 uint32_t texture_id : 30;
-                uint32_t polygon_type : 2;
+                uint32_t polygon_type : 2; // Can hold four states
             } bitfield;
             float distance_from_camera;
         } metadata;
@@ -42,7 +37,7 @@ public:
     struct Triangle {
         Vertex vertices[3];
 
-        void setup( uint32_t texture_id, const glm::vec3 &camera_position, PolygonType poly_type );
+        void setup( uint32_t texture_id, const glm::vec3 &camera_position, Graphics::RenderMode poly_type );
 
         float genDistanceSq( const glm::vec3 &camera_position ) const;
 
@@ -59,7 +54,7 @@ public:
             DynamicTriangleDraw::Triangle *draw_triangles_r, size_t number_of_triangles,
             const glm::vec3 &camera_position, const glm::mat4 &transform, const glm::vec3 &camera_right, const glm::vec3 &camera_up,
             const glm::vec3 &position, const glm::vec3 &color, float width,
-            PolygonType visability_mode, uint32_t bmp_id, const glm::vec2 (&coords)[4]);
+            Graphics::RenderMode visability_mode, uint32_t bmp_id, const glm::vec2 (&coords)[4]);
     };
     struct DrawCommand {
         // This holds transparent triangles
@@ -201,10 +196,6 @@ public:
      */
     GLuint getCameraUniformID() const { return matrix_uniform_id; }
 };
-
-}
-
-}
 
 }
 

@@ -303,6 +303,11 @@ private:
     TextureInfo texture_info[8]; // There can only be 2*2*2 or 8 texture resource IDs.
     
     std::vector<Utilities::Collision::Triangle> all_triangles; // This stores all the triangles in the Til Resource.
+    struct {
+        unsigned int index;
+        unsigned int floor_size;
+        unsigned int total_size;
+    } collision_triangle_index_grid[ AMOUNT_OF_TILES ][ AMOUNT_OF_TILES ];
 public:
     static constexpr size_t TEXTURE_INFO_AMOUNT = sizeof( texture_info ) / sizeof( texture_info[0] );
     
@@ -332,9 +337,9 @@ public:
     
     void createPhysicsCell( unsigned int x, unsigned int z );
     
-    float getRayCast3D( const Utilities::Collision::Ray &ray ) const;
-    float getRayCast2D( float x, float y ) const;
-    float getRayCastDownward( float x, float y, float from_highest_point ) const;
+    float getRayCast3D( const Utilities::Collision::Ray &ray, unsigned level ) const;
+    float getRayCast2D( float x, float y, unsigned level ) const;
+    float getRayCastDownward( float x, float y, float from_highest_point, unsigned level ) const;
 
     const std::vector<Utilities::Collision::Triangle>& getAllTriangles() const;
     Utilities::Image2D getHeightMap( unsigned int rays_per_tile = 4 ) const;

@@ -151,7 +151,7 @@ int Data::Mission::PTCResource::write( const std::filesystem::path& file_path, c
         }
 
         if( iff_options.ptc.entire_height_map ) {
-            unsigned int rays_per_tile = 1;
+            unsigned int rays_per_tile = 8;
 
             Utilities::Image2D ptc_height_map( grid.getWidth() * rays_per_tile * 16, grid.getHeight() * rays_per_tile * 16, Utilities::PixelFormatColor_R8G8B8::linear );
 
@@ -250,7 +250,7 @@ int Data::Mission::PTCResource::writeEntireMap( const std::filesystem::path& fil
         return 0; // Combine model has failed to write.
 }
 
-float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
+float Data::Mission::PTCResource::getRayCast2D( float y, float x, unsigned level ) const {
     if( x < 0.0 || y < 0.0 )
         return 10.0f;
 
@@ -266,7 +266,7 @@ float Data::Mission::PTCResource::getRayCast2D( float y, float x ) const {
     const float x_til_offset = fmod( x, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
     const float y_til_offset = fmod( y, static_cast<float>( TilResource::AMOUNT_OF_TILES ) );
 
-    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ) );
+    return TilResource::MAX_HEIGHT - tile_r->getRayCast2D( x_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), y_til_offset - static_cast<float>( TilResource::SPAN_OF_TIL ), level );
 }
 
 

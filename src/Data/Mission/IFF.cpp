@@ -379,7 +379,6 @@ int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
         Resource::SWVREntry swvr_entry;
 
         std::map<uint32_t, uint32_t> *header_enum_numbers_r = &pc_header_enum_numbers;
-        uint32_t rpns_size = 0xFFFFFFFF;
 
         uint32_t block_index = 0;
 
@@ -426,7 +425,7 @@ int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
 
         while( !file.eof() && !error_in_read ) {
             while( data_reader.getPosition(Utilities::Buffer::Direction::END) > 2 * sizeof(uint32_t) ) {
-                const auto file_offset = BLOCK_SIZE * block_index + data_reader.getPosition();
+                const int file_offset = BLOCK_SIZE * block_index + data_reader.getPosition();
 
                 assert( iff_file_size > file_offset );
 
@@ -865,6 +864,12 @@ int Data::Mission::IFF::open( const std::filesystem::path &file_path ) {
             if( !ptc_pointers_r[0]->makeTiles( accessor.getAllTIL() ) )
             {
                 error_log.output << "PTC resource is found, but there are no Til resources.\n";
+            }
+
+            auto objects = accessor.getAllNET();
+
+            for( auto it = objects.begin(); it != objects.end(); it++ ) {
+                (*it)->calculateNodeHeight( *ptc_pointers_r[0] );
             }
         }
         else

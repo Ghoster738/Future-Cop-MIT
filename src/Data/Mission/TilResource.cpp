@@ -310,18 +310,19 @@ Data::Mission::TilResource::TilResource() {
 Data::Mission::TilResource::TilResource( const TilResource &obj ) : ModelResource( obj ), point_cloud_3_channel( obj.point_cloud_3_channel ), culling_data( obj.culling_data ), uv_animation( obj.uv_animation ), mesh_library_size( obj.mesh_library_size ), mesh_reference_grid(), mesh_tiles( obj.mesh_tiles ), texture_cords( obj.texture_cords ), colors( obj.colors ), tile_graphics_bitfield( obj.tile_graphics_bitfield ), SCTA_info( obj.SCTA_info ), scta_texture_cords( obj.scta_texture_cords ), slfx_bitfield( obj.slfx_bitfield ), texture_info(), all_triangles( obj.all_triangles ) {
     for( unsigned y = 0; y < AMOUNT_OF_TILES; y++ ) {
         for( unsigned x = 0; x < AMOUNT_OF_TILES; x++ ) {
-            mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
+            this->mesh_reference_grid[x][y] = obj.mesh_reference_grid[x][y];
+            this->collision_triangle_index_grid[x][y] = obj.collision_triangle_index_grid[x][y];
         }
     }
 
-    texture_info[0] = obj.texture_info[0];
-    texture_info[1] = obj.texture_info[1];
-    texture_info[2] = obj.texture_info[2];
-    texture_info[3] = obj.texture_info[3];
-    texture_info[4] = obj.texture_info[4];
-    texture_info[5] = obj.texture_info[5];
-    texture_info[6] = obj.texture_info[6];
-    texture_info[7] = obj.texture_info[7];
+    this->texture_info[0] = obj.texture_info[0];
+    this->texture_info[1] = obj.texture_info[1];
+    this->texture_info[2] = obj.texture_info[2];
+    this->texture_info[3] = obj.texture_info[3];
+    this->texture_info[4] = obj.texture_info[4];
+    this->texture_info[5] = obj.texture_info[5];
+    this->texture_info[6] = obj.texture_info[6];
+    this->texture_info[7] = obj.texture_info[7];
 }
 
 std::filesystem::path Data::Mission::TilResource::getFileExtension() const {
@@ -921,84 +922,233 @@ void Data::Mission::TilResource::createPhysicsCell( unsigned int x, unsigned int
         input.coord_data = this->texture_cords.data();
         input.SCTA_info_r = &this->SCTA_info;
         
-        for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
-            
-            current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
-            
-            input.coord_index = current_tile.texture_cord_index;
-            
-            vertex_data.element_amount = 6;
-            vertex_data.element_start = 0;
-            vertex_data.stca_animation_index = stca_animation_index;
-            
-            auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
-            
-            for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
-                position[ i ].x += (SPAN_OF_TIL - x) - 0.5;
-                position[ i ].z += (SPAN_OF_TIL - z) - 0.5;
+        auto &element = this->collision_triangle_index_grid[ x ][ z ];
 
-                // Flip Both Axis's
-                position[ i ].x = -position[ i ].x;
-                position[ i ].z = -position[ i ].z;
-            }
-            
-            for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
-                all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
+        element.index = this->all_triangles.size();
+        element.floor_size = 0;
+        element.total_size = 0;
+
+        unsigned int counts[2] = {0, 0};
+
+        for( unsigned a = 0; a < 2; a++ ) {
+            for( auto current_tile_index = 0; current_tile_index < mesh_reference_grid[x][z].tile_amount; current_tile_index++ ) {
+
+                current_tile = mesh_tiles.at( (current_tile_index + mesh_reference_grid[x][z].tiles_start) % mesh_tiles.size() );
+
+                if(a != Til::Mesh::isWall( current_tile.mesh_type ))
+                    continue;
+
+                input.coord_index = current_tile.texture_cord_index;
+
+                vertex_data.element_amount = 6;
+                vertex_data.element_start = 0;
+                vertex_data.stca_animation_index = stca_animation_index;
+
+                auto amount_of_vertices = createTile( input, vertex_data, current_tile.mesh_type );
+
+                for( unsigned int i = 0; i < amount_of_vertices; i++ ) {
+                    position[ i ].x += (SPAN_OF_TIL - x) - 0.5;
+                    position[ i ].z += (SPAN_OF_TIL - z) - 0.5;
+
+                    // Flip Both Axis's
+                    position[ i ].x = -position[ i ].x;
+                    position[ i ].z = -position[ i ].z;
+                }
+
+                for( unsigned int i = 0; i < amount_of_vertices; i += 3 ) {
+                    this->all_triangles.push_back( Utilities::Collision::Triangle( &position[ i ] ) );
+                    counts[ a ]++;
+                }
             }
         }
+
+        element.floor_size = counts[ 0 ];
+        element.total_size = counts[ 1 ] + element.floor_size;
     }
 }
 
-float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray ) const {
+float Data::Mission::TilResource::getRayCast3D( const Utilities::Collision::Ray &ray, unsigned level ) const {
     // TODO Develop a more complex, but more effient raycasting implementation like DDA.
+
+    assert(level <= 2 && level >= 0);
+
+    const float MAX_DISTANCE = 131072.0f;
+
     bool found_triangle = false;
-    float final_distance = 1000000.0f;
+    float final_distances[3] = {MAX_DISTANCE, MAX_DISTANCE, MAX_DISTANCE};
     float temp_distance;
     glm::vec3 point;
     glm::vec3 barycentric;
     
-    for( auto i : all_triangles ) {
+    for( const auto &tri : all_triangles ) {
         // Get the intersection distance from the plane first.
-        temp_distance = i.getIntersectionDistance( ray );
+        temp_distance = tri.getIntersectionDistance( ray );
         
-        // If temp_distance is positive and
-        // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
-        if( temp_distance > 0.0f && temp_distance < final_distance ) {
-            
-            // Get the point in 3D space.
-            point = ray.getSpot( temp_distance );
-            
-            // Get the barycentric cordinates.
-            barycentric = i.getBarycentricCordinates( point );
-            
-            // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
-            if( i.isInTriangle( barycentric ) ) {
-                
-                // A triangle has been found.
-                found_triangle = true;
-                
-                // The final_distance is now at the triangle.
-                final_distance = temp_distance;
+        // If temp_distance is positive
+        if( temp_distance <= 0.0f )
+            continue;
+
+        for(unsigned t = 0; t < 3; t++) {
+            if(t != 0 && final_distances[t - 1] == temp_distance) {
+                t = 3;
+                continue;
+            }
+
+            // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
+            if( temp_distance < final_distances[t] ) {
+
+                // Get the point in 3D space.
+                point = ray.getSpot( temp_distance );
+
+                // Get the barycentric cordinates.
+                barycentric = tri.getBarycentricCordinates( point );
+
+                // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
+                if( tri.isInTriangle( barycentric ) ) {
+
+                    // A triangle has been found.
+                    found_triangle = true;
+
+                    // If there is data in the queue then place it in the final distances.
+                    if(final_distances[t] != MAX_DISTANCE) {
+                        for(unsigned d = 2; d != t; d--) {
+                            final_distances[d] = final_distances[d - 1];
+                        }
+                    }
+
+                    // The final_distance is now at the triangle.
+                    final_distances[t] = temp_distance;
+
+                    t = 3;
+                }
             }
         }
     }
     
     // If the triangle has been found then return a positive number.
-    if( found_triangle )
-        return final_distance;
-    else
+    if( !found_triangle )
         return -1.0f;
+
+    if(level == 2) {
+        if(final_distances[2] != MAX_DISTANCE) {
+            assert(final_distances[2] != final_distances[1]);
+            assert(final_distances[1] != final_distances[0]);
+
+            return final_distances[2];
+        }
+        else if(final_distances[1] != MAX_DISTANCE) {
+            assert(final_distances[1] != final_distances[0]);
+            return final_distances[1];
+        }
+    }
+    else
+    if(level == 1 && final_distances[1] != MAX_DISTANCE) {
+        assert(final_distances[1] != final_distances[0]);
+        return final_distances[1];
+    }
+
+    return final_distances[0];
 }
 
-float Data::Mission::TilResource::getRayCast2D( float x, float z ) const {
-    return getRayCastDownward( x, z, MAX_HEIGHT );
+float Data::Mission::TilResource::getRayCast2D( float x, float z, unsigned level ) const {
+    return getRayCastDownward( x, z, MAX_HEIGHT, level );
 }
 
-float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point ) const {
+float Data::Mission::TilResource::getRayCastDownward( float x, float z, float from_highest_point, unsigned level ) const {
     // TODO I have an algorithm in mind to make this much faster. It involves using planes and a 2D grid.
-    Utilities::Collision::Ray downRay( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
-    
-    return getRayCast3D( downRay );
+    Utilities::Collision::Ray ray( glm::vec3( x, from_highest_point, z ), glm::vec3( x, from_highest_point - 1.0f, z ) );
+
+    assert(level <= 2 && level >= 0);
+
+    const float MAX_DISTANCE = 131072.0f;
+
+    bool found_triangle = false;
+    float final_distances[3] = {MAX_DISTANCE, MAX_DISTANCE, MAX_DISTANCE};
+    float temp_distance;
+    glm::vec3 point;
+    glm::vec3 barycentric;
+
+    if( x < -8.0f || z < -8.0f )
+        return MAX_DISTANCE;
+
+    const auto cell_x = static_cast<int>(x + SPAN_OF_TIL);
+    const auto cell_z = static_cast<int>(z + SPAN_OF_TIL);
+
+    if( cell_x > 15 || cell_z > 15 )
+        return MAX_DISTANCE;
+
+    const auto &cell = collision_triangle_index_grid[cell_x][cell_z];
+
+    for( unsigned int i = 0; i < cell.floor_size; i++ ) {
+        const auto &tri = all_triangles[cell.index + i];
+
+        // Get the intersection distance from the plane first.
+        temp_distance = tri.getIntersectionDistance( ray );
+
+        // If temp_distance is positive
+        if( temp_distance <= 0.0f )
+            continue;
+
+        for(unsigned t = 0; t < 3; t++) {
+            if(t != 0 && final_distances[t - 1] == temp_distance) {
+                t = 3;
+                continue;
+            }
+
+            // if temp_distance is shorter than final distance. Then, this ray should be checked if it is in the triangle.
+            if( temp_distance < final_distances[t] ) {
+
+                // Get the point in 3D space.
+                point = ray.getSpot( temp_distance );
+
+                // Get the barycentric cordinates.
+                barycentric = tri.getBarycentricCordinates( point );
+
+                // If these cordinates can indicate that they are in the triangle then the ray collides with the triangle.
+                if( tri.isInTriangle( barycentric ) ) {
+
+                    // A triangle has been found.
+                    found_triangle = true;
+
+                    // If there is data in the queue then place it in the final distances.
+                    if(final_distances[t] != MAX_DISTANCE) {
+                        for(unsigned d = 2; d != t; d--) {
+                            final_distances[d] = final_distances[d - 1];
+                        }
+                    }
+
+                    // The final_distance is now at the triangle.
+                    final_distances[t] = temp_distance;
+
+                    t = 3;
+                }
+            }
+        }
+    }
+
+    // If the triangle has been found then return a positive number.
+    if( !found_triangle )
+        return -1.0f;
+
+    if(level == 2) {
+        if(final_distances[2] != MAX_DISTANCE) {
+            assert(final_distances[2] != final_distances[1]);
+            assert(final_distances[1] != final_distances[0]);
+
+            return final_distances[2];
+        }
+        else if(final_distances[1] != MAX_DISTANCE) {
+            assert(final_distances[1] != final_distances[0]);
+            return final_distances[1];
+        }
+    }
+    else
+    if(level == 1 && final_distances[1] != MAX_DISTANCE) {
+        assert(final_distances[1] != final_distances[0]);
+        return final_distances[1];
+    }
+
+    return final_distances[0];
 }
 
 const std::vector<Utilities::Collision::Triangle>& Data::Mission::TilResource::getAllTriangles() const {
@@ -1021,7 +1171,7 @@ Utilities::Image2D Data::Mission::TilResource::getHeightMap( unsigned int rays_p
             
             float z_pos = static_cast<float>(z) * STEPER - HALF_LENGTH;
             
-            float distance = getRayCast2D( z_pos, x_pos );
+            float distance = getRayCast2D( z_pos, x_pos, 0 );
             
             // This means that no triangles had been hit
             if( distance < 0.0f ) {

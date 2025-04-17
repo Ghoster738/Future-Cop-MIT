@@ -1,12 +1,20 @@
 #include "ActorAccessor.h"
 
 #include "Mission/ACT/Aircraft.h"
-#include "Mission/ACT/BaseTurret.h"
+#include "Mission/ACT/Elevator.h"
+#include "Mission/ACT/DCSQuad.h"
+#include "Mission/ACT/DynamicProp.h"
 #include "Mission/ACT/ItemPickup.h"
+#include "Mission/ACT/MoveableProp.h"
 #include "Mission/ACT/NeutralTurret.h"
+#include "Mission/ACT/PathedActor.h"
+#include "Mission/ACT/PathedTurret.h"
 #include "Mission/ACT/Prop.h"
+#include "Mission/ACT/StationaryActor.h"
 #include "Mission/ACT/SkyCaptain.h"
 #include "Mission/ACT/Trigger.h"
+#include "Mission/ACT/Turret.h"
+#include "Mission/ACT/WalkableProp.h"
 #include "Mission/ACT/X1Alpha.h"
 
 #define SEARCH( CLASS_NAME, GET_METHOD_NAME, ALL_METHOD_NAME, GET_CONST_METHOD_NAME, ALL_CONST_METHOD_NAME ) \
@@ -141,12 +149,20 @@ std::vector<const Mission::ACTResource*> ActorAccessor::getAllConstTypeID( uint_
 }
 
 SEARCH(Aircraft, getAircraft, getAllAircraft, getConstAircraft, getAllConstAircraft)
-SEARCH(BaseTurret, getBaseTurret, getAllBaseTurret, getConstBaseTurret, getAllConstBaseTurret)
+SEARCH(Elevator, getElevator, getAllElevator, getConstElevator, getAllConstElevator)
+SEARCH(DCSQuad, getDCSQuad, getAllDCSQuad, getConstDCSQuad, getAllConstDCSQuad)
+SEARCH(DynamicProp, getDynamicProp, getAllDynamicProp, getConstDynamicProp, getAllConstDynamicProp)
+SEARCH(Turret, getTurret, getAllTurret, getConstTurret, getAllConstTurret)
 SEARCH(ItemPickup, getItemPickup, getAllItemPickup, getConstItemPickup, getAllConstItemPickup)
+SEARCH(MoveableProp, getMoveableProp, getAllMoveableProp, getConstMoveableProp, getAllConstMoveableProp)
 SEARCH(NeutralTurret, getNeutralTurret, getAllNeutralTurret, getConstNeutralTurret, getAllConstNeutralTurret)
+SEARCH(PathedActor, getPathedActor, getAllPathedActor, getConstPathedActor, getAllConstPathedActor)
+SEARCH(PathedTurret, getPathedTurret, getAllPathedTurret, getConstPathedTurret, getAllConstPathedTurret)
 SEARCH(Prop, getProp, getAllProp, getConstProp, getAllConstProp)
+SEARCH(StationaryActor, getStationaryActor, getAllStationaryActor, getConstStationaryActor, getAllConstStationaryActor)
 SEARCH(SkyCaptain, getSkyCaptain, getAllSkyCaptain, getConstSkyCaptain, getAllConstSkyCaptain)
 SEARCH(Trigger, getTrigger, getAllTrigger, getConstTrigger, getAllConstTrigger)
+SEARCH(WalkableProp, getWalkableProp, getAllWalkableProp, getConstWalkableProp, getAllConstWalkableProp)
 SEARCH(X1Alpha, getX1Alpha, getAllX1Alpha, getConstX1Alpha, getAllConstX1Alpha)
 
 }

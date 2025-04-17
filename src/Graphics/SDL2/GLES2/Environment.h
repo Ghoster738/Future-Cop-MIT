@@ -55,9 +55,10 @@ public:
     virtual Graphics::ExternalImage* allocateExternalImage(bool has_alpha = false);
     virtual Graphics::Camera* allocateCamera();
     virtual Graphics::Image* allocateImage();
-    virtual Graphics::ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param, const glm::vec2 &texture_offset_param);
+    virtual Graphics::ModelInstance* allocateModel(uint32_t obj_resource_id);
     virtual bool doesModelExist(uint32_t obj_resource_id) const;
     virtual Graphics::ParticleInstance* allocateParticleInstance();
+    virtual Graphics::QuadInstance* allocateQuadInstance();
     virtual Graphics::Text2DBuffer* allocateText2DBuffer();
     virtual Graphics::ANMFrame* allocateVideoANM(uint32_t track_offset);
     virtual Graphics::Window* allocateWindow();

@@ -31,21 +31,12 @@ include_directories("${CMAKE_SOURCE_DIR}/src/Utilities/HeaderOnlyLibraries/")
 
 if( FCOption_GLM_VENDORED )
   add_subdirectory(submodules/glm)
-  target_link_libraries( FC_IFF_IO glm::glm )
 else()
-  find_package( glm REQUIRED )
-  
-  # Warn the user of the potential compilation error.
-  if( GLM_VERSION VERSION_LESS 0.9.9.8 )
-    if( GLM_VERSION VERSION_LESS 0.9.9 )
-      message( ERROR "GLM version is ${GLM_VERSION} which is below 0.9.9. It will cause GLM to crash. To fix this error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
-    else() #Failed to release that GLM often lacks full version numbers leading to this complexity
-      message( WARNING "GLM version is ${GLM_VERSION} which is might be bellow 0.9.9.8. It might cause a compilation issue. To fix this potential compilation error either update OpenGL Mathematics above 0.9.9.8, or use the vendored GLM library." )
-    endif()
-  endif()
-
-  include_directories(${GLM_INCLUDE_DIRS})
+  # It could be that 1.0.0 works with this project, but I did not bother to test this.
+  find_package( glm 1.0.1 REQUIRED )
 endif()
+
+target_link_libraries( FC_IFF_IO glm::glm )
 
 # Use the vendor version if the SDL2 find files could not be found.
 if( FCOption_SDL2_VENDORED )

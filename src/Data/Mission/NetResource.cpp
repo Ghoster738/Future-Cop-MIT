@@ -8,57 +8,110 @@ namespace {
     const uint16_t TAG_tN = 0x744E; // which is { 0x74, 0x43 } or { 't', 'N' } or "tN"
     const uint16_t TAG_OD = 0x4F44; // which is { 0x4F, 0x44 } or { 'O', 'D' } or "OD"
 
-    const auto INTEGER_FACTOR = 1.0 / 256.0;
+    const auto INTEGER_FACTOR = 1.f / 32.f;
 }
 
 Data::Mission::NetResource::Node::Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian ) {
-    this->data       = reader.readU32( endian );
-    this->pad        = reader.readU16( endian ); // My guess is that this does nothing.
-    this->position.x = reader.readU16( endian );
-    this->position.y = reader.readU16( endian );
-    this->spawn      = reader.readU16( endian ); // I do not fully understand this value.
+    this->bitfield_0             = reader.readU32( endian );
+    this->bitfield_1             = reader.readU16( endian );
+    this->position.x             = reader.readU16( endian );
+    this->position.y             = reader.readU16( endian );
+    this->height_offset_bitfield = reader.readI16( endian );
+
+    this->calculated_y_axis = 0;
 }
 
-uint32_t Data::Mission::NetResource::Node::getData() const {
-	return this->data;
+uint32_t Data::Mission::NetResource::Node::getPrimaryBitfield() const {
+    return this->bitfield_0;
 }
 
-int16_t Data::Mission::NetResource::Node::getPad() const {
-	return this->pad;
+uint16_t Data::Mission::NetResource::Node::getSubBitfield() const {
+    return this->bitfield_1;
 }
 
-glm::i16vec2 Data::Mission::NetResource::Node::getPosition() const {
-	return this->position;
+glm::vec3 Data::Mission::NetResource::Node::getPosition() const {
+    return glm::vec3(INTEGER_FACTOR * this->position.x, this->calculated_y_axis, INTEGER_FACTOR * this->position.y);
 }
 
-int16_t Data::Mission::NetResource::Node::getSpawn() const {
-	return this->spawn;
+glm::i16vec2 Data::Mission::NetResource::Node::getRawPosition() const {
+    return this->position;
 }
 
-unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[3], unsigned int max_size ) const {
+float Data::Mission::NetResource::Node::getHeightOffset() const {
+    int16_t height_offset = (this->height_offset_bitfield >> 4) & 0x0FFF;
+
+    if((this->height_offset_bitfield & 0x8000) != 0) {
+        height_offset |= 0xF000; // This effectively converts this number to negative.
+    }
+
+    return INTEGER_FACTOR * height_offset;
+}
+
+bool Data::Mission::NetResource::Node::hasReadOffset() const {
+    return (this->height_offset_bitfield & 0x000c) != 0;
+}
+
+Data::Mission::ACTResource::GroundCast Data::Mission::NetResource::Node::getGroundCast() const {
+    uint16_t ground_cast = this->height_offset_bitfield & 0x0003;
+
+    switch(ground_cast) {
+        default:
+        case 0: return ACTResource::GroundCast::HIGH;
+        case 1: return ACTResource::GroundCast::LOW;
+        case 2: return ACTResource::GroundCast::NONE; // TODO Find out if this is the case.
+        case 3: return ACTResource::GroundCast::MIDDLE;
+    }
+}
+
+unsigned int Data::Mission::NetResource::Node::getIndexes( unsigned int indexes[4] ) const {
+    unsigned int index_canadate = 0;
     unsigned int filled_indices = 0;
     
     // Get rid of the last two bits on the index_data.
-    unsigned int index_data = (this->data & 0xFFFFFFFC) >> 2;
+    uint32_t index_data = (this->bitfield_0 & 0xfffffffc) >> 2;
     
     // A maxiumun 10-bit number.
-    const unsigned int MASK = 0x3FF;
+    const uint32_t MASK = 0x3ff;
     
     // Loop three times to unpack from the index_data.
     for( int i = 0; i < 3; i++ ) {
         // First extract the index from the net resource.
-        indexes[ 2 - i ] = (MASK & (index_data >> (10 * i)));
+        index_canadate = (MASK & (index_data >> (10 * i)));
         
         // If the index index is less than the mask then it is another path.
-        if( indexes[ 2 - i ] < MASK )
+        if( index_canadate < MASK ) {
+            indexes[filled_indices] = index_canadate;
             filled_indices++;
+        }
+    }
+
+    index_canadate = ((bitfield_1 & 0xffc0) >> 6);
+
+    if(index_canadate < MASK) {
+        indexes[filled_indices] = index_canadate;
+        filled_indices++;
     }
     
-    // These two bits are always zero.
-    //assert( (this->data & 0x3) == 0 );
-    
-    // This has a range of 0 to 3. I do not know if there is a zero though.
     return filled_indices;
+}
+
+Data::Mission::NetResource::Node::State Data::Mission::NetResource::Node::getState() const {
+    uint32_t state = this->bitfield_0 & 0x3;
+
+    switch(state) {
+        case 0: return State::ENABLED;
+    default:
+        case 1: return State::UNKNOWN;
+        case 2: return State::DISABLED;
+    }
+}
+
+void Data::Mission::NetResource::Node::setYAxis( float value ) {
+    this->calculated_y_axis = value;
+}
+
+float Data::Mission::NetResource::Node::getYAxis() const {
+    return this->calculated_y_axis;
 }
 
 const std::filesystem::path Data::Mission::NetResource::FILE_EXTENSION = "net";
@@ -115,6 +168,50 @@ bool Data::Mission::NetResource::parse( const ParseSettings &settings ) {
         return false;
 }
 
+
+void Data::Mission::NetResource::calculateNodeHeight( const PTCResource& world ) {
+    glm::vec3 position;
+    ACTResource::GroundCast ground_cast;
+    bool read_offset;
+
+    for(auto i = this->nodes.begin(); i != this->nodes.end(); i++) {
+        position = (*i).getPosition();
+        position.y = 0.f;
+
+        read_offset = (*i).hasReadOffset();
+        ground_cast = (*i).getGroundCast();
+
+        if( read_offset && ground_cast == ACTResource::GroundCast::LOW)
+            position.y = (*i).getHeightOffset();
+        else
+        if( ground_cast != ACTResource::GroundCast::NONE )
+            position.y = world.getRayCast2D( position.x, position.z, ACTResource::getGroundCastLevels(ground_cast) );
+
+        (*i).setYAxis( position.y );
+    }
+}
+
+unsigned Data::Mission::NetResource::getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const {
+    glm::i16vec2 node_position;
+
+    node_position.x = raw_actor_position.x >> 8;
+    node_position.y = raw_actor_position.y >> 8;
+
+    for(auto i = this->nodes.cbegin(); i != this->nodes.cend(); i++) {
+        if( (*i).getRawPosition() == node_position )
+            return i - this->nodes.cbegin();
+    }
+
+    return this->nodes.size();
+}
+
+const Data::Mission::NetResource::Node* Data::Mission::NetResource::getNodePointer(unsigned index) const {
+    if( this->nodes.size() <= index )
+        return nullptr;
+
+    return &this->nodes[index];
+}
+
 Data::Mission::Resource * Data::Mission::NetResource::duplicate() const {
     return new Data::Mission::NetResource( *this );
 }
@@ -139,15 +236,15 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
             for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
                 resource << "v "
                     << 0 << " "
-                    << (static_cast<float>((*i).getPosition().x) * INTEGER_FACTOR) << " "
-                    << (static_cast<float>((*i).getPosition().y) * INTEGER_FACTOR) << std::endl;
+                    << (static_cast<float>((*i).getRawPosition().x) * INTEGER_FACTOR) << " "
+                    << (static_cast<float>((*i).getRawPosition().y) * INTEGER_FACTOR) << std::endl;
             }
 
             {
-                unsigned int indexes[3];
+                unsigned int indexes[4];
                 unsigned int amount;
                 for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
-                    amount = (*i).getIndexes( indexes, this->nodes.size() );
+                    amount = (*i).getIndexes( indexes );
 
                     for( unsigned int c = 0; c < amount; c++ ) {
                             resource << "l "
@@ -174,16 +271,18 @@ int Data::Mission::NetResource::write( const std::filesystem::path& file_path, c
         root["FutureCopAsset"]["minor"] = 0;
 
         {
-            unsigned int indexes[3];
+            unsigned int indexes[4];
             unsigned int amount;
             for( auto i = this->nodes.begin(); i != this->nodes.end(); i++ ) {
-                amount = (*i).getIndexes( indexes, this->nodes.size() );
+                amount = (*i).getIndexes( indexes );
 
                 // root["Nodes"][ i - this->nodes.begin() ]["index"] = i - this->nodes.begin(); // This is for hand traversal only!
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["padding?"] = (*i).getPad();
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getPosition().x;
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getPosition().y;
-                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["spawn?"] = (*i).getSpawn();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["ground_cast"] = ACTResource::groundCastToString( (*i).getGroundCast() );
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["read_offseting"] = (*i).hasReadOffset();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["state"] = (*i).getState();
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["x"] = (*i).getRawPosition().x;
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["y"] = (*i).getRawPosition().y;
+                root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["height_offset"] = (*i).getHeightOffset();
 
                 for( unsigned int c = 0; c < amount; c++ ) {
                     root["Nodes"][ static_cast<unsigned int>(i - this->nodes.begin()) ]["path"][c] = indexes[c];

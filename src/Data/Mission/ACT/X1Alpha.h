@@ -1,39 +1,23 @@
 #ifndef DATA_MISSION_ACTOR_ID_1_HEADER
 #define DATA_MISSION_ACTOR_ID_1_HEADER
 
-#include "../ACTResource.h"
-#include <json/json.h>
+#include "BaseEntity.h"
 
-namespace Data {
-
-namespace Mission {
-
-namespace ACT {
+namespace Data::Mission::ACT {
 
 /**
  * This holds an X1A unit.
  *
- * This is the vechilce that you pilot in the game.
+ * This is the vehicle that you pilot in the game.
  */
-class X1Alpha : public ACTResource {
+class X1Alpha : public BaseEntity {
 public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t uint32_0;
-        uint16_t uint16_0;
-        uint16_t uint16_1;
+        int16_t rotation;
         uint8_t uint8_0;
         uint8_t uint8_1;
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t zero_0;
-        uint8_t uint8_6;
-        uint8_t zero_1;
-        uint16_t uint16_2;
-        uint8_t uint8_8;
-        uint8_t uint8_9;
     } internal;
 
 protected:
@@ -43,6 +27,7 @@ protected:
 public:
     X1Alpha();
     X1Alpha( const ACTResource& obj );
+    X1Alpha( const BaseEntity& obj );
     X1Alpha( const X1Alpha& obj );
 
     virtual uint_fast8_t getTypeID() const;
@@ -57,10 +42,28 @@ public:
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
     Internal getInternal() const;
-};
-}
 
-}
+    glm::quat getRotationQuaternion() const;
+
+    bool spawnInHoverMode() const {
+        return internal.rotation < 0;
+    }
+
+    bool getHasLegID() const { return rsl_data[0].type != RSL_NULL_TAG; }
+    uint32_t getLegID() const { return rsl_data[0].resource_id; }
+
+    bool getHasCockpitID() const { return rsl_data[2].type != RSL_NULL_TAG; }
+    uint32_t getCockpitID() const { return rsl_data[2].resource_id; }
+
+    bool getHasWeaponID() const { return rsl_data[3].type != RSL_NULL_TAG; }
+    uint32_t getWeaponID() const { return rsl_data[3].resource_id; }
+
+    bool getHasBeaconLightsID() const { return rsl_data[4].type != RSL_NULL_TAG; }
+    uint32_t getBeaconLightsID() const { return rsl_data[4].resource_id; }
+
+    bool getHasPilotID() const { return rsl_data[5].type != RSL_NULL_TAG; }
+    uint32_t getPilotID() const { return rsl_data[5].resource_id; }
+};
 
 }
 

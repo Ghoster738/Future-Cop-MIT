@@ -472,10 +472,10 @@ int Data::Mission::PYRResource::write( const std::filesystem::path& file_path, c
 
         Json::Value root;
 
-        for(int i = 0; i < atlas_particles.size(); i++) {
+        for(int i = 0; i < (int)atlas_particles.size(); i++) {
             root["particles"][i]["id"] = static_cast<int>(atlas_particles[i].getID());
 
-            for(int t = 0; t < atlas_particles[i].getTextures().size(); t++) {
+            for(int t = 0; t < (int)atlas_particles[i].getTextures().size(); t++) {
                 root["particles"][i]["textures"][t]["x"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.x);
                 root["particles"][i]["textures"][t]["y"] = static_cast<int>(atlas_particles[i].getTextures()[t].location.y);
                 root["particles"][i]["textures"][t]["h"] = static_cast<int>(atlas_particles[i].getTextures()[t].size.x);

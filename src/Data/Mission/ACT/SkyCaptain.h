@@ -1,8 +1,7 @@
 #ifndef DATA_MISSION_ACTOR_ID_37_HEADER
 #define DATA_MISSION_ACTOR_ID_37_HEADER
 
-#include "../ACTResource.h"
-#include <json/json.h>
+#include "Aircraft.h"
 
 namespace Data {
 
@@ -10,66 +9,31 @@ namespace Mission {
 
 namespace ACT {
 
-class SkyCaptain : public ACTResource {
+class SkyCaptain : public Aircraft {
 public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint32_t uint32_0;
-        uint16_t uint16_0;
-        uint16_t zero_0;
-        uint8_t uint8_0;
-        uint8_t zero_1;
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t uint8_5;
-        uint16_t zero_2;
-        uint16_t uint16_3;
-        uint16_t uint16_4;
-        uint8_t uint8_6;
-        uint8_t uint8_7;
-        uint16_t uint16_5;
-        uint32_t uint32_1;
-        uint16_t uint16_6;
-        uint16_t uint16_7;
-        uint8_t uint8_8;
-        uint8_t uint8_9;
-        uint16_t uint16_8;
-        uint8_t uint8_10;
-        uint8_t position_bitfield; // 0b01000 Means that Skycaptain would use an alturnative cordinate system.
-        uint16_t uint16_9;
+        uint8_t    uint8_0;
+        uint16_t    zero_0;
+        uint8_t     zero_1;
+        uint16_t  uint16_1;
+        uint16_t  uint16_2;
+        uint8_t    uint8_1;
+        uint8_t    uint8_2;
+        uint16_t  uint16_3;
+        uint32_t  uint32_0;
+        uint16_t  uint16_4;
+        uint16_t  uint16_5;
+        uint16_t  uint16_6;
+        uint16_t  uint16_7;
+        uint8_t    uint8_3;
+        uint8_t    uint8_4;
+        uint16_t  uint16_8;
+        uint32_t  uint32_1;
+        uint16_t  uint16_9;
         uint16_t uint16_10;
-        uint16_t uint16_11;
-        uint16_t uint16_12;
-        uint16_t uint16_13;
-        uint16_t uint16_14;
-        uint16_t uint16_15;
-        uint32_t uint32_2;
-        uint16_t uint16_16;
-        uint16_t uint16_17;
-        uint16_t alt_position_x;
-        uint16_t alt_position_y;
-        uint8_t uint8_12;
-        uint16_t zero_3;
-        uint8_t zero_4;
-        uint16_t uint16_21;
-        uint16_t uint16_22;
-        uint8_t uint8_14;
-        uint8_t uint8_15;
-        uint16_t uint16_23;
-        uint32_t uint32_3;
-        uint16_t uint16_24;
-        uint16_t uint16_25;
-        uint16_t uint16_26;
-        uint16_t uint16_27;
-        uint8_t uint8_16;
-        uint8_t uint8_17;
-        uint16_t uint16_28;
-        uint32_t uint32_4;
-        uint16_t uint16_29;
-        uint16_t uint16_30;
-    } internal;
+    } sky_internal;
 
 protected:
     virtual Json::Value makeJson() const;
@@ -85,18 +49,11 @@ public:
 
     virtual size_t getSize() const;
 
-    virtual bool checkRSL() const;
-
     virtual Resource* duplicate() const;
 
     virtual ACTResource* duplicate( const ACTResource &original ) const;
 
-    Internal getInternal() const;
-
-    glm::vec2 getSpawnPosition() const;
-
-    bool hasModelID() const { return rsl_data[0].type != RSL_NULL_TAG; }
-    uint32_t getModelID() const { return rsl_data[0].resource_id; }
+    Internal getSkyInternal() const;
 };
 }
 

@@ -81,7 +81,7 @@ void Graphics::SDL2::GLES2::Internal::Mesh::setup( Utilities::ModelBuilder &mode
     }
     else
     {
-        frame_amount = morph_frame_amount;
+        frame_amount = morph_frame_amount + 1;
         
         size_t buffer_size = vertex_buffer_size + morph_buffer_size * morph_frame_amount;
         uint8_t *buffer = new uint8_t[ buffer_size ];

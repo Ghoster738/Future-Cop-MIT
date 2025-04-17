@@ -64,6 +64,11 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
             }
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+
+
+            draw_triangles_r[ i ].vertices[ t ].color.r *= this->color.r;
+            draw_triangles_r[ i ].vertices[ t ].color.g *= this->color.g;
+            draw_triangles_r[ i ].vertices[ t ].color.b *= this->color.b;
         }
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position );
@@ -76,7 +81,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
     glm::vec3 color;
     glm::vec2 texture_uv[4];
-    DynamicTriangleDraw::PolygonType polygon_type;
+    Graphics::RenderMode polygon_type;
 
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
         const auto &facer_polygon = this->facer_polygons_info_r->at(i);
@@ -91,7 +96,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::PrimitiveType::STAR:
-                color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
+                color = glm::mix(facer_polygon.color * this->color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
@@ -101,9 +106,9 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
             case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
-                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                    polygon_type = Graphics::RenderMode::ADDITION;
                 else
-                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                    polygon_type = Graphics::RenderMode::MIX;
 
                 if(facer_polygon.time_index == 0) {
                     for(int x = 0; x < 4; x++) {
@@ -121,7 +126,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
                 index += DynamicTriangleDraw::Triangle::addBillboard(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    glm::vec3(position.x, position.y, position.z), facer_polygon.color, facer_polygon.width,
+                    glm::vec3(position.x, position.y, position.z), facer_polygon.color * this->color, facer_polygon.width,
                     polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
                 );
                 break;
@@ -139,6 +144,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
+    "uniform vec3 ModelColor;\n"
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for the bones of the animation.
     "uniform mat4 Bone[12];\n" // 12 bones seems to be the limit of Future Cop.
@@ -160,7 +166,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "   texture_coord_1 = TEXCOORD_0 * float( _METADATA[1] == 0. );\n"
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
-    "   in_color = COLOR_0;\n"
+    "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
     "   MAKE_FULL_POSITION(current_position);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
@@ -332,15 +338,19 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
             // Go through every instance that refers to this mesh.
             for( auto instance = ( *d ).second->instances_r.begin(); instance != ( *d ).second->instances_r.end(); instance++ )
             {
-                if( camera.isVisible( *(*instance) ) ) {
+                if( camera.isVisible( *(*instance) ) && (*instance)->getVisable() ) {
                     const auto texture_offset = (*instance)->getTextureOffset();
                     glUniform2f( this->texture_offset_uniform_id, texture_offset.x, texture_offset.y );
 
                     (*d).second->bindUVAnimation(animated_uv_frames_id, (*instance)->getTextureTransformTimeline(), this->uv_frame_buffer);
 
+                    auto color = (*instance)->getColor();
+
+                    glUniform3fv( this->model_color_uniform_id, 1, reinterpret_cast<const GLfloat*>( &color ));
+
                     // Get the position and rotation of the model.
                     // Multiply them into one matrix which will hold the entire model transformation.
-                    camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() );
+                    camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
                     
                     // Then multiply it to the projection, and view to get projection, view, and model matrix.
                     camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
@@ -367,6 +377,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     dynamic.current_frame = current_frame;
                     dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                     dynamic.texture_offset = texture_offset;
+                    dynamic.color = color;
                     dynamic.star_timings_r = &(*instance)->star_timings;
                     dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;
                     dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
@@ -380,23 +391,10 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
 
 void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::advanceTime( float seconds_passed )
 {
-    const float FRAME_SPEED = 10.0;
-
     // Go through every model array.
     for( auto model_type = models_p.begin(); model_type != models_p.end(); model_type++ ) {
-        // Get the mesh.
-        Graphics::SDL2::GLES2::Internal::Mesh *mesh_r = &(*model_type).second->mesh;
-        
-        if( mesh_r->getFrameAmount() > 0 ) {
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->setPositionTransformTimeline( fmod( (*instance)->getPositionTransformTimeline() + seconds_passed * FRAME_SPEED, mesh_r->getFrameAmount() ) );
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
-        }
-        else {
-            for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
-                (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
-            }
+        for( auto instance = (*model_type).second->instances_r.begin(); instance != (*model_type).second->instances_r.end(); instance++ ) {
+            (*instance)->addTextureTransformTimelineSeconds( seconds_passed );
         }
     }
 }

@@ -53,6 +53,10 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
             }
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
+
+            draw_triangles_r[ i ].vertices[ t ].color.r *= this->color.r;
+            draw_triangles_r[ i ].vertices[ t ].color.g *= this->color.g;
+            draw_triangles_r[ i ].vertices[ t ].color.b *= this->color.b;
         }
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
@@ -64,14 +68,14 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
     glm::vec3 color;
     glm::vec2 texture_uv[4];
-    DynamicTriangleDraw::PolygonType polygon_type;
+    Graphics::RenderMode polygon_type;
 
     for( size_t i = 0; i < this->facer_polygons_stride; i++) {
         const auto &facer_polygon = this->facer_polygons_info_r->at(i);
 
         switch( facer_polygon.type ) {
             case Data::Mission::ObjResource::PrimitiveType::STAR:
-                color = glm::mix(facer_polygon.color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
+                color = glm::mix(facer_polygon.color * this->color, facer_polygon.graphics.star.other_color, std::abs(this->star_timings_r->at(facer_polygon.time_index)));
 
                 index += DynamicTriangleDraw::Triangle::addStar(
                     &draw_triangles_r[index], number_of_triangles - index,
@@ -82,9 +86,9 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
             case Data::Mission::ObjResource::PrimitiveType::BILLBOARD:
                 if(facer_polygon.visability_mode == Data::Mission::ObjResource::ADDITION)
-                    polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                    polygon_type = Graphics::RenderMode::ADDITION;
                 else
-                    polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                    polygon_type = Graphics::RenderMode::MIX;
 
                 if(facer_polygon.time_index == 0) {
                     for(int x = 0; x < 4; x++) {
@@ -102,7 +106,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
                 index += DynamicTriangleDraw::Triangle::addBillboard(
                     &draw_triangles_r[index], number_of_triangles - index,
                     this->camera_position, this->transform, this->camera_right, this->camera_up,
-                    facer_polygon.point.position, facer_polygon.color, facer_polygon.width,
+                    facer_polygon.point.position, facer_polygon.color * this->color, facer_polygon.width,
                     polygon_type, facer_polygon.graphics.texture.bmp_id, texture_uv
                 );
                 break;
@@ -122,6 +126,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "uniform mat4 ModelViewInv;\n"
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
+    "uniform vec3 ModelColor;\n"
     "uniform vec2 TextureTranslation;\n"
     "uniform vec2 AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
@@ -139,7 +144,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   texture_coord_1 = TEXCOORD_0 * float( _METADATA[1] == 0. );\n"
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
-    "   in_color = COLOR_0;\n"
+    "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
     "   MAKE_FULL_POSITION(POSITION);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
@@ -232,6 +237,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
             // Setup the uniforms for the map.
             diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
             specular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
+            model_color_uniform_id = program.getUniform( "ModelColor", &std::cout, &uniform_failed );
             texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
             view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
@@ -386,7 +392,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
         unsigned mix_index = std::min( material.count, material.mix_index );
         unsigned transparent_index = std::min( mix_index, addition_index );
 
-        DynamicTriangleDraw::PolygonType polygon_type;
+        Graphics::RenderMode polygon_type;
 
         glm::vec4   position = glm::vec4(0, 0, 0, 1);
         glm::vec4     normal = glm::vec4(0, 0, 0, 1);
@@ -421,9 +427,9 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::inputModel( Utilities::Mod
             }
 
             if( m < mix_index )
-                polygon_type = DynamicTriangleDraw::PolygonType::ADDITION;
+                polygon_type = Graphics::RenderMode::ADDITION;
             else
-                polygon_type = DynamicTriangleDraw::PolygonType::MIX;
+                polygon_type = Graphics::RenderMode::MIX;
 
             triangle.setup( cbmp_id, glm::vec3(0, 0, 0), polygon_type );
 
@@ -510,7 +516,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
         // Go through every instance that refers to this mesh.
         for( auto instance = (*d).second->instances_r.begin(); instance != (*d).second->instances_r.end(); instance++ )
         {
-            if( camera.isVisible( *(*instance) ) ) {
+            if( camera.isVisible( *(*instance) ) && (*instance)->getVisable() ) {
                 const auto texture_offset = (*instance)->getTextureOffset();
                 
                 if(&models_p == &model_array_p) {
@@ -522,12 +528,16 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                     glUniform2f( this->animated_uv_frames_id, 0, 0 );
                 }
 
+                auto color = (*instance)->getColor();
+
+                glUniform3fv( this->model_color_uniform_id, 1, reinterpret_cast<const GLfloat*>( &color ));
+
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
-                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() );
+                camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
                 
                 // Then multiply it to the projection, and view to get projection, view, and model matrix.
-                camera_3D_projection_view_model = camera_3D_projection_view * (glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ));
+                camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
                 
                 // We can now send the matrix to the program.
                 glUniformMatrix4fv( matrix_uniform_id, 1, GL_FALSE, reinterpret_cast<const GLfloat*>( &camera_3D_projection_view_model[0][0] ) );
@@ -541,6 +551,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 mesh_r->drawOpaque( 0, diffusive_texture_uniform_id );
                 
                 dynamic.texture_offset = texture_offset;
+                dynamic.color = color;
                 dynamic.star_timings_r = &(*instance)->star_timings;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                 dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;

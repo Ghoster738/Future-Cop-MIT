@@ -65,7 +65,7 @@ Stream::~Stream() {
         alDeleteBuffers(this->buffers.size(), &this->buffers[0]);
 }
 
-bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channels, unsigned audio_samples_per_channel) {
+bool Stream::appendSamples(float *interleaved_samples_r, unsigned num_of_channels, int audio_samples_per_channel) {
     ALenum error_state;
     ALint buffer_processed_amount;
 

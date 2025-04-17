@@ -2,6 +2,7 @@
 #define MISSION_RESOURCE_NET_HEADER
 
 #include "Resource.h"
+#include "ACTResource.h"
 #include <glm/vec2.hpp>
 
 namespace Data {
@@ -17,27 +18,45 @@ namespace Mission {
  */
 class NetResource : public Resource {
 public:
-	static const std::filesystem::path FILE_EXTENSION;
-	static const uint32_t IDENTIFIER_TAG;
+    static const std::filesystem::path FILE_EXTENSION;
+    static const uint32_t IDENTIFIER_TAG;
 
     class Node {
+    public:
+        enum State {
+            ENABLED  = 0,
+            UNKNOWN  = 1,
+            DISABLED = 2
+        };
+
     private:
-        uint32_t data; // This contains which node it goes to.
-        int16_t pad;
+        uint32_t bitfield_0; // This contains which node it goes to.
+        uint16_t bitfield_1;
         glm::i16vec2 position; // This point has to be multiplied by 256 in order to adjust for the unit for the ACT resource if BahKooJ is correct.
-        int16_t spawn; // Could be a special node sepecifier.
+        uint16_t height_offset_bitfield;
+
+        float calculated_y_axis;
     public:
         Node( Utilities::Buffer::Reader& reader, Utilities::Buffer::Endian endian );
 
-        uint32_t getData() const;
-        int16_t getPad() const;
-        glm::i16vec2 getPosition() const;
-        int16_t getSpawn() const;
+        uint32_t getPrimaryBitfield() const;
+        uint16_t getSubBitfield() const;
 
-        unsigned int getIndexes( unsigned int indexes[3], unsigned int max_size ) const;
+        glm::vec3 getPosition() const;
+        glm::i16vec2 getRawPosition() const;
+        float getHeightOffset() const;
+        ACTResource::GroundCast getGroundCast() const;
+        bool hasReadOffset() const;
+        unsigned int getIndexes( unsigned int indexes[4] ) const;
+        State getState() const;
+
+        void setYAxis( float value );
+        float getYAxis() const;
     };
+
 private:
     std::vector< Node > nodes;
+
 public:
     NetResource();
     NetResource( const NetResource &obj );
@@ -51,6 +70,12 @@ public:
      * @return If there was an error in the reading it will return false.
      */
     virtual bool parse( const ParseSettings &settings = Data::Mission::Resource::DEFAULT_PARSE_SETTINGS );
+
+    void calculateNodeHeight( const PTCResource& world );
+
+    unsigned getNodeIndexFromPosition(glm::i32vec2 raw_actor_position) const;
+
+    const Node* getNodePointer(unsigned index) const;
 
     virtual Resource * duplicate() const;
 

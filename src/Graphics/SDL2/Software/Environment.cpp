@@ -223,9 +223,10 @@ void Environment::advanceTime( std::chrono::microseconds delta ) {
 
 // Declares
 Graphics::ANMFrame*         Environment::allocateVideoANM(uint32_t track_offset) { return nullptr; }
-Graphics::ModelInstance*    Environment::allocateModel( uint32_t obj_identifier, const glm::vec3 &position, const glm::quat &rotation, const glm::vec2 &texture_offset ) { return nullptr; }
+Graphics::ModelInstance*    Environment::allocateModel( uint32_t obj_identifier ) { return nullptr; }
 Graphics::ParticleInstance* Environment::allocateParticleInstance() { return nullptr; }
+Graphics::QuadInstance*     Environment::allocateQuadInstance() { return nullptr; }
 
-bool Environment::doesModelExist(uint32_t obj_resource_id) const {return false;}
+bool Environment::doesModelExist(uint32_t obj_resource_id) const { return false; }
 
 }

@@ -1,49 +1,39 @@
-#ifndef FC_GAME_ACT_BASE_TURRET_HEADER
-#define FC_GAME_ACT_BASE_TURRET_HEADER
+#ifndef FC_GAME_ACT_BASE_TURRET
+#define FC_GAME_ACT_BASE_TURRET
 
 #include "../../Graphics/ModelInstance.h"
 
 #include "../../Data/Mission/ACT/BaseTurret.h"
 #include "../../Data/Mission/ObjResource.h"
-#include "../../Data/Mission/IFF.h"
 
-#include "Actor.h"
+#include "BaseShooter.h"
 
-namespace Game {
+namespace Game::ACT {
 
-namespace ACT {
+class BaseTurret : public BaseShooter {
+protected:
+    glm::quat gun_rotation;
 
-class BaseTurret : public Actor {
-private:
-    glm::quat rest_gun_rotation, gun_rotation, base_rotation;
-    glm::vec2 texture_offset;
+    uint32_t alive_gun_id; bool alive_gun;
+    uint32_t  dead_gun_id; bool  dead_gun;
 
-    uint32_t alive_gun_id;  bool alive_gun;
-    uint32_t alive_base_id; bool alive_base;
-    uint32_t dead_gun_id;   bool dead_gun;
-    uint32_t dead_base_id;  bool dead_base;
+    const Data::Mission::ObjResource *alive_gun_cobj_r;
+    const Data::Mission::ObjResource  *dead_gun_cobj_r;
 
-    const Data::Mission::ObjResource  *alive_gun_cobj_r;
-    const Data::Mission::ObjResource *alive_base_cobj_r;
-    const Data::Mission::ObjResource   *dead_gun_cobj_r;
-    const Data::Mission::ObjResource  *dead_base_cobj_r;
-
-    Graphics::ModelInstance *base_p, *gun_p;
+    Graphics::ModelInstance *gun_p;
 
 public:
     BaseTurret( const Data::Accessor& accessor, const Data::Mission::ACT::BaseTurret& obj );
-    BaseTurret( const BaseTurret& obj );
+    BaseTurret( const BaseTurret& obj ) :
+        BaseShooter( obj ),
+        gun_rotation( obj.gun_rotation ),
+        alive_gun_id( obj.alive_gun_id ), alive_gun( obj.alive_gun ),
+        dead_gun_id( obj.dead_gun_id ), dead_gun( obj.dead_gun ),
+        alive_gun_cobj_r( obj.alive_gun_cobj_r ), dead_gun_cobj_r( obj.dead_gun_cobj_r ),
+        gun_p( nullptr )  {}
     virtual ~BaseTurret();
-
-    virtual Actor* duplicate( const Actor &original ) const;
-
-    virtual void resetGraphics( MainProgram &main_program );
-
-    virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
 
 }
 
-}
-
-#endif // FC_GAME_ACT_BASE_TURRET_HEADER
+#endif // FC_GAME_ACT_BASE_TURRET

@@ -11,22 +11,27 @@ class ModelInstance {
 protected:
     // These units are for the 3D environment.
     glm::vec3 position;
-    glm::quat rotation; // This value is a quaterion.
+    glm::vec3 scale;
+    glm::quat rotation; // This value is a quaternion.
     glm::vec2 texture_offset;
+    glm::vec3 color;
     
     float position_transform_timeline;
     unsigned int texture_transform_timeline;
     float texture_transform_remainder;
+
+    bool visable;
     
-    ModelInstance(
-        const glm::vec3 &pos,
-        const glm::quat &rot,
-        const glm::vec2 &offset) :
-            position( pos ),
-            rotation( rot ),
-            texture_offset( offset ),
+    ModelInstance() :
+            position( glm::vec3(0, 0, 0) ),
+            scale( glm::vec3(1, 1, 1) ),
+            rotation( glm::quat( glm::vec3(0, 0, 0) ) ),
+            texture_offset( glm::vec2(0 ,0 ) ),
+            color( glm::vec3(1, 1, 1) ),
             position_transform_timeline( 0.0f ),
-            texture_transform_timeline( 0 ) {}
+            texture_transform_timeline( 0 ),
+            texture_transform_remainder( 0 ),
+            visable( false ) {}
 
 public:
     /**
@@ -47,16 +52,25 @@ public:
     virtual void setRotation( const glm::quat &rotation );
 
     /**
+     * This sets the scale of the model.
+     * @param scale the scale of the model.
+     */
+    virtual void setScale( const glm::vec3 &scale );
+
+    /**
      * This sets the offset of the texture.
      * @param texture_offset the rotation of the model.
      */
     virtual void setTextureOffset( const glm::vec2 &texture_offset );
 
+    virtual void setColor( const glm::vec3 &color );
+
     /**
      * This sets the time of the instance.
+     * @warning This function sets the parameter position_transform_timeline.
      * @param position_transform_timeline set the timeline of the instance.
      */
-    virtual void setPositionTransformTimeline( float position_transform_timeline ) { this->position_transform_timeline = position_transform_timeline; }
+    virtual void setPositionTransformTimeline( float position_transform_timeline ) = 0;
 
     /**
      * This sets the time of the instance.
@@ -70,11 +84,19 @@ public:
      */
     virtual void addTextureTransformTimelineSeconds( float texture_transform_timeline );
 
+    void setVisable(bool visable) { this->visable = visable; }
+
     /**
      * This gets the position of the model.
      * @return the 3D position of the model to be overwritten.
      */
     glm::vec3 getPosition() const;
+
+    /**
+     * This gets the scale of the model.
+     * @return scale the scale of the model.
+     */
+    glm::vec3 getScale() const;
 
     /**
      * This gets the the rotation of the model.
@@ -87,6 +109,10 @@ public:
      * @return texture_offset the offset to the texture.
      */
     glm::vec2 getTextureOffset() const;
+
+    glm::vec3 getColor() const;
+
+    bool getVisable() const { return this->visable; }
 
     float getPositionTransformTimeline() const { return position_transform_timeline; }
     unsigned int getTextureTransformTimeline() const { return texture_transform_timeline; }

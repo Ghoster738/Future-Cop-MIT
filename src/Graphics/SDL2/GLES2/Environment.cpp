@@ -319,10 +319,7 @@ int Environment::loadResources( const Data::Accessor &accessor ) {
     if( err != GL_NO_ERROR )
         error_log.output << "Graphics::Environment::setModelTypes has an OpenGL Error: " << err << "\n";
 
-    std::vector<const Data::Mission::PYRResource*> particle_types = accessor.getAllConstPYR();
-
-    if(!particle_types.empty())
-        this->particle_draw_routine.inputParticles(*particle_types[0], this->textures);
+    this->particle_draw_routine.load(accessor, this->textures);
 
     return problem_level;
 }

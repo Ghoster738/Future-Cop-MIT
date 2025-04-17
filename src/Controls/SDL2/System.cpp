@@ -318,8 +318,6 @@ int Controls::System::write( const std::filesystem::path& filepath ) const {
 
     mINI::INIStructure ini_data;
 
-    bool changed_data = false;
-
     ini_data["general"];
 
     ini_data["general"]["control_library"] = "SDL2";

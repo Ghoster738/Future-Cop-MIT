@@ -42,6 +42,28 @@ public:
         std::string getString() const;
     };
 
+    enum GroundCast {
+        HIGH    = 0x00,
+        LOW     = 0x01,
+        MIDDLE  = 0x03,
+        NONE    = 0xff
+    };
+
+    static unsigned getGroundCastLevels(GroundCast ground_cast) {
+        switch(ground_cast) {
+            case HIGH:
+            case NONE:
+            default:
+                return 0;
+            case MIDDLE:
+                return 1;
+            case LOW:
+                return 2;
+        }
+    }
+
+    static std::string groundCastToString(GroundCast ground_cast);
+
 protected:
     static const uint32_t ACT_CHUNK_ID;
     static const uint32_t RSL_CHUNK_ID;
@@ -71,7 +93,7 @@ protected:
     uint32_t readRSLChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
     uint32_t readSACChunk( Utilities::Buffer::Reader &data_reader, Utilities::Buffer::Endian endian, const ParseSettings &settings );
 
-    static float getRotation( uint16_t rotation_value );
+    static float getRotation( int16_t rotation_value );
     static glm::quat getRotationQuaternion( float rotation );
 
 public:
@@ -121,8 +143,9 @@ public:
 
     virtual Json::Value makeJson() const;
 
+    glm::i32vec2 getRawPosition() const { return {this->position_x, this->position_y}; }
     glm::vec2 getPosition() const;
-    glm::vec3 getPosition( const PTCResource &ptc ) const;
+    glm::vec3 getPosition( const PTCResource &ptc, float offset, GroundCast ground_cast) const;
 };
 
 }

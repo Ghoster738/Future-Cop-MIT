@@ -10,18 +10,18 @@ Json::Value Data::Mission::ACT::Prop::makeJson() const {
     Json::Value root = Data::Mission::ACTResource::makeJson();
     const std::string NAME = getTypeIDName();
 
-    root["ACT"][NAME]["rotation"] = internal.rotation;
-    root["ACT"][NAME]["uint16_1"] = internal.uint16_1;
-    root["ACT"][NAME]["uint16_2"] = internal.uint16_2;
-    root["ACT"][NAME]["uint16_3"] = internal.uint16_3;
-    root["ACT"][NAME]["uint8_0"] = internal.uint8_0;
-    root["ACT"][NAME]["uint8_1"] = internal.uint8_1;
-    root["ACT"][NAME]["uint8_2"] = internal.uint8_2;
-    root["ACT"][NAME]["uint8_3"] = internal.uint8_3;
-    root["ACT"][NAME]["uint8_4"] = internal.uint8_4;
-    root["ACT"][NAME]["uint8_5"] = internal.uint8_5;
-    root["ACT"][NAME]["uint8_6"] = internal.uint8_6;
-    root["ACT"][NAME]["uint8_7"] = internal.uint8_7;
+    root["ACT"][NAME]["rotation_y"]       = internal.rotation_y;
+    root["ACT"][NAME]["rotation_z"]       = internal.rotation_z;
+    root["ACT"][NAME]["rotation_x"]       = internal.rotation_x;
+    root["ACT"][NAME]["height_offset"]    = internal.height_offset;
+    root["ACT"][NAME]["ground_cast_type"] = internal.ground_cast_type;
+    root["ACT"][NAME]["uint8_1"]          = internal.uint8_1;
+    root["ACT"][NAME]["animation_speed"]  = internal.animation_speed;
+    root["ACT"][NAME]["scale_y"]          = internal.scale_y;
+    root["ACT"][NAME]["scale_z"]          = internal.scale_z;
+    root["ACT"][NAME]["scale_x"]          = internal.scale_x;
+    root["ACT"][NAME]["spin_speed"]       = internal.spin_speed;
+    root["ACT"][NAME]["spin_angle"]       = internal.spin_angle;
 
     return root;
 }
@@ -32,18 +32,18 @@ bool Data::Mission::ACT::Prop::readACTType( uint_fast8_t act_type, Utilities::Bu
     if( data_reader.totalSize() != this->getSize() )
         return false;
 
-    internal.rotation = data_reader.readU16( endian ); // Values: 0, 512, 800, 900, 1000, 1024, 1111, 1200, 1256, 1536, 1650, 2000, 2048, 2100, 2222, 2300, 3000, 3072, 3076, 3333, 3584, 3600, 3700, 3900, 65535,
-    internal.uint16_1 = data_reader.readU16( endian ); // Values: 0, 84, 85, 86, 87, 88, 89, 90, 100, 3072, 3700, 
-    internal.uint16_2 = data_reader.readU16( endian ); // Values: 0, 13, 15, 17, 18, 19, 23, 24, 27, 200, 300, 340, 700, 3396, 
-    internal.uint16_3 = data_reader.readU16( endian ); // Values: 0, 40, 81, 122, 163, 204, 245, 250, 276, 286, 327, 450, 491, 512, 532, 573, 614, 696, 737, 819, 901, 983, 1024, 1044, 1126, 1187, 1228, 1310, 1351, 1433, 1536, 1638, 3276, 63692, 64512, 65208, 65249, 65290, 65331, 65372, 65413, 65433, 65454, 
-    internal.uint8_0 = data_reader.readU8(); // Values: 0, 1, 255, 
+    internal.rotation_y = data_reader.readI16( endian ); // Values: 0, 512, 800, 900, 1000, 1024, 1111, 1200, 1256, 1536, 1650, 2000, 2048, 2100, 2222, 2300, 3000, 3072, 3076, 3333, 3584, 3600, 3700, 3900, 65535,
+    internal.rotation_z = data_reader.readI16( endian ); // Values: 0, 84, 85, 86, 87, 88, 89, 90, 100, 3072, 3700,
+    internal.rotation_x = data_reader.readI16( endian ); // Values: 0, 13, 15, 17, 18, 19, 23, 24, 27, 200, 300, 340, 700, 3396,
+    internal.height_offset = data_reader.readI16( endian ); // Values: 0, 40, 81, 122, 163, 204, 245, 250, 276, 286, 327, 450, 491, 512, 532, 573, 614, 696, 737, 819, 901, 983, 1024, 1044, 1126, 1187, 1228, 1310, 1351, 1433, 1536, 1638, 3276, 63692, 64512, 65208, 65249, 65290, 65331, 65372, 65413, 65433, 65454,
+    internal.ground_cast_type = data_reader.readU8(); // Values: 0, 1, 255,
     internal.uint8_1 = data_reader.readU8(); // Values: 0, 1, 2, 4, 16, 48, 64, 66, 68, 
-    internal.uint8_2 = data_reader.readU8(); // Values: 0, 8, 10, 13, 14, 15, 16, 
-    internal.uint8_3 = data_reader.readU8(); // Values: 19, 20, 21, 22, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 70, 76, 83, 89, 112, 121, 
-    internal.uint8_4 = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 76, 83, 96, 105, 108, 112, 115, 121, 
-    internal.uint8_5 = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 57, 60, 64, 67, 70, 76, 83, 89, 112, 121, 
-    internal.uint8_6 = data_reader.readU8(); // Values: 0, 1, 3, 4, 5, 7, 8, 16, 254, 
-    internal.uint8_7 = data_reader.readU8(); // Values: 0, 30, 40, 45, 60, 
+    internal.animation_speed = data_reader.readU8(); // Values: 0, 8, 10, 13, 14, 15, 16,
+    internal.scale_y = data_reader.readU8(); // Values: 19, 20, 21, 22, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 70, 76, 83, 89, 112, 121,
+    internal.scale_z = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 60, 64, 67, 76, 83, 96, 105, 108, 112, 115, 121,
+    internal.scale_x = data_reader.readU8(); // Values: 19, 20, 21, 23, 24, 25, 32, 38, 41, 44, 48, 51, 57, 60, 64, 67, 70, 76, 83, 89, 112, 121,
+    internal.spin_speed = data_reader.readI8(); // Values: -2, 0, 1, 3, 4, 5, 7, 8, 16,
+    internal.spin_angle = data_reader.readU8(); // Values: 0, 30, 40, 45, 60,
 
     return true;
 }
@@ -87,10 +87,36 @@ Data::Mission::ACT::Prop::Internal Data::Mission::ACT::Prop::getInternal() const
     return internal;
 }
 
-float Data::Mission::ACT::Prop::getRotation() const {
-    return ACTResource::getRotation( internal.rotation );
+float Data::Mission::ACT::Prop::getHeightOffset() const {
+    return (1.f / 512.f) * internal.height_offset;
 }
 
-glm::quat Data::Mission::ACT::Prop::getRotationQuaternion() const {
-    return ACTResource::getRotationQuaternion( this->getRotation() );
+glm::quat Data::Mission::ACT::Prop::getRotationQuaternion( unsigned level ) const {
+    glm::quat axis = glm::quat( glm::vec3(0, 0.5 * glm::pi<float>(), 0) );
+
+    if(!this->hasSpin()) {
+        axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+        axis = glm::rotate(axis, getRotation(internal.rotation_z), glm::vec3( 0, 0, 1));
+        axis = glm::rotate(axis, getRotation(internal.rotation_x), glm::vec3(-1, 0, 0));
+
+        return axis;
+    }
+
+    if(!this->hasFullRotation()) {
+        if(level == 0)
+            axis = glm::rotate(axis, getRotation(internal.rotation_y) + glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
+        else
+            axis = glm::rotate(axis, getRotation(internal.rotation_y) - glm::pi<float>() / 180.f * internal.spin_angle, glm::vec3( 0, 1, 0));
+
+        return axis;
+    }
+
+    if(level == 0)
+        axis = glm::rotate(axis, getRotation(internal.rotation_y) + 2.f * glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
+    else if(level == 1)
+        axis = glm::rotate(axis, getRotation(internal.rotation_y), glm::vec3( 0, 1, 0));
+    else
+        axis = glm::rotate(axis, getRotation(internal.rotation_y) - 2.f * glm::pi<float>() / 3.f, glm::vec3( 0, 1, 0));
+
+    return axis;
 }

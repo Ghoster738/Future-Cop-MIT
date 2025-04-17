@@ -15,18 +15,18 @@ public:
     static uint_fast8_t TYPE_ID;
 
     struct Internal {
-        uint16_t rotation;
-        uint16_t uint16_1;
-        uint16_t uint16_2;
-        uint16_t uint16_3; // Time or angle until loop back?
-        uint8_t uint8_0;
-        uint8_t uint8_1; // Layer?
-        uint8_t uint8_2;
-        uint8_t uint8_3;
-        uint8_t uint8_4;
-        uint8_t uint8_5;
-        uint8_t uint8_6; // Spin?
-        uint8_t uint8_7;
+        int16_t       rotation_y;
+        int16_t       rotation_z;
+        int16_t       rotation_x;
+        int16_t    height_offset;
+        uint8_t ground_cast_type;
+        uint8_t          uint8_1; // Unknown.
+        uint8_t  animation_speed;
+        uint8_t          scale_y;
+        uint8_t          scale_z;
+        uint8_t          scale_x;
+        int8_t        spin_speed;
+        uint8_t       spin_angle;
     } internal;
 
 protected:
@@ -51,12 +51,31 @@ public:
 
     Internal getInternal() const;
 
+    float getHeightOffset() const;
+
     uint32_t getObjResourceID() const { return rsl_data[0].resource_id; }
 
-    float getRotation() const;
+    bool hasSpin() const {
+        if(internal.spin_speed == 0)
+            return false;
+        return true;
+    }
 
-    glm::quat getRotationQuaternion() const;
+    float getSpeedFactor() const {
+        return 1.f / 13.42f * internal.spin_speed;
+    }
 
+    bool hasFullRotation() const {
+        if(internal.spin_angle != 0)
+            return false;
+        return true;
+    }
+
+    glm::quat getRotationQuaternion( unsigned level ) const;
+
+    glm::vec3 getScale() const {
+        return (1.f / 64.f) * glm::vec3(internal.scale_y, internal.scale_z, internal.scale_x);
+    }
 };
 }
 

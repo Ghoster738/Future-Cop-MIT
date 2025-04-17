@@ -4,8 +4,17 @@
 #include "ACT/Unknown.h"
 
 #include <fstream>
+#include <iostream>
 
 #include <json/json.h>
+
+namespace {
+    const std::string GROUND_CAST_HIGH    = "High";
+    const std::string GROUND_CAST_LOW     = "Low";
+    const std::string GROUND_CAST_MIDDLE  = "Middle";
+    const std::string GROUND_CAST_NONE    = "None";
+    const std::string GROUND_CAST_INVALID = "INVALID";
+}
 
 const std::filesystem::path Data::Mission::ACTResource::FILE_EXTENSION = "act";
 const uint32_t Data::Mission::ACTResource::IDENTIFIER_TAG = 0x43616374; // which is { 0x43, 0x61, 0x63, 0x74 } or { 'C', 'a', 'c', 't' } or "Cact"
@@ -69,6 +78,8 @@ Json::Value Data::Mission::ACTResource::makeJson() const {
     root["FutureCopAsset"]["type"] = "ACT Resource";
     root["FutureCopAsset"]["major"] = 2;
     root["FutureCopAsset"]["minor"] = 0;
+    root["ACT"]["position_x"]  = position_x / 8192.;
+    root["ACT"]["position_y"]  = position_y / 8192.;
 
     for( unsigned i = 0; i < rsl_data.size(); i++ )
     {
@@ -234,10 +245,23 @@ uint32_t Data::Mission::ACTResource::readSACChunk( Utilities::Buffer::Reader &da
         return 0;
 }
 
+std::string Data::Mission::ACTResource::groundCastToString(GroundCast ground_cast) {
+    switch(ground_cast) {
+        case HIGH:
+            return GROUND_CAST_HIGH;
+        case MIDDLE:
+            return GROUND_CAST_MIDDLE;
+        case LOW:
+            return GROUND_CAST_LOW;
+        case NONE:
+            return GROUND_CAST_NONE;
+        default:
+            return GROUND_CAST_INVALID;
+    }
+}
 
-float Data::Mission::ACTResource::getRotation( uint16_t rotation_value ) {
-    int32_t rotation = rotation_value;
-    return -glm::pi<float>() / 2048.0f * (rotation - 1024);
+float Data::Mission::ACTResource::getRotation( int16_t rotation ) {
+    return -glm::pi<float>() / 2048.0f * rotation;
 }
 
 glm::quat Data::Mission::ACTResource::getRotationQuaternion( float rotation ) {
@@ -354,9 +378,15 @@ glm::vec2 Data::Mission::ACTResource::getPosition() const {
     return (1.f / 8192.f) * glm::vec2( position_x, position_y );
 }
 
-glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc ) const {
+glm::vec3 Data::Mission::ACTResource::getPosition( const PTCResource &ptc, float offset, GroundCast ground_cast ) const {
     const auto v = this->getPosition();
-    return glm::vec3( v.x, ptc.getRayCast2D( v.x, v.y ), v.y );
+
+    float height_value = offset;
+
+    if( ground_cast != GroundCast::NONE )
+        height_value += ptc.getRayCast2D( v.x, v.y, getGroundCastLevels(ground_cast) );
+
+    return glm::vec3( v.x, height_value, v.y );
 }
 
 bool Data::Mission::IFFOptions::ACTOption::readParams( std::map<std::string, std::vector<std::string>> &arguments, std::ostream *output_r ) {

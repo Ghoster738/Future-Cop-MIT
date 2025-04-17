@@ -8,6 +8,7 @@
 #include "Text2DBuffer.h"
 #include "ModelInstance.h"
 #include "ParticleInstance.h"
+#include "QuadInstance.h"
 #include "Window.h"
 #include "../Data/Accessor.h"
 
@@ -119,7 +120,7 @@ public:
      * @param texture_offset This is the texture offset. It is used to change the "color" of the models.
      * @return a valid pointer to model instance.
      */
-    virtual ModelInstance* allocateModel(uint32_t obj_resource_id, const glm::vec3 &position_param, const glm::quat &rotation_param = glm::quat(), const glm::vec2 &texture_offset_param = glm::vec2(0, 0)) = 0;
+    virtual ModelInstance* allocateModel( uint32_t obj_resource_id ) = 0;
 
     /**
      * This checks if a model with a obj_resource_id would.
@@ -133,6 +134,8 @@ public:
      * @return nullptr or a valid pointer to the ParticleInstance.
      */
     virtual ParticleInstance* allocateParticleInstance() = 0;
+
+    virtual QuadInstance* allocateQuadInstance() = 0;
 
     virtual Graphics::Text2DBuffer* allocateText2DBuffer() = 0;
 

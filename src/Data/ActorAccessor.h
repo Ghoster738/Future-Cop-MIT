@@ -14,12 +14,20 @@ namespace Mission {
 
 namespace ACT {
     class Aircraft;
-    class BaseTurret;
+    class Elevator;
+    class DCSQuad;
+    class DynamicProp;
     class ItemPickup;
+    class MoveableProp;
     class NeutralTurret;
+    class PathedActor;
+    class PathedTurret;
     class Prop;
+    class StationaryActor;
     class SkyCaptain;
     class Trigger;
+    class Turret;
+    class WalkableProp;
     class X1Alpha; // A.K.A the Player.
 }
 }
@@ -60,25 +68,60 @@ public:
     std::vector<Mission::ACT::Aircraft*> getAllAircraft();
     std::vector<const Mission::ACT::Aircraft*> getAllConstAircraft() const;
 
-    Mission::ACT::BaseTurret* getBaseTurret( uint32_t resource_id );
-    const Mission::ACT::BaseTurret* getConstBaseTurret( uint32_t resource_id ) const;
-    std::vector<Mission::ACT::BaseTurret*> getAllBaseTurret();
-    std::vector<const Mission::ACT::BaseTurret*> getAllConstBaseTurret() const;
+    Mission::ACT::Elevator* getElevator( uint32_t resource_id );
+    const Mission::ACT::Elevator* getConstElevator( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::Elevator*> getAllElevator();
+    std::vector<const Mission::ACT::Elevator*> getAllConstElevator() const;
+
+    Mission::ACT::DCSQuad* getDCSQuad( uint32_t resource_id );
+    const Mission::ACT::DCSQuad* getConstDCSQuad( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::DCSQuad*> getAllDCSQuad();
+    std::vector<const Mission::ACT::DCSQuad*> getAllConstDCSQuad() const;
+
+    Mission::ACT::DynamicProp* getDynamicProp( uint32_t resource_id );
+    const Mission::ACT::DynamicProp* getConstDynamicProp( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::DynamicProp*> getAllDynamicProp();
+    std::vector<const Mission::ACT::DynamicProp*> getAllConstDynamicProp() const;
+
+    Mission::ACT::Turret* getTurret( uint32_t resource_id );
+    const Mission::ACT::Turret* getConstTurret( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::Turret*> getAllTurret();
+    std::vector<const Mission::ACT::Turret*> getAllConstTurret() const;
 
     Mission::ACT::ItemPickup* getItemPickup( uint32_t resource_id );
     const Mission::ACT::ItemPickup* getConstItemPickup( uint32_t resource_id ) const;
     std::vector<Mission::ACT::ItemPickup*> getAllItemPickup();
     std::vector<const Mission::ACT::ItemPickup*> getAllConstItemPickup() const;
 
+    Mission::ACT::MoveableProp* getMoveableProp( uint32_t resource_id );
+    const Mission::ACT::MoveableProp* getConstMoveableProp( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::MoveableProp*> getAllMoveableProp();
+    std::vector<const Mission::ACT::MoveableProp*> getAllConstMoveableProp() const;
+
     Mission::ACT::NeutralTurret* getNeutralTurret( uint32_t resource_id );
     const Mission::ACT::NeutralTurret* getConstNeutralTurret( uint32_t resource_id ) const;
     std::vector<Mission::ACT::NeutralTurret*> getAllNeutralTurret();
     std::vector<const Mission::ACT::NeutralTurret*> getAllConstNeutralTurret() const;
 
+    Mission::ACT::PathedActor* getPathedActor( uint32_t resource_id );
+    const Mission::ACT::PathedActor* getConstPathedActor( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::PathedActor*> getAllPathedActor();
+    std::vector<const Mission::ACT::PathedActor*> getAllConstPathedActor() const;
+
+    Mission::ACT::PathedTurret* getPathedTurret( uint32_t resource_id );
+    const Mission::ACT::PathedTurret* getConstPathedTurret( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::PathedTurret*> getAllPathedTurret();
+    std::vector<const Mission::ACT::PathedTurret*> getAllConstPathedTurret() const;
+
     Mission::ACT::Prop* getProp( uint32_t resource_id );
     const Mission::ACT::Prop* getConstProp( uint32_t resource_id ) const;
     std::vector<Mission::ACT::Prop*> getAllProp();
     std::vector<const Mission::ACT::Prop*> getAllConstProp() const;
+
+    Mission::ACT::StationaryActor* getStationaryActor( uint32_t resource_id );
+    const Mission::ACT::StationaryActor* getConstStationaryActor( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::StationaryActor*> getAllStationaryActor();
+    std::vector<const Mission::ACT::StationaryActor*> getAllConstStationaryActor() const;
 
     Mission::ACT::SkyCaptain* getSkyCaptain( uint32_t resource_id );
     const Mission::ACT::SkyCaptain* getConstSkyCaptain( uint32_t resource_id ) const;
@@ -89,6 +132,11 @@ public:
     const Mission::ACT::Trigger* getConstTrigger( uint32_t resource_id ) const;
     std::vector<Mission::ACT::Trigger*> getAllTrigger();
     std::vector<const Mission::ACT::Trigger*> getAllConstTrigger() const;
+
+    Mission::ACT::WalkableProp* getWalkableProp( uint32_t resource_id );
+    const Mission::ACT::WalkableProp* getConstWalkableProp( uint32_t resource_id ) const;
+    std::vector<Mission::ACT::WalkableProp*> getAllWalkableProp();
+    std::vector<const Mission::ACT::WalkableProp*> getAllConstWalkableProp() const;
 
     Mission::ACT::X1Alpha* getX1Alpha( uint32_t resource_id );
     const Mission::ACT::X1Alpha* getConstX1Alpha( uint32_t resource_id ) const;

@@ -4,24 +4,27 @@
 #include "../../Graphics/ModelInstance.h"
 
 #include "../../Data/Mission/ACT/Prop.h"
-#include "../../Data/Mission/ObjResource.h"
-#include "../../Data/Mission/IFF.h"
 
 #include "Actor.h"
 
-namespace Game {
-
-namespace ACT {
+namespace Game::ACT {
 
 class Prop : public Actor {
 private:
+    glm::vec3 scale;
     glm::quat rotation;
 
     uint32_t model_id;
     Graphics::ModelInstance *model_p;
 
+    glm::quat rotation_points[3];
+    float rotation_speed_factor;
+    float rotation_time_line;
+    unsigned rotation_time_line_length;
+    bool has_animated_rotation;
+
 public:
-    Prop( const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj );
+    Prop( Utilities::Random &random, const Data::Accessor& accessor, const Data::Mission::ACT::Prop& obj );
     Prop( const Prop& obj );
     virtual ~Prop();
 
@@ -31,8 +34,6 @@ public:
 
     virtual void update( MainProgram &main_program, std::chrono::microseconds delta );
 };
-
-}
 
 }
 

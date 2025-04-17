@@ -87,7 +87,12 @@ void PrimaryGame::load( MainProgram &main_program ) {
         if( this->act_manager_p != nullptr )
             delete this->act_manager_p;
 
-        this->act_manager_p = new Game::ActManager( *main_program.resource_r, main_program.accessor );
+        const auto time_point = std::chrono::system_clock::now().time_since_epoch();
+        const auto seed_from_time = std::chrono::duration_cast<std::chrono::duration<uint64_t, std::micro>>(time_point).count();
+
+        Utilities::Random random( seed_from_time );
+
+        this->act_manager_p = new Game::ActManager( main_program.accessor, random );
 
         this->act_manager_p->initialize( main_program );
     }

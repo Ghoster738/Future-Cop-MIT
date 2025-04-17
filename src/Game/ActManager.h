@@ -7,11 +7,21 @@
 #include <chrono>
 #include <vector>
 
-#include "ACT/BaseTurret.h"
+#include "ACT/Aircraft.h"
+#include "ACT/Elevator.h"
+#include "ACT/DCSQuad.h"
+#include "ACT/DynamicProp.h"
 #include "ACT/ItemPickup.h"
+#include "ACT/MoveableProp.h"
 #include "ACT/NeutralTurret.h"
+#include "ACT/PathedActor.h"
+#include "ACT/PathedTurret.h"
 #include "ACT/Prop.h"
+#include "ACT/StationaryActor.h"
 #include "ACT/SkyCaptain.h"
+#include "ACT/Turret.h"
+#include "ACT/WalkableProp.h"
+#include "ACT/X1Alpha.h"
 
 namespace Game {
 
@@ -30,14 +40,26 @@ public:
     };
 
 private:
-    SpawnableActor<ACT::BaseTurret>    base_turrets;
-    SpawnableActor<ACT::ItemPickup>    item_pickups;
-    SpawnableActor<ACT::NeutralTurret> neutral_turrets;
-    SpawnableActor<ACT::Prop>          props;
-    SpawnableActor<ACT::SkyCaptain>    sky_captains;
+    Utilities::Random random;
+
+    SpawnableActor<ACT::Aircraft>        aircraft;
+    SpawnableActor<ACT::Elevator>        elevator;
+    SpawnableActor<ACT::DCSQuad>         dcs_quad;
+    SpawnableActor<ACT::DynamicProp>     dynamic_props;
+    SpawnableActor<ACT::ItemPickup>      item_pickups;
+    SpawnableActor<ACT::MoveableProp>    moveable_props;
+    SpawnableActor<ACT::NeutralTurret>   neutral_turrets;
+    SpawnableActor<ACT::PathedActor>     pathed_actor;
+    SpawnableActor<ACT::PathedTurret>    pathed_turrets;
+    SpawnableActor<ACT::Prop>            props;
+    SpawnableActor<ACT::StationaryActor> stationaries;
+    SpawnableActor<ACT::SkyCaptain>      sky_captains;
+    SpawnableActor<ACT::Turret>          turrets;
+    SpawnableActor<ACT::WalkableProp>    walkable_props;
+    SpawnableActor<ACT::X1Alpha>         x1_alphas;
 
 public:
-    ActManager( const Data::Mission::IFF& resource, const Data::Accessor& accessor );
+    ActManager( const Data::Accessor& accessor, Utilities::Random random );
     virtual ~ActManager();
 
     void initialize( MainProgram &main_program );
