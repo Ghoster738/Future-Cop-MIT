@@ -126,6 +126,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     }
 }
 
+const glm::vec3 Graphics::SDL2::GLES2::Internal::StaticModelDraw::LIGHT_GLOBAL_DIRECTION(-1.0f, 1.0f, -0.675f);
 const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
     "const int ANIMATED_UV_FRAME_AMOUNT = 8;\n"
@@ -550,8 +551,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
 
-                glm::vec3 light_global_direction(-1.0f, 1.0f, -0.675f);
-                glm::vec4 light_direction_unnorm = glm::vec4(light_global_direction, 0.0) * camera_3D_model_transform;
+                glm::vec4 light_direction_unnorm = glm::vec4(LIGHT_GLOBAL_DIRECTION, 0.0) * camera_3D_model_transform;
                 glm::vec3 light_direction = glm::normalize(glm::vec3(light_direction_unnorm.x, light_direction_unnorm.y, light_direction_unnorm.z));
 
                 // Upload normal direction to uniform.

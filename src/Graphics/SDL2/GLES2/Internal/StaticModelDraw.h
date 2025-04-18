@@ -21,6 +21,8 @@ public:
 
     static const size_t UV_FRAME_BUFFER_SIZE_LIMIT;
 
+    static const glm::vec3 LIGHT_GLOBAL_DIRECTION;
+
     struct ModelArray {
         ModelArray( Program *program ) : mesh( program ) {}
         
