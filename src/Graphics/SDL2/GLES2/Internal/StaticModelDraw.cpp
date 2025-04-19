@@ -126,7 +126,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     }
 }
 
-const glm::vec3 Graphics::SDL2::GLES2::Internal::StaticModelDraw::LIGHT_GLOBAL_DIRECTION(-1.0f, 1.0f, -0.675f);
+const glm::vec3 Graphics::SDL2::GLES2::Internal::StaticModelDraw::LIGHT_GLOBAL_DIRECTION(1.0f, -1.0f, 1.0f);
 const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
     "const int ANIMATED_UV_FRAME_AMOUNT = 8;\n"
