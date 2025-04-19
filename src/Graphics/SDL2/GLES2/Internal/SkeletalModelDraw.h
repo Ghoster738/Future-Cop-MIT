@@ -28,6 +28,7 @@ protected:
             std::vector<glm::vec2> *uv_frame_buffer_r;
             glm::vec2 texture_offset;
             glm::vec3 color;
+            glm::vec3 light_direction;
             std::vector<float> *star_timings_r;
             std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
             unsigned facer_triangles_amount;

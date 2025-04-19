@@ -44,6 +44,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
         for( unsigned t = 0; t < 3; t++ ) {
             auto position = matrices_r[ skeletal_info_r->triangle_weights[ i ].vertices[ t ] ] * glm::vec4( draw_triangles_r[ i ].vertices[ t ].position, 1);
+            auto normal   = matrices_r[ skeletal_info_r->triangle_weights[ i ].vertices[ t ] ] * glm::vec4( draw_triangles_r[ i ].vertices[ t ].normal,   0);
 
             position.w = 1;
 
@@ -52,6 +53,8 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
             draw_triangles_r[ i ].vertices[ t ].position.x = position.x * (1. / position.w);
             draw_triangles_r[ i ].vertices[ t ].position.y = position.y * (1. / position.w);
             draw_triangles_r[ i ].vertices[ t ].position.z = position.z * (1. / position.w);
+
+            normal = glm::normalize(transform * normal);
 
             const uint16_t texture_animation_data = static_cast<uint16_t>(draw_triangles_r[ i ].vertices[ t ].vertex_metadata[1]);
 
@@ -65,10 +68,17 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::SkeletalAnimation::Dyna
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
 
-
             draw_triangles_r[ i ].vertices[ t ].color.r *= this->color.r;
             draw_triangles_r[ i ].vertices[ t ].color.g *= this->color.g;
             draw_triangles_r[ i ].vertices[ t ].color.b *= this->color.b;
+
+            if(glm::abs(triangles[ i ].vertices[ t ].vertex_metadata[0]) == 2) {
+                glm::vec3 shade_color = glm::mix( glm::vec3(color.r, color.g, color.b), glm::vec3(0.2f, 0.2f, 0.2f), glm::max(0.f, glm::dot( glm::vec3(normal.x, normal.y, normal.z), this->light_direction ) ));
+
+                draw_triangles_r[ i ].vertices[ t ].color.r *= shade_color.r;
+                draw_triangles_r[ i ].vertices[ t ].color.g *= shade_color.g;
+                draw_triangles_r[ i ].vertices[ t ].color.b *= shade_color.b;
+            }
         }
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position );
@@ -145,6 +155,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
     "uniform vec3 ModelColor;\n"
+    "uniform vec3 LightDirection;\n"
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for the bones of the animation.
     "uniform mat4 Bone[12];\n" // 12 bones seems to be the limit of Future Cop.
@@ -152,8 +163,9 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
 
     "void main()\n"
     "{\n"
-    "   vec4 current_position = Bone[ int( JOINTS_0.x ) ] * vec4(POSITION, 1.0);\n"
-    "   vec3 current_normal   = NORMAL;\n"
+    "   vec4 current_position =  Bone[ int( JOINTS_0.x ) ] * vec4(POSITION, 1.0);\n"
+    "   vec3 current_normal   = (Bone[ int( JOINTS_0.x ) ] * vec4(NORMAL,   0.0)).xyz;\n"
+    "   current_normal        = normalize(current_normal);\n"
     // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
     "   vec3 eye_coord_position = vec3( ModelView * current_position );\n" // Model View multiplied by Model Position.
     "   vec3 eye_coord_normal   = vec3( ModelView * vec4(current_normal, 0.0));\n"
@@ -167,6 +179,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::default_vertex
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
+    "   if( abs(_METADATA[0]) > 1.5 )\n"
+    "       in_color.rgb = mix(in_color.rbg, vec3(0.2, 0.2, 0.2), max(0., dot( current_normal, LightDirection ) ));\n"
     "   MAKE_FULL_POSITION(current_position);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
@@ -351,6 +365,12 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     // Get the position and rotation of the model.
                     // Multiply them into one matrix which will hold the entire model transformation.
                     camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
+
+                    glm::vec4 light_direction_unnorm = glm::vec4(LIGHT_GLOBAL_DIRECTION, 0.0) * camera_3D_model_transform;
+                    glm::vec3 light_direction = glm::normalize(glm::vec3(light_direction_unnorm.x, light_direction_unnorm.y, light_direction_unnorm.z));
+
+                    // Upload normal direction to uniform.
+                    glUniform3f( this->light_direction_uniform_id, light_direction.x, light_direction.y, light_direction.z );
                     
                     // Then multiply it to the projection, and view to get projection, view, and model matrix.
                     camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
@@ -378,6 +398,7 @@ void Graphics::SDL2::GLES2::Internal::SkeletalModelDraw::draw( Graphics::SDL2::G
                     dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                     dynamic.texture_offset = texture_offset;
                     dynamic.color = color;
+                    dynamic.light_direction = light_direction;
                     dynamic.star_timings_r = &(*instance)->star_timings;
                     dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;
                     dynamic.facer_triangles_amount =  (*d).second->facer_triangles_amount;
