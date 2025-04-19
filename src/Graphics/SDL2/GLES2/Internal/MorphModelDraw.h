@@ -17,7 +17,10 @@ public:
     public:
         
         struct DeltaTriangle {
-            glm::vec3 vertices[3];
+            struct {
+                glm::vec3 position;
+                glm::vec3 normal;
+            } vertices[3];
         };
         
         class Dynamic : public Mesh::DynamicNormal {
@@ -27,6 +30,7 @@ public:
             std::vector<glm::vec2> *uv_frame_buffer_r;
             glm::vec2 texture_offset;
             glm::vec3 color;
+            glm::vec3 light_direction;
             std::vector<float> *star_timings_r;
             std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
             unsigned facer_triangles_amount;

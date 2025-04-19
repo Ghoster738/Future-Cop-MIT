@@ -60,7 +60,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
             color.g *= this->color.g;
             color.b *= this->color.b;
 
-            if(glm::abs(draw_triangles_r[ i ].vertices[ t ].vertex_metadata[0]) == 2) {
+            if(glm::abs(triangles[ i ].vertices[ t ].vertex_metadata[0]) == 2) {
                 glm::vec3 shade_color = glm::mix( glm::vec3(color.r, color.g, color.b), glm::vec3(0.2f, 0.2f, 0.2f), glm::max(0.f, glm::dot( triangles[ i ].vertices[ t ].normal, this->light_direction ) ));
 
                 color.r *= shade_color.r;

@@ -25,7 +25,8 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
         
         if( delta_triangle_r != nullptr ) {
             for( unsigned t = 0; t < 3; t++ ) {
-                draw_triangles_r[ i ].vertices[ t ].position += delta_triangle_r[ i ].vertices[ t ];
+                draw_triangles_r[ i ].vertices[ t ].position += delta_triangle_r[ i ].vertices[ t ].position;
+                draw_triangles_r[ i ].vertices[ t ].normal   += delta_triangle_r[ i ].vertices[ t ].normal;
             }
         }
 
@@ -42,9 +43,19 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Dynamic::addTri
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
 
-            draw_triangles_r[ i ].vertices[ t ].color.r *= this->color.r;
-            draw_triangles_r[ i ].vertices[ t ].color.g *= this->color.g;
-            draw_triangles_r[ i ].vertices[ t ].color.b *= this->color.b;
+            auto &color = draw_triangles_r[ i ].vertices[ t ].color;
+
+            color.r *= this->color.r;
+            color.g *= this->color.g;
+            color.b *= this->color.b;
+
+            if(glm::abs(triangles[ i ].vertices[ t ].vertex_metadata[0]) == 2) {
+                glm::vec3 shade_color = glm::mix( glm::vec3(color.r, color.g, color.b), glm::vec3(0.2f, 0.2f, 0.2f), glm::max(0.f, glm::dot( draw_triangles_r[ i ].vertices[ t ].normal, this->light_direction ) ));
+
+                color.r *= shade_color.r;
+                color.g *= shade_color.g;
+                color.b *= shade_color.b;
+            }
         }
         
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
@@ -110,6 +121,7 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities
     this->frame_data.reserve( triangles_per_frame * frame_amount );
 
     unsigned position_compenent_index = model_type_r->getNumVertexComponents();
+    unsigned   normal_compenent_index = model_type_r->getNumVertexComponents();
 
     Utilities::ModelBuilder::VertexComponent element("EMPTY");
     for( unsigned i = 0; model_type_r->getMorphVertexComponent( i, element ); i++ ) {
@@ -117,6 +129,8 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities
 
         if( name == Utilities::ModelBuilder::POSITION_COMPONENT_NAME )
             position_compenent_index = i;
+        if( name == Utilities::ModelBuilder::NORMAL_COMPONENT_NAME )
+            normal_compenent_index = i;
     }
 
     Utilities::ModelBuilder::TextureMaterial material;
@@ -132,7 +146,8 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities
             unsigned mix_index = std::min( material.count, material.mix_index );
             unsigned transparent_index = std::min( mix_index, addition_index );
             
-            glm::vec4 joints = glm::vec4(0, 0, 0, 1);
+            glm::vec4 decoded_position = glm::vec4(0, 0, 0, 1);
+            glm::vec4 decoded_normal   = glm::vec4(0, 1, 0, 0);
             
             const unsigned vertex_per_triangle = 3;
             
@@ -140,11 +155,16 @@ Graphics::SDL2::GLES2::Internal::MorphModelDraw::Animation::Animation( Utilities
                 DeltaTriangle triangle;
                 
                 for( unsigned t = 0; t < vertex_per_triangle; t++ ) {
-                    model_type_r->getTransformation( joints, position_compenent_index, material_count + m + t, f );
+                    model_type_r->getTransformation( decoded_position, position_compenent_index, material_count + m + t, f );
+                    model_type_r->getTransformation( decoded_normal,     normal_compenent_index, material_count + m + t, f );
                     
-                    triangle.vertices[t].x = joints.x;
-                    triangle.vertices[t].y = joints.y;
-                    triangle.vertices[t].z = joints.z;
+                    triangle.vertices[t].position.x = decoded_position.x;
+                    triangle.vertices[t].position.y = decoded_position.y;
+                    triangle.vertices[t].position.z = decoded_position.z;
+
+                    triangle.vertices[t].normal.x = decoded_normal.x;
+                    triangle.vertices[t].normal.y = decoded_normal.y;
+                    triangle.vertices[t].normal.z = decoded_normal.z;
                 }
                 
                 this->frame_data.push_back( triangle );
@@ -171,6 +191,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
     "uniform vec3 ModelColor;\n"
+    "uniform vec3 LightDirection;\n"
     "uniform vec2 TextureTranslation;\n"
     // These uniforms are for modifiying the morph attributes
     "uniform float SampleLast;\n"
@@ -179,7 +200,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "void main()\n"
     "{\n"
     "   vec3 current_position = POSITION + POSITION_Last * vec3( SampleLast );\n"
-    "   vec3 current_normal   = NORMAL   + NORMAL_Last   * vec3( SampleLast );\n"
+    "   vec3 current_normal   = NORMAL   +   NORMAL_Last * vec3( SampleLast );\n"
     // This reflection code is based on https://stackoverflow.com/questions/27619078/reflection-mapping-in-opengl-es
     "   vec3 eye_coord_position = vec3( ModelView * vec4(current_position, 1.0) );\n" // Model View multiplied by Model Position.
     "   vec3 eye_coord_normal   = vec3( ModelView * vec4(current_normal, 0.0));\n"
@@ -193,6 +214,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::MorphModelDraw::default_vertex_sh
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
+    "   if( abs(_METADATA[0]) > 1.5 )\n"
+    "       in_color.rgb = mix(in_color.rbg, vec3(0.2, 0.2, 0.2), max(0., dot( current_normal, LightDirection ) ));\n"
     "   MAKE_FULL_POSITION(current_position);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
@@ -333,6 +356,12 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
 
+                glm::vec4 light_direction_unnorm = glm::vec4(LIGHT_GLOBAL_DIRECTION, 0.0) * camera_3D_model_transform;
+                glm::vec3 light_direction = glm::normalize(glm::vec3(light_direction_unnorm.x, light_direction_unnorm.y, light_direction_unnorm.z));
+
+                // Upload normal direction to uniform.
+                glUniform3f( this->light_direction_uniform_id, light_direction.x, light_direction.y, light_direction.z );
+
                 // Then multiply it to the projection, and view to get projection, view, and model matrix.
                 camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
 
@@ -379,6 +408,7 @@ void Graphics::SDL2::GLES2::Internal::MorphModelDraw::generalDraw( Graphics::SDL
                 dynamic.facer_polygons_stride  =  (*d).second->facer_polygons_stride;
                 dynamic.texture_offset = texture_offset;
                 dynamic.color = color;
+                dynamic.light_direction = light_direction;
                 dynamic.addTriangles( (*d).second->transparent_triangles, camera.transparent_triangles );
             }
         }
