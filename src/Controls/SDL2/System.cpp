@@ -250,7 +250,7 @@ int Controls::System::read( const std::filesystem::path& filepath ) {
     auto control_config_path = filepath;
     control_config_path += ".ini";
 
-    mINI::INIFile ini_file( control_config_path.string() );
+    mINI::INIFile ini_file( control_config_path );
 
     mINI::INIStructure ini_data;
     
@@ -314,7 +314,7 @@ int Controls::System::write( const std::filesystem::path& filepath ) const {
     auto control_config_path = filepath;
     control_config_path += ".ini";
 
-    mINI::INIFile ini_file( control_config_path.string() );
+    mINI::INIFile ini_file( control_config_path );
 
     mINI::INIStructure ini_data;
 
