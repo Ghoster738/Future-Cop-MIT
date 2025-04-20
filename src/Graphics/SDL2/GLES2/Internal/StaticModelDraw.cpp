@@ -54,9 +54,19 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
 
             draw_triangles_r[ i ].vertices[ t ].coordinate += texture_offset;
 
-            draw_triangles_r[ i ].vertices[ t ].color.r *= this->color.r;
-            draw_triangles_r[ i ].vertices[ t ].color.g *= this->color.g;
-            draw_triangles_r[ i ].vertices[ t ].color.b *= this->color.b;
+            auto &color = draw_triangles_r[ i ].vertices[ t ].color;
+
+            color.r *= this->color.r;
+            color.g *= this->color.g;
+            color.b *= this->color.b;
+
+            if(glm::abs(triangles[ i ].vertices[ t ].vertex_metadata[0]) == 2) {
+                glm::vec3 shade_color = glm::mix( glm::vec3(color.r, color.g, color.b), glm::vec3(0.2f, 0.2f, 0.2f), glm::max(0.f, glm::dot( triangles[ i ].vertices[ t ].normal, this->light_direction ) ));
+
+                color.r *= shade_color.r;
+                color.g *= shade_color.g;
+                color.b *= shade_color.b;
+            }
         }
 
         draw_triangles_r[ i ] = draw_triangles_r[ i ].addTriangle( this->camera_position, transform );
@@ -116,6 +126,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::Dynamic::addTriangles(
     }
 }
 
+const glm::vec3 Graphics::SDL2::GLES2::Internal::StaticModelDraw::LIGHT_GLOBAL_DIRECTION(1.0f, -1.0f, 1.0f);
 const size_t Graphics::SDL2::GLES2::Internal::StaticModelDraw::UV_FRAME_BUFFER_SIZE_LIMIT = 8 * 4;
 const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_shader =
     "const int ANIMATED_UV_FRAME_AMOUNT = 8;\n"
@@ -127,6 +138,7 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "uniform mat4 ModelView;\n"
     "uniform mat4 Transform;\n" // projection * view * model.
     "uniform vec3 ModelColor;\n"
+    "uniform vec3 LightDirection;\n"
     "uniform vec2 TextureTranslation;\n"
     "uniform vec2 AnimatedUVFrames[ ANIMATED_UV_FRAME_VEC_AMOUNT ];\n"
 
@@ -145,6 +157,8 @@ const GLchar* Graphics::SDL2::GLES2::Internal::StaticModelDraw::default_vertex_s
     "   texture_coord_1 += AnimatedUVFrames[ int( clamp( _METADATA[1] - 1., 0., float(ANIMATED_UV_FRAME_VEC_AMOUNT) ) ) ] * float( _METADATA[1] != 0. );\n"
     "   texture_coord_1 += TextureTranslation;\n"
     "   in_color = COLOR_0 * vec4(ModelColor, 1.);\n"
+    "   if( abs(_METADATA[0]) > 1.5 )\n"
+    "       in_color.rgb = mix(in_color.rbg, vec3(0.2, 0.2, 0.2), max(0., dot( NORMAL, LightDirection ) ));\n"
     "   MAKE_FULL_POSITION(POSITION);\n"
     "   gl_Position = Transform * full_position;\n"
     "}\n";
@@ -238,6 +252,7 @@ int Graphics::SDL2::GLES2::Internal::StaticModelDraw::compileProgram() {
             diffusive_texture_uniform_id = program.getUniform( "Texture", &std::cout, &uniform_failed );
             specular_texture_uniform_id = program.getUniform( "Shine", &std::cout, &uniform_failed );
             model_color_uniform_id = program.getUniform( "ModelColor", &std::cout, &uniform_failed );
+            light_direction_uniform_id = program.getUniform( "LightDirection", &std::cout, &uniform_failed );
             texture_offset_uniform_id = program.getUniform( "TextureTranslation", &std::cout, &uniform_failed );
             matrix_uniform_id = program.getUniform( "Transform", &std::cout, &uniform_failed );
             view_uniform_id = program.getUniform( "ModelView", &std::cout, &uniform_failed );
@@ -535,6 +550,12 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 // Get the position and rotation of the model.
                 // Multiply them into one matrix which will hold the entire model transformation.
                 camera_3D_model_transform = glm::translate( glm::mat4(1.0f), (*instance)->getPosition() ) * glm::mat4_cast( (*instance)->getRotation() ) * glm::scale(glm::mat4(1.0f), (*instance)->getScale());
+
+                glm::vec4 light_direction_unnorm = glm::vec4(LIGHT_GLOBAL_DIRECTION, 0.0) * camera_3D_model_transform;
+                glm::vec3 light_direction = glm::normalize(glm::vec3(light_direction_unnorm.x, light_direction_unnorm.y, light_direction_unnorm.z));
+
+                // Upload normal direction to uniform.
+                glUniform3f( this->light_direction_uniform_id, light_direction.x, light_direction.y, light_direction.z );
                 
                 // Then multiply it to the projection, and view to get projection, view, and model matrix.
                 camera_3D_projection_view_model = camera_3D_projection_view * camera_3D_model_transform;
@@ -552,6 +573,7 @@ void Graphics::SDL2::GLES2::Internal::StaticModelDraw::draw( Graphics::SDL2::GLE
                 
                 dynamic.texture_offset = texture_offset;
                 dynamic.color = color;
+                dynamic.light_direction = light_direction;
                 dynamic.star_timings_r = &(*instance)->star_timings;
                 dynamic.uv_frame_buffer_r = &this->uv_frame_buffer;
                 dynamic.facer_polygons_info_r  = &(*d).second->facer_polygons_info;

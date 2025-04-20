@@ -21,6 +21,8 @@ public:
 
     static const size_t UV_FRAME_BUFFER_SIZE_LIMIT;
 
+    static const glm::vec3 LIGHT_GLOBAL_DIRECTION;
+
     struct ModelArray {
         ModelArray( Program *program ) : mesh( program ) {}
         
@@ -40,6 +42,7 @@ public:
     public:
         glm::vec2 texture_offset;
         glm::vec3 color;
+        glm::vec3 light_direction;
         std::vector<glm::vec2> *uv_frame_buffer_r;
         std::vector<float> *star_timings_r;
         std::vector<Data::Mission::ObjResource::FacerPolygon> *facer_polygons_info_r;
@@ -60,6 +63,7 @@ protected:
     GLuint specular_texture_uniform_id;
     GLuint matrix_uniform_id; // model * view * projection.
     GLuint model_color_uniform_id;
+    GLuint light_direction_uniform_id;
     GLuint texture_offset_uniform_id;
     GLuint animated_uv_frames_id;
     
