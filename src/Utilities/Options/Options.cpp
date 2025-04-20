@@ -27,7 +27,7 @@ Options::Options (Paths& paths, Parameters& parameters) : paths(paths), paramete
     auto config_path = paths.getConfigDirPath();
     config_path += Paths::CONFIG_FILE_NAME;
 
-    ini_file_p = new mINI::INIFile( config_path.string() );
+    ini_file_p = new mINI::INIFile( config_path );
     ini_file_p->read(ini_data);
 
     bool changed = false;
