@@ -1990,28 +1990,30 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 debug_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
                 
                 for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
-                    auto unk_8_0  = readerAnmD.readU8();
-                    auto un_speed = readerAnmD.readU8(); // The bigger the slower
-                    auto unk_8_1  = readerAnmD.readU8();
-                    auto un_skip_frame = readerAnmD.readU8(); // Wild guess.
-                    auto un_from_frame = readerAnmD.readU16( settings.endian );
-                    auto un_to_frame   = readerAnmD.readU16( settings.endian );
-                    auto unk_8_2 = readerAnmD.readU8();
-                    auto unk_8_3 = readerAnmD.readU8();
-                    auto unk_16  = readerAnmD.readU16( settings.endian );
-                    auto unk_32  = readerAnmD.readU32( settings.endian );
+                    AnimationTrack track;
+
+                    track.uint8_0    = readerAnmD.readU8();
+                    track.speed      = readerAnmD.readU8(); // The bigger the slower
+                    track.uint8_1    = readerAnmD.readU8();
+                    track.skip_frame = readerAnmD.readU8(); // Wild guess.
+                    track.from_index = readerAnmD.readU16( settings.endian );
+                    track.to_index   = readerAnmD.readU16( settings.endian );
+                    track.uint8_2    = readerAnmD.readU8();
+                    track.uint8_3    = readerAnmD.readU8();
+                    track.uint16_0   = readerAnmD.readU16( settings.endian );
+                    track.uint32_0   = readerAnmD.readU32( settings.endian );
 
                     debug_log.output << std::dec << i
-                        << ", unk_8_0 = "    << static_cast<unsigned>(unk_8_0)
-                        << ", speed = "      << static_cast<unsigned>(un_speed)
-                        << ", unk_8_1 = "    << static_cast<unsigned>(unk_8_1)
-                        << ", skip_frame = " << static_cast<unsigned>(un_skip_frame)
-                        << ", from_frame = " << un_from_frame
-                        << ", to_frame = "   << un_to_frame
-                        << ", unk_8_2 = "    << static_cast<unsigned>(unk_8_2)
-                        << ", unk_8_3 = "    << static_cast<unsigned>(unk_8_3)
-                        << ", unk_16 = "     << unk_16
-                        << ", unk_32 = "     << unk_32 << "\n";
+                        << ", uint8_0 = "    << static_cast<unsigned>(track.uint8_0)
+                        << ", speed = "      << static_cast<unsigned>(track.speed)
+                        << ", uint8_1 = "    << static_cast<unsigned>(track.uint8_1)
+                        << ", skip_frame = " << static_cast<unsigned>(track.skip_frame)
+                        << ", from_frame = " << track.from_index
+                        << ", to_frame = "   << track.to_index
+                        << ", uint8_2 = "    << static_cast<unsigned>(track.uint8_2)
+                        << ", uint8_3 = "    << static_cast<unsigned>(track.uint8_3)
+                        << ", uint16_0 = "   << track.uint16_0
+                        << ", uint32_0 = "   << track.uint32_0 << "\n";
 
                     // from_frame and to_frame can be (from_frame == to_frame), (from_frame > to_frame), and (from_frame < to_frame)
                 }
