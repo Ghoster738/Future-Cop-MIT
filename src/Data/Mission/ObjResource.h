@@ -309,6 +309,8 @@ private:
     std::vector<BoundingBox3D> bounding_boxes;
 
     std::vector<TextureReference> texture_references;
+
+    std::vector<AnimationTrack> animation_tracks;
     
     /**
      * This gets the bytes per frame rating for the specific opcode.
@@ -339,6 +341,7 @@ public:
     const std::vector<FaceOverrideType>& getFaceOverrideTypes() const { return face_type_overrides; }
     const std::vector<glm::u8vec2>& getFaceOverrideData() const { return override_uvs; }
     const std::vector<VertexColorOverride>& getVertexColorOverrides() const { return face_color_overrides; }
+    const std::vector<AnimationTrack>& getAnimationTracks() const { return animation_tracks; }
 
     std::vector<FacerPolygon> generateFacingPolygons(unsigned &triangle_amount, unsigned &frame_stride) const;
     bool getBoundingSphereFacingPolygons(const std::vector<FacerPolygon> polygons, glm::vec3 &sphere_position, float &radius) const;

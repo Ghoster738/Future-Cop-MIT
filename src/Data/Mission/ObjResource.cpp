@@ -1988,10 +1988,12 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                 const auto TRACK_AMOUNT = data_size / 0x10;
 
                 debug_log.output << std::dec << "AnmD has " << TRACK_AMOUNT << " tracks\n";
-                
-                for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
-                    AnimationTrack track;
 
+                this->animation_tracks.reserve( TRACK_AMOUNT );
+
+                AnimationTrack track;
+
+                for( unsigned i = 0; i < TRACK_AMOUNT; i++ ) {
                     track.uint8_0    = readerAnmD.readU8();
                     track.speed      = readerAnmD.readU8(); // The bigger the slower
                     track.uint8_1    = readerAnmD.readU8();
@@ -2002,6 +2004,8 @@ bool Data::Mission::ObjResource::parse( const ParseSettings &settings ) {
                     track.uint8_3    = readerAnmD.readU8();
                     track.uint16_0   = readerAnmD.readU16( settings.endian );
                     track.uint32_0   = readerAnmD.readU32( settings.endian );
+
+                    this->animation_tracks.push_back(track);
 
                     debug_log.output << std::dec << i
                         << ", uint8_0 = "    << static_cast<unsigned>(track.uint8_0)
