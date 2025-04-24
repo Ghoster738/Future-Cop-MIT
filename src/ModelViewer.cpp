@@ -174,12 +174,12 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
 
-        if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
+        if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
             next++;
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::LEFT );
 
-        if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f )
+        if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
             next--;
 
         if( next != 0 && !obj_vector.empty() ) {
@@ -217,7 +217,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 main_program.camera_distance = -(this->radius + 4.0f);
             }
 
-            this->count_down = 0.5f;
+            this->count_down = 0.25f;
             this->rotation = 0;
         }
     }
@@ -238,13 +238,9 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     if(this->obj_vector.empty())
         text_2d_buffer_r->print( "No models exist in any resources that are loaded!" );
     else
-        text_2d_buffer_r->print( "Resource ID = " + std::to_string( this->obj_vector.at( this->cobj_index )->getResourceID() ) );
-
-    if( !this->resource_export_path.empty() ) {
-        text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
-        text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
-        text_2d_buffer_r->print( "PRESS the " + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + " button to export model." );
-    }
+        text_2d_buffer_r->print(
+            "Resource ID (" + std::to_string( this->cobj_index ) + ", " + std::to_string( this->obj_vector.size() ) + "): " +
+            std::to_string( this->obj_vector.at( this->cobj_index )->getResourceID() ) );
 
     text_2d_buffer_r->setPosition( glm::vec2( 0, right_text_placement.y ) );
     text_2d_buffer_r->print( LEFT_TEXT[0] );
@@ -256,4 +252,10 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     text_2d_buffer_r->print( RIGHT_TEXT[0] );
     text_2d_buffer_r->setPosition( glm::vec2( right_text_placement + glm::u32vec2(0, this->font_height ) ) );
     text_2d_buffer_r->print( RIGHT_TEXT[1] );
+
+    if( !this->resource_export_path.empty() ) {
+        text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
+        text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
+        text_2d_buffer_r->print( "PRESS the " + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + " button to export model." );
+    }
 }
