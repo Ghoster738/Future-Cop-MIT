@@ -254,6 +254,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
     text_2d_buffer_r->print( RIGHT_TEXT[1] );
 
     if( !this->resource_export_path.empty() ) {
+        text_2d_buffer_r->setCenterMode( Graphics::Text2DBuffer::CenterMode::LEFT );
         text_2d_buffer_r->setColor( glm::vec4( 1, 0, 1, 1 ) );
         text_2d_buffer_r->setPosition( glm::vec2( 0, this->font_height ) );
         text_2d_buffer_r->print( "PRESS the " + main_program.controllers_r.at(0)->getInput( Controls::StandardInputSet::ACTION )->getName() + " button to export model." );
