@@ -276,6 +276,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
             this->count_down = 0.25f;
             this->rotation = 0;
+            this->track_index = 0;
         }
     }
 
