@@ -19,6 +19,7 @@ public:
 
 private:
     unsigned int cobj_index;
+    unsigned int track_index;
     std::vector<const Data::Mission::ObjResource*> obj_vector;
 
     Graphics::ModelInstance*                        displayed_instance_p;

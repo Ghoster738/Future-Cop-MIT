@@ -64,7 +64,8 @@ void ModelViewer::load( MainProgram &main_program ) {
     this->right_text_placement.y -= 2 * this->font_height;
 
     this->obj_vector = main_program.accessor.getAllConstOBJ();
-    this->cobj_index = 0;
+    this->cobj_index  = 0;
+    this->track_index = 0;
 
     // Do not load from resource if it does not exist.
     if( this->obj_vector.empty() )
@@ -73,7 +74,6 @@ void ModelViewer::load( MainProgram &main_program ) {
     // cobj_index needs to be restricted to the obj_vector size
     if( this->obj_vector.size() <= cobj_index )
         cobj_index = this->obj_vector.size() - 1;
-
 
     this->animation_track_state.animation_track.to_index = 0;
     this->animation_track_state.animation_track.from_index = 0;
@@ -178,25 +178,61 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
 
         if( input_r->isChanged() && input_r->getState() < 0.5 && this->count_down < 0.0f ) {
             main_program.environment_p->setBoundingBoxDraw(!main_program.environment_p->getBoundingBoxDraw());
-            this->count_down = 0.5f;
+            this->count_down = 0.25f;
         }
 
-        int next = 0;
+        int next_track = 0;
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::UP );
+
+        if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
+            next_track++;
+
+        input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::DOWN );
+
+        if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
+            next_track--;
+
+        if( next_track != 0 && !this->obj_vector.empty() && !this->obj_vector.at( this->cobj_index )->getAnimationTracks().empty() ) {
+
+            auto obj_r = this->obj_vector.at( cobj_index );
+
+            if( next_track > 0 )
+            {
+                this->track_index += next_track;
+
+                if( this->track_index >= obj_r->getAnimationTracks().size() )
+                    this->track_index = 0;
+            }
+            else
+            {
+                if( this->track_index == 0 )
+                    this->track_index = obj_r->getAnimationTracks().size() - 1;
+                else
+                    this->track_index += next_track;
+            }
+
+            this->animation_track_state.current_time = std::chrono::microseconds(0);
+            if(!obj_r->getAnimationTracks().empty())
+                this->animation_track_state.animation_track = obj_r->getAnimationTracks().at(this->track_index);
+        }
+
+        int next_cobj = 0;
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::RIGHT );
 
         if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
-            next++;
+            next_cobj++;
 
         input_r = main_program.controllers_r[0]->getInput( Controls::StandardInputSet::Buttons::LEFT );
 
         if( input_r->isChanged() && input_r->getState() > 0.5 && this->count_down < 0.0f )
-            next--;
+            next_cobj--;
 
-        if( next != 0 && !this->obj_vector.empty() ) {
-            if( next > 0 )
+        if( next_cobj != 0 && !this->obj_vector.empty() ) {
+            if( next_cobj > 0 )
             {
-                cobj_index += next;
+                cobj_index += next_cobj;
 
                 if( cobj_index >= this->obj_vector.size() )
                     cobj_index = 0;
@@ -206,7 +242,7 @@ void ModelViewer::update( MainProgram &main_program, std::chrono::microseconds d
                 if( cobj_index == 0 )
                     cobj_index = this->obj_vector.size() - 1;
                 else
-                    cobj_index += next;
+                    cobj_index += next_cobj;
             }
 
             if( this->displayed_instance_p != nullptr )
