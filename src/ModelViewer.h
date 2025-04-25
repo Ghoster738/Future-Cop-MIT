@@ -21,9 +21,10 @@ private:
     unsigned int cobj_index;
     std::vector<const Data::Mission::ObjResource*> obj_vector;
 
-    Graphics::ModelInstance* displayed_instance_p;
-    glm::vec3 position;
-    float radius;
+    Graphics::ModelInstance*                        displayed_instance_p;
+    glm::vec3                                       position;
+    float                                           radius;
+    Data::Mission::ObjResource::AnimationTrackState animation_track_state;
 
     float rotation;
     float count_down;
