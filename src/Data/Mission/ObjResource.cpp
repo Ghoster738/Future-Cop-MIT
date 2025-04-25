@@ -1192,7 +1192,7 @@ std::string Data::Mission::ObjResource::AnimationTrack::getString() const {
          << ", to_frame = "   << this->to_index
          << ", uint8_2 = "    << static_cast<unsigned>(this->uint8_2)
          << ", uint8_3 = "    << static_cast<unsigned>(this->uint8_3)
-         << ", uint16_0 = 0x" << this->uint16_0 // This might be a bitfield
+         << ", uint16_0 = "   << this->uint16_0 // This might be a bitfield
          << ", uint32_0 = "   << this->uint32_0; // this might be a duration
 
     return form.str();
